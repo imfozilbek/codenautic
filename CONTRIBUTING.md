@@ -387,6 +387,23 @@ chore(repo): update workspace lint setup to enforce stable commit workflow consi
 - One commit = one logical change (atomic commits)
 - Commit body is required and must contain at least 20 words with clear context
 - Do **NOT** add AI attribution or `Co-Authored-By` lines
+- Enforcement is automatic via `.githooks/commit-msg` and CI `Commit Policy` job
+
+### GitHub Push Blocking
+
+To block non-compliant commits from landing in `main`, enable branch protection / rulesets in GitHub settings:
+
+1. Protect `main` and disable direct pushes
+2. Require pull request before merge
+3. Require status checks to pass:
+   - `Commit Policy`
+   - `Verify Commit Email`
+   - `Lint`
+   - `Type Check`
+   - `Test`
+   - `Format Check`
+4. Enable strict mode for required checks
+5. Disable bypass for administrators (if strict governance is required)
 
 ### TDD Commit Order
 

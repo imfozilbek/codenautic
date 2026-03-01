@@ -11,6 +11,35 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  commit-policy:
+    name: Commit Policy
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Validate commit messages
+        env:
+          PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          PUSH_BASE_SHA: ${{ github.event.before }}
+          PUSH_HEAD_SHA: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+
+          if [ "${GITHUB_EVENT_NAME}" = "pull_request" ]; then
+            RANGE="${PR_BASE_SHA}..${PR_HEAD_SHA}"
+          else
+            if [ "${PUSH_BASE_SHA}" = "0000000000000000000000000000000000000000" ]; then
+              RANGE="${PUSH_HEAD_SHA}"
+            else
+              RANGE="${PUSH_BASE_SHA}..${PUSH_HEAD_SHA}"
+            fi
+          fi
+
+          echo "Validating commit policy in range: ${RANGE}"
+          bash scripts/git/validate-commit-message.sh --range "${RANGE}"
+
   lint:
     name: Lint
     runs-on: ubuntu-latest
@@ -58,7 +87,6 @@ jobs:
   commit-email:
     name: Verify Commit Email
     runs-on: ubuntu-latest
-    if: github.event_name == 'pull_request'
     steps:
       - uses: actions/checkout@v4
         with:
@@ -67,10 +95,24 @@ jobs:
         env:
           PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
           PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          PUSH_BASE_SHA: ${{ github.event.before }}
+          PUSH_HEAD_SHA: ${{ github.sha }}
         run: |
+          set -euo pipefail
+
           ALLOWED="gmail\.com|users\.noreply\.github\.com|yahoo\.com|outlook\.com|hotmail\.com|protonmail\.com|icloud\.com|me\.com|hey\.com"
 
-          BLOCKED=$(git log "$PR_BASE_SHA".."$PR_HEAD_SHA" --format='%ae' | grep -vE "@($ALLOWED)$" || true)
+          if [ "${GITHUB_EVENT_NAME}" = "pull_request" ]; then
+            RANGE="${PR_BASE_SHA}..${PR_HEAD_SHA}"
+          else
+            if [ "${PUSH_BASE_SHA}" = "0000000000000000000000000000000000000000" ]; then
+              RANGE="${PUSH_HEAD_SHA}"
+            else
+              RANGE="${PUSH_BASE_SHA}..${PUSH_HEAD_SHA}"
+            fi
+          fi
+
+          BLOCKED=$(git log "${RANGE}" --format='%ae' | grep -vE "@($ALLOWED)$" || true)
 
           if [ -n "$BLOCKED" ]; then
             echo ""
