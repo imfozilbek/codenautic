@@ -36,6 +36,8 @@ export interface IReviewProps {
 
 /**
  * Aggregate root for review workflow lifecycle.
+ *
+ * NOTE: this class intentionally extends AggregateRoot without Record constraints.
  */
 export class Review extends AggregateRoot<IReviewProps> {
     /**
