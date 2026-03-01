@@ -1,0 +1,114 @@
+{
+  "name": "@codenautic/adapters",
+  "version": "0.1.0",
+  "description": "Adapters layer — Git, LLM, Context, Notification providers, AST, Messaging, Worker infra, Database",
+  "type": "module",
+  "main": "./dist/src/index.js",
+  "types": "./dist/src/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/src/index.js",
+      "types": "./dist/src/index.d.ts"
+    },
+    "./git": {
+      "import": "./dist/src/git/index.js",
+      "types": "./dist/src/git/index.d.ts"
+    },
+    "./llm": {
+      "import": "./dist/src/llm/index.js",
+      "types": "./dist/src/llm/index.d.ts"
+    },
+    "./context": {
+      "import": "./dist/src/context/index.js",
+      "types": "./dist/src/context/index.d.ts"
+    },
+    "./notifications": {
+      "import": "./dist/src/notifications/index.js",
+      "types": "./dist/src/notifications/index.d.ts"
+    },
+    "./ast": {
+      "import": "./dist/src/ast/index.js",
+      "types": "./dist/src/ast/index.d.ts"
+    },
+    "./messaging": {
+      "import": "./dist/src/messaging/index.js",
+      "types": "./dist/src/messaging/index.d.ts"
+    },
+    "./worker": {
+      "import": "./dist/src/worker/index.js",
+      "types": "./dist/src/worker/index.d.ts"
+    },
+    "./database": {
+      "import": "./dist/src/database/index.js",
+      "types": "./dist/src/database/index.d.ts"
+    }
+  },
+  "scripts": {
+    "build": "tsc --project tsconfig.build.json",
+    "clean": "rm -rf dist",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "lint": "eslint .",
+    "test": "bun test",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@codenautic/core": "workspace:*",
+    "@anthropic-ai/sdk": "^0.74.0",
+    "@cerebras/cerebras_cloud_sdk": "^1.64.1",
+    "@discordjs/rest": "^2.6.0",
+    "@gitbeaker/rest": "^43.8.0",
+    "@google/genai": "^1.41.0",
+    "@langchain/core": "^1.1.24",
+    "@linear/sdk": "^75.0.0",
+    "@octokit/rest": "^22.0.1",
+    "@openrouter/sdk": "^0.8.0",
+    "@qdrant/js-client-rest": "^1.16.2",
+    "@slack/web-api": "^7.14.1",
+    "asana": "^3.1.9",
+    "azure-devops-node-api": "^15.1.2",
+    "bitbucket": "^2.12.0",
+    "botframework-connector": "^4.23.3",
+    "bullmq": "^5.69.3",
+    "diff": "^8.0.3",
+    "discord-api-types": "^0.38.39",
+    "graphology": "^0.26.0",
+    "graphology-types": "^0.24.8",
+    "groq-sdk": "^0.37.0",
+    "ioredis": "^5.9.3",
+    "jira.js": "^5.3.0",
+    "langsmith": "^0.5.4",
+    "mongoose": "^9.2.1",
+    "nodemailer": "^8.0.1",
+    "openai": "^6.22.0",
+    "pino": "^10.3.1",
+    "tree-sitter": "^0.22.4",
+    "tree-sitter-php": "0.23.12",
+    "voyageai": "^0.1.0",
+    "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.20.0",
+    "@tree-sitter-grammars/tree-sitter-kotlin": "^1.1.0",
+    "@types/bun": "^1.2.0",
+    "@types/diff": "^8.0.0",
+    "@types/nodemailer": "^7.0.11",
+    "eslint": "^9.20.0",
+    "prettier": "^3.5.0",
+    "tree-sitter-c-sharp": "^0.23.1",
+    "tree-sitter-go": "0.23.4",
+    "tree-sitter-java": "^0.23.4",
+    "tree-sitter-javascript": "^0.23.1",
+    "tree-sitter-python": "0.23.6",
+    "tree-sitter-ruby": "^0.23.1",
+    "tree-sitter-rust": "^0.23.2",
+    "tree-sitter-typescript": "^0.23.2",
+    "typescript": "^5.7.0",
+    "typescript-eslint": "^8.24.0"
+  },
+  "files": [
+    "dist",
+    "src"
+  ],
+  "license": "MIT"
+}
