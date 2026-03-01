@@ -1,0 +1,32 @@
+{
+  "name": "codenautic",
+  "private": true,
+  "license": "MIT",
+  "description": "AI-powered code intelligence platform — automated code review, architecture analysis, codebase visualization, and problem zone prediction",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/samiyev/codenautic.git"
+  },
+  "homepage": "https://github.com/samiyev/codenautic#readme",
+  "bugs": {
+    "url": "https://github.com/samiyev/codenautic/issues"
+  },
+  "keywords": [
+    "code-review",
+    "ai",
+    "llm",
+    "static-analysis",
+    "clean-architecture",
+    "ddd",
+    "merge-request",
+    "pull-request",
+    "github",
+    "gitlab"
+  ],
+  "scripts": {
+    "postinstall": "git config --local core.hooksPath .githooks"
+  },
+  "workspaces": [
+    "packages/*"
+  ]
+}
