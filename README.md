@@ -342,7 +342,7 @@ Commit header policy:
 - Keep header length at least 80 characters
 - Include a commit body with at least 20 words explaining context and intent
 - Keep commits atomic: one logical change per commit
-- Enforcement is automatic via local `commit-msg` hook and CI `Commit Policy`
+- Enforcement is automatic via local `commit-msg` hook, CI `Commit Policy`, and PR `Policy Guard`
 - For hard push blocking in all branches, enable GitHub rulesets with required checks
 
 For detailed rules, see [CONTRIBUTING.md](./CONTRIBUTING.md).

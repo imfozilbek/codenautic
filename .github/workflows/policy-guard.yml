@@ -1,0 +1,78 @@
+name: Policy Guard
+
+on:
+  pull_request_target:
+    types:
+      - opened
+      - synchronize
+      - reopened
+      - ready_for_review
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  policy-guard:
+    name: Policy Guard
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Validate PR commits with base-branch policy
+        env:
+          PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          PR_HEAD_REPO_URL: ${{ github.event.pull_request.head.repo.clone_url }}
+        run: |
+          set -euo pipefail
+
+          git fetch --no-tags --prune "${PR_HEAD_REPO_URL}" "${PR_HEAD_SHA}"
+          bash scripts/git/validate-commit-message.sh --range "${PR_BASE_SHA}..${PR_HEAD_SHA}"
+
+      - name: Protect policy files from non-maintainer edits
+        env:
+          PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          PR_HEAD_REPO_URL: ${{ github.event.pull_request.head.repo.clone_url }}
+          POLICY_MAINTAINERS: ${{ vars.POLICY_MAINTAINERS }}
+        run: |
+          set -euo pipefail
+
+          git fetch --no-tags --prune "${PR_HEAD_REPO_URL}" "${PR_HEAD_SHA}"
+
+          CHANGED_FILES="$(git diff --name-only "${PR_BASE_SHA}" "${PR_HEAD_SHA}" || true)"
+          PROTECTED_FILES="$(printf "%s\n" "${CHANGED_FILES}" | grep -E '^(\.github/workflows/|\.githooks/|scripts/git/)' || true)"
+
+          if [ -z "${PROTECTED_FILES}" ]; then
+            exit 0
+          fi
+
+          MAINTAINERS="${POLICY_MAINTAINERS:-samiyev}"
+          ACTOR="${GITHUB_ACTOR}"
+          IS_ALLOWED=0
+
+          IFS=',' read -ra MAINTAINER_LIST <<< "${MAINTAINERS}"
+          for maintainer in "${MAINTAINER_LIST[@]}"; do
+            maintainer="${maintainer//[[:space:]]/}"
+            if [ -n "${maintainer}" ] && [ "${ACTOR}" = "${maintainer}" ]; then
+              IS_ALLOWED=1
+              break
+            fi
+          done
+
+          if [ "${IS_ALLOWED}" -eq 1 ]; then
+            exit 0
+          fi
+
+          echo ""
+          echo "  BLOCKED: protected policy files were changed by non-maintainer actor '${ACTOR}'."
+          echo ""
+          echo "  Protected paths:"
+          printf "%s\n" "${PROTECTED_FILES}" | sed 's/^/    /'
+          echo ""
+          echo "  Allowed maintainers (POLICY_MAINTAINERS): ${MAINTAINERS}"
+          echo ""
+          exit 1

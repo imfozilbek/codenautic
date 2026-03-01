@@ -396,6 +396,7 @@ To block non-compliant commits in every branch, enable GitHub rulesets for all b
 1. Create a ruleset with target pattern `**` and disable direct pushes
 2. Require pull request before merge
 3. Require status checks to pass:
+   - `Policy Guard`
    - `Commit Policy`
    - `Verify Commit Email`
    - `Lint`
@@ -404,6 +405,13 @@ To block non-compliant commits in every branch, enable GitHub rulesets for all b
    - `Format Check`
 4. Enable strict mode for required checks
 5. Disable bypass for administrators (if strict governance is required)
+6. Set repository variable `POLICY_MAINTAINERS` (comma-separated GitHub usernames) for allowed policy-file maintainers
+
+Protected policy paths:
+
+- `.github/workflows/**`
+- `.githooks/**`
+- `scripts/git/**`
 
 ### TDD Commit Order
 

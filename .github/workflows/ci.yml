@@ -29,16 +29,29 @@ jobs:
 
           if [ "${GITHUB_EVENT_NAME}" = "pull_request" ]; then
             RANGE="${PR_BASE_SHA}..${PR_HEAD_SHA}"
+            echo "Validating commit policy in range: ${RANGE}"
+            bash scripts/git/validate-commit-message.sh --range "${RANGE}"
           else
             if [ "${PUSH_BASE_SHA}" = "0000000000000000000000000000000000000000" ]; then
-              RANGE="${PUSH_HEAD_SHA}"
+              mapfile -t PUSH_COMMITS < <(
+                node -e 'const fs=require("fs"); const data=JSON.parse(fs.readFileSync(process.env.GITHUB_EVENT_PATH, "utf8")); for (const commit of (data.commits ?? [])) { if (commit.id) { console.log(commit.id) } }' \
+                  | awk '!seen[$0]++'
+              )
+
+              if [ "${#PUSH_COMMITS[@]}" -eq 0 ]; then
+                PUSH_COMMITS=("${PUSH_HEAD_SHA}")
+              fi
+
+              echo "Validating commit policy in ${#PUSH_COMMITS[@]} pushed commits"
+              for commit_sha in "${PUSH_COMMITS[@]}"; do
+                bash scripts/git/validate-commit-message.sh --range "${commit_sha}"
+              done
             else
               RANGE="${PUSH_BASE_SHA}..${PUSH_HEAD_SHA}"
+              echo "Validating commit policy in range: ${RANGE}"
+              bash scripts/git/validate-commit-message.sh --range "${RANGE}"
             fi
           fi
-
-          echo "Validating commit policy in range: ${RANGE}"
-          bash scripts/git/validate-commit-message.sh --range "${RANGE}"
 
   lint:
     name: Lint
@@ -104,15 +117,24 @@ jobs:
 
           if [ "${GITHUB_EVENT_NAME}" = "pull_request" ]; then
             RANGE="${PR_BASE_SHA}..${PR_HEAD_SHA}"
+            BLOCKED=$(git log "${RANGE}" --format='%ae' | grep -vE "@($ALLOWED)$" || true)
           else
             if [ "${PUSH_BASE_SHA}" = "0000000000000000000000000000000000000000" ]; then
-              RANGE="${PUSH_HEAD_SHA}"
+              mapfile -t PUSH_COMMITS < <(
+                node -e 'const fs=require("fs"); const data=JSON.parse(fs.readFileSync(process.env.GITHUB_EVENT_PATH, "utf8")); for (const commit of (data.commits ?? [])) { if (commit.id) { console.log(commit.id) } }' \
+                  | awk '!seen[$0]++'
+              )
+
+              if [ "${#PUSH_COMMITS[@]}" -eq 0 ]; then
+                PUSH_COMMITS=("${PUSH_HEAD_SHA}")
+              fi
+
+              BLOCKED=$(git show -s --format='%ae' "${PUSH_COMMITS[@]}" | grep -vE "@($ALLOWED)$" || true)
             else
               RANGE="${PUSH_BASE_SHA}..${PUSH_HEAD_SHA}"
+              BLOCKED=$(git log "${RANGE}" --format='%ae' | grep -vE "@($ALLOWED)$" || true)
             fi
           fi
-
-          BLOCKED=$(git log "${RANGE}" --format='%ae' | grep -vE "@($ALLOWED)$" || true)
 
           if [ -n "$BLOCKED" ]; then
             echo ""
