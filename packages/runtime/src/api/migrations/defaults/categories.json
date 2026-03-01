@@ -1,0 +1,274 @@
+{
+  "items": [
+    {
+      "slug": "style-conventions",
+      "name": "Style & Conventions",
+      "description": "Consistent formatting, naming, imports, and typing across the codebase.",
+      "weight": 3
+    },
+    {
+      "slug": "duplication-complexity",
+      "name": "Duplication & Complexity",
+      "description": "Eliminate duplicate logic/config and reduce unnecessary complexity.",
+      "weight": 8
+    },
+    {
+      "slug": "readability-refactor",
+      "name": "Readability & Refactor",
+      "description": "Refactor for clarity; extract functions; simplify control flow.",
+      "weight": 5
+    },
+    {
+      "slug": "error-handling",
+      "name": "Error Handling",
+      "description": "Handle errors explicitly; avoid silent failures; propagate safely.",
+      "weight": 12
+    },
+    {
+      "slug": "observability-logging",
+      "name": "Observability & Logging",
+      "description": "Use structured logs with context; enable traceability.",
+      "weight": 3
+    },
+    {
+      "slug": "ui-robustness",
+      "name": "UI Robustness",
+      "description": "Prevent leaks and jank; responsive layouts; safe teardown.",
+      "weight": 8
+    },
+    {
+      "slug": "api-conventions",
+      "name": "API Conventions",
+      "description": "Correct status codes, response shapes, and API semantics.",
+      "weight": 5
+    },
+    {
+      "slug": "module-architecture",
+      "name": "Module Boundaries & Architecture",
+      "description": "Clear module boundaries, decoupling, and managed deprecations.",
+      "weight": 12
+    },
+    {
+      "slug": "security-hardening",
+      "name": "Security Hardening",
+      "description": "Sanitize and validate I/O; minimize attack surface.",
+      "weight": 20
+    },
+    {
+      "slug": "performance-efficiency",
+      "name": "Performance & Efficiency",
+      "description": "Optimize hot paths, memory, and I/O for speed and cost.",
+      "weight": 10
+    },
+    {
+      "slug": "maintainability",
+      "name": "Maintainability",
+      "description": "Centralize config, remove dead code, and ease future changes.",
+      "weight": 8
+    },
+    {
+      "slug": "dependency-supply-chain",
+      "name": "Dependency & Supply Chain",
+      "description": "Pin versions, use digests/SBOMs, and enforce license policies.",
+      "weight": 8
+    },
+    {
+      "slug": "secrets-credentials",
+      "name": "Secrets & Credentials",
+      "description": "Block secrets in code and enforce secure secret handling.",
+      "weight": 20
+    },
+    {
+      "slug": "config-environment",
+      "name": "Config & Environment",
+      "description": "Validate required env/config at startup; fail fast on misconfig.",
+      "weight": 3
+    },
+    {
+      "slug": "ci-cd-build-hygiene",
+      "name": "CI/CD & Build Hygiene",
+      "description": "Deterministic pipelines, caches, and reproducible builds.",
+      "weight": 3
+    },
+    {
+      "slug": "container-docker-hygiene",
+      "name": "Container & Docker Hygiene",
+      "description": "Multi-stage builds, minimal bases, .dockerignore, and layer order.",
+      "weight": 3
+    },
+    {
+      "slug": "infra-as-code",
+      "name": "Infrastructure as Code",
+      "description": "Secure, tagged, and consistent Terraform/K8s resources.",
+      "weight": 3
+    },
+    {
+      "slug": "monorepo-hygiene",
+      "name": "Monorepo Hygiene",
+      "description": "Workspace boundaries, dependency rules, and build graph health.",
+      "weight": 5
+    },
+    {
+      "slug": "pr-hygiene",
+      "name": "PR Hygiene",
+      "description": "Right-sized PRs with clear titles, descriptions, and checklists.",
+      "weight": 5
+    },
+    {
+      "slug": "testing-quality",
+      "name": "Testing & Quality",
+      "description": "Meaningful tests, coverage signals, and fewer flakiness patterns.",
+      "weight": 10
+    },
+    {
+      "slug": "migrations-backward-compat",
+      "name": "Migrations & Backward Compatibility",
+      "description": "Safe data/code migrations while preserving compatibility.",
+      "weight": 10
+    },
+    {
+      "slug": "docs-adrs",
+      "name": "Docs & ADRs",
+      "description": "Require docs/ADRs for impactful changes and decisions.",
+      "weight": 2
+    },
+    {
+      "slug": "repo-context-files",
+      "name": "Repository Context (Files)",
+      "description": "Rules that rely on reading specific repository files the user references (e.g., OpenAPI specs, DoD, design system docs).",
+      "weight": 2
+    },
+    {
+      "slug": "external-context-mcps",
+      "name": "External Context (MCPs)",
+      "description": "Rules that validate changes using external systems via installed MCPs (tickets, monitoring, incidents, vulnerabilities).",
+      "weight": 2
+    },
+    {
+      "slug": "privacy-pii",
+      "name": "Privacy & PII",
+      "description": "Minimize, mask, and retain personal data responsibly.",
+      "weight": 18
+    },
+    {
+      "slug": "accessibility-a11y",
+      "name": "Accessibility (A11y)",
+      "description": "Accessible UI: labels, contrast, keyboard navigation.",
+      "weight": 8
+    },
+    {
+      "slug": "internationalization-i18n",
+      "name": "Internationalization (i18n)",
+      "description": "No hardcoded strings; correct pluralization and fallbacks.",
+      "weight": 5
+    },
+    {
+      "slug": "database-query-performance",
+      "name": "Database & Query Performance",
+      "description": "Avoid N+1s; use indexes; deterministic ordering.",
+      "weight": 10
+    },
+    {
+      "slug": "resilience-retries-idempotency",
+      "name": "Resilience (Retries & Idempotency)",
+      "description": "Retries, timeouts, and idempotency for calls and jobs.",
+      "weight": 12
+    },
+    {
+      "slug": "concurrency-safety",
+      "name": "Concurrency Safety",
+      "description": "Guard critical sections and prevent race conditions.",
+      "weight": 12
+    },
+    {
+      "slug": "caching-strategy",
+      "name": "Caching Strategy",
+      "description": "Correct keys, TTLs, and invalidation for effective caches.",
+      "weight": 8
+    },
+    {
+      "slug": "api-contracts-versioning",
+      "name": "API Contracts & Versioning",
+      "description": "Schema diffs and versioning to avoid breaking clients.",
+      "weight": 10
+    },
+    {
+      "slug": "compliance-gdpr",
+      "name": "GDPR Compliance",
+      "description": "Code practices aligned with EU GDPR and privacy by design.",
+      "weight": 15
+    },
+    {
+      "slug": "compliance-soc2-essentials",
+      "name": "SOC 2 Essentials",
+      "description": "Logging, encryption, access, and auditability aligned to SOC 2.",
+      "weight": 15
+    },
+    {
+      "slug": "compliance-pci-dss",
+      "name": "PCI DSS Compliance",
+      "description": "Protect cardholder data with encryption and segregation.",
+      "weight": 18
+    },
+    {
+      "slug": "compliance-hipaa",
+      "name": "HIPAA Compliance",
+      "description": "Protect PHI with controls and auditable access.",
+      "weight": 18
+    },
+    {
+      "slug": "stack-react",
+      "name": "React (Stack)",
+      "description": "React-specific best practices and common pitfalls.",
+      "weight": 0
+    },
+    {
+      "slug": "stack-nextjs",
+      "name": "Next.js (Stack)",
+      "description": "SSR/SSG patterns, routing, and API best practices.",
+      "weight": 0
+    },
+    {
+      "slug": "stack-vue",
+      "name": "Vue (Stack)",
+      "description": "Reactivity, props, and component hygiene in Vue.",
+      "weight": 0
+    },
+    {
+      "slug": "stack-nodejs",
+      "name": "Node.js (Stack)",
+      "description": "Async, streams, and dependency hygiene in Node.",
+      "weight": 0
+    },
+    {
+      "slug": "stack-php",
+      "name": "PHP (Stack)",
+      "description": "PHP/Laravel/Symfony patterns for safety and clarity.",
+      "weight": 0
+    },
+    {
+      "slug": "stack-python",
+      "name": "Python (Stack)",
+      "description": "Typing, async, and env hygiene in Python/Django/FastAPI.",
+      "weight": 0
+    },
+    {
+      "slug": "stack-flutter",
+      "name": "Flutter (Stack)",
+      "description": "Widget lifecycle, dispose, and state management.",
+      "weight": 0
+    },
+    {
+      "slug": "web-static-assets",
+      "name": "Web Assets & Performance",
+      "description": "Optimize images/fonts; caching and delivery for fast apps.",
+      "weight": 2
+    },
+    {
+      "slug": "docstring",
+      "name": "Docstrings & Documentation Comments",
+      "description": "Require structured docstrings or documentation comments for public APIs across supported languages (Python, JS/TS, Java, C#, Go, Rust). Must include purpose, parameters, return values, errors, and examples where applicable.",
+      "weight": 2
+    }
+  ]
+}
