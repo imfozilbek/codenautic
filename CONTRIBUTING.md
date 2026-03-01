@@ -391,9 +391,9 @@ chore(repo): update workspace lint setup to enforce stable commit workflow consi
 
 ### GitHub Push Blocking
 
-To block non-compliant commits from landing in `main`, enable branch protection / rulesets in GitHub settings:
+To block non-compliant commits in every branch, enable GitHub rulesets for all branches:
 
-1. Protect `main` and disable direct pushes
+1. Create a ruleset with target pattern `**` and disable direct pushes
 2. Require pull request before merge
 3. Require status checks to pass:
    - `Commit Policy`
