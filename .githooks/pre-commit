@@ -1,0 +1,39 @@
+#!/usr/bin/env bash
+
+# Whitelist: only personal/public email domains allowed.
+# Corporate/internal emails are blocked to keep commit history clean.
+
+ALLOWED_DOMAINS="gmail.com|users.noreply.github.com|yahoo.com|outlook.com|hotmail.com|protonmail.com|icloud.com|me.com|hey.com"
+
+EMAIL=$(git config user.email)
+
+if [ -z "$EMAIL" ]; then
+    echo ""
+    echo "  ERROR: git user.email is not set."
+    echo ""
+    echo "  Run:"
+    echo "    git config --local user.email \"you@gmail.com\""
+    echo "    git config --local user.name \"your-github-username\""
+    echo ""
+    exit 1
+fi
+
+DOMAIN="${EMAIL##*@}"
+
+if ! echo "$DOMAIN" | grep -qE "^($ALLOWED_DOMAINS)$"; then
+    echo ""
+    echo "  BLOCKED: corporate email detected in git config."
+    echo ""
+    echo "  Current:  $EMAIL"
+    echo "  Domain:   $DOMAIN (not in whitelist)"
+    echo ""
+    echo "  Allowed domains:"
+    echo "    gmail.com, users.noreply.github.com, yahoo.com,"
+    echo "    outlook.com, hotmail.com, protonmail.com, icloud.com"
+    echo ""
+    echo "  Fix:"
+    echo "    git config --local user.email \"you@gmail.com\""
+    echo "    git config --local user.name \"your-github-username\""
+    echo ""
+    exit 1
+fi
