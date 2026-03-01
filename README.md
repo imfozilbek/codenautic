@@ -328,13 +328,20 @@ flowchart TD
 
 ### Commits
 
-Conventional Commits: `<type>(<package>): <subject>`
+Conventional Commits: `<type>(<scope>): <subject>`
 
 ```
-feat(core): add ReviewService with dependency injection
-fix(git-providers): handle API rate limiting
-test(core): add unit tests for Severity
+feat(core): add review service wiring for pipeline orchestration and deterministic result handling across use case boundaries
+fix(git-providers): handle api rate limiting with retry backoff strategy and explicit error mapping for stable adapter behavior
+test(core): add unit tests for severity value object validation and deterministic comparison across edge case inputs
 ```
+
+Commit header policy:
+
+- Use imperative mood and lowercase style
+- Keep header length at least 80 characters
+- Include a commit body with at least 20 words explaining context and intent
+- Keep commits atomic: one logical change per commit
 
 For detailed rules, see [CONTRIBUTING.md](./CONTRIBUTING.md).
 

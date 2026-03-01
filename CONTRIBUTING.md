@@ -372,19 +372,20 @@ adapters/rate-limiting
 [Conventional Commits](https://www.conventionalcommits.org/): `<type>(<scope>): <subject>`
 
 ```
-feat(core): add ReviewService with dependency injection
-fix(git-providers): handle API rate limiting
-test(core): add unit tests for Severity
-refactor(ast): simplify dependency graph traversal
-chore: update eslint config
+feat(core): add review service wiring for pipeline orchestration and deterministic result handling across use case boundaries
+fix(git-providers): handle api rate limiting with retry backoff strategy and explicit error mapping for stable adapter behavior
+test(core): add unit tests for severity value object validation and deterministic comparison across edge case inputs
+refactor(ast): simplify dependency graph traversal while preserving graph construction contracts and improving execution trace clarity
+chore(repo): update workspace lint setup to enforce stable commit workflow consistency across all package boundaries
 ```
 
 **Rules:**
 
-- Imperative mood, lowercase, max 50 characters
+- Imperative mood, lowercase, header length at least 80 characters
 - **Types:** `feat`, `fix`, `docs`, `style`, `refactor`, `perf`, `test`, `chore`
 - **Scope:** package name (omit for root changes)
 - One commit = one logical change (atomic commits)
+- Commit body is required and must contain at least 20 words with clear context
 - Do **NOT** add AI attribution or `Co-Authored-By` lines
 
 ### TDD Commit Order
