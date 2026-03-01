@@ -1,0 +1,22 @@
+# M13 — CodeCity & Review UI
+
+> Источник: `packages/adapters/TODO.md`
+
+> **Задач (adapters):** 4 | **Проверка:** Graph storage & query для CodeCity
+
+> **Результат milestone:** Готов graph storage/query слой для CodeCity и визуальной аналитики.
+
+## AST v0.4.0 — Хранение и запросы
+
+> Graph persistence and querying. ~80K tokens.
+
+> **Результат версии:** Завершена версия «AST v0.4.0 — Storage & Query» в рамках M13; инкремент готовит продукт к стабильному end-to-end сценарию в своем слое.
+
+| ID | Задача | Статус | Результат | Acceptance Criteria |
+|----------|--------------------|--------|-----------|---------------------|
+| AST-STORE-001 | Реализовать graph repository | TODO | Не начато | Реализация: MongoDB storage for code graphs. Готово, если: graph repository обеспечивает идемпотентный upsert nodes/edges и consistency checks ссылочной целостности при batch write; DoD: `cd packages/adapters && bun run lint && bun run typecheck && bun test`. |
+| AST-STORE-002 | Реализовать graph query service | TODO | Не начато | Реализация: Query nodes, edges, paths. Готово, если: graph query service выдаёт корректные paths/queries на больших графах с предсказуемой сложностью и обработкой пустых/частичных результатов; DoD: `cd packages/adapters && bun run lint && bun run typecheck && bun test`. |
+| AST-STORE-003 | Реализовать embedding generation | TODO | Не начато | Реализация: Generate embeddings for code chunks. Готово, если: для AST-STORE-003 adapter сохраняет стабильный external -> domain контракт, корректно обрабатывает retry/backoff/error/idempotency сценарии, а интеграционные контрактные тесты фиксируют поведение на happy/failure-path; DoD: `cd packages/adapters && bun run lint && bun run typecheck && bun test`. |
+| AST-STORE-004 | Реализовать vector storage integration | TODO | Не начато | Реализация: Store and query embeddings in Qdrant. Готово, если: vector storage integration гарантирует sync between metadata и embedding payload, а reindex не создаёт дублирующих векторов; DoD: `cd packages/adapters && bun run lint && bun run typecheck && bun test`. |
+
+---
