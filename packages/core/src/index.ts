@@ -49,4 +49,8 @@ export {
     type ISourceFileSnapshot,
     validateDependencyDirection,
 } from "./shared/dependency-direction-guard"
+export {deduplicate} from "./shared/utils/deduplicate"
+export {hash} from "./shared/utils/hash"
+export {serialize, deserialize} from "./shared/utils/serialize"
+export {similarity} from "./shared/utils/similarity"
 export {Result} from "./shared/result"
