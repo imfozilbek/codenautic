@@ -82,6 +82,25 @@ export {
     type IPipelineRunCommand,
 } from "./application/use-cases/review/pipeline-orchestrator.use-case"
 export {
+    CreateCheckStageUseCase,
+    type ICreateCheckStageDependencies,
+} from "./application/use-cases/review/create-check-stage.use-case"
+export {
+    FetchChangedFilesStageUseCase,
+    type IFetchChangedFilesStageDependencies,
+} from "./application/use-cases/review/fetch-changed-files-stage.use-case"
+export {
+    FileContextGateStageUseCase,
+} from "./application/use-cases/review/file-context-gate-stage.use-case"
+export {
+    InitialCommentStageUseCase,
+    type IInitialCommentStageDependencies,
+} from "./application/use-cases/review/initial-comment-stage.use-case"
+export {
+    LoadExternalContextStageUseCase,
+    type ILoadExternalContextStageDependencies,
+} from "./application/use-cases/review/load-external-context-stage.use-case"
+export {
     ResolveConfigStageUseCase,
 } from "./application/use-cases/review/resolve-config-stage.use-case"
 export {
