@@ -2,9 +2,41 @@
 
 @custom-variant dark (&:where(.dark, .dark *));
 
+@font-face {
+    font-family: "Geist Sans";
+    src:
+        local("Geist"),
+        local("Geist Regular"),
+        url("https://unpkg.com/geist@1.7.0/dist/fonts/geist-sans/Geist-Variable.woff2")
+            format("woff2");
+    font-weight: 100 900;
+    font-style: normal;
+    font-display: swap;
+    ascent-override: 92%;
+    descent-override: 24%;
+    line-gap-override: 0%;
+    size-adjust: 102%;
+}
+
+@font-face {
+    font-family: "Geist Mono";
+    src:
+        local("Geist Mono"),
+        local("GeistMono Regular"),
+        url("https://unpkg.com/geist@1.7.0/dist/fonts/geist-mono/GeistMono-Variable.woff2")
+            format("woff2");
+    font-weight: 100 900;
+    font-style: normal;
+    font-display: swap;
+    ascent-override: 90%;
+    descent-override: 22%;
+    line-gap-override: 0%;
+    size-adjust: 102%;
+}
+
 @theme {
-    --font-sans: "Geist", "IBM Plex Sans", "Segoe UI", sans-serif;
-    --font-mono: "IBM Plex Mono", "SFMono-Regular", "Consolas", monospace;
+    --font-sans: "Geist Sans", "IBM Plex Sans", "Segoe UI", sans-serif;
+    --font-mono: "Geist Mono", "IBM Plex Mono", "SFMono-Regular", "Consolas", monospace;
 
     --radius-sm: 0.375rem;
     --radius-md: 0.625rem;
