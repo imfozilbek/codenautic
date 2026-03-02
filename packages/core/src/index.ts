@@ -37,6 +37,7 @@ export {
 export {type ICreateRuleProps, type IReconstituteRuleProps, RuleFactory} from "./domain/factories/rule.factory"
 export {type IEntityFactory} from "./domain/factories/entity-factory.interface"
 export {RuleStatusPolicyService} from "./domain/services/rule-status-policy.service"
+export {SEVERITY_LEVEL, Severity, type SeverityLevel} from "./domain/value-objects/severity.value-object"
 export {UniqueId} from "./domain/value-objects/unique-id.value-object"
 export {createToken, type InjectionToken} from "./ioc/create-token"
 export {TOKENS} from "./ioc/tokens"
