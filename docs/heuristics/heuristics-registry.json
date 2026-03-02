@@ -1,6 +1,6 @@
 {
   "heuristicsSchemaVersion": 1,
-  "generatedAt": "2026-03-02T10:19:50.477Z",
+  "generatedAt": "2026-03-02T10:43:57.063Z",
   "entries": [
     {
       "id": "H-CODE-0001",
@@ -7241,9 +7241,9 @@
     {
       "id": "H-CODE-0351",
       "source_file": "packages/runtime/src/api/migrations/seed.ts",
-      "source_line": 60,
+      "source_line": 61,
       "heuristic_type": "OTHER",
-      "current_expression": "readonly heuristicsMetadata?: IRuleHeuristicsMetadata",
+      "current_expression": "readonly heuristicsMetadata?: unknown",
       "risk_level": "LOW",
       "resolution_mode": "KEEP_CODE_FIRST",
       "target_change": "Keep in code-first mode and document verification strategy.",
@@ -7261,14 +7261,15 @@
     {
       "id": "H-CODE-0352",
       "source_file": "packages/runtime/src/api/migrations/seed.ts",
-      "source_line": 63,
-      "heuristic_type": "OTHER",
-      "current_expression": "interface IRuleHeuristicsMetadata {",
-      "risk_level": "LOW",
-      "resolution_mode": "KEEP_CODE_FIRST",
-      "target_change": "Keep in code-first mode and document verification strategy.",
+      "source_line": 64,
+      "heuristic_type": "SCORING",
+      "current_expression": "type HeuristicRiskLevel = \"LOW\" | \"MEDIUM\" | \"HIGH\" | \"CRITICAL\"",
+      "risk_level": "CRITICAL",
+      "resolution_mode": "HARDEN",
+      "target_change": "Keep scoring in code and add deterministic unit/integration checks.",
       "tests_required": [
-        "unit-heuristic-coverage"
+        "unit-score-calculation",
+        "integration-score-pipeline"
       ],
       "owner_package": "@codenautic/runtime",
       "status": "TRIAGED",
@@ -7281,9 +7282,9 @@
     {
       "id": "H-CODE-0353",
       "source_file": "packages/runtime/src/api/migrations/seed.ts",
-      "source_line": 64,
+      "source_line": 65,
       "heuristic_type": "OTHER",
-      "current_expression": "readonly heuristicsSchemaVersion: number",
+      "current_expression": "type HeuristicResolutionMode = \"ELIMINATE\" | \"HARDEN\" | \"KEEP_CODE_FIRST\"",
       "risk_level": "LOW",
       "resolution_mode": "KEEP_CODE_FIRST",
       "target_change": "Keep in code-first mode and document verification strategy.",
@@ -7301,15 +7302,14 @@
     {
       "id": "H-CODE-0354",
       "source_file": "packages/runtime/src/api/migrations/seed.ts",
-      "source_line": 68,
-      "heuristic_type": "FALLBACK_DEFAULT",
-      "current_expression": "const DEFAULT_API_URL = \"http://localhost:3000\"",
-      "risk_level": "MEDIUM",
+      "source_line": 67,
+      "heuristic_type": "OTHER",
+      "current_expression": "interface IRuleHeuristicsVerificationRule {",
+      "risk_level": "LOW",
       "resolution_mode": "KEEP_CODE_FIRST",
-      "target_change": "Harden fallback/default policy and validate environment-specific behavior.",
+      "target_change": "Keep in code-first mode and document verification strategy.",
       "tests_required": [
-        "unit-env-matrix",
-        "integration-default-behavior"
+        "unit-heuristic-coverage"
       ],
       "owner_package": "@codenautic/runtime",
       "status": "TRIAGED",
@@ -7322,15 +7322,14 @@
     {
       "id": "H-CODE-0355",
       "source_file": "packages/runtime/src/api/migrations/seed.ts",
-      "source_line": 69,
-      "heuristic_type": "RETRY_BACKOFF",
-      "current_expression": "const DEFAULT_RETRY_ATTEMPTS = 3",
-      "risk_level": "HIGH",
-      "resolution_mode": "HARDEN",
-      "target_change": "Harden retry/backoff policy with retryable classification and bounded jitter.",
+      "source_line": 73,
+      "heuristic_type": "OTHER",
+      "current_expression": "interface IImportedRuleHeuristicsMetadata {",
+      "risk_level": "LOW",
+      "resolution_mode": "KEEP_CODE_FIRST",
+      "target_change": "Keep in code-first mode and document verification strategy.",
       "tests_required": [
-        "unit-retry-policy",
-        "integration-retry-failure-path"
+        "unit-heuristic-coverage"
       ],
       "owner_package": "@codenautic/runtime",
       "status": "TRIAGED",
@@ -7343,15 +7342,14 @@
     {
       "id": "H-CODE-0356",
       "source_file": "packages/runtime/src/api/migrations/seed.ts",
-      "source_line": 70,
-      "heuristic_type": "RETRY_BACKOFF",
-      "current_expression": "const DEFAULT_RETRY_DELAY_MS = 2000",
-      "risk_level": "HIGH",
-      "resolution_mode": "HARDEN",
-      "target_change": "Harden retry/backoff policy with retryable classification and bounded jitter.",
+      "source_line": 74,
+      "heuristic_type": "OTHER",
+      "current_expression": "readonly heuristicsSchemaVersion: number",
+      "risk_level": "LOW",
+      "resolution_mode": "KEEP_CODE_FIRST",
+      "target_change": "Keep in code-first mode and document verification strategy.",
       "tests_required": [
-        "unit-retry-policy",
-        "integration-retry-failure-path"
+        "unit-heuristic-coverage"
       ],
       "owner_package": "@codenautic/runtime",
       "status": "TRIAGED",
@@ -7364,15 +7362,14 @@
     {
       "id": "H-CODE-0357",
       "source_file": "packages/runtime/src/api/migrations/seed.ts",
-      "source_line": 71,
-      "heuristic_type": "RETRY_BACKOFF",
-      "current_expression": "const DEFAULT_BACKOFF_FACTOR = 2",
-      "risk_level": "MEDIUM",
+      "source_line": 76,
+      "heuristic_type": "OTHER",
+      "current_expression": "readonly resolutionMode: HeuristicResolutionMode",
+      "risk_level": "LOW",
       "resolution_mode": "KEEP_CODE_FIRST",
-      "target_change": "Harden retry/backoff policy with retryable classification and bounded jitter.",
+      "target_change": "Keep in code-first mode and document verification strategy.",
       "tests_required": [
-        "unit-retry-policy",
-        "integration-retry-failure-path"
+        "unit-heuristic-coverage"
       ],
       "owner_package": "@codenautic/runtime",
       "status": "TRIAGED",
@@ -7385,15 +7382,14 @@
     {
       "id": "H-CODE-0358",
       "source_file": "packages/runtime/src/api/migrations/seed.ts",
-      "source_line": 72,
-      "heuristic_type": "RETRY_BACKOFF",
-      "current_expression": "const DEFAULT_BACKOFF_JITTER_RATIO = 0.2",
-      "risk_level": "MEDIUM",
+      "source_line": 77,
+      "heuristic_type": "OTHER",
+      "current_expression": "readonly verificationRule: IRuleHeuristicsVerificationRule",
+      "risk_level": "LOW",
       "resolution_mode": "KEEP_CODE_FIRST",
-      "target_change": "Harden retry/backoff policy with retryable classification and bounded jitter.",
+      "target_change": "Keep in code-first mode and document verification strategy.",
       "tests_required": [
-        "unit-retry-policy",
-        "integration-retry-failure-path"
+        "unit-heuristic-coverage"
       ],
       "owner_package": "@codenautic/runtime",
       "status": "TRIAGED",
@@ -7406,15 +7402,15 @@
     {
       "id": "H-CODE-0359",
       "source_file": "packages/runtime/src/api/migrations/seed.ts",
-      "source_line": 73,
-      "heuristic_type": "TIMEOUT",
-      "current_expression": "const DEFAULT_HEALTH_TIMEOUT_MS = 5000",
+      "source_line": 78,
+      "heuristic_type": "SCORING",
+      "current_expression": "readonly falsePositiveRisk: HeuristicRiskLevel",
       "risk_level": "HIGH",
       "resolution_mode": "HARDEN",
-      "target_change": "Harden timeout policy with explicit limits and failure-path assertions.",
+      "target_change": "Keep scoring in code and add deterministic unit/integration checks.",
       "tests_required": [
-        "unit-timeout-boundaries",
-        "integration-timeout-failure-path"
+        "unit-score-calculation",
+        "integration-score-pipeline"
       ],
       "owner_package": "@codenautic/runtime",
       "status": "TRIAGED",
@@ -7427,15 +7423,15 @@
     {
       "id": "H-CODE-0360",
       "source_file": "packages/runtime/src/api/migrations/seed.ts",
-      "source_line": 74,
-      "heuristic_type": "TIMEOUT",
-      "current_expression": "const DEFAULT_IMPORT_TIMEOUT_MS = 120000",
-      "risk_level": "HIGH",
-      "resolution_mode": "HARDEN",
-      "target_change": "Harden timeout policy with explicit limits and failure-path assertions.",
+      "source_line": 82,
+      "heuristic_type": "FALLBACK_DEFAULT",
+      "current_expression": "const DEFAULT_API_URL = \"http://localhost:3000\"",
+      "risk_level": "MEDIUM",
+      "resolution_mode": "KEEP_CODE_FIRST",
+      "target_change": "Harden fallback/default policy and validate environment-specific behavior.",
       "tests_required": [
-        "unit-timeout-boundaries",
-        "integration-timeout-failure-path"
+        "unit-env-matrix",
+        "integration-default-behavior"
       ],
       "owner_package": "@codenautic/runtime",
       "status": "TRIAGED",
@@ -7448,14 +7444,15 @@
     {
       "id": "H-CODE-0361",
       "source_file": "packages/runtime/src/api/migrations/seed.ts",
-      "source_line": 75,
-      "heuristic_type": "OTHER",
-      "current_expression": "const SUPPORTED_HEURISTICS_SCHEMA_VERSION = 1",
-      "risk_level": "LOW",
-      "resolution_mode": "KEEP_CODE_FIRST",
-      "target_change": "Keep in code-first mode and document verification strategy.",
+      "source_line": 83,
+      "heuristic_type": "RETRY_BACKOFF",
+      "current_expression": "const DEFAULT_RETRY_ATTEMPTS = 3",
+      "risk_level": "HIGH",
+      "resolution_mode": "HARDEN",
+      "target_change": "Harden retry/backoff policy with retryable classification and bounded jitter.",
       "tests_required": [
-        "unit-heuristic-coverage"
+        "unit-retry-policy",
+        "integration-retry-failure-path"
       ],
       "owner_package": "@codenautic/runtime",
       "status": "TRIAGED",
@@ -7468,9 +7465,9 @@
     {
       "id": "H-CODE-0362",
       "source_file": "packages/runtime/src/api/migrations/seed.ts",
-      "source_line": 77,
+      "source_line": 84,
       "heuristic_type": "RETRY_BACKOFF",
-      "current_expression": "const RETRYABLE_HTTP_STATUS = new Set([408, 425, 429, 500, 502, 503, 504])",
+      "current_expression": "const DEFAULT_RETRY_DELAY_MS = 2000",
       "risk_level": "HIGH",
       "resolution_mode": "HARDEN",
       "target_change": "Harden retry/backoff policy with retryable classification and bounded jitter.",
@@ -7489,15 +7486,15 @@
     {
       "id": "H-CODE-0363",
       "source_file": "packages/runtime/src/api/migrations/seed.ts",
-      "source_line": 128,
-      "heuristic_type": "FALLBACK_DEFAULT",
-      "current_expression": "apiUrl: process.env[\"MIGRATION_API_URL\"] ?? DEFAULT_API_URL,",
+      "source_line": 85,
+      "heuristic_type": "RETRY_BACKOFF",
+      "current_expression": "const DEFAULT_BACKOFF_FACTOR = 2",
       "risk_level": "MEDIUM",
       "resolution_mode": "KEEP_CODE_FIRST",
-      "target_change": "Harden fallback/default policy and validate environment-specific behavior.",
+      "target_change": "Harden retry/backoff policy with retryable classification and bounded jitter.",
       "tests_required": [
-        "unit-env-matrix",
-        "integration-default-behavior"
+        "unit-retry-policy",
+        "integration-retry-failure-path"
       ],
       "owner_package": "@codenautic/runtime",
       "status": "TRIAGED",
@@ -7510,11 +7507,11 @@
     {
       "id": "H-CODE-0364",
       "source_file": "packages/runtime/src/api/migrations/seed.ts",
-      "source_line": 130,
+      "source_line": 86,
       "heuristic_type": "RETRY_BACKOFF",
-      "current_expression": "retryAttempts: parsePositiveIntegerEnv(\"MIGRATION_RETRY_ATTEMPTS\", DEFAULT_RETRY_ATTEMPTS),",
-      "risk_level": "HIGH",
-      "resolution_mode": "HARDEN",
+      "current_expression": "const DEFAULT_BACKOFF_JITTER_RATIO = 0.2",
+      "risk_level": "MEDIUM",
+      "resolution_mode": "KEEP_CODE_FIRST",
       "target_change": "Harden retry/backoff policy with retryable classification and bounded jitter.",
       "tests_required": [
         "unit-retry-policy",
@@ -7531,15 +7528,15 @@
     {
       "id": "H-CODE-0365",
       "source_file": "packages/runtime/src/api/migrations/seed.ts",
-      "source_line": 131,
-      "heuristic_type": "RETRY_BACKOFF",
-      "current_expression": "retryDelayMs: parsePositiveIntegerEnv(\"MIGRATION_RETRY_DELAY_MS\", DEFAULT_RETRY_DELAY_MS),",
+      "source_line": 87,
+      "heuristic_type": "TIMEOUT",
+      "current_expression": "const DEFAULT_HEALTH_TIMEOUT_MS = 5000",
       "risk_level": "HIGH",
       "resolution_mode": "HARDEN",
-      "target_change": "Harden retry/backoff policy with retryable classification and bounded jitter.",
+      "target_change": "Harden timeout policy with explicit limits and failure-path assertions.",
       "tests_required": [
-        "unit-retry-policy",
-        "integration-retry-failure-path"
+        "unit-timeout-boundaries",
+        "integration-timeout-failure-path"
       ],
       "owner_package": "@codenautic/runtime",
       "status": "TRIAGED",
@@ -7552,15 +7549,15 @@
     {
       "id": "H-CODE-0366",
       "source_file": "packages/runtime/src/api/migrations/seed.ts",
-      "source_line": 132,
-      "heuristic_type": "RETRY_BACKOFF",
-      "current_expression": "backoffFactor: parsePositiveNumberEnv(\"MIGRATION_BACKOFF_FACTOR\", DEFAULT_BACKOFF_FACTOR),",
-      "risk_level": "MEDIUM",
-      "resolution_mode": "KEEP_CODE_FIRST",
-      "target_change": "Harden retry/backoff policy with retryable classification and bounded jitter.",
+      "source_line": 88,
+      "heuristic_type": "TIMEOUT",
+      "current_expression": "const DEFAULT_IMPORT_TIMEOUT_MS = 120000",
+      "risk_level": "HIGH",
+      "resolution_mode": "HARDEN",
+      "target_change": "Harden timeout policy with explicit limits and failure-path assertions.",
       "tests_required": [
-        "unit-retry-policy",
-        "integration-retry-failure-path"
+        "unit-timeout-boundaries",
+        "integration-timeout-failure-path"
       ],
       "owner_package": "@codenautic/runtime",
       "status": "TRIAGED",
@@ -7573,15 +7570,14 @@
     {
       "id": "H-CODE-0367",
       "source_file": "packages/runtime/src/api/migrations/seed.ts",
-      "source_line": 133,
-      "heuristic_type": "RETRY_BACKOFF",
-      "current_expression": "backoffJitterRatio: parseRatioEnv(\"MIGRATION_BACKOFF_JITTER\", DEFAULT_BACKOFF_JITTER_RATIO),",
-      "risk_level": "MEDIUM",
+      "source_line": 89,
+      "heuristic_type": "OTHER",
+      "current_expression": "const SUPPORTED_HEURISTICS_SCHEMA_VERSION = 1",
+      "risk_level": "LOW",
       "resolution_mode": "KEEP_CODE_FIRST",
-      "target_change": "Harden retry/backoff policy with retryable classification and bounded jitter.",
+      "target_change": "Keep in code-first mode and document verification strategy.",
       "tests_required": [
-        "unit-retry-policy",
-        "integration-retry-failure-path"
+        "unit-heuristic-coverage"
       ],
       "owner_package": "@codenautic/runtime",
       "status": "TRIAGED",
@@ -7594,15 +7590,14 @@
     {
       "id": "H-CODE-0368",
       "source_file": "packages/runtime/src/api/migrations/seed.ts",
-      "source_line": 134,
-      "heuristic_type": "TIMEOUT",
-      "current_expression": "healthTimeoutMs: parsePositiveIntegerEnv(\"MIGRATION_HEALTH_TIMEOUT_MS\", DEFAULT_HEALTH_TIMEOUT_MS),",
-      "risk_level": "HIGH",
-      "resolution_mode": "HARDEN",
-      "target_change": "Harden timeout policy with explicit limits and failure-path assertions.",
+      "source_line": 91,
+      "heuristic_type": "OTHER",
+      "current_expression": "const RULE_VERIFICATION_COMMAND = \"bun scripts/heuristics/validate-registry.ts --rules-only\"",
+      "risk_level": "LOW",
+      "resolution_mode": "KEEP_CODE_FIRST",
+      "target_change": "Keep in code-first mode and document verification strategy.",
       "tests_required": [
-        "unit-timeout-boundaries",
-        "integration-timeout-failure-path"
+        "unit-heuristic-coverage"
       ],
       "owner_package": "@codenautic/runtime",
       "status": "TRIAGED",
@@ -7615,15 +7610,15 @@
     {
       "id": "H-CODE-0369",
       "source_file": "packages/runtime/src/api/migrations/seed.ts",
-      "source_line": 135,
-      "heuristic_type": "TIMEOUT",
-      "current_expression": "importTimeoutMs: parsePositiveIntegerEnv(\"MIGRATION_IMPORT_TIMEOUT_MS\", DEFAULT_IMPORT_TIMEOUT_MS),",
-      "risk_level": "HIGH",
+      "source_line": 93,
+      "heuristic_type": "SCORING",
+      "current_expression": "const HEURISTIC_RISK_LEVELS = new Set<HeuristicRiskLevel>([\"LOW\", \"MEDIUM\", \"HIGH\", \"CRITICAL\"])",
+      "risk_level": "CRITICAL",
       "resolution_mode": "HARDEN",
-      "target_change": "Harden timeout policy with explicit limits and failure-path assertions.",
+      "target_change": "Keep scoring in code and add deterministic unit/integration checks.",
       "tests_required": [
-        "unit-timeout-boundaries",
-        "integration-timeout-failure-path"
+        "unit-score-calculation",
+        "integration-score-pipeline"
       ],
       "owner_package": "@codenautic/runtime",
       "status": "TRIAGED",
@@ -7636,15 +7631,14 @@
     {
       "id": "H-CODE-0370",
       "source_file": "packages/runtime/src/api/migrations/seed.ts",
-      "source_line": 143,
-      "heuristic_type": "FALLBACK_DEFAULT",
-      "current_expression": "* @param fallback Fallback value.",
-      "risk_level": "MEDIUM",
+      "source_line": 94,
+      "heuristic_type": "OTHER",
+      "current_expression": "const HEURISTIC_RESOLUTION_MODES = new Set<HeuristicResolutionMode>([",
+      "risk_level": "LOW",
       "resolution_mode": "KEEP_CODE_FIRST",
-      "target_change": "Harden fallback/default policy and validate environment-specific behavior.",
+      "target_change": "Keep in code-first mode and document verification strategy.",
       "tests_required": [
-        "unit-env-matrix",
-        "integration-default-behavior"
+        "unit-heuristic-coverage"
       ],
       "owner_package": "@codenautic/runtime",
       "status": "TRIAGED",
@@ -7657,15 +7651,15 @@
     {
       "id": "H-CODE-0371",
       "source_file": "packages/runtime/src/api/migrations/seed.ts",
-      "source_line": 146,
-      "heuristic_type": "FALLBACK_DEFAULT",
-      "current_expression": "function parsePositiveIntegerEnv(key: string, fallback: number): number {",
-      "risk_level": "MEDIUM",
-      "resolution_mode": "KEEP_CODE_FIRST",
-      "target_change": "Harden fallback/default policy and validate environment-specific behavior.",
+      "source_line": 100,
+      "heuristic_type": "RETRY_BACKOFF",
+      "current_expression": "const RETRYABLE_HTTP_STATUS = new Set([408, 425, 429, 500, 502, 503, 504])",
+      "risk_level": "HIGH",
+      "resolution_mode": "HARDEN",
+      "target_change": "Harden retry/backoff policy with retryable classification and bounded jitter.",
       "tests_required": [
-        "unit-env-matrix",
-        "integration-default-behavior"
+        "unit-retry-policy",
+        "integration-retry-failure-path"
       ],
       "owner_package": "@codenautic/runtime",
       "status": "TRIAGED",
@@ -7678,9 +7672,9 @@
     {
       "id": "H-CODE-0372",
       "source_file": "packages/runtime/src/api/migrations/seed.ts",
-      "source_line": 149,
+      "source_line": 151,
       "heuristic_type": "FALLBACK_DEFAULT",
-      "current_expression": "return fallback",
+      "current_expression": "apiUrl: process.env[\"MIGRATION_API_URL\"] ?? DEFAULT_API_URL,",
       "risk_level": "MEDIUM",
       "resolution_mode": "KEEP_CODE_FIRST",
       "target_change": "Harden fallback/default policy and validate environment-specific behavior.",
@@ -7699,15 +7693,15 @@
     {
       "id": "H-CODE-0373",
       "source_file": "packages/runtime/src/api/migrations/seed.ts",
-      "source_line": 162,
-      "heuristic_type": "FALLBACK_DEFAULT",
-      "current_expression": "* @param fallback Fallback value.",
-      "risk_level": "MEDIUM",
-      "resolution_mode": "KEEP_CODE_FIRST",
-      "target_change": "Harden fallback/default policy and validate environment-specific behavior.",
+      "source_line": 153,
+      "heuristic_type": "RETRY_BACKOFF",
+      "current_expression": "retryAttempts: parsePositiveIntegerEnv(\"MIGRATION_RETRY_ATTEMPTS\", DEFAULT_RETRY_ATTEMPTS),",
+      "risk_level": "HIGH",
+      "resolution_mode": "HARDEN",
+      "target_change": "Harden retry/backoff policy with retryable classification and bounded jitter.",
       "tests_required": [
-        "unit-env-matrix",
-        "integration-default-behavior"
+        "unit-retry-policy",
+        "integration-retry-failure-path"
       ],
       "owner_package": "@codenautic/runtime",
       "status": "TRIAGED",
@@ -7720,15 +7714,15 @@
     {
       "id": "H-CODE-0374",
       "source_file": "packages/runtime/src/api/migrations/seed.ts",
-      "source_line": 165,
-      "heuristic_type": "FALLBACK_DEFAULT",
-      "current_expression": "function parsePositiveNumberEnv(key: string, fallback: number): number {",
-      "risk_level": "MEDIUM",
-      "resolution_mode": "KEEP_CODE_FIRST",
-      "target_change": "Harden fallback/default policy and validate environment-specific behavior.",
+      "source_line": 154,
+      "heuristic_type": "RETRY_BACKOFF",
+      "current_expression": "retryDelayMs: parsePositiveIntegerEnv(\"MIGRATION_RETRY_DELAY_MS\", DEFAULT_RETRY_DELAY_MS),",
+      "risk_level": "HIGH",
+      "resolution_mode": "HARDEN",
+      "target_change": "Harden retry/backoff policy with retryable classification and bounded jitter.",
       "tests_required": [
-        "unit-env-matrix",
-        "integration-default-behavior"
+        "unit-retry-policy",
+        "integration-retry-failure-path"
       ],
       "owner_package": "@codenautic/runtime",
       "status": "TRIAGED",
@@ -7741,15 +7735,15 @@
     {
       "id": "H-CODE-0375",
       "source_file": "packages/runtime/src/api/migrations/seed.ts",
-      "source_line": 168,
-      "heuristic_type": "FALLBACK_DEFAULT",
-      "current_expression": "return fallback",
+      "source_line": 155,
+      "heuristic_type": "RETRY_BACKOFF",
+      "current_expression": "backoffFactor: parsePositiveNumberEnv(\"MIGRATION_BACKOFF_FACTOR\", DEFAULT_BACKOFF_FACTOR),",
       "risk_level": "MEDIUM",
       "resolution_mode": "KEEP_CODE_FIRST",
-      "target_change": "Harden fallback/default policy and validate environment-specific behavior.",
+      "target_change": "Harden retry/backoff policy with retryable classification and bounded jitter.",
       "tests_required": [
-        "unit-env-matrix",
-        "integration-default-behavior"
+        "unit-retry-policy",
+        "integration-retry-failure-path"
       ],
       "owner_package": "@codenautic/runtime",
       "status": "TRIAGED",
@@ -7762,15 +7756,15 @@
     {
       "id": "H-CODE-0376",
       "source_file": "packages/runtime/src/api/migrations/seed.ts",
-      "source_line": 181,
-      "heuristic_type": "FALLBACK_DEFAULT",
-      "current_expression": "* @param fallback Fallback value.",
+      "source_line": 156,
+      "heuristic_type": "RETRY_BACKOFF",
+      "current_expression": "backoffJitterRatio: parseRatioEnv(\"MIGRATION_BACKOFF_JITTER\", DEFAULT_BACKOFF_JITTER_RATIO),",
       "risk_level": "MEDIUM",
       "resolution_mode": "KEEP_CODE_FIRST",
-      "target_change": "Harden fallback/default policy and validate environment-specific behavior.",
+      "target_change": "Harden retry/backoff policy with retryable classification and bounded jitter.",
       "tests_required": [
-        "unit-env-matrix",
-        "integration-default-behavior"
+        "unit-retry-policy",
+        "integration-retry-failure-path"
       ],
       "owner_package": "@codenautic/runtime",
       "status": "TRIAGED",
@@ -7783,15 +7777,15 @@
     {
       "id": "H-CODE-0377",
       "source_file": "packages/runtime/src/api/migrations/seed.ts",
-      "source_line": 184,
-      "heuristic_type": "FALLBACK_DEFAULT",
-      "current_expression": "function parseRatioEnv(key: string, fallback: number): number {",
-      "risk_level": "MEDIUM",
-      "resolution_mode": "KEEP_CODE_FIRST",
-      "target_change": "Harden fallback/default policy and validate environment-specific behavior.",
+      "source_line": 157,
+      "heuristic_type": "TIMEOUT",
+      "current_expression": "healthTimeoutMs: parsePositiveIntegerEnv(\"MIGRATION_HEALTH_TIMEOUT_MS\", DEFAULT_HEALTH_TIMEOUT_MS),",
+      "risk_level": "HIGH",
+      "resolution_mode": "HARDEN",
+      "target_change": "Harden timeout policy with explicit limits and failure-path assertions.",
       "tests_required": [
-        "unit-env-matrix",
-        "integration-default-behavior"
+        "unit-timeout-boundaries",
+        "integration-timeout-failure-path"
       ],
       "owner_package": "@codenautic/runtime",
       "status": "TRIAGED",
@@ -7804,15 +7798,15 @@
     {
       "id": "H-CODE-0378",
       "source_file": "packages/runtime/src/api/migrations/seed.ts",
-      "source_line": 187,
-      "heuristic_type": "FALLBACK_DEFAULT",
-      "current_expression": "return fallback",
-      "risk_level": "MEDIUM",
-      "resolution_mode": "KEEP_CODE_FIRST",
-      "target_change": "Harden fallback/default policy and validate environment-specific behavior.",
+      "source_line": 158,
+      "heuristic_type": "TIMEOUT",
+      "current_expression": "importTimeoutMs: parsePositiveIntegerEnv(\"MIGRATION_IMPORT_TIMEOUT_MS\", DEFAULT_IMPORT_TIMEOUT_MS),",
+      "risk_level": "HIGH",
+      "resolution_mode": "HARDEN",
+      "target_change": "Harden timeout policy with explicit limits and failure-path assertions.",
       "tests_required": [
-        "unit-env-matrix",
-        "integration-default-behavior"
+        "unit-timeout-boundaries",
+        "integration-timeout-failure-path"
       ],
       "owner_package": "@codenautic/runtime",
       "status": "TRIAGED",
@@ -7825,15 +7819,15 @@
     {
       "id": "H-CODE-0379",
       "source_file": "packages/runtime/src/api/migrations/seed.ts",
-      "source_line": 197,
-      "heuristic_type": "TIMEOUT",
-      "current_expression": "return new Promise((resolveSleep) => setTimeout(resolveSleep, ms))",
-      "risk_level": "HIGH",
-      "resolution_mode": "HARDEN",
-      "target_change": "Harden timeout policy with explicit limits and failure-path assertions.",
+      "source_line": 166,
+      "heuristic_type": "FALLBACK_DEFAULT",
+      "current_expression": "* @param fallback Fallback value.",
+      "risk_level": "MEDIUM",
+      "resolution_mode": "KEEP_CODE_FIRST",
+      "target_change": "Harden fallback/default policy and validate environment-specific behavior.",
       "tests_required": [
-        "unit-timeout-boundaries",
-        "integration-timeout-failure-path"
+        "unit-env-matrix",
+        "integration-default-behavior"
       ],
       "owner_package": "@codenautic/runtime",
       "status": "TRIAGED",
@@ -7846,15 +7840,15 @@
     {
       "id": "H-CODE-0380",
       "source_file": "packages/runtime/src/api/migrations/seed.ts",
-      "source_line": 244,
-      "heuristic_type": "RETRY_BACKOFF",
-      "current_expression": "* Validates API availability with retry policy.",
-      "risk_level": "HIGH",
-      "resolution_mode": "HARDEN",
-      "target_change": "Harden retry/backoff policy with retryable classification and bounded jitter.",
+      "source_line": 169,
+      "heuristic_type": "FALLBACK_DEFAULT",
+      "current_expression": "function parsePositiveIntegerEnv(key: string, fallback: number): number {",
+      "risk_level": "MEDIUM",
+      "resolution_mode": "KEEP_CODE_FIRST",
+      "target_change": "Harden fallback/default policy and validate environment-specific behavior.",
       "tests_required": [
-        "unit-retry-policy",
-        "integration-retry-failure-path"
+        "unit-env-matrix",
+        "integration-default-behavior"
       ],
       "owner_package": "@codenautic/runtime",
       "status": "TRIAGED",
@@ -7867,15 +7861,15 @@
     {
       "id": "H-CODE-0381",
       "source_file": "packages/runtime/src/api/migrations/seed.ts",
-      "source_line": 252,
-      "heuristic_type": "RETRY_BACKOFF",
-      "current_expression": "for (let attempt = 1; attempt <= config.retryAttempts; attempt++) {",
-      "risk_level": "HIGH",
-      "resolution_mode": "HARDEN",
-      "target_change": "Harden retry/backoff policy with retryable classification and bounded jitter.",
+      "source_line": 172,
+      "heuristic_type": "FALLBACK_DEFAULT",
+      "current_expression": "return fallback",
+      "risk_level": "MEDIUM",
+      "resolution_mode": "KEEP_CODE_FIRST",
+      "target_change": "Harden fallback/default policy and validate environment-specific behavior.",
       "tests_required": [
-        "unit-retry-policy",
-        "integration-retry-failure-path"
+        "unit-env-matrix",
+        "integration-default-behavior"
       ],
       "owner_package": "@codenautic/runtime",
       "status": "TRIAGED",
@@ -7888,15 +7882,15 @@
     {
       "id": "H-CODE-0382",
       "source_file": "packages/runtime/src/api/migrations/seed.ts",
-      "source_line": 255,
-      "heuristic_type": "TIMEOUT",
-      "current_expression": "signal: AbortSignal.timeout(config.healthTimeoutMs),",
-      "risk_level": "HIGH",
-      "resolution_mode": "HARDEN",
-      "target_change": "Harden timeout policy with explicit limits and failure-path assertions.",
+      "source_line": 185,
+      "heuristic_type": "FALLBACK_DEFAULT",
+      "current_expression": "* @param fallback Fallback value.",
+      "risk_level": "MEDIUM",
+      "resolution_mode": "KEEP_CODE_FIRST",
+      "target_change": "Harden fallback/default policy and validate environment-specific behavior.",
       "tests_required": [
-        "unit-timeout-boundaries",
-        "integration-timeout-failure-path"
+        "unit-env-matrix",
+        "integration-default-behavior"
       ],
       "owner_package": "@codenautic/runtime",
       "status": "TRIAGED",
@@ -7909,15 +7903,15 @@
     {
       "id": "H-CODE-0383",
       "source_file": "packages/runtime/src/api/migrations/seed.ts",
-      "source_line": 265,
-      "heuristic_type": "RETRY_BACKOFF",
-      "current_expression": "if (attempt < config.retryAttempts) {",
-      "risk_level": "HIGH",
-      "resolution_mode": "HARDEN",
-      "target_change": "Harden retry/backoff policy with retryable classification and bounded jitter.",
+      "source_line": 188,
+      "heuristic_type": "FALLBACK_DEFAULT",
+      "current_expression": "function parsePositiveNumberEnv(key: string, fallback: number): number {",
+      "risk_level": "MEDIUM",
+      "resolution_mode": "KEEP_CODE_FIRST",
+      "target_change": "Harden fallback/default policy and validate environment-specific behavior.",
       "tests_required": [
-        "unit-retry-policy",
-        "integration-retry-failure-path"
+        "unit-env-matrix",
+        "integration-default-behavior"
       ],
       "owner_package": "@codenautic/runtime",
       "status": "TRIAGED",
@@ -7930,15 +7924,15 @@
     {
       "id": "H-CODE-0384",
       "source_file": "packages/runtime/src/api/migrations/seed.ts",
-      "source_line": 267,
-      "heuristic_type": "RETRY_BACKOFF",
-      "current_expression": "` API not ready, retrying in ${config.retryDelayMs}ms... (${attempt}/${config.retryAttempts})`,",
-      "risk_level": "HIGH",
-      "resolution_mode": "HARDEN",
-      "target_change": "Harden retry/backoff policy with retryable classification and bounded jitter.",
+      "source_line": 191,
+      "heuristic_type": "FALLBACK_DEFAULT",
+      "current_expression": "return fallback",
+      "risk_level": "MEDIUM",
+      "resolution_mode": "KEEP_CODE_FIRST",
+      "target_change": "Harden fallback/default policy and validate environment-specific behavior.",
       "tests_required": [
-        "unit-retry-policy",
-        "integration-retry-failure-path"
+        "unit-env-matrix",
+        "integration-default-behavior"
       ],
       "owner_package": "@codenautic/runtime",
       "status": "TRIAGED",
@@ -7951,15 +7945,15 @@
     {
       "id": "H-CODE-0385",
       "source_file": "packages/runtime/src/api/migrations/seed.ts",
-      "source_line": 269,
-      "heuristic_type": "RETRY_BACKOFF",
-      "current_expression": "await sleep(config.retryDelayMs)",
-      "risk_level": "HIGH",
-      "resolution_mode": "HARDEN",
-      "target_change": "Harden retry/backoff policy with retryable classification and bounded jitter.",
+      "source_line": 204,
+      "heuristic_type": "FALLBACK_DEFAULT",
+      "current_expression": "* @param fallback Fallback value.",
+      "risk_level": "MEDIUM",
+      "resolution_mode": "KEEP_CODE_FIRST",
+      "target_change": "Harden fallback/default policy and validate environment-specific behavior.",
       "tests_required": [
-        "unit-retry-policy",
-        "integration-retry-failure-path"
+        "unit-env-matrix",
+        "integration-default-behavior"
       ],
       "owner_package": "@codenautic/runtime",
       "status": "TRIAGED",
@@ -7972,15 +7966,15 @@
     {
       "id": "H-CODE-0386",
       "source_file": "packages/runtime/src/api/migrations/seed.ts",
-      "source_line": 274,
-      "heuristic_type": "RETRY_BACKOFF",
-      "current_expression": "`API is not available after ${config.retryAttempts} attempts: ${lastErrorMessage}`,",
-      "risk_level": "HIGH",
-      "resolution_mode": "HARDEN",
-      "target_change": "Harden retry/backoff policy with retryable classification and bounded jitter.",
+      "source_line": 207,
+      "heuristic_type": "FALLBACK_DEFAULT",
+      "current_expression": "function parseRatioEnv(key: string, fallback: number): number {",
+      "risk_level": "MEDIUM",
+      "resolution_mode": "KEEP_CODE_FIRST",
+      "target_change": "Harden fallback/default policy and validate environment-specific behavior.",
       "tests_required": [
-        "unit-retry-policy",
-        "integration-retry-failure-path"
+        "unit-env-matrix",
+        "integration-default-behavior"
       ],
       "owner_package": "@codenautic/runtime",
       "status": "TRIAGED",
@@ -7993,15 +7987,15 @@
     {
       "id": "H-CODE-0387",
       "source_file": "packages/runtime/src/api/migrations/seed.ts",
-      "source_line": 279,
-      "heuristic_type": "RETRY_BACKOFF",
-      "current_expression": "* Calculates retry delay with exponential backoff and bounded jitter.",
-      "risk_level": "HIGH",
-      "resolution_mode": "HARDEN",
-      "target_change": "Harden retry/backoff policy with retryable classification and bounded jitter.",
+      "source_line": 210,
+      "heuristic_type": "FALLBACK_DEFAULT",
+      "current_expression": "return fallback",
+      "risk_level": "MEDIUM",
+      "resolution_mode": "KEEP_CODE_FIRST",
+      "target_change": "Harden fallback/default policy and validate environment-specific behavior.",
       "tests_required": [
-        "unit-retry-policy",
-        "integration-retry-failure-path"
+        "unit-env-matrix",
+        "integration-default-behavior"
       ],
       "owner_package": "@codenautic/runtime",
       "status": "TRIAGED",
@@ -8014,15 +8008,15 @@
     {
       "id": "H-CODE-0388",
       "source_file": "packages/runtime/src/api/migrations/seed.ts",
-      "source_line": 283,
-      "heuristic_type": "RETRY_BACKOFF",
-      "current_expression": "* @param backoffFactor Exponential factor.",
-      "risk_level": "LOW",
-      "resolution_mode": "KEEP_CODE_FIRST",
-      "target_change": "Harden retry/backoff policy with retryable classification and bounded jitter.",
+      "source_line": 220,
+      "heuristic_type": "TIMEOUT",
+      "current_expression": "return new Promise((resolveSleep) => setTimeout(resolveSleep, ms))",
+      "risk_level": "HIGH",
+      "resolution_mode": "HARDEN",
+      "target_change": "Harden timeout policy with explicit limits and failure-path assertions.",
       "tests_required": [
-        "unit-retry-policy",
-        "integration-retry-failure-path"
+        "unit-timeout-boundaries",
+        "integration-timeout-failure-path"
       ],
       "owner_package": "@codenautic/runtime",
       "status": "TRIAGED",
@@ -8035,11 +8029,11 @@
     {
       "id": "H-CODE-0389",
       "source_file": "packages/runtime/src/api/migrations/seed.ts",
-      "source_line": 288,
+      "source_line": 267,
       "heuristic_type": "RETRY_BACKOFF",
-      "current_expression": "function calculateBackoffDelayMs(",
-      "risk_level": "LOW",
-      "resolution_mode": "KEEP_CODE_FIRST",
+      "current_expression": "* Validates API availability with retry policy.",
+      "risk_level": "HIGH",
+      "resolution_mode": "HARDEN",
       "target_change": "Harden retry/backoff policy with retryable classification and bounded jitter.",
       "tests_required": [
         "unit-retry-policy",
@@ -8056,11 +8050,11 @@
     {
       "id": "H-CODE-0390",
       "source_file": "packages/runtime/src/api/migrations/seed.ts",
-      "source_line": 291,
+      "source_line": 275,
       "heuristic_type": "RETRY_BACKOFF",
-      "current_expression": "backoffFactor: number,",
-      "risk_level": "LOW",
-      "resolution_mode": "KEEP_CODE_FIRST",
+      "current_expression": "for (let attempt = 1; attempt <= config.retryAttempts; attempt++) {",
+      "risk_level": "HIGH",
+      "resolution_mode": "HARDEN",
       "target_change": "Harden retry/backoff policy with retryable classification and bounded jitter.",
       "tests_required": [
         "unit-retry-policy",
@@ -8077,15 +8071,15 @@
     {
       "id": "H-CODE-0391",
       "source_file": "packages/runtime/src/api/migrations/seed.ts",
-      "source_line": 296,
-      "heuristic_type": "RETRY_BACKOFF",
-      "current_expression": "const baseDelay = baseDelayMs * backoffFactor ** exponent",
-      "risk_level": "LOW",
-      "resolution_mode": "KEEP_CODE_FIRST",
-      "target_change": "Harden retry/backoff policy with retryable classification and bounded jitter.",
+      "source_line": 278,
+      "heuristic_type": "TIMEOUT",
+      "current_expression": "signal: AbortSignal.timeout(config.healthTimeoutMs),",
+      "risk_level": "HIGH",
+      "resolution_mode": "HARDEN",
+      "target_change": "Harden timeout policy with explicit limits and failure-path assertions.",
       "tests_required": [
-        "unit-retry-policy",
-        "integration-retry-failure-path"
+        "unit-timeout-boundaries",
+        "integration-timeout-failure-path"
       ],
       "owner_package": "@codenautic/runtime",
       "status": "TRIAGED",
@@ -8098,9 +8092,9 @@
     {
       "id": "H-CODE-0392",
       "source_file": "packages/runtime/src/api/migrations/seed.ts",
-      "source_line": 303,
+      "source_line": 288,
       "heuristic_type": "RETRY_BACKOFF",
-      "current_expression": "* Detects whether status is retryable by migration policy.",
+      "current_expression": "if (attempt < config.retryAttempts) {",
       "risk_level": "HIGH",
       "resolution_mode": "HARDEN",
       "target_change": "Harden retry/backoff policy with retryable classification and bounded jitter.",
@@ -8119,9 +8113,9 @@
     {
       "id": "H-CODE-0393",
       "source_file": "packages/runtime/src/api/migrations/seed.ts",
-      "source_line": 306,
+      "source_line": 290,
       "heuristic_type": "RETRY_BACKOFF",
-      "current_expression": "* @returns True when retry is allowed.",
+      "current_expression": "` API not ready, retrying in ${config.retryDelayMs}ms... (${attempt}/${config.retryAttempts})`,",
       "risk_level": "HIGH",
       "resolution_mode": "HARDEN",
       "target_change": "Harden retry/backoff policy with retryable classification and bounded jitter.",
@@ -8140,9 +8134,9 @@
     {
       "id": "H-CODE-0394",
       "source_file": "packages/runtime/src/api/migrations/seed.ts",
-      "source_line": 308,
+      "source_line": 292,
       "heuristic_type": "RETRY_BACKOFF",
-      "current_expression": "function isRetryableHttpStatus(status: number): boolean {",
+      "current_expression": "await sleep(config.retryDelayMs)",
       "risk_level": "HIGH",
       "resolution_mode": "HARDEN",
       "target_change": "Harden retry/backoff policy with retryable classification and bounded jitter.",
@@ -8161,9 +8155,9 @@
     {
       "id": "H-CODE-0395",
       "source_file": "packages/runtime/src/api/migrations/seed.ts",
-      "source_line": 309,
+      "source_line": 297,
       "heuristic_type": "RETRY_BACKOFF",
-      "current_expression": "return RETRYABLE_HTTP_STATUS.has(status)",
+      "current_expression": "`API is not available after ${config.retryAttempts} attempts: ${lastErrorMessage}`,",
       "risk_level": "HIGH",
       "resolution_mode": "HARDEN",
       "target_change": "Harden retry/backoff policy with retryable classification and bounded jitter.",
@@ -8182,9 +8176,9 @@
     {
       "id": "H-CODE-0396",
       "source_file": "packages/runtime/src/api/migrations/seed.ts",
-      "source_line": 313,
+      "source_line": 302,
       "heuristic_type": "RETRY_BACKOFF",
-      "current_expression": "* Detects whether error is retryable by migration policy.",
+      "current_expression": "* Calculates retry delay with exponential backoff and bounded jitter.",
       "risk_level": "HIGH",
       "resolution_mode": "HARDEN",
       "target_change": "Harden retry/backoff policy with retryable classification and bounded jitter.",
@@ -8203,11 +8197,11 @@
     {
       "id": "H-CODE-0397",
       "source_file": "packages/runtime/src/api/migrations/seed.ts",
-      "source_line": 316,
+      "source_line": 306,
       "heuristic_type": "RETRY_BACKOFF",
-      "current_expression": "* @returns True when retry is allowed.",
-      "risk_level": "HIGH",
-      "resolution_mode": "HARDEN",
+      "current_expression": "* @param backoffFactor Exponential factor.",
+      "risk_level": "LOW",
+      "resolution_mode": "KEEP_CODE_FIRST",
       "target_change": "Harden retry/backoff policy with retryable classification and bounded jitter.",
       "tests_required": [
         "unit-retry-policy",
@@ -8224,11 +8218,11 @@
     {
       "id": "H-CODE-0398",
       "source_file": "packages/runtime/src/api/migrations/seed.ts",
-      "source_line": 318,
+      "source_line": 311,
       "heuristic_type": "RETRY_BACKOFF",
-      "current_expression": "function isRetryableImportError(error: unknown): boolean {",
-      "risk_level": "HIGH",
-      "resolution_mode": "HARDEN",
+      "current_expression": "function calculateBackoffDelayMs(",
+      "risk_level": "LOW",
+      "resolution_mode": "KEEP_CODE_FIRST",
       "target_change": "Harden retry/backoff policy with retryable classification and bounded jitter.",
       "tests_required": [
         "unit-retry-policy",
@@ -8245,11 +8239,11 @@
     {
       "id": "H-CODE-0399",
       "source_file": "packages/runtime/src/api/migrations/seed.ts",
-      "source_line": 320,
+      "source_line": 314,
       "heuristic_type": "RETRY_BACKOFF",
-      "current_expression": "return isRetryableHttpStatus(error.status)",
-      "risk_level": "HIGH",
-      "resolution_mode": "HARDEN",
+      "current_expression": "backoffFactor: number,",
+      "risk_level": "LOW",
+      "resolution_mode": "KEEP_CODE_FIRST",
       "target_change": "Harden retry/backoff policy with retryable classification and bounded jitter.",
       "tests_required": [
         "unit-retry-policy",
@@ -8266,11 +8260,11 @@
     {
       "id": "H-CODE-0400",
       "source_file": "packages/runtime/src/api/migrations/seed.ts",
-      "source_line": 326,
+      "source_line": 319,
       "heuristic_type": "RETRY_BACKOFF",
-      "current_expression": "* Imports a single resource with retry/backoff policy.",
-      "risk_level": "HIGH",
-      "resolution_mode": "HARDEN",
+      "current_expression": "const baseDelay = baseDelayMs * backoffFactor ** exponent",
+      "risk_level": "LOW",
+      "resolution_mode": "KEEP_CODE_FIRST",
       "target_change": "Harden retry/backoff policy with retryable classification and bounded jitter.",
       "tests_required": [
         "unit-retry-policy",
@@ -8287,9 +8281,9 @@
     {
       "id": "H-CODE-0401",
       "source_file": "packages/runtime/src/api/migrations/seed.ts",
-      "source_line": 340,
+      "source_line": 326,
       "heuristic_type": "RETRY_BACKOFF",
-      "current_expression": "for (let attempt = 1; attempt <= config.retryAttempts; attempt++) {",
+      "current_expression": "* Detects whether status is retryable by migration policy.",
       "risk_level": "HIGH",
       "resolution_mode": "HARDEN",
       "target_change": "Harden retry/backoff policy with retryable classification and bounded jitter.",
@@ -8308,15 +8302,15 @@
     {
       "id": "H-CODE-0402",
       "source_file": "packages/runtime/src/api/migrations/seed.ts",
-      "source_line": 349,
-      "heuristic_type": "TIMEOUT",
-      "current_expression": "signal: AbortSignal.timeout(config.importTimeoutMs),",
+      "source_line": 329,
+      "heuristic_type": "RETRY_BACKOFF",
+      "current_expression": "* @returns True when retry is allowed.",
       "risk_level": "HIGH",
       "resolution_mode": "HARDEN",
-      "target_change": "Harden timeout policy with explicit limits and failure-path assertions.",
+      "target_change": "Harden retry/backoff policy with retryable classification and bounded jitter.",
       "tests_required": [
-        "unit-timeout-boundaries",
-        "integration-timeout-failure-path"
+        "unit-retry-policy",
+        "integration-retry-failure-path"
       ],
       "owner_package": "@codenautic/runtime",
       "status": "TRIAGED",
@@ -8329,9 +8323,9 @@
     {
       "id": "H-CODE-0403",
       "source_file": "packages/runtime/src/api/migrations/seed.ts",
-      "source_line": 360,
+      "source_line": 331,
       "heuristic_type": "RETRY_BACKOFF",
-      "current_expression": "const retryable = isRetryableImportError(error)",
+      "current_expression": "function isRetryableHttpStatus(status: number): boolean {",
       "risk_level": "HIGH",
       "resolution_mode": "HARDEN",
       "target_change": "Harden retry/backoff policy with retryable classification and bounded jitter.",
@@ -8350,9 +8344,9 @@
     {
       "id": "H-CODE-0404",
       "source_file": "packages/runtime/src/api/migrations/seed.ts",
-      "source_line": 362,
+      "source_line": 332,
       "heuristic_type": "RETRY_BACKOFF",
-      "current_expression": "if (!retryable || attempt >= config.retryAttempts) {",
+      "current_expression": "return RETRYABLE_HTTP_STATUS.has(status)",
       "risk_level": "HIGH",
       "resolution_mode": "HARDEN",
       "target_change": "Harden retry/backoff policy with retryable classification and bounded jitter.",
@@ -8371,11 +8365,11 @@
     {
       "id": "H-CODE-0405",
       "source_file": "packages/runtime/src/api/migrations/seed.ts",
-      "source_line": 366,
+      "source_line": 336,
       "heuristic_type": "RETRY_BACKOFF",
-      "current_expression": "const delay = calculateBackoffDelayMs(",
-      "risk_level": "LOW",
-      "resolution_mode": "KEEP_CODE_FIRST",
+      "current_expression": "* Detects whether error is retryable by migration policy.",
+      "risk_level": "HIGH",
+      "resolution_mode": "HARDEN",
       "target_change": "Harden retry/backoff policy with retryable classification and bounded jitter.",
       "tests_required": [
         "unit-retry-policy",
@@ -8392,9 +8386,9 @@
     {
       "id": "H-CODE-0406",
       "source_file": "packages/runtime/src/api/migrations/seed.ts",
-      "source_line": 368,
+      "source_line": 339,
       "heuristic_type": "RETRY_BACKOFF",
-      "current_expression": "config.retryDelayMs,",
+      "current_expression": "* @returns True when retry is allowed.",
       "risk_level": "HIGH",
       "resolution_mode": "HARDEN",
       "target_change": "Harden retry/backoff policy with retryable classification and bounded jitter.",
@@ -8413,11 +8407,11 @@
     {
       "id": "H-CODE-0407",
       "source_file": "packages/runtime/src/api/migrations/seed.ts",
-      "source_line": 369,
+      "source_line": 341,
       "heuristic_type": "RETRY_BACKOFF",
-      "current_expression": "config.backoffFactor,",
-      "risk_level": "LOW",
-      "resolution_mode": "KEEP_CODE_FIRST",
+      "current_expression": "function isRetryableImportError(error: unknown): boolean {",
+      "risk_level": "HIGH",
+      "resolution_mode": "HARDEN",
       "target_change": "Harden retry/backoff policy with retryable classification and bounded jitter.",
       "tests_required": [
         "unit-retry-policy",
@@ -8434,11 +8428,11 @@
     {
       "id": "H-CODE-0408",
       "source_file": "packages/runtime/src/api/migrations/seed.ts",
-      "source_line": 370,
+      "source_line": 343,
       "heuristic_type": "RETRY_BACKOFF",
-      "current_expression": "config.backoffJitterRatio,",
-      "risk_level": "LOW",
-      "resolution_mode": "KEEP_CODE_FIRST",
+      "current_expression": "return isRetryableHttpStatus(error.status)",
+      "risk_level": "HIGH",
+      "resolution_mode": "HARDEN",
       "target_change": "Harden retry/backoff policy with retryable classification and bounded jitter.",
       "tests_required": [
         "unit-retry-policy",
@@ -8455,9 +8449,9 @@
     {
       "id": "H-CODE-0409",
       "source_file": "packages/runtime/src/api/migrations/seed.ts",
-      "source_line": 374,
+      "source_line": 349,
       "heuristic_type": "RETRY_BACKOFF",
-      "current_expression": "console.error(` Retry ${attempt}/${config.retryAttempts} for ${endpoint} in ${delay}ms...`)",
+      "current_expression": "* Imports a single resource with retry/backoff policy.",
       "risk_level": "HIGH",
       "resolution_mode": "HARDEN",
       "target_change": "Harden retry/backoff policy with retryable classification and bounded jitter.",
@@ -8476,14 +8470,15 @@
     {
       "id": "H-CODE-0410",
       "source_file": "packages/runtime/src/api/migrations/seed.ts",
-      "source_line": 397,
-      "heuristic_type": "OTHER",
-      "current_expression": "const metadata = item.heuristicsMetadata",
-      "risk_level": "LOW",
-      "resolution_mode": "KEEP_CODE_FIRST",
-      "target_change": "Keep in code-first mode and document verification strategy.",
+      "source_line": 363,
+      "heuristic_type": "RETRY_BACKOFF",
+      "current_expression": "for (let attempt = 1; attempt <= config.retryAttempts; attempt++) {",
+      "risk_level": "HIGH",
+      "resolution_mode": "HARDEN",
+      "target_change": "Harden retry/backoff policy with retryable classification and bounded jitter.",
       "tests_required": [
-        "unit-heuristic-coverage"
+        "unit-retry-policy",
+        "integration-retry-failure-path"
       ],
       "owner_package": "@codenautic/runtime",
       "status": "TRIAGED",
@@ -8496,14 +8491,15 @@
     {
       "id": "H-CODE-0411",
       "source_file": "packages/runtime/src/api/migrations/seed.ts",
-      "source_line": 402,
-      "heuristic_type": "OTHER",
-      "current_expression": "if (metadata.heuristicsSchemaVersion !== SUPPORTED_HEURISTICS_SCHEMA_VERSION) {",
-      "risk_level": "LOW",
-      "resolution_mode": "KEEP_CODE_FIRST",
-      "target_change": "Keep in code-first mode and document verification strategy.",
+      "source_line": 372,
+      "heuristic_type": "TIMEOUT",
+      "current_expression": "signal: AbortSignal.timeout(config.importTimeoutMs),",
+      "risk_level": "HIGH",
+      "resolution_mode": "HARDEN",
+      "target_change": "Harden timeout policy with explicit limits and failure-path assertions.",
       "tests_required": [
-        "unit-heuristic-coverage"
+        "unit-timeout-boundaries",
+        "integration-timeout-failure-path"
       ],
       "owner_package": "@codenautic/runtime",
       "status": "TRIAGED",
@@ -8516,14 +8512,15 @@
     {
       "id": "H-CODE-0412",
       "source_file": "packages/runtime/src/api/migrations/seed.ts",
-      "source_line": 404,
-      "heuristic_type": "OTHER",
-      "current_expression": "`Unsupported heuristics schema version '${metadata.heuristicsSchemaVersion}' for rule '${item.uuid}'`,",
-      "risk_level": "LOW",
-      "resolution_mode": "KEEP_CODE_FIRST",
-      "target_change": "Keep in code-first mode and document verification strategy.",
+      "source_line": 383,
+      "heuristic_type": "RETRY_BACKOFF",
+      "current_expression": "const retryable = isRetryableImportError(error)",
+      "risk_level": "HIGH",
+      "resolution_mode": "HARDEN",
+      "target_change": "Harden retry/backoff policy with retryable classification and bounded jitter.",
       "tests_required": [
-        "unit-heuristic-coverage"
+        "unit-retry-policy",
+        "integration-retry-failure-path"
       ],
       "owner_package": "@codenautic/runtime",
       "status": "TRIAGED",
@@ -8536,14 +8533,15 @@
     {
       "id": "H-CODE-0413",
       "source_file": "packages/runtime/src/api/migrations/seed.ts",
-      "source_line": 425,
-      "heuristic_type": "OTHER",
-      "current_expression": "const withUuid = value as {uuid?: unknown; heuristicsMetadata?: unknown}",
-      "risk_level": "LOW",
-      "resolution_mode": "KEEP_CODE_FIRST",
-      "target_change": "Keep in code-first mode and document verification strategy.",
+      "source_line": 385,
+      "heuristic_type": "RETRY_BACKOFF",
+      "current_expression": "if (!retryable || attempt >= config.retryAttempts) {",
+      "risk_level": "HIGH",
+      "resolution_mode": "HARDEN",
+      "target_change": "Harden retry/backoff policy with retryable classification and bounded jitter.",
       "tests_required": [
-        "unit-heuristic-coverage"
+        "unit-retry-policy",
+        "integration-retry-failure-path"
       ],
       "owner_package": "@codenautic/runtime",
       "status": "TRIAGED",
@@ -8556,14 +8554,15 @@
     {
       "id": "H-CODE-0414",
       "source_file": "packages/runtime/src/api/migrations/seed.ts",
-      "source_line": 430,
-      "heuristic_type": "OTHER",
-      "current_expression": "if (withUuid.heuristicsMetadata === undefined) {",
+      "source_line": 389,
+      "heuristic_type": "RETRY_BACKOFF",
+      "current_expression": "const delay = calculateBackoffDelayMs(",
       "risk_level": "LOW",
       "resolution_mode": "KEEP_CODE_FIRST",
-      "target_change": "Keep in code-first mode and document verification strategy.",
+      "target_change": "Harden retry/backoff policy with retryable classification and bounded jitter.",
       "tests_required": [
-        "unit-heuristic-coverage"
+        "unit-retry-policy",
+        "integration-retry-failure-path"
       ],
       "owner_package": "@codenautic/runtime",
       "status": "TRIAGED",
@@ -8576,14 +8575,15 @@
     {
       "id": "H-CODE-0415",
       "source_file": "packages/runtime/src/api/migrations/seed.ts",
-      "source_line": 434,
-      "heuristic_type": "OTHER",
-      "current_expression": "return isRuleHeuristicsMetadata(withUuid.heuristicsMetadata)",
-      "risk_level": "LOW",
-      "resolution_mode": "KEEP_CODE_FIRST",
-      "target_change": "Keep in code-first mode and document verification strategy.",
+      "source_line": 391,
+      "heuristic_type": "RETRY_BACKOFF",
+      "current_expression": "config.retryDelayMs,",
+      "risk_level": "HIGH",
+      "resolution_mode": "HARDEN",
+      "target_change": "Harden retry/backoff policy with retryable classification and bounded jitter.",
       "tests_required": [
-        "unit-heuristic-coverage"
+        "unit-retry-policy",
+        "integration-retry-failure-path"
       ],
       "owner_package": "@codenautic/runtime",
       "status": "TRIAGED",
@@ -8596,14 +8596,15 @@
     {
       "id": "H-CODE-0416",
       "source_file": "packages/runtime/src/api/migrations/seed.ts",
-      "source_line": 438,
-      "heuristic_type": "OTHER",
-      "current_expression": "* Type guard for heuristics metadata transported with imported rule.",
+      "source_line": 392,
+      "heuristic_type": "RETRY_BACKOFF",
+      "current_expression": "config.backoffFactor,",
       "risk_level": "LOW",
       "resolution_mode": "KEEP_CODE_FIRST",
-      "target_change": "Keep in code-first mode and document verification strategy.",
+      "target_change": "Harden retry/backoff policy with retryable classification and bounded jitter.",
       "tests_required": [
-        "unit-heuristic-coverage"
+        "unit-retry-policy",
+        "integration-retry-failure-path"
       ],
       "owner_package": "@codenautic/runtime",
       "status": "TRIAGED",
@@ -8616,14 +8617,15 @@
     {
       "id": "H-CODE-0417",
       "source_file": "packages/runtime/src/api/migrations/seed.ts",
-      "source_line": 443,
-      "heuristic_type": "OTHER",
-      "current_expression": "function isRuleHeuristicsMetadata(value: unknown): value is IRuleHeuristicsMetadata {",
+      "source_line": 393,
+      "heuristic_type": "RETRY_BACKOFF",
+      "current_expression": "config.backoffJitterRatio,",
       "risk_level": "LOW",
       "resolution_mode": "KEEP_CODE_FIRST",
-      "target_change": "Keep in code-first mode and document verification strategy.",
+      "target_change": "Harden retry/backoff policy with retryable classification and bounded jitter.",
       "tests_required": [
-        "unit-heuristic-coverage"
+        "unit-retry-policy",
+        "integration-retry-failure-path"
       ],
       "owner_package": "@codenautic/runtime",
       "status": "TRIAGED",
@@ -8636,14 +8638,15 @@
     {
       "id": "H-CODE-0418",
       "source_file": "packages/runtime/src/api/migrations/seed.ts",
-      "source_line": 449,
-      "heuristic_type": "OTHER",
-      "current_expression": "heuristicsSchemaVersion?: unknown",
-      "risk_level": "LOW",
-      "resolution_mode": "KEEP_CODE_FIRST",
-      "target_change": "Keep in code-first mode and document verification strategy.",
+      "source_line": 397,
+      "heuristic_type": "RETRY_BACKOFF",
+      "current_expression": "console.error(` Retry ${attempt}/${config.retryAttempts} for ${endpoint} in ${delay}ms...`)",
+      "risk_level": "HIGH",
+      "resolution_mode": "HARDEN",
+      "target_change": "Harden retry/backoff policy with retryable classification and bounded jitter.",
       "tests_required": [
-        "unit-heuristic-coverage"
+        "unit-retry-policy",
+        "integration-retry-failure-path"
       ],
       "owner_package": "@codenautic/runtime",
       "status": "TRIAGED",
@@ -8656,9 +8659,9 @@
     {
       "id": "H-CODE-0419",
       "source_file": "packages/runtime/src/api/migrations/seed.ts",
-      "source_line": 454,
+      "source_line": 420,
       "heuristic_type": "OTHER",
-      "current_expression": "typeof metadata.heuristicsSchemaVersion === \"number\" &&",
+      "current_expression": "const metadata = item.heuristicsMetadata",
       "risk_level": "LOW",
       "resolution_mode": "KEEP_CODE_FIRST",
       "target_change": "Keep in code-first mode and document verification strategy.",
@@ -8676,9 +8679,9 @@
     {
       "id": "H-CODE-0420",
       "source_file": "packages/runtime/src/api/migrations/seed.ts",
-      "source_line": 455,
+      "source_line": 425,
       "heuristic_type": "OTHER",
-      "current_expression": "Number.isFinite(metadata.heuristicsSchemaVersion) &&",
+      "current_expression": "if (!isRuleHeuristicsMetadata(metadata)) {",
       "risk_level": "LOW",
       "resolution_mode": "KEEP_CODE_FIRST",
       "target_change": "Keep in code-first mode and document verification strategy.",
@@ -8696,15 +8699,14 @@
     {
       "id": "H-CODE-0421",
       "source_file": "packages/runtime/src/api/migrations/seed.ts",
-      "source_line": 477,
-      "heuristic_type": "FALLBACK_DEFAULT",
-      "current_expression": "* @param defaultsDir Absolute path to defaults directory.",
-      "risk_level": "MEDIUM",
+      "source_line": 426,
+      "heuristic_type": "OTHER",
+      "current_expression": "throw new Error(`Unsupported heuristics metadata shape for rule '${item.uuid}'`)",
+      "risk_level": "LOW",
       "resolution_mode": "KEEP_CODE_FIRST",
-      "target_change": "Harden fallback/default policy and validate environment-specific behavior.",
+      "target_change": "Keep in code-first mode and document verification strategy.",
       "tests_required": [
-        "unit-env-matrix",
-        "integration-default-behavior"
+        "unit-heuristic-coverage"
       ],
       "owner_package": "@codenautic/runtime",
       "status": "TRIAGED",
@@ -8717,15 +8719,14 @@
     {
       "id": "H-CODE-0422",
       "source_file": "packages/runtime/src/api/migrations/seed.ts",
-      "source_line": 482,
-      "heuristic_type": "FALLBACK_DEFAULT",
-      "current_expression": "defaultsDir: string,",
-      "risk_level": "MEDIUM",
+      "source_line": 429,
+      "heuristic_type": "OTHER",
+      "current_expression": "if (metadata.heuristicsSchemaVersion !== SUPPORTED_HEURISTICS_SCHEMA_VERSION) {",
+      "risk_level": "LOW",
       "resolution_mode": "KEEP_CODE_FIRST",
-      "target_change": "Harden fallback/default policy and validate environment-specific behavior.",
+      "target_change": "Keep in code-first mode and document verification strategy.",
       "tests_required": [
-        "unit-env-matrix",
-        "integration-default-behavior"
+        "unit-heuristic-coverage"
       ],
       "owner_package": "@codenautic/runtime",
       "status": "TRIAGED",
@@ -8738,15 +8739,14 @@
     {
       "id": "H-CODE-0423",
       "source_file": "packages/runtime/src/api/migrations/seed.ts",
-      "source_line": 494,
-      "heuristic_type": "FALLBACK_DEFAULT",
-      "current_expression": "const filePath = `${defaultsDir}/${file}`",
-      "risk_level": "MEDIUM",
+      "source_line": 431,
+      "heuristic_type": "OTHER",
+      "current_expression": "`Unsupported heuristics schema version '${metadata.heuristicsSchemaVersion}' for rule '${item.uuid}'`,",
+      "risk_level": "LOW",
       "resolution_mode": "KEEP_CODE_FIRST",
-      "target_change": "Harden fallback/default policy and validate environment-specific behavior.",
+      "target_change": "Keep in code-first mode and document verification strategy.",
       "tests_required": [
-        "unit-env-matrix",
-        "integration-default-behavior"
+        "unit-heuristic-coverage"
       ],
       "owner_package": "@codenautic/runtime",
       "status": "TRIAGED",
@@ -8759,15 +8759,14 @@
     {
       "id": "H-CODE-0424",
       "source_file": "packages/runtime/src/api/migrations/seed.ts",
-      "source_line": 570,
-      "heuristic_type": "FALLBACK_DEFAULT",
-      "current_expression": "const defaultsDir = resolve(import.meta.dir, \"defaults\")",
-      "risk_level": "MEDIUM",
+      "source_line": 460,
+      "heuristic_type": "OTHER",
+      "current_expression": "* Type guard for heuristics metadata transported with imported rule.",
+      "risk_level": "LOW",
       "resolution_mode": "KEEP_CODE_FIRST",
-      "target_change": "Harden fallback/default policy and validate environment-specific behavior.",
+      "target_change": "Keep in code-first mode and document verification strategy.",
       "tests_required": [
-        "unit-env-matrix",
-        "integration-default-behavior"
+        "unit-heuristic-coverage"
       ],
       "owner_package": "@codenautic/runtime",
       "status": "TRIAGED",
@@ -8780,15 +8779,14 @@
     {
       "id": "H-CODE-0425",
       "source_file": "packages/runtime/src/api/migrations/seed.ts",
-      "source_line": 574,
-      "heuristic_type": "FALLBACK_DEFAULT",
-      "current_expression": "console.error(\"Migration: seed default data via Admin API\")",
-      "risk_level": "MEDIUM",
+      "source_line": 465,
+      "heuristic_type": "OTHER",
+      "current_expression": "function isRuleHeuristicsMetadata(value: unknown): value is IImportedRuleHeuristicsMetadata {",
+      "risk_level": "LOW",
       "resolution_mode": "KEEP_CODE_FIRST",
-      "target_change": "Harden fallback/default policy and validate environment-specific behavior.",
+      "target_change": "Keep in code-first mode and document verification strategy.",
       "tests_required": [
-        "unit-env-matrix",
-        "integration-default-behavior"
+        "unit-heuristic-coverage"
       ],
       "owner_package": "@codenautic/runtime",
       "status": "TRIAGED",
@@ -8801,15 +8799,14 @@
     {
       "id": "H-CODE-0426",
       "source_file": "packages/runtime/src/api/migrations/seed.ts",
-      "source_line": 583,
-      "heuristic_type": "FALLBACK_DEFAULT",
-      "current_expression": "const executionResult = await runMigration(config, defaultsDir)",
-      "risk_level": "MEDIUM",
+      "source_line": 471,
+      "heuristic_type": "OTHER",
+      "current_expression": "typeof value[\"heuristicsSchemaVersion\"] === \"number\" &&",
+      "risk_level": "LOW",
       "resolution_mode": "KEEP_CODE_FIRST",
-      "target_change": "Harden fallback/default policy and validate environment-specific behavior.",
+      "target_change": "Keep in code-first mode and document verification strategy.",
       "tests_required": [
-        "unit-env-matrix",
-        "integration-default-behavior"
+        "unit-heuristic-coverage"
       ],
       "owner_package": "@codenautic/runtime",
       "status": "TRIAGED",
@@ -8822,7 +8819,708 @@
     {
       "id": "H-CODE-0427",
       "source_file": "packages/runtime/src/api/migrations/seed.ts",
-      "source_line": 628,
+      "source_line": 472,
+      "heuristic_type": "OTHER",
+      "current_expression": "Number.isFinite(value[\"heuristicsSchemaVersion\"]) &&",
+      "risk_level": "LOW",
+      "resolution_mode": "KEEP_CODE_FIRST",
+      "target_change": "Keep in code-first mode and document verification strategy.",
+      "tests_required": [
+        "unit-heuristic-coverage"
+      ],
+      "owner_package": "@codenautic/runtime",
+      "status": "TRIAGED",
+      "verification_rule": {
+        "name": "h-code-427-verification",
+        "description": "Ensure heuristic entry H-CODE-427 stays covered by unit/integration assertions.",
+        "testCommand": "bun scripts/heuristics/validate-registry.ts"
+      }
+    },
+    {
+      "id": "H-CODE-0428",
+      "source_file": "packages/runtime/src/api/migrations/seed.ts",
+      "source_line": 474,
+      "heuristic_type": "OTHER",
+      "current_expression": "isHeuristicResolutionMode(value[\"resolutionMode\"]) &&",
+      "risk_level": "LOW",
+      "resolution_mode": "KEEP_CODE_FIRST",
+      "target_change": "Keep in code-first mode and document verification strategy.",
+      "tests_required": [
+        "unit-heuristic-coverage"
+      ],
+      "owner_package": "@codenautic/runtime",
+      "status": "TRIAGED",
+      "verification_rule": {
+        "name": "h-code-428-verification",
+        "description": "Ensure heuristic entry H-CODE-428 stays covered by unit/integration assertions.",
+        "testCommand": "bun scripts/heuristics/validate-registry.ts"
+      }
+    },
+    {
+      "id": "H-CODE-0429",
+      "source_file": "packages/runtime/src/api/migrations/seed.ts",
+      "source_line": 475,
+      "heuristic_type": "SCORING",
+      "current_expression": "isHeuristicRiskLevel(value[\"falsePositiveRisk\"]) &&",
+      "risk_level": "HIGH",
+      "resolution_mode": "HARDEN",
+      "target_change": "Keep scoring in code and add deterministic unit/integration checks.",
+      "tests_required": [
+        "unit-score-calculation",
+        "integration-score-pipeline"
+      ],
+      "owner_package": "@codenautic/runtime",
+      "status": "TRIAGED",
+      "verification_rule": {
+        "name": "h-code-429-verification",
+        "description": "Ensure heuristic entry H-CODE-429 stays covered by unit/integration assertions.",
+        "testCommand": "bun scripts/heuristics/validate-registry.ts"
+      }
+    },
+    {
+      "id": "H-CODE-0430",
+      "source_file": "packages/runtime/src/api/migrations/seed.ts",
+      "source_line": 482,
+      "heuristic_type": "OTHER",
+      "current_expression": "* Builds imported-rule heuristics metadata for a single UUID.",
+      "risk_level": "LOW",
+      "resolution_mode": "KEEP_CODE_FIRST",
+      "target_change": "Keep in code-first mode and document verification strategy.",
+      "tests_required": [
+        "unit-heuristic-coverage"
+      ],
+      "owner_package": "@codenautic/runtime",
+      "status": "TRIAGED",
+      "verification_rule": {
+        "name": "h-code-430-verification",
+        "description": "Ensure heuristic entry H-CODE-430 stays covered by unit/integration assertions.",
+        "testCommand": "bun scripts/heuristics/validate-registry.ts"
+      }
+    },
+    {
+      "id": "H-CODE-0431",
+      "source_file": "packages/runtime/src/api/migrations/seed.ts",
+      "source_line": 487,
+      "heuristic_type": "OTHER",
+      "current_expression": "function buildRuleHeuristicsMetadata(item: IRuleImportPayloadItem): IImportedRuleHeuristicsMetadata {",
+      "risk_level": "LOW",
+      "resolution_mode": "KEEP_CODE_FIRST",
+      "target_change": "Keep in code-first mode and document verification strategy.",
+      "tests_required": [
+        "unit-heuristic-coverage"
+      ],
+      "owner_package": "@codenautic/runtime",
+      "status": "TRIAGED",
+      "verification_rule": {
+        "name": "h-code-431-verification",
+        "description": "Ensure heuristic entry H-CODE-431 stays covered by unit/integration assertions.",
+        "testCommand": "bun scripts/heuristics/validate-registry.ts"
+      }
+    },
+    {
+      "id": "H-CODE-0432",
+      "source_file": "packages/runtime/src/api/migrations/seed.ts",
+      "source_line": 488,
+      "heuristic_type": "SCORING",
+      "current_expression": "const falsePositiveRisk = severityToRiskLevel(item.severity)",
+      "risk_level": "HIGH",
+      "resolution_mode": "HARDEN",
+      "target_change": "Keep scoring in code and add deterministic unit/integration checks.",
+      "tests_required": [
+        "unit-score-calculation",
+        "integration-score-pipeline"
+      ],
+      "owner_package": "@codenautic/runtime",
+      "status": "TRIAGED",
+      "verification_rule": {
+        "name": "h-code-432-verification",
+        "description": "Ensure heuristic entry H-CODE-432 stays covered by unit/integration assertions.",
+        "testCommand": "bun scripts/heuristics/validate-registry.ts"
+      }
+    },
+    {
+      "id": "H-CODE-0433",
+      "source_file": "packages/runtime/src/api/migrations/seed.ts",
+      "source_line": 489,
+      "heuristic_type": "SCORING",
+      "current_expression": "const resolutionMode = riskLevelToResolutionMode(falsePositiveRisk)",
+      "risk_level": "HIGH",
+      "resolution_mode": "HARDEN",
+      "target_change": "Keep scoring in code and add deterministic unit/integration checks.",
+      "tests_required": [
+        "unit-score-calculation",
+        "integration-score-pipeline"
+      ],
+      "owner_package": "@codenautic/runtime",
+      "status": "TRIAGED",
+      "verification_rule": {
+        "name": "h-code-433-verification",
+        "description": "Ensure heuristic entry H-CODE-433 stays covered by unit/integration assertions.",
+        "testCommand": "bun scripts/heuristics/validate-registry.ts"
+      }
+    },
+    {
+      "id": "H-CODE-0434",
+      "source_file": "packages/runtime/src/api/migrations/seed.ts",
+      "source_line": 492,
+      "heuristic_type": "OTHER",
+      "current_expression": "heuristicsSchemaVersion: SUPPORTED_HEURISTICS_SCHEMA_VERSION,",
+      "risk_level": "LOW",
+      "resolution_mode": "KEEP_CODE_FIRST",
+      "target_change": "Keep in code-first mode and document verification strategy.",
+      "tests_required": [
+        "unit-heuristic-coverage"
+      ],
+      "owner_package": "@codenautic/runtime",
+      "status": "TRIAGED",
+      "verification_rule": {
+        "name": "h-code-434-verification",
+        "description": "Ensure heuristic entry H-CODE-434 stays covered by unit/integration assertions.",
+        "testCommand": "bun scripts/heuristics/validate-registry.ts"
+      }
+    },
+    {
+      "id": "H-CODE-0435",
+      "source_file": "packages/runtime/src/api/migrations/seed.ts",
+      "source_line": 497,
+      "heuristic_type": "OTHER",
+      "current_expression": "description: `Validate heuristics metadata for rule ${item.uuid}`,",
+      "risk_level": "LOW",
+      "resolution_mode": "KEEP_CODE_FIRST",
+      "target_change": "Keep in code-first mode and document verification strategy.",
+      "tests_required": [
+        "unit-heuristic-coverage"
+      ],
+      "owner_package": "@codenautic/runtime",
+      "status": "TRIAGED",
+      "verification_rule": {
+        "name": "h-code-435-verification",
+        "description": "Ensure heuristic entry H-CODE-435 stays covered by unit/integration assertions.",
+        "testCommand": "bun scripts/heuristics/validate-registry.ts"
+      }
+    },
+    {
+      "id": "H-CODE-0436",
+      "source_file": "packages/runtime/src/api/migrations/seed.ts",
+      "source_line": 500,
+      "heuristic_type": "SCORING",
+      "current_expression": "falsePositiveRisk,",
+      "risk_level": "HIGH",
+      "resolution_mode": "HARDEN",
+      "target_change": "Keep scoring in code and add deterministic unit/integration checks.",
+      "tests_required": [
+        "unit-score-calculation",
+        "integration-score-pipeline"
+      ],
+      "owner_package": "@codenautic/runtime",
+      "status": "TRIAGED",
+      "verification_rule": {
+        "name": "h-code-436-verification",
+        "description": "Ensure heuristic entry H-CODE-436 stays covered by unit/integration assertions.",
+        "testCommand": "bun scripts/heuristics/validate-registry.ts"
+      }
+    },
+    {
+      "id": "H-CODE-0437",
+      "source_file": "packages/runtime/src/api/migrations/seed.ts",
+      "source_line": 506,
+      "heuristic_type": "SCORING",
+      "current_expression": "* Maps rule severity label to heuristic false-positive risk.",
+      "risk_level": "HIGH",
+      "resolution_mode": "HARDEN",
+      "target_change": "Keep scoring in code and add deterministic unit/integration checks.",
+      "tests_required": [
+        "unit-score-calculation",
+        "integration-score-pipeline"
+      ],
+      "owner_package": "@codenautic/runtime",
+      "status": "TRIAGED",
+      "verification_rule": {
+        "name": "h-code-437-verification",
+        "description": "Ensure heuristic entry H-CODE-437 stays covered by unit/integration assertions.",
+        "testCommand": "bun scripts/heuristics/validate-registry.ts"
+      }
+    },
+    {
+      "id": "H-CODE-0438",
+      "source_file": "packages/runtime/src/api/migrations/seed.ts",
+      "source_line": 509,
+      "heuristic_type": "SCORING",
+      "current_expression": "* @returns Normalized risk level.",
+      "risk_level": "HIGH",
+      "resolution_mode": "HARDEN",
+      "target_change": "Keep scoring in code and add deterministic unit/integration checks.",
+      "tests_required": [
+        "unit-score-calculation",
+        "integration-score-pipeline"
+      ],
+      "owner_package": "@codenautic/runtime",
+      "status": "TRIAGED",
+      "verification_rule": {
+        "name": "h-code-438-verification",
+        "description": "Ensure heuristic entry H-CODE-438 stays covered by unit/integration assertions.",
+        "testCommand": "bun scripts/heuristics/validate-registry.ts"
+      }
+    },
+    {
+      "id": "H-CODE-0439",
+      "source_file": "packages/runtime/src/api/migrations/seed.ts",
+      "source_line": 511,
+      "heuristic_type": "SCORING",
+      "current_expression": "function severityToRiskLevel(severity: string | undefined): HeuristicRiskLevel {",
+      "risk_level": "HIGH",
+      "resolution_mode": "HARDEN",
+      "target_change": "Keep scoring in code and add deterministic unit/integration checks.",
+      "tests_required": [
+        "unit-score-calculation",
+        "integration-score-pipeline"
+      ],
+      "owner_package": "@codenautic/runtime",
+      "status": "TRIAGED",
+      "verification_rule": {
+        "name": "h-code-439-verification",
+        "description": "Ensure heuristic entry H-CODE-439 stays covered by unit/integration assertions.",
+        "testCommand": "bun scripts/heuristics/validate-registry.ts"
+      }
+    },
+    {
+      "id": "H-CODE-0440",
+      "source_file": "packages/runtime/src/api/migrations/seed.ts",
+      "source_line": 527,
+      "heuristic_type": "SCORING",
+      "current_expression": "* Maps heuristic risk level to rule resolution mode.",
+      "risk_level": "HIGH",
+      "resolution_mode": "HARDEN",
+      "target_change": "Keep scoring in code and add deterministic unit/integration checks.",
+      "tests_required": [
+        "unit-score-calculation",
+        "integration-score-pipeline"
+      ],
+      "owner_package": "@codenautic/runtime",
+      "status": "TRIAGED",
+      "verification_rule": {
+        "name": "h-code-440-verification",
+        "description": "Ensure heuristic entry H-CODE-440 stays covered by unit/integration assertions.",
+        "testCommand": "bun scripts/heuristics/validate-registry.ts"
+      }
+    },
+    {
+      "id": "H-CODE-0441",
+      "source_file": "packages/runtime/src/api/migrations/seed.ts",
+      "source_line": 529,
+      "heuristic_type": "SCORING",
+      "current_expression": "* @param riskLevel Heuristic risk level.",
+      "risk_level": "HIGH",
+      "resolution_mode": "HARDEN",
+      "target_change": "Keep scoring in code and add deterministic unit/integration checks.",
+      "tests_required": [
+        "unit-score-calculation",
+        "integration-score-pipeline"
+      ],
+      "owner_package": "@codenautic/runtime",
+      "status": "TRIAGED",
+      "verification_rule": {
+        "name": "h-code-441-verification",
+        "description": "Ensure heuristic entry H-CODE-441 stays covered by unit/integration assertions.",
+        "testCommand": "bun scripts/heuristics/validate-registry.ts"
+      }
+    },
+    {
+      "id": "H-CODE-0442",
+      "source_file": "packages/runtime/src/api/migrations/seed.ts",
+      "source_line": 532,
+      "heuristic_type": "SCORING",
+      "current_expression": "function riskLevelToResolutionMode(riskLevel: HeuristicRiskLevel): HeuristicResolutionMode {",
+      "risk_level": "HIGH",
+      "resolution_mode": "HARDEN",
+      "target_change": "Keep scoring in code and add deterministic unit/integration checks.",
+      "tests_required": [
+        "unit-score-calculation",
+        "integration-score-pipeline"
+      ],
+      "owner_package": "@codenautic/runtime",
+      "status": "TRIAGED",
+      "verification_rule": {
+        "name": "h-code-442-verification",
+        "description": "Ensure heuristic entry H-CODE-442 stays covered by unit/integration assertions.",
+        "testCommand": "bun scripts/heuristics/validate-registry.ts"
+      }
+    },
+    {
+      "id": "H-CODE-0443",
+      "source_file": "packages/runtime/src/api/migrations/seed.ts",
+      "source_line": 533,
+      "heuristic_type": "SCORING",
+      "current_expression": "if (riskLevel === \"CRITICAL\" || riskLevel === \"HIGH\") {",
+      "risk_level": "CRITICAL",
+      "resolution_mode": "HARDEN",
+      "target_change": "Keep scoring in code and add deterministic unit/integration checks.",
+      "tests_required": [
+        "unit-score-calculation",
+        "integration-score-pipeline"
+      ],
+      "owner_package": "@codenautic/runtime",
+      "status": "TRIAGED",
+      "verification_rule": {
+        "name": "h-code-443-verification",
+        "description": "Ensure heuristic entry H-CODE-443 stays covered by unit/integration assertions.",
+        "testCommand": "bun scripts/heuristics/validate-registry.ts"
+      }
+    },
+    {
+      "id": "H-CODE-0444",
+      "source_file": "packages/runtime/src/api/migrations/seed.ts",
+      "source_line": 560,
+      "heuristic_type": "SCORING",
+      "current_expression": "* Validates heuristic risk level literal.",
+      "risk_level": "HIGH",
+      "resolution_mode": "HARDEN",
+      "target_change": "Keep scoring in code and add deterministic unit/integration checks.",
+      "tests_required": [
+        "unit-score-calculation",
+        "integration-score-pipeline"
+      ],
+      "owner_package": "@codenautic/runtime",
+      "status": "TRIAGED",
+      "verification_rule": {
+        "name": "h-code-444-verification",
+        "description": "Ensure heuristic entry H-CODE-444 stays covered by unit/integration assertions.",
+        "testCommand": "bun scripts/heuristics/validate-registry.ts"
+      }
+    },
+    {
+      "id": "H-CODE-0445",
+      "source_file": "packages/runtime/src/api/migrations/seed.ts",
+      "source_line": 563,
+      "heuristic_type": "SCORING",
+      "current_expression": "* @returns True when value is supported risk level.",
+      "risk_level": "HIGH",
+      "resolution_mode": "HARDEN",
+      "target_change": "Keep scoring in code and add deterministic unit/integration checks.",
+      "tests_required": [
+        "unit-score-calculation",
+        "integration-score-pipeline"
+      ],
+      "owner_package": "@codenautic/runtime",
+      "status": "TRIAGED",
+      "verification_rule": {
+        "name": "h-code-445-verification",
+        "description": "Ensure heuristic entry H-CODE-445 stays covered by unit/integration assertions.",
+        "testCommand": "bun scripts/heuristics/validate-registry.ts"
+      }
+    },
+    {
+      "id": "H-CODE-0446",
+      "source_file": "packages/runtime/src/api/migrations/seed.ts",
+      "source_line": 565,
+      "heuristic_type": "SCORING",
+      "current_expression": "function isHeuristicRiskLevel(value: unknown): value is HeuristicRiskLevel {",
+      "risk_level": "HIGH",
+      "resolution_mode": "HARDEN",
+      "target_change": "Keep scoring in code and add deterministic unit/integration checks.",
+      "tests_required": [
+        "unit-score-calculation",
+        "integration-score-pipeline"
+      ],
+      "owner_package": "@codenautic/runtime",
+      "status": "TRIAGED",
+      "verification_rule": {
+        "name": "h-code-446-verification",
+        "description": "Ensure heuristic entry H-CODE-446 stays covered by unit/integration assertions.",
+        "testCommand": "bun scripts/heuristics/validate-registry.ts"
+      }
+    },
+    {
+      "id": "H-CODE-0447",
+      "source_file": "packages/runtime/src/api/migrations/seed.ts",
+      "source_line": 566,
+      "heuristic_type": "SCORING",
+      "current_expression": "return typeof value === \"string\" && HEURISTIC_RISK_LEVELS.has(value as HeuristicRiskLevel)",
+      "risk_level": "HIGH",
+      "resolution_mode": "HARDEN",
+      "target_change": "Keep scoring in code and add deterministic unit/integration checks.",
+      "tests_required": [
+        "unit-score-calculation",
+        "integration-score-pipeline"
+      ],
+      "owner_package": "@codenautic/runtime",
+      "status": "TRIAGED",
+      "verification_rule": {
+        "name": "h-code-447-verification",
+        "description": "Ensure heuristic entry H-CODE-447 stays covered by unit/integration assertions.",
+        "testCommand": "bun scripts/heuristics/validate-registry.ts"
+      }
+    },
+    {
+      "id": "H-CODE-0448",
+      "source_file": "packages/runtime/src/api/migrations/seed.ts",
+      "source_line": 570,
+      "heuristic_type": "OTHER",
+      "current_expression": "* Validates heuristic resolution mode literal.",
+      "risk_level": "LOW",
+      "resolution_mode": "KEEP_CODE_FIRST",
+      "target_change": "Keep in code-first mode and document verification strategy.",
+      "tests_required": [
+        "unit-heuristic-coverage"
+      ],
+      "owner_package": "@codenautic/runtime",
+      "status": "TRIAGED",
+      "verification_rule": {
+        "name": "h-code-448-verification",
+        "description": "Ensure heuristic entry H-CODE-448 stays covered by unit/integration assertions.",
+        "testCommand": "bun scripts/heuristics/validate-registry.ts"
+      }
+    },
+    {
+      "id": "H-CODE-0449",
+      "source_file": "packages/runtime/src/api/migrations/seed.ts",
+      "source_line": 575,
+      "heuristic_type": "OTHER",
+      "current_expression": "function isHeuristicResolutionMode(value: unknown): value is HeuristicResolutionMode {",
+      "risk_level": "LOW",
+      "resolution_mode": "KEEP_CODE_FIRST",
+      "target_change": "Keep in code-first mode and document verification strategy.",
+      "tests_required": [
+        "unit-heuristic-coverage"
+      ],
+      "owner_package": "@codenautic/runtime",
+      "status": "TRIAGED",
+      "verification_rule": {
+        "name": "h-code-449-verification",
+        "description": "Ensure heuristic entry H-CODE-449 stays covered by unit/integration assertions.",
+        "testCommand": "bun scripts/heuristics/validate-registry.ts"
+      }
+    },
+    {
+      "id": "H-CODE-0450",
+      "source_file": "packages/runtime/src/api/migrations/seed.ts",
+      "source_line": 576,
+      "heuristic_type": "OTHER",
+      "current_expression": "return typeof value === \"string\" && HEURISTIC_RESOLUTION_MODES.has(value as HeuristicResolutionMode)",
+      "risk_level": "LOW",
+      "resolution_mode": "KEEP_CODE_FIRST",
+      "target_change": "Keep in code-first mode and document verification strategy.",
+      "tests_required": [
+        "unit-heuristic-coverage"
+      ],
+      "owner_package": "@codenautic/runtime",
+      "status": "TRIAGED",
+      "verification_rule": {
+        "name": "h-code-450-verification",
+        "description": "Ensure heuristic entry H-CODE-450 stays covered by unit/integration assertions.",
+        "testCommand": "bun scripts/heuristics/validate-registry.ts"
+      }
+    },
+    {
+      "id": "H-CODE-0451",
+      "source_file": "packages/runtime/src/api/migrations/seed.ts",
+      "source_line": 580,
+      "heuristic_type": "OTHER",
+      "current_expression": "* Validates heuristics verification rule object.",
+      "risk_level": "LOW",
+      "resolution_mode": "KEEP_CODE_FIRST",
+      "target_change": "Keep in code-first mode and document verification strategy.",
+      "tests_required": [
+        "unit-heuristic-coverage"
+      ],
+      "owner_package": "@codenautic/runtime",
+      "status": "TRIAGED",
+      "verification_rule": {
+        "name": "h-code-451-verification",
+        "description": "Ensure heuristic entry H-CODE-451 stays covered by unit/integration assertions.",
+        "testCommand": "bun scripts/heuristics/validate-registry.ts"
+      }
+    },
+    {
+      "id": "H-CODE-0452",
+      "source_file": "packages/runtime/src/api/migrations/seed.ts",
+      "source_line": 585,
+      "heuristic_type": "OTHER",
+      "current_expression": "function isVerificationRule(value: unknown): value is IRuleHeuristicsVerificationRule {",
+      "risk_level": "LOW",
+      "resolution_mode": "KEEP_CODE_FIRST",
+      "target_change": "Keep in code-first mode and document verification strategy.",
+      "tests_required": [
+        "unit-heuristic-coverage"
+      ],
+      "owner_package": "@codenautic/runtime",
+      "status": "TRIAGED",
+      "verification_rule": {
+        "name": "h-code-452-verification",
+        "description": "Ensure heuristic entry H-CODE-452 stays covered by unit/integration assertions.",
+        "testCommand": "bun scripts/heuristics/validate-registry.ts"
+      }
+    },
+    {
+      "id": "H-CODE-0453",
+      "source_file": "packages/runtime/src/api/migrations/seed.ts",
+      "source_line": 620,
+      "heuristic_type": "OTHER",
+      "current_expression": "if (item.heuristicsMetadata !== undefined) {",
+      "risk_level": "LOW",
+      "resolution_mode": "KEEP_CODE_FIRST",
+      "target_change": "Keep in code-first mode and document verification strategy.",
+      "tests_required": [
+        "unit-heuristic-coverage"
+      ],
+      "owner_package": "@codenautic/runtime",
+      "status": "TRIAGED",
+      "verification_rule": {
+        "name": "h-code-453-verification",
+        "description": "Ensure heuristic entry H-CODE-453 stays covered by unit/integration assertions.",
+        "testCommand": "bun scripts/heuristics/validate-registry.ts"
+      }
+    },
+    {
+      "id": "H-CODE-0454",
+      "source_file": "packages/runtime/src/api/migrations/seed.ts",
+      "source_line": 626,
+      "heuristic_type": "OTHER",
+      "current_expression": "heuristicsMetadata: buildRuleHeuristicsMetadata(item),",
+      "risk_level": "LOW",
+      "resolution_mode": "KEEP_CODE_FIRST",
+      "target_change": "Keep in code-first mode and document verification strategy.",
+      "tests_required": [
+        "unit-heuristic-coverage"
+      ],
+      "owner_package": "@codenautic/runtime",
+      "status": "TRIAGED",
+      "verification_rule": {
+        "name": "h-code-454-verification",
+        "description": "Ensure heuristic entry H-CODE-454 stays covered by unit/integration assertions.",
+        "testCommand": "bun scripts/heuristics/validate-registry.ts"
+      }
+    },
+    {
+      "id": "H-CODE-0455",
+      "source_file": "packages/runtime/src/api/migrations/seed.ts",
+      "source_line": 647,
+      "heuristic_type": "FALLBACK_DEFAULT",
+      "current_expression": "* @param defaultsDir Absolute path to defaults directory.",
+      "risk_level": "MEDIUM",
+      "resolution_mode": "KEEP_CODE_FIRST",
+      "target_change": "Harden fallback/default policy and validate environment-specific behavior.",
+      "tests_required": [
+        "unit-env-matrix",
+        "integration-default-behavior"
+      ],
+      "owner_package": "@codenautic/runtime",
+      "status": "TRIAGED",
+      "verification_rule": {
+        "name": "h-code-455-verification",
+        "description": "Ensure heuristic entry H-CODE-455 stays covered by unit/integration assertions.",
+        "testCommand": "bun scripts/heuristics/validate-registry.ts"
+      }
+    },
+    {
+      "id": "H-CODE-0456",
+      "source_file": "packages/runtime/src/api/migrations/seed.ts",
+      "source_line": 652,
+      "heuristic_type": "FALLBACK_DEFAULT",
+      "current_expression": "defaultsDir: string,",
+      "risk_level": "MEDIUM",
+      "resolution_mode": "KEEP_CODE_FIRST",
+      "target_change": "Harden fallback/default policy and validate environment-specific behavior.",
+      "tests_required": [
+        "unit-env-matrix",
+        "integration-default-behavior"
+      ],
+      "owner_package": "@codenautic/runtime",
+      "status": "TRIAGED",
+      "verification_rule": {
+        "name": "h-code-456-verification",
+        "description": "Ensure heuristic entry H-CODE-456 stays covered by unit/integration assertions.",
+        "testCommand": "bun scripts/heuristics/validate-registry.ts"
+      }
+    },
+    {
+      "id": "H-CODE-0457",
+      "source_file": "packages/runtime/src/api/migrations/seed.ts",
+      "source_line": 664,
+      "heuristic_type": "FALLBACK_DEFAULT",
+      "current_expression": "const filePath = `${defaultsDir}/${file}`",
+      "risk_level": "MEDIUM",
+      "resolution_mode": "KEEP_CODE_FIRST",
+      "target_change": "Harden fallback/default policy and validate environment-specific behavior.",
+      "tests_required": [
+        "unit-env-matrix",
+        "integration-default-behavior"
+      ],
+      "owner_package": "@codenautic/runtime",
+      "status": "TRIAGED",
+      "verification_rule": {
+        "name": "h-code-457-verification",
+        "description": "Ensure heuristic entry H-CODE-457 stays covered by unit/integration assertions.",
+        "testCommand": "bun scripts/heuristics/validate-registry.ts"
+      }
+    },
+    {
+      "id": "H-CODE-0458",
+      "source_file": "packages/runtime/src/api/migrations/seed.ts",
+      "source_line": 741,
+      "heuristic_type": "FALLBACK_DEFAULT",
+      "current_expression": "const defaultsDir = resolve(import.meta.dir, \"defaults\")",
+      "risk_level": "MEDIUM",
+      "resolution_mode": "KEEP_CODE_FIRST",
+      "target_change": "Harden fallback/default policy and validate environment-specific behavior.",
+      "tests_required": [
+        "unit-env-matrix",
+        "integration-default-behavior"
+      ],
+      "owner_package": "@codenautic/runtime",
+      "status": "TRIAGED",
+      "verification_rule": {
+        "name": "h-code-458-verification",
+        "description": "Ensure heuristic entry H-CODE-458 stays covered by unit/integration assertions.",
+        "testCommand": "bun scripts/heuristics/validate-registry.ts"
+      }
+    },
+    {
+      "id": "H-CODE-0459",
+      "source_file": "packages/runtime/src/api/migrations/seed.ts",
+      "source_line": 745,
+      "heuristic_type": "FALLBACK_DEFAULT",
+      "current_expression": "console.error(\"Migration: seed default data via Admin API\")",
+      "risk_level": "MEDIUM",
+      "resolution_mode": "KEEP_CODE_FIRST",
+      "target_change": "Harden fallback/default policy and validate environment-specific behavior.",
+      "tests_required": [
+        "unit-env-matrix",
+        "integration-default-behavior"
+      ],
+      "owner_package": "@codenautic/runtime",
+      "status": "TRIAGED",
+      "verification_rule": {
+        "name": "h-code-459-verification",
+        "description": "Ensure heuristic entry H-CODE-459 stays covered by unit/integration assertions.",
+        "testCommand": "bun scripts/heuristics/validate-registry.ts"
+      }
+    },
+    {
+      "id": "H-CODE-0460",
+      "source_file": "packages/runtime/src/api/migrations/seed.ts",
+      "source_line": 754,
+      "heuristic_type": "FALLBACK_DEFAULT",
+      "current_expression": "const executionResult = await runMigration(config, defaultsDir)",
+      "risk_level": "MEDIUM",
+      "resolution_mode": "KEEP_CODE_FIRST",
+      "target_change": "Harden fallback/default policy and validate environment-specific behavior.",
+      "tests_required": [
+        "unit-env-matrix",
+        "integration-default-behavior"
+      ],
+      "owner_package": "@codenautic/runtime",
+      "status": "TRIAGED",
+      "verification_rule": {
+        "name": "h-code-460-verification",
+        "description": "Ensure heuristic entry H-CODE-460 stays covered by unit/integration assertions.",
+        "testCommand": "bun scripts/heuristics/validate-registry.ts"
+      }
+    },
+    {
+      "id": "H-CODE-0461",
+      "source_file": "packages/runtime/src/api/migrations/seed.ts",
+      "source_line": 799,
       "heuristic_type": "RETRY_BACKOFF",
       "current_expression": "calculateBackoffDelayMs,",
       "risk_level": "LOW",
@@ -8835,13 +9533,13 @@
       "owner_package": "@codenautic/runtime",
       "status": "TRIAGED",
       "verification_rule": {
-        "name": "h-code-427-verification",
-        "description": "Ensure heuristic entry H-CODE-427 stays covered by unit/integration assertions.",
+        "name": "h-code-461-verification",
+        "description": "Ensure heuristic entry H-CODE-461 stays covered by unit/integration assertions.",
         "testCommand": "bun scripts/heuristics/validate-registry.ts"
       }
     },
     {
-      "id": "H-CODE-0428",
+      "id": "H-CODE-0462",
       "source_file": "packages/ui/src/lib/api/config.ts",
       "source_line": 12,
       "heuristic_type": "FALLBACK_DEFAULT",
@@ -8856,13 +9554,13 @@
       "owner_package": "@codenautic/ui",
       "status": "TRIAGED",
       "verification_rule": {
-        "name": "h-code-428-verification",
-        "description": "Ensure heuristic entry H-CODE-428 stays covered by unit/integration assertions.",
+        "name": "h-code-462-verification",
+        "description": "Ensure heuristic entry H-CODE-462 stays covered by unit/integration assertions.",
         "testCommand": "bun scripts/heuristics/validate-registry.ts"
       }
     },
     {
-      "id": "H-CODE-0429",
+      "id": "H-CODE-0463",
       "source_file": "packages/ui/src/lib/api/config.ts",
       "source_line": 24,
       "heuristic_type": "FALLBACK_DEFAULT",
@@ -8877,13 +9575,13 @@
       "owner_package": "@codenautic/ui",
       "status": "TRIAGED",
       "verification_rule": {
-        "name": "h-code-429-verification",
-        "description": "Ensure heuristic entry H-CODE-429 stays covered by unit/integration assertions.",
+        "name": "h-code-463-verification",
+        "description": "Ensure heuristic entry H-CODE-463 stays covered by unit/integration assertions.",
         "testCommand": "bun scripts/heuristics/validate-registry.ts"
       }
     },
     {
-      "id": "H-CODE-0430",
+      "id": "H-CODE-0464",
       "source_file": "packages/ui/src/lib/api/config.ts",
       "source_line": 43,
       "heuristic_type": "FALLBACK_DEFAULT",
@@ -8898,13 +9596,13 @@
       "owner_package": "@codenautic/ui",
       "status": "TRIAGED",
       "verification_rule": {
-        "name": "h-code-430-verification",
-        "description": "Ensure heuristic entry H-CODE-430 stays covered by unit/integration assertions.",
+        "name": "h-code-464-verification",
+        "description": "Ensure heuristic entry H-CODE-464 stays covered by unit/integration assertions.",
         "testCommand": "bun scripts/heuristics/validate-registry.ts"
       }
     },
     {
-      "id": "H-CODE-0431",
+      "id": "H-CODE-0465",
       "source_file": "packages/ui/src/lib/api/config.ts",
       "source_line": 44,
       "heuristic_type": "FALLBACK_DEFAULT",
@@ -8919,13 +9617,13 @@
       "owner_package": "@codenautic/ui",
       "status": "TRIAGED",
       "verification_rule": {
-        "name": "h-code-431-verification",
-        "description": "Ensure heuristic entry H-CODE-431 stays covered by unit/integration assertions.",
+        "name": "h-code-465-verification",
+        "description": "Ensure heuristic entry H-CODE-465 stays covered by unit/integration assertions.",
         "testCommand": "bun scripts/heuristics/validate-registry.ts"
       }
     },
     {
-      "id": "H-CODE-0432",
+      "id": "H-CODE-0466",
       "source_file": "packages/ui/src/lib/api/config.ts",
       "source_line": 54,
       "heuristic_type": "FALLBACK_DEFAULT",
@@ -8940,13 +9638,13 @@
       "owner_package": "@codenautic/ui",
       "status": "TRIAGED",
       "verification_rule": {
-        "name": "h-code-432-verification",
-        "description": "Ensure heuristic entry H-CODE-432 stays covered by unit/integration assertions.",
+        "name": "h-code-466-verification",
+        "description": "Ensure heuristic entry H-CODE-466 stays covered by unit/integration assertions.",
         "testCommand": "bun scripts/heuristics/validate-registry.ts"
       }
     },
     {
-      "id": "H-CODE-0433",
+      "id": "H-CODE-0467",
       "source_file": "packages/ui/src/lib/api/http-client.ts",
       "source_line": 86,
       "heuristic_type": "FALLBACK_DEFAULT",
@@ -8961,8 +9659,8 @@
       "owner_package": "@codenautic/ui",
       "status": "TRIAGED",
       "verification_rule": {
-        "name": "h-code-433-verification",
-        "description": "Ensure heuristic entry H-CODE-433 stays covered by unit/integration assertions.",
+        "name": "h-code-467-verification",
+        "description": "Ensure heuristic entry H-CODE-467 stays covered by unit/integration assertions.",
         "testCommand": "bun scripts/heuristics/validate-registry.ts"
       }
     },

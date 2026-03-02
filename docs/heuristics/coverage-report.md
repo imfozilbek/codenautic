@@ -1,9 +1,9 @@
 # Heuristics Coverage Report
 
 - Schema version: 1
-- Generated at: 2026-03-02T10:19:50.487Z
-- Total entries: 1904
-- Code entries: 433
+- Generated at: 2026-03-02T10:43:57.074Z
+- Total entries: 1938
+- Code entries: 467
 - Plan entries: 677
 - Rule entries: 794
 - Untriaged entries: 0
@@ -12,11 +12,11 @@
 
 | Type | Count |
 |------|------:|
-| OTHER | 754 |
+| OTHER | 770 |
 | RETRY_BACKOFF | 505 |
 | FALLBACK_DEFAULT | 217 |
+| SCORING | 115 |
 | DRIFT_SIGNAL | 98 |
-| SCORING | 97 |
 | TIMEOUT | 72 |
 | WEIGHTING | 71 |
 | RESOURCE_LIMIT | 32 |

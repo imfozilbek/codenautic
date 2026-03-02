@@ -57,12 +57,26 @@ interface IImportResourceConfig {
 
 interface IRuleImportPayloadItem {
     readonly uuid: string
-    readonly heuristicsMetadata?: IRuleHeuristicsMetadata
+    readonly severity?: string
+    readonly heuristicsMetadata?: unknown
 }
 
-interface IRuleHeuristicsMetadata {
+type HeuristicRiskLevel = "LOW" | "MEDIUM" | "HIGH" | "CRITICAL"
+type HeuristicResolutionMode = "ELIMINATE" | "HARDEN" | "KEEP_CODE_FIRST"
+
+interface IRuleHeuristicsVerificationRule {
+    readonly name: string
+    readonly description: string
+    readonly testCommand: string
+}
+
+interface IImportedRuleHeuristicsMetadata {
     readonly heuristicsSchemaVersion: number
     readonly ruleUuid: string
+    readonly resolutionMode: HeuristicResolutionMode
+    readonly verificationRule: IRuleHeuristicsVerificationRule
+    readonly falsePositiveRisk: HeuristicRiskLevel
+    readonly evidenceLevel: string
 }
 
 const DEFAULT_API_URL = "http://localhost:3000"
@@ -73,6 +87,15 @@ const DEFAULT_BACKOFF_JITTER_RATIO = 0.2
 const DEFAULT_HEALTH_TIMEOUT_MS = 5000
 const DEFAULT_IMPORT_TIMEOUT_MS = 120000
 const SUPPORTED_HEURISTICS_SCHEMA_VERSION = 1
+const RULE_EVIDENCE_LEVEL = "RULE_TEXT_ONLY"
+const RULE_VERIFICATION_COMMAND = "bun scripts/heuristics/validate-registry.ts --rules-only"
+
+const HEURISTIC_RISK_LEVELS = new Set<HeuristicRiskLevel>(["LOW", "MEDIUM", "HIGH", "CRITICAL"])
+const HEURISTIC_RESOLUTION_MODES = new Set<HeuristicResolutionMode>([
+    "ELIMINATE",
+    "HARDEN",
+    "KEEP_CODE_FIRST",
+])
 
 const RETRYABLE_HTTP_STATUS = new Set([408, 425, 429, 500, 502, 503, 504])
 
@@ -396,7 +419,11 @@ function validateRulesMetadataCompatibility(data: unknown): void {
 
         const metadata = item.heuristicsMetadata
         if (metadata === undefined) {
-            continue
+            throw new Error(`Rule metadata is required for rule '${item.uuid}'`)
+        }
+
+        if (!isRuleHeuristicsMetadata(metadata)) {
+            throw new Error(`Unsupported heuristics metadata shape for rule '${item.uuid}'`)
         }
 
         if (metadata.heuristicsSchemaVersion !== SUPPORTED_HEURISTICS_SCHEMA_VERSION) {
@@ -418,20 +445,15 @@ function validateRulesMetadataCompatibility(data: unknown): void {
  * @returns True when item has rule UUID.
  */
 function isRuleImportPayloadItem(value: unknown): value is IRuleImportPayloadItem {
-    if (typeof value !== "object" || value === null) {
+    if (!isRecord(value)) {
         return false
     }
 
-    const withUuid = value as {uuid?: unknown; heuristicsMetadata?: unknown}
-    if (typeof withUuid.uuid !== "string" || withUuid.uuid.length === 0) {
+    if (!isNonEmptyString(value["uuid"])) {
         return false
     }
 
-    if (withUuid.heuristicsMetadata === undefined) {
-        return true
-    }
-
-    return isRuleHeuristicsMetadata(withUuid.heuristicsMetadata)
+    return value["severity"] === undefined || typeof value["severity"] === "string"
 }
 
 /**
@@ -440,22 +462,170 @@ function isRuleImportPayloadItem(value: unknown): value is IRuleImportPayloadIte
  * @param value Unknown metadata value.
  * @returns True when metadata has expected shape.
  */
-function isRuleHeuristicsMetadata(value: unknown): value is IRuleHeuristicsMetadata {
-    if (typeof value !== "object" || value === null) {
+function isRuleHeuristicsMetadata(value: unknown): value is IImportedRuleHeuristicsMetadata {
+    if (!isRecord(value)) {
         return false
     }
 
-    const metadata = value as {
-        heuristicsSchemaVersion?: unknown
-        ruleUuid?: unknown
+    return (
+        typeof value["heuristicsSchemaVersion"] === "number" &&
+        Number.isFinite(value["heuristicsSchemaVersion"]) &&
+        isNonEmptyString(value["ruleUuid"]) &&
+        isHeuristicResolutionMode(value["resolutionMode"]) &&
+        isHeuristicRiskLevel(value["falsePositiveRisk"]) &&
+        isNonEmptyString(value["evidenceLevel"]) &&
+        isVerificationRule(value["verificationRule"])
+    )
+}
+
+/**
+ * Builds imported-rule heuristics metadata for a single UUID.
+ *
+ * @param item Rule payload item.
+ * @returns Metadata attached to imported rule.
+ */
+function buildRuleHeuristicsMetadata(item: IRuleImportPayloadItem): IImportedRuleHeuristicsMetadata {
+    const falsePositiveRisk = severityToRiskLevel(item.severity)
+    const resolutionMode = riskLevelToResolutionMode(falsePositiveRisk)
+
+    return {
+        heuristicsSchemaVersion: SUPPORTED_HEURISTICS_SCHEMA_VERSION,
+        ruleUuid: item.uuid,
+        resolutionMode,
+        verificationRule: {
+            name: `rule-${item.uuid.slice(0, 8)}-schema`,
+            description: `Validate heuristics metadata for rule ${item.uuid}`,
+            testCommand: RULE_VERIFICATION_COMMAND,
+        },
+        falsePositiveRisk,
+        evidenceLevel: RULE_EVIDENCE_LEVEL,
+    }
+}
+
+/**
+ * Maps rule severity label to heuristic false-positive risk.
+ *
+ * @param severity Rule severity label.
+ * @returns Normalized risk level.
+ */
+function severityToRiskLevel(severity: string | undefined): HeuristicRiskLevel {
+    const normalized = severity?.toLowerCase()
+
+    if (normalized === "critical") {
+        return "CRITICAL"
+    }
+    if (normalized === "high") {
+        return "HIGH"
+    }
+    if (normalized === "medium") {
+        return "MEDIUM"
+    }
+    return "LOW"
+}
+
+/**
+ * Maps heuristic risk level to rule resolution mode.
+ *
+ * @param riskLevel Heuristic risk level.
+ * @returns Resolution mode selected for rule metadata.
+ */
+function riskLevelToResolutionMode(riskLevel: HeuristicRiskLevel): HeuristicResolutionMode {
+    if (riskLevel === "CRITICAL" || riskLevel === "HIGH") {
+        return "HARDEN"
+    }
+    return "KEEP_CODE_FIRST"
+}
+
+/**
+ * Detects whether unknown value is object-like record.
+ *
+ * @param value Unknown value.
+ * @returns True when value is record.
+ */
+function isRecord(value: unknown): value is Record<string, unknown> {
+    return typeof value === "object" && value !== null
+}
+
+/**
+ * Detects whether unknown value is non-empty string.
+ *
+ * @param value Unknown value.
+ * @returns True when value is non-empty string.
+ */
+function isNonEmptyString(value: unknown): value is string {
+    return typeof value === "string" && value.length > 0
+}
+
+/**
+ * Validates heuristic risk level literal.
+ *
+ * @param value Unknown value.
+ * @returns True when value is supported risk level.
+ */
+function isHeuristicRiskLevel(value: unknown): value is HeuristicRiskLevel {
+    return typeof value === "string" && HEURISTIC_RISK_LEVELS.has(value as HeuristicRiskLevel)
+}
+
+/**
+ * Validates heuristic resolution mode literal.
+ *
+ * @param value Unknown value.
+ * @returns True when value is supported resolution mode.
+ */
+function isHeuristicResolutionMode(value: unknown): value is HeuristicResolutionMode {
+    return typeof value === "string" && HEURISTIC_RESOLUTION_MODES.has(value as HeuristicResolutionMode)
+}
+
+/**
+ * Validates heuristics verification rule object.
+ *
+ * @param value Unknown value.
+ * @returns True when verification rule has required fields.
+ */
+function isVerificationRule(value: unknown): value is IRuleHeuristicsVerificationRule {
+    if (!isRecord(value)) {
+        return false
     }
 
     return (
-        typeof metadata.heuristicsSchemaVersion === "number" &&
-        Number.isFinite(metadata.heuristicsSchemaVersion) &&
-        typeof metadata.ruleUuid === "string" &&
-        metadata.ruleUuid.length > 0
+        isNonEmptyString(value["name"]) &&
+        isNonEmptyString(value["description"]) &&
+        isNonEmptyString(value["testCommand"])
     )
+}
+
+/**
+ * Normalizes payload prior to import call.
+ *
+ * @param resource Resource descriptor.
+ * @param payload Parsed resource payload.
+ * @returns Normalized payload that can be imported.
+ */
+function normalizePayloadForImport(resource: IImportResourceConfig, payload: unknown): unknown {
+    if (resource.resource !== "rules") {
+        return payload
+    }
+
+    if (!Array.isArray(payload)) {
+        return payload
+    }
+
+    const payloadItems = payload as unknown[]
+
+    return payloadItems.map((item: unknown) => {
+        if (!isRuleImportPayloadItem(item)) {
+            return item
+        }
+
+        if (item.heuristicsMetadata !== undefined) {
+            return item
+        }
+
+        return {
+            ...item,
+            heuristicsMetadata: buildRuleHeuristicsMetadata(item),
+        }
+    })
 }
 
 /**
@@ -500,9 +670,10 @@ async function runMigration(
             }
 
             const payload: unknown = await payloadFile.json()
-            validatePayloadCompatibility(resourceConfig, payload)
+            const normalizedPayload = normalizePayloadForImport(resourceConfig, payload)
+            validatePayloadCompatibility(resourceConfig, normalizedPayload)
 
-            const importResult = await importResource(config, endpoint, payload)
+            const importResult = await importResource(config, endpoint, normalizedPayload)
             const durationMs = Math.round(performance.now() - startedAt)
 
             succeeded.push({

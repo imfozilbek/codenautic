@@ -18,6 +18,24 @@ import {
     type IMigrationConfig,
 } from "../../../src/api/migrations/seed"
 
+type HeuristicRiskLevel = "LOW" | "MEDIUM" | "HIGH" | "CRITICAL"
+type HeuristicResolutionMode = "ELIMINATE" | "HARDEN" | "KEEP_CODE_FIRST"
+
+interface IRuleHeuristicsVerificationRule {
+    readonly name: string
+    readonly description: string
+    readonly testCommand: string
+}
+
+interface IImportedRuleHeuristicsMetadata {
+    readonly heuristicsSchemaVersion: number
+    readonly ruleUuid: string
+    readonly resolutionMode: HeuristicResolutionMode
+    readonly verificationRule: IRuleHeuristicsVerificationRule
+    readonly falsePositiveRisk: HeuristicRiskLevel
+    readonly evidenceLevel: string
+}
+
 const BASE_CONFIG: IMigrationConfig = {
     apiUrl: "http://localhost:3000",
     adminToken: "",
@@ -124,6 +142,53 @@ function resolveRequestUrl(input: RequestInfo | URL): string {
         return input.toString()
     }
     return input.url
+}
+
+/**
+ * Builds rule heuristics metadata payload for tests.
+ *
+ * @param ruleUuid Rule UUID.
+ * @param overrides Optional metadata overrides.
+ * @returns Complete rule heuristics metadata object.
+ */
+function createRuleHeuristicsMetadata(
+    ruleUuid: string,
+    overrides?: Partial<IImportedRuleHeuristicsMetadata>,
+): IImportedRuleHeuristicsMetadata {
+    const defaults: IImportedRuleHeuristicsMetadata = {
+        heuristicsSchemaVersion: 1,
+        ruleUuid,
+        resolutionMode: "KEEP_CODE_FIRST",
+        verificationRule: {
+            name: `rule-${ruleUuid.slice(0, 8)}-schema`,
+            description: `Validate heuristics metadata for rule ${ruleUuid}`,
+            testCommand: "bun scripts/heuristics/validate-registry.ts --rules-only",
+        },
+        falsePositiveRisk: "MEDIUM",
+        evidenceLevel: "RULE_TEXT_ONLY",
+    }
+
+    return {
+        ...defaults,
+        ...overrides,
+        verificationRule: {
+            ...defaults.verificationRule,
+            ...(overrides?.verificationRule ?? {}),
+        },
+    }
+}
+
+/**
+ * Parses JSON request body from fetch init.
+ *
+ * @param body Request body value.
+ * @returns Parsed JSON payload.
+ */
+function parseJsonBody(body: BodyInit | null | undefined): unknown {
+    if (typeof body !== "string") {
+        throw new Error("Expected JSON string body in mocked fetch")
+    }
+    return JSON.parse(body) as unknown
 }
 
 describe("migration seed helpers", () => {
@@ -302,6 +367,104 @@ describe("migration seed helpers", () => {
         }
     })
 
+    test("injects heuristics metadata for rules when metadata is missing", async () => {
+        const ruleUuid = "10000000-0000-0000-0000-000000000000"
+        const defaultsDir = createDefaultsDirectory({
+            rulesPayload: [
+                {
+                    uuid: ruleUuid,
+                    severity: "high",
+                },
+            ],
+        })
+
+        let importedRulesPayload: unknown = null
+
+        globalThis.fetch = ((input: RequestInfo | URL, init?: RequestInit): Promise<Response> => {
+            const url = resolveRequestUrl(input)
+            if (url.endsWith("/admin/import/rules")) {
+                importedRulesPayload = parseJsonBody(init?.body)
+            }
+
+            return Promise.resolve(
+                new Response(JSON.stringify({created: 1, updated: 0, skipped: 0}), {
+                    status: 200,
+                }),
+            )
+        }) as unknown as typeof fetch
+
+        try {
+            const result = await runMigration(BASE_CONFIG, defaultsDir)
+
+            expect(result.failed.length).toBe(0)
+            expect(Array.isArray(importedRulesPayload)).toBe(true)
+
+            const importedRules = importedRulesPayload as Array<{
+                uuid?: string
+                heuristicsMetadata?: IImportedRuleHeuristicsMetadata
+            }>
+            const firstRule = importedRules[0]
+
+            expect(firstRule?.uuid).toBe(ruleUuid)
+            expect(firstRule?.heuristicsMetadata?.ruleUuid).toBe(ruleUuid)
+            expect(firstRule?.heuristicsMetadata?.heuristicsSchemaVersion).toBe(1)
+            expect(firstRule?.heuristicsMetadata?.resolutionMode).toBe("HARDEN")
+            expect(firstRule?.heuristicsMetadata?.falsePositiveRisk).toBe("HIGH")
+        } finally {
+            rmSync(defaultsDir, {recursive: true, force: true})
+        }
+    })
+
+    test("preserves existing rule heuristics metadata when provided", async () => {
+        const ruleUuid = "20000000-0000-0000-0000-000000000000"
+        const providedMetadata = createRuleHeuristicsMetadata(ruleUuid, {
+            resolutionMode: "ELIMINATE",
+            falsePositiveRisk: "LOW",
+        })
+
+        const defaultsDir = createDefaultsDirectory({
+            rulesPayload: [
+                {
+                    uuid: ruleUuid,
+                    severity: "critical",
+                    heuristicsMetadata: providedMetadata,
+                },
+            ],
+        })
+
+        let importedRulesPayload: unknown = null
+
+        globalThis.fetch = ((input: RequestInfo | URL, init?: RequestInit): Promise<Response> => {
+            const url = resolveRequestUrl(input)
+            if (url.endsWith("/admin/import/rules")) {
+                importedRulesPayload = parseJsonBody(init?.body)
+            }
+
+            return Promise.resolve(
+                new Response(JSON.stringify({created: 1, updated: 0, skipped: 0}), {
+                    status: 200,
+                }),
+            )
+        }) as unknown as typeof fetch
+
+        try {
+            const result = await runMigration(BASE_CONFIG, defaultsDir)
+
+            expect(result.failed.length).toBe(0)
+            expect(Array.isArray(importedRulesPayload)).toBe(true)
+
+            const importedRules = importedRulesPayload as Array<{
+                heuristicsMetadata?: IImportedRuleHeuristicsMetadata
+            }>
+            const importedMetadata = importedRules[0]?.heuristicsMetadata
+
+            expect(importedMetadata?.resolutionMode).toBe("ELIMINATE")
+            expect(importedMetadata?.falsePositiveRisk).toBe("LOW")
+        } finally {
+            rmSync(defaultsDir, {recursive: true, force: true})
+        }
+    })
+
     test("collects migration failure when settings file is missing", async () => {
         const defaultsDir = createDefaultsDirectory({includeSettings: false})
 
@@ -325,14 +488,14 @@ describe("migration seed helpers", () => {
     })
 
     test("collects migration failure for incompatible rule metadata", async () => {
+        const ruleUuid = "00000000-0000-0000-0000-000000000000"
         const defaultsDir = createDefaultsDirectory({
             rulesPayload: [
                 {
-                    uuid: "00000000-0000-0000-0000-000000000000",
-                    heuristicsMetadata: {
+                    uuid: ruleUuid,
+                    heuristicsMetadata: createRuleHeuristicsMetadata(ruleUuid, {
                         heuristicsSchemaVersion: 999,
-                        ruleUuid: "00000000-0000-0000-0000-000000000000",
-                    },
+                    }),
                 },
             ],
         })
