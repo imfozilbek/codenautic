@@ -51,9 +51,21 @@ export {
     type IUpdateReviewPipelineStateProps,
 } from "./application/types/review/review-pipeline-state"
 export {AggregateRoot} from "./domain/aggregates/aggregate-root"
-export {REVIEW_STATUS, Review, type IReviewProps, type ReviewStatus} from "./domain/aggregates/review.aggregate"
+export {
+    REVIEW_STATUS,
+    Review,
+    type IReviewCompletionMetrics,
+    type IReviewProps,
+    type ReviewStatus,
+} from "./domain/aggregates/review.aggregate"
 export {RULE_STATUS, Rule, type IRuleProps, type RuleStatus} from "./domain/aggregates/rule.aggregate"
 export {Entity} from "./domain/entities/entity"
+export {
+    ISSUE_CATEGORY,
+    ReviewIssue,
+    type IReviewIssueProps,
+    type IssueCategory,
+} from "./domain/entities/review-issue.entity"
 export {ConflictError} from "./domain/errors/conflict.error"
 export {DomainError} from "./domain/errors/domain.error"
 export {InvalidUniqueIdError} from "./domain/errors/invalid-unique-id.error"
@@ -66,24 +78,52 @@ export {StageError, type ICreateStageErrorParams} from "./domain/errors/stage.er
 export {UnauthorizedError} from "./domain/errors/unauthorized.error"
 export {ValidationError, type IValidationErrorField} from "./domain/errors/validation.error"
 export {BaseDomainEvent} from "./domain/events/base-domain-event"
+export {
+    FEEDBACK_TYPE,
+    FeedbackReceived,
+    type FeedbackType,
+    type IFeedbackReceivedPayload,
+} from "./domain/events/feedback-received"
+export {IssueFound, type IIssueFoundPayload} from "./domain/events/issue-found"
+export {
+    MetricsCalculated,
+    type IMetricsCalculatedPayload,
+    type ITokenUsagePayload,
+} from "./domain/events/metrics-calculated"
 export {PipelineCompleted, type IPipelineCompletedPayload} from "./domain/events/pipeline-completed"
 export {PipelineFailed, type IPipelineFailedPayload} from "./domain/events/pipeline-failed"
 export {PipelineStarted, type IPipelineStartedPayload} from "./domain/events/pipeline-started"
-export {ReviewCompleted, type IReviewCompletedPayload} from "./domain/events/review-completed"
+export {
+    REVIEW_COMPLETION_STATUS,
+    ReviewCompleted,
+    type IReviewCompletedPayload,
+    type ReviewCompletionStatus,
+} from "./domain/events/review-completed"
 export {ReviewStarted, type IReviewStartedPayload} from "./domain/events/review-started"
 export {RuleActivated, type IRuleActivatedPayload} from "./domain/events/rule-activated"
 export {StageCompleted, type IStageCompletedPayload} from "./domain/events/stage-completed"
 export {StageFailed, type IStageFailedPayload} from "./domain/events/stage-failed"
 export {StageStarted, type IStageStartedPayload} from "./domain/events/stage-started"
+export {type IEntityFactory} from "./domain/factories/entity-factory.interface"
+export {
+    type ICreateReviewIssueProps,
+    type IReconstituteReviewIssueProps,
+    ReviewIssueFactory,
+} from "./domain/factories/review-issue.factory"
 export {
     type ICreateReviewProps,
     type IReconstituteReviewProps,
     ReviewFactory,
 } from "./domain/factories/review.factory"
 export {type ICreateRuleProps, type IReconstituteRuleProps, RuleFactory} from "./domain/factories/rule.factory"
-export {type IEntityFactory} from "./domain/factories/entity-factory.interface"
 export {RuleStatusPolicyService} from "./domain/services/rule-status-policy.service"
 export {CodeChunk, type ICreateCodeChunkProps} from "./domain/value-objects/code-chunk.value-object"
+export {
+    DIFF_FILE_STATUS,
+    DiffFile,
+    type DiffFileStatus,
+    type ICreateDiffFileProps,
+} from "./domain/value-objects/diff-file.value-object"
 export {Embedding, type ICreateEmbeddingProps} from "./domain/value-objects/embedding.value-object"
 export {FilePath} from "./domain/value-objects/file-path.value-object"
 export {LineRange} from "./domain/value-objects/line-range.value-object"

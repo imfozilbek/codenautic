@@ -5,8 +5,8 @@ import {BaseDomainEvent, type DomainEventPayload} from "./base-domain-event"
  */
 export interface IReviewStartedPayload extends DomainEventPayload {
     readonly reviewId: string
-    readonly repositoryId: string
-    readonly severityBudget: number
+    readonly mergeRequestId: string
+    readonly startedAt: string
 }
 
 /**

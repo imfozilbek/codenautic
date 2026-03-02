@@ -1,10 +1,27 @@
 import {BaseDomainEvent, type DomainEventPayload} from "./base-domain-event"
 
 /**
+ * Possible terminal outcomes for review lifecycle.
+ */
+export const REVIEW_COMPLETION_STATUS = {
+    COMPLETED: "COMPLETED",
+    FAILED: "FAILED",
+} as const
+
+/**
+ * Review completion status literal type.
+ */
+export type ReviewCompletionStatus =
+    (typeof REVIEW_COMPLETION_STATUS)[keyof typeof REVIEW_COMPLETION_STATUS]
+
+/**
  * Payload for ReviewCompleted event.
  */
 export interface IReviewCompletedPayload extends DomainEventPayload {
     readonly reviewId: string
+    readonly status: ReviewCompletionStatus
+    readonly issueCount: number
+    readonly durationMs: number
     readonly consumedSeverity: number
     readonly severityBudget: number
 }
