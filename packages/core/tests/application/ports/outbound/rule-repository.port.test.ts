@@ -1,6 +1,6 @@
 import {describe, expect, test} from "bun:test"
 
-import type {IRuleRepository} from "../../../../src/application/ports/outbound/rule-repository.port"
+import type {IRuleRepository} from "../../../../src/application/ports/outbound/rule/rule-repository.port"
 import {RULE_STATUS, Rule, type RuleStatus} from "../../../../src/domain/aggregates/rule.aggregate"
 import {RuleFactory} from "../../../../src/domain/factories/rule.factory"
 import {type UniqueId} from "../../../../src/domain/value-objects/unique-id.value-object"

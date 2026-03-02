@@ -1,9 +1,10 @@
 import type {IUseCase} from "../../ports/inbound/use-case.port"
+import type {IDomainEventBus} from "../../ports/outbound/common/domain-event-bus.port"
 import type {ILogger} from "../../ports/outbound/common/logger.port"
-import type {IDomainEventBus} from "../../ports/outbound/domain-event-bus.port"
 import {
     PIPELINE_CHECKPOINT_STATUS,
     type IPipelineCheckpointStore,
+    type PipelineCheckpointStatus,
 } from "../../ports/outbound/review/pipeline-checkpoint-store.port"
 import type {IPipelineDefinition, IPipelineDefinitionStage} from "../../types/review/pipeline-definition.type"
 import {
@@ -11,7 +12,11 @@ import {
     type IPipelineResult,
     type IPipelineStageExecutionResult,
 } from "../../types/review/pipeline-result.type"
-import type {IPipelineStageUseCase} from "../../types/review/pipeline-stage.contract"
+import {
+    type IPipelineStageUseCase,
+    type IStageTransition,
+    type IStageTransitionMetadata,
+} from "../../types/review/pipeline-stage.contract"
 import {ReviewPipelineState} from "../../types/review/review-pipeline-state"
 import {PipelineCompleted} from "../../../domain/events/pipeline-completed"
 import {PipelineFailed} from "../../../domain/events/pipeline-failed"
@@ -21,6 +26,12 @@ import {StageFailed} from "../../../domain/events/stage-failed"
 import {StageStarted} from "../../../domain/events/stage-started"
 import {StageError} from "../../../domain/errors/stage.error"
 import {Result} from "../../../shared/result"
+
+const PIPELINE_RUNTIME_STAGE_ID = "pipeline-runtime"
+const PIPELINE_DEFINITION_STAGE_ID = "pipeline-definition"
+const PIPELINE_COMPLETION_STAGE_ID = "pipeline-completion"
+const PIPELINE_FAILURE_STAGE_ID = "pipeline-failure"
+const FIRST_STAGE_ATTEMPT = 1
 
 /**
  * Pipeline run command payload.
@@ -49,6 +60,72 @@ interface IStageFailureContext {
     stageDefinition: IPipelineDefinitionStage
     attempt: number
     durationMs: number
+}
+
+/**
+ * Output payload for one stage run.
+ */
+interface IStageRunOutput {
+    state: ReviewPipelineState
+    execution: IPipelineStageExecutionResult
+    failureError?: StageError
+}
+
+/**
+ * Unified side-effect execution parameters.
+ */
+interface IExecuteSideEffectParams {
+    effect: () => Promise<void>
+    state: ReviewPipelineState
+    definitionVersion: string
+    stageId: string
+    attempt: number
+    recoverable: boolean
+    failureMessage: string
+}
+
+/**
+ * Success stage handler context.
+ */
+interface IStageSuccessContext {
+    stageDefinition: IPipelineDefinitionStage
+    attempt: number
+    durationMs: number
+    metadata?: IStageTransitionMetadata
+}
+
+/**
+ * Failed pipeline result builder context.
+ */
+interface IBuildFailedPipelineResultContext {
+    stoppedAtStageId: string
+    failureReason: string
+}
+
+/**
+ * Logger guard context.
+ */
+interface ILogWithGuardParams {
+    method: "info" | "debug" | "error"
+    state: ReviewPipelineState
+    definitionVersion: string
+    stageId: string
+    attempt: number
+    message: string
+    context: Record<string, unknown>
+}
+
+/**
+ * Unexpected error normalization parameters.
+ */
+interface INormalizeUnexpectedErrorParams {
+    error: unknown
+    state: ReviewPipelineState
+    definitionVersion: string
+    stageId: string
+    attempt: number
+    recoverable: boolean
+    failureMessage: string
 }
 
 /**
@@ -83,6 +160,32 @@ export class PipelineOrchestratorUseCase
      * @returns Pipeline result or stage error.
      */
     public async execute(input: IPipelineRunCommand): Promise<Result<IPipelineResult, StageError>> {
+        try {
+            return await this.executeInternal(input)
+        } catch (error: unknown) {
+            return Result.fail<IPipelineResult, StageError>(
+                this.normalizeUnexpectedError({
+                    error,
+                    state: input.initialState,
+                    definitionVersion: input.definition.definitionVersion,
+                    stageId: PIPELINE_RUNTIME_STAGE_ID,
+                    attempt: FIRST_STAGE_ATTEMPT,
+                    recoverable: false,
+                    failureMessage: "Pipeline orchestration crashed unexpectedly",
+                }),
+            )
+        }
+    }
+
+    /**
+     * Executes validated run command.
+     *
+     * @param input Run command payload.
+     * @returns Pipeline result or stage error.
+     */
+    private async executeInternal(
+        input: IPipelineRunCommand,
+    ): Promise<Result<IPipelineResult, StageError>> {
         const pinnedStateResult = this.pinDefinitionVersion(input.initialState, input.definition)
         if (pinnedStateResult.isFail) {
             return Result.fail<IPipelineResult, StageError>(pinnedStateResult.error)
@@ -104,32 +207,34 @@ export class PipelineOrchestratorUseCase
                 this.createPipelineError(
                     pinnedStateResult.value,
                     input.definition.definitionVersion,
-                    "missing-start-stage",
+                    PIPELINE_DEFINITION_STAGE_ID,
                     "Pipeline definition has no stage at resolved start index",
                 ),
             )
         }
 
-        await this.publishPipelineStarted(pinnedStateResult.value, input.definition, firstStage.stageId)
+        const startedEventResult = await this.publishPipelineStarted(
+            pinnedStateResult.value,
+            input.definition,
+            firstStage.stageId,
+        )
+        if (startedEventResult.isFail) {
+            return Result.fail<IPipelineResult, StageError>(startedEventResult.error)
+        }
 
         const skippedResults = this.createSkippedResults(
             pinnedStateResult.value,
             input.definition.stages,
             startIndexResult.value,
         )
-        const runResult = await this.runStages(
+
+        return this.runStages(
             pinnedStateResult.value,
             input.definition,
             startIndexResult.value,
             skippedResults,
             startedAt,
         )
-
-        if (runResult.isFail) {
-            return Result.fail<IPipelineResult, StageError>(runResult.error)
-        }
-
-        return Result.ok<IPipelineResult, StageError>(runResult.value)
     }
 
     /**
@@ -150,7 +255,7 @@ export class PipelineOrchestratorUseCase
                 this.createPipelineError(
                     state,
                     definition.definitionVersion,
-                    "pipeline-definition",
+                    PIPELINE_DEFINITION_STAGE_ID,
                     "Pipeline definition must contain at least one stage",
                 ),
             )
@@ -158,6 +263,17 @@ export class PipelineOrchestratorUseCase
 
         if (startFromStageId === undefined) {
             return Result.ok<number, StageError>(0)
+        }
+
+        if (startFromStageId.trim().length === 0) {
+            return Result.fail<number, StageError>(
+                this.createPipelineError(
+                    state,
+                    definition.definitionVersion,
+                    PIPELINE_DEFINITION_STAGE_ID,
+                    "startFromStageId must be a non-empty string when provided",
+                ),
+            )
         }
 
         const startIndex = definition.stages.findIndex((stage): boolean => {
@@ -169,7 +285,7 @@ export class PipelineOrchestratorUseCase
                 this.createPipelineError(
                     state,
                     definition.definitionVersion,
-                    startFromStageId,
+                    PIPELINE_DEFINITION_STAGE_ID,
                     "startFromStageId does not exist in pipeline definition",
                 ),
             )
@@ -198,7 +314,7 @@ export class PipelineOrchestratorUseCase
                 this.createPipelineError(
                     state,
                     definition.definitionVersion,
-                    "pipeline-definition",
+                    PIPELINE_DEFINITION_STAGE_ID,
                     "Cannot change definitionVersion for in-flight pipeline run",
                 ),
             )
@@ -238,18 +354,71 @@ export class PipelineOrchestratorUseCase
 
             state = stageResult.value.state
             stageResults.push(stageResult.value.execution)
+
+            if (stageResult.value.failureError !== undefined) {
+                return Result.ok<IPipelineResult, StageError>(
+                    this.buildFailedPipelineResult(
+                        state,
+                        definition,
+                        stageResults,
+                        startedAt,
+                        {
+                            stoppedAtStageId: stage.stageId,
+                            failureReason: stageResult.value.failureError.message,
+                        },
+                    ),
+                )
+            }
         }
 
+        return this.buildCompletedPipelineResult(state, definition, stageResults, startedAt)
+    }
+
+    /**
+     * Builds successful pipeline result and emits completion side effects.
+     *
+     * @param state Final state.
+     * @param definition Pipeline definition.
+     * @param stageResults Executed stage records.
+     * @param startedAt Pipeline start time.
+     * @returns Successful pipeline result or stage error.
+     */
+    private async buildCompletedPipelineResult(
+        state: ReviewPipelineState,
+        definition: IPipelineDefinition,
+        stageResults: readonly IPipelineStageExecutionResult[],
+        startedAt: Date,
+    ): Promise<Result<IPipelineResult, StageError>> {
         const finishedAt = this.nowProvider()
         const totalDurationMs = this.calculateDurationMs(startedAt, finishedAt)
 
-        await this.publishPipelineCompleted(state, definition, totalDurationMs, stageResults.length)
-        await this.logger.info("Pipeline execution completed", {
-            runId: state.runId,
-            definitionVersion: definition.definitionVersion,
-            stageCount: stageResults.length,
+        const completedEventResult = await this.publishPipelineCompleted(
+            state,
+            definition,
             totalDurationMs,
+            stageResults.length,
+        )
+        if (completedEventResult.isFail) {
+            return Result.fail<IPipelineResult, StageError>(completedEventResult.error)
+        }
+
+        const infoLogResult = await this.logWithGuard({
+            method: "info",
+            state,
+            definitionVersion: definition.definitionVersion,
+            stageId: PIPELINE_COMPLETION_STAGE_ID,
+            attempt: FIRST_STAGE_ATTEMPT,
+            message: "Pipeline execution completed",
+            context: {
+                runId: state.runId,
+                definitionVersion: definition.definitionVersion,
+                stageCount: stageResults.length,
+                totalDurationMs,
+            },
         })
+        if (infoLogResult.isFail) {
+            return Result.fail<IPipelineResult, StageError>(infoLogResult.error)
+        }
 
         return Result.ok<IPipelineResult, StageError>({
             runId: state.runId,
@@ -262,21 +431,53 @@ export class PipelineOrchestratorUseCase
     }
 
     /**
+     * Builds failed pipeline result with partial stage trace.
+     *
+     * @param state State at failure point.
+     * @param definition Pipeline definition.
+     * @param stageResults Stage records up to failure.
+     * @param startedAt Pipeline start time.
+     * @param stoppedAtStageId Failed stage identifier.
+     * @param failureReason Human-readable reason.
+     * @returns Failed pipeline result.
+     */
+    private buildFailedPipelineResult(
+        state: ReviewPipelineState,
+        definition: IPipelineDefinition,
+        stageResults: readonly IPipelineStageExecutionResult[],
+        startedAt: Date,
+        context: IBuildFailedPipelineResultContext,
+    ): IPipelineResult {
+        const finishedAt = this.nowProvider()
+
+        return {
+            runId: state.runId,
+            definitionVersion: definition.definitionVersion,
+            context: state,
+            stageResults,
+            totalDurationMs: this.calculateDurationMs(startedAt, finishedAt),
+            success: false,
+            stoppedAtStageId: context.stoppedAtStageId,
+            failureReason: context.failureReason,
+        }
+    }
+
+    /**
      * Executes one stage with lifecycle and checkpoint side effects.
      *
      * @param state Current state.
      * @param definition Pipeline definition.
      * @param stageDefinition Stage definition entry.
-     * @returns Updated state + stage result or stage error.
+     * @returns Updated stage output or orchestration failure.
      */
     private async executeOneStage(
         state: ReviewPipelineState,
         definition: IPipelineDefinition,
         stageDefinition: IPipelineDefinitionStage,
-    ): Promise<Result<{state: ReviewPipelineState; execution: IPipelineStageExecutionResult}, StageError>> {
+    ): Promise<Result<IStageRunOutput, StageError>> {
         const stageUseCase = this.stages[stageDefinition.stageId]
         if (stageUseCase === undefined) {
-            return Result.fail<{state: ReviewPipelineState; execution: IPipelineStageExecutionResult}, StageError>(
+            return Result.fail<IStageRunOutput, StageError>(
                 this.createPipelineError(
                     state,
                     definition.definitionVersion,
@@ -294,16 +495,41 @@ export class PipelineOrchestratorUseCase
             })
         const stageStartedAt = this.nowProvider()
 
-        await this.saveCheckpoint(startedState, stageDefinition.stageId, attempt, PIPELINE_CHECKPOINT_STATUS.STARTED)
-        await this.publishStageStarted(startedState, definition, stageDefinition.stageId, attempt)
+        const startedCheckpointResult = await this.saveCheckpoint(
+            startedState,
+            stageDefinition.stageId,
+            attempt,
+            PIPELINE_CHECKPOINT_STATUS.STARTED,
+        )
+        if (startedCheckpointResult.isFail) {
+            return Result.fail<IStageRunOutput, StageError>(startedCheckpointResult.error)
+        }
 
-        const transitionResult = await stageUseCase.execute({
-            state: startedState,
-        })
+        const stageStartedEventResult = await this.publishStageStarted(
+            startedState,
+            definition,
+            stageDefinition.stageId,
+            attempt,
+        )
+        if (stageStartedEventResult.isFail) {
+            return Result.fail<IStageRunOutput, StageError>(stageStartedEventResult.error)
+        }
+
+        const transitionResult = await this.executeStageUseCase(
+            stageUseCase,
+            startedState,
+            definition,
+            stageDefinition,
+            attempt,
+        )
+        if (transitionResult.isFail) {
+            return Result.fail<IStageRunOutput, StageError>(transitionResult.error)
+        }
+
         const stageFinishedAt = this.nowProvider()
         const durationMs = this.calculateDurationMs(stageStartedAt, stageFinishedAt)
 
-        if (transitionResult.isFail) {
+        if (transitionResult.value.isFail) {
             return this.handleStageFailure(
                 startedState,
                 definition,
@@ -312,17 +538,58 @@ export class PipelineOrchestratorUseCase
                     attempt,
                     durationMs,
                 },
-                transitionResult.error,
+                transitionResult.value.error,
             )
         }
 
         return this.handleStageSuccess(
-            transitionResult.value.state,
+            transitionResult.value.value.state,
             definition,
-            stageDefinition,
-            attempt,
-            durationMs,
+            {
+                stageDefinition,
+                attempt,
+                durationMs,
+                metadata: transitionResult.value.value.metadata,
+            },
         )
+    }
+
+    /**
+     * Executes stage use case and normalizes unexpected exceptions.
+     *
+     * @param stageUseCase Stage use case.
+     * @param state Current stage state.
+     * @param definition Pipeline definition.
+     * @param stageDefinition Stage definition.
+     * @param attempt Attempt number.
+     * @returns Stage transition result or stage error.
+     */
+    private async executeStageUseCase(
+        stageUseCase: IPipelineStageUseCase,
+        state: ReviewPipelineState,
+        definition: IPipelineDefinition,
+        stageDefinition: IPipelineDefinitionStage,
+        attempt: number,
+    ): Promise<Result<Result<IStageTransition, StageError>, StageError>> {
+        try {
+            const transitionResult = await stageUseCase.execute({
+                state,
+            })
+
+            return Result.ok<Result<IStageTransition, StageError>, StageError>(transitionResult)
+        } catch (error: unknown) {
+            return Result.fail<Result<IStageTransition, StageError>, StageError>(
+                this.normalizeUnexpectedError({
+                    error,
+                    state,
+                    definitionVersion: definition.definitionVersion,
+                    stageId: stageDefinition.stageId,
+                    attempt,
+                    recoverable: false,
+                    failureMessage: "Stage use case threw unexpected exception",
+                }),
+            )
+        }
     }
 
     /**
@@ -358,18 +625,16 @@ export class PipelineOrchestratorUseCase
      *
      * @param state State at stage start.
      * @param definition Pipeline definition.
-     * @param stageDefinition Stage definition entry.
-     * @param attempt Attempt number.
-     * @param durationMs Stage duration.
+     * @param context Stage execution metadata.
      * @param error Stage error.
-     * @returns Failed result.
+     * @returns Failed stage execution record or orchestration failure.
      */
     private async handleStageFailure(
         state: ReviewPipelineState,
         definition: IPipelineDefinition,
         context: IStageFailureContext,
         error: StageError,
-    ): Promise<Result<{state: ReviewPipelineState; execution: IPipelineStageExecutionResult}, StageError>> {
+    ): Promise<Result<IStageRunOutput, StageError>> {
         const normalizedError = this.normalizeStageError(
             error,
             state,
@@ -378,33 +643,69 @@ export class PipelineOrchestratorUseCase
             context.attempt,
         )
 
-        await this.saveCheckpoint(
+        const failedCheckpointResult = await this.saveCheckpoint(
             state,
             context.stageDefinition.stageId,
             context.attempt,
             PIPELINE_CHECKPOINT_STATUS.FAILED,
         )
-        await this.publishStageFailed(
+        if (failedCheckpointResult.isFail) {
+            return Result.fail<IStageRunOutput, StageError>(failedCheckpointResult.error)
+        }
+
+        const stageFailedEventResult = await this.publishStageFailed(
             state,
             definition,
             context.stageDefinition.stageId,
             context.attempt,
             normalizedError,
         )
-        await this.publishPipelineFailed(state, definition, context.stageDefinition.stageId, normalizedError)
-        await this.logger.error("Pipeline stage failed", {
-            runId: state.runId,
+        if (stageFailedEventResult.isFail) {
+            return Result.fail<IStageRunOutput, StageError>(stageFailedEventResult.error)
+        }
+
+        const pipelineFailedEventResult = await this.publishPipelineFailed(
+            state,
+            definition,
+            context.stageDefinition.stageId,
+            normalizedError,
+        )
+        if (pipelineFailedEventResult.isFail) {
+            return Result.fail<IStageRunOutput, StageError>(pipelineFailedEventResult.error)
+        }
+
+        const errorLogResult = await this.logWithGuard({
+            method: "error",
+            state,
             definitionVersion: definition.definitionVersion,
             stageId: context.stageDefinition.stageId,
             attempt: context.attempt,
-            durationMs: context.durationMs,
-            errorCode: normalizedError.code,
-            recoverable: normalizedError.recoverable,
+            message: "Pipeline stage failed",
+            context: {
+                runId: state.runId,
+                definitionVersion: definition.definitionVersion,
+                stageId: context.stageDefinition.stageId,
+                attempt: context.attempt,
+                durationMs: context.durationMs,
+                errorCode: normalizedError.code,
+                recoverable: normalizedError.recoverable,
+            },
         })
+        if (errorLogResult.isFail) {
+            return Result.fail<IStageRunOutput, StageError>(errorLogResult.error)
+        }
 
-        return Result.fail<{state: ReviewPipelineState; execution: IPipelineStageExecutionResult}, StageError>(
-            normalizedError,
-        )
+        return Result.ok<IStageRunOutput, StageError>({
+            state,
+            execution: {
+                stageId: context.stageDefinition.stageId,
+                stageName: context.stageDefinition.stageName,
+                durationMs: context.durationMs,
+                status: PIPELINE_STAGE_RESULT_STATUS.FAIL,
+                attempt: context.attempt,
+            },
+            failureError: normalizedError,
+        })
     }
 
     /**
@@ -415,50 +716,69 @@ export class PipelineOrchestratorUseCase
      * @param stageDefinition Stage definition entry.
      * @param attempt Attempt number.
      * @param durationMs Stage duration.
-     * @returns Successful stage execution result.
+     * @param metadata Stage transition metadata.
+     * @returns Successful stage execution result or orchestration failure.
      */
     private async handleStageSuccess(
         state: ReviewPipelineState,
         definition: IPipelineDefinition,
-        stageDefinition: IPipelineDefinitionStage,
-        attempt: number,
-        durationMs: number,
-    ): Promise<Result<{state: ReviewPipelineState; execution: IPipelineStageExecutionResult}, StageError>> {
+        context: IStageSuccessContext,
+    ): Promise<Result<IStageRunOutput, StageError>> {
         const completedState = state.with({
             definitionVersion: definition.definitionVersion,
-            currentStageId: stageDefinition.stageId,
-            lastCompletedStageId: stageDefinition.stageId,
+            currentStageId: context.stageDefinition.stageId,
+            lastCompletedStageId: context.stageDefinition.stageId,
         })
 
-        await this.saveCheckpoint(
+        const completedCheckpointResult = await this.saveCheckpoint(
             completedState,
-            stageDefinition.stageId,
-            attempt,
+            context.stageDefinition.stageId,
+            context.attempt,
             PIPELINE_CHECKPOINT_STATUS.COMPLETED,
         )
-        await this.publishStageCompleted(
+        if (completedCheckpointResult.isFail) {
+            return Result.fail<IStageRunOutput, StageError>(completedCheckpointResult.error)
+        }
+
+        const stageCompletedEventResult = await this.publishStageCompleted(
             completedState,
             definition,
-            stageDefinition.stageId,
-            attempt,
-            durationMs,
+            context.stageDefinition.stageId,
+            context.attempt,
+            context.durationMs,
         )
-        await this.logger.debug("Pipeline stage completed", {
-            runId: completedState.runId,
-            definitionVersion: definition.definitionVersion,
-            stageId: stageDefinition.stageId,
-            attempt,
-            durationMs,
-        })
+        if (stageCompletedEventResult.isFail) {
+            return Result.fail<IStageRunOutput, StageError>(stageCompletedEventResult.error)
+        }
 
-        return Result.ok<{state: ReviewPipelineState; execution: IPipelineStageExecutionResult}, StageError>({
+        const debugLogResult = await this.logWithGuard({
+            method: "debug",
+            state: completedState,
+            definitionVersion: definition.definitionVersion,
+            stageId: context.stageDefinition.stageId,
+            attempt: context.attempt,
+            message: "Pipeline stage completed",
+            context: {
+                runId: completedState.runId,
+                definitionVersion: definition.definitionVersion,
+                stageId: context.stageDefinition.stageId,
+                attempt: context.attempt,
+                durationMs: context.durationMs,
+            },
+        })
+        if (debugLogResult.isFail) {
+            return Result.fail<IStageRunOutput, StageError>(debugLogResult.error)
+        }
+
+        return Result.ok<IStageRunOutput, StageError>({
             state: completedState,
             execution: {
-                stageId: stageDefinition.stageId,
-                stageName: stageDefinition.stageName,
-                durationMs,
+                stageId: context.stageDefinition.stageId,
+                stageName: context.stageDefinition.stageName,
+                durationMs: context.durationMs,
                 status: PIPELINE_STAGE_RESULT_STATUS.OK,
-                attempt,
+                attempt: context.attempt,
+                metadata: context.metadata,
             },
         })
     }
@@ -470,22 +790,32 @@ export class PipelineOrchestratorUseCase
      * @param currentStageId Stage id.
      * @param attempt Stage attempt.
      * @param status Checkpoint status.
-     * @returns Promise resolved after checkpoint save.
+     * @returns Side-effect execution result.
      */
     private async saveCheckpoint(
         state: ReviewPipelineState,
         currentStageId: string,
         attempt: number,
-        status: (typeof PIPELINE_CHECKPOINT_STATUS)[keyof typeof PIPELINE_CHECKPOINT_STATUS],
-    ): Promise<void> {
-        await this.checkpointStore.save({
-            runId: state.runId,
+        status: PipelineCheckpointStatus,
+    ): Promise<Result<void, StageError>> {
+        return this.executeSideEffect({
+            effect: async (): Promise<void> => {
+                await this.checkpointStore.save({
+                    runId: state.runId,
+                    definitionVersion: state.definitionVersion,
+                    currentStageId,
+                    lastCompletedStageId: state.lastCompletedStageId,
+                    attempt,
+                    status,
+                    occurredAt: this.nowProvider(),
+                })
+            },
+            state,
             definitionVersion: state.definitionVersion,
-            currentStageId,
-            lastCompletedStageId: state.lastCompletedStageId,
+            stageId: currentStageId,
             attempt,
-            status,
-            occurredAt: this.nowProvider(),
+            recoverable: true,
+            failureMessage: "Failed to persist pipeline checkpoint",
         })
     }
 
@@ -506,10 +836,13 @@ export class PipelineOrchestratorUseCase
         stageId: string,
         attempt: number,
     ): StageError {
+        const normalizedStageId = this.normalizeStageIdentifier(stageId, PIPELINE_RUNTIME_STAGE_ID)
+        const normalizedAttempt = Math.max(FIRST_STAGE_ATTEMPT, attempt)
+
         const isSameRun = error.runId === state.runId
         const isSameDefinition = error.definitionVersion === definitionVersion
-        const isSameStage = error.stageId === stageId
-        const isSameAttempt = error.attempt === attempt
+        const isSameStage = error.stageId === normalizedStageId
+        const isSameAttempt = error.attempt === normalizedAttempt
 
         if (isSameRun && isSameDefinition && isSameStage && isSameAttempt) {
             return error
@@ -518,8 +851,8 @@ export class PipelineOrchestratorUseCase
         return new StageError({
             runId: state.runId,
             definitionVersion,
-            stageId,
-            attempt,
+            stageId: normalizedStageId,
+            attempt: normalizedAttempt,
             recoverable: error.recoverable,
             message: error.message,
             originalError: error,
@@ -532,20 +865,30 @@ export class PipelineOrchestratorUseCase
      * @param state Current state.
      * @param definition Pipeline definition.
      * @param startedStageId First stage id.
-     * @returns Promise resolved after publication.
+     * @returns Side-effect execution result.
      */
     private async publishPipelineStarted(
         state: ReviewPipelineState,
         definition: IPipelineDefinition,
         startedStageId: string,
-    ): Promise<void> {
-        await this.domainEventBus.publish([
-            new PipelineStarted(state.runId, {
-                runId: state.runId,
-                definitionVersion: definition.definitionVersion,
-                startedStageId,
-            }),
-        ])
+    ): Promise<Result<void, StageError>> {
+        return this.executeSideEffect({
+            effect: async (): Promise<void> => {
+                await this.domainEventBus.publish([
+                    new PipelineStarted(state.runId, {
+                        runId: state.runId,
+                        definitionVersion: definition.definitionVersion,
+                        startedStageId,
+                    }),
+                ])
+            },
+            state,
+            definitionVersion: definition.definitionVersion,
+            stageId: startedStageId,
+            attempt: FIRST_STAGE_ATTEMPT,
+            recoverable: false,
+            failureMessage: "Failed to publish PipelineStarted event",
+        })
     }
 
     /**
@@ -555,22 +898,32 @@ export class PipelineOrchestratorUseCase
      * @param definition Pipeline definition.
      * @param stageId Stage identifier.
      * @param attempt Stage attempt.
-     * @returns Promise resolved after publication.
+     * @returns Side-effect execution result.
      */
     private async publishStageStarted(
         state: ReviewPipelineState,
         definition: IPipelineDefinition,
         stageId: string,
         attempt: number,
-    ): Promise<void> {
-        await this.domainEventBus.publish([
-            new StageStarted(state.runId, {
-                runId: state.runId,
-                definitionVersion: definition.definitionVersion,
-                stageId,
-                attempt,
-            }),
-        ])
+    ): Promise<Result<void, StageError>> {
+        return this.executeSideEffect({
+            effect: async (): Promise<void> => {
+                await this.domainEventBus.publish([
+                    new StageStarted(state.runId, {
+                        runId: state.runId,
+                        definitionVersion: definition.definitionVersion,
+                        stageId,
+                        attempt,
+                    }),
+                ])
+            },
+            state,
+            definitionVersion: definition.definitionVersion,
+            stageId,
+            attempt,
+            recoverable: true,
+            failureMessage: "Failed to publish StageStarted event",
+        })
     }
 
     /**
@@ -581,7 +934,7 @@ export class PipelineOrchestratorUseCase
      * @param stageId Stage identifier.
      * @param attempt Stage attempt.
      * @param durationMs Stage duration.
-     * @returns Promise resolved after publication.
+     * @returns Side-effect execution result.
      */
     private async publishStageCompleted(
         state: ReviewPipelineState,
@@ -589,16 +942,26 @@ export class PipelineOrchestratorUseCase
         stageId: string,
         attempt: number,
         durationMs: number,
-    ): Promise<void> {
-        await this.domainEventBus.publish([
-            new StageCompleted(state.runId, {
-                runId: state.runId,
-                definitionVersion: definition.definitionVersion,
-                stageId,
-                attempt,
-                durationMs,
-            }),
-        ])
+    ): Promise<Result<void, StageError>> {
+        return this.executeSideEffect({
+            effect: async (): Promise<void> => {
+                await this.domainEventBus.publish([
+                    new StageCompleted(state.runId, {
+                        runId: state.runId,
+                        definitionVersion: definition.definitionVersion,
+                        stageId,
+                        attempt,
+                        durationMs,
+                    }),
+                ])
+            },
+            state,
+            definitionVersion: definition.definitionVersion,
+            stageId,
+            attempt,
+            recoverable: true,
+            failureMessage: "Failed to publish StageCompleted event",
+        })
     }
 
     /**
@@ -609,7 +972,7 @@ export class PipelineOrchestratorUseCase
      * @param stageId Stage identifier.
      * @param attempt Stage attempt.
      * @param error Stage error.
-     * @returns Promise resolved after publication.
+     * @returns Side-effect execution result.
      */
     private async publishStageFailed(
         state: ReviewPipelineState,
@@ -617,17 +980,27 @@ export class PipelineOrchestratorUseCase
         stageId: string,
         attempt: number,
         error: StageError,
-    ): Promise<void> {
-        await this.domainEventBus.publish([
-            new StageFailed(state.runId, {
-                runId: state.runId,
-                definitionVersion: definition.definitionVersion,
-                stageId,
-                attempt,
-                recoverable: error.recoverable,
-                errorCode: error.code,
-            }),
-        ])
+    ): Promise<Result<void, StageError>> {
+        return this.executeSideEffect({
+            effect: async (): Promise<void> => {
+                await this.domainEventBus.publish([
+                    new StageFailed(state.runId, {
+                        runId: state.runId,
+                        definitionVersion: definition.definitionVersion,
+                        stageId,
+                        attempt,
+                        recoverable: error.recoverable,
+                        errorCode: error.code,
+                    }),
+                ])
+            },
+            state,
+            definitionVersion: definition.definitionVersion,
+            stageId,
+            attempt,
+            recoverable: true,
+            failureMessage: "Failed to publish StageFailed event",
+        })
     }
 
     /**
@@ -637,22 +1010,32 @@ export class PipelineOrchestratorUseCase
      * @param definition Pipeline definition.
      * @param totalDurationMs Total duration.
      * @param stageCount Executed stage count.
-     * @returns Promise resolved after publication.
+     * @returns Side-effect execution result.
      */
     private async publishPipelineCompleted(
         state: ReviewPipelineState,
         definition: IPipelineDefinition,
         totalDurationMs: number,
         stageCount: number,
-    ): Promise<void> {
-        await this.domainEventBus.publish([
-            new PipelineCompleted(state.runId, {
-                runId: state.runId,
-                definitionVersion: definition.definitionVersion,
-                totalDurationMs,
-                stageCount,
-            }),
-        ])
+    ): Promise<Result<void, StageError>> {
+        return this.executeSideEffect({
+            effect: async (): Promise<void> => {
+                await this.domainEventBus.publish([
+                    new PipelineCompleted(state.runId, {
+                        runId: state.runId,
+                        definitionVersion: definition.definitionVersion,
+                        totalDurationMs,
+                        stageCount,
+                    }),
+                ])
+            },
+            state,
+            definitionVersion: definition.definitionVersion,
+            stageId: PIPELINE_COMPLETION_STAGE_ID,
+            attempt: FIRST_STAGE_ATTEMPT,
+            recoverable: false,
+            failureMessage: "Failed to publish PipelineCompleted event",
+        })
     }
 
     /**
@@ -662,23 +1045,141 @@ export class PipelineOrchestratorUseCase
      * @param definition Pipeline definition.
      * @param stageId Failed stage id.
      * @param error Stage error.
-     * @returns Promise resolved after publication.
+     * @returns Side-effect execution result.
      */
     private async publishPipelineFailed(
         state: ReviewPipelineState,
         definition: IPipelineDefinition,
         stageId: string,
         error: StageError,
-    ): Promise<void> {
-        await this.domainEventBus.publish([
-            new PipelineFailed(state.runId, {
-                runId: state.runId,
-                definitionVersion: definition.definitionVersion,
-                failedStageId: stageId,
-                terminal: error.recoverable === false,
-                reason: error.message,
-            }),
-        ])
+    ): Promise<Result<void, StageError>> {
+        return this.executeSideEffect({
+            effect: async (): Promise<void> => {
+                await this.domainEventBus.publish([
+                    new PipelineFailed(state.runId, {
+                        runId: state.runId,
+                        definitionVersion: definition.definitionVersion,
+                        failedStageId: stageId,
+                        terminal: error.recoverable === false,
+                        reason: error.message,
+                    }),
+                ])
+            },
+            state,
+            definitionVersion: definition.definitionVersion,
+            stageId: PIPELINE_FAILURE_STAGE_ID,
+            attempt: error.attempt,
+            recoverable: false,
+            failureMessage: "Failed to publish PipelineFailed event",
+        })
+    }
+
+    /**
+     * Writes log entry through guarded side-effect execution.
+     *
+     * @param params Log execution parameters.
+     * @returns Side-effect execution result.
+     */
+    private async logWithGuard(params: ILogWithGuardParams): Promise<Result<void, StageError>> {
+        return this.executeSideEffect({
+            effect: async (): Promise<void> => {
+                await this.logger[params.method](params.message, params.context)
+            },
+            state: params.state,
+            definitionVersion: params.definitionVersion,
+            stageId: params.stageId,
+            attempt: params.attempt,
+            recoverable: true,
+            failureMessage: `Failed to write ${params.method} log entry`,
+        })
+    }
+
+    /**
+     * Executes side effect with normalized stage errors.
+     *
+     * @param params Side-effect execution parameters.
+     * @returns Success or normalized stage error.
+     */
+    private async executeSideEffect(
+        params: IExecuteSideEffectParams,
+    ): Promise<Result<void, StageError>> {
+        try {
+            await params.effect()
+            return Result.ok<void, StageError>(undefined)
+        } catch (error: unknown) {
+            return Result.fail<void, StageError>(
+                this.normalizeUnexpectedError({
+                    error,
+                    state: params.state,
+                    definitionVersion: params.definitionVersion,
+                    stageId: params.stageId,
+                    attempt: params.attempt,
+                    recoverable: params.recoverable,
+                    failureMessage: params.failureMessage,
+                }),
+            )
+        }
+    }
+
+    /**
+     * Normalizes unknown error to stage error.
+     *
+     * @param params Unexpected error normalization parameters.
+     * @returns Normalized stage error.
+     */
+    private normalizeUnexpectedError(params: INormalizeUnexpectedErrorParams): StageError {
+        if (params.error instanceof StageError) {
+            return this.normalizeStageError(
+                params.error,
+                params.state,
+                params.definitionVersion,
+                params.stageId,
+                params.attempt,
+            )
+        }
+
+        const normalizedStageId = this.normalizeStageIdentifier(
+            params.stageId,
+            PIPELINE_RUNTIME_STAGE_ID,
+        )
+        const normalizedAttempt = Math.max(FIRST_STAGE_ATTEMPT, params.attempt)
+
+        if (params.error instanceof Error) {
+            return new StageError({
+                runId: params.state.runId,
+                definitionVersion: params.definitionVersion,
+                stageId: normalizedStageId,
+                attempt: normalizedAttempt,
+                recoverable: params.recoverable,
+                message: `${params.failureMessage}: ${params.error.message}`,
+                originalError: params.error,
+            })
+        }
+
+        return new StageError({
+            runId: params.state.runId,
+            definitionVersion: params.definitionVersion,
+            stageId: normalizedStageId,
+            attempt: normalizedAttempt,
+            recoverable: params.recoverable,
+            message: `${params.failureMessage}: unknown error type`,
+        })
+    }
+
+    /**
+     * Normalizes stage identifier with fallback.
+     *
+     * @param stageId Candidate stage identifier.
+     * @param fallback Fallback value.
+     * @returns Normalized stage identifier.
+     */
+    private normalizeStageIdentifier(stageId: string, fallback: string): string {
+        const normalizedStageId = stageId.trim()
+        if (normalizedStageId.length === 0) {
+            return fallback
+        }
+
+        return normalizedStageId
     }
 
     /**
@@ -710,8 +1211,8 @@ export class PipelineOrchestratorUseCase
         return new StageError({
             runId: state.runId,
             definitionVersion,
-            stageId,
-            attempt: 1,
+            stageId: this.normalizeStageIdentifier(stageId, PIPELINE_RUNTIME_STAGE_ID),
+            attempt: FIRST_STAGE_ATTEMPT,
             recoverable: false,
             message,
         })

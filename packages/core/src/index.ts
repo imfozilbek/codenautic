@@ -1,14 +1,14 @@
 export {type IUseCase} from "./application/ports/inbound/use-case.port"
+export {type IDomainEventBus} from "./application/ports/outbound/common/domain-event-bus.port"
 export {type ILogger} from "./application/ports/outbound/common/logger.port"
-export {type IDomainEventBus} from "./application/ports/outbound/domain-event-bus.port"
 export {
     PIPELINE_CHECKPOINT_STATUS,
     type IPipelineCheckpointStore,
     type IPipelineStageCheckpoint,
     type PipelineCheckpointStatus,
 } from "./application/ports/outbound/review/pipeline-checkpoint-store.port"
-export {type IReviewRepository} from "./application/ports/outbound/review-repository.port"
-export {type IRuleRepository} from "./application/ports/outbound/rule-repository.port"
+export {type IReviewRepository} from "./application/ports/outbound/review/review-repository.port"
+export {type IRuleRepository} from "./application/ports/outbound/rule/rule-repository.port"
 export {
     type IHeuristicRegistryEntry,
     type IHeuristicResolutionMode,

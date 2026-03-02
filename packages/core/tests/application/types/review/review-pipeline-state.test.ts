@@ -183,4 +183,52 @@ describe("ReviewPipelineState", () => {
         expect(() => state.getStageAttempt(" ")).toThrow("stageId must be a non-empty string")
         expect(() => state.incrementStageAttempt(" ")).toThrow("stageId must be a non-empty string")
     })
+
+    test("isolates nested payload from external mutations", () => {
+        const mergeRequest = {
+            id: "mr-10",
+            nested: {
+                title: "Initial",
+            },
+        }
+        const state = ReviewPipelineState.create({
+            runId: "run-10",
+            definitionVersion: "v1",
+            mergeRequest,
+            config: {
+                flags: ["a"],
+            },
+            files: [
+                {
+                    path: "src/a.ts",
+                    details: {kind: "ts"},
+                },
+            ],
+        })
+
+        mergeRequest.id = "mr-mutated"
+        mergeRequest.nested.title = "Mutated"
+
+        const readMergeRequest = state.mergeRequest as {
+            id: string
+            nested: {title: string}
+        }
+        readMergeRequest.id = "mr-read-mutated"
+        readMergeRequest.nested.title = "Read Mutated"
+
+        const readFiles = state.files as Array<{details: {kind: string}}>
+        const firstFile = readFiles[0]
+        if (firstFile === undefined) {
+            throw new Error("Expected first file in state snapshot")
+        }
+        firstFile.details.kind = "js"
+
+        expect((state.mergeRequest as {id: string}).id).toBe("mr-10")
+        expect((state.mergeRequest as {nested: {title: string}}).nested.title).toBe("Initial")
+        const stateFile = (state.files as Array<{details: {kind: string}}>)[0]
+        if (stateFile === undefined) {
+            throw new Error("Expected first file in immutable state")
+        }
+        expect(stateFile.details.kind).toBe("ts")
+    })
 })

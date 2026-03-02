@@ -1,6 +1,6 @@
 import type {IUseCase} from "../../ports/inbound/use-case.port"
-import type {IDomainEventBus} from "../../ports/outbound/domain-event-bus.port"
-import type {IReviewRepository} from "../../ports/outbound/review-repository.port"
+import type {IDomainEventBus} from "../../ports/outbound/common/domain-event-bus.port"
+import type {IReviewRepository} from "../../ports/outbound/review/review-repository.port"
 import {type ReviewStatus} from "../../../domain/aggregates/review.aggregate"
 import {DomainError} from "../../../domain/errors/domain.error"
 import {ReviewNotFoundError} from "../../../domain/errors/review-not-found.error"

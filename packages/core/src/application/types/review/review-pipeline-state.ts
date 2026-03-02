@@ -80,10 +80,31 @@ export class ReviewPipelineState {
      */
     private constructor(props: IReviewPipelineStateProps) {
         this.props = Object.freeze({
-            ...props,
-            files: Object.freeze([...props.files]),
-            suggestions: Object.freeze([...props.suggestions]),
-            discardedSuggestions: Object.freeze([...props.discardedSuggestions]),
+            runId: props.runId,
+            definitionVersion: props.definitionVersion,
+            mergeRequest: ReviewPipelineState.cloneAndFreezePayload(props.mergeRequest),
+            config: ReviewPipelineState.cloneAndFreezePayload(props.config),
+            files: Object.freeze(
+                props.files.map((item): PipelineCollectionItem => {
+                    return ReviewPipelineState.cloneAndFreezeCollectionItem(item)
+                }),
+            ),
+            suggestions: Object.freeze(
+                props.suggestions.map((item): PipelineCollectionItem => {
+                    return ReviewPipelineState.cloneAndFreezeCollectionItem(item)
+                }),
+            ),
+            discardedSuggestions: Object.freeze(
+                props.discardedSuggestions.map((item): PipelineCollectionItem => {
+                    return ReviewPipelineState.cloneAndFreezeCollectionItem(item)
+                }),
+            ),
+            metrics: ReviewPipelineState.cloneAndFreezeOptionalPayload(props.metrics),
+            checkId: props.checkId,
+            commentId: props.commentId,
+            externalContext: ReviewPipelineState.cloneAndFreezeOptionalPayload(props.externalContext),
+            currentStageId: props.currentStageId,
+            lastCompletedStageId: props.lastCompletedStageId,
             stageAttempts: Object.freeze({...props.stageAttempts}),
         })
     }
@@ -122,7 +143,7 @@ export class ReviewPipelineState {
      * @returns Merge request snapshot.
      */
     public get mergeRequest(): PipelinePayload {
-        return this.props.mergeRequest
+        return ReviewPipelineState.clonePayload(this.props.mergeRequest)
     }
 
     /**
@@ -131,7 +152,7 @@ export class ReviewPipelineState {
      * @returns Config payload.
      */
     public get config(): PipelinePayload {
-        return this.props.config
+        return ReviewPipelineState.clonePayload(this.props.config)
     }
 
     /**
@@ -140,7 +161,9 @@ export class ReviewPipelineState {
      * @returns Files list copy.
      */
     public get files(): readonly PipelineCollectionItem[] {
-        return [...this.props.files]
+        return this.props.files.map((item): PipelineCollectionItem => {
+            return ReviewPipelineState.cloneCollectionItem(item)
+        })
     }
 
     /**
@@ -149,7 +172,9 @@ export class ReviewPipelineState {
      * @returns Suggestions list copy.
      */
     public get suggestions(): readonly PipelineCollectionItem[] {
-        return [...this.props.suggestions]
+        return this.props.suggestions.map((item): PipelineCollectionItem => {
+            return ReviewPipelineState.cloneCollectionItem(item)
+        })
     }
 
     /**
@@ -158,7 +183,9 @@ export class ReviewPipelineState {
      * @returns Discarded suggestions copy.
      */
     public get discardedSuggestions(): readonly PipelineCollectionItem[] {
-        return [...this.props.discardedSuggestions]
+        return this.props.discardedSuggestions.map((item): PipelineCollectionItem => {
+            return ReviewPipelineState.cloneCollectionItem(item)
+        })
     }
 
     /**
@@ -167,7 +194,7 @@ export class ReviewPipelineState {
      * @returns Metrics snapshot.
      */
     public get metrics(): PipelinePayload | null {
-        return this.props.metrics
+        return ReviewPipelineState.cloneOptionalPayload(this.props.metrics)
     }
 
     /**
@@ -194,7 +221,7 @@ export class ReviewPipelineState {
      * @returns External context payload.
      */
     public get externalContext(): PipelinePayload | null {
-        return this.props.externalContext
+        return ReviewPipelineState.cloneOptionalPayload(this.props.externalContext)
     }
 
     /**
@@ -418,6 +445,74 @@ export class ReviewPipelineState {
     }
 
     /**
+     * Clones and deep-freezes payload.
+     *
+     * @param payload Payload value.
+     * @returns Frozen payload clone.
+     */
+    private static cloneAndFreezePayload(payload: PipelinePayload): PipelinePayload {
+        return freezeDeepValue(cloneDeepValue(payload)) as PipelinePayload
+    }
+
+    /**
+     * Clones and deep-freezes collection item.
+     *
+     * @param item Collection item.
+     * @returns Frozen item clone.
+     */
+    private static cloneAndFreezeCollectionItem(item: PipelineCollectionItem): PipelineCollectionItem {
+        return freezeDeepValue(cloneDeepValue(item)) as PipelineCollectionItem
+    }
+
+    /**
+     * Clones payload.
+     *
+     * @param payload Payload value.
+     * @returns Payload clone.
+     */
+    private static clonePayload(payload: PipelinePayload): PipelinePayload {
+        return cloneDeepValue(payload) as PipelinePayload
+    }
+
+    /**
+     * Clones collection item.
+     *
+     * @param item Collection item.
+     * @returns Item clone.
+     */
+    private static cloneCollectionItem(item: PipelineCollectionItem): PipelineCollectionItem {
+        return cloneDeepValue(item) as PipelineCollectionItem
+    }
+
+    /**
+     * Clones optional payload.
+     *
+     * @param payload Optional payload.
+     * @returns Payload clone or null.
+     */
+    private static cloneOptionalPayload(payload: PipelinePayload | null): PipelinePayload | null {
+        if (payload === null) {
+            return null
+        }
+
+        return this.clonePayload(payload)
+    }
+
+    /**
+     * Clones and deep-freezes optional payload.
+     *
+     * @param payload Optional payload.
+     * @returns Frozen payload clone or null.
+     */
+    private static cloneAndFreezeOptionalPayload(payload: PipelinePayload | null): PipelinePayload | null {
+        if (payload === null) {
+            return null
+        }
+
+        return this.cloneAndFreezePayload(payload)
+    }
+
+    /**
      * Validates non-empty string value.
      *
      * @param value Value to validate.
@@ -425,7 +520,7 @@ export class ReviewPipelineState {
      * @throws Error when value is empty.
      */
     private static ensureNonEmptyString(value: string, fieldName: string): void {
-        if (value.trim().length === 0) {
+        if (typeof value !== "string" || value.trim().length === 0) {
             throw new Error(`${fieldName} must be a non-empty string`)
         }
     }
@@ -456,8 +551,62 @@ export class ReviewPipelineState {
      * @throws Error when stage id is empty.
      */
     private static ensureStageId(stageId: string): void {
-        if (stageId.trim().length === 0) {
+        if (typeof stageId !== "string" || stageId.trim().length === 0) {
             throw new Error("stageId must be a non-empty string")
         }
     }
+}
+
+/**
+ * Deeply clones unknown value.
+ *
+ * @param value Value to clone.
+ * @returns Deep clone.
+ */
+function cloneDeepValue(value: unknown): unknown {
+    if (value instanceof Date) {
+        return new Date(value.getTime())
+    }
+
+    if (Array.isArray(value)) {
+        return value.map((item): unknown => {
+            return cloneDeepValue(item)
+        })
+    }
+
+    if (typeof value !== "object" || value === null) {
+        return value
+    }
+
+    const clonedRecord: Record<string, unknown> = {}
+    for (const [key, item] of Object.entries(value)) {
+        clonedRecord[key] = cloneDeepValue(item)
+    }
+
+    return clonedRecord
+}
+
+/**
+ * Deeply freezes unknown value.
+ *
+ * @param value Value to freeze.
+ * @returns Frozen value.
+ */
+function freezeDeepValue(value: unknown): unknown {
+    if (typeof value !== "object" || value === null) {
+        return value
+    }
+
+    if (Array.isArray(value)) {
+        for (const item of value) {
+            freezeDeepValue(item)
+        }
+        return Object.freeze(value)
+    }
+
+    for (const item of Object.values(value)) {
+        freezeDeepValue(item)
+    }
+
+    return Object.freeze(value)
 }

@@ -1,7 +1,7 @@
 import {describe, expect, test} from "bun:test"
 
 import type {ILogger} from "../../../../src/application/ports/outbound/common/logger.port"
-import type {IDomainEventBus} from "../../../../src/application/ports/outbound/domain-event-bus.port"
+import type {IDomainEventBus} from "../../../../src/application/ports/outbound/common/domain-event-bus.port"
 import {
     PIPELINE_CHECKPOINT_STATUS,
     type IPipelineCheckpointStore,
@@ -117,6 +117,9 @@ describe("PipelineOrchestratorUseCase", () => {
                         state: state.with({
                             suggestions: [{id: "s-1"}],
                         }),
+                        metadata: {
+                            checkpointHint: "ctx-loaded",
+                        },
                     })
                 }),
                 "stage-b": new StaticStageUseCase("stage-b", "Stage B", (state) => {
@@ -144,6 +147,7 @@ describe("PipelineOrchestratorUseCase", () => {
         expect(result.value.context.lastCompletedStageId).toBe("stage-b")
         expect(result.value.context.getStageAttempt("stage-a")).toBe(1)
         expect(result.value.context.getStageAttempt("stage-b")).toBe(1)
+        expect(result.value.stageResults[0]?.metadata?.checkpointHint).toBe("ctx-loaded")
         expect(checkpointStore.checkpoints).toHaveLength(4)
         expect(domainEventBus.publishedEvents.map((event) => event.eventName)).toEqual([
             "PipelineStarted",
@@ -241,9 +245,12 @@ describe("PipelineOrchestratorUseCase", () => {
             definition,
         })
 
-        expect(result.isFail).toBe(true)
-        expect(result.error.stageId).toBe("stage-b")
-        expect(result.error.code).toBe("STAGE_ERROR")
+        expect(result.isOk).toBe(true)
+        expect(result.value.success).toBe(false)
+        expect(result.value.stoppedAtStageId).toBe("stage-b")
+        expect(result.value.failureReason).toBe("Stage B failed")
+        expect(result.value.stageResults).toHaveLength(2)
+        expect(result.value.stageResults[1]?.status).toBe(PIPELINE_STAGE_RESULT_STATUS.FAIL)
         expect(checkpointStore.checkpoints).toHaveLength(4)
         expect(checkpointStore.checkpoints[3]?.status).toBe(PIPELINE_CHECKPOINT_STATUS.FAILED)
         expect(domainEventBus.publishedEvents.map((event) => event.eventName)).toEqual([
@@ -255,6 +262,74 @@ describe("PipelineOrchestratorUseCase", () => {
             "PipelineFailed",
         ])
         expect(logger.errorMessages).toHaveLength(1)
+    })
+
+    test("returns fail result when startFromStageId is empty string", async () => {
+        const orchestrator = new PipelineOrchestratorUseCase({
+            stages: {
+                "stage-a": new StaticStageUseCase("stage-a", "Stage A", (state) => {
+                    return Result.ok<IStageTransition, StageError>({
+                        state,
+                    })
+                }),
+            },
+            domainEventBus: new InMemoryDomainEventBus(),
+            checkpointStore: new InMemoryCheckpointStore(),
+            logger: new InMemoryLogger(),
+        })
+
+        const result = await orchestrator.execute({
+            initialState: ReviewPipelineState.create({
+                runId: "run-empty-start",
+                definitionVersion: "v1",
+                mergeRequest: {},
+                config: {},
+            }),
+            definition: {
+                definitionVersion: "v1",
+                stages: [{stageId: "stage-a", stageName: "Stage A"}],
+            },
+            startFromStageId: " ",
+        })
+
+        expect(result.isFail).toBe(true)
+        expect(result.error.message).toContain("startFromStageId must be a non-empty string")
+    })
+
+    test("returns fail result when checkpoint side effect rejects", async () => {
+        const orchestrator = new PipelineOrchestratorUseCase({
+            stages: {
+                "stage-a": new StaticStageUseCase("stage-a", "Stage A", (state) => {
+                    return Result.ok<IStageTransition, StageError>({
+                        state,
+                    })
+                }),
+            },
+            domainEventBus: new InMemoryDomainEventBus(),
+            checkpointStore: {
+                save: (): Promise<void> => {
+                    return Promise.reject(new Error("storage unavailable"))
+                },
+            },
+            logger: new InMemoryLogger(),
+        })
+
+        const result = await orchestrator.execute({
+            initialState: ReviewPipelineState.create({
+                runId: "run-checkpoint-fail",
+                definitionVersion: "v1",
+                mergeRequest: {},
+                config: {},
+            }),
+            definition: {
+                definitionVersion: "v1",
+                stages: [{stageId: "stage-a", stageName: "Stage A"}],
+            },
+        })
+
+        expect(result.isFail).toBe(true)
+        expect(result.error.code).toBe("STAGE_ERROR")
+        expect(result.error.message).toContain("Failed to persist pipeline checkpoint")
     })
 
     test("returns failure when in-flight run tries to switch definition version", async () => {

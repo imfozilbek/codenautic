@@ -1,7 +1,7 @@
 import {describe, expect, test} from "bun:test"
 
-import type {IDomainEventBus} from "../../../../src/application/ports/outbound/domain-event-bus.port"
-import type {IReviewRepository} from "../../../../src/application/ports/outbound/review-repository.port"
+import type {IDomainEventBus} from "../../../../src/application/ports/outbound/common/domain-event-bus.port"
+import type {IReviewRepository} from "../../../../src/application/ports/outbound/review/review-repository.port"
 import {CompleteReviewUseCase} from "../../../../src/application/use-cases/review/complete-review.use-case"
 import type {Review} from "../../../../src/domain/aggregates/review.aggregate"
 import type {BaseDomainEvent, DomainEventPayload} from "../../../../src/domain/events/base-domain-event"

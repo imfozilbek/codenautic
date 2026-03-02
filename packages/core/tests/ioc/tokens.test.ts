@@ -1,10 +1,10 @@
 import {describe, expect, test} from "bun:test"
 
 import {type ILogger} from "../../src/application/ports/outbound/common/logger.port"
-import {type IDomainEventBus} from "../../src/application/ports/outbound/domain-event-bus.port"
+import {type IDomainEventBus} from "../../src/application/ports/outbound/common/domain-event-bus.port"
 import {type IPipelineCheckpointStore} from "../../src/application/ports/outbound/review/pipeline-checkpoint-store.port"
-import {type IReviewRepository} from "../../src/application/ports/outbound/review-repository.port"
-import {type IRuleRepository} from "../../src/application/ports/outbound/rule-repository.port"
+import {type IReviewRepository} from "../../src/application/ports/outbound/review/review-repository.port"
+import {type IRuleRepository} from "../../src/application/ports/outbound/rule/rule-repository.port"
 import {createToken, TOKENS, type InjectionToken} from "../../src/index"
 
 interface IExamplePort {

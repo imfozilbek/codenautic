@@ -1,4 +1,5 @@
 import type {ReviewPipelineState} from "./review-pipeline-state"
+import type {IStageTransitionMetadata} from "./pipeline-stage.contract"
 
 /**
  * Stage execution statuses captured in pipeline result.
@@ -24,6 +25,7 @@ export interface IPipelineStageExecutionResult {
     durationMs: number
     status: PipelineStageResultStatus
     attempt: number
+    metadata?: IStageTransitionMetadata
 }
 
 /**
