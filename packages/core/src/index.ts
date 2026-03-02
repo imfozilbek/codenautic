@@ -39,6 +39,12 @@ export {type IEntityFactory} from "./domain/factories/entity-factory.interface"
 export {RuleStatusPolicyService} from "./domain/services/rule-status-policy.service"
 export {FilePath} from "./domain/value-objects/file-path.value-object"
 export {LineRange} from "./domain/value-objects/line-range.value-object"
+export {
+    RISK_SCORE_LEVEL,
+    RiskScore,
+    type IRiskScoreFactors,
+    type RiskScoreLevel,
+} from "./domain/value-objects/risk-score.value-object"
 export {SEVERITY_LEVEL, Severity, type SeverityLevel} from "./domain/value-objects/severity.value-object"
 export {UniqueId} from "./domain/value-objects/unique-id.value-object"
 export {createToken, type InjectionToken} from "./ioc/create-token"
