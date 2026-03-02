@@ -76,6 +76,10 @@ export {
     type ICompleteReviewOutput,
 } from "./application/use-cases/review/complete-review.use-case"
 export {
+    CreateCcrLevelCommentsStageUseCase,
+    type ICreateCcrLevelCommentsStageDependencies,
+} from "./application/use-cases/review/create-ccr-level-comments-stage.use-case"
+export {
     PipelineOrchestratorUseCase,
     PipelineRunner,
     type IPipelineOrchestratorDependencies,
@@ -93,6 +97,10 @@ export {
     FileContextGateStageUseCase,
 } from "./application/use-cases/review/file-context-gate-stage.use-case"
 export {
+    CreateFileCommentsStageUseCase,
+    type ICreateFileCommentsStageDependencies,
+} from "./application/use-cases/review/create-file-comments-stage.use-case"
+export {
     InitialCommentStageUseCase,
     type IInitialCommentStageDependencies,
 } from "./application/use-cases/review/initial-comment-stage.use-case"
@@ -101,8 +109,20 @@ export {
     type ILoadExternalContextStageDependencies,
 } from "./application/use-cases/review/load-external-context-stage.use-case"
 export {
+    ProcessCcrLevelReviewStageUseCase,
+    type IProcessCcrLevelReviewStageDependencies,
+} from "./application/use-cases/review/process-ccr-level-review-stage.use-case"
+export {
+    ProcessFilesReviewStageUseCase,
+    type IProcessFilesReviewStageDependencies,
+} from "./application/use-cases/review/process-files-review-stage.use-case"
+export {
     ResolveConfigStageUseCase,
 } from "./application/use-cases/review/resolve-config-stage.use-case"
+export {
+    ValidateSuggestionsStageUseCase,
+    type IValidateSuggestionsStageDependencies,
+} from "./application/use-cases/review/validate-suggestions-stage.use-case"
 export {
     ValidateConfigStageUseCase,
 } from "./application/use-cases/review/validate-config-stage.use-case"
@@ -127,6 +147,10 @@ export {
     type IStageTransition,
     type IStageTransitionMetadata,
 } from "./application/types/review/pipeline-stage.contract"
+export {
+    type ISafeGuardFilter,
+    type ISafeGuardFilterResult,
+} from "./application/types/review/safeguard-filter.contract"
 export {
     ReviewPipelineState,
     type ICreateReviewPipelineStateProps,
