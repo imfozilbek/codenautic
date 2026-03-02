@@ -19,6 +19,35 @@ export {
 } from "./application/dto/heuristics/heuristic-registry-entry.dto"
 export {type IImportedRuleHeuristicsMetadata} from "./application/dto/rules/rule-import-metadata.dto"
 export {
+    CHECK_RUN_CONCLUSION,
+    CHECK_RUN_STATUS,
+    INLINE_COMMENT_SIDE,
+    MERGE_REQUEST_DIFF_FILE_STATUS,
+    type CheckRunConclusion,
+    type CheckRunStatus,
+    type ICheckRunDTO,
+    type ICommentDTO,
+    type IInlineCommentDTO,
+    type IMergeRequestAuthorDTO,
+    type IMergeRequestCommitDTO,
+    type IMergeRequestDTO,
+    type IMergeRequestDiffFileDTO,
+    type IWebhookEventDTO,
+    type InlineCommentSide,
+    type MergeRequestDiffFileStatus,
+} from "./application/dto/git"
+export {
+    MESSAGE_ROLE,
+    type IChatChunkDTO,
+    type IChatRequestDTO,
+    type IChatResponseDTO,
+    type IMessageDTO,
+    type IStreamingChatResponseDTO,
+    type IToolCallDTO,
+    type IToolDefinitionDTO,
+    type MessageRole,
+} from "./application/dto/llm"
+export {
     type IDiscardedSuggestionDTO,
     type IReviewConfigDTO,
     type IReviewIssueDTO,
