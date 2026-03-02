@@ -37,7 +37,7 @@ describe("SystemHealthPage", (): void => {
             http.get("http://localhost:3000/api/v1/health", () => {
                 requestCount += 1
 
-                if (requestCount === 1) {
+                if (requestCount <= 3) {
                     return HttpResponse.json(
                         {
                             message: "temporarily unavailable",
@@ -74,6 +74,6 @@ describe("SystemHealthPage", (): void => {
 
         const statusMessage = await screen.findByText("ok")
         expect(statusMessage.textContent).toBe("ok")
-        expect(requestCount).toBe(2)
+        expect(requestCount).toBe(4)
     })
 })

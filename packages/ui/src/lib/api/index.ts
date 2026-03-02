@@ -17,8 +17,24 @@ export function createApiContracts(): {readonly system: SystemApi} {
 }
 
 export {createApiConfig} from "./config"
-export {ApiHttpError, FetchHttpClient} from "./http-client"
+export {
+    ApiHttpError,
+    ApiNetworkError,
+    ApiRateLimitError,
+    FetchHttpClient,
+    isApiHttpError,
+    isApiNetworkError,
+    isApiRateLimitError,
+} from "./http-client"
 export type {IApiConfig, IUiEnv} from "./config"
-export type {IHttpClient, IHttpRequest, HttpMethod, QueryValue} from "./http-client"
+export type {
+    IDelayFunction,
+    IFetchHttpClientDependencies,
+    IHttpClient,
+    IHttpRequest,
+    HttpMethod,
+    IRetryPolicy,
+    QueryValue,
+} from "./http-client"
 export type {ISystemApi} from "./endpoints/system.endpoint"
 export type {TSystemHealthResponse, THealthStatus} from "./types"

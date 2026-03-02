@@ -17,6 +17,7 @@ export interface IApiConfig {
  */
 export interface IUiEnv {
     readonly VITE_API_URL?: string
+    readonly VITE_API_BEARER_TOKEN?: string
     readonly MODE?: string
     readonly PROD?: boolean
 }
@@ -41,9 +42,7 @@ export function createApiConfig(env: IUiEnv): IApiConfig {
 
         return {
             baseUrl: DEFAULT_API_URL,
-            defaultHeaders: {
-                "Content-Type": "application/json",
-            },
+            defaultHeaders: createDefaultHeaders(env.VITE_API_BEARER_TOKEN),
         }
     }
 
@@ -51,9 +50,7 @@ export function createApiConfig(env: IUiEnv): IApiConfig {
 
     return {
         baseUrl: normalizedBaseUrl,
-        defaultHeaders: {
-            "Content-Type": "application/json",
-        },
+        defaultHeaders: createDefaultHeaders(env.VITE_API_BEARER_TOKEN),
     }
 }
 
@@ -98,4 +95,28 @@ function normalizeBaseUrl(value: string): string {
     }
 
     return trimmedValue
+}
+
+/**
+ * Формирует стандартные заголовки API-клиента с optional bearer auth.
+ *
+ * @param rawToken Bearer token из окружения.
+ * @returns Набор дефолтных заголовков.
+ */
+function createDefaultHeaders(rawToken: string | undefined): Readonly<Record<string, string>> {
+    const headers: Record<string, string> = {
+        "Content-Type": "application/json",
+    }
+
+    if (rawToken === undefined) {
+        return headers
+    }
+
+    const normalizedToken = rawToken.trim()
+    if (normalizedToken.length === 0) {
+        throw new Error("VITE_API_BEARER_TOKEN не должен быть пустым")
+    }
+
+    headers.Authorization = `Bearer ${normalizedToken}`
+    return headers
 }
