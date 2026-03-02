@@ -43,8 +43,8 @@ M01 → M02 → M03 → M04 → M05 (core)
 | ID | Название | Пакеты | Задач | Проверка |
 |----|----------|--------|-------|----------|
 | M01 | Core Foundation | core | 27 | `cd packages/core && bun test` — Entity, VO, Result, Errors, Utils |
-| M02 | Review Domain & Pipeline | core | 35 | Review aggregate, pipeline runner с mock stages |
-| M03 | 20-Stage Pipeline & SafeGuard | core | 26 | Полный pipeline + SafeGuard с моками |
+| M02 | Review Domain & Versioned Pipeline | core | 35 | Review aggregate, orchestrator + pipeline definition с mock stages |
+| M03 | 20-Stage (v1) Pipeline & SafeGuard | core | 26 | Полный definition-driven pipeline + SafeGuard с моками |
 | M04 | Business Domain | core | 63 | Org, Project, Rules, Feedback, Prompts, Analytics, Graph, Notifications, CCR Summary |
 | M05 | Seeds, Admin, Expert Panel | core | 95 | Admin CRUD, seed data, stage-prompt wiring, Expert Panel |
 | M06 | Adapters Foundation | adapters | 25 | DB, messaging, worker infra |
@@ -65,7 +65,8 @@ M01 → M02 → M03 → M04 → M05 (core)
 
 ## Фаза 1: Launch — полноценный запуск
 
-**Цель:** работающий продукт end-to-end. MR открыт → webhook → 20-stage pipeline → комментарии в CCR. Dashboard,
+**Цель:** работающий продукт end-to-end. MR открыт → webhook → definition-driven review pipeline (v1: 20 aliases) →
+комментарии в CCR. Dashboard,
 analytics, настройки — через UI. Все 4 Git-платформы, все LLM-провайдеры, все 5 трекеров задач.
 
 ### Текущее состояние разработки
@@ -84,7 +85,7 @@ analytics, настройки — через UI. Все 4 Git-платформы
 
 ### Что готово
 
-- **Core (0%):** 20-stage Pipeline, SafeGuard (5 фильтров), Expert Panel, Rules Library, Analytics, Architecture
+- **Core (0%):** Versioned review pipeline (v1: 20-stage aliases), SafeGuard (5 фильтров), Expert Panel, Rules Library, Analytics, Architecture
   Analysis, CCR Summary, Conversation Agent, CodeCity Domain, Causal Analysis, KAG порты
 - **API (0%):** NestJS, Auth (JWT + RBAC), Security (AES-256-GCM), Observability (Sentry + OTel + Prometheus), Admin
   CRUD, Core controllers, Outbox pattern, MCP module, Task management
@@ -107,7 +108,8 @@ analytics, настройки — через UI. Все 4 Git-платформы
 **P0 — блокеры Launch:**
 
 - Review Worker: Code review processor, TaskProcessor, TaskResultWriter, ReviewJobConsumer,
-  ReviewPipelineOrchestrator, ReviewWorkerContainer, ReviewWorkerEntrypoint, ResultPublisher, ReviewCommentWriter
+  ReviewPipelineOrchestrator, PipelineDefinitionProvider, RunCheckpointStore, ReviewWorkerContainer,
+  ReviewWorkerEntrypoint, ResultPublisher, ReviewCommentWriter
 - Scan Worker: RepositoryScanConsumer, ScanWorkerContainer, ScanWorkerEntrypoint
 - Notification Worker: NotificationJobConsumer, NotificationRouter, NotificationWorkerContainer,
   NotificationWorkerEntrypoint
@@ -586,7 +588,7 @@ flowchart TD
 
 ### Prerequisites из Фазы 1
 
-- [ ] Фаза 1: Launch завершена (review pipeline end-to-end)
+- [ ] Фаза 1: Launch завершена (definition-driven review pipeline end-to-end, pinning + checkpoint/resume)
 - [ ] AST: Full repository scan работает (scan-worker)
 - [ ] Git Providers: blame, history, contributors доступны
 - [ ] Context Providers: PR descriptions, review comments извлекаемы
@@ -698,7 +700,7 @@ flowchart TD
 | 35 | Task Tracker                   | **Task-to-PR Pipeline** — обратная связь: тикет → автоматический PR. Bug-to-PR: Sentry error → PR с fix + test                                 | P2        |
 | 36 | CodeCity                       | **Spatial Understanding** — code graph как queryable database. Рефакторинг-визуализация: "как будет выглядеть город после"                     | P3        |
 | 37 | Notifications                  | **Proactive Digests** — персонализированный cron-дайджест. Escalation: hotspot не адресуется 2 спринта → алерт тимлиду                         | P2        |
-| 38 | Review Pipeline                | **Self-Review** — тот же 20-stage pipeline для review автогенерированного кода. Рекурсия: агент пишет → pipeline ревьюирует → агент исправляет | P1        |
+| 38 | Review Pipeline                | **Self-Review** — тот же definition-driven pipeline (v1: 20 aliases) для review автогенерированного кода. Рекурсия: агент пишет → pipeline ревьюирует → агент исправляет | P1        |
 | 39 | Feedback / Continuous Learning | **Rule Tuning Automation** — auto-анализ: правило X отклоняют >30% → PR с настройкой. A/B testing. Confidence calibration                      | P2        |
 
 ---
@@ -721,7 +723,7 @@ flowchart TD
 
 **Для Self-Improvement Тип 1 (рефакторинг своего кода):**
 
-- [ ] Фаза 1: Launch завершена (полный review pipeline работает)
+- [ ] Фаза 1: Launch завершена (полный definition-driven review pipeline работает)
 - [ ] AI Auto-Fix (#1) работает и откалиброван (acceptance rate >70%)
 - [ ] Confidence Scoring (#4) откалиброван на реальных данных
 - [ ] Sandboxed Test Execution (#3) работает
