@@ -3,6 +3,13 @@
     "target": "ESNext",
     "module": "ESNext",
     "moduleResolution": "bundler",
+    "baseUrl": ".",
+    "paths": {
+      "@codenautic/core": ["../core/src/index.ts"],
+      "@codenautic/core/*": ["../core/src/*"],
+      "@codenautic/adapters": ["../adapters/src/index.ts"],
+      "@codenautic/adapters/*": ["../adapters/src/*"]
+    },
     "strict": true,
     "noUncheckedIndexedAccess": true,
     "declaration": true,
@@ -14,7 +21,7 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "noEmit": true,
-    "rootDir": ".",
+    "rootDir": "..",
     "outDir": "./dist",
     "types": ["bun"],
     "experimentalDecorators": true,

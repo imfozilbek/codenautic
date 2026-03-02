@@ -4,7 +4,14 @@
     "noEmit": false,
     "declaration": true,
     "declarationMap": true,
-    "outDir": "./dist"
+    "outDir": "./dist",
+    "rootDir": ".",
+    "paths": {
+      "@codenautic/core": ["../core/dist/src/index.d.ts"],
+      "@codenautic/core/*": ["../core/dist/src/*"],
+      "@codenautic/adapters": ["../adapters/dist/src/index.d.ts"],
+      "@codenautic/adapters/*": ["../adapters/dist/src/*"]
+    }
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules", "dist", "coverage", "tests"]
