@@ -1,7 +1,7 @@
 # Heuristics Coverage Report
 
 - Schema version: 1
-- Generated at: 2026-03-02T10:43:57.074Z
+- Generated at: 2026-03-02T12:15:07.887Z
 - Total entries: 1938
 - Code entries: 467
 - Plan entries: 677

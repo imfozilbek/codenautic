@@ -1,3 +1,4 @@
+import {createHash} from "node:crypto"
 import {mkdirSync, readFileSync, readdirSync, statSync, writeFileSync} from "node:fs"
 import {resolve, relative} from "node:path"
 
@@ -199,10 +200,11 @@ function buildEntriesFromFiles(filePaths: readonly string[], idPrefix: string): 
             const heuristicType = detectHeuristicType(line)
             const riskLevel = detectRiskLevel(line)
             const resolutionMode = detectResolutionMode(riskLevel)
-            const verificationRule = buildVerificationRule(`${idPrefix}-${entries.length + 1}`)
+            const stableId = buildStableHeuristicId(idPrefix, filePath, index + 1, line)
+            const verificationRule = buildVerificationRule(stableId)
 
             entries.push({
-                id: `${idPrefix}-${String(entries.length + 1).padStart(4, "0")}`,
+                id: stableId,
                 source_file: filePath,
                 source_line: index + 1,
                 heuristic_type: heuristicType,
@@ -219,6 +221,20 @@ function buildEntriesFromFiles(filePaths: readonly string[], idPrefix: string): 
     }
 
     return entries
+}
+
+function buildStableHeuristicId(
+    idPrefix: string,
+    filePath: string,
+    lineNumber: number,
+    lineContent: string,
+): string {
+    const digest = createHash("sha1")
+        .update(`${filePath}:${lineNumber}:${compactExpression(lineContent)}`)
+        .digest("hex")
+        .slice(0, 12)
+
+    return `${idPrefix}-${digest.toUpperCase()}`
 }
 
 function buildRuleEntries(repositoryRoot: string): IHeuristicRegistryEntry[] {
