@@ -21,6 +21,7 @@ export {REVIEW_STATUS, Review, type IReviewProps, type ReviewStatus} from "./dom
 export {RULE_STATUS, Rule, type IRuleProps, type RuleStatus} from "./domain/aggregates/rule.aggregate"
 export {Entity} from "./domain/entities/entity"
 export {DomainError} from "./domain/errors/domain.error"
+export {InvalidUniqueIdError} from "./domain/errors/invalid-unique-id.error"
 export {ReviewNotFoundError} from "./domain/errors/review-not-found.error"
 export {ReviewSeverityBudgetExceededError} from "./domain/errors/review-severity-budget-exceeded.error"
 export {ReviewStatusTransitionError} from "./domain/errors/review-status-transition.error"

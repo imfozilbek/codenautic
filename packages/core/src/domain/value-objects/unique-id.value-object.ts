@@ -1,8 +1,10 @@
+import {InvalidUniqueIdError} from "../errors/invalid-unique-id.error"
+
 /**
  * Strongly typed unique identifier for entities and aggregates.
  */
 export class UniqueId {
-    public readonly value: string
+    private readonly rawValue: string
 
     /**
      * Creates immutable identifier.
@@ -10,7 +12,7 @@ export class UniqueId {
      * @param value Raw identifier string.
      */
     private constructor(value: string) {
-        this.value = value
+        this.rawValue = value
         Object.freeze(this)
     }
 
@@ -26,10 +28,19 @@ export class UniqueId {
         const normalizedValue = rawValue.trim()
 
         if (normalizedValue.length === 0) {
-            throw new Error("UniqueId cannot be empty")
+            throw new InvalidUniqueIdError()
         }
 
         return new UniqueId(normalizedValue)
+    }
+
+    /**
+     * Raw identifier value.
+     *
+     * @returns Identifier string.
+     */
+    public get value(): string {
+        return this.rawValue
     }
 
     /**
@@ -39,6 +50,16 @@ export class UniqueId {
      * @returns True when values are equal.
      */
     public equals(other: UniqueId): boolean {
-        return this.value === other.value
+        return this.isEqual(other)
+    }
+
+    /**
+     * Compares identifiers by raw value.
+     *
+     * @param other Another identifier instance.
+     * @returns True when values are equal.
+     */
+    public isEqual(other: UniqueId): boolean {
+        return this.rawValue === other.rawValue
     }
 }
