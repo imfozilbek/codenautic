@@ -47,7 +47,7 @@ export class Result<TValue, TError extends Error> {
      *
      * @returns True for success.
      */
-    public get isSuccess(): boolean {
+    public get isOk(): boolean {
         return this._isSuccess
     }
 
@@ -56,31 +56,99 @@ export class Result<TValue, TError extends Error> {
      *
      * @returns True for failure.
      */
-    public get isFailure(): boolean {
+    public get isFail(): boolean {
         return this._isSuccess === false
     }
 
     /**
-     * Success payload when available.
+     * Backward-compatible success alias.
+     *
+     * @returns True for success.
+     */
+    public get isSuccess(): boolean {
+        return this.isOk
+    }
+
+    /**
+     * Backward-compatible failure alias.
+     *
+     * @returns True for failure.
+     */
+    public get isFailure(): boolean {
+        return this.isFail
+    }
+
+    /**
+     * Success payload.
      *
      * @returns Value for success result.
+     * @throws Error When accessed on failed result.
      */
-    public get value(): TValue | undefined {
-        if (this._value === null) {
-            return undefined
+    public get value(): TValue {
+        if (this._value === null || this.isFail) {
+            throw new Error("Cannot access value from failed result")
         }
+
         return this._value
     }
 
     /**
-     * Failure payload when available.
+     * Failure payload.
      *
      * @returns Error for failed result.
+     * @throws Error When accessed on successful result.
      */
-    public get error(): TError | undefined {
-        if (this._error === null) {
-            return undefined
+    public get error(): TError {
+        if (this._error === null || this.isOk) {
+            throw new Error("Cannot access error from successful result")
         }
+
         return this._error
+    }
+
+    /**
+     * Maps successful value and leaves failed result untouched.
+     *
+     * @template TNextValue Mapped success type.
+     * @param mapper Mapping function for success value.
+     * @returns Result with mapped value or original error.
+     */
+    public map<TNextValue>(mapper: (value: TValue) => TNextValue): Result<TNextValue, TError> {
+        if (this.isFail) {
+            return Result.fail<TNextValue, TError>(this.error)
+        }
+
+        return Result.ok<TNextValue, TError>(mapper(this.value))
+    }
+
+    /**
+     * Chains another result-producing operation for success branch.
+     *
+     * @template TNextValue Next success type.
+     * @param mapper Result-returning mapper.
+     * @returns Next result for success or original error.
+     */
+    public flatMap<TNextValue>(
+        mapper: (value: TValue) => Result<TNextValue, TError>,
+    ): Result<TNextValue, TError> {
+        if (this.isFail) {
+            return Result.fail<TNextValue, TError>(this.error)
+        }
+
+        return mapper(this.value)
+    }
+
+    /**
+     * Returns success value or fallback when failed.
+     *
+     * @param fallback Fallback value.
+     * @returns Success value or fallback.
+     */
+    public unwrapOr(fallback: TValue): TValue {
+        if (this.isOk) {
+            return this.value
+        }
+
+        return fallback
     }
 }
