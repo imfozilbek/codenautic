@@ -46,6 +46,7 @@ export {
     MemberRole,
     type MemberRoleValue,
 } from "./domain/value-objects/member-role.value-object"
+export {OrganizationId} from "./domain/value-objects/organization-id.value-object"
 export {
     REPOSITORY_PLATFORM,
     RepositoryId,
