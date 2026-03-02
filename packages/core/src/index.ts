@@ -40,6 +40,11 @@ export {RuleStatusPolicyService} from "./domain/services/rule-status-policy.serv
 export {FilePath} from "./domain/value-objects/file-path.value-object"
 export {LineRange} from "./domain/value-objects/line-range.value-object"
 export {
+    REPOSITORY_PLATFORM,
+    RepositoryId,
+    type RepositoryPlatform,
+} from "./domain/value-objects/repository-id.value-object"
+export {
     RISK_SCORE_LEVEL,
     RiskScore,
     type IRiskScoreFactors,
