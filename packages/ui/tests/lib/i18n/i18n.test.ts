@@ -27,6 +27,7 @@ describe("i18n", (): void => {
 
         expect(getCurrentLocale(instance)).toBe("en")
         expect(instance.t("common:loading")).toBe("Checking API availability...")
+        expect(instance.t("auth:loginTitle")).toBe("Sign in to open dashboard")
     })
 
     it("возвращает тот же promise при повторной инициализации глобального i18n", (): void => {

@@ -4,6 +4,7 @@ import {createFileRoute} from "@tanstack/react-router"
 
 import {RouteErrorFallback} from "@/app/error-fallback"
 import {RouteSuspenseFallback} from "@/app/route-suspense-fallback"
+import {AuthBoundary} from "@/lib/auth/auth-boundary"
 
 const LazySystemHealthPage = lazy(async (): Promise<{default: () => ReactElement}> => {
     const pageModule = await import("@/pages/system-health.page")
@@ -19,9 +20,11 @@ const LazySystemHealthPage = lazy(async (): Promise<{default: () => ReactElement
  */
 function IndexRouteComponent(): ReactElement {
     return (
-        <Suspense fallback={<RouteSuspenseFallback />}>
-            <LazySystemHealthPage />
-        </Suspense>
+        <AuthBoundary>
+            <Suspense fallback={<RouteSuspenseFallback />}>
+                <LazySystemHealthPage />
+            </Suspense>
+        </AuthBoundary>
     )
 }
 

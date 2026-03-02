@@ -35,6 +35,10 @@ export interface IHttpRequest {
      */
     readonly body?: unknown
     /**
+     * Режим передачи cookie/credentials.
+     */
+    readonly credentials?: RequestCredentials
+    /**
      * AbortSignal для отмены запроса.
      */
     readonly signal?: AbortSignal
@@ -296,6 +300,7 @@ export class FetchHttpClient implements IHttpClient {
                     ...request.headers,
                 },
                 body: this.buildBody(request.body),
+                credentials: request.credentials,
                 signal: request.signal,
             })
 

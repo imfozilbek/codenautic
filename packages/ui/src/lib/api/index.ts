@@ -1,4 +1,5 @@
 import {createApiConfig} from "./config"
+import {AuthApi} from "./endpoints/auth.endpoint"
 import {SystemApi} from "./endpoints/system.endpoint"
 import {FetchHttpClient} from "./http-client"
 
@@ -7,12 +8,13 @@ import {FetchHttpClient} from "./http-client"
  *
  * @returns Набор endpoint-клиентов для runtime/api.
  */
-export function createApiContracts(): {readonly system: SystemApi} {
+export function createApiContracts(): {readonly system: SystemApi; readonly auth: AuthApi} {
     const config = createApiConfig({})
     const httpClient = new FetchHttpClient(config)
 
     return {
         system: new SystemApi(httpClient),
+        auth: new AuthApi(httpClient),
     }
 }
 
@@ -27,6 +29,7 @@ export {
     isApiRateLimitError,
 } from "./http-client"
 export type {IApiConfig, IUiEnv} from "./config"
+export type {IAuthApi} from "./endpoints/auth.endpoint"
 export type {
     IDelayFunction,
     IFetchHttpClientDependencies,

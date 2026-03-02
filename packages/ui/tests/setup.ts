@@ -8,6 +8,7 @@ import {server} from "./mocks/server"
 const originalFetch = globalThis.fetch
 
 beforeAll(async (): Promise<void> => {
+    sessionStorage.clear()
     localStorage.setItem(LOCALE_STORAGE_KEY, DEFAULT_LOCALE)
     await initializeI18n()
     server.listen({
@@ -18,6 +19,7 @@ beforeAll(async (): Promise<void> => {
 afterEach(async (): Promise<void> => {
     cleanup()
     server.resetHandlers()
+    sessionStorage.clear()
     localStorage.clear()
     localStorage.setItem(LOCALE_STORAGE_KEY, DEFAULT_LOCALE)
     await i18next.changeLanguage(DEFAULT_LOCALE)

@@ -23,6 +23,13 @@ const resources = {
             unavailable: "Failed to fetch API status",
             noData: "No API status data",
         },
+        auth: {
+            checkingSession: "Checking current session...",
+            loginTitle: "Sign in to open dashboard",
+            oauthStartFailed: "Failed to start OAuth authorization. Please try again.",
+            logout: "Log out",
+            logoutFailed: "Failed to complete logout. Please try again.",
+        },
     },
     ru: {
         common: {
@@ -36,6 +43,13 @@ const resources = {
             timestamp: "Время",
             unavailable: "Не удалось получить статус API",
             noData: "Нет данных о состоянии API",
+        },
+        auth: {
+            checkingSession: "Проверяем активную сессию...",
+            loginTitle: "Войдите, чтобы открыть dashboard",
+            oauthStartFailed: "Не удалось начать OAuth авторизацию. Повторите попытку.",
+            logout: "Выйти",
+            logoutFailed: "Не удалось завершить сессию. Повторите попытку.",
         },
     },
 } as const
@@ -132,7 +146,7 @@ async function initializeInstance(instance: II18n): Promise<void> {
         fallbackLng: DEFAULT_LOCALE,
         supportedLngs: SUPPORTED_LOCALES,
         defaultNS: "common",
-        ns: ["common", "system"],
+        ns: ["common", "system", "auth"],
         interpolation: {
             escapeValue: false,
         },
