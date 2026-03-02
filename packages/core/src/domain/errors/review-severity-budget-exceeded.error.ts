@@ -4,6 +4,8 @@ import {DomainError} from "./domain.error"
  * Error raised when consumed severity exceeds aggregate budget.
  */
 export class ReviewSeverityBudgetExceededError extends DomainError {
+    public readonly code = "REVIEW_SEVERITY_BUDGET_EXCEEDED"
+
     /**
      * Creates severity budget error.
      *
@@ -11,9 +13,6 @@ export class ReviewSeverityBudgetExceededError extends DomainError {
      * @param budget Allowed severity budget.
      */
     public constructor(consumedSeverity: number, budget: number) {
-        super(
-            "REVIEW_SEVERITY_BUDGET_EXCEEDED",
-            `Consumed severity '${consumedSeverity}' exceeds budget '${budget}'`,
-        )
+        super(`Consumed severity '${consumedSeverity}' exceeds budget '${budget}'`)
     }
 }

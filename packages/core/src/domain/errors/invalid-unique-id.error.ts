@@ -5,6 +5,7 @@ import {DomainError} from "./domain.error"
  */
 export class InvalidUniqueIdError extends DomainError {
     public static readonly CODE = "INVALID_UNIQUE_ID"
+    public readonly code = InvalidUniqueIdError.CODE
 
     /**
      * Creates invalid unique id error.
@@ -12,6 +13,6 @@ export class InvalidUniqueIdError extends DomainError {
      * @param message Error description.
      */
     public constructor(message = "UniqueId cannot be empty") {
-        super(InvalidUniqueIdError.CODE, message)
+        super(message)
     }
 }
