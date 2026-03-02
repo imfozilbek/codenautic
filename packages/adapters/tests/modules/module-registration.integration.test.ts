@@ -27,6 +27,27 @@ import {
     OutboxWriterAdapter,
     registerMessagingModule,
 } from "../../src/messaging"
+import {
+    NOTIFICATION_CHANNEL,
+    NOTIFICATION_DELIVERY_STATUS,
+    NOTIFICATIONS_TOKENS,
+    InMemoryNotificationDispatcherAdapter,
+    registerNotificationsModule,
+} from "../../src/notifications"
+import {
+    AST_LANGUAGE,
+    AST_NODE_KIND,
+    AST_TOKENS,
+    RegexAstParserAdapter,
+    registerAstModule,
+} from "../../src/ast"
+import {
+    WORKER_ENQUEUE_STATUS,
+    WORKER_TOKENS,
+    InMemoryWorkerQueueAdapter,
+    WorkerProcessorRegistryAdapter,
+    registerWorkerModule,
+} from "../../src/worker"
 
 describe("Git module registration", () => {
     test("registers default singleton dependencies", () => {
@@ -174,5 +195,152 @@ describe("Messaging module registration", () => {
 
         expect(container.resolve(MESSAGING_TOKENS.OutboxWriter)).toBe(customOutbox)
         expect(container.resolve(MESSAGING_TOKENS.InboxDeduplicator)).toBe(customInbox)
+    })
+})
+
+describe("Notifications module registration", () => {
+    test("registers default singleton dispatcher", () => {
+        const container = new Container()
+
+        registerNotificationsModule(container)
+
+        expect(container.has(NOTIFICATIONS_TOKENS.Dispatcher)).toBe(true)
+        const first = container.resolve(NOTIFICATIONS_TOKENS.Dispatcher)
+        const second = container.resolve(NOTIFICATIONS_TOKENS.Dispatcher)
+
+        expect(first instanceof InMemoryNotificationDispatcherAdapter).toBe(true)
+        expect(first === second).toBe(true)
+
+        const result = first.dispatch({
+            channel: NOTIFICATION_CHANNEL.SLACK,
+            recipient: "team-review",
+            body: "Build is green",
+            idempotencyKey: "notif-module-1",
+        })
+
+        expect(result.isOk).toBe(true)
+        if (result.isFail) {
+            throw new Error("Expected successful notification dispatch")
+        }
+
+        expect(result.value.status).toBe(NOTIFICATION_DELIVERY_STATUS.SENT)
+    })
+
+    test("uses override instance when provided", () => {
+        const container = new Container()
+        const dispatcher = new InMemoryNotificationDispatcherAdapter()
+
+        registerNotificationsModule(container, {
+            dispatcher,
+        })
+
+        expect(container.resolve(NOTIFICATIONS_TOKENS.Dispatcher)).toBe(dispatcher)
+    })
+})
+
+describe("AST module registration", () => {
+    test("registers default singleton parser", () => {
+        const container = new Container()
+
+        registerAstModule(container)
+
+        expect(container.has(AST_TOKENS.Parser)).toBe(true)
+        const first = container.resolve(AST_TOKENS.Parser)
+        const second = container.resolve(AST_TOKENS.Parser)
+
+        expect(first instanceof RegexAstParserAdapter).toBe(true)
+        expect(first === second).toBe(true)
+
+        const result = first.parse({
+            language: AST_LANGUAGE.TYPESCRIPT,
+            filePath: "src/sample.ts",
+            sourceCode: `function run() {}\nclass Runner {}\ninterface RunnerPort {}\ntype RunnerId = string`,
+        })
+
+        expect(result.isOk).toBe(true)
+        if (result.isFail) {
+            throw new Error("Expected successful AST parse")
+        }
+
+        expect(result.value.nodes).toEqual([
+            {kind: AST_NODE_KIND.FUNCTION, name: "run", startLine: 1, endLine: 1},
+            {kind: AST_NODE_KIND.CLASS, name: "Runner", startLine: 2, endLine: 2},
+            {kind: AST_NODE_KIND.INTERFACE, name: "RunnerPort", startLine: 3, endLine: 3},
+            {kind: AST_NODE_KIND.TYPE_ALIAS, name: "RunnerId", startLine: 4, endLine: 4},
+        ])
+    })
+
+    test("uses override instance when provided", () => {
+        const container = new Container()
+        const parser = new RegexAstParserAdapter()
+
+        registerAstModule(container, {
+            parser,
+        })
+
+        expect(container.resolve(AST_TOKENS.Parser)).toBe(parser)
+    })
+})
+
+describe("Worker module registration", () => {
+    test("registers default singleton queue and processor registry", async () => {
+        const container = new Container()
+
+        registerWorkerModule(container)
+
+        expect(container.has(WORKER_TOKENS.Queue)).toBe(true)
+        expect(container.has(WORKER_TOKENS.ProcessorRegistry)).toBe(true)
+
+        const queue = container.resolve(WORKER_TOKENS.Queue)
+        const registry = container.resolve(WORKER_TOKENS.ProcessorRegistry)
+
+        expect(queue instanceof InMemoryWorkerQueueAdapter).toBe(true)
+        expect(registry instanceof WorkerProcessorRegistryAdapter).toBe(true)
+        expect(queue === container.resolve(WORKER_TOKENS.Queue)).toBe(true)
+        expect(registry === container.resolve(WORKER_TOKENS.ProcessorRegistry)).toBe(true)
+
+        const registerResult = registry.register("scan", (_payload) => {
+            return
+        })
+        expect(registerResult.isOk).toBe(true)
+
+        const enqueueResult = queue.enqueue({
+            id: "job-module-1",
+            type: "scan",
+            payload: {
+                repositoryId: "repo-1",
+            },
+        })
+        expect(enqueueResult.isOk).toBe(true)
+        if (enqueueResult.isFail) {
+            throw new Error("Expected successful enqueue")
+        }
+        expect(enqueueResult.value.status).toBe(WORKER_ENQUEUE_STATUS.ENQUEUED)
+
+        const dequeued = queue.dequeue("scan")
+        if (dequeued === undefined) {
+            throw new Error("Expected queued job")
+        }
+
+        const processor = registry.resolve("scan")
+        if (processor === undefined) {
+            throw new Error("Expected registered processor")
+        }
+
+        await processor(dequeued.payload)
+    })
+
+    test("uses override instances when provided", () => {
+        const container = new Container()
+        const queue = new InMemoryWorkerQueueAdapter()
+        const processorRegistry = new WorkerProcessorRegistryAdapter()
+
+        registerWorkerModule(container, {
+            queue,
+            processorRegistry,
+        })
+
+        expect(container.resolve(WORKER_TOKENS.Queue)).toBe(queue)
+        expect(container.resolve(WORKER_TOKENS.ProcessorRegistry)).toBe(processorRegistry)
     })
 })
