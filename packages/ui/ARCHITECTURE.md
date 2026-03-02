@@ -17,6 +17,13 @@
 - `src/lib/api/generated/*` — generated DTO (OpenAPI codegen)
 - `src/lib/query/query-keys.ts` — единый factory ключей для React Query
 
+## OpenAPI Codegen Workflow
+
+1. Источник контракта: `openapi/schema.yaml`.
+2. Генерация DTO: `bun run codegen` -> `src/lib/api/generated/index.ts`.
+3. Drift-check в CI: `bun run codegen:check` (job `UI OpenAPI Codegen Sync`).
+4. Автообновление на локальной разработке: `dev` и `build` запускают `codegen` перед стартом.
+
 ## Поток вызова
 
 `Route / Component -> Query Hook -> Endpoint -> FetchHttpClient -> runtime/api`

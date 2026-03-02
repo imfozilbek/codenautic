@@ -246,9 +246,12 @@ bun run perf:check     # Проверка performance budget (JS/LCP/INP/CLS)
 bun run typecheck      # Проверка типов (tsc --noEmit)
 bun run test           # Тесты (vitest, happy-dom)
 bun run codegen        # OpenAPI → generated types
+bun run codegen:check  # Проверка синхронизации schema и generated types
 bun run storybook      # Storybook dev (port 6006)
 bun run build-storybook # Storybook build
 ```
+
+`dev` и `build` автоматически запускают `codegen`, чтобы DTO оставались актуальными после изменения `openapi/schema.yaml`.
 
 ---
 
