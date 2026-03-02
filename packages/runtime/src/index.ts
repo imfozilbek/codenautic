@@ -26,6 +26,17 @@ export {
     type ILoadApiConfigOptions,
 } from "./api/config/api-config.module"
 export {
+    createMongoConnectionManager,
+    DEFAULT_MONGO_CONNECTION_RETRY_POLICY,
+    MongoConnectionError,
+    MongoWriteBlockedError,
+    type IApiDatabaseConnection,
+    type ICreateMongoConnectionManagerOptions,
+    type IMongoConnectionReadiness,
+    type IMongoConnectionRetryPolicy,
+    type IMongoConnector,
+} from "./api/database/mongo-connection"
+export {
     InMemoryRuntimeDomainEventBus,
 } from "./review-worker/adapters/in-memory-runtime-domain-event-bus"
 export {

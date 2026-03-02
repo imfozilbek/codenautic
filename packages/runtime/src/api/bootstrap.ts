@@ -3,6 +3,10 @@ import {
     type IApiConfig,
     type IApiConfigOverrides,
 } from "./config/api-config.module"
+import {
+    createMongoConnectionManager,
+    type IApiDatabaseConnection,
+} from "./database/mongo-connection"
 import {type IApiEnvironment} from "./config/api-env"
 
 /**
@@ -43,6 +47,7 @@ export interface IApiRuntime {
 export interface IStartApiOptions {
     env?: Record<string, string | undefined>
     configOverrides?: IApiConfigOverrides
+    databaseConnection?: IApiDatabaseConnection
     factory?: IApiServerFactory
 }
 
@@ -54,19 +59,33 @@ export interface IStartApiOptions {
  * @throws Error When environment or server factory is invalid.
  */
 export function startApi(options: IStartApiOptions = {}): Promise<IApiRuntime> {
+    return startApiInternal(options)
+}
+
+/**
+ * Internal async startup implementation.
+ *
+ * @param options Startup options.
+ * @returns Running API runtime handle.
+ */
+async function startApiInternal(options: IStartApiOptions): Promise<IApiRuntime> {
     const configModule = ApiConfigModule.fromEnvironment({
         env: options.env,
         overrides: options.configOverrides,
     })
     const config = configModule.getConfig()
     const environment = mapConfigToEnvironment(config)
+    const databaseConnection =
+        options.databaseConnection ?? createMongoConnectionManager(config.database.mongodbUri)
+    await databaseConnection.connect()
+
     const factory = options.factory ?? bunServerFactory
 
     const server = factory({
         port: config.server.port,
         hostname: config.server.host,
         fetch(request: Request): Response {
-            return handleRequest(request, environment)
+            return handleRequest(request, environment, databaseConnection)
         },
     })
 
@@ -74,12 +93,13 @@ export function startApi(options: IStartApiOptions = {}): Promise<IApiRuntime> {
         throw new Error("API server factory must return object with stop()")
     }
 
-    return Promise.resolve({
+    return {
         environment,
         stop(): void {
             server.stop()
+            void databaseConnection.disconnect()
         },
-    })
+    }
 }
 
 /**
@@ -89,13 +109,39 @@ export function startApi(options: IStartApiOptions = {}): Promise<IApiRuntime> {
  * @param environment Validated API environment.
  * @returns HTTP response.
  */
-function handleRequest(request: Request, environment: IApiEnvironment): Response {
+function handleRequest(
+    request: Request,
+    environment: IApiEnvironment,
+    databaseConnection: IApiDatabaseConnection,
+): Response {
     const url = new URL(request.url)
 
     if (url.pathname === "/health" && environment.healthcheckEnabled === true) {
+        if (!databaseConnection.isReady()) {
+            return Response.json(
+                {
+                    status: "not_ready",
+                },
+                {
+                    status: 503,
+                },
+            )
+        }
+
         return Response.json({
             status: "ok",
         })
+    }
+
+    if (isWriteMethod(request.method) && !databaseConnection.isReady()) {
+        return Response.json(
+            {
+                status: "database_unavailable",
+            },
+            {
+                status: 503,
+            },
+        )
     }
 
     return new Response("Not Found", {
@@ -119,6 +165,21 @@ function mapConfigToEnvironment(config: IApiConfig): IApiEnvironment {
         port: config.server.port,
         healthcheckEnabled: config.server.healthcheckEnabled,
     }
+}
+
+/**
+ * Determines whether HTTP method is write-oriented.
+ *
+ * @param method HTTP method.
+ * @returns True for write methods.
+ */
+function isWriteMethod(method: string): boolean {
+    return (
+        method === "POST" ||
+        method === "PUT" ||
+        method === "PATCH" ||
+        method === "DELETE"
+    )
 }
 
 /**

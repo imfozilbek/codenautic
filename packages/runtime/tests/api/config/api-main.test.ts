@@ -5,6 +5,7 @@ import {
     type IApiServerFactory,
     startApi,
 } from "../../../src/api/bootstrap"
+import {type IApiDatabaseConnection} from "../../../src/api/database/mongo-connection"
 
 function createValidEnv(overrides: Record<string, string | undefined> = {}): Record<string, string | undefined> {
     return {
@@ -16,6 +17,69 @@ function createValidEnv(overrides: Record<string, string | undefined> = {}): Rec
     }
 }
 
+class FakeDatabaseConnection implements IApiDatabaseConnection {
+    public connectCalls: number
+    public disconnectCalls: number
+
+    private ready: boolean
+    private readonly connectError?: Error
+    private readonly keepNotReadyOnConnect: boolean
+
+    public constructor(options: {
+        connectError?: Error
+        keepNotReadyOnConnect?: boolean
+    } = {}) {
+        this.connectCalls = 0
+        this.disconnectCalls = 0
+        this.ready = false
+        this.connectError = options.connectError
+        this.keepNotReadyOnConnect = options.keepNotReadyOnConnect ?? false
+    }
+
+    public connect(): Promise<void> {
+        this.connectCalls += 1
+
+        if (this.connectError !== undefined) {
+            throw this.connectError
+        }
+
+        if (!this.keepNotReadyOnConnect) {
+            this.ready = true
+        }
+
+        return Promise.resolve()
+    }
+
+    public disconnect(): Promise<void> {
+        this.disconnectCalls += 1
+        this.ready = false
+        return Promise.resolve()
+    }
+
+    public isReady(): boolean {
+        return this.ready
+    }
+
+    public assertWriteAllowed(): void {
+        if (!this.ready) {
+            throw new Error("db not ready")
+        }
+    }
+
+    public getReadiness(): {ready: boolean; attempts: number; lastError: string | null} {
+        return {
+            ready: this.ready,
+            attempts: this.connectCalls,
+            lastError: null,
+        }
+    }
+}
+
+interface IHttpLikeResponse {
+    status: number
+    text(): Promise<string>
+}
+
 describe("startApi", () => {
     test("starts API with validated configuration", async () => {
         const state: {
@@ -24,6 +88,7 @@ describe("startApi", () => {
                 hostname: string
             }
         } = {}
+        const databaseConnection = new FakeDatabaseConnection()
 
         const factory: IApiServerFactory = (options) => {
             state.receivedFactoryOptions = {
@@ -41,6 +106,7 @@ describe("startApi", () => {
                 API_PORT: "4123",
             }),
             factory,
+            databaseConnection,
         })
 
         const receivedFactoryOptions = state.receivedFactoryOptions
@@ -51,14 +117,17 @@ describe("startApi", () => {
         expect(receivedFactoryOptions.hostname).toBe("127.0.0.1")
         expect(receivedFactoryOptions.port).toBe(4123)
         expect(runtime.environment.port).toBe(4123)
+        expect(databaseConnection.connectCalls).toBe(1)
 
         runtime.stop()
+        expect(databaseConnection.disconnectCalls).toBe(1)
     })
 
-    test("returns health endpoint when healthcheck is enabled", async () => {
+    test("returns health endpoint when healthcheck is enabled and db is ready", async () => {
         const state: {
             invokeHealthRequest?: () => Promise<unknown>
         } = {}
+        const databaseConnection = new FakeDatabaseConnection()
 
         const factory: IApiServerFactory = (options) => {
             state.invokeHealthRequest = async (): Promise<unknown> => {
@@ -76,6 +145,7 @@ describe("startApi", () => {
                 API_HEALTHCHECK_ENABLED: "true",
             }),
             factory,
+            databaseConnection,
         })
 
         const invokeHealthRequest = state.invokeHealthRequest
@@ -83,17 +153,92 @@ describe("startApi", () => {
             throw new Error("Expected fetch handler")
         }
 
-        const responseUnknown: unknown = await invokeHealthRequest()
+        const responseUnknown = await invokeHealthRequest()
         const response = ensureHttpLikeResponse(responseUnknown)
         expect(response.status).toBe(200)
         const payloadText = await response.text()
         expect(payloadText.includes("\"status\":\"ok\"")).toBe(true)
     })
 
+    test("returns 503 health endpoint when db is not ready", async () => {
+        const state: {
+            invokeHealthRequest?: () => Promise<unknown>
+        } = {}
+        const databaseConnection = new FakeDatabaseConnection({
+            keepNotReadyOnConnect: true,
+        })
+
+        const factory: IApiServerFactory = (options) => {
+            state.invokeHealthRequest = async (): Promise<unknown> => {
+                return Promise.resolve(
+                    options.fetch(new Request("http://localhost/health")) as unknown,
+                )
+            }
+            return {
+                stop(): void {},
+            }
+        }
+
+        await startApi({
+            env: createValidEnv({
+                API_HEALTHCHECK_ENABLED: "true",
+            }),
+            factory,
+            databaseConnection,
+        })
+
+        const invokeHealthRequest = state.invokeHealthRequest
+        if (invokeHealthRequest === undefined) {
+            throw new Error("Expected fetch handler")
+        }
+
+        const responseUnknown = await invokeHealthRequest()
+        const response = ensureHttpLikeResponse(responseUnknown)
+        expect(response.status).toBe(503)
+    })
+
+    test("returns 503 for write request when db is not ready", async () => {
+        const state: {
+            invokeWriteRequest?: () => Promise<unknown>
+        } = {}
+        const databaseConnection = new FakeDatabaseConnection({
+            keepNotReadyOnConnect: true,
+        })
+
+        const factory: IApiServerFactory = (options) => {
+            state.invokeWriteRequest = async (): Promise<unknown> => {
+                return Promise.resolve(
+                    options.fetch(new Request("http://localhost/reviews", {method: "POST"})) as unknown,
+                )
+            }
+            return {
+                stop(): void {},
+            }
+        }
+
+        await startApi({
+            env: createValidEnv(),
+            factory,
+            databaseConnection,
+        })
+
+        const invokeWriteRequest = state.invokeWriteRequest
+        if (invokeWriteRequest === undefined) {
+            throw new Error("Expected write fetch handler")
+        }
+
+        const responseUnknown = await invokeWriteRequest()
+        const response = ensureHttpLikeResponse(responseUnknown)
+        expect(response.status).toBe(503)
+        const payloadText = await response.text()
+        expect(payloadText.includes("database_unavailable")).toBe(true)
+    })
+
     test("returns 404 for health endpoint when disabled", async () => {
         const state: {
             invokeHealthRequest?: () => Promise<unknown>
         } = {}
+        const databaseConnection = new FakeDatabaseConnection()
 
         const factory: IApiServerFactory = (options) => {
             state.invokeHealthRequest = async (): Promise<unknown> => {
@@ -111,6 +256,7 @@ describe("startApi", () => {
                 API_HEALTHCHECK_ENABLED: "false",
             }),
             factory,
+            databaseConnection,
         })
 
         const invokeHealthRequest = state.invokeHealthRequest
@@ -118,12 +264,13 @@ describe("startApi", () => {
             throw new Error("Expected fetch handler")
         }
 
-        const healthResponseUnknown: unknown = await invokeHealthRequest()
+        const healthResponseUnknown = await invokeHealthRequest()
         const healthResponse = ensureHttpLikeResponse(healthResponseUnknown)
         expect(healthResponse.status).toBe(404)
     })
 
     test("throws when factory returns invalid server object", async () => {
+        const databaseConnection = new FakeDatabaseConnection()
         const invalidFactory = (() => {
             return {} as IApiServer
         }) satisfies IApiServerFactory
@@ -132,12 +279,14 @@ describe("startApi", () => {
             {
                 env: createValidEnv(),
                 factory: invalidFactory,
+                databaseConnection,
             },
             "API server factory must return object with stop()",
         )
     })
 
     test("throws when factory returns null", async () => {
+        const databaseConnection = new FakeDatabaseConnection()
         const invalidFactory = (() => {
             return null as unknown as IApiServer
         }) satisfies IApiServerFactory
@@ -146,6 +295,7 @@ describe("startApi", () => {
             {
                 env: createValidEnv(),
                 factory: invalidFactory,
+                databaseConnection,
             },
             "API server factory must return object with stop()",
         )
@@ -161,6 +311,7 @@ describe("startApi", () => {
                 fetch(request: unknown): unknown
             }
         } = {}
+        const databaseConnection = new FakeDatabaseConnection()
 
         const patchedBun = Bun as unknown as {
             serve: (options: {
@@ -184,6 +335,7 @@ describe("startApi", () => {
                     API_PORT: "4321",
                     API_HOST: "127.0.0.1",
                 }),
+                databaseConnection,
             })
 
             const receivedOptions = state.receivedOptions
@@ -214,13 +366,30 @@ describe("startApi", () => {
     })
 
     test("fails fast when environment is invalid", async () => {
+        const databaseConnection = new FakeDatabaseConnection()
+
         await expectStartApiToThrow(
             {
                 env: createValidEnv({
                     ADMIN_API_KEY: undefined,
                 }),
+                databaseConnection,
             },
             "API environment validation failed",
+        )
+    })
+
+    test("fails fast when db connection cannot be established", async () => {
+        const databaseConnection = new FakeDatabaseConnection({
+            connectError: new Error("mongo offline"),
+        })
+
+        await expectStartApiToThrow(
+            {
+                env: createValidEnv(),
+                databaseConnection,
+            },
+            "mongo offline",
         )
     })
 })
@@ -246,18 +415,6 @@ async function expectStartApiToThrow(
 
         expect(error.message.includes(expectedMessageFragment)).toBe(true)
     }
-}
-
-/**
- * Normalizes unknown fetch output to Response.
- *
- * @param value Unknown fetch output.
- * @returns Response object.
- * @throws Error When value is not Response.
- */
-interface IHttpLikeResponse {
-    status: number
-    text(): Promise<string>
 }
 
 /**
