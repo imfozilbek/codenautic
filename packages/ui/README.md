@@ -219,6 +219,8 @@ CSS variables, OKLch color space. Toggle через `theme-toggle.tsx`.
 | React Query Cache | Stale-while-revalidate, background refetch        |
 | Bundle Analyzer   | Vite bundle analysis                              |
 
+Стратегия eager/lazy и Suspense boundaries: [`ARCHITECTURE.md`](./ARCHITECTURE.md).
+
 ---
 
 ## i18n

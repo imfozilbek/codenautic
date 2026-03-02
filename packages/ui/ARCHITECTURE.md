@@ -21,6 +21,29 @@
 
 `Route / Component -> Query Hook -> Endpoint -> FetchHttpClient -> runtime/api`
 
+## Strategy: Eager/Lazy & Suspense
+
+### Eager загрузка (initial bundle)
+
+| Слой | Что грузим eagerly | Причина |
+|---|---|---|
+| Bootstrap | `src/main.tsx`, `src/app/app.tsx`, router, query client | Нужно для первого рендера приложения |
+| Stability | `error-fallback`, `route-suspense-fallback` | Fallback UI должен быть доступен мгновенно |
+| Core styles | `src/app/globals.css` | Базовая типографика и layout без FOUC |
+
+### Lazy загрузка (route/feature split)
+
+| Уровень | Что грузим lazy | Правило |
+|---|---|---|
+| Route-level | Компоненты экранов из `src/pages/*` | Каждый route лениво импортирует page-компонент |
+| Heavy libs | `three`, `@xyflow/react`, `recharts`, `shiki` | Импорт только внутри соответствующего feature route |
+
+### Suspense границы
+
+1. Route-level граница ставится в route-файле (`src/routes/*.tsx`) и оборачивает lazy page-компонент.
+2. Fallback компоненты должны быть легковесными и не содержать тяжёлых зависимостей.
+3. Для тяжёлых блоков внутри страницы допускаются вложенные `Suspense` границы с локальными fallback UI.
+
 ## Эволюция
 
 При подключении новых API:
