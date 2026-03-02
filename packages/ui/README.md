@@ -234,11 +234,13 @@ CSS variables, OKLch color space. Toggle через `theme-toggle.tsx`.
 ```bash
 bun run dev            # Vite dev server
 bun run build          # Vite build
+bun run build:analyze  # Vite build + rollup visualizer report
 bun run clean          # Очистка dist/ coverage/
 bun run preview        # Vite preview
 bun run lint           # Линтинг (eslint --fix)
 bun run format         # Форматирование (prettier)
 bun run format:check   # Проверка форматирования
+bun run perf:check     # Проверка performance budget (JS/LCP/INP/CLS)
 bun run typecheck      # Проверка типов (tsc --noEmit)
 bun run test           # Тесты (vitest, happy-dom)
 bun run codegen        # OpenAPI → generated types
