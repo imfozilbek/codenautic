@@ -37,6 +37,7 @@ export {
 export {type ICreateRuleProps, type IReconstituteRuleProps, RuleFactory} from "./domain/factories/rule.factory"
 export {type IEntityFactory} from "./domain/factories/entity-factory.interface"
 export {RuleStatusPolicyService} from "./domain/services/rule-status-policy.service"
+export {CodeChunk, type ICreateCodeChunkProps} from "./domain/value-objects/code-chunk.value-object"
 export {FilePath} from "./domain/value-objects/file-path.value-object"
 export {LineRange} from "./domain/value-objects/line-range.value-object"
 export {
