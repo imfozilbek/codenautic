@@ -14,6 +14,8 @@ export interface IGitProviderCardProps {
     readonly connected: boolean
     /** Время последней синхронизации. */
     readonly lastSyncAt?: string
+    /** Индикатор загрузки действия. */
+    readonly isLoading?: boolean
     /** Callback для disconnect/connect. */
     readonly onAction?: () => Promise<void> | void
 }
@@ -45,8 +47,10 @@ export function GitProviderCard(props: IGitProviderCardProps): ReactElement {
                     </Chip>
                     <Button
                         className="w-full"
+                        isLoading={props.isLoading === true}
                         size="sm"
                         variant={props.connected ? "bordered" : "solid"}
+                        isDisabled={props.onAction === undefined}
                         onPress={(): void => {
                             if (props.onAction === undefined) {
                                 return
@@ -55,7 +59,7 @@ export function GitProviderCard(props: IGitProviderCardProps): ReactElement {
                             void props.onAction()
                         }}
                     >
-                        {props.connected ? "Reconnect" : "Connect"}
+                        {props.connected ? "Disconnect" : "Connect"}
                     </Button>
                 </div>
             </CardBody>
