@@ -189,6 +189,11 @@ export {
     type IAnalyzeFeedbackOutput,
 } from "./application/use-cases/analyze-feedback.use-case"
 export {
+    DetectFalsePositivesUseCase,
+    type IDetectFalsePositivesInput,
+    type IDetectFalsePositivesOutput,
+} from "./application/use-cases/detect-false-positives.use-case"
+export {
     ConfigurationValidatorUseCase,
     type IConfigurationValidatorInput,
 } from "./application/use-cases/configuration-validator.use-case"
