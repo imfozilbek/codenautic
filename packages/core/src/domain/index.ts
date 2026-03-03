@@ -33,6 +33,12 @@ export {
     Team,
 } from "./entities/team.entity"
 export {
+    type ITaskProps,
+    type TaskStatus,
+    Task,
+    TASK_STATUS,
+} from "./entities/task.entity"
+export {
     type IProjectProps,
     Project,
 } from "./entities/project.entity"

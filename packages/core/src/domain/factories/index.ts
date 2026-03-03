@@ -39,3 +39,8 @@ export {
     type IReconstituteUserProps,
     UserFactory,
 } from "./user.factory"
+export {
+    type ICreateTaskProps,
+    type IReconstituteTaskProps,
+    TaskFactory,
+} from "./task.factory"
