@@ -65,6 +65,22 @@ describe("dependency direction guardrails", () => {
         expect(violations[0]?.importPath).toBe("@fixture/application/use-cases/review.use-case")
     })
 
+    test("detects violation through built-in package aliases", () => {
+        const repositoryRoot = resolve(import.meta.dir, "../../../..")
+        const sourceFilePath = resolve(repositoryRoot, "packages/core/src/domain/services/alias-default-domain.service.ts")
+        const violations = validateDependencyDirection([
+            {
+                path: sourceFilePath,
+                content: 'import {runReviewUseCase} from "@codenautic/core/application/use-cases/review.use-case"',
+            },
+        ])
+
+        expect(violations).toHaveLength(1)
+        expect(violations[0]?.sourceLayer).toBe(ARCHITECTURE_LAYER.DOMAIN)
+        expect(violations[0]?.targetLayer).toBe(ARCHITECTURE_LAYER.APPLICATION)
+        expect(violations[0]?.importPath).toBe("@codenautic/core/application/use-cases/review.use-case")
+    })
+
     test("detects violation when import uses absolute path", () => {
         const fixtureRoot = resolve(import.meta.dir, "fixtures", "domain-imports-application", "src")
         const domainFilePath = resolve(fixtureRoot, "domain/services/absolute-invalid-domain.service.ts")
