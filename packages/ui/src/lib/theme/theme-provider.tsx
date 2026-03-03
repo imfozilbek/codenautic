@@ -108,6 +108,10 @@ export function ThemeProvider({
     )
 
     useEffect(() => {
+        if (typeof window.matchMedia !== "function") {
+            return
+        }
+
         const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)")
         const handleMediaChange = (): void => {
             setSystemMode(resolveSystemTheme())
