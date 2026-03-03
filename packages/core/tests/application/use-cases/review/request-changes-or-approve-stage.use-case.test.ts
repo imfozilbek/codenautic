@@ -40,6 +40,10 @@ class InMemoryGitProvider implements IGitProvider {
         return Promise.resolve([])
     }
 
+    public getBlameData(_filePath: string, _ref: string): Promise<readonly never[]> {
+        return Promise.resolve([])
+    }
+
     public postComment(_mergeRequestId: string, body: string): Promise<ICommentDTO> {
         this.postedComments.push(body)
         return Promise.resolve({

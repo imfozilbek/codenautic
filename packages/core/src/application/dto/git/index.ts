@@ -21,6 +21,7 @@ export {
 } from "./merge-request.dto"
 export {type IWebhookEventDTO} from "./webhook-event.dto"
 export {type ICommitHistoryOptions, type ICommitInfo} from "./commit-history.dto"
+export {type IBlameData} from "./blame-data.dto"
 export {type IBranchInfo} from "./branch-info.dto"
 export {
     FILE_TREE_NODE_TYPE,

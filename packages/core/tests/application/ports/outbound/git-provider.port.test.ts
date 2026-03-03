@@ -14,6 +14,7 @@ import {
     type ICommitHistoryOptions,
     type ICommitInfo,
     type IFileTreeNode,
+    type IBlameData,
     type IMergeRequestDTO,
     type IMergeRequestDiffFileDTO,
     type IBranchInfo,
@@ -109,6 +110,27 @@ class InMemoryGitProvider implements IGitProvider {
                 sha: "def456",
                 isDefault: false,
                 isProtected: false,
+            },
+        ])
+    }
+
+    public getBlameData(_filePath: string, _ref: string): Promise<readonly IBlameData[]> {
+        return Promise.resolve([
+            {
+                lineStart: 10,
+                lineEnd: 20,
+                commitSha: "abc123",
+                authorName: "Alice",
+                authorEmail: "alice@example.com",
+                date: "2026-03-03T10:00:00.000Z",
+            },
+            {
+                lineStart: 30,
+                lineEnd: 30,
+                commitSha: "def456",
+                authorName: "Bob",
+                authorEmail: "bob@example.com",
+                date: "2026-03-03T11:00:00.000Z",
             },
         ])
     }
@@ -220,5 +242,16 @@ describe("IGitProvider contract", () => {
         expect(branches[0]?.name).toBe("main")
         expect(branches[0]?.isDefault).toBe(true)
         expect(branches[1]?.isProtected).toBe(false)
+    })
+
+    test("returns blame data by file reference", async () => {
+        const provider = new InMemoryGitProvider()
+
+        const blame = await provider.getBlameData("src/index.ts", "main")
+
+        expect(blame).toHaveLength(2)
+        expect(blame[0]?.lineStart).toBe(10)
+        expect(blame[1]?.commitSha).toBe("def456")
+        expect(blame[1]?.authorName).toBe("Bob")
     })
 })

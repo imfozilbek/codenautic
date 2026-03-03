@@ -125,6 +125,7 @@ export {
     type IInlineCommentDTO,
     FILE_TREE_NODE_TYPE,
     type FileTreeNodeType,
+    type IBlameData,
     type IBranchInfo,
     type IFileTreeNode,
     type IMergeRequestAuthorDTO,

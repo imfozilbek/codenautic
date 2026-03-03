@@ -4,6 +4,7 @@ import type {
     ICheckRunDTO,
     ICommentDTO,
     IInlineCommentDTO,
+    IBlameData,
     IBranchInfo,
     ICommitHistoryOptions,
     ICommitInfo,
@@ -67,6 +68,15 @@ export interface IGitProvider {
         ref: string,
         options?: ICommitHistoryOptions,
     ): Promise<readonly ICommitInfo[]>
+
+    /**
+     * Fetches blame information for a file in the target reference.
+     *
+     * @param filePath File path relative to repository root.
+     * @param ref Commit SHA or branch name.
+     * @returns Line-level blame metadata.
+     */
+    getBlameData(filePath: string, ref: string): Promise<readonly IBlameData[]>
 
     /**
      * Posts regular comment to merge request.
