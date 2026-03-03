@@ -296,6 +296,38 @@ describe("PipelineOrchestratorUseCase", () => {
         expect(result.error.message).toContain("startFromStageId must be a non-empty string")
     })
 
+    test("returns fail when startFromStageId does not exist", async () => {
+        const orchestrator = new PipelineOrchestratorUseCase({
+            stages: {
+                "stage-a": new StaticStageUseCase("stage-a", "Stage A", (state) => {
+                    return Result.ok<IStageTransition, StageError>({
+                        state,
+                    })
+                }),
+            },
+            domainEventBus: new InMemoryDomainEventBus(),
+            checkpointStore: new InMemoryCheckpointStore(),
+            logger: new InMemoryLogger(),
+        })
+
+        const result = await orchestrator.execute({
+            initialState: ReviewPipelineState.create({
+                runId: "run-unknown-start",
+                definitionVersion: "v1",
+                mergeRequest: {},
+                config: {},
+            }),
+            definition: {
+                definitionVersion: "v1",
+                stages: [{stageId: "stage-a", stageName: "Stage A"}],
+            },
+            startFromStageId: "stage-unknown",
+        })
+
+        expect(result.isFail).toBe(true)
+        expect(result.error.message).toContain("does not exist in pipeline definition")
+    })
+
     test("returns fail when pipeline definition contains duplicate stage ids", async () => {
         const orchestrator = new PipelineOrchestratorUseCase({
             stages: {
