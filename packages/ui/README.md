@@ -102,9 +102,32 @@ bun add @codenautic/ui
 | Тесты         | Vitest, happy-dom, MSW (API mocking)        |
 | Components    | Storybook 8                                 |
 | Observability | Sentry, Pyroscope, OpenTelemetry            |
-| Analytics     | PostHog, Segment                            |
+| Analytics     | OSS/self-hostable ingestion + OpenTelemetry events (no mandatory SaaS) |
 
 ---
+
+## Stack Decisions (OSS)
+
+> Цель: покрыть весь scope UI и быть готовыми к аудитории уровня `$1M+` без зависимости от paid/pro/enterprise
+> лицензий.
+
+- **Core UI layer**: `HeroUI v3` (React Aria) + Tailwind CSS 4 tokens.
+- **License policy**: только OSS-зависимости, допускающие коммерческое использование (MIT/Apache-2.0/BSD и аналоги).
+- **No paywall**: запрещены библиотеки, где критичные фичи доступны только в Pro/Enterprise.
+
+| Область | Основной выбор | Что покрывает | Target limits (первые версии) | OSS plan B при упоре |
+|---|---|---|---|---|
+| UI компоненты + a11y | HeroUI v3 (React Aria) | Button/Input/Select/Modal/Drawer/Tabs/Dropdown/Skeleton и т.д., единая a11y-модель | HeroUI v3 beta: держим слой адаптеров и Storybook-coverage на базовых компонентах | React Aria Components (RAC) + свой ui-kit поверх Tailwind токенов |
+| Command palette / global search | HeroUI v3 overlay + backend/локальный индекс | Cmd+K palette, навигация по сущностям, запуск actions | 10k+ сущностей: debounce + memoized index, tenant/permission-safe фильтрация (`WEB-SRCH-004`) | `cmdk` или `kbar` (MIT) если нужен готовый headless command menu |
+| Keyboard shortcuts | Свой registry + hooks | Глобальные и page-scope шорткаты, focus management, cheatsheet (`WEB-KBD-001..002`) | Конфликт-матрица комбинаций, не перехватывать ввод/IME | `tinykeys` или `react-hotkeys-hook` как лёгкая OSS-основа |
+| Enterprise tables | TanStack Table (`@tanstack/react-table`) + TanStack Virtual | Колонки (hide/pin/reorder/resize), density, keyboard nav, row actions, export, saved views | 10k+ строк на странице с виртуализацией (`WEB-TBL-001`), выше: агрегация/серверный paging | `react-virtuoso` для сложных/динамических высот строк + усиление серверной агрегации |
+| Graph explorer | XYFlow (`@xyflow/react`) + dagre | Dependency/call/module graphs, paths highlight, export SVG/PNG, drill-down | До ~500-1000 nodes интерактивно; выше: кластеризация + progressive render + fallback (`WEB-GRAPH-010..012`) | Sigma.js (WebGL) или Cytoscape.js для больших графов + отдельный layout слой |
+| Charts | Recharts | KPI, usage, trends, dashboard widgets | До ~5k-10k points с downsampling/aggregation (`WEB-CHART-001..002`) | Apache-2.0: ECharts для тяжёлых графиков; uPlot для таймсерий |
+| 3D визуализация | three + R3F/drei | CodeCity 3D, camera presets, interactions | Требует WebGL/GPU; обязателен fallback на 2D и degraded mode | 2D-only режим (CodeCity 2D) + текстовые summaries/exports как стандартный fallback |
+| Rule editor | TipTap (только OSS core) | Rich text + code blocks + markdown, lazy-load | Без Pro extensions; сложные enterprise-фичи должны иметь OSS-эквивалент | Lexical (Meta) или Slate как полностью OSS-редактор |
+| Code highlight | Shiki (lazy-load) | Подсветка diff/chat/rules | Тяжёлый бандл: только динамическая загрузка и кэш | Prism / highlight.js для лёгких режимов |
+| UX telemetry + adoption | In-house события + агрегаты backend | time-to-first-value, drop-offs, usage/adoption analytics (`WEB-HOOK-007`, `WEB-PAGE-025`) | Privacy-by-default: no PII/code, sampling/batching | OpenTelemetry web events + self-hosted collector как интеграционный слой |
+| E2E a11y/i18n | Target: Playwright + axe-core | Критичные user journeys + keyboard + screen reader flow (`WEB-E2E-001`) | Merge-blocking на регрессии, long-locale/pseudo-locale | Cypress + axe-core (если Playwright упирается в инфраструктуру) |
 
 ## Структура
 

@@ -2,7 +2,7 @@
 
 > Источник: `packages/ui/TODO.md`
 
-> **Задач (ui):** 7 | **Проверка:** Repository onboarding wizard
+> **Задач (ui):** 9 | **Проверка:** Repository onboarding wizard
 
 > **Результат milestone:** Готов onboarding UX для подключения репозиториев и запуска сканирования.
 
@@ -21,5 +21,7 @@
 | WEB-ONBRD-005 | Реализовать rescanScheduleDialog | TODO | Не начато | Реализация: Configure periodic rescan schedule. Cron picker. Last scan timestamp. Готово, если: для WEB-ONBRD-005 ключевой пользовательский флоу проходит end-to-end в UI без ошибок, есть component + integration покрытие, проверены a11y (keyboard/focus/aria/contrast) и responsive для mobile/tablet/desktop; DoD: `cd packages/ui && bun run lint && bun run typecheck && bun run test`. |
 | WEB-ONBRD-006 | Реализовать onboardingEmptyState | TODO | Не начато | Реализация: Empty state for dashboard when no repos onboarded. CTA to start onboarding wizard. Готово, если: для WEB-ONBRD-006 ключевой пользовательский флоу проходит end-to-end в UI без ошибок, есть component + integration покрытие, проверены a11y (keyboard/focus/aria/contrast) и responsive для mobile/tablet/desktop; DoD: `cd packages/ui && bun run lint && bun run typecheck && bun run test`. |
 | WEB-ONBRD-007 | Реализовать scanErrorRecovery | TODO | Не начато | Реализация: Error handling UI: retry, partial results display, error details expansion. Готово, если: для WEB-ONBRD-007 ключевой пользовательский флоу проходит end-to-end в UI без ошибок, есть component + integration покрытие, проверены a11y (keyboard/focus/aria/contrast) и responsive для mobile/tablet/desktop; DoD: `cd packages/ui && bun run lint && bun run typecheck && bun run test`. |
+| WEB-ONBRD-008 | Реализовать bulk onboarding mode (enterprise) | TODO | Не начато | Реализация: В wizard добавить режим bulk: импорт списка репозиториев из провайдера, multi-select (20+), применение общего шаблона (rules/schedule/notifications), запуск параллельных scan jobs и единая страница прогресса с ошибками по каждому repo. Готово, если: админ может подключить и запустить скан для десятков репозиториев за один проход без повторяющихся кликов, прогресс/ошибки прозрачно видны на одном экране, а UX выдерживает частичные фейлы (retry per-repo, pause/cancel); DoD: `cd packages/ui && bun run lint && bun run typecheck && bun run test`. |
+| WEB-ONBRD-009 | Реализовать onboarding templates registry | TODO | Не начато | Реализация: Реестр шаблонов онбординга: именованные templates (rules preset, scan cadence, notification defaults, tags), версия/описание, preview “что будет применено”, возможность применить шаблон к выбранным репозиториям и откатить изменения (audit-friendly). Готово, если: пользователь может повторно применять одинаковую конфигурацию онбординга без ручного переноса настроек, есть безопасный preview/confirm шаг, и поведение детерминированно при повторном применении/откате; DoD: `cd packages/ui && bun run lint && bun run typecheck && bun run test`. |
 
 ---

@@ -36,6 +36,20 @@
 
 ---
 
+## v0.14.1 — Graph Scale Policy (Enterprise)
+
+> Progressive rendering, clustering/LOD, safe fallbacks for huge graphs. ~60K tokens.
+
+> **Результат версии:** Завершена версия «v0.14.1 — Graph Scale Policy (Enterprise)» в рамках M17; инкремент делает Graph Explorer предсказуемым на крупных репозиториях.
+
+| ID | Задача | Статус | Результат | Acceptance Criteria |
+|----------|--------------------|--------|-----------|---------------------|
+| WEB-GRAPH-010 | Реализовать graph scale budget + progressive render | TODO | Не начато | Реализация: Политика scale budget: пороги nodes/edges, ограничение depth, progressive render (сначала “skeleton graph”, затем догрузка), cancel/abort при превышении budget, индикатор “rendering/too large” и UX подсказки. Готово, если: графы на больших репозиториях не приводят к фризам main thread, пользователь явно понимает ограничения/порог, и может продолжить работу через альтернативный путь (filters/depth/clusters) без “white screen”; DoD: `cd packages/ui && bun run lint && bun run typecheck && bun run test`. |
+| WEB-GRAPH-011 | Реализовать clustering + LOD interactions | TODO | Не начато | Реализация: Кластеризация (по пакету/модулю/папке) + LOD: свернутые кластеры, “expand cluster”, “focus path”, lazy-load деталей при зуме, сохранение состояния раскладки. Готово, если: пользователь может исследовать большие графы через уровни детализации без потери контекста, операции expand/focus работают детерминированно, а поведение совместимо с keyboard navigation и reduced motion; DoD: `cd packages/ui && bun run lint && bun run typecheck && bun run test`. |
+| WEB-GRAPH-012 | Реализовать huge-graph fallback views + exports | TODO | Не начато | Реализация: Fallback-виды для огромных графов: табличный список зависимостей/путей (paths), “top hubs” summary, экспорт (SVG/PNG/JSON) из агрегированного представления, и предупреждение о неполноте данных. Готово, если: даже при невозможности отрисовать full graph пользователь получает полезный результат (summary/paths/export) и может продолжить анализ/поделиться артефактом без performance regressions; DoD: `cd packages/ui && bun run lint && bun run typecheck && bun run test`. |
+
+---
+
 ## v0.15.0 — External Context UI
 
 > External context config, sources, preview. ~80K tokens.
@@ -116,7 +130,9 @@
 | WEB-SRCH-002 | Реализовать uRLFilterSync | TODO | Не начато | Реализация: Sync filters with URL (TanStack Router search params). Shareable filter URLs. Готово, если: для WEB-SRCH-002 ключевой пользовательский флоу проходит end-to-end в UI без ошибок, есть component + integration покрытие, проверены a11y (keyboard/focus/aria/contrast) и responsive для mobile/tablet/desktop; DoD: `cd packages/ui && bun run lint && bun run typecheck && bun run test`. |
 | WEB-HOOK-013 | Реализовать useFilterPersistence() | TODO | Не начато | Реализация: Persist filters to localStorage. Готово, если: для WEB-HOOK-013 ключевой пользовательский флоу проходит end-to-end в UI без ошибок, есть component + integration покрытие, проверены a11y (keyboard/focus/aria/contrast) и responsive для mobile/tablet/desktop; DoD: `cd packages/ui && bun run lint && bun run typecheck && bun run test`. |
 | WEB-SRCH-003 | Реализовать filterPresets | TODO | Не начато | Реализация: Saved filter presets. CRUD. Готово, если: для WEB-SRCH-003 ключевой пользовательский флоу проходит end-to-end в UI без ошибок, есть component + integration покрытие, проверены a11y (keyboard/focus/aria/contrast) и responsive для mobile/tablet/desktop; DoD: `cd packages/ui && bun run lint && bun run typecheck && bun run test`. |
-| WEB-SRCH-004 | Реализовать globalSearch | TODO | Не начато | Реализация: Global search across entities. Command palette (Cmd+K). Готово, если: для WEB-SRCH-004 ключевой пользовательский флоу проходит end-to-end в UI без ошибок, есть component + integration покрытие, проверены a11y (keyboard/focus/aria/contrast) и responsive для mobile/tablet/desktop; DoD: `cd packages/ui && bun run lint && bun run typecheck && bun run test`. |
+| WEB-SRCH-004 | Реализовать globalSearch (Cmd+K command palette) | TODO | Не начато | Реализация: Глобальный поиск + command palette: hotkey `Cmd+K`/`Ctrl+K`, overlay с input, fuzzy search, группировка результатов (CCRs/Issues/Repos/Settings/Actions), “recent” и “pinned actions”, permission-aware фильтрация и tenant-safe контекст, возможность запускать действия (create repo scan, open diagnostics, switch org) без ухода на отдельные страницы. Готово, если: палитра открывается и управляется полностью клавиатурой (стрелки/enter/esc), корректно озвучивается screen reader (роль диалога/списка/результата), не показывает объекты вне текущего tenant/прав, работает быстро на 10k+ сущностей (debounce + memoized index, без фризов), и поддерживает deep-links в 1 шаг; DoD: `cd packages/ui && bun run lint && bun run typecheck && bun run test`. |
+| WEB-KBD-001 | Реализовать keyboard shortcuts registry + global handlers | TODO | Не начато | Реализация: Единая система шорткатов (registry + hook): глобальные команды (Cmd+K, /, g d и т.д.), page-scope команды, конфликт-детектор, и защита от перехвата ввода в текстовых полях. Добавить i18n-friendly labels и route-aware enable/disable. Готово, если: шорткаты работают консистентно на всех ключевых страницах, не ломают ввод/IME, корректно управляют фокусом, и покрыты тестами на базовые комбинации; DoD: `cd packages/ui && bun run lint && bun run typecheck && bun run test`. |
+| WEB-KBD-002 | Реализовать shortcuts overlay / cheatsheet (HeroUI-like) | TODO | Не начато | Реализация: Overlay/Modal со списком доступных шорткатов (категории: Navigation, Triage, Graph, Editor), поиск по шорткатам, и подсказки “Press ? for help”. Интеграция с registry из `WEB-KBD-001`. Готово, если: пользователь может открыть справку без мыши (например `Shift+?`), overlay доступен screen reader, и список шорткатов всегда соответствует реально включенным комбинациям на странице; DoD: `cd packages/ui && bun run lint && bun run typecheck && bun run test`. |
 
 ---
 

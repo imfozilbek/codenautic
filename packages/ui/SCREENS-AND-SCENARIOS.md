@@ -32,9 +32,11 @@
 |---|---|---|---|
 | Login Screen | Авторизация и возврат на целевой маршрут | OAuth/OIDC login, обработка 401/403, redirect обратно в `next` | `WEB-AUTH-001`, `WEB-AUTH-005` |
 | App Shell | Базовый layout приложения | Sidebar, header, route-level lazy loading, loading states | `WEB-LAYOUT-001..005` |
-| Dashboard | Операционный обзор состояния системы | Метрики, timeline, фильтры периода, drill-down | `WEB-PAGE-001`, `WEB-DASH-001..006`, `WEB-COMP-001..004` |
+| Command Palette | Глобальная навигация и действия | Cmd+K palette, global search, actions, recent | `WEB-SRCH-004`, `WEB-KBD-001`, `WEB-KBD-002` |
+| Keyboard Cheatsheet | Быстрый доступ к шорткатам | Overlay справка, поиск по командам, page-scope shortcuts | `WEB-KBD-001`, `WEB-KBD-002` |
+| Dashboard | Операционный обзор состояния системы | Метрики, timeline, фильтры периода, drill-down | `WEB-PAGE-001`, `WEB-DASH-001..006`, `WEB-COMP-001..004`, `WEB-CHART-001..002` |
 | Activation Checklist | Быстрый путь к first value в новом org | Setup progress, role-aware шаги, deep-links, blockers | `WEB-ACT-001` |
-| My Work / Triage | Единый triage для ежедневной работы | Очередь: CCRs/issues/inbox/jobs, фильтры, быстрые actions, deep-links | `WEB-INBOX-001` |
+| My Work / Triage | Единый triage для ежедневной работы | Очередь: CCRs/issues/inbox/jobs, фильтры, быстрые actions, deep-links | `WEB-INBOX-001`, `WEB-INBOX-002`, `WEB-KBD-001` |
 | CCR Management | Управление списком ревью/CCR | Фильтры, виртуализация, infinite list, переход в review context | `WEB-PAGE-002`, `WEB-VIRT-003`, `WEB-INF-003`, `WEB-SRCH-001..004` |
 | Issues Tracking | Трекинг найденных issues | Список issues, фильтры по severity/status, inline actions | `WEB-PAGE-006` |
 | Review Diff Workspace | Детальный просмотр ревью | Diff viewer, comment threads, streaming updates, контекстный sidebar | `WEB-COMP-005..007`, `WEB-RVCTX-001..005` |
@@ -53,6 +55,7 @@
 | Экран | Назначение | Основные действия | Референсы задач |
 |---|---|---|---|
 | Onboarding Wizard | Первичное подключение репозитория | Выбор провайдера, подключение, запуск скана | `WEB-ONBRD-001` |
+| Bulk Onboarding | Подключение десятков репозиториев за один проход | Import repos, multi-select, templates, parallel scans, progress | `WEB-ONBRD-008`, `WEB-ONBRD-009` |
 | Scan Progress Page | Мониторинг состояния скана | Просмотр прогресса, статус пайплайна | `WEB-ONBRD-002` |
 | Repositories List | Каталог подключенных репозиториев | Поиск/фильтры, выбор репозитория | `WEB-ONBRD-003` |
 | Repository Overview | Сводка по одному репозиторию | Статус, метрики, действия сканирования | `WEB-ONBRD-004` |
@@ -70,6 +73,7 @@
 | Integrations | Сторонние интеграции | Jira/Linear/Sentry/Slack connect/disconnect | `WEB-PAGE-007` |
 | Webhook Management | Управление webhook endpoints | Create/delete, rotate secret, logs | `WEB-PAGE-008` |
 | Token Usage | Мониторинг использования LLM | Usage by model/developer/CCR, cost estimate, date range | `WEB-PAGE-009` |
+| Usage & Adoption Analytics | Внедрение и value realization | Funnels time-to-first-value, drop-offs, adoption, activity | `WEB-PAGE-025`, `WEB-HOOK-007` |
 | Team Management | Управление командами и ролями | Create team, assign repos, roles | `WEB-PAGE-011` |
 | Organization Settings | Орг-настройки и billing | Name, members, billing, audit points | `WEB-PAGE-010` |
 | SAML/OIDC Management | Корпоративный SSO | Configure, validate, test SSO | `WEB-PAGE-014` |
@@ -118,7 +122,7 @@
 | Экран | Назначение | Основные действия | Референсы задач |
 |---|---|---|---|
 | CodeCity 2D Dashboard | 2D обзор кодовой базы | Treemap, overlays, drill-down, temporal compare | `WEB-CITY-001..008` |
-| Graph Explorer | Граф зависимостей/вызовов | Node details, highlight paths, export SVG/PNG, cross-repo | `WEB-GRAPH-001..009` |
+| Graph Explorer | Граф зависимостей/вызовов | Node details, highlight paths, export SVG/PNG, cross-repo | `WEB-GRAPH-001..012` |
 | CodeCity 3D View | 3D навигация по кодовой базе | Camera presets, interactions, time-lapse, performance fallback | `WEB-CITY3-001..010` |
 | Causal Analysis Workspace | Анализ причинно-следственных связей | Temporal coupling, bug heat, chain viewer, timeline | `WEB-CAUSAL-001..006`, `WEB-CAUS3D-001..005` |
 | Guided Tour Workspace | Онбординг в CodeCity | Guided steps, hot areas, role-based explore paths | `WEB-TOUR-001..006` |
@@ -1254,6 +1258,197 @@ flowchart LR
 +------------------------------------------------------+
 ```
 
+## Сценарий S42 — Global Search & Command Palette (Cmd+K)
+
+- Цель: сохранить discoverability при сложной IA и ускорить навигацию/действия для power users.
+- Экраны: Command Palette, Keyboard Cheatsheet, ключевые страницы (deep-links).
+- Референсы: `WEB-SRCH-004`, `WEB-KBD-001`, `WEB-KBD-002`.
+
+```mermaid
+flowchart LR
+    A[Пользователь находится на любой странице] --> B[Нажать Cmd+K / Ctrl+K]
+    B --> C[Открыть Command Palette]
+    C --> D[Ввести запрос или выбрать action]
+    D --> E{Тип результата}
+    E -- Entity --> F[Перейти на страницу объекта]
+    E -- Action --> G[Выполнить действие (switch org, open diagnostics, start scan)]
+    F --> H[Закрыть palette и сохранить контекст]
+    G --> H
+```
+
+```text
++------------------- Command Palette ------------------+
+| Search…  (Cmd+K)                                     |
+|------------------------------------------------------|
+| CCRs                                                  |
+|  - #1249 "payments: refactor"                         |
+| Issues                                                |
+|  - Sev1 "S3 bucket policy drift"                      |
+| Actions                                               |
+|  - Switch organization                                |
+|  - Open Diagnostics                                   |
++------------------------------------------------------+
+```
+
+## Сценарий S43 — Triage Ownership: assigned/SLA/escalation
+
+- Цель: My Work / Triage не превращается в “свалку”, каждый item имеет владельца и сроки.
+- Экраны: My Work / Triage, Assignment UX (inline + dialog), Notifications (escalation).
+- Референсы: `WEB-INBOX-001`, `WEB-INBOX-002`.
+
+```mermaid
+flowchart LR
+    A[Открыть My Work] --> B[Отфильтровать mine/team/repo]
+    B --> C[Сортировка по urgency/SLA]
+    C --> D{Item без owner}
+    D -- Да --> E[Quick assign: self/team]
+    E --> F[Установить SLA/due-date]
+    D -- Нет --> G[Взять item в работу]
+    F --> H[Work on item -> done/blocked/snooze]
+    G --> H
+    H --> I[Escalation при риске просрочки]
+```
+
+```text
++---------------------- My Work -----------------------+
+| Priority | Item                  | Owner | SLA | ... |
+| P0       | Scan failed (repo A)  |  —    | 2h  |Assign|
+| P1       | CCR #1249 needs reply | me    | 1d  |Open  |
+| P1       | Sev1 issue in auth    | team  | 4h  |Snooze|
++------------------------------------------------------+
+```
+
+## Сценарий S44 — Keyboard-first UX + shortcuts overlay
+
+- Цель: быстрые операции без мыши, единые шорткаты и понятная справка.
+- Экраны: Command Palette, Keyboard Cheatsheet, все ключевые списки/таблицы.
+- Референсы: `WEB-KBD-001`, `WEB-KBD-002`, `WEB-SRCH-004`.
+
+```mermaid
+flowchart LR
+    A[Пользователь работает клавиатурой] --> B[Navigation shortcuts]
+    B --> C[Cmd+K: открыть palette]
+    B --> D[Shift+?: открыть cheatsheet]
+    D --> E[Найти нужную команду]
+    E --> F[Запустить shortcut]
+    C --> F
+```
+
+```text
++----------------- Keyboard Shortcuts -----------------+
+| Navigation:  g d (Dashboard)   g m (My Work)         |
+| Search:       Cmd+K (Palette)  / (Focus search)      |
+| Tables:       j/k move   enter open   x select row   |
+| Graph:        +/- zoom   f focus   esc clear         |
+| [Search shortcuts…]                                 |
++------------------------------------------------------+
+```
+
+## Сценарий S45 — Graph Explorer scale policy (clustering + progressive render)
+
+- Цель: графы остаются полезными на enterprise-репозиториях без фризов и “white screens”.
+- Экраны: Graph Explorer, Huge-graph fallback views.
+- Референсы: `WEB-GRAPH-001..012`.
+
+```mermaid
+flowchart LR
+    A[Открыть Graph Explorer] --> B[Загрузить stats (nodes/edges)]
+    B --> C{В пределах budget}
+    C -- Да --> D[Render full graph]
+    C -- Нет --> E[Предложить clustering/depth limits]
+    E --> F[Progressive render + lazy детализация]
+    F --> G{Слишком большой даже с ограничениями}
+    G -- Да --> H[Fallback: paths/table/summary + export]
+    G -- Нет --> D
+```
+
+```text
++-------------------- Graph Explorer ------------------+
+| Depth: 3  | Cluster: ON | Nodes: 12,480 (budget 1k)  |
+| [Apply limits] [Show paths] [Export]                 |
+| Banner: Rendering aggregated view (expand clusters)  |
++------------------------------------------------------+
+```
+
+## Сценарий S46 — Chart scale policy (downsampling + aggregation transparency)
+
+- Цель: dashboard и аналитические виджеты остаются быстрыми на длинных периодах.
+- Экраны: Dashboard widgets, Token Usage, аналитические workspace.
+- Референсы: `WEB-COMP-001`, `WEB-CHART-001`, `WEB-CHART-002`.
+
+```mermaid
+flowchart LR
+    A[Открыть страницу с графиком] --> B[Запрос данных]
+    B --> C{Points > threshold}
+    C -- Да --> D[Server aggregation или client downsampling]
+    C -- Нет --> E[Render raw series]
+    D --> F[Render chart + badge "aggregated"]
+    E --> F
+    F --> G[Экспорт raw данных при необходимости]
+```
+
+```text
++-------------------- Token Usage ---------------------+
+| Cost trend (last 90 days)  [Aggregated: 1d bins]     |
+|  (chart)                                              |
+| [Download raw CSV]                                   |
++------------------------------------------------------+
+```
+
+## Сценарий S47 — Bulk onboarding + templates (enterprise admin)
+
+- Цель: админ подключает десятки репозиториев и применяет стандартные настройки без ручной рутины.
+- Экраны: Bulk Onboarding, Onboarding Templates Registry, Scan Progress.
+- Референсы: `WEB-ONBRD-008`, `WEB-ONBRD-009`, `WEB-ONBRD-002`.
+
+```mermaid
+flowchart LR
+    A[Admin открывает Onboarding] --> B[Выбрать провайдера]
+    B --> C[Import repo list]
+    C --> D[Multi-select repos]
+    D --> E[Выбрать template]
+    E --> F[Start scans (parallel)]
+    F --> G[Bulk progress page]
+    G --> H{Есть failures}
+    H -- Да --> I[Retry per-repo / pause / cancel]
+    H -- Нет --> J[Repository Overview]
+```
+
+```text
++-------------------- Bulk Onboarding -----------------+
+| Template: "Platform Standard" [Preview]              |
+| [ ] repo-auth     [scan] [schedule] [tags]           |
+| [x] repo-payments  [scan] [schedule] [tags]          |
+| [x] repo-core      [scan] [schedule] [tags]          |
+| [Start scans] [Save as template]                     |
++------------------------------------------------------+
+```
+
+## Сценарий S48 — Usage & Adoption loop (UX telemetry -> улучшения)
+
+- Цель: понимать, где пользователи “застревают”, и улучшать UX по данным (time-to-first-value, drop-offs).
+- Экраны: Usage & Adoption Analytics, Activation Checklist, Help & Diagnostics.
+- Референсы: `WEB-HOOK-007`, `WEB-PAGE-025`, `WEB-ACT-001`.
+
+```mermaid
+flowchart LR
+    A[Пользователи выполняют ключевые действия] --> B[useAnalytics пишет события]
+    B --> C[Backend агрегирует метрики]
+    C --> D[Admin открывает Usage & Adoption]
+    D --> E[Фаннел + drop-offs + time-to-first-value]
+    E --> F[Принять меры: improve onboarding/permissions/help]
+    F --> G[Повторно измерить]
+```
+
+```text
++---------------- Usage & Adoption (Admin) ------------+
+| Funnel: Connect -> Add repo -> First scan -> Insights |
+| Drop-off: "SSO setup" 32%                             |
+| Time to first value: median 18m                       |
+| [Open Activation Checklist] [Open Diagnostics]         |
++------------------------------------------------------+
+```
+
 ---
 
 ## 4. Оценка полноты планирования UI
@@ -1267,10 +1462,11 @@ flowchart LR
 - Существенный gap cross-tab consistency формализован в `S31` и задаче `WEB-MTAB-001`.
 - Существенный quality gap e2e a11y/i18n для длинных локализаций и screen reader flow формализован в `S32` и задаче `WEB-E2E-001`.
 - Существенные enterprise UX gaps (activation checklist, triage hub, enterprise tables, data freshness/provenance, timezone scheduling, explainability, help/diagnostics, system states, workspace personalization) формализованы в `S33-S41` и задачах `WEB-ACT-001..WEB-PERS-001`.
+- Существенные gaps discoverability/операционного UX (Cmd+K command palette, keyboard-first, triage ownership/SLA, scale policies для графов/чартов, bulk onboarding + templates, usage/adoption loop) формализованы в `S42-S48` и задачах `WEB-SRCH-004`, `WEB-KBD-001..002`, `WEB-INBOX-002`, `WEB-GRAPH-010..012`, `WEB-CHART-001..002`, `WEB-ONBRD-008..009`, `WEB-HOOK-007`, `WEB-PAGE-025`.
 - Остаточные риски:
-- Не определена продуктовая модель назначения/ownership для элементов triage (что такое “assigned”, SLA, команда) — без неё My Work может стать “свалкой”.
-- Сложная IA (много workspace/репозиториев/экранов) рискует потерять discoverability без глобального поиска/command palette и явных “next actions”.
-- Доступность и альтернативные представления для тяжёлых визуализаций (3D/graph) требуют отдельной политики (keyboard-only fallback, reduced motion, текстовые summaries).
+- Нужны продуктовые определения и контракты: SLA semantics, escalation rules, и точные определения funnel-метрик (иначе adoption аналитика будет “спорной”).
+- Требуются backend-агрегаты для масштабирования: chart aggregation и graph summaries (иначе UI будет вынужден резать данные слишком агрессивно).
+- HeroUI v3 остаётся beta-зависимостью: нужен слой адаптеров + Storybook/тесты на базовых компонентах, чтобы выдерживать обновления.
 - Единство терминологии и microcopy (ru/en) становится критичным при расширении функций: нужен governance для текста/лейблов, иначе UX деградирует в мелочах.
 
 ---
@@ -1285,3 +1481,5 @@ flowchart LR
 - `UI-SECURITY-GUARDS.md`: deep-link validation, query sanitization, safe fallback policies.
 - `UI-CROSS-TAB-SYNC.md`: стратегия синхронизации tenant/theme/permission state между вкладками.
 - `UI-E2E-QUALITY-MATRIX.md`: матрица критичных маршрутов и checks для a11y/i18n regression suite.
+- `UI-SHORTCUTS-MAP.md`: глобальные и page-scope шорткаты + конфликт-матрица после `WEB-KBD-001`.
+- `UI-ADOPTION-METRICS.md`: определения funnel/time-to-first-value/drop-off метрик после `WEB-PAGE-025`.
