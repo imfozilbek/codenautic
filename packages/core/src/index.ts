@@ -9,6 +9,23 @@ export {type ICache} from "./application/ports/outbound/cache/cache.port"
 export {type IGitProvider} from "./application/ports/outbound/git/git-provider.port"
 export {type IFileMetricsProvider} from "./application/ports/outbound/analysis/file-metrics-provider"
 export {type IIssueAggregationProvider} from "./application/ports/outbound/review/issue-aggregation-provider"
+export {
+    type MessageBrokerHandler,
+    type MessageBrokerPayload,
+    type IMessageBroker,
+    type IOutboxMessageEnvelope,
+    toMessageBrokerEnvelope,
+} from "./application/ports/outbound/messaging/message-broker.port"
+export {type IOutboxRepository} from "./application/ports/outbound/messaging/outbox-repository.port"
+export {type IInboxRepository} from "./application/ports/outbound/messaging/inbox-repository.port"
+export {type IGraphRepository} from "./application/ports/outbound/graph/code-graph-repository.port"
+export {
+    CODE_GRAPH_NODE_TYPE,
+    CODE_GRAPH_EDGE_TYPE,
+    type ICodeGraphNode,
+    type ICodeGraphEdge,
+    type ICodeGraph,
+} from "./application/ports/outbound/graph/code-graph.type"
 export {type ILLMProvider} from "./application/ports/outbound/llm/llm-provider.port"
 export {
     PIPELINE_CHECKPOINT_STATUS,
@@ -19,6 +36,8 @@ export {
 export {type IRepositoryConfigLoader} from "./application/ports/outbound/review/repository-config-loader.port"
 export {type IReviewRepository} from "./application/ports/outbound/review/review-repository.port"
 export {type IRuleRepository} from "./application/ports/outbound/rule/rule-repository.port"
+export {type IRuleCategoryRepository} from "./application/ports/outbound/rule/rule-category-repository.port"
+export {type ICustomRuleRepository} from "./application/ports/outbound/custom-rule-repository.port"
 export {type ITeamRuleProvider} from "./application/ports/outbound/rule/team-rule-provider.port"
 export {type IPromptConfigurationRepository} from "./application/ports/outbound/prompt-configuration-repository.port"
 export {type IPromptTemplateRepository} from "./application/ports/outbound/prompt-template-repository.port"
@@ -79,6 +98,11 @@ export {
     type IGetEnabledRulesInput,
     type IGetEnabledRulesOutput,
 } from "./application/dto/rules/get-enabled-rules.dto"
+export {
+    GetCodeCityDataUseCase,
+    type IGetCodeCityDataInput,
+    type IGetCodeCityDataUseCaseDependencies,
+} from "./application/use-cases/analytics/get-code-city-data.use-case"
 export {
     CHECK_RUN_CONCLUSION,
     CHECK_RUN_STATUS,
@@ -476,6 +500,17 @@ export {
 } from "./domain/factories/user.factory"
 export {RuleStatusPolicyService} from "./domain/services/rule-status-policy.service"
 export {RuleEffectivenessService} from "./domain/services/rule-effectiveness.service"
+export {
+    type IInboxDeduplicationService,
+    type IInboxDeduplicationServiceDependencies,
+    InboxDeduplicationService,
+} from "./application/services/messaging/inbox-deduplication.service"
+export {
+    type IOutboxRelayOptions,
+    type IOutboxRelayResult,
+    type IOutboxRelayService,
+    OutboxRelayService,
+} from "./application/services/messaging/outbox-relay.service"
 export {CodeChunk, type ICreateCodeChunkProps} from "./domain/value-objects/code-chunk.value-object"
 export {
     DIFF_FILE_STATUS,

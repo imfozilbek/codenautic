@@ -52,9 +52,23 @@ export {
     TASK_STATUS,
 } from "./entities/task.entity"
 export {
+    type IInboxMessageProps,
+    InboxMessage,
+} from "./entities/inbox-message.entity"
+export {
+    OUTBOX_MESSAGE_STATUS,
+    type IOutboxMessageProps,
+    OutboxMessage,
+    type OutboxMessageStatus,
+} from "./entities/outbox-message.entity"
+export {
     type IProjectProps,
     Project,
 } from "./entities/project.entity"
+export {
+    type IRuleCategoryProps,
+    RuleCategory,
+} from "./entities/rule-category.entity"
 export {BaseDomainEvent, type DomainEventPayload} from "./events/base-domain-event"
 export {
     FEEDBACK_TYPE,
