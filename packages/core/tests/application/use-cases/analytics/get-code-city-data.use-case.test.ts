@@ -6,6 +6,7 @@ import type {IGraphRepository} from "../../../../src/application/ports/outbound/
 import {
     CODE_GRAPH_EDGE_TYPE,
     CODE_GRAPH_NODE_TYPE,
+    type IGraphQueryFilter,
     type CodeGraphNodeType,
     type ICodeGraph,
     type ICodeGraphEdge,
@@ -149,7 +150,7 @@ describe("GetCodeCityDataUseCase", () => {
     now: Date = new Date("2026-03-03T00:00:00.000Z"),
 ): GetCodeCityDataUseCase {
     const graphRepository: IGraphRepository = {
-        loadGraph: (repositoryId, branch) => {
+        loadGraph: (repositoryId: string, branch: string | undefined) => {
             if (overrides.trackedCalls !== undefined) {
                 overrides.trackedCalls.loadGraphArgs.push([repositoryId, branch])
             }
@@ -163,6 +164,12 @@ describe("GetCodeCityDataUseCase", () => {
                     createGraphNode("n-index", CODE_GRAPH_NODE_TYPE.FILE, "src/index.ts"),
                 ]),
             )
+        },
+        saveGraph: (_repositoryId: string, _graph: ICodeGraph): Promise<void> => {
+            return Promise.resolve()
+        },
+        queryNodes: (_filter: IGraphQueryFilter): Promise<readonly ICodeGraphNode[]> => {
+            return Promise.resolve([])
         },
     }
 

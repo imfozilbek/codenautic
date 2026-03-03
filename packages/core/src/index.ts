@@ -23,9 +23,15 @@ export {type IGraphRepository} from "./application/ports/outbound/graph/code-gra
 export {
     CODE_GRAPH_NODE_TYPE,
     CODE_GRAPH_EDGE_TYPE,
+    type CodeEdge,
+    type CodeGraph,
+    type CodeNode,
     type ICodeGraphNode,
     type ICodeGraphEdge,
     type ICodeGraph,
+    type IGraphQueryFilter,
+    type ICircularDependency,
+    type ImpactAnalysisResult,
 } from "./application/ports/outbound/graph/code-graph.type"
 export {type ILLMProvider} from "./application/ports/outbound/llm/llm-provider.port"
 export {
@@ -485,6 +491,7 @@ export {StageError, type ICreateStageErrorParams} from "./domain/errors/stage.er
 export {UnauthorizedError} from "./domain/errors/unauthorized.error"
 export {ValidationError, type IValidationErrorField} from "./domain/errors/validation.error"
 export {BaseDomainEvent, type DomainEventPayload} from "./domain/events/base-domain-event"
+export {GraphUpdated, type IGraphUpdatedPayload} from "./domain/events/graph-updated"
 export {
     FEEDBACK_TYPE,
     FeedbackReceived,
@@ -565,6 +572,10 @@ export {
 } from "./domain/factories/user.factory"
 export {RuleStatusPolicyService} from "./domain/services/rule-status-policy.service"
 export {RuleEffectivenessService} from "./domain/services/rule-effectiveness.service"
+export {
+    DependencyGraphService,
+    type IDependencyGraphService,
+} from "./domain/services/dependency-graph.service"
 export {
     type IInboxDeduplicationService,
     type IInboxDeduplicationServiceDependencies,

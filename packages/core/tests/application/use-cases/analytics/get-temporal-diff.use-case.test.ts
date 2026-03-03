@@ -6,6 +6,7 @@ import {GetTemporalDiffUseCase} from "../../../../src/application/use-cases/anal
 import type {IGraphRepository} from "../../../../src/application/ports/outbound/graph/code-graph-repository.port"
 import {
     CODE_GRAPH_NODE_TYPE,
+    type CodeGraphNodeType,
     type ICodeGraph,
     type ICodeGraphEdge,
     type ICodeGraphNode,
@@ -36,6 +37,7 @@ const createGraph = (nodes: ICodeGraphNode[]): ICodeGraph => {
 
 class InMemoryGraphRepository implements IGraphRepository {
     private readonly snapshots: Map<string, ICodeGraph | null>
+    private readonly nodes: ICodeGraphNode[] = []
 
     public constructor(snapshots: Record<string, ICodeGraph | null>) {
         this.snapshots = new Map(Object.entries(snapshots))
@@ -47,6 +49,39 @@ class InMemoryGraphRepository implements IGraphRepository {
     ): Promise<ICodeGraph | null> {
         const key = `${repositoryId}@${commitRef}`
         return Promise.resolve(this.snapshots.get(key) ?? null)
+    }
+
+    public saveGraph(
+        _repositoryId: string,
+        _graph: ICodeGraph,
+    ): Promise<void> {
+        return Promise.resolve()
+    }
+
+    public queryNodes(filter: {
+        readonly type?: CodeGraphNodeType
+        readonly filePath?: string
+    }): Promise<readonly ICodeGraphNode[]> {
+        const fileType = filter.type
+        if (filter.filePath !== undefined) {
+            return Promise.resolve(this.nodes.filter((node) => {
+                if (node.filePath !== filter.filePath) {
+                    return false
+                }
+
+                if (fileType !== undefined) {
+                    return node.type === fileType
+                }
+
+                return true
+            }))
+        }
+
+        if (fileType !== undefined) {
+            return Promise.resolve(this.nodes.filter((node) => node.type === fileType))
+        }
+
+        return Promise.resolve(this.nodes)
     }
 }
 
