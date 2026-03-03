@@ -43,6 +43,11 @@ const DEFAULT_SIDEBAR_ITEMS: readonly ISidebarItem[] = [
         to: "/onboarding",
     },
     {
+        icon: "📈",
+        label: "Scan Progress",
+        to: "/scan-progress",
+    },
+    {
         icon: "⚙️",
         label: "Settings",
         to: "/settings",
