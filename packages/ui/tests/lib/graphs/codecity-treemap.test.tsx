@@ -19,13 +19,48 @@ interface ICodeCityTreemapNodeData {
     readonly name?: string
 }
 
-const mockTreemap = vi.fn((props: { readonly data: ReadonlyArray<ICodeCityTreemapNodeData> }): JSX.Element => {
-    return (
-        <div>
-            <span data-testid="treemap-packages">{props.data.length}</span>
-        </div>
-    )
-})
+const mockTreemap = vi.fn(
+    (
+        props: {
+            readonly data: ReadonlyArray<ICodeCityTreemapNodeData>
+            readonly onClick?: (
+                node?: Readonly<{
+                    readonly children?: ReadonlyArray<unknown>
+                    readonly color?: string
+                    readonly name?: string
+                    readonly issueCount?: number
+                    readonly issueHeatmapColor?: string
+                }>,
+            ) => void
+        },
+    ): JSX.Element => {
+        return (
+            <div>
+                <span data-testid="treemap-packages">{props.data.length}</span>
+                {props.data.map((item): JSX.Element => {
+                    const packageName = typeof item.name === "string" ? item.name : ""
+                    return (
+                        <button
+                            key={packageName.length > 0 ? packageName : "package"}
+                            onClick={(): void => {
+                                props.onClick?.({
+                                    children: item.children,
+                                    name: packageName,
+                                    issueHeatmapColor: item.issueHeatmapColor,
+                                    issueCount: item.issueCount,
+                                    color: item.color,
+                                })
+                            }}
+                            type="button"
+                        >
+                            {packageName.length > 0 ? packageName : "package"}
+                        </button>
+                    )
+                })}
+            </div>
+        )
+    },
+)
 
 const mockResponsiveContainer = vi.fn(
     ({ children }: { readonly children: JSX.Element | null }): JSX.Element => {
@@ -132,6 +167,32 @@ describe("codecity treemap graph", (): void => {
         expect(screen.getByText("Issues: 3 in 2 files")).not.toBeNull()
         expect(screen.getByText("Max issues: 2")).not.toBeNull()
         expect(mockTreemap).toHaveBeenCalledTimes(1)
+    })
+
+    it("поддерживает drill-down и возврат по пакетам", (): void => {
+        mockTreemap.mockClear()
+
+        render(
+            <CodeCityTreemap
+                files={sampleFiles}
+                title="CodeCity treemap"
+            />,
+        )
+
+        expect(screen.getByText("Packages: 2, Files: 3, LOC: 150")).not.toBeNull()
+        expect(screen.getByText("All packages")).not.toBeNull()
+
+        const packageButton = screen.getByRole("button", { name: "src/api" })
+        fireEvent.click(packageButton)
+
+        expect(screen.getByText("Packages: 1, Files: 2, LOC: 110")).not.toBeNull()
+        expect(screen.getByText("All packages / src/api")).not.toBeNull()
+        expect(screen.getAllByRole("button", { name: "Back" })).toHaveLength(1)
+
+        const backButton = screen.getByRole("button", { name: "Back" })
+        fireEvent.click(backButton)
+
+        expect(screen.getByText("Packages: 2, Files: 3, LOC: 150")).not.toBeNull()
     })
 
     it("передаёт color + impact в payload и позволяет менять метрику", (): void => {

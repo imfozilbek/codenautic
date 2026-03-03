@@ -1,6 +1,12 @@
-import { type ChangeEvent, type ReactElement, useMemo, useState } from "react"
+import {
+    type ChangeEvent,
+    type KeyboardEvent,
+    type ReactElement,
+    useMemo,
+    useState,
+} from "react"
 
-import { Card, CardBody, CardHeader } from "@/components/ui"
+import { Button, Card, CardBody, CardHeader } from "@/components/ui"
 import { ResponsiveContainer, Treemap } from "recharts"
 
 const DEFAULT_HEIGHT = "420px"
@@ -57,6 +63,14 @@ interface ICodeCityTreemapIssueSummary {
     readonly totalIssues: number
 }
 
+interface ICodeCityTreemapViewSummary {
+    readonly files: number
+    readonly impactSummary: ICodeCityTreemapImpactSummary
+    readonly issueSummary: ICodeCityTreemapIssueSummary
+    readonly loc: number
+    readonly packageCount: number
+}
+
 interface ICodeCityTreemapMetricRange {
     readonly min: number
     readonly max: number
@@ -79,6 +93,7 @@ interface ICodeCityTreemapTreemapNodePayload {
 
 interface ICodeCityTreemapTreemapContentProps {
     readonly fill?: string
+    readonly onPackageSelect?: (packageName: string) => void
     readonly payload?: ICodeCityTreemapTreemapNodePayload
     readonly x?: number
     readonly y?: number
@@ -206,6 +221,43 @@ function resolveMetricRange(values: ReadonlyArray<number>): ICodeCityTreemapMetr
     return { max, min }
 }
 
+function resolveViewSummary(
+    packages: ReadonlyArray<ICodeCityTreemapPackageNode>,
+): ICodeCityTreemapViewSummary {
+    let files = 0
+    let loc = 0
+    let totalIssues = 0
+    let filesWithIssues = 0
+    let maxIssuesPerFile = 0
+    const impactSummary = resolveImpactSummary(packages)
+
+    for (const packageItem of packages) {
+        files += packageItem.children.length
+        loc += packageItem.value
+        for (const file of packageItem.children) {
+            if (file.issueCount > maxIssuesPerFile) {
+                maxIssuesPerFile = file.issueCount
+            }
+            if (file.issueCount > 0) {
+                filesWithIssues += 1
+                totalIssues += file.issueCount
+            }
+        }
+    }
+
+    return {
+        files,
+        impactSummary,
+        issueSummary: {
+            filesWithIssues,
+            maxIssuesPerFile,
+            totalIssues,
+        },
+        loc,
+        packageCount: packages.length,
+    }
+}
+
 function resolveMetricLabel(metric: ICodeCityTreemapMetric): string {
     return CODE_CITY_METRIC_LABELS[metric]
 }
@@ -257,15 +309,38 @@ function renderTreemapCell(props: ICodeCityTreemapTreemapContentProps): ReactEle
     const color = node?.color ?? (props.fill ?? "hsl(120, 80%, 44%)")
     const strokeStyle = resolveImpactStyle(props)
     const nodeName = typeof node?.name === "string" ? node.name : ""
+    const isPackage = (node?.children?.length ?? 0) > 0
     const canShowText = width > 42 && height > 16
     const isLeaf = (node?.children?.length ?? 0) === 0
+    const handlePackageSelect = (): void => {
+        if (isPackage === false || props.onPackageSelect === undefined || nodeName.length === 0) {
+            return
+        }
+
+        props.onPackageSelect(nodeName)
+    }
+    const handlePackageKeyDown = (event: KeyboardEvent<SVGGElement>): void => {
+        if (event.key === "Enter" || event.key === " ") {
+            event.preventDefault()
+            handlePackageSelect()
+        }
+    }
 
     if (width <= 0 || height <= 0) {
         return <g />
     }
 
     return (
-        <g>
+        <g
+            aria-label={
+                isPackage ? `Open package ${nodeName}` : `File ${nodeName}`
+            }
+            className={isPackage === true ? "cursor-pointer" : ""}
+            onKeyDown={isPackage === true ? handlePackageKeyDown : undefined}
+            onClick={isPackage === true ? handlePackageSelect : undefined}
+            role={isPackage ? "button" : undefined}
+            tabIndex={isPackage ? 0 : undefined}
+        >
             <rect
                 fill={color}
                 height={height}
@@ -552,23 +627,54 @@ export function CodeCityTreemap(props: ICodeCityTreemapProps): ReactElement {
     const [metric, setMetric] = useState<ICodeCityTreemapMetric>(
         props.defaultMetric ?? DEFAULT_METRIC,
     )
+    const [selectedPackage, setSelectedPackage] = useState<string | undefined>()
     const treemapData = useMemo(
         () => buildCodeCityTreemapData(props.files, metric, props.impactedFiles ?? []),
         [props.files, props.impactedFiles, metric],
     )
-    const issueSummary = treemapData.issueSummary
+    const visiblePackages = useMemo(
+        () =>
+            selectedPackage === undefined
+                ? treemapData.packages
+                : treemapData.packages.filter((packageItem): boolean =>
+                    packageItem.name === selectedPackage,
+                ),
+        [selectedPackage, treemapData.packages],
+    )
+    const summary = useMemo(
+        (): ICodeCityTreemapViewSummary => resolveViewSummary(visiblePackages),
+        [visiblePackages],
+    )
+    const issueSummary = summary.issueSummary
     const issueSummaryText = `Issues: ${issueSummary.totalIssues} in ${issueSummary.filesWithIssues} files`
     const metricLabel = resolveMetricLabel(metric)
     const hasIssueHeatmap = issueSummary.maxIssuesPerFile > 0
     const selectorId = `${DEFAULT_METRIC_SELECTOR_ID}-${title.toLowerCase().replaceAll(" ", "-")}`
-    const impactSummary = treemapData.impactSummary
+    const impactSummary = summary.impactSummary
     const impactSummaryText = `Changed: ${impactSummary.changed}, Impacted: ${impactSummary.impacted}, Ripple: ${impactSummary.ripple}`
+    const showBackButton = selectedPackage !== undefined
+    const summaryText = `Packages: ${summary.packageCount}, Files: ${summary.files}, LOC: ${summary.loc}`
+    const breadcrumbText = selectedPackage === undefined
+        ? "All packages"
+        : `All packages / ${selectedPackage}`
 
-    const summaryText = `Packages: ${treemapData.packages.length}, Files: ${treemapData.totalFiles}, LOC: ${treemapData.totalLoc}`
-    const metricRangeText = `Min ${treemapData.metricRange.min} — Max ${treemapData.metricRange.max}`
+    const handleResetSelection = (): void => {
+        setSelectedPackage(undefined)
+    }
     const handleMetricChange = (event: ChangeEvent<HTMLSelectElement>): void => {
         setMetric(resolveMetricByValue(event.target.value))
     }
+    const handlePackageSelect = (packageName: string): void => {
+        const canSelect = treemapData.packages.some(
+            (packageItem): boolean => packageItem.name === packageName,
+        )
+        if (canSelect === false) {
+            return
+        }
+
+        setSelectedPackage(packageName)
+    }
+    const metricRangeText = `Min ${treemapData.metricRange.min} — Max ${treemapData.metricRange.max}`
 
     if (treemapData.packages.length === 0) {
         return (
@@ -583,14 +689,48 @@ export function CodeCityTreemap(props: ICodeCityTreemapProps): ReactElement {
         )
     }
 
+    if (visiblePackages.length === 0) {
+        return (
+            <Card aria-label={title}>
+                <CardHeader>
+                    <h3 className="text-lg font-semibold">{title}</h3>
+                    <p className="text-sm text-foreground-500">No files for selected package.</p>
+                    <Button onPress={handleResetSelection}>Back</Button>
+                </CardHeader>
+                <CardBody>
+                    <p>{emptyStateLabel}</p>
+                </CardBody>
+            </Card>
+        )
+    }
+
+    const handleTreemapNodeClick = (node?: ICodeCityTreemapTreemapNodePayload): void => {
+        if (node?.name === undefined || node.name.length === 0) {
+            return
+        }
+        if ((node.children?.length ?? 0) === 0) {
+            return
+        }
+
+        handlePackageSelect(node.name)
+    }
+
     return (
         <Card aria-label={title}>
             <CardHeader>
                 <div className="flex flex-col gap-2">
                     <h3 className="text-lg font-semibold">{title}</h3>
                     <p className="text-sm text-foreground-500">{summaryText}</p>
+                    <p aria-label="Code city breadcrumb" className="text-xs text-foreground-500">
+                        {breadcrumbText}
+                    </p>
                     <p className="text-sm text-foreground-500">Color metric: {metricLabel}</p>
                     <div className="flex flex-wrap items-end gap-2">
+                        {showBackButton ? (
+                            <Button onPress={handleResetSelection} size="sm">
+                                Back
+                            </Button>
+                        ) : null}
                         <label className="text-sm" htmlFor={selectorId}>
                             Metric
                         </label>
@@ -665,12 +805,18 @@ export function CodeCityTreemap(props: ICodeCityTreemapProps): ReactElement {
                 <div aria-label="Code city treemap" style={{ height, width: "100%" }}>
                     <ResponsiveContainer height="100%" width="100%">
                         <Treemap
-                            data={treemapData.packages}
+                            data={visiblePackages}
                             dataKey="value"
                             nameKey="name"
                             stroke="hsl(var(--nextui-colors-defaultBorder))"
                             fill="hsl(var(--nextui-colors-success-500))"
-                            content={renderTreemapCell}
+                            content={(contentProps): ReactElement => {
+                                return renderTreemapCell({
+                                    ...contentProps,
+                                    onPackageSelect: handlePackageSelect,
+                                })
+                            }}
+                            onClick={handleTreemapNodeClick}
                         />
                     </ResponsiveContainer>
                 </div>
