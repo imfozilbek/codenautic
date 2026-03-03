@@ -1,5 +1,20 @@
 import type {IChatRequestDTO} from "../../dto/llm/chat.dto"
 import type {ISuggestionDTO} from "../../dto/review/suggestion.dto"
+import {
+    REVIEW_DEPTH_MODE,
+    ReviewDepthModeResolver,
+    type ReviewDepthMode,
+} from "../../../domain/value-objects/review-depth-mode.value-object"
+import {
+    DIFF_FILE_STATUS,
+    DiffFile,
+    type DiffFileStatus,
+} from "../../../domain/value-objects/diff-file.value-object"
+import {FilePath} from "../../../domain/value-objects/file-path.value-object"
+import {
+    REVIEW_DEPTH_STRATEGY,
+    type ReviewDepthStrategy,
+} from "../../dto/review/review-config.dto"
 import type {ILLMProvider} from "../../ports/outbound/llm/llm-provider.port"
 import type {
     PipelineCollectionItem,
@@ -23,6 +38,8 @@ import {
 const DEFAULT_FILE_REVIEW_MODEL = "gpt-4o-mini"
 const DEFAULT_FILE_REVIEW_TIMEOUT_MS = 60000
 const DEFAULT_FILE_REVIEW_MAX_TOKENS = 1000
+const DEFAULT_REVIEW_DEPTH_STRATEGY = REVIEW_DEPTH_STRATEGY.AUTO
+const FILE_CONTENT_LIMIT = 5000
 
 type ParsedJsonPayload = unknown[] | Readonly<Record<string, unknown>>
 
@@ -38,9 +55,27 @@ export interface IProcessFilesReviewStageDependencies {
  * One file analysis result payload.
  */
 interface IFileAnalysisResult {
+    readonly filePath: string
     readonly suggestions: readonly ISuggestionDTO[]
     readonly timedOut: boolean
     readonly failed: boolean
+    readonly requestedMode: ReviewDepthMode
+    readonly effectiveMode: ReviewDepthMode
+    readonly reviewDepthStrategy: ReviewDepthStrategy
+    readonly fallbackToLight: boolean
+    readonly hasFileContent: boolean
+}
+
+interface IFileReviewModeLog {
+    readonly filePath: string
+    readonly strategy: ReviewDepthStrategy
+    readonly requestedMode: ReviewDepthMode
+    readonly effectiveMode: ReviewDepthMode
+    readonly fallbackToLight: boolean
+    readonly hasFileContent: boolean
+    readonly stageId: string
+    readonly runId: string
+    readonly definitionVersion: string
 }
 
 /**
@@ -73,29 +108,59 @@ export class ProcessFilesReviewStageUseCase implements IPipelineStageUseCase {
      */
     public async execute(input: IStageCommand): Promise<Result<IStageTransition, StageError>> {
         const timeoutMs = this.resolveTimeoutMs(input.state.config)
+        const reviewDepthStrategy = this.resolveReviewDepthStrategy(input.state.config)
         const batches = this.resolveBatches(input.state)
-        const collectedSuggestions: ISuggestionDTO[] = []
-        let timedOutFiles = 0
-        let failedFiles = 0
 
         try {
-            for (const batch of batches) {
-                const batchResults = await Promise.all(
-                    batch.map(async (file): Promise<IFileAnalysisResult> => {
-                        return this.analyzeSingleFile(file, input.state, timeoutMs)
-                    }),
-                )
+            const analysisResults = await this.analyzeFiles(
+                batches,
+                input.state.config,
+                timeoutMs,
+                reviewDepthStrategy,
+            )
+            const fileReviewModeLogs = this.buildFileReviewModeLogs(
+                analysisResults,
+                input.state.runId,
+                input.state.definitionVersion,
+            )
+            const stats = this.buildFileReviewStats(analysisResults)
+            const aggregatedSuggestions = this.collectSuggestions(analysisResults)
+            const deduplicatedSuggestions = deduplicate(
+                aggregatedSuggestions,
+                (suggestion): string => {
+                    return `${suggestion.filePath}|${suggestion.lineStart}|${suggestion.lineEnd}|${suggestion.message}`
+                },
+            )
 
-                for (const batchResult of batchResults) {
-                    if (batchResult.timedOut) {
-                        timedOutFiles += 1
-                    }
-                    if (batchResult.failed) {
-                        failedFiles += 1
-                    }
-                    collectedSuggestions.push(...batchResult.suggestions)
-                }
-            }
+            const metadata = this.buildSuccessMetadata(stats.timedOutFiles)
+            const deduplicatedSuggestionsCount = deduplicatedSuggestions.length
+            const externalContext = mergeExternalContext(
+                input.state.externalContext,
+                this.buildFileReviewExternalContext(
+                    {
+                        runId: input.state.runId,
+                        definitionVersion: input.state.definitionVersion,
+                        reviewDepthStrategy,
+                        batchCount: batches.length,
+                        fileCount: batches.flat().length,
+                        deduplicatedSuggestions: deduplicatedSuggestionsCount,
+                        fileReviewModeLogs,
+                        stats,
+                    },
+                ),
+            )
+
+            return Result.ok<IStageTransition, StageError>({
+                state: input.state.with({
+                    suggestions: deduplicatedSuggestions.map((suggestion) => {
+                        return {
+                            ...suggestion,
+                        }
+                    }),
+                    externalContext,
+                }),
+                metadata,
+            })
         } catch (error: unknown) {
             return Result.fail<IStageTransition, StageError>(
                 this.createStageError(
@@ -107,33 +172,223 @@ export class ProcessFilesReviewStageUseCase implements IPipelineStageUseCase {
                 ),
             )
         }
+    }
 
-        const deduplicatedSuggestions = deduplicate(collectedSuggestions, (suggestion): string => {
-            return `${suggestion.filePath}|${suggestion.lineStart}|${suggestion.lineEnd}|${suggestion.message}`
-        })
+    /**
+     * Analyzes files per batch and aggregates raw results.
+     *
+     * @param batches File batches.
+     * @param config Review config.
+     * @param timeoutMs Timeout in milliseconds.
+     * @param reviewDepthStrategy Depth strategy.
+     * @returns File analysis results.
+     */
+    private async analyzeFiles(
+        batches: readonly (readonly PipelineCollectionItem[])[],
+        config: Readonly<Record<string, unknown>>,
+        timeoutMs: number,
+        reviewDepthStrategy: ReviewDepthStrategy,
+    ): Promise<readonly IFileAnalysisResult[]> {
+        const results: IFileAnalysisResult[] = []
 
-        return Result.ok<IStageTransition, StageError>({
-            state: input.state.with({
-                suggestions: deduplicatedSuggestions.map((suggestion) => {
-                    return {
-                        ...suggestion,
-                    }
+        for (const batch of batches) {
+            const batchResults = await Promise.all(
+                batch.map(async (file): Promise<IFileAnalysisResult> => {
+                    return this.analyzeSingleFile(file, config, timeoutMs, reviewDepthStrategy)
                 }),
-                externalContext: mergeExternalContext(input.state.externalContext, {
-                    fileReviewStats: {
-                        batchCount: batches.length,
-                        fileCount: batches.flat().length,
-                        timedOutFiles,
-                        failedFiles,
-                        deduplicatedSuggestions: deduplicatedSuggestions.length,
+            )
+            results.push(...batchResults)
+        }
+
+        return results
+    }
+
+    /**
+     * Aggregates file review mode metadata.
+     *
+     * @param analysisResults File analysis result list.
+     * @param runId Pipeline run id.
+     * @param definitionVersion Pipeline definition version.
+     * @returns File-level logs.
+     */
+    private buildFileReviewModeLogs(
+        analysisResults: readonly IFileAnalysisResult[],
+        runId: string,
+        definitionVersion: string,
+    ): readonly IFileReviewModeLog[] {
+        return analysisResults.map((result) => {
+            return {
+                filePath: result.filePath,
+                strategy: result.reviewDepthStrategy,
+                requestedMode: result.requestedMode,
+                effectiveMode: result.effectiveMode,
+                fallbackToLight: result.fallbackToLight,
+                hasFileContent: result.hasFileContent,
+                stageId: this.stageId,
+                runId,
+                definitionVersion,
+            }
+        })
+    }
+
+    /**
+     * Builds file-review counters and rollups.
+     *
+     * @param analysisResults Analysis results.
+     * @returns Aggregated counters.
+     */
+    private buildFileReviewStats(analysisResults: readonly IFileAnalysisResult[]): {
+        timedOutFiles: number
+        failedFiles: number
+        requestedLightCount: number
+        requestedHeavyCount: number
+        effectiveLightCount: number
+        effectiveHeavyCount: number
+        fallbackToLightCount: number
+    } {
+        let timedOutFiles = 0
+        let failedFiles = 0
+        let requestedHeavyCount = 0
+        let requestedLightCount = 0
+        let effectiveHeavyCount = 0
+        let effectiveLightCount = 0
+        let fallbackToLightCount = 0
+
+        for (const result of analysisResults) {
+            if (result.timedOut === true) {
+                timedOutFiles += 1
+            }
+            if (result.failed === true) {
+                failedFiles += 1
+            }
+            if (result.requestedMode === REVIEW_DEPTH_MODE.HEAVY) {
+                requestedHeavyCount += 1
+            } else {
+                requestedLightCount += 1
+            }
+            if (result.effectiveMode === REVIEW_DEPTH_MODE.HEAVY) {
+                effectiveHeavyCount += 1
+            } else {
+                effectiveLightCount += 1
+            }
+            if (result.fallbackToLight === true) {
+                fallbackToLightCount += 1
+            }
+        }
+
+        return {
+            timedOutFiles,
+            failedFiles,
+            requestedLightCount,
+            requestedHeavyCount,
+            effectiveLightCount,
+            effectiveHeavyCount,
+            fallbackToLightCount,
+        }
+    }
+
+    /**
+     * Aggregates file suggestions from all analysis results.
+     *
+     * @param analysisResults Per-file analysis results.
+     * @returns Suggestions list.
+     */
+    private collectSuggestions(analysisResults: readonly IFileAnalysisResult[]): readonly ISuggestionDTO[] {
+        const suggestions: ISuggestionDTO[] = []
+        for (const result of analysisResults) {
+            suggestions.push(...result.suggestions)
+        }
+
+        return suggestions
+    }
+
+    /**
+     * Builds transition metadata for successful stage run.
+     *
+     * @param timedOutFiles Timed-out file count.
+     * @returns Transition metadata.
+     */
+    private buildSuccessMetadata(timedOutFiles: number): {
+        checkpointHint: "files-review:processed"
+        notes: string | undefined
+    } {
+        return {
+            checkpointHint: "files-review:processed",
+            notes:
+                timedOutFiles > 0
+                    ? `${timedOutFiles} file analyses timed out`
+                    : undefined,
+        }
+    }
+
+    /**
+     * Builds external context payload for successful file review execution.
+     *
+     * @param stats Aggregated file review stats.
+     * @param fileReviewModeLogs Per-file mode logs.
+     * @param batches Processing batches.
+     * @param reviewDepthStrategy Effective default strategy.
+     * @param state Current pipeline state.
+     * @returns External context patch.
+     */
+    private buildFileReviewExternalContext(
+        data: {
+            stats: {
+                timedOutFiles: number
+                failedFiles: number
+                requestedLightCount: number
+                requestedHeavyCount: number
+                effectiveLightCount: number
+                effectiveHeavyCount: number
+                fallbackToLightCount: number
+            }
+            fileReviewModeLogs: readonly IFileReviewModeLog[]
+            deduplicatedSuggestions: number
+            batchCount: number
+            fileCount: number
+            reviewDepthStrategy: ReviewDepthStrategy
+            runId: string
+            definitionVersion: string
+        },
+    ): Readonly<Record<string, unknown>> {
+        const {
+            stats,
+            fileReviewModeLogs,
+            deduplicatedSuggestions,
+            batchCount,
+            fileCount,
+            reviewDepthStrategy,
+            runId,
+            definitionVersion,
+        } = data
+
+        return {
+            fileReviewStats: {
+                batchCount,
+                fileCount,
+                timedOutFiles: stats.timedOutFiles,
+                failedFiles: stats.failedFiles,
+                deduplicatedSuggestions,
+                reviewDepthStrategy,
+                modeSummary: {
+                    requested: {
+                        light: stats.requestedLightCount,
+                        heavy: stats.requestedHeavyCount,
                     },
-                }),
-            }),
-            metadata: {
-                checkpointHint: "files-review:processed",
-                notes: timedOutFiles > 0 ? `${timedOutFiles} file analyses timed out` : undefined,
+                    effective: {
+                        light: stats.effectiveLightCount,
+                        heavy: stats.effectiveHeavyCount,
+                    },
+                    fallbackToLight: stats.fallbackToLightCount,
+                },
+                fileReviewModes: fileReviewModeLogs,
+                runContext: {
+                    stageId: this.stageId,
+                    runId,
+                    definitionVersion,
+                },
             },
-        })
+        }
     }
 
     /**
@@ -149,6 +404,30 @@ export class ProcessFilesReviewStageUseCase implements IPipelineStageUseCase {
         }
 
         return rawTimeout
+    }
+
+    /**
+     * Resolves review depth strategy from config with safe fallback to auto.
+     *
+     * @param config Config payload.
+     * @returns Strategy normalized to known values.
+     */
+    private resolveReviewDepthStrategy(config: Readonly<Record<string, unknown>>): ReviewDepthStrategy {
+        const rawStrategy = config["reviewDepthStrategy"]
+        if (typeof rawStrategy !== "string") {
+            return DEFAULT_REVIEW_DEPTH_STRATEGY
+        }
+
+        const normalizedStrategy = rawStrategy.trim()
+        if (
+            Object.values(REVIEW_DEPTH_STRATEGY).includes(
+                normalizedStrategy as ReviewDepthStrategy,
+            )
+        ) {
+            return normalizedStrategy as ReviewDepthStrategy
+        }
+
+        return DEFAULT_REVIEW_DEPTH_STRATEGY
     }
 
     /**
@@ -226,52 +505,255 @@ export class ProcessFilesReviewStageUseCase implements IPipelineStageUseCase {
      * Runs one file analysis with timeout isolation.
      *
      * @param file File payload.
-     * @param state Current pipeline state.
+     * @param config Config payload.
      * @param timeoutMs Timeout in milliseconds.
+     * @param reviewDepthStrategy Review strategy override.
      * @returns File analysis result.
      */
     private async analyzeSingleFile(
         file: PipelineCollectionItem,
-        state: ReviewPipelineState,
+        config: Readonly<Record<string, unknown>>,
         timeoutMs: number,
+        reviewDepthStrategy: ReviewDepthStrategy,
     ): Promise<IFileAnalysisResult> {
-        const path = file["path"]
-        const patch = file["patch"]
-        if (typeof path !== "string" || path.trim().length === 0) {
-            return {
-                suggestions: [],
-                timedOut: false,
-                failed: true,
-            }
+        const filePathValue = this.resolveString(file["path"])
+        if (filePathValue === undefined) {
+            return this.createFailedAnalysisResult(
+                "unknown",
+                reviewDepthStrategy,
+                REVIEW_DEPTH_MODE.LIGHT,
+                REVIEW_DEPTH_MODE.LIGHT,
+            )
         }
 
-        const request = this.buildFileChatRequest(path.trim(), typeof patch === "string" ? patch : "", state)
+        const patch = this.resolveString(file["patch"]) ?? ""
+        const fullFileContent = this.resolveFullFileContent(file)
+        const hunks = this.resolveHunks(file["hunks"])
+        const status = this.resolveDiffFileStatus(file["status"])
+        const filePath = this.createFilePath(filePathValue)
+
+        const diffFile = this.resolveDiffFile({
+            filePath,
+            status,
+            hunks,
+            patch,
+            oldPathValue: this.resolveOldPath(file["oldPath"], status),
+        })
+
+        const requestedMode = this.resolveRequestedMode(reviewDepthStrategy, diffFile)
+        const hasFileContent = fullFileContent !== undefined
+        const fallbackToLight =
+            requestedMode === REVIEW_DEPTH_MODE.HEAVY && hasFileContent === false
+        const effectiveMode =
+            fallbackToLight ? REVIEW_DEPTH_MODE.LIGHT : requestedMode
+
+        const request = this.buildFileChatRequest(
+            filePathValue,
+            patch,
+            config,
+            effectiveMode,
+            fullFileContent,
+        )
 
         try {
             const response = await this.runWithTimeout(this.llmProvider.chat(request), timeoutMs)
-            const suggestions = this.parseFileSuggestions(path.trim(), response.content)
+            const suggestions = this.parseFileSuggestions(filePathValue, response.content)
 
             return {
+                filePath: filePathValue,
                 suggestions,
                 timedOut: false,
                 failed: false,
+                requestedMode,
+                effectiveMode,
+                reviewDepthStrategy,
+                fallbackToLight,
+                hasFileContent,
             }
         } catch (error: unknown) {
             const timeoutCode = this.readTimeoutCode(error)
             if (timeoutCode) {
                 return {
+                    filePath: filePathValue,
                     suggestions: [],
                     timedOut: true,
                     failed: false,
+                    requestedMode,
+                    effectiveMode,
+                    reviewDepthStrategy,
+                    fallbackToLight,
+                    hasFileContent,
                 }
             }
 
             return {
+                filePath: filePathValue,
                 suggestions: [],
                 timedOut: false,
                 failed: true,
+                requestedMode,
+                effectiveMode,
+                reviewDepthStrategy,
+                fallbackToLight,
+                hasFileContent,
             }
         }
+    }
+
+    /**
+     * Creates file review mode for one file.
+     *
+     * @param strategy Review depth strategy.
+     * @param diffFile Parsed diff file when available.
+     * @returns Requested mode before context fallback.
+     */
+    private resolveRequestedMode(
+        strategy: ReviewDepthStrategy,
+        diffFile: DiffFile | undefined,
+    ): ReviewDepthMode {
+        if (strategy === REVIEW_DEPTH_STRATEGY.ALWAYS_LIGHT) {
+            return REVIEW_DEPTH_MODE.LIGHT
+        }
+
+        if (strategy === REVIEW_DEPTH_STRATEGY.ALWAYS_HEAVY) {
+            return REVIEW_DEPTH_MODE.HEAVY
+        }
+
+        if (diffFile === undefined) {
+            return REVIEW_DEPTH_MODE.LIGHT
+        }
+
+        return ReviewDepthModeResolver.fromFileChange(diffFile)
+    }
+
+    /**
+     * Creates file-path object from raw value.
+     *
+     * @param rawPath Raw file path.
+     * @returns File path instance.
+     */
+    private createFilePath(rawPath: string): FilePath {
+        return FilePath.create(rawPath)
+    }
+
+    /**
+     * Creates typed diff file value object when source payload is complete.
+     *
+     * @param params Diff file components.
+     * @returns Diff file or undefined.
+     */
+    private resolveDiffFile(params: {
+        filePath: FilePath
+        status: DiffFileStatus
+        hunks: readonly string[]
+        patch: string
+        oldPathValue: FilePath | undefined
+    }): DiffFile | undefined {
+        try {
+            return DiffFile.create({
+                filePath: params.filePath,
+                status: params.status,
+                hunks: params.hunks,
+                patch: params.patch,
+                ...(params.oldPathValue === undefined ? {} : {oldPath: params.oldPathValue}),
+            })
+        } catch {
+            return undefined
+        }
+    }
+
+    /**
+     * Resolves diff file status with safe default.
+     *
+     * @param rawStatus Raw status value.
+     * @returns Normalized diff file status.
+     */
+    private resolveDiffFileStatus(rawStatus: unknown): DiffFileStatus {
+        if (typeof rawStatus !== "string") {
+            return DIFF_FILE_STATUS.MODIFIED
+        }
+
+        const normalized = rawStatus.trim()
+        if (
+            normalized !== "" &&
+            Object.values(DIFF_FILE_STATUS).includes(normalized as DiffFileStatus)
+        ) {
+            return normalized as DiffFileStatus
+        }
+
+        return DIFF_FILE_STATUS.MODIFIED
+    }
+
+    /**
+     * Resolves optional old file path for renamed files.
+     *
+     * @param rawOldPath Raw old path value.
+     * @param status File diff status.
+     * @returns File path for renamed files when valid.
+     */
+    private resolveOldPath(
+        rawOldPath: unknown,
+        status: DiffFileStatus,
+    ): FilePath | undefined {
+        if (status !== DIFF_FILE_STATUS.RENAMED) {
+            return undefined
+        }
+
+        const oldPath = this.resolveString(rawOldPath)
+        if (oldPath === undefined) {
+            return undefined
+        }
+
+        try {
+            return FilePath.create(oldPath)
+        } catch {
+            return undefined
+        }
+    }
+
+    /**
+     * Reads candidate full file content.
+     *
+     * @param file File payload.
+     * @returns Full file content when present.
+     */
+    private resolveFullFileContent(
+        file: PipelineCollectionItem,
+    ): string | undefined {
+        const fullFileContent = this.resolveString(file["fullFileContent"])
+        if (fullFileContent !== undefined) {
+            return fullFileContent
+        }
+
+        return this.resolveString(file["content"])
+    }
+
+    /**
+     * Resolves diff hunks list.
+     *
+     * @param rawHunks Candidate hunks.
+     * @returns Normalized hunks.
+     */
+    private resolveHunks(rawHunks: unknown): readonly string[] {
+        if (!Array.isArray(rawHunks)) {
+            return []
+        }
+
+        const hunks: string[] = []
+        for (const rawHunk of rawHunks) {
+            const hunk = this.resolveString(rawHunk)
+            if (hunk === undefined) {
+                continue
+            }
+
+            if (hunk.trim().length === 0) {
+                continue
+            }
+
+            hunks.push(hunk)
+        }
+
+        return hunks
     }
 
     /**
@@ -279,15 +761,19 @@ export class ProcessFilesReviewStageUseCase implements IPipelineStageUseCase {
      *
      * @param filePath File path.
      * @param patch File patch.
-     * @param state Current state.
+     * @param config Config payload.
+     * @param mode Resolved review mode.
+     * @param fullFileContent Optional full file content.
      * @returns Chat request payload.
      */
     private buildFileChatRequest(
         filePath: string,
         patch: string,
-        state: ReviewPipelineState,
+        config: Readonly<Record<string, unknown>>,
+        mode: ReviewDepthMode,
+        fullFileContent: string | undefined,
     ): IChatRequestDTO {
-        const promptOverrides = readObjectField(state.config, "promptOverrides")
+        const promptOverrides = readObjectField(config, "promptOverrides")
         const systemPromptRaw = promptOverrides?.["systemPrompt"]
         const reviewerPromptRaw = promptOverrides?.["reviewerPrompt"]
         const systemPrompt =
@@ -309,9 +795,63 @@ export class ProcessFilesReviewStageUseCase implements IPipelineStageUseCase {
                 },
                 {
                     role: "user",
-                    content: `${reviewerPrompt}\n\nFILE: ${filePath}\nPATCH:\n${patch.slice(0, 5000)}`,
+                    content: this.buildFileUserPrompt(filePath, patch, reviewerPrompt, mode, fullFileContent),
                 },
             ],
+        }
+    }
+
+    /**
+     * Builds user payload with optional full file context.
+     *
+     * @param filePath File path.
+     * @param patch File patch.
+     * @param reviewerPrompt Reviewer prompt.
+     * @param mode Review mode.
+     * @param fullFileContent Optional full file content.
+     * @returns Prompt content.
+     */
+    private buildFileUserPrompt(
+        filePath: string,
+        patch: string,
+        reviewerPrompt: string,
+        mode: ReviewDepthMode,
+        fullFileContent: string | undefined,
+    ): string {
+        const truncatedPatch = patch.slice(0, FILE_CONTENT_LIMIT)
+
+        if (mode === REVIEW_DEPTH_MODE.HEAVY && fullFileContent !== undefined) {
+            return `${reviewerPrompt}\n\nFILE: ${filePath}\nPATCH:\n${truncatedPatch}\nFULL_FILE:\n${fullFileContent}`
+        }
+
+        return `${reviewerPrompt}\n\nFILE: ${filePath}\nPATCH:\n${truncatedPatch}`
+    }
+
+    /**
+     * Builds a failed file analysis fallback result.
+     *
+     * @param filePath Raw file path.
+     * @param reviewDepthStrategy Review depth strategy.
+     * @param requestedMode Requested mode before fallbacks.
+     * @param effectiveMode Final mode used.
+     * @returns Failed file analysis result.
+     */
+    private createFailedAnalysisResult(
+        filePath: string,
+        reviewDepthStrategy: ReviewDepthStrategy,
+        requestedMode: ReviewDepthMode,
+        effectiveMode: ReviewDepthMode,
+    ): IFileAnalysisResult {
+        return {
+            filePath,
+            suggestions: [],
+            timedOut: false,
+            failed: true,
+            requestedMode,
+            effectiveMode,
+            reviewDepthStrategy,
+            fallbackToLight: false,
+            hasFileContent: false,
         }
     }
 
@@ -473,6 +1013,25 @@ export class ProcessFilesReviewStageUseCase implements IPipelineStageUseCase {
     }
 
     /**
+     * Reads non-empty string field with fallback.
+     *
+     * @param value Candidate value.
+     * @returns Normalized string or fallback.
+     */
+    private resolveString(value: unknown): string | undefined {
+        if (typeof value !== "string") {
+            return undefined
+        }
+
+        const normalized = value.trim()
+        if (normalized.length === 0) {
+            return undefined
+        }
+
+        return normalized
+    }
+
+    /**
      * Reads string with fallback.
      *
      * @param value Candidate value.
@@ -523,7 +1082,7 @@ export class ProcessFilesReviewStageUseCase implements IPipelineStageUseCase {
     }
 
     /**
-     * Reads positive integer with fallback.
+     * Reads optional number with fallback.
      *
      * @param value Candidate value.
      * @param fallback Fallback value.

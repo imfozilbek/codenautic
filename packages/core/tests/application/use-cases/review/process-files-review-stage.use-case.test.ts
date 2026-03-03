@@ -16,10 +16,12 @@ interface IFileReply {
 }
 
 class InMemoryLLMProvider implements ILLMProvider {
+    public readonly requests: IChatRequestDTO[] = []
     public readonly replies = new Map<string, IFileReply>()
     public readonly seenFiles: string[] = []
 
     public async chat(request: IChatRequestDTO): Promise<IChatResponseDTO> {
+        this.requests.push(request)
         const userMessage = request.messages[1]?.content ?? ""
         const filePath = this.extractFilePath(userMessage)
         this.seenFiles.push(filePath)
@@ -284,6 +286,100 @@ describe("ProcessFilesReviewStageUseCase", () => {
         expect(stats?.["failedFiles"]).toBe(1)
     })
 
+    test("falls back to light mode when strategy requires heavy but file content is unavailable", async () => {
+        const llmProvider = new InMemoryLLMProvider()
+        llmProvider.replies.set(
+            "src/heavy.ts",
+            {
+                content: JSON.stringify({
+                    message: "Needs heavy review",
+                }),
+            },
+        )
+
+        const useCase = new ProcessFilesReviewStageUseCase({
+            llmProvider,
+        })
+        const state = createState(
+            [
+                {
+                    path: "src/heavy.ts",
+                    patch:
+                        "+export class Example {}\n@@ -1,1 +1,1 @@\n-const old = 1\n+const new = 2",
+                    status: "modified",
+                },
+            ],
+            {
+                reviewDepthStrategy: "always-heavy",
+            },
+            {
+                batches: [[{path: "src/heavy.ts", patch: "+export class Example {}"}]],
+            },
+        )
+
+        const result = await useCase.execute({
+            state,
+        })
+
+        expect(result.isOk).toBe(true)
+        const stats = result.value.state.externalContext?.["fileReviewStats"] as
+            | Readonly<Record<string, unknown>>
+            | undefined
+        expect(stats?.["modeSummary"]).toMatchObject({
+            requested: {
+                heavy: 1,
+                light: 0,
+            },
+            effective: {
+                heavy: 0,
+                light: 1,
+            },
+            fallbackToLight: 1,
+        })
+        expect(result.value.state.suggestions).toHaveLength(1)
+    })
+
+    test("uses FULL_FILE prompt for heavy mode when full file content is available", async () => {
+        const llmProvider = new InMemoryLLMProvider()
+        llmProvider.replies.set(
+            "src/heavy.ts",
+            {
+                content: JSON.stringify({
+                    message: "Needs deep review",
+                }),
+            },
+        )
+
+        const useCase = new ProcessFilesReviewStageUseCase({
+            llmProvider,
+        })
+        const state = createState(
+            [
+                {
+                    path: "src/heavy.ts",
+                    patch: "@@ -1,1 +1,1 @@\n+import x from \"a\"\n",
+                    fullFileContent: "export const value = 1",
+                    status: "modified",
+                },
+            ],
+            {
+                reviewDepthStrategy: "always-heavy",
+                batchSize: 1,
+            },
+            null,
+        )
+
+        const result = await useCase.execute({
+            state,
+        })
+
+        expect(result.isOk).toBe(true)
+        const lastRequest = llmProvider.requests.at(-1)
+        const userMessage = lastRequest?.messages?.[1]?.content
+        expect(userMessage).toContain("FULL_FILE:")
+        expect(userMessage).toContain("export const value = 1")
+    })
+
     test("returns recoverable stage error when unexpected internal failure escapes analyzer", async () => {
         const llmProvider = new InMemoryLLMProvider()
         const useCase = new ProcessFilesReviewStageUseCase({
@@ -292,8 +388,9 @@ describe("ProcessFilesReviewStageUseCase", () => {
         const internals = useCase as unknown as {
             analyzeSingleFile: (
                 file: Readonly<Record<string, unknown>>,
-                state: ReviewPipelineState,
+                config: Readonly<Record<string, unknown>>,
                 timeoutMs: number,
+                reviewDepthStrategy: string,
             ) => Promise<unknown>
         }
         internals.analyzeSingleFile = (): Promise<unknown> => {

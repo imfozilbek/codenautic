@@ -1,5 +1,11 @@
 export {type IDiscardedSuggestionDTO} from "./discarded-suggestion.dto"
-export {type IReviewConfigDTO, type IReviewPromptOverridesDTO, type ValidatedConfig} from "./review-config.dto"
+export {
+    REVIEW_DEPTH_STRATEGY,
+    type IReviewConfigDTO,
+    type IReviewPromptOverridesDTO,
+    type ReviewDepthStrategy,
+    type ValidatedConfig,
+} from "./review-config.dto"
 export {
     type IReviewIssueDTO,
     type IReviewResultDTO,

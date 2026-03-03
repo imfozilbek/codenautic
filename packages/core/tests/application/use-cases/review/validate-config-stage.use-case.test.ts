@@ -52,6 +52,8 @@ describe("ValidateConfigStageUseCase", () => {
             maxSuggestionsPerCCR: 25,
             cadence: "balanced",
             customRuleIds: ["rule-1", "rule-2"],
+            reviewDepthStrategy: "auto",
+            directories: [],
             promptOverrides: {
                 systemPrompt: "system",
             },

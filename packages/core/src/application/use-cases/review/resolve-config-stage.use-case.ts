@@ -17,7 +17,9 @@ const DEFAULT_REVIEW_CONFIG: IReviewConfigDTO = {
     maxSuggestionsPerFile: 5,
     maxSuggestionsPerCCR: 30,
     cadence: "standard",
+    reviewDepthStrategy: "auto",
     customRuleIds: [],
+    directories: [],
 }
 
 interface IConfigResolutionContext {

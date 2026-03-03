@@ -90,4 +90,52 @@ describe("ConfigurationValidatorUseCase", () => {
             message: "must be a non-empty string when provided",
         })
     })
+
+    test("supports reviewDepthStrategy and directories with defaults", async () => {
+        const useCase = new ConfigurationValidatorUseCase()
+        const result = await useCase.execute({
+            severityThreshold: "LOW",
+            ignorePaths: ["src/**"],
+            maxSuggestionsPerFile: 4,
+            maxSuggestionsPerCCR: 10,
+            cadence: "standard",
+            customRuleIds: ["rule-1"],
+            directories: [
+                {
+                    path: "src/core",
+                    config: {
+                        reviewDepthStrategy: "always-heavy",
+                        maxSuggestionsPerFile: 2,
+                    },
+                },
+            ],
+        })
+
+        expect(result.isOk).toBe(true)
+        expect(result.value.reviewDepthStrategy).toBe("auto")
+        expect(result.value.directories).toHaveLength(1)
+        expect(result.value.directories?.[0]?.path).toBe("src/core")
+        expect(result.value.directories?.[0]?.config.reviewDepthStrategy).toBe("always-heavy")
+        expect(result.value.directories?.[0]?.config.maxSuggestionsPerFile).toBe(2)
+    })
+
+    test("collects validation errors for unsupported reviewDepthStrategy", async () => {
+        const useCase = new ConfigurationValidatorUseCase()
+        const result = await useCase.execute({
+            severityThreshold: "LOW",
+            ignorePaths: ["src/**"],
+            maxSuggestionsPerFile: 1,
+            maxSuggestionsPerCCR: 2,
+            cadence: "standard",
+            customRuleIds: ["rule-1"],
+            reviewDepthStrategy: "always-medium",
+            directories: [],
+        })
+
+        expect(result.isFail).toBe(true)
+        expect(result.error.fields).toContainEqual({
+            field: "reviewDepthStrategy",
+            message: "must be one of auto | always-light | always-heavy",
+        })
+    })
 })
