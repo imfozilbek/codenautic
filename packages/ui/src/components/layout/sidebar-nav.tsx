@@ -32,6 +32,16 @@ const DEFAULT_SIDEBAR_ITEMS: readonly ISidebarItem[] = [
         label: "Dashboard",
         to: "/",
     },
+    {
+        icon: "🧩",
+        label: "CCR Management",
+        to: "/reviews",
+    },
+    {
+        icon: "⚙️",
+        label: "Settings",
+        to: "/settings",
+    },
 ] as const
 
 /**

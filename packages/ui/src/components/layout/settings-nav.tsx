@@ -12,24 +12,24 @@ export interface ISettingsNavProps {
 
 const DEFAULT_SETTINGS_NAV_ITEMS = [
     {
-        icon: "⚙️",
-        isDisabled: true,
+        icon: "🏠",
         label: "General",
+        to: "/settings",
     },
     {
-        icon: "👤",
-        isDisabled: true,
-        label: "Users",
+        icon: "🧩",
+        label: "Code Review",
+        to: "/settings/code-review",
     },
     {
-        icon: "🔐",
-        isDisabled: true,
-        label: "Security",
+        icon: "🧠",
+        label: "LLM Providers",
+        to: "/settings/llm-providers",
     },
     {
-        icon: "🔔",
-        isDisabled: true,
-        label: "Notifications",
+        icon: "🐙",
+        label: "Git Providers",
+        to: "/settings/git-providers",
     },
 ] as const
 

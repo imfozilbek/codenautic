@@ -12,6 +12,12 @@ export interface IDashboardLayoutProps {
     readonly children: ReactNode
     /** Заголовок страницы (рендерится в хедере). */
     readonly title?: string
+    /** Имя пользователя для user-menu. */
+    readonly userName?: string
+    /** Email пользователя для user-menu. */
+    readonly userEmail?: string
+    /** Действие выхода из системы. */
+    readonly onSignOut?: () => Promise<void> | void
 }
 
 /**
@@ -22,6 +28,7 @@ export interface IDashboardLayoutProps {
  */
 export function DashboardLayout(props: IDashboardLayoutProps): ReactElement {
     const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false)
+    const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false)
 
     return (
         <div className="relative min-h-screen bg-[linear-gradient(140deg,#f7f8fa_0%,#eef4ff_55%,#f6fbe7_100%)] text-slate-900">
@@ -29,6 +36,9 @@ export function DashboardLayout(props: IDashboardLayoutProps): ReactElement {
                 onMobileMenuOpen={(): void => {
                     setIsMobileSidebarOpen(true)
                 }}
+                userEmail={props.userEmail}
+                userName={props.userName}
+                onSignOut={props.onSignOut}
                 title={props.title}
             />
             <MobileSidebar
@@ -37,10 +47,21 @@ export function DashboardLayout(props: IDashboardLayoutProps): ReactElement {
                 title="Menu"
             />
             <div className="mx-auto flex w-full max-w-screen-xl gap-4 px-4 py-4 sm:px-6">
-                <div className="hidden min-h-0 flex-shrink-0 md:block md:w-64">
-                    <Sidebar title="Menu" />
+                <div className="hidden min-h-0 flex-shrink-0 md:block">
+                    <Sidebar
+                        isCollapsed={isSidebarCollapsed}
+                        onNavigate={(): void => {
+                            setIsMobileSidebarOpen(false)
+                        }}
+                        onSidebarToggle={(): void => {
+                            setIsSidebarCollapsed((previousValue): boolean => !previousValue)
+                        }}
+                        title="Menu"
+                    />
                 </div>
-                <main className="min-h-0 flex-1 rounded-lg bg-white/80 p-4 shadow-sm">{props.children}</main>
+                <div className="min-h-0 flex-1 rounded-lg bg-white/80 p-4 shadow-sm">
+                    {props.children}
+                </div>
             </div>
         </div>
     )

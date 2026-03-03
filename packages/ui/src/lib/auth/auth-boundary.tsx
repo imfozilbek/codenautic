@@ -1,4 +1,4 @@
-import type {ReactElement} from "react"
+import type {ReactElement, ReactNode} from "react"
 import {useEffect, useMemo, useRef, useState} from "react"
 import {
     type QueryClient,
@@ -25,11 +25,20 @@ const DEFAULT_AUTH_API = createApiContracts().auth
 
 export type TAuthGuardStatusCode = 401 | 403
 
+export interface IAuthBoundaryRenderContext {
+    /** Отображаемое имя пользователя. */
+    readonly userName: string
+    /** Email пользователя для отображения. */
+    readonly userEmail: string
+    /** Handler для выхода из текущей сессии. */
+    readonly onSignOut: () => Promise<void>
+}
+
 /**
  * Конфигурация boundary-компонента для защищённых route.
  */
 export interface IAuthBoundaryProps {
-    readonly children: ReactElement
+    readonly children: ReactElement | ((context: IAuthBoundaryRenderContext) => ReactElement)
     readonly authApi?: IAuthApi
     readonly storage?: Storage
     readonly onRedirect?: (authorizationUrl: string) => void
@@ -158,6 +167,14 @@ export function AuthBoundary(props: IAuthBoundaryProps): ReactElement {
                 statusMessage={authStatusMessage}
             />
         )
+    }
+
+    if (typeof props.children === "function") {
+        return props.children({
+            userName: state.session.user.displayName,
+            userEmail: state.session.user.email,
+            onSignOut: state.handleLogout,
+        })
     }
 
     return (

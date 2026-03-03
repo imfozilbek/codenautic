@@ -1,7 +1,7 @@
 import {type FormEvent, type ReactElement, useState} from "react"
 
-import {Alert} from "@/components/ui"
 import {Button} from "@/components/ui"
+import {showToastInfo, showToastSuccess} from "@/lib/notifications/toast"
 import {IgnorePathsEditor} from "@/components/settings/ignore-paths-editor"
 import {CodeReviewForm} from "@/components/settings/code-review-form"
 import type {ICodeReviewFormValues} from "@/components/settings/code-review-form"
@@ -29,17 +29,15 @@ export function SettingsCodeReviewPage(): ReactElement {
         },
         ignoredPaths: ["/dist", "/node_modules", "/coverage"],
     })
-    const [feedbackMessage, setFeedbackMessage] = useState<string>("")
-    const [pathMessage, setPathMessage] = useState<string>("")
 
     const saveReviewForm = (nextValues: ICodeReviewFormValues): void => {
         setState((previousValue): ICodeReviewSettingsState => ({...previousValue, formValues: nextValues}))
-        setFeedbackMessage("Code Review settings saved.")
+        showToastSuccess("Code Review settings saved.")
     }
 
     const handlePathsChange = (nextPaths: ReadonlyArray<string>): void => {
         setState((previousValue): ICodeReviewSettingsState => ({...previousValue, ignoredPaths: nextPaths}))
-        setPathMessage("Ignore paths updated.")
+        showToastSuccess("Ignore paths updated.")
     }
 
     const handlePathReset = (event: FormEvent): void => {
@@ -48,7 +46,7 @@ export function SettingsCodeReviewPage(): ReactElement {
             ...previousValue,
             ignoredPaths: ["/dist", "/node_modules", "/coverage"],
         }))
-        setPathMessage("Ignore paths reset to defaults.")
+        showToastInfo("Ignore paths reset to defaults.")
     }
 
     return (
@@ -57,11 +55,6 @@ export function SettingsCodeReviewPage(): ReactElement {
             <p className="text-sm text-slate-600">
                 Configure cadence, severity threshold и ignore path rules for automated review.
             </p>
-            {feedbackMessage.length > 0 ? (
-                <Alert color="success" title="Saved" variant="flat">
-                    {feedbackMessage}
-                </Alert>
-            ) : null}
             <CodeReviewForm initialValues={state.formValues} onSubmit={saveReviewForm} />
             <IgnorePathsEditor
                 helperText="Игнорируемые пути используются как фильтр для сканирования и выдачи CCR."
@@ -76,7 +69,6 @@ export function SettingsCodeReviewPage(): ReactElement {
                     Reset ignore paths
                 </Button>
             </form>
-            {pathMessage.length > 0 ? <Alert color="primary" title="Paths" variant="flat">{pathMessage}</Alert> : null}
         </section>
     )
 }

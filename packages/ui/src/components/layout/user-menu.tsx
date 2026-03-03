@@ -1,5 +1,12 @@
 import type {ReactElement} from "react"
 import {Avatar, Button} from "@/components/ui"
+import {
+    Dropdown,
+    DropdownItem,
+    DropdownMenu,
+    DropdownSection,
+    DropdownTrigger,
+} from "@heroui/react"
 
 /**
  * Настройки отображения пользовательского блока в header.
@@ -10,7 +17,7 @@ export interface IUserMenuProps {
     /** Email пользователя. */
     readonly userEmail?: string
     /** Коллбэк для выхода из системы. */
-    readonly onSignOut?: () => void
+    readonly onSignOut?: () => Promise<void> | void
 }
 
 /**
@@ -25,25 +32,41 @@ export function UserMenu(props: IUserMenuProps): ReactElement {
     const initials = props.userName !== undefined ? props.userName.slice(0, 2).toUpperCase() : "CN"
 
     return (
-        <div className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white/85 px-2 py-1">
-            <Avatar name={props.userName ?? "User"} size="sm" />
-            <div className="hidden flex-col text-left text-xs sm:flex">
-                <span className="font-medium text-slate-900">{props.userName ?? "User"}</span>
-                {props.userEmail !== undefined ? <span className="text-slate-600">{props.userEmail}</span> : null}
-            </div>
-            {props.onSignOut === undefined ? null : (
-                <Button
-                    className="h-7 min-h-7 px-2 text-xs"
-                    size="sm"
-                    variant="light"
-                    onPress={(): void => {
-                        props.onSignOut?.()
-                    }}
-                >
-                    Sign out
+        <Dropdown>
+            <DropdownTrigger>
+                <Button className="h-8 min-h-8 px-1" radius="full" size="sm" variant="light">
+                    <div className="inline-flex items-center gap-2 rounded-full">
+                        <Avatar name={props.userName ?? "User"} size="sm" />
+                        <span className="hidden text-xs font-medium sm:inline">{props.userName ?? "User"}</span>
+                        <span className="sr-only">{initials}</span>
+                    </div>
                 </Button>
-            )}
-            <span className="sr-only">{initials}</span>
-        </div>
+            </DropdownTrigger>
+            <DropdownMenu aria-label="User menu">
+                <DropdownSection
+                    showDivider
+                    title="Account"
+                >
+                    <DropdownItem key="name">{props.userName ?? "User"}</DropdownItem>
+                    <DropdownItem key="email">{props.userEmail ?? "user@example.com"}</DropdownItem>
+                </DropdownSection>
+                {props.onSignOut === undefined ? null : (
+                    <DropdownItem
+                            key="logout"
+                        color="danger"
+                        onPress={(): void => {
+                            const signOut = props.onSignOut
+                            if (signOut === undefined) {
+                                return
+                            }
+
+                            void signOut()
+                        }}
+                    >
+                        Sign out
+                    </DropdownItem>
+                )}
+            </DropdownMenu>
+        </Dropdown>
     )
 }
