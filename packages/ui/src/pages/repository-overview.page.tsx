@@ -1416,6 +1416,29 @@ const FALLBACK_PACKAGE_DEPENDENCIES: IRepositoryPackageDependencyProfile = {
     packageRelations: [],
 }
 
+const FILE_ISSUE_HEATMAP_COUNTS: Readonly<Record<string, number>> = {
+    "src/api/auth.ts": 4,
+    "src/api/repository.ts": 2,
+    "src/api/server.ts": 3,
+    "src/api/notifications.ts": 1,
+    "src/app.tsx": 2,
+    "src/app/router.tsx": 1,
+    "src/pages/dashboard.tsx": 5,
+    "src/pages/settings.tsx": 1,
+    "src/components/app-shell.tsx": 3,
+    "src/components/theme-switch.tsx": 1,
+    "src/main.ts": 2,
+    "src/services/worker.ts": 4,
+    "src/services/queue.ts": 2,
+    "src/services/retry.ts": 1,
+    "src/lib/lock.ts": 2,
+    "src/lib/metrics.ts": 1,
+    "src/lib/error-codes.ts": 3,
+    "src/lib/config.ts": 1,
+    "src/lib/logger.ts": 1,
+    "src/main.tsx": 1,
+}
+
 function clampScore(rawScore: number): number {
     if (rawScore < 0) {
         return 0
@@ -1471,6 +1494,23 @@ function getRepositoryPackageDependencyGraph(
 ): IRepositoryPackageDependencyProfile {
     const packageGraph = PACKAGE_DEPENDENCY_VIEWS[repositoryId]
     return packageGraph ?? FALLBACK_PACKAGE_DEPENDENCIES
+}
+
+function resolveIssueCountValue(value?: number): number {
+    if (typeof value !== "number" || Number.isNaN(value) || value < 0) {
+        return 0
+    }
+
+    return Math.floor(value)
+}
+
+function resolveCodeCityTreemapFiles(
+    files: ReadonlyArray<IFileDependencyNode>,
+): ReadonlyArray<IFileDependencyNode & { issueCount: number }> {
+    return files.map((file): IFileDependencyNode & { issueCount: number } => ({
+        ...file,
+        issueCount: resolveIssueCountValue(FILE_ISSUE_HEATMAP_COUNTS[file.id]),
+    }))
 }
 
 function formatOverviewTimestamp(raw: string): string {
@@ -2139,7 +2179,7 @@ export function RepositoryOverviewPage(props: IRepositoryOverviewProps): ReactEl
                 title="Package dependency graph"
             />
             <CodeCityTreemap
-                files={fileDependencyGraph.files}
+                files={resolveCodeCityTreemapFiles(fileDependencyGraph.files)}
                 height="440px"
                 title="CodeCity treemap"
             />

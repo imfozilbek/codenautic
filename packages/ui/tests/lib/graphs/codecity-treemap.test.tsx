@@ -13,6 +13,8 @@ interface ICodeCityTreemapNodeData {
         readonly color?: string
         readonly id?: string
         readonly impactType?: string
+        readonly issueCount?: number
+        readonly issueHeatmapColor?: string
     }>
     readonly name?: string
 }
@@ -38,9 +40,14 @@ vi.mock("recharts", () => ({
 
 describe("codecity treemap graph", (): void => {
     const sampleFiles: ReadonlyArray<ICodeCityTreemapFileDescriptor> = [
-        { id: "src/api/auth.ts", loc: 80, path: "src/api/auth.ts" },
-        { id: "src/api/session.ts", complexity: 30, path: "src/api/session.ts" },
-        { id: "src/ui/index.ts", size: 40, path: "src/ui/index.ts" },
+        { id: "src/api/auth.ts", issueCount: 2, loc: 80, path: "src/api/auth.ts" },
+        {
+            id: "src/api/session.ts",
+            issueCount: 0,
+            complexity: 30,
+            path: "src/api/session.ts",
+        },
+        { id: "src/ui/index.ts", issueCount: 1, size: 40, path: "src/ui/index.ts" },
     ]
     const sampleImpactedFiles: ReadonlyArray<ICodeCityTreemapImpactedFileDescriptor> = [
         { fileId: "src/api/auth.ts", impactType: "changed" },
@@ -60,6 +67,11 @@ describe("codecity treemap graph", (): void => {
         expect(apiPackage?.value).toBe(110)
         expect(graph.impactSummary.changed).toBe(0)
         expect(graph.impactSummary.ripple).toBe(0)
+        expect(graph.issueSummary.totalIssues).toBe(3)
+        expect(graph.issueSummary.filesWithIssues).toBe(2)
+        expect(graph.issueSummary.maxIssuesPerFile).toBe(2)
+        expect(graph.packages[0]?.children[0]?.issueCount).toBe(2)
+        expect(graph.packages[0]?.children[0]?.issueHeatmapColor).toBeDefined()
     })
 
     it("формирует метрики цвета для выбранной шкалы", (): void => {
@@ -116,6 +128,9 @@ describe("codecity treemap graph", (): void => {
         expect(screen.getByText("Color metric: Complexity")).not.toBeNull()
         expect(screen.getByText("Low")).not.toBeNull()
         expect(screen.getByText("High")).not.toBeNull()
+        expect(screen.getByLabelText("Issue heatmap legend")).not.toBeNull()
+        expect(screen.getByText("Issues: 3 in 2 files")).not.toBeNull()
+        expect(screen.getByText("Max issues: 2")).not.toBeNull()
         expect(mockTreemap).toHaveBeenCalledTimes(1)
     })
 

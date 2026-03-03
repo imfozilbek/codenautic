@@ -51,6 +51,12 @@ interface ICodeCityTreemapImpactSummary {
     readonly ripple: number
 }
 
+interface ICodeCityTreemapIssueSummary {
+    readonly filesWithIssues: number
+    readonly maxIssuesPerFile: number
+    readonly totalIssues: number
+}
+
 interface ICodeCityTreemapMetricRange {
     readonly min: number
     readonly max: number
@@ -62,8 +68,10 @@ interface ICodeCityTreemapTreemapNodePayload {
     readonly depth?: number
     readonly height?: number
     readonly impactType?: ICodeCityTreemapImpactLevel
+    readonly issueHeatmapColor?: string
     readonly name?: string
     readonly value?: number
+    readonly issueCount?: number
     readonly width?: number
     readonly x?: number
     readonly y?: number
@@ -76,6 +84,28 @@ interface ICodeCityTreemapTreemapContentProps {
     readonly y?: number
     readonly width?: number
     readonly height?: number
+}
+
+function resolveIssueCount(value?: number): number {
+    if (typeof value !== "number" || Number.isFinite(value) === false || value <= 0) {
+        return 0
+    }
+
+    return Math.floor(value)
+}
+
+function resolveIssueHeatmapColor(
+    issueCount: number,
+    maxIssueCount: number,
+): string | undefined {
+    if (issueCount <= 0 || maxIssueCount <= 0) {
+        return undefined
+    }
+
+    const ratio = Math.max(0, Math.min(1, issueCount / maxIssueCount))
+    const hue = Math.round(120 - ratio * 120)
+
+    return `hsla(${hue}, 86%, 52%, 0.45)`
 }
 
 function buildImpactedFileIndex(
@@ -223,6 +253,7 @@ function renderTreemapCell(props: ICodeCityTreemapTreemapContentProps): ReactEle
     const width = props.width ?? 0
     const height = props.height ?? 0
     const node = props.payload
+    const issueHeatmapColor = node?.issueHeatmapColor
     const color = node?.color ?? (props.fill ?? "hsl(120, 80%, 44%)")
     const strokeStyle = resolveImpactStyle(props)
     const nodeName = typeof node?.name === "string" ? node.name : ""
@@ -245,6 +276,15 @@ function renderTreemapCell(props: ICodeCityTreemapTreemapContentProps): ReactEle
                 x={x}
                 y={y}
             />
+            {issueHeatmapColor !== undefined ? (
+                <rect
+                    fill={issueHeatmapColor}
+                    height={height}
+                    width={width}
+                    x={x}
+                    y={y}
+                />
+            ) : null}
             {isLeaf && canShowText ? <text x={x + 4} y={y + 14} fill="#fff">{nodeName}</text> : null}
         </g>
     )
@@ -266,6 +306,8 @@ export interface ICodeCityTreemapFileDescriptor {
     readonly coverage?: number
     /** Churn/изменчивость файла в окне анализа. */
     readonly churn?: number
+    /** Количество найденных найденных проблем для heatmap. */
+    readonly issueCount?: number
     /** Общее количество строк (fallback при отсутствии LOC/complexity). */
     readonly size?: number
 }
@@ -277,12 +319,16 @@ interface ICodeCityTreemapFileNode {
     readonly name: string
     /** Полный путь к файлу. */
     readonly path: string
+    /** Количество найденных проблем в файле. */
+    readonly issueCount: number
     /** Значение веса для treemap. */
     readonly value: number
     /** Значение выбранной метрики для цветовой шкалы. */
     readonly metricValue: number
     /** Уровень CCR-влияния для узла (если применимо). */
     readonly impactType?: ICodeCityTreemapImpactLevel
+    /** Цвет heatmap-оверлея по issue density. */
+    readonly issueHeatmapColor?: string
     /** Цвет по метрике для узла. */
     readonly color: string
 }
@@ -308,6 +354,8 @@ export interface ICodeCityTreemapData {
     readonly totalLoc: number
     /** Общее число файлов в виджете. */
     readonly totalFiles: number
+    /** Агрегированная метрика heatmap по issues. */
+    readonly issueSummary: ICodeCityTreemapIssueSummary
     /** Метрики CCR-влияния. */
     readonly impactSummary: ICodeCityTreemapImpactSummary
     /** Выбранная метрика цвета. */
@@ -380,6 +428,8 @@ export function buildCodeCityTreemapData(
     const fileIds = new Set<string>()
     let totalFiles = 0
     let totalLoc = 0
+    let totalIssues = 0
+    let maxIssueCount = 0
     const metricValues: number[] = []
     const impactByFileId = buildImpactedFileIndex(impactedFiles)
 
@@ -398,11 +448,17 @@ export function buildCodeCityTreemapData(
         const fileLoc = resolveFileLoc(file)
         const metricValue = resolveTreemapFileMetricValue(file, metric)
         const impactType = file.impactType ?? impactByFileId.get(file.id)
+        const issueCount = resolveIssueCount(file.issueCount)
+        totalIssues += issueCount
+        if (issueCount > maxIssueCount) {
+            maxIssueCount = issueCount
+        }
         const packageFiles = packageMap.get(packageName)
         const fileNode: ICodeCityTreemapFileNode = {
             id: file.id,
             name: fileName,
             path: normalizedPath,
+            issueCount,
             color: "",
             impactType,
             metricValue,
@@ -426,6 +482,10 @@ export function buildCodeCityTreemapData(
                 return {
                     ...fileNode,
                     color: resolveMetricColor(metricRange, fileNode.metricValue),
+                    issueHeatmapColor: resolveIssueHeatmapColor(
+                        fileNode.issueCount,
+                        maxIssueCount,
+                    ),
                 }
             })
             const sortedChildren = [...coloredChildren].sort((left, right): number => {
@@ -455,14 +515,24 @@ export function buildCodeCityTreemapData(
         .filter((entry): boolean => entry.children.length > 0)
         .sort((left, right): number => right.value - left.value)
 
+    let filesWithIssues = 0
     for (const packageItem of packages) {
         totalFiles += packageItem.children.length
         totalLoc += packageItem.value
+        filesWithIssues += packageItem.children.reduce(
+            (count, fileNode): number => (fileNode.issueCount > 0 ? count + 1 : count),
+            0,
+        )
     }
 
     return {
         packages,
         totalFiles,
+        issueSummary: {
+            filesWithIssues,
+            maxIssuesPerFile: maxIssueCount,
+            totalIssues,
+        },
         impactSummary: resolveImpactSummary(packages),
         totalLoc,
         metric,
@@ -486,7 +556,10 @@ export function CodeCityTreemap(props: ICodeCityTreemapProps): ReactElement {
         () => buildCodeCityTreemapData(props.files, metric, props.impactedFiles ?? []),
         [props.files, props.impactedFiles, metric],
     )
+    const issueSummary = treemapData.issueSummary
+    const issueSummaryText = `Issues: ${issueSummary.totalIssues} in ${issueSummary.filesWithIssues} files`
     const metricLabel = resolveMetricLabel(metric)
+    const hasIssueHeatmap = issueSummary.maxIssuesPerFile > 0
     const selectorId = `${DEFAULT_METRIC_SELECTOR_ID}-${title.toLowerCase().replaceAll(" ", "-")}`
     const impactSummary = treemapData.impactSummary
     const impactSummaryText = `Changed: ${impactSummary.changed}, Impacted: ${impactSummary.impacted}, Ripple: ${impactSummary.ripple}`
@@ -549,6 +622,23 @@ export function CodeCityTreemap(props: ICodeCityTreemapProps): ReactElement {
                         <span>High</span>
                         <span>{metricRangeText}</span>
                     </div>
+                    {hasIssueHeatmap ? (
+                        <div
+                            aria-label="Issue heatmap legend"
+                            className="flex items-center gap-2 text-xs text-foreground-500"
+                        >
+                            <span>Issue heatmap</span>
+                            <div
+                                className="h-2 flex-1 rounded-full"
+                                style={{
+                                    background:
+                                        "linear-gradient(90deg, hsl(120, 80%, 44%), hsl(0, 78%, 44%))",
+                                }}
+                            />
+                            <span>Max issues: {issueSummary.maxIssuesPerFile}</span>
+                            <span>{issueSummaryText}</span>
+                        </div>
+                    ) : null}
                     {impactSummary.changed + impactSummary.impacted + impactSummary.ripple > 0 ? (
                         <div
                             aria-label="Impact legend"
