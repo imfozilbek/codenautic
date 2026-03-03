@@ -31,6 +31,7 @@ interface ICodeCityTreemapContentPayload {
         readonly id?: string
         readonly complexity?: number
         readonly coverage?: number
+        readonly comparisonDelta?: number
         readonly issueCount?: number
         readonly lastReviewAt?: string
         readonly name?: string
@@ -43,6 +44,7 @@ interface ICodeCityTreemapContentPayload {
         readonly name?: string
         readonly children?: ReadonlyArray<unknown>
         readonly value?: number
+        readonly comparisonDelta?: number
         readonly issueCount?: number
         readonly issueHeatmapColor?: string
         readonly color?: string
@@ -149,6 +151,23 @@ describe("codecity treemap graph", (): void => {
             path: "src/ui/index.ts",
         },
     ]
+    const sampleComparedFiles: ReadonlyArray<ICodeCityTreemapFileDescriptor> = [
+        {
+            id: "src/api/auth.ts",
+            loc: 80,
+            path: "src/api/auth.ts",
+        },
+        {
+            id: "src/api/session.ts",
+            loc: 35,
+            path: "src/api/session.ts",
+        },
+        {
+            id: "src/legacy/removed.ts",
+            loc: 45,
+            path: "src/legacy/removed.ts",
+        },
+    ]
     const sampleImpactedFiles: ReadonlyArray<ICodeCityTreemapImpactedFileDescriptor> = [
         { fileId: "src/api/auth.ts", impactType: "changed" },
         { fileId: "src/ui/index.ts", impactType: "ripple" },
@@ -210,6 +229,30 @@ describe("codecity treemap graph", (): void => {
         expect(impactData.impactSummary.ripple).toBe(1)
         expect(impactData.impactSummary.impacted).toBe(0)
     })
+    it("формирует temporal comparison delta и сводку", (): void => {
+        const comparisonData = buildCodeCityTreemapData(
+            sampleFiles,
+            "complexity",
+            [],
+            sampleComparedFiles,
+        )
+        const apiPackage = comparisonData.packages.find(
+            (entry) => entry.name === "src/api",
+        )
+        const uiPackage = comparisonData.packages.find((entry) => entry.name === "src/ui")
+
+        expect(apiPackage?.children[0]?.comparisonDelta).toBe(0)
+        expect(apiPackage?.children[1]?.comparisonDelta).toBe(-5)
+        expect(uiPackage?.children[0]?.comparisonDelta).toBe(40)
+        expect(comparisonData.comparisonSummary.addedFiles).toBe(1)
+        expect(comparisonData.comparisonSummary.changedFiles).toBe(1)
+        expect(comparisonData.comparisonSummary.comparedFiles).toBe(3)
+        expect(comparisonData.comparisonSummary.removedFiles).toBe(1)
+        expect(comparisonData.comparisonSummary.currentLoc).toBe(150)
+        expect(comparisonData.comparisonSummary.comparedLoc).toBe(160)
+        expect(comparisonData.comparisonSummary.locDelta).toBe(-10)
+        expect(comparisonData.comparisonSummary.hasComparisonData).toBe(true)
+    })
 
     it("рендерит treemap и отображает summary", (): void => {
         mockTreemap.mockClear()
@@ -233,6 +276,20 @@ describe("codecity treemap graph", (): void => {
         expect(screen.getByText("Issues: 3 in 2 files")).not.toBeNull()
         expect(screen.getByText("Max issues: 2")).not.toBeNull()
         expect(mockTreemap).toHaveBeenCalledTimes(1)
+    })
+
+    it("показывает comparison summary в header при переданном baseline", (): void => {
+        render(
+            <CodeCityTreemap
+                compareFiles={sampleComparedFiles}
+                files={sampleFiles}
+                title="CodeCity treemap"
+            />,
+        )
+
+        expect(screen.getByText("Compared with previous snapshot")).not.toBeNull()
+        expect(screen.getByText("LOC 150 vs 160")).not.toBeNull()
+        expect(screen.getByText("Δ-10, added 1, removed 1, changed 1")).not.toBeNull()
     })
 
     it("поддерживает drill-down и возврат по пакетам", (): void => {
@@ -326,6 +383,20 @@ describe("codecity treemap graph", (): void => {
 
         fireEvent.mouseLeave(fileCell)
         expect(screen.getByText("Hover a file for quick metrics and quick link.")).not.toBeNull()
+    })
+
+    it("показывает LOC delta в tooltip для temporal comparison", (): void => {
+        render(
+            <CodeCityTreemap
+                compareFiles={sampleComparedFiles}
+                files={sampleFiles}
+                title="CodeCity treemap"
+            />,
+        )
+
+        const fileCell = screen.getByLabelText("File auth.ts")
+        fireEvent.mouseEnter(fileCell)
+        expect(screen.getByText("LOC delta: 0")).not.toBeNull()
     })
 
     it("показывает пустое состояние для пустого набора файлов", (): void => {

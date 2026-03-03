@@ -13,6 +13,8 @@ const DEFAULT_HEIGHT = "420px"
 const DEFAULT_METRIC: ICodeCityTreemapMetric = "complexity"
 const DEFAULT_EMPTY_LABEL = "No file data for CodeCity treemap yet."
 const DEFAULT_METRIC_SELECTOR_ID = "codecity-metric-selector"
+const DEFAULT_COMPARISON_LABEL = "previous snapshot"
+const CODE_CITY_COMPARISON_MARKER_HEIGHT = 4
 
 const CODE_CITY_METRICS = ["complexity", "coverage", "churn"] as const
 const CODE_CITY_IMPACT_LEVELS = ["changed", "impacted", "ripple"] as const
@@ -43,6 +45,8 @@ const CODE_CITY_IMPACT_COLOR: Record<ICodeCityTreemapImpactLevel, string> = {
     impacted: "hsl(35, 96%, 59%)",
     ripple: "hsl(212, 86%, 57%)",
 }
+const CODE_CITY_COMPARISON_DELTA_COLOR_GROWTH = "hsl(4, 82%, 58%)"
+const CODE_CITY_COMPARISON_DELTA_COLOR_SHRINK = "hsl(142, 69%, 47%)"
 
 export interface ICodeCityTreemapImpactedFileDescriptor {
     /** Идентификатор файла в выборке. */
@@ -63,11 +67,25 @@ interface ICodeCityTreemapIssueSummary {
     readonly totalIssues: number
 }
 
+interface ICodeCityTreemapComparisonSummary {
+    readonly addedFiles: number
+    readonly changedFiles: number
+    readonly comparedFiles: number
+    readonly comparedLoc: number
+    readonly currentLoc: number
+    readonly hasComparisonData: boolean
+    readonly removedFiles: number
+    readonly removedLoc: number
+    readonly locDelta: number
+}
+
 interface ICodeCityTreemapFileTooltip {
     /** Ссылка на файл в quick link (если определена). */
     readonly fileLink?: string
     readonly complexity?: number
     readonly coverage?: number
+    /** Изменение LOC относительно baseline-снимка. */
+    readonly comparisonDelta?: number
     readonly fileId: string
     readonly fileName: string
     readonly issueCount: number
@@ -109,6 +127,7 @@ interface ICodeCityTreemapTreemapNodePayload {
     readonly impactType?: ICodeCityTreemapImpactLevel
     readonly issueHeatmapColor?: string
     readonly issueCount?: number
+    readonly comparisonDelta?: number
     readonly lastReviewAt?: string
     readonly name?: string
     readonly path?: string
@@ -136,6 +155,32 @@ function resolveIssueCount(value?: number): number {
     }
 
     return Math.floor(value)
+}
+
+function formatComparisonDeltaLabel(value: number | undefined): string {
+    if (typeof value !== "number" || Number.isFinite(value) === false) {
+        return "—"
+    }
+
+    if (value > 0) {
+        return `+${String(value)}`
+    }
+
+    if (value < 0) {
+        return String(value)
+    }
+
+    return "0"
+}
+
+function resolveComparisonDeltaColor(delta: number | undefined): string | undefined {
+    if (typeof delta !== "number" || Number.isNaN(delta) === true || delta === 0) {
+        return undefined
+    }
+
+    return delta > 0
+        ? CODE_CITY_COMPARISON_DELTA_COLOR_GROWTH
+        : CODE_CITY_COMPARISON_DELTA_COLOR_SHRINK
 }
 
 function resolveIssueHeatmapColor(
@@ -211,6 +256,90 @@ function buildImpactedFileIndex(
     }
 
     return impactByFileId
+}
+
+function buildComparisonFileIndex(
+    files: ReadonlyArray<ICodeCityTreemapFileDescriptor>,
+): Map<string, ICodeCityTreemapFileDescriptor> {
+    const compareByFileId = new Map<string, ICodeCityTreemapFileDescriptor>()
+
+    for (const file of files) {
+        const fileId = file.id.trim()
+        if (fileId.length === 0) {
+            continue
+        }
+
+        const normalizedPath = normalizePath(file.path)
+        if (normalizedPath.length === 0) {
+            continue
+        }
+
+        if (compareByFileId.has(fileId) === true) {
+            continue
+        }
+
+        compareByFileId.set(fileId, {
+            ...file,
+            id: fileId,
+            path: normalizedPath,
+        })
+    }
+
+    return compareByFileId
+}
+
+function resolveComparisonSummary(
+    currentFiles: ReadonlyArray<ICodeCityTreemapFileNode>,
+    comparisonFilesById: Map<string, ICodeCityTreemapFileDescriptor>,
+): ICodeCityTreemapComparisonSummary {
+    const comparisonFileIds = new Set<string>(comparisonFilesById.keys())
+    const currentFileIds = new Set<string>(currentFiles.map((file): string => file.id))
+    let addedFiles = 0
+    let changedFiles = 0
+    let currentLoc = 0
+    let comparedLoc = 0
+    let removedFiles = 0
+    let removedLoc = 0
+
+    for (const file of currentFiles) {
+        currentLoc += file.value
+        if (
+            comparisonFileIds.has(file.id)
+            && file.comparisonDelta !== undefined
+            && file.comparisonDelta !== 0
+        ) {
+            changedFiles += 1
+        }
+        if (comparisonFileIds.has(file.id) === false) {
+            addedFiles += 1
+        }
+    }
+
+    for (const file of comparisonFilesById.values()) {
+        const fileId = file.id.trim()
+        if (fileId.length === 0) {
+            continue
+        }
+
+        const fileLoc = resolveFileLoc(file)
+        comparedLoc += fileLoc
+        if (currentFileIds.has(fileId) === false) {
+            removedFiles += 1
+            removedLoc += fileLoc
+        }
+    }
+
+    return {
+        addedFiles,
+        changedFiles,
+        comparedFiles: comparisonFileIds.size,
+        comparedLoc,
+        currentLoc,
+        hasComparisonData: comparisonFileIds.size > 0,
+        removedFiles: removedFiles,
+        removedLoc,
+        locDelta: currentLoc - comparedLoc,
+    }
 }
 
 function resolveImpactSummary(
@@ -326,6 +455,21 @@ function resolveViewSummary(
     }
 }
 
+function resolveComparisonSummaryLabel(
+    summary: ICodeCityTreemapComparisonSummary,
+    comparisonLabel: string,
+): string {
+    const formattedDelta = formatComparisonDeltaLabel(summary.locDelta)
+    return [
+        `Compared with ${comparisonLabel}`,
+        `LOC ${summary.currentLoc} vs ${summary.comparedLoc}`,
+        `Δ${formattedDelta}`,
+        `added ${summary.addedFiles}`,
+        `removed ${summary.removedFiles}`,
+        `changed ${summary.changedFiles}`,
+    ].join(", ")
+}
+
 function resolveMetricLabel(metric: ICodeCityTreemapMetric): string {
     return CODE_CITY_METRIC_LABELS[metric]
 }
@@ -375,6 +519,9 @@ function renderTreemapCell(props: ICodeCityTreemapTreemapContentProps): ReactEle
     const node = props.payload
     const issueHeatmapColor = node?.issueHeatmapColor
     const color = node?.color ?? (props.fill ?? "hsl(120, 80%, 44%)")
+    const comparisonDelta =
+        typeof node?.comparisonDelta === "number" ? node.comparisonDelta : undefined
+    const comparisonDeltaColor = resolveComparisonDeltaColor(comparisonDelta)
     const strokeStyle = resolveImpactStyle(props)
     const nodeName = typeof node?.name === "string" ? node.name : ""
     const isPackage = (node?.children?.length ?? 0) > 0
@@ -401,6 +548,7 @@ function renderTreemapCell(props: ICodeCityTreemapTreemapContentProps): ReactEle
             fileId,
             fileName: nodeName,
             issueCount: resolveIssueCount(node?.issueCount),
+            comparisonDelta,
             fileLink:
                 props.fileLink === undefined
                     ? undefined
@@ -462,6 +610,19 @@ function renderTreemapCell(props: ICodeCityTreemapTreemapContentProps): ReactEle
                     y={y}
                 />
             ) : null}
+            {comparisonDeltaColor === undefined || isPackage === true ? null : (
+                <rect
+                    fill={comparisonDeltaColor}
+                    height={
+                        height <= CODE_CITY_COMPARISON_MARKER_HEIGHT
+                            ? Math.max(1, height)
+                            : CODE_CITY_COMPARISON_MARKER_HEIGHT
+                    }
+                    width={width}
+                    x={x}
+                    y={y + Math.max(0, height - CODE_CITY_COMPARISON_MARKER_HEIGHT)}
+                />
+            )}
             {isLeaf && canShowText ? <text x={x + 4} y={y + 14} fill="#fff">{nodeName}</text> : null}
         </g>
     )
@@ -516,6 +677,8 @@ interface ICodeCityTreemapFileNode {
     readonly issueHeatmapColor?: string
     /** Цвет по метрике для узла. */
     readonly color: string
+    /** Разница LOC относительно базового снимка. */
+    readonly comparisonDelta?: number
 }
 
 interface ICodeCityTreemapPackageNode {
@@ -545,6 +708,8 @@ export interface ICodeCityTreemapData {
     readonly impactSummary: ICodeCityTreemapImpactSummary
     /** Выбранная метрика цвета. */
     readonly metric: ICodeCityTreemapMetric
+    /** Метрики сравнения по двум snapshot'ам. */
+    readonly comparisonSummary: ICodeCityTreemapComparisonSummary
     /** Диапазон значений выбранной метрики. */
     readonly metricRange: ICodeCityTreemapMetricRange
 }
@@ -561,8 +726,12 @@ export interface ICodeCityTreemapProps {
     readonly height?: string
     /** Заголовок. */
     readonly title?: string
+    /** Ярлык baseline-среза для сравнения. */
+    readonly comparisonLabel?: string
     /** Текст пустого состояния. */
     readonly emptyStateLabel?: string
+    /** Файлы baseline-среза для temporal comparison. */
+    readonly compareFiles?: ReadonlyArray<ICodeCityTreemapFileDescriptor>
     /** Генератор quick link-URL к файлу по наведению. */
     readonly fileLink?: (file: ICodeCityTreemapFileLinkResolver) => string
 }
@@ -610,6 +779,7 @@ export function buildCodeCityTreemapData(
     files: ReadonlyArray<ICodeCityTreemapFileDescriptor>,
     metric: ICodeCityTreemapMetric = DEFAULT_METRIC,
     impactedFiles: ReadonlyArray<ICodeCityTreemapImpactedFileDescriptor> = [],
+    compareFiles: ReadonlyArray<ICodeCityTreemapFileDescriptor> = [],
 ): ICodeCityTreemapData {
     const packageMap = new Map<string, ICodeCityTreemapFileNode[]>()
     const fileIds = new Set<string>()
@@ -619,6 +789,7 @@ export function buildCodeCityTreemapData(
     let maxIssueCount = 0
     const metricValues: number[] = []
     const impactByFileId = buildImpactedFileIndex(impactedFiles)
+    const comparisonFileById = buildComparisonFileIndex(compareFiles)
 
     for (const file of files) {
         const normalizedPath = normalizePath(file.path)
@@ -635,6 +806,12 @@ export function buildCodeCityTreemapData(
         const fileLoc = resolveFileLoc(file)
         const metricValue = resolveTreemapFileMetricValue(file, metric)
         const impactType = file.impactType ?? impactByFileId.get(file.id)
+        const compareFile = comparisonFileById.get(file.id)
+        const comparisonDelta = comparisonFileById.size === 0
+            ? undefined
+            : compareFile === undefined
+                ? fileLoc
+                : fileLoc - resolveFileLoc(compareFile)
         const issueCount = resolveIssueCount(file.issueCount)
         totalIssues += issueCount
         if (issueCount > maxIssueCount) {
@@ -651,6 +828,7 @@ export function buildCodeCityTreemapData(
             coverage: file.coverage,
             lastReviewAt: file.lastReviewAt,
             impactType,
+            comparisonDelta,
             metricValue,
             value: fileLoc,
         }
@@ -704,6 +882,13 @@ export function buildCodeCityTreemapData(
         })
         .filter((entry): boolean => entry.children.length > 0)
         .sort((left, right): number => right.value - left.value)
+    const fileNodes = Array.from(packageMap.values()).flatMap(
+        (entry): ReadonlyArray<ICodeCityTreemapFileNode> => entry,
+    )
+    const comparisonSummary = resolveComparisonSummary(
+        fileNodes,
+        comparisonFileById,
+    )
 
     let filesWithIssues = 0
     for (const packageItem of packages) {
@@ -725,6 +910,7 @@ export function buildCodeCityTreemapData(
         },
         impactSummary: resolveImpactSummary(packages),
         totalLoc,
+        comparisonSummary,
         metric,
         metricRange,
     }
@@ -738,6 +924,7 @@ export function buildCodeCityTreemapData(
 export function CodeCityTreemap(props: ICodeCityTreemapProps): ReactElement {
     const title = props.title ?? "CodeCity treemap"
     const emptyStateLabel = props.emptyStateLabel ?? DEFAULT_EMPTY_LABEL
+    const comparisonLabel = props.comparisonLabel ?? DEFAULT_COMPARISON_LABEL
     const height = props.height ?? DEFAULT_HEIGHT
     const [metric, setMetric] = useState<ICodeCityTreemapMetric>(
         props.defaultMetric ?? DEFAULT_METRIC,
@@ -745,8 +932,14 @@ export function CodeCityTreemap(props: ICodeCityTreemapProps): ReactElement {
     const [selectedPackage, setSelectedPackage] = useState<string | undefined>()
     const [hoveredFile, setHoveredFile] = useState<ICodeCityTreemapFileTooltip | undefined>()
     const treemapData = useMemo(
-        () => buildCodeCityTreemapData(props.files, metric, props.impactedFiles ?? []),
-        [props.files, props.impactedFiles, metric],
+        () =>
+            buildCodeCityTreemapData(
+                props.files,
+                metric,
+                props.impactedFiles ?? [],
+                props.compareFiles ?? [],
+            ),
+        [props.files, props.compareFiles, props.impactedFiles, metric],
     )
     const visiblePackages = useMemo(
         () =>
@@ -765,6 +958,11 @@ export function CodeCityTreemap(props: ICodeCityTreemapProps): ReactElement {
     const issueSummaryText = `Issues: ${issueSummary.totalIssues} in ${issueSummary.filesWithIssues} files`
     const metricLabel = resolveMetricLabel(metric)
     const hasIssueHeatmap = issueSummary.maxIssuesPerFile > 0
+    const comparisonSummary = treemapData.comparisonSummary
+    const hasComparison = comparisonSummary.hasComparisonData
+    const comparisonSummaryText = hasComparison
+        ? resolveComparisonSummaryLabel(comparisonSummary, comparisonLabel)
+        : undefined
     const selectorId = `${DEFAULT_METRIC_SELECTOR_ID}-${title.toLowerCase().replaceAll(" ", "-")}`
     const impactSummary = summary.impactSummary
     const impactSummaryText = `Changed: ${impactSummary.changed}, Impacted: ${impactSummary.impacted}, Ripple: ${impactSummary.ripple}`
@@ -903,6 +1101,14 @@ export function CodeCityTreemap(props: ICodeCityTreemapProps): ReactElement {
                             <span>{issueSummaryText}</span>
                         </div>
                     ) : null}
+                    {hasComparison ? (
+                        <div
+                            aria-label="Comparison summary"
+                            className="text-xs text-foreground-500"
+                        >
+                            {comparisonSummaryText}
+                        </div>
+                    ) : null}
                     {impactSummary.changed + impactSummary.impacted + impactSummary.ripple > 0 ? (
                         <div
                             aria-label="Impact legend"
@@ -978,6 +1184,12 @@ export function CodeCityTreemap(props: ICodeCityTreemapProps): ReactElement {
                                 <span className="font-semibold">Issue count:</span>{" "}
                                 {hoveredFile.issueCount}
                             </p>
+                            {hoveredFile.comparisonDelta === undefined ? null : (
+                                <p>
+                                    <span className="font-semibold">LOC delta:</span>{" "}
+                                    {formatComparisonDeltaLabel(hoveredFile.comparisonDelta)}
+                                </p>
+                            )}
                             {hoveredFile.fileLink === undefined ? null : (
                                 <a
                                     href={hoveredFile.fileLink}
