@@ -41,6 +41,7 @@ export {type IRuleCategoryRepository} from "./application/ports/outbound/rule/ru
 export {type ICustomRuleRepository} from "./application/ports/outbound/custom-rule-repository.port"
 export {type ITeamRuleProvider} from "./application/ports/outbound/rule/team-rule-provider.port"
 export {type IRepositoryScanner} from "./application/ports/outbound/scanning/repository-scanner"
+export {type IRepositoryIndexRepository} from "./application/ports/outbound/scanning/repository-index-repository"
 export {type IPromptConfigurationRepository} from "./application/ports/outbound/prompt-configuration-repository.port"
 export {type IPromptTemplateRepository} from "./application/ports/outbound/prompt-template-repository.port"
 export {type ITeamRepository} from "./application/ports/outbound/team-repository.port"
@@ -78,7 +79,13 @@ export {
     type TreemapNodeType,
 } from "./application/dto/analytics"
 export {type IIssueHeatmapEntryDTO} from "./application/dto/analytics"
-export {type ILanguageStat, type IScanResult} from "./application/dto/scanning"
+export {
+    type IRepositoryIndex,
+    type ILanguageStat,
+    type IScanResult,
+    type RepositoryIndexStatus,
+    REPOSITORY_INDEX_STATUS,
+} from "./application/dto/scanning"
 export {
     type IAnemicModelViolationType,
     type IDDDComplianceReport,

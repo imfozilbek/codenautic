@@ -9,6 +9,7 @@ import type {IIssueAggregationProvider} from "../application/ports/outbound/revi
 import type {ITeamRuleProvider} from "../application/ports/outbound/rule/team-rule-provider.port"
 import type {IConversationThreadRepository} from "../application/ports/outbound/messaging/conversation-thread-repository.port"
 import type {IRepositoryScanner} from "../application/ports/outbound/scanning/repository-scanner"
+import type {IRepositoryIndexRepository} from "../application/ports/outbound/scanning/repository-index-repository"
 
 /**
  * Core package DI tokens.
@@ -35,6 +36,9 @@ export const TOKENS = {
     Scanning: {
         RepositoryScanner: createToken<IRepositoryScanner>(
             "core.scanning.repository-scanner",
+        ),
+        RepositoryIndexRepository: createToken<IRepositoryIndexRepository>(
+            "core.scanning.repository-index-repository",
         ),
     },
     Rule: {
