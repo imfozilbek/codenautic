@@ -33,6 +33,11 @@ const DEFAULT_SIDEBAR_ITEMS: readonly ISidebarItem[] = [
         to: "/",
     },
     {
+        icon: "🏙️",
+        label: "CodeCity",
+        to: "/dashboard/code-city",
+    },
+    {
         icon: "🧩",
         label: "CCR Management",
         to: "/reviews",

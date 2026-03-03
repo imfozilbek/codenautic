@@ -1,0 +1,413 @@
+import type { ChangeEvent, ReactElement } from "react"
+import { useState } from "react"
+
+import {
+    CodeCityTreemap,
+    type ICodeCityTreemapFileDescriptor,
+    type ICodeCityTreemapImpactedFileDescriptor,
+} from "@/components/graphs/codecity-treemap"
+import { Card, CardBody, CardHeader } from "@/components/ui"
+
+type TCodeCityDashboardMetric = "complexity" | "coverage" | "churn"
+
+interface ICodeCityDashboardMetricOption {
+    /** Machine-friendly value. */
+    readonly value: TCodeCityDashboardMetric
+    /** Лейбл опции метрики. */
+    readonly label: string
+}
+
+interface ICodeCityDashboardRepositoryProfile {
+    /** Уникальный идентификатор репозитория. */
+    readonly id: string
+    /** Короткая подпись в селекторе. */
+    readonly label: string
+    /** Описание дашборда. */
+    readonly description: string
+    /** Набор файлов для treemap. */
+    readonly files: ReadonlyArray<ICodeCityTreemapFileDescriptor>
+    /** Список влияний CCR для визуализации по умолчанию. */
+    readonly impactedFiles: ReadonlyArray<ICodeCityTreemapImpactedFileDescriptor>
+    /** Базовый срез для temporal comparison. */
+    readonly compareFiles: ReadonlyArray<ICodeCityTreemapFileDescriptor>
+}
+
+interface ICodeCityDashboardPageProps {
+    /** Идентификатор репозитория по умолчанию. */
+    readonly initialRepositoryId?: string
+}
+
+const CODE_CITY_DASHBOARD_METRICS: ReadonlyArray<ICodeCityDashboardMetricOption> = [
+    {
+        label: "Complexity",
+        value: "complexity",
+    },
+    {
+        label: "Coverage",
+        value: "coverage",
+    },
+    {
+        label: "Churn",
+        value: "churn",
+    },
+] as const
+
+const CODE_CITY_DASHBOARD_REPOSITORIES: ReadonlyArray<ICodeCityDashboardRepositoryProfile> = [
+    {
+        description: "Backend сервис с активной CCR-маршрутизацией и API слоями.",
+        id: "platform-team/api-gateway",
+        impactedFiles: [
+            {
+                fileId: "src/api/repository.ts",
+                impactType: "changed",
+            },
+            {
+                fileId: "src/api/router.ts",
+                impactType: "impacted",
+            },
+            {
+                fileId: "src/services/metrics.ts",
+                impactType: "ripple",
+            },
+        ],
+        label: "platform-team/api-gateway",
+        files: [
+            {
+                churn: 4,
+                complexity: 28,
+                coverage: 82,
+                id: "src/api/auth.ts",
+                issueCount: 3,
+                lastReviewAt: "2026-01-05T08:20:00Z",
+                loc: 96,
+                path: "src/api/auth.ts",
+            },
+            {
+                churn: 2,
+                complexity: 16,
+                coverage: 71,
+                id: "src/api/repository.ts",
+                issueCount: 2,
+                lastReviewAt: "2026-02-01T11:30:00Z",
+                loc: 126,
+                path: "src/api/repository.ts",
+            },
+            {
+                churn: 6,
+                complexity: 34,
+                coverage: 60,
+                id: "src/worker/index.ts",
+                issueCount: 0,
+                lastReviewAt: "2026-02-10T10:15:00Z",
+                loc: 138,
+                path: "src/worker/index.ts",
+            },
+        ],
+        compareFiles: [
+            {
+                complexity: 24,
+                id: "src/api/auth.ts",
+                issueCount: 4,
+                loc: 86,
+                path: "src/api/auth.ts",
+            },
+            {
+                complexity: 14,
+                id: "src/api/repository.ts",
+                issueCount: 3,
+                loc: 108,
+                path: "src/api/repository.ts",
+            },
+            {
+                complexity: 12,
+                id: "src/services/metrics.ts",
+                issueCount: 1,
+                loc: 60,
+                path: "src/services/metrics.ts",
+            },
+        ],
+    },
+    {
+        description: "Frontend SPA для управления pipeline и наблюдаемостью.",
+        id: "frontend-team/ui-dashboard",
+        impactedFiles: [
+            {
+                fileId: "src/pages/ccr-management.page.tsx",
+                impactType: "changed",
+            },
+            {
+                fileId: "src/components/layout/sidebar.tsx",
+                impactType: "changed",
+            },
+            {
+                fileId: "src/components/graphs/codecity-treemap.tsx",
+                impactType: "impacted",
+            },
+        ],
+        label: "frontend-team/ui-dashboard",
+        files: [
+            {
+                churn: 5,
+                complexity: 14,
+                coverage: 88,
+                id: "src/pages/ccr-management.page.tsx",
+                issueCount: 1,
+                lastReviewAt: "2026-01-12T16:40:00Z",
+                loc: 112,
+                path: "src/pages/ccr-management.page.tsx",
+            },
+            {
+                churn: 1,
+                complexity: 18,
+                coverage: 90,
+                id: "src/components/graphs/codecity-treemap.tsx",
+                issueCount: 0,
+                lastReviewAt: "2026-02-07T09:00:00Z",
+                loc: 142,
+                path: "src/components/graphs/codecity-treemap.tsx",
+            },
+            {
+                churn: 3,
+                complexity: 11,
+                coverage: 94,
+                id: "src/components/layout/sidebar.tsx",
+                issueCount: 2,
+                lastReviewAt: "2026-02-09T13:55:00Z",
+                loc: 64,
+                path: "src/components/layout/sidebar.tsx",
+            },
+            {
+                churn: 0,
+                complexity: 22,
+                coverage: 81,
+                id: "src/pages/repositories-list.page.tsx",
+                issueCount: 1,
+                lastReviewAt: "2026-02-10T14:10:00Z",
+                loc: 188,
+                path: "src/pages/repositories-list.page.tsx",
+            },
+        ],
+        compareFiles: [
+            {
+                complexity: 10,
+                id: "src/pages/ccr-management.page.tsx",
+                issueCount: 1,
+                loc: 98,
+                path: "src/pages/ccr-management.page.tsx",
+            },
+            {
+                complexity: 16,
+                id: "src/components/layout/sidebar.tsx",
+                issueCount: 0,
+                loc: 56,
+                path: "src/components/layout/sidebar.tsx",
+            },
+            {
+                complexity: 20,
+                id: "src/pages/system-health.page.tsx",
+                issueCount: 3,
+                loc: 130,
+                path: "src/pages/system-health.page.tsx",
+            },
+        ],
+    },
+    {
+        description: "Worker-пайплайн с повышенными очередями и задачами background-обработки.",
+        id: "backend-core/payment-worker",
+        impactedFiles: [
+            {
+                fileId: "src/adapters/queue.ts",
+                impactType: "changed",
+            },
+            {
+                fileId: "src/services/retry.ts",
+                impactType: "impacted",
+            },
+        ],
+        label: "backend-core/payment-worker",
+        files: [
+            {
+                churn: 8,
+                complexity: 38,
+                coverage: 67,
+                id: "src/adapters/queue.ts",
+                issueCount: 4,
+                lastReviewAt: "2026-01-03T19:30:00Z",
+                loc: 210,
+                path: "src/adapters/queue.ts",
+            },
+            {
+                churn: 7,
+                complexity: 20,
+                coverage: 73,
+                id: "src/services/retry.ts",
+                issueCount: 2,
+                lastReviewAt: "2026-01-17T07:48:00Z",
+                loc: 112,
+                path: "src/services/retry.ts",
+            },
+            {
+                churn: 1,
+                complexity: 15,
+                coverage: 79,
+                id: "src/worker/main.ts",
+                issueCount: 0,
+                lastReviewAt: "2026-01-20T15:16:00Z",
+                loc: 76,
+                path: "src/worker/main.ts",
+            },
+        ],
+        compareFiles: [
+            {
+                complexity: 34,
+                id: "src/services/retry.ts",
+                issueCount: 3,
+                loc: 95,
+                path: "src/services/retry.ts",
+            },
+            {
+                complexity: 40,
+                id: "src/adapters/queue.ts",
+                issueCount: 2,
+                loc: 182,
+                path: "src/adapters/queue.ts",
+            },
+        ],
+    },
+] as const
+
+const DEFAULT_DASHBOARD_REPOSITORY = CODE_CITY_DASHBOARD_REPOSITORIES[0]
+
+function resolveDashboardProfile(
+    repositoryId: string,
+): ICodeCityDashboardRepositoryProfile {
+    const selected = CODE_CITY_DASHBOARD_REPOSITORIES.find(
+        (entry): boolean => entry.id === repositoryId,
+    )
+    return selected ?? DEFAULT_DASHBOARD_REPOSITORY
+}
+
+function isCodeCityMetric(value: string): value is TCodeCityDashboardMetric {
+    return value === "complexity" || value === "coverage" || value === "churn"
+}
+
+function resolveRepositoryOptions(
+    repositories: ReadonlyArray<ICodeCityDashboardRepositoryProfile>,
+): ReadonlyArray<string> {
+    return repositories.map((entry): string => entry.id)
+}
+
+function createRepositoryFilesLink(repositoryId: string):
+    ((file: { readonly id: string; readonly path: string; readonly fileId: string }) => string) {
+    const encodedRepo = encodeURIComponent(repositoryId)
+
+    return (file): string => {
+        const encodedFile = encodeURIComponent(file.path)
+        return `/repositories/${encodedRepo}?file=${encodedFile}`
+    }
+}
+
+/**
+ * Страница CodeCity для кросс-репозитория с выбором метрики и репозитория.
+ */
+export function CodeCityDashboardPage(
+    props: ICodeCityDashboardPageProps = {},
+): ReactElement {
+    const repositoryOptions = resolveRepositoryOptions(CODE_CITY_DASHBOARD_REPOSITORIES)
+    const initialRepositoryId =
+        props.initialRepositoryId === undefined
+            ? DEFAULT_DASHBOARD_REPOSITORY.id
+            : repositoryOptions.includes(props.initialRepositoryId)
+              ? props.initialRepositoryId
+              : DEFAULT_DASHBOARD_REPOSITORY.id
+
+    const [repositoryId, setRepositoryId] = useState<string>(initialRepositoryId)
+    const [metric, setMetric] = useState<TCodeCityDashboardMetric>("complexity")
+
+    const currentProfile = resolveDashboardProfile(repositoryId)
+    const fileLink = createRepositoryFilesLink(currentProfile.id)
+
+    const handleRepositoryChange = (event: ChangeEvent<HTMLSelectElement>): void => {
+        const nextRepositoryId = event.currentTarget.value
+        if (repositoryOptions.includes(nextRepositoryId) === false) {
+            return
+        }
+
+        setRepositoryId(nextRepositoryId)
+    }
+
+    const handleMetricChange = (event: ChangeEvent<HTMLSelectElement>): void => {
+        const nextMetric = event.currentTarget.value
+        if (isCodeCityMetric(nextMetric) === false) {
+            return
+        }
+
+        setMetric(nextMetric)
+    }
+
+    return (
+        <section className="space-y-4">
+            <Card>
+                <CardHeader>
+                    <p className="text-sm font-semibold text-slate-900">CodeCity dashboard</p>
+                </CardHeader>
+                <CardBody className="space-y-3">
+                    <p className="text-sm text-slate-600">{currentProfile.description}</p>
+                    <div className="grid gap-3 md:grid-cols-2">
+                        <label className="space-y-1" htmlFor="dashboard-repository">
+                            <span className="text-sm font-semibold text-slate-900">
+                                Repository filter
+                            </span>
+                            <select
+                                aria-label="Repository"
+                                className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm"
+                                id="dashboard-repository"
+                                value={repositoryId}
+                                onChange={handleRepositoryChange}
+                            >
+                                {repositoryOptions.map((entry): ReactElement => (
+                                    <option key={entry} value={entry}>
+                                        {entry}
+                                    </option>
+                                ))}
+                            </select>
+                        </label>
+                        <label className="space-y-1" htmlFor="dashboard-metric">
+                            <span className="text-sm font-semibold text-slate-900">
+                                Metric selector
+                            </span>
+                            <select
+                                aria-label="Metric"
+                                className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm"
+                                id="dashboard-metric"
+                                value={metric}
+                                onChange={handleMetricChange}
+                            >
+                                {CODE_CITY_DASHBOARD_METRICS.map((entry): ReactElement => (
+                                    <option key={entry.value} value={entry.value}>
+                                        {entry.label}
+                                    </option>
+                                ))}
+                            </select>
+                        </label>
+                    </div>
+                </CardBody>
+            </Card>
+
+            <Card>
+                <CardBody>
+                    <CodeCityTreemap
+                        key={`${currentProfile.id}-${metric}`}
+                        comparisonLabel={`${currentProfile.id}-baseline`}
+                        compareFiles={currentProfile.compareFiles}
+                        defaultMetric={metric}
+                        fileLink={fileLink}
+                        files={currentProfile.files}
+                        impactedFiles={currentProfile.impactedFiles}
+                        title={`${currentProfile.label} treemap`}
+                    />
+                </CardBody>
+            </Card>
+        </section>
+    )
+}
