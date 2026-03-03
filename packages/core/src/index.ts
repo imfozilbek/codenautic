@@ -194,6 +194,12 @@ export {
     type IDetectFalsePositivesOutput,
 } from "./application/use-cases/detect-false-positives.use-case"
 export {
+    LearnTeamPatternsUseCase,
+    type ILearnTeamPatternsInput,
+    type ILearnTeamPatternsOutput,
+    type ITeamPatternAdjustment,
+} from "./application/use-cases/learn-team-patterns.use-case"
+export {
     ConfigurationValidatorUseCase,
     type IConfigurationValidatorInput,
 } from "./application/use-cases/configuration-validator.use-case"
