@@ -190,6 +190,11 @@ export {
     type IReviewProps,
     type ReviewStatus,
 } from "./domain/aggregates/review.aggregate"
+export {
+    Organization,
+    type IOrganizationMemberProps,
+    type IOrganizationProps,
+} from "./domain/aggregates/organization.aggregate"
 export {RULE_STATUS, Rule, type IRuleProps, type RuleStatus} from "./domain/aggregates/rule.aggregate"
 export {Entity} from "./domain/entities/entity"
 export {
@@ -251,7 +256,16 @@ export {
     type IReconstituteReviewProps,
     ReviewFactory,
 } from "./domain/factories/review.factory"
-export {type ICreateRuleProps, type IReconstituteRuleProps, RuleFactory} from "./domain/factories/rule.factory"
+export {
+    type ICreateRuleProps,
+    type IReconstituteRuleProps,
+    RuleFactory,
+} from "./domain/factories/rule.factory"
+export {
+    type ICreateOrganizationProps,
+    type IReconstituteOrganizationProps,
+    OrganizationFactory,
+} from "./domain/factories/organization.factory"
 export {
     type ICreateUserProps,
     type IReconstituteUserProps,
@@ -273,6 +287,13 @@ export {
     UserPreferences,
 } from "./domain/value-objects/user-preferences.value-object"
 export {Embedding, type ICreateEmbeddingProps} from "./domain/value-objects/embedding.value-object"
+export {
+    API_KEY_STATUS,
+    type ApiKeyStatus,
+    APIKeyConfig,
+    type IAPIKeyConfigProps,
+    type ICreateAPIKeyConfigInput,
+} from "./domain/value-objects/api-key-config.value-object"
 export {FilePath} from "./domain/value-objects/file-path.value-object"
 export {LineRange} from "./domain/value-objects/line-range.value-object"
 export {
@@ -286,6 +307,13 @@ export {
     ProgrammingLanguage,
     type ProgrammingLanguageValue,
 } from "./domain/value-objects/programming-language.value-object"
+export {
+    ORG_SETTING_VALUE_TYPE,
+    type OrgSettingValue,
+    type OrgSettingsInput,
+    OrgSettings,
+    type OrgSettingsProps,
+} from "./domain/value-objects/org-settings.value-object"
 export {
     REPOSITORY_PLATFORM,
     RepositoryId,

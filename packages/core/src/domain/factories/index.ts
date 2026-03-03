@@ -15,6 +15,11 @@ export {
     RuleFactory,
 } from "./rule.factory"
 export {
+    type ICreateOrganizationProps,
+    type IReconstituteOrganizationProps,
+    OrganizationFactory,
+} from "./organization.factory"
+export {
     type ICreateUserProps,
     type IReconstituteUserProps,
     UserFactory,

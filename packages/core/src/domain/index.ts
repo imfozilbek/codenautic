@@ -1,5 +1,10 @@
 export {REVIEW_STATUS, Review, type IReviewCompletionMetrics, type IReviewProps, type ReviewStatus} from "./aggregates/review.aggregate"
 export {RULE_STATUS, Rule, type IRuleProps, type RuleStatus} from "./aggregates/rule.aggregate"
+export {
+    Organization,
+    type IOrganizationMemberProps,
+    type IOrganizationProps,
+} from "./aggregates/organization.aggregate"
 export {Entity} from "./entities/entity"
 export {
     ISSUE_CATEGORY,
@@ -47,6 +52,20 @@ export {UnauthorizedError} from "./errors/unauthorized.error"
 export {ValidationError, type IValidationErrorField} from "./errors/validation.error"
 export * from "./factories"
 export {RuleStatusPolicyService} from "./services/rule-status-policy.service"
+export {
+    API_KEY_STATUS,
+    type ApiKeyStatus,
+    APIKeyConfig,
+    type IAPIKeyConfigProps,
+    type ICreateAPIKeyConfigInput,
+} from "./value-objects/api-key-config.value-object"
+export {
+    ORG_SETTING_VALUE_TYPE,
+    type OrgSettingValue,
+    type OrgSettingsInput,
+    OrgSettings,
+    type OrgSettingsProps,
+} from "./value-objects/org-settings.value-object"
 export {CodeChunk, type ICreateCodeChunkProps} from "./value-objects/code-chunk.value-object"
 export {
     DIFF_FILE_STATUS,
