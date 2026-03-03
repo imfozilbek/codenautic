@@ -33,7 +33,10 @@
 | Login Screen | Авторизация и возврат на целевой маршрут | OAuth/OIDC login, обработка 401/403, redirect обратно в `next` | `WEB-AUTH-001`, `WEB-AUTH-005` |
 | App Shell | Базовый layout приложения | Sidebar, header, route-level lazy loading, loading states | `WEB-LAYOUT-001..005` |
 | Dashboard | Операционный обзор состояния системы | Метрики, timeline, фильтры периода, drill-down | `WEB-PAGE-001`, `WEB-DASH-001..006`, `WEB-COMP-001..004` |
+| Activation Checklist | Быстрый путь к first value в новом org | Setup progress, role-aware шаги, deep-links, blockers | `WEB-ACT-001` |
+| My Work / Triage | Единый triage для ежедневной работы | Очередь: CCRs/issues/inbox/jobs, фильтры, быстрые actions, deep-links | `WEB-INBOX-001` |
 | CCR Management | Управление списком ревью/CCR | Фильтры, виртуализация, infinite list, переход в review context | `WEB-PAGE-002`, `WEB-VIRT-003`, `WEB-INF-003`, `WEB-SRCH-001..004` |
+| Issues Tracking | Трекинг найденных issues | Список issues, фильтры по severity/status, inline actions | `WEB-PAGE-006` |
 | Review Diff Workspace | Детальный просмотр ревью | Diff viewer, comment threads, streaming updates, контекстный sidebar | `WEB-COMP-005..007`, `WEB-RVCTX-001..005` |
 | Dry Run Results | Пробный прогон правил перед применением | Просмотр dry-run результата, выбор cadence | `WEB-PAGE-020`, `WEB-COMP-013`, `WEB-PAGE-021`, `WEB-COMP-014` |
 
@@ -66,6 +69,7 @@
 | Git Provider Config | Настройка git-провайдеров | OAuth/connectivity, webhook setup | `WEB-PAGE-005` |
 | Integrations | Сторонние интеграции | Jira/Linear/Sentry/Slack connect/disconnect | `WEB-PAGE-007` |
 | Webhook Management | Управление webhook endpoints | Create/delete, rotate secret, logs | `WEB-PAGE-008` |
+| Token Usage | Мониторинг использования LLM | Usage by model/developer/CCR, cost estimate, date range | `WEB-PAGE-009` |
 | Team Management | Управление командами и ролями | Create team, assign repos, roles | `WEB-PAGE-011` |
 | Organization Settings | Орг-настройки и billing | Name, members, billing, audit points | `WEB-PAGE-010` |
 | SAML/OIDC Management | Корпоративный SSO | Configure, validate, test SSO | `WEB-PAGE-014` |
@@ -88,6 +92,11 @@
 | Deep-link Guard Screen | Безопасный вход по ссылкам из уведомлений и внешних систем | Tenant/role/query validation, sanitize params, safe redirect | `WEB-LINK-001` |
 | Provider Degradation Console | Работа в режиме деградации внешних провайдеров | Degraded banners, retry windows, runbook shortcuts | `WEB-OUTAGE-001` |
 | Bulk Action Command Bar | Массовые операции с контролируемым откатом | Multi-select, batch actions, undo timer, audit event | `WEB-BULK-001` |
+| Enterprise Data Table Kit | Единые enterprise-паттерны таблиц | Виртуализация, колонки, плотность, клавиатура, экспорт, saved views | `WEB-TBL-001` |
+| Data Freshness & Provenance | Доверие к данным и объяснение источника | Last updated, staleness, provenance drawer, refresh/rescan CTA | `WEB-FRESH-001` |
+| Timezone & Schedule Preview | Предсказуемые расписания без двусмысленностей | Timezone selection, next-runs preview, DST-safe schedule | `WEB-TZ-001` |
+| Help & Diagnostics Center | Self-serve помощь и диагностика | Search help, run diagnostics, generate redacted support bundle | `WEB-HELP-001` |
+| System Empty/Error States | Единые состояния empty/error/loading/partial | Microcopy + CTA, reusable templates, consistent semantics | `WEB-STATE-001` |
 | Data Contract Validator | Контроль совместимости импортируемых данных | Schema/version checks, migration hints, preview before apply | `WEB-CONTRACT-001` |
 | Safe Export Redaction Panel | Защита от утечки секретов и PII | Redaction suggestions, secure copy/export, compliance hints | `WEB-PRIV-001` |
 | Cross-tab State Sync Guard | Консистентность контекста между вкладками | Tenant/theme/permissions sync через broadcast + safe refresh | `WEB-MTAB-001` |
@@ -102,6 +111,7 @@
 | Advanced Theme Controls | Тонкая настройка визуала | Accent/Base palette, radius form/global | `WEB-THEME-002` |
 | Random Preset Picker | Быстрый выбор и exploration | Random preset, quick chips, undo last random | `WEB-THEME-003` |
 | User Theme Library | Персональная библиотека тем | Create/save/duplicate/delete/import/export | `WEB-THEME-004`, `WEB-DS-005`, `WEB-DS-007` |
+| Workspace Personalization | Персонализация рабочего пространства | Default scope, pinned widgets/shortcuts, saved views, share | `WEB-PERS-001` |
 
 ## 2.6 CodeCity, Graph, Analytics, Planning, Reports
 
@@ -119,6 +129,7 @@
 | Team Gamification Board | Мотивационные метрики команды | Leaderboard, achievements, sprint comparison | `WEB-GAME-001..006` |
 | Drift Detection Workspace | Контроль архитектурного дрейфа | Blueprint editor, drift report, guardrails, alerts | `WEB-DRIFT-001..007` |
 | Reporting Workspace | Генерация и доставка отчётов | Generator, viewer, list, schedule, template editor | `WEB-REPORT-001..006` |
+| Explainability Drawer | Объяснимость скорингов и сигналов | Why this score, factors, confidence, data window, export | `WEB-XAI-001` |
 
 ---
 
@@ -226,6 +237,7 @@ flowchart TB
         K[KPI strip: cycle time, deploy freq, bug ratio, cost]
         W[Work Queue: CCRs, Issues, Inbox]
         SIG[Signals: Drift, Predictions, Architecture Health]
+        EXP[Explore: CodeCity, Graph, Causal, Impact, Refactor, Knowledge, Reports]
         OPS[Ops: Jobs, Provider Health, Degraded Mode]
         U[Usage & Plan: token usage, entitlement state]
         QA[Quick Actions: scan, review, report, dry-run]
@@ -239,6 +251,13 @@ flowchart TB
     SIG -->|Open CodeCity| CITY[CodeCity 2D/3D]
     SIG -->|Open Drift| DR[Drift Detection Workspace]
     SIG -->|Open Predictions| PR[Prediction Workspace]
+
+    EXP -->|Open Graph| GR[Graph Explorer]
+    EXP -->|Open Causal| CAUS[Causal Analysis Workspace]
+    EXP -->|Open Impact| IMP[Impact Planning Workspace]
+    EXP -->|Open Refactor| RF[Refactoring Planner]
+    EXP -->|Open Knowledge| KNOW[Knowledge Map Workspace]
+    EXP -->|Open Reports| REP[Reporting Workspace]
 
     OPS -->|Open Jobs| JOB[Job Operations Center]
     OPS -->|Provider outage details| OUT[Provider Degradation Console]
@@ -261,7 +280,9 @@ flowchart TB
 | - My CCRs (N)        | - Drift score      | - Jobs stuck (N)   |
 | - High issues (N)    | - Predictions      | - Provider health  |
 | - Inbox unread (N)   | - CodeCity snapshot| - Degraded banner  |
-| [Open Reviews]       | [Open CodeCity]    | [Open Ops Center]  |
+|                      | - Explore links     |                    |
+|                      |   CodeCity/Graph/...|                    |
+| [Open Reviews]       | [Open Explore]     | [Open Ops Center]  |
 +---------------------+--------------------+-------------------+
 | Usage & Plan: tokens today | budget | trial days | [Billing]   |
 +--------------------------------------------------------------+
@@ -985,6 +1006,254 @@ flowchart LR
 +------------------------------------------------------+
 ```
 
+## Сценарий S33 — Activation checklist: onboarding до first value
+
+- Цель: довести новый org от пустого состояния до первого измеримого результата без ручного сопровождения.
+- Экраны: Dashboard, Activation Checklist, Settings (Providers/SSO/Notifications), Onboarding Wizard, Scan Progress.
+- Референсы: `WEB-ACT-001`.
+
+```mermaid
+flowchart LR
+    A[Пользователь впервые заходит в org] --> B[Dashboard показывает Activation Checklist]
+    B --> C[Выбор следующего шага]
+    C --> D[Deep-link в нужный экран]
+    D --> E[Выполнить шаг: connect/invite/scan/config]
+    E --> F[Checklist обновляет прогресс и blockers]
+    F --> G{First value достигнут}
+    G -- Нет --> C
+    G -- Да --> H[Показать next-best actions + закрепить “My Work”]
+```
+
+```text
++-------------------- Dashboard -----------------------+
+| Activation Checklist  3/8  [View all]                |
+|  [x] Connect Git provider                            |
+|  [ ] Connect LLM provider   (blocked: missing BYOK)  |
+|  [ ] Invite teammates                                |
+|  [ ] Add repository                                  |
+|  [ ] Run first scan     [Start]                      |
+|  [ ] Configure notifications                          |
+|  [ ] Baseline rules + Dry Run                        |
+|  Progress: 38%                                       |
++------------------------------------------------------+
+```
+
+## Сценарий S34 — Единый My Work / Triage: ежедневная очередь
+
+- Цель: пользователь открывает одну страницу и закрывает ежедневный triage (что горит, что у меня).
+- Экраны: My Work / Triage, Notification Center, CCR Management, Issues Tracking, Job Operations Center.
+- Референсы: `WEB-INBOX-001`.
+
+```mermaid
+flowchart LR
+    A[Открыть My Work] --> B[Сформировать очередь по приоритету]
+    B --> C[Фильтр: mine/team/repo]
+    C --> D[Открыть элемент в контексте]
+    D --> E[Выполнить действие: review/assign/snooze/retry]
+    E --> F[Элемент обновляет статус в очереди]
+    F --> G{Очередь пустая}
+    G -- Нет --> D
+    G -- Да --> H[Показать “All clear” + suggested actions]
+```
+
+```text
++--------------------- My Work ------------------------+
+| Filters: [Mine] [Team] [Critical] [Today]            |
+| Queue                                                |
+|  1) CCR #841 needs review      [Open] [Assign]       |
+|  2) Issue spike: Sev-1 (5)     [Open] [Mute]         |
+|  3) Job stuck: repo scan       [Open Ops] [Retry]    |
+|  4) Inbox: Drift alert         [Open] [Snooze]       |
++------------------------------------------------------+
+```
+
+## Сценарий S35 — Enterprise таблицы: кастомизация, saved views, экспорт
+
+- Цель: списки остаются удобными на больших данных и поддерживают workflow конкретной роли.
+- Экраны: CCR Management, Issues Tracking, Audit Logs, Token Usage (все с DataTable kit).
+- Референсы: `WEB-TBL-001`.
+
+```mermaid
+flowchart LR
+    A[Открыть list-страницу] --> B[Настроить таблицу: колонки/плотность]
+    B --> C[Фильтры + сортировка]
+    C --> D[Сохранить view]
+    D --> E[Навигация и действия клавиатурой]
+    E --> F[Экспорт данных или share view link]
+```
+
+```text
++------------------ Issues Tracking -------------------+
+| View: “Sev1 Ops” [Save] [Share]                      |
+| Columns [x] Title [x] Sev [ ] Owner [x] Status       |
+| Density: (Compact)  Search: [........]  Export [CSV] |
+| ---------------------------------------------------- |
+| Sev1 | payments timeout | Open | Owner: Team A       |
+| Sev2 | flaky tests      | Triaged | Owner: Me        |
++------------------------------------------------------+
+```
+
+## Сценарий S36 — Доверие к данным: freshness и provenance
+
+- Цель: пользователь понимает актуальность и происхождение метрик, не принимает решения на stale данных.
+- Экраны: Dashboard, Provenance Drawer, Scan Progress Page, Job Operations Center.
+- Референсы: `WEB-FRESH-001`.
+
+```mermaid
+flowchart LR
+    A[Пользователь видит метрику/сигнал] --> B[Индикатор freshness: updated/stale/partial]
+    B --> C{Данные stale или partial}
+    C -- Нет --> D[Продолжить работу]
+    C -- Да --> E[Открыть Provenance drawer]
+    E --> F[Понять источник: scan/job/commit/window]
+    F --> G[Запустить refresh/rescan или открыть job details]
+    G --> H[Данные обновлены -> UI снимает stale]
+```
+
+```text
++---------------------- Dashboard ---------------------+
+| Architecture Health: 72  (stale: updated 8h ago)     |
+| [Why?] [Provenance] [Refresh]                        |
+| Provenance: scan #1842, commit abc123, window 7d     |
++------------------------------------------------------+
+```
+
+## Сценарий S37 — Timezone-aware scheduling: preview next runs
+
+- Цель: расписания (rescan/reports) понятны в международных командах и не ломаются на DST.
+- Экраны: Rescan Schedule Dialog, Reporting Workspace (schedule), Timezone & Schedule Preview.
+- Референсы: `WEB-TZ-001`.
+
+```mermaid
+flowchart LR
+    A[Открыть schedule dialog] --> B[Выбрать timezone]
+    B --> C[Настроить cadence/cron-like правила]
+    C --> D[Посмотреть preview следующих запусков]
+    D --> E{Похоже на ожидания}
+    E -- Нет --> C
+    E -- Да --> F[Сохранить schedule]
+    F --> G[UI показывает next run везде консистентно]
+```
+
+```text
++---------------- Rescan Schedule ---------------------+
+| Timezone: (Asia/Tashkent) [Change]                   |
+| Cadence: Every weekday at 09:00                      |
+| Next runs:                                           |
+|  - Wed 2026-03-04 09:00                              |
+|  - Thu 2026-03-05 09:00                              |
+|  - Fri 2026-03-06 09:00                              |
+| Note: DST applied automatically                      |
+| [Save] [Cancel]                                      |
++------------------------------------------------------+
+```
+
+## Сценарий S38 — Explainability для скорингов и сигналов аналитики
+
+- Цель: пользователь может объяснить “почему так” и принять решение без “магии” и споров в компании.
+- Экраны: Prediction Workspace, Drift Detection Workspace, Explainability Drawer, Reporting Workspace.
+- Референсы: `WEB-XAI-001`.
+
+```mermaid
+flowchart LR
+    A[Пользователь видит риск/score] --> B[Открыть Explain drawer]
+    B --> C[Top factors + thresholds + confidence]
+    C --> D[Перейти в источники/срезы данных]
+    D --> E[Сформировать action: plan/refactor/report]
+    E --> F[Экспорт объяснения в отчёт/сниппет]
+```
+
+```text
++---------------- Explainability ----------------------+
+| Drift Score: 0.78 (confidence 0.62)                  |
+| Top factors:                                         |
+|  - Temporal coupling +0.22                           |
+|  - Churn 90d +0.18                                   |
+|  - Ownership concentration +0.12                     |
+| Data window: last 90 days                            |
+| [Open Sources] [Export]                              |
++------------------------------------------------------+
+```
+
+## Сценарий S39 — Help & Diagnostics: self-serve troubleshooting
+
+- Цель: пользователь сам находит причину проблемы и путь решения, не теряя время на саппорт.
+- Экраны: Help & Diagnostics Center, Provider Degradation Console, Scan Error Recovery, Session Recovery Flow.
+- Референсы: `WEB-HELP-001`.
+
+```mermaid
+flowchart LR
+    A[Пользователь видит ошибку/деградацию] --> B[CTA: Open Help/Diagnostics]
+    B --> C[Запустить диагностику]
+    C --> D[Результаты: auth/network/provider/browser]
+    D --> E{Есть автосценарий фикса}
+    E -- Да --> F[Пошаговый runbook + deep-links]
+    E -- Нет --> G[Сформировать support bundle (redacted)]
+    F --> H[Проверить что проблема решена]
+    G --> H
+```
+
+```text
++---------------- Diagnostics -------------------------+
+| Auth: OK | Network: OK | Git: OK | LLM: Rate limited |
+| Browser: WebGL enabled | Storage: OK                 |
+| Suggested actions:                                   |
+|  - Switch LLM provider fallback                       |
+|  - Retry in 2m                                        |
+| [Open Degradation Console] [Generate Support Bundle] |
++------------------------------------------------------+
+```
+
+## Сценарий S40 — Единые empty/error states и microcopy
+
+- Цель: любые loading/empty/error/partial состояния предсказуемы и не блокируют пользователя.
+- Экраны: Все route-level страницы, System Empty/Error States, Help & Diagnostics Center.
+- Референсы: `WEB-STATE-001`.
+
+```mermaid
+flowchart LR
+    A[Открыть страницу] --> B[Fetch данных]
+    B --> C{Ответ успешен}
+    C -- Нет --> D[Error state: причина + retry + diagnostics link]
+    C -- Да --> E{Данные пустые}
+    E -- Да --> F[Empty state: объяснение + primary CTA]
+    E -- Нет --> G[Render content]
+    D --> B
+    F --> H[CTA ведёт в onboarding/filters/action]
+```
+
+```text
++------------------- Empty State ----------------------+
+| No repositories yet                                  |
+| Start by connecting a repo to see insights.          |
+| [Start Onboarding] [Learn More]                      |
++------------------------------------------------------+
+```
+
+## Сценарий S41 — Workspace personalization: scope, pins, views
+
+- Цель: пользователь настраивает продукт под свой workflow (без повторения одинаковых кликов каждый день).
+- Экраны: Workspace Personalization, Dashboard, My Work, DataTable views.
+- Референсы: `WEB-PERS-001`.
+
+```mermaid
+flowchart LR
+    A[Открыть personalization] --> B[Выбрать default scope]
+    B --> C[Настроить pins/widgets]
+    C --> D[Сохранить saved views]
+    D --> E[Share view link или sync в профиль]
+    E --> F[UI применяет настройки при следующем входе]
+```
+
+```text
++-------------- Workspace Personalization --------------+
+| Default: Org A / Repo payments / Team Platform       |
+| Pins: [My Work] [Issues] [Ops] [Explore Graph]       |
+| Saved Views: “Sev1 Ops”, “My CCRs”, “Cost Watch”     |
+| [Save] [Share] [Reset]                               |
++------------------------------------------------------+
+```
+
 ---
 
 ## 4. Оценка полноты планирования UI
@@ -997,7 +1266,12 @@ flowchart LR
 - Существенные gaps второго слоя (session expiry recovery, concurrent admin edits, mid-session policy drift, secure deep-links, provider degraded mode, bulk actions safety, import/export contracts, privacy-safe exports) формализованы в `S23-S30` и задачах `WEB-SESSION-001..WEB-PRIV-001`.
 - Существенный gap cross-tab consistency формализован в `S31` и задаче `WEB-MTAB-001`.
 - Существенный quality gap e2e a11y/i18n для длинных локализаций и screen reader flow формализован в `S32` и задаче `WEB-E2E-001`.
+- Существенные enterprise UX gaps (activation checklist, triage hub, enterprise tables, data freshness/provenance, timezone scheduling, explainability, help/diagnostics, system states, workspace personalization) формализованы в `S33-S41` и задачах `WEB-ACT-001..WEB-PERS-001`.
 - Остаточные риски:
+- Не определена продуктовая модель назначения/ownership для элементов triage (что такое “assigned”, SLA, команда) — без неё My Work может стать “свалкой”.
+- Сложная IA (много workspace/репозиториев/экранов) рискует потерять discoverability без глобального поиска/command palette и явных “next actions”.
+- Доступность и альтернативные представления для тяжёлых визуализаций (3D/graph) требуют отдельной политики (keyboard-only fallback, reduced motion, текстовые summaries).
+- Единство терминологии и microcopy (ru/en) становится критичным при расширении функций: нужен governance для текста/лейблов, иначе UX деградирует в мелочах.
 
 ---
 
