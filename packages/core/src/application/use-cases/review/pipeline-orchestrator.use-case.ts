@@ -675,7 +675,16 @@ export class PipelineOrchestratorUseCase
             attempt,
         )
         if (transitionResult.isFail) {
-            return Result.fail<IStageRunOutput, StageError>(transitionResult.error)
+            return this.handleStageFailure(
+                startedState,
+                definition,
+                {
+                    stageDefinition,
+                    attempt,
+                    durationMs: this.calculateDurationMs(stageStartedAt, this.nowProvider()),
+                },
+                transitionResult.error,
+            )
         }
 
         const stageFinishedAt = this.nowProvider()

@@ -92,6 +92,20 @@ class StaticStageUseCase implements IPipelineStageUseCase {
     }
 }
 
+class ThrowingStageUseCase implements IPipelineStageUseCase {
+    public readonly stageId: string
+    public readonly stageName: string
+
+    public constructor(stageId: string, stageName: string) {
+        this.stageId = stageId
+        this.stageName = stageName
+    }
+
+    public execute(_input: IStageCommand): Promise<Result<IStageTransition, StageError>> {
+        return Promise.reject(new Error("boom"))
+    }
+}
+
 describe("PipelineOrchestratorUseCase", () => {
     test("executes stages sequentially and returns successful pipeline result", async () => {
         const definition = {
@@ -249,6 +263,62 @@ describe("PipelineOrchestratorUseCase", () => {
         expect(result.value.success).toBe(false)
         expect(result.value.stoppedAtStageId).toBe("stage-b")
         expect(result.value.failureReason).toBe("Stage B failed")
+        expect(result.value.stageResults).toHaveLength(2)
+        expect(result.value.stageResults[1]?.status).toBe(PIPELINE_STAGE_RESULT_STATUS.FAIL)
+        expect(checkpointStore.checkpoints).toHaveLength(4)
+        expect(checkpointStore.checkpoints[3]?.status).toBe(PIPELINE_CHECKPOINT_STATUS.FAILED)
+        expect(domainEventBus.publishedEvents.map((event) => event.eventName)).toEqual([
+            "PipelineStarted",
+            "StageStarted",
+            "StageCompleted",
+            "StageStarted",
+            "StageFailed",
+            "PipelineFailed",
+        ])
+        expect(logger.errorMessages).toHaveLength(1)
+    })
+
+    test("turns thrown stage exception into failed stage result and publishes failure lifecycle events", async () => {
+        const definition = {
+            definitionVersion: "v1",
+            stages: [
+                {stageId: "stage-a", stageName: "Stage A"},
+                {stageId: "stage-b", stageName: "Stage B"},
+            ],
+        }
+        const initialState = ReviewPipelineState.create({
+            runId: "run-2-throw",
+            definitionVersion: "v1",
+            mergeRequest: {id: "mr-2"},
+            config: {},
+        })
+        const domainEventBus = new InMemoryDomainEventBus()
+        const checkpointStore = new InMemoryCheckpointStore()
+        const logger = new InMemoryLogger()
+        const orchestrator = new PipelineOrchestratorUseCase({
+            stages: {
+                "stage-a": new StaticStageUseCase("stage-a", "Stage A", (state) => {
+                    return Result.ok<IStageTransition, StageError>({
+                        state,
+                    })
+                }),
+                "stage-b": new ThrowingStageUseCase("stage-b", "Stage B"),
+            },
+            domainEventBus,
+            checkpointStore,
+            logger,
+            now: () => new Date("2026-03-03T08:00:00.000Z"),
+        })
+
+        const result = await orchestrator.execute({
+            initialState,
+            definition,
+        })
+
+        expect(result.isOk).toBe(true)
+        expect(result.value.success).toBe(false)
+        expect(result.value.stoppedAtStageId).toBe("stage-b")
+        expect(result.value.failureReason).toBe("Stage use case threw unexpected exception: boom")
         expect(result.value.stageResults).toHaveLength(2)
         expect(result.value.stageResults[1]?.status).toBe(PIPELINE_STAGE_RESULT_STATUS.FAIL)
         expect(checkpointStore.checkpoints).toHaveLength(4)
