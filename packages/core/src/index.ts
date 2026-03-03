@@ -20,6 +20,17 @@ export {type IRuleRepository} from "./application/ports/outbound/rule/rule-repos
 export {type ITeamRepository} from "./application/ports/outbound/team-repository.port"
 export {type IUserRepository} from "./application/ports/outbound/user-repository.port"
 export {
+    type IAuditLogPaginationOptions,
+    type IAuditLogRepository,
+} from "./application/ports/outbound/audit-log-repository.port"
+export {
+    FEEDBACK_ANALYSIS_SEVERITY_LEVELS,
+    type IFeedbackAnalysisCriteria,
+    type IFeedbackAnalysisSeverity,
+    type IFeedbackRecord,
+    type IFeedbackRepository,
+} from "./application/ports/outbound/feedback-repository.port"
+export {
     type IVectorChunkDTO,
     type IVectorRepository,
     type IVectorSearchResultDTO,
@@ -170,6 +181,14 @@ export {
     type IConfigurationMergerInput,
 } from "./application/use-cases/configuration-merger.use-case"
 export {
+    ApplyRuleUseCase,
+} from "./application/use-cases/apply-rule.use-case"
+export {
+    AnalyzeFeedbackUseCase,
+    type IAnalyzeFeedbackInput,
+    type IAnalyzeFeedbackOutput,
+} from "./application/use-cases/analyze-feedback.use-case"
+export {
     ConfigurationValidatorUseCase,
     type IConfigurationValidatorInput,
 } from "./application/use-cases/configuration-validator.use-case"
@@ -217,6 +236,15 @@ export {
     type ISafeGuardFilter,
     type ISafeGuardFilterResult,
 } from "./application/types/review/safeguard-filter.contract"
+export {AuditLogService, type IAuditLogServiceDependencies, type ILogAuditInput} from "./application/services/audit-log.service"
+export {
+    DeduplicationSafeguardFilter,
+    HallucinationSafeguardFilter,
+    type IHallucinationSafeguardFilterDependencies,
+    ImplementationCheckSafeguardFilter,
+    PrioritySortSafeguardFilter,
+    SeverityThresholdSafeguardFilter,
+} from "./application/use-cases/review/safeguards"
 export {type IPendingDomainEventEnvelope} from "./application/types/review/pending-domain-event.contract"
 export {
     ReviewPipelineState,
@@ -337,6 +365,7 @@ export {
     type IReconstituteProjectProps,
     ProjectFactory,
 } from "./domain/factories/project.factory"
+export {type IAuditLogChange, type IAuditLogProps, type IAuditLogTarget, AuditLog} from "./domain/entities/audit-log.entity"
 export {
     type ICreateCustomRuleProps,
     type IReconstituteCustomRuleProps,

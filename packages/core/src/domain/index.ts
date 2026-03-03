@@ -6,6 +6,7 @@ export {
     type IOrganizationProps,
 } from "./aggregates/organization.aggregate"
 export {Entity} from "./entities/entity"
+export {type IAuditLogChange, type IAuditLogProps, type IAuditLogTarget, AuditLog} from "./entities/audit-log.entity"
 export {
     ISSUE_CATEGORY,
     ReviewIssue,
