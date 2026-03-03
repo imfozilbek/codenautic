@@ -377,6 +377,7 @@ export {
     UserFactory,
 } from "./domain/factories/user.factory"
 export {RuleStatusPolicyService} from "./domain/services/rule-status-policy.service"
+export {RuleEffectivenessService} from "./domain/services/rule-effectiveness.service"
 export {CodeChunk, type ICreateCodeChunkProps} from "./domain/value-objects/code-chunk.value-object"
 export {
     DIFF_FILE_STATUS,

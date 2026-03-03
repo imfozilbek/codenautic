@@ -72,6 +72,7 @@ export {UnauthorizedError} from "./errors/unauthorized.error"
 export {ValidationError, type IValidationErrorField} from "./errors/validation.error"
 export * from "./factories"
 export {RuleStatusPolicyService} from "./services/rule-status-policy.service"
+export {RuleEffectivenessService} from "./services/rule-effectiveness.service"
 export {
     API_KEY_STATUS,
     type ApiKeyStatus,
