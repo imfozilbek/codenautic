@@ -4,14 +4,23 @@ import { type ZodError, z } from "zod"
 /**
  * Результат валидации с нормализованным описанием ошибки.
  */
-export interface IZodParseResult<TData> {
-    /** Прошла ли валидация. */
-    readonly success: boolean
-    /** Данные после парсинга. */
-    readonly data?: TData
-    /** Сообщение ошибки (если есть). */
-    readonly error?: string
-}
+export type IZodParseResult<TData> =
+    | {
+          /** Прошла ли валидация. */
+          readonly success: true
+          /** Данные после парсинга. */
+          readonly data: TData
+          /** Сообщение ошибки (если есть). */
+          readonly error?: undefined
+      }
+    | {
+          /** Прошла ли валидация. */
+          readonly success: false
+          /** Данные после парсинга. */
+          readonly data?: undefined
+          /** Сообщение ошибки (если есть). */
+          readonly error: string
+      }
 
 /**
  * Результат валидации массива enum из неизвестного значения.
@@ -66,8 +75,14 @@ export function parseSchemaOrError<TData>(
  */
 export function createEnumSchema<TValues extends readonly [string, ...string[]]>(
     values: TValues,
-): ReturnType<typeof z.enum<TValues>> {
-    return z.enum(values)
+): z.ZodType<TValues[number]> {
+    const lookup = new Set(values)
+
+    return z
+        .string()
+        .refine((value): value is TValues[number] => {
+            return typeof value === "string" && lookup.has(value)
+        }, "Некорректное enum значение") as z.ZodType<TValues[number]>
 }
 
 /**
@@ -152,11 +167,14 @@ export function sanitizeTextInput(value: string): ITextSanitizerResult {
  *
  * @returns Zod-схема с sanitize и trim.
  */
-export function createSanitizedStringSchema(): z.ZodEffects<z.ZodString, string, string> {
-    return z
-        .string()
-        .trim()
-        .transform((value: string): string => sanitizeText(value))
+export function createSanitizedStringSchema(): z.ZodType<string> {
+    return z.preprocess((value: unknown): unknown => {
+        if (typeof value !== "string") {
+            return value
+        }
+
+        return sanitizeText(value)
+    }, z.string())
 }
 
 /**
@@ -164,28 +182,28 @@ export function createSanitizedStringSchema(): z.ZodEffects<z.ZodString, string,
  *
  * @returns Zod-схема optional с sanitize.
  */
-export function createOptionalSanitizedStringSchema(): z.ZodEffects<
-    z.ZodOptional<z.ZodString>,
-    string | undefined,
-    string | undefined
-> {
-    return z
-        .string()
-        .optional()
-        .transform((value: string | undefined): string | undefined =>
-            value === undefined ? undefined : sanitizeText(value),
-        )
+export function createOptionalSanitizedStringSchema(): z.ZodType<string | undefined> {
+    return z.preprocess((value: unknown): unknown => {
+        if (typeof value !== "string") {
+            return value
+        }
+
+        return sanitizeText(value)
+    }, z.string().optional())
 }
 
 /**
  * Извлекает первое сообщение ошибки валидатора.
  */
 function extractFirstIssueMessage<T>(error: ZodError<T>): string {
-    const issues = error.issues
-    const firstIssue = issues[0]
+    const firstIssue = error.issues[0]
     if (firstIssue === undefined) {
         return "Ошибка валидации"
     }
 
-    return `${firstIssue.path.join(".")} — ${firstIssue.message}`
+    const path = firstIssue.path
+    const parsedPath =
+        path.length === 0 ? "value" : path.map((item): string => String(item)).join(".")
+
+    return `${parsedPath} — ${firstIssue.message}`
 }

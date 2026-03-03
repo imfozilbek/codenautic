@@ -34,6 +34,7 @@ export function useIntersectionObserver(
     options: IUseIntersectionObserverOptions = {},
 ): IUseIntersectionObserverResult {
     const { enabled = true, root = null, rootMargin = "0px", threshold = 0 } = options
+    const normalizedThreshold = normalizeThreshold(threshold)
     const targetRef = useRef<HTMLElement | null>(null)
     const [isIntersecting, setIsIntersecting] = useState<boolean>(false)
 
@@ -61,7 +62,7 @@ export function useIntersectionObserver(
             {
                 root,
                 rootMargin,
-                threshold,
+                threshold: normalizedThreshold,
             },
         )
         observer.observe(target)
@@ -70,10 +71,40 @@ export function useIntersectionObserver(
             observer.unobserve(target)
             observer.disconnect()
         }
-    }, [enabled, root, rootMargin, threshold])
+    }, [enabled, root, rootMargin, normalizedThreshold])
 
     return {
         targetRef,
         isIntersecting,
     }
+}
+
+function normalizeThreshold(
+    threshold: number | readonly number[] | undefined,
+): number | number[] {
+    if (threshold === undefined) {
+        return 0
+    }
+
+    if (isReadOnlyNumberArray(threshold)) {
+        return [...threshold]
+    }
+
+    return threshold
+}
+
+function isReadOnlyNumberArray(
+    value: unknown,
+): value is readonly number[] {
+    if (Array.isArray(value) === false) {
+        return false
+    }
+
+    for (const threshold of value) {
+        if (typeof threshold !== "number") {
+            return false
+        }
+    }
+
+    return true
 }

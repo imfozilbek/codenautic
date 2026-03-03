@@ -24,26 +24,26 @@ export function SettingsPage(): ReactElement {
                     </p>
                     <ul className="space-y-1">
                         <li>
-                            <Link
-                                className="underline underline-offset-4"
-                                to="/settings/code-review"
-                            >
+                        <Link
+                            className="underline underline-offset-4"
+                                to="/settings-code-review"
+                        >
                                 Code Review configuration
                             </Link>
                         </li>
                         <li>
-                            <Link
-                                className="underline underline-offset-4"
-                                to="/settings/llm-providers"
-                            >
+                        <Link
+                            className="underline underline-offset-4"
+                                to="/settings-llm-providers"
+                        >
                                 LLM providers
                             </Link>
                         </li>
                         <li>
-                            <Link
-                                className="underline underline-offset-4"
-                                to="/settings/git-providers"
-                            >
+                        <Link
+                            className="underline underline-offset-4"
+                                to="/settings-git-providers"
+                        >
                                 Git providers
                             </Link>
                         </li>

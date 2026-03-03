@@ -27,7 +27,7 @@ export interface IUseDebouncedSearchOptions<TData, TError = Error> {
 /**
  * Результат DebouncedSearch-хука.
  */
-export interface IUseDebouncedSearchResult<TData, TError> extends UseQueryResult<TData, TError> {
+export type IUseDebouncedSearchResult<TData, TError> = UseQueryResult<TData, TError> & {
     /** Исходный поисковый текст. */
     readonly search: string
     /** Debounced поисковый текст. */

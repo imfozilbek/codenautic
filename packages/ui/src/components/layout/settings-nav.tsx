@@ -19,17 +19,17 @@ const DEFAULT_SETTINGS_NAV_ITEMS = [
     {
         icon: "🧩",
         label: "Code Review",
-        to: "/settings/code-review",
+        to: "/settings-code-review",
     },
     {
         icon: "🧠",
         label: "LLM Providers",
-        to: "/settings/llm-providers",
+        to: "/settings-llm-providers",
     },
     {
         icon: "🐙",
         label: "Git Providers",
-        to: "/settings/git-providers",
+        to: "/settings-git-providers",
     },
 ] as const
 

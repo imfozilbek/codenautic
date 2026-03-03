@@ -39,15 +39,14 @@ export function Textarea(props: TextareaProps): ReactElement {
         label,
         onChange,
         onValueChange,
+        onBlur,
         isInvalid,
         startContent,
         ...textareaProps
     } = props
 
-    const validationState =
-        isInvalid === true ? "invalid" : isInvalid === false ? "valid" : undefined
     const textareaClassName = buildTextareaClassName(
-        className ?? "",
+        className,
         startContent !== undefined,
         endContent !== undefined,
     )
@@ -66,7 +65,8 @@ export function Textarea(props: TextareaProps): ReactElement {
         <HeroUITextarea
             {...textareaProps}
             className={textareaClassName}
-            validationState={validationState}
+            data-invalid={isInvalid === true ? "true" : undefined}
+            onBlur={onBlur}
             onChange={handleChange}
         />
     )
@@ -96,11 +96,29 @@ export function Textarea(props: TextareaProps): ReactElement {
 }
 
 function buildTextareaClassName(
-    className: string,
+    className: ITextareaProps["className"],
     hasStartContent: boolean,
     hasEndContent: boolean,
-): string {
-    const entries: string[] = [className]
+): HeroUITextareaProps["className"] {
+    if (typeof className === "function") {
+        return className
+    }
+
+    const suffixClassName = buildSpacingClassName(hasStartContent, hasEndContent)
+
+    if (typeof className === "string") {
+        const entries = [className, suffixClassName]
+        return entries.filter((entry): boolean => entry.length > 0).join(" ")
+    }
+
+    if (className === undefined) {
+        return suffixClassName.length > 0 ? suffixClassName : undefined
+    }
+
+}
+
+function buildSpacingClassName(hasStartContent: boolean, hasEndContent: boolean): string {
+    const entries: string[] = []
     if (hasStartContent === true) {
         entries.push("ps-9")
     }

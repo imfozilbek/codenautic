@@ -1,7 +1,6 @@
 import { type ChangeEvent, type ReactElement, useEffect, useMemo, useState } from "react"
 
 import { ReviewsContent, type IReviewRow } from "@/components/reviews/reviews-content"
-import { type IReviewsTableProps } from "@/components/reviews/reviews-table"
 
 /** Параметры URL-фильтров для страницы CCR. */
 export interface ICcrFilters {
@@ -393,7 +392,7 @@ export function CcrManagementPage(props: ICcrManagementPageProps): ReactElement 
                 hasMore={hasMore}
                 isLoadingMore={false}
                 onLoadMore={handleLoadMore}
-                rows={visibleRows as IReviewsTableProps["rows"]}
+                rows={visibleRows}
             />
         </section>
     )

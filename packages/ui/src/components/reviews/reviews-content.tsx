@@ -101,3 +101,4 @@ export function ReviewsContent(props: IReviewsContentProps): ReactElement {
  * Тип статуса для удобства сборки фильтров.
  */
 export type { TReviewStatus }
+export type { IReviewRow } from "./reviews-table"

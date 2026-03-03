@@ -6,7 +6,7 @@ import {
     type FieldPath,
     type FieldValues,
 } from "react-hook-form"
-import { Textarea, type TextareaProps } from "@/components/ui"
+import { Textarea, type TextareaProps } from "@/components/ui/textarea"
 
 import { pickFieldMessage } from "./form-field-utils"
 
@@ -91,7 +91,6 @@ export function FormTextareaField<
                             aria-invalid={hasError}
                             id={fieldId}
                             isInvalid={hasError}
-                            minRows={2}
                             name={field.name}
                             value={value}
                             onBlur={field.onBlur}

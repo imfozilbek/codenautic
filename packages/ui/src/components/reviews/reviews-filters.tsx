@@ -13,12 +13,16 @@ function getSelectedKey(keys: unknown): string {
         return "all"
     }
 
-    if (keys instanceof Set === false) {
+    if (isReadableSetOfString(keys) === false) {
         return "all"
     }
 
-    const nextValue = [...keys][0]
+    const nextValue = keys.values().next().value
     return typeof nextValue === "string" ? nextValue : "all"
+}
+
+function isReadableSetOfString(value: unknown): value is ReadonlySet<unknown> {
+    return value instanceof Set
 }
 
 /**
@@ -94,7 +98,7 @@ export function ReviewsFilters(props: IReviewsFiltersProps): ReactElement {
                     ),
                 )}
             </Select>
-            <Button variant="secondary" onPress={props.onReset}>
+            <Button variant="tertiary" onPress={props.onReset}>
                 Reset
             </Button>
         </div>

@@ -30,7 +30,7 @@ export function UserMenu(props: IUserMenuProps): ReactElement {
             <DropdownTrigger>
                 <Button className="h-8 min-h-8 px-1" radius="full" size="sm" variant="light">
                     <div className="inline-flex items-center gap-2 rounded-full">
-                        <Avatar name={props.userName ?? "User"} size="sm" />
+                        <Avatar label={props.userName ?? "User"} size="sm" />
                         <span className="hidden text-xs font-medium sm:inline">
                             {props.userName ?? "User"}
                         </span>

@@ -58,7 +58,7 @@ export function FormTextField<
 >(props: IFormTextFieldProps<TFormValues, TName>): ReactElement {
     const fieldId = props.id ?? String(props.name)
     const hasRequiredMarker = props.rules?.required !== undefined
-    const isInputDisabled = props.inputProps?.isDisabled === true
+    const isInputDisabled = props.inputProps?.disabled === true
 
     return (
         <Controller
@@ -88,7 +88,7 @@ export function FormTextField<
                             }
                             aria-invalid={hasError}
                             id={fieldId}
-                            isDisabled={isInputDisabled}
+                            disabled={isInputDisabled}
                             isInvalid={hasError}
                             name={field.name}
                             value={value}

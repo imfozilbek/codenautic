@@ -101,7 +101,7 @@ const WORK_QUEUE_ENTRIES = [
     {
         description: "Provider key usage limit reached in current period.",
         id: "provider-health",
-        route: "/settings/llm-providers",
+        route: "/settings-llm-providers",
         title: "Provider health",
     },
     {
@@ -240,7 +240,7 @@ function renderExploreCard(): ReactElement {
                     <li>
                         <Link
                             className="text-sm font-medium underline underline-offset-4"
-                            to="/settings/code-review"
+                            to="/settings-code-review"
                         >
                             Code review configuration
                         </Link>
@@ -248,7 +248,7 @@ function renderExploreCard(): ReactElement {
                     <li>
                         <Link
                             className="text-sm font-medium underline underline-offset-4"
-                            to="/settings/llm-providers"
+                            to="/settings-llm-providers"
                         >
                             LLM provider config
                         </Link>
@@ -256,7 +256,7 @@ function renderExploreCard(): ReactElement {
                     <li>
                         <Link
                             className="text-sm font-medium underline underline-offset-4"
-                            to="/settings/git-providers"
+                            to="/settings-git-providers"
                         >
                             Git provider config
                         </Link>

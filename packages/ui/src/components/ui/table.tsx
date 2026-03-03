@@ -3,7 +3,7 @@ import { type ReactElement, type ReactNode, type HTMLAttributes } from "react"
 /**
  * Свойства таблицы.
  */
-export interface TableProps
+export interface ITableProps
     extends Omit<HTMLAttributes<HTMLTableElement>, "children" | "onChange"> {
     /** Дочерние ячейки и секции. */
     readonly children?: ReactNode
@@ -20,7 +20,7 @@ export type TableHeaderProps = Omit<HTMLAttributes<HTMLTableSectionElement>, "ch
 /**
  * Свойства тела таблицы.
  */
-export interface TableBodyProps extends Omit<HTMLAttributes<HTMLTableSectionElement>, "children"> {
+export interface ITableBodyProps extends Omit<HTMLAttributes<HTMLTableSectionElement>, "children"> {
     /** Пустое состояние. */
     readonly emptyContent?: ReactNode
     /** Дочерние строки. */
@@ -54,7 +54,7 @@ export type TableCellProps = Omit<HTMLAttributes<HTMLTableCellElement>, "childre
 /**
  * Табличная оболочка на базе HTML-семантики.
  */
-export function Table({ className, children, ...props }: TableProps): ReactElement {
+export function Table({ className, children, ...props }: ITableProps): ReactElement {
     return (
         <div className="w-full overflow-x-auto">
             <table className={`min-w-full ${className ?? ""}`.trim()} {...props}>
@@ -78,7 +78,7 @@ export function TableHeader({ children, ...props }: TableHeaderProps): ReactElem
 /**
  * Тело таблицы.
  */
-export function TableBody({ children, emptyContent, ...props }: TableBodyProps): ReactElement {
+export function TableBody({ children, emptyContent, ...props }: ITableBodyProps): ReactElement {
     const renderedChildren =
         typeof children === "undefined"
             ? []
@@ -132,4 +132,4 @@ export function TableCell({ children, ...props }: TableCellProps): ReactElement 
     )
 }
 
-export type { TableProps as TableComponentProps }
+export type { ITableProps as TableProps, ITableBodyProps as TableBodyProps }

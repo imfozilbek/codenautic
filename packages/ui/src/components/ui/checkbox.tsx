@@ -22,14 +22,13 @@ export interface ICheckboxProps extends Omit<HeroUICheckboxProps, "onChange"> {
  * @returns HeroUI Checkbox.
  */
 export function Checkbox(props: ICheckboxProps): ReactElement {
-    const { children, isInvalid, onValueChange, ...checkboxProps } = props
-    const validationState = isInvalid === true ? "invalid" : isInvalid === false ? "valid" : undefined
+        const { children, isInvalid, onValueChange, ...checkboxProps } = props
 
     return (
         <HeroUICheckbox
             {...checkboxProps}
-            validationState={validationState}
-            onValueChange={onValueChange}
+            isInvalid={isInvalid}
+            onChange={onValueChange}
         >
             {children}
         </HeroUICheckbox>

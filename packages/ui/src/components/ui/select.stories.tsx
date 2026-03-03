@@ -38,7 +38,6 @@ function DefaultSelectStory(): ReactElement {
 
     return (
         <Select
-            label="LLM Provider"
             placeholder="Select provider"
             selectionMode="single"
             selectedKeys={new Set([selected])}

@@ -36,16 +36,16 @@ export function Input(props: InputProps): ReactElement {
     const {
         className,
         endContent,
+        disabled,
         label,
         onChange,
         onValueChange,
+        onBlur,
         isInvalid,
         startContent,
         ...inputProps
     } = props
 
-    const validationState =
-        isInvalid === true ? "invalid" : isInvalid === false ? "valid" : undefined
     const inputClassName = buildInputClassName(
         className ?? "",
         startContent !== undefined,
@@ -63,11 +63,15 @@ export function Input(props: InputProps): ReactElement {
         }
     }
 
+    const isDisabled = disabled
+
     const input = (
         <HeroUIInput
             {...inputProps}
-            className={inputClassName}
-            validationState={validationState}
+            disabled={isDisabled}
+        className={inputClassName}
+            data-invalid={isInvalid === true ? "true" : undefined}
+            onBlur={onBlur}
             onChange={handleChange}
         />
     )
@@ -97,11 +101,29 @@ export function Input(props: InputProps): ReactElement {
 }
 
 function buildInputClassName(
-    className: string,
+    className: IInputProps["className"],
     hasStartContent: boolean,
     hasEndContent: boolean,
-): string {
-    const entries: string[] = [className]
+): HeroUIInputProps["className"] {
+    if (typeof className === "function") {
+        return className
+    }
+
+    const suffixClassName = buildSpacingClassName(hasStartContent, hasEndContent)
+
+    if (typeof className === "string") {
+        const entries = [className, suffixClassName]
+        return entries.filter((entry): boolean => entry.length > 0).join(" ")
+    }
+
+    if (className === undefined) {
+        return suffixClassName.length > 0 ? suffixClassName : undefined
+    }
+
+}
+
+function buildSpacingClassName(hasStartContent: boolean, hasEndContent: boolean): string {
+    const entries: string[] = []
     if (hasStartContent === true) {
         entries.push("pl-9")
     }

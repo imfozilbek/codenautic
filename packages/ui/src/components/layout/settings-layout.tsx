@@ -23,17 +23,17 @@ const SETTINGS_NAV = [
     {
         icon: "🧩",
         label: "Code Review",
-        to: "/settings/code-review",
+        to: "/settings-code-review",
     },
     {
         icon: "🧠",
         label: "LLM Providers",
-        to: "/settings/llm-providers",
+        to: "/settings-llm-providers",
     },
     {
         icon: "🐙",
         label: "Git Providers",
-        to: "/settings/git-providers",
+        to: "/settings-git-providers",
     },
 ] as const
 

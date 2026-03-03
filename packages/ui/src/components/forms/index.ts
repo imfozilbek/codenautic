@@ -1,6 +1,7 @@
 export { FormCheckboxField } from "./form-checkbox-field"
 export { FormNumberField } from "./form-number-field"
 export { FormPasswordField } from "./form-password-field"
+export { type IFormSelectOption } from "./form-select-field"
 export { FormRadioGroupField } from "./form-radio-group-field"
 export { FormSelectField } from "./form-select-field"
 export { FormSubmitButton } from "./form-submit-button"

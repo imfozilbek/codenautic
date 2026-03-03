@@ -1,7 +1,12 @@
 import { type ReactElement } from "react"
 import { Laptop, Moon, Sun } from "lucide-react"
 import { Button } from "@/components/ui"
-import { type ThemeMode, type ThemePresetId, useThemeMode } from "@/lib/theme/theme-provider"
+import {
+    type ThemeMode,
+    type ThemePresetId,
+    type IThemePreset,
+    useThemeMode,
+} from "@/lib/theme/theme-provider"
 
 const MODE_OPTIONS: ReadonlyArray<{
     /** Значение режима. */
@@ -57,7 +62,9 @@ export function ThemeToggle(props: IThemeToggleProps): ReactElement {
                 <ThemeModeButtons currentMode={mode} onModeChange={setMode} />
                 <ThemePresetButtons
                     currentPreset={preset}
-                    onPresetChange={setPreset}
+                    onPresetChange={(nextPreset): void => {
+                        setPreset(nextPreset as ThemePresetId)
+                    }}
                     presets={presets}
                 />
                 <p className="px-1 text-xs text-slate-600">
@@ -90,17 +97,16 @@ function ThemeModeButtons({
                 const isSelected = option.value === currentMode
 
                 return (
-                    <Button
-                        key={option.value}
-                        aria-label={option.ariaLabel}
-                        aria-pressed={isSelected}
-                        aria-selected={isSelected}
-                        className="min-w-0 px-2"
-                        radius="full"
-                        role="radio"
-                        size="sm"
-                        variant={isSelected ? "solid" : "light"}
-                        onPress={(): void => {
+                        <Button
+                            key={option.value}
+                            aria-label={option.ariaLabel}
+                            aria-pressed={isSelected}
+                            aria-selected={isSelected}
+                            className="min-w-0 px-2"
+                            radius="full"
+                            size="sm"
+                            variant={isSelected ? "solid" : "light"}
+                            onPress={(): void => {
                             onModeChange(option.value)
                         }}
                     >
@@ -120,17 +126,9 @@ function ThemePresetButtons({
     onPresetChange,
     presets,
 }: {
-    readonly currentPreset: ThemePresetId
-    readonly onPresetChange: (nextPreset: ThemePresetId) => void
-    readonly presets: ReadonlyArray<{
-        readonly id: ThemePresetId
-        readonly label: string
-        readonly light: {
-            readonly primary: string
-            readonly accent: string
-            readonly surface: string
-        }
-    }>
+    readonly currentPreset: string
+    readonly onPresetChange: (nextPreset: string) => void
+    readonly presets: ReadonlyArray<IThemePreset>
 }): ReactElement {
     return (
         <div className="flex flex-wrap items-center gap-2">
@@ -200,8 +198,8 @@ function ThemePalettePreview({
 }
 
 function getPresetLabel(
-    presets: ReadonlyArray<{ readonly id: ThemePresetId; readonly label: string }>,
-    presetId: ThemePresetId,
+    presets: ReadonlyArray<IThemePreset>,
+    presetId: string,
 ): string {
     const nextPreset = presets.find((themePreset): boolean => themePreset.id === presetId)
     if (nextPreset === undefined) {
@@ -213,11 +211,11 @@ function getPresetLabel(
 
 function getPresetPalette(
     presets: ReadonlyArray<{
-        readonly id: ThemePresetId
+        readonly id: string
         readonly light: Record<"primary" | "accent" | "success", string>
         readonly dark: Record<"primary" | "accent" | "success", string>
     }>,
-    presetId: ThemePresetId,
+    presetId: string,
     resolvedMode: "light" | "dark",
 ): { readonly primary: string; readonly accent: string; readonly success: string } | undefined {
     const activePreset = presets.find((item): boolean => item.id === presetId)

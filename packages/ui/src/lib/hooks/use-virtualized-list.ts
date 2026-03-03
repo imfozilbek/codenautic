@@ -19,7 +19,7 @@ export interface IUseVirtualizedListOptions {
  */
 export interface IUseVirtualizedListResult {
     /** Ref контейнера со scroll. */
-    readonly parentRef: RefObject<HTMLDivElement>
+    readonly parentRef: RefObject<HTMLDivElement | null>
     /** Полный размер прокручиваемой зоны. */
     readonly totalSize: number
     /** Отрисовываемые виртуальные элементы. */

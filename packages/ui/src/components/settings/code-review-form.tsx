@@ -1,6 +1,7 @@
 import { type ReactElement } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
+import { z } from "zod"
 
 import {
     FormNumberField,
@@ -35,17 +36,17 @@ export interface ICodeReviewFormProps {
 export function CodeReviewForm(props: ICodeReviewFormProps): ReactElement {
     const cadenceOptions: ReadonlyArray<IFormSelectOption> = CODE_REVIEW_CADENCE_OPTIONS.map(
         (item): IFormSelectOption => ({
-            label: item[0].toUpperCase() + item.slice(1),
+            label: `${item.charAt(0).toUpperCase()}${item.slice(1)}`,
             value: item,
         }),
     )
     const severityOptions: ReadonlyArray<IFormSelectOption> = CODE_REVIEW_SEVERITY_OPTIONS.map(
         (item): IFormSelectOption => ({
-            label: item[0].toUpperCase() + item.slice(1),
+            label: `${item.charAt(0).toUpperCase()}${item.slice(1)}`,
             value: item,
         }),
     )
-    const form = useForm<ICodeReviewFormValues>({
+    const form = useForm<z.input<typeof codeReviewFormSchema>, unknown, ICodeReviewFormValues>({
         defaultValues: {
             cadence: props.initialValues?.cadence ?? CODE_REVIEW_CADENCE_OPTIONS[0],
             enableDriftSignals: props.initialValues?.enableDriftSignals === true,

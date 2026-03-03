@@ -32,6 +32,7 @@ export interface ISelectItemProps {
     readonly value?: string
     readonly id?: string
     readonly children?: ReactNode
+    readonly isDisabled?: boolean
 }
 
 export type SelectItemProps = ISelectItemProps
@@ -88,11 +89,11 @@ export function Select(props: SelectProps): ReactElement {
  * Пункт выборки в совместимом Select.
  */
 export function SelectItem(props: SelectItemProps): ReactElement {
-    const { id, value, children } = props
+    const { id, value, children, isDisabled } = props
     const itemId = value ?? id
 
     return (
-        <ListBoxItem id={itemId} textValue={itemId}>
+        <ListBoxItem id={itemId} textValue={itemId} isDisabled={isDisabled}>
             {children}
         </ListBoxItem>
     )

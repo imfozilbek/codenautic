@@ -264,7 +264,7 @@ describe("form components", (): void => {
 
         renderWithProviders(<PasswordHarness passwordDefault="initial-pass" />)
 
-        const input = screen.getByLabelText("Password")
+        const input = screen.getByLabelText("Password") as HTMLInputElement
         const showButton = screen.getByRole("button", { name: "Show password text" })
 
         expect(input.type).toBe("password")
@@ -347,7 +347,7 @@ describe("form components", (): void => {
             </form>,
         )
 
-        const button = screen.getByRole("button", { name: "Сохраняем..." })
+        const button = screen.getByRole("button", { name: "Сохраняем..." }) as HTMLButtonElement
         expect(button.disabled).toBe(true)
         expect(button.getAttribute("aria-busy")).toBe("true")
         expect(button.textContent).toBe("Сохраняем...")

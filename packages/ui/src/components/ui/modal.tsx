@@ -23,7 +23,7 @@ export const Modal = HeroUIModal
  * Legacy `ModalContent` wrapper.
  */
 export function ModalContent(
-    props: Omit<HTMLAttributes<HTMLDivElement>, "children"> & {
+    props: Omit<HeroUIModalDialogProps, "children"> & {
         readonly children?: ReactNode
     },
 ): ReactElement {

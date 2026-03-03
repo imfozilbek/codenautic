@@ -84,7 +84,7 @@ describe("schema-validation", (): void => {
         })
 
         if (result.success !== true) {
-            expect(result.error).toContain("enabled")
+            expect(result.error.toLowerCase()).toContain("enabled")
             return
         }
 

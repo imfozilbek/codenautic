@@ -22,13 +22,12 @@ interface ISwitchProps extends HeroUISwitchProps {
  */
 export function Switch(props: ISwitchProps): ReactElement {
     const { children, isInvalid, onValueChange, ...switchProps } = props
-    const validationState = isInvalid === true ? "invalid" : isInvalid === false ? "valid" : undefined
 
     return (
         <HeroUISwitch
             {...switchProps}
-            validationState={validationState}
-            onValueChange={onValueChange}
+            data-invalid={isInvalid === true ? "true" : undefined}
+            onChange={onValueChange}
         >
             {children}
         </HeroUISwitch>

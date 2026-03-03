@@ -3,6 +3,11 @@ import { type ReactElement, useMemo, useState } from "react"
 import { Button, Card, CardBody, CardHeader } from "@/components/ui"
 import { showToastError, showToastInfo, showToastSuccess } from "@/lib/notifications/toast"
 import {
+    LLM_MODEL_OPTIONS,
+    LLM_PROVIDER_OPTIONS,
+    type ILlmProviderFormValues,
+} from "@/components/settings/settings-form-schemas"
+import {
     LlmProviderForm,
 } from "@/components/settings/llm-provider-form"
 import { TestConnectionButton } from "@/components/settings/test-connection-button"
@@ -10,9 +15,9 @@ import { TestConnectionButton } from "@/components/settings/test-connection-butt
 /** Конфигурация LLM integration. */
 interface ILlmProviderConfig {
     /** Провайдер. */
-    readonly provider: string
+    readonly provider: TLlmProvider
     /** Активная модель. */
-    readonly model: string
+    readonly model: TLlmModel
     /** API key. */
     readonly apiKey: string
     /** Custom endpoint. */
@@ -21,32 +26,15 @@ interface ILlmProviderConfig {
     readonly connected: boolean
 }
 
-const LL_MODEL_OPTIONS = [
-    "gpt-4o-mini",
-    "gpt-4o",
-    "claude-3-7-sonnet",
-    "mistral-small-latest",
-] as const
-const LLM_PROVIDER_OPTIONS = ["OpenAI", "Anthropic", "Azure OpenAI", "Mistral"] as const
 type TLlmProvider = (typeof LLM_PROVIDER_OPTIONS)[number]
-interface INormalizedLlmProviderFormValues {
-    /** Провайдер. */
-    readonly provider: string
-    /** Модель. */
-    readonly model: string
-    /** API key. */
-    readonly apiKey: string
-    /** Custom endpoint. */
-    readonly endpoint: string
-    /** Признак теста после сохранения. */
-    readonly testAfterSave: boolean
-}
+type TLlmModel = (typeof LLM_MODEL_OPTIONS)[number]
+type INormalizedLlmProviderFormValues = ILlmProviderFormValues
 
-const DEFAULT_INITIAL_PROVIDER: string = LLM_PROVIDER_OPTIONS[0]
+const DEFAULT_INITIAL_PROVIDER: TLlmProvider = LLM_PROVIDER_OPTIONS[0]
 const DEFAULT_FORM_VALUES: INormalizedLlmProviderFormValues = {
     apiKey: "",
     endpoint: "",
-    model: LL_MODEL_OPTIONS[0],
+    model: LLM_MODEL_OPTIONS[0],
     provider: DEFAULT_INITIAL_PROVIDER,
     testAfterSave: false,
 }
@@ -131,11 +119,11 @@ function normalizeFormValues(raw: unknown): INormalizedLlmProviderFormValues {
                 typeof next.endpoint === "string" && next.endpoint.length > 0
                     ? next.endpoint
                     : DEFAULT_FORM_VALUES.endpoint,
-            model: sanitizeChoice(LL_MODEL_OPTIONS, next.model),
-            provider: sanitizeChoice(LLM_PROVIDER_OPTIONS, next.provider),
-            testAfterSave: next.testAfterSave === true,
+                model: sanitizeChoice(LLM_MODEL_OPTIONS, next.model),
+                provider: sanitizeChoice(LLM_PROVIDER_OPTIONS, next.provider),
+                testAfterSave: next.testAfterSave === true,
+            }
         }
-    }
 
     return DEFAULT_FORM_VALUES
 }
@@ -178,7 +166,7 @@ function toNextProviderConfig(
 function renderProviderCard(
     provider: TLlmProvider,
     config: ILlmProviderConfig,
-    onSave: (next: unknown) => void,
+    onSave: (next: INormalizedLlmProviderFormValues) => void,
     onTest: () => Promise<boolean>,
     isActionDisabled: boolean,
 ): ReactElement {
@@ -196,9 +184,9 @@ function renderProviderCard(
                         provider: config.provider,
                         testAfterSave: config.connected,
                     }}
-                    modelOptions={LL_MODEL_OPTIONS}
+                    modelOptions={LLM_MODEL_OPTIONS}
                     providers={[...LLM_PROVIDER_OPTIONS]}
-                    onSubmit={(next): void => {
+                    onSubmit={(next: INormalizedLlmProviderFormValues): void => {
                         onSave(normalizeFormValues(next))
                     }}
                 />

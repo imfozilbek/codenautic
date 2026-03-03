@@ -21,12 +21,16 @@ function getSelectedValue(keys: unknown): string | undefined {
         return undefined
     }
 
-    if (keys instanceof Set === false) {
+    if (isReadableSetOfString(keys) === false) {
         return undefined
     }
 
-    const nextValue = [...keys][0]
+    const nextValue = keys.values().next().value
     return typeof nextValue === "string" ? nextValue : undefined
+}
+
+function isReadableSetOfString(value: unknown): value is ReadonlySet<unknown> {
+    return value instanceof Set
 }
 
 /**
@@ -124,9 +128,10 @@ export function FormSelectField<
                         >
                             {props.options.map((option): ReactElement => {
                                 return (
-                                    <SelectItem
+                                <SelectItem
                                         key={option.value}
                                         isDisabled={option.isDisabled}
+                                        id={option.value}
                                         value={option.value}
                                     >
                                         <div className="flex flex-col">

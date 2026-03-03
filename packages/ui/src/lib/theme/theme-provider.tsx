@@ -62,7 +62,7 @@ export interface IThemePalette {
  */
 export interface IThemePreset {
     /** Уникальный ключ пресета. */
-    readonly id: string
+    readonly id: ThemePresetId
     /** Читаемое название пресета. */
     readonly label: string
     /** Короткое описание. */

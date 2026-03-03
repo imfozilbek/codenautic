@@ -8,7 +8,9 @@ interface IToastApi {
     /** Предупреждение. */
     readonly warning: (message: string) => void
     /** Ошибка. */
-    readonly error: (message: string) => void
+    readonly danger: (message: string) => void
+    /** Legacy error alias. */
+    readonly error?: (message: string) => void
 }
 
 const toastApi = toast as IToastApi
@@ -46,5 +48,12 @@ export function showToastWarning(message: string): void {
  * @param message Текст уведомления.
  */
 export function showToastError(message: string): void {
-    toastApi.error(message)
+    if (toastApi.danger !== undefined) {
+        toastApi.danger(message)
+        return
+    }
+
+    if (toastApi.error !== undefined) {
+        toastApi.error(message)
+    }
 }

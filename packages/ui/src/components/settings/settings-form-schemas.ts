@@ -45,44 +45,24 @@ export const codeReviewFormSchema = z.object({
  */
 const llmApiKeySchema = z
     .string()
+    .min(8, "Секретный ключ должен быть не короче 8 символов")
+    .max(256, "Слишком длинный ключ")
     .transform((value: string): string => sanitizeText(value))
-    .superRefine((value, context): void => {
-        if (value.length < 8) {
-            context.addIssue({
-                code: z.ZodIssueCode.too_small,
-                message: "Секретный ключ должен быть не короче 8 символов",
-                minimum: 8,
-                inclusive: true,
-                type: "string",
-            })
-            return
-        }
-
-        if (value.length > 256) {
-            context.addIssue({
-                code: z.ZodIssueCode.too_big,
-                message: "Слишком длинный ключ",
-                maximum: 256,
-                inclusive: true,
-                type: "string",
-            })
-        }
-    })
 
 export const llmProviderFormSchema = z.object({
     apiKey: llmApiKeySchema,
-    endpoint: z.preprocess((value: unknown): string | undefined => {
+    endpoint: z.preprocess((value: unknown): string => {
         if (typeof value !== "string") {
-            return undefined
+            return ""
         }
 
         const sanitizedEndpoint = sanitizeText(value)
         if (sanitizedEndpoint.length === 0) {
-            return undefined
+            return ""
         }
 
         return sanitizedEndpoint
-    }, z.string().url("Укажите корректный endpoint").max(250, "Слишком длинный URL").optional()),
+    }, z.union([z.literal(""), z.string().url("Укажите корректный endpoint").max(250, "Слишком длинный URL")])),
     model: z.enum(LLM_MODEL_OPTIONS),
     provider: z.enum(LLM_PROVIDER_OPTIONS),
     testAfterSave: z.boolean(),
