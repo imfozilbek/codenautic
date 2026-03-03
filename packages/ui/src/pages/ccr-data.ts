@@ -72,6 +72,88 @@ export interface ICcrDiffFile {
     readonly lines: ReadonlyArray<ICcrDiffLine>
 }
 
+/** Тип обратной связи по комментарию. */
+export type TReviewCommentFeedback = "like" | "dislike"
+
+/** Комментарий review с вложенностью. */
+export interface IReviewCommentThread {
+    /** Идентификатор комментария. */
+    readonly id: string
+    /** Автор комментария. */
+    readonly author: string
+    /** Сообщение. */
+    readonly message: string
+    /** Время создания. */
+    readonly createdAt: string
+    /** Разрешен ли комментарий. */
+    readonly isResolved: boolean
+    /** Оценка пользователем. */
+    readonly feedback?: TReviewCommentFeedback
+    /** Вложенные ответы. */
+    readonly replies: ReadonlyArray<IReviewCommentThread>
+}
+
+/** Mock-thread для review-контекста. */
+const MOCK_CCR_REVIEW_THREADS: ReadonlyArray<{
+    readonly ccrId: string
+    readonly threads: ReadonlyArray<IReviewCommentThread>
+}> = [
+    {
+        ccrId: "ccr-9001",
+        threads: [
+            {
+                id: "t1",
+                author: "Ari",
+                createdAt: "2026-03-01 10:20",
+                feedback: "like",
+                isResolved: false,
+                message: "Could we log the revoked error as a security event too?",
+                replies: [
+                    {
+                        id: "t1-1",
+                        author: "Nika",
+                        createdAt: "2026-03-01 10:28",
+                        isResolved: false,
+                        message: "Good point, we can hook into existing audit logger.",
+                        replies: [
+                            {
+                                id: "t1-1-1",
+                                author: "Oleg",
+                                createdAt: "2026-03-01 10:33",
+                                isResolved: true,
+                                feedback: "dislike",
+                                message: "Let's not add too much noise for revoked users.",
+                                replies: [],
+                            },
+                        ],
+                    },
+                ],
+            },
+            {
+                id: "t2",
+                author: "Sari",
+                createdAt: "2026-03-01 10:42",
+                isResolved: false,
+                message: "Do we still need return next() here or can middleware be async-safe?",
+                replies: [],
+            },
+        ],
+    },
+    {
+        ccrId: "ccr-9002",
+        threads: [
+            {
+                id: "u1",
+                author: "Lena",
+                createdAt: "2026-03-01 09:15",
+                isResolved: true,
+                message: "Need to add exponential backoff to retry queue.",
+                replies: [],
+            },
+        ],
+    },
+]
+
 /** Mock-диффы для CCR-деталок. */
 const MOCK_CCR_DIFFS: ReadonlyArray<{ ccrId: string; files: ReadonlyArray<ICcrDiffFile> }> = [
     {
@@ -439,4 +521,20 @@ export function getCcrDiffById(ccrId: string): ReadonlyArray<ICcrDiffFile> {
     }
 
     return entry.files
+}
+
+/**
+ * Получить mock-threadы комментариев для данного CCR.
+ *
+ * @param ccrId Идентификатор CCR.
+ * @returns Массив деревьев комментариев.
+ */
+export function getCcrReviewThreadsById(ccrId: string): ReadonlyArray<IReviewCommentThread> {
+    const entry = MOCK_CCR_REVIEW_THREADS.find((row): boolean => row.ccrId === ccrId)
+
+    if (entry === undefined) {
+        return []
+    }
+
+    return entry.threads
 }

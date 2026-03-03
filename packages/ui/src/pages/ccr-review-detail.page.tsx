@@ -4,10 +4,13 @@ import { Link } from "@tanstack/react-router"
 import { Card, CardBody, CardHeader } from "@/components/ui"
 import { ChatPanel, type IChatPanelContext, type IChatPanelMessage } from "@/components/chat/chat-panel"
 import { CodeDiffViewer } from "@/components/reviews/code-diff-viewer"
+import { ReviewCommentThread } from "@/components/reviews/review-comment-thread"
 import {
     ccrToContextItem,
     getCcrDiffById,
+    getCcrReviewThreadsById,
     type ICcrDiffFile,
+    type IReviewCommentThread,
     type ICcrRowData,
 } from "@/pages/ccr-data"
 
@@ -48,6 +51,9 @@ export function CcrReviewDetailPage(props: ICcrReviewDetailPageProps): ReactElem
     }, [ccr])
     const ccrDiffFiles = useMemo((): ReadonlyArray<ICcrDiffFile> => {
         return getCcrDiffById(ccr.id)
+    }, [ccr.id])
+    const ccrReviewThreads = useMemo((): ReadonlyArray<IReviewCommentThread> => {
+        return getCcrReviewThreadsById(ccr.id)
     }, [ccr.id])
 
     const quickActions = useMemo(
@@ -123,6 +129,7 @@ export function CcrReviewDetailPage(props: ICcrReviewDetailPageProps): ReactElem
             </Card>
 
             <CodeDiffViewer files={ccrDiffFiles} />
+            <ReviewCommentThread threads={ccrReviewThreads} />
             <ChatPanel
                 contextItems={[contextItem]}
                 isOpen
