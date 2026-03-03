@@ -4,6 +4,7 @@ import { Button } from "@/components/ui"
 import { showToastInfo, showToastSuccess } from "@/lib/notifications/toast"
 import { IgnorePathsEditor } from "@/components/settings/ignore-paths-editor"
 import { CodeReviewForm } from "@/components/settings/code-review-form"
+import { RuleEditor } from "@/components/settings/rule-editor"
 import type { ICodeReviewFormValues } from "@/components/settings/settings-form-schemas"
 
 const DEFAULT_IGNORED_PATHS: ReadonlyArray<string> = ["/dist", "/node_modules", "/coverage"] as const
@@ -21,6 +22,7 @@ export function SettingsCodeReviewPage(): ReactElement {
         suggestionsLimit: 8,
     })
     const [ignoredPaths, setIgnoredPaths] = useState<ReadonlyArray<string>>(DEFAULT_IGNORED_PATHS)
+    const [rulesText, setRulesText] = useState<string>("### Default review rules\n- Ensure each change has context.\n- Keep patches minimal.")
 
     const saveReviewForm = (nextValues: ICodeReviewFormValues): void => {
         setFormValues(nextValues)
@@ -49,6 +51,13 @@ export function SettingsCodeReviewPage(): ReactElement {
                 helperText="Игнорируемые пути используются как фильтр для сканирования и выдачи CCR."
                 ignoredPaths={ignoredPaths}
                 onChange={handlePathsChange}
+            />
+            <RuleEditor
+                id="code-review-rules-editor"
+                label="Review rules"
+                maxLength={4000}
+                onChange={setRulesText}
+                value={rulesText}
             />
             <form onSubmit={handlePathReset}>
                 <Button
