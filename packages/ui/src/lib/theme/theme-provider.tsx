@@ -51,6 +51,10 @@ function resolveSystemTheme(): "light" | "dark" {
         return "light"
     }
 
+    if (typeof window.matchMedia !== "function") {
+        return "light"
+    }
+
     return window.matchMedia("(prefers-color-scheme: dark)").matches === true ? "dark" : "light"
 }
 
