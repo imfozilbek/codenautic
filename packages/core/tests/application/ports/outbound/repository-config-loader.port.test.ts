@@ -3,6 +3,14 @@ import {describe, expect, test} from "bun:test"
 import type {IRepositoryConfigLoader, IReviewConfigDTO} from "../../../../src"
 
 class InMemoryRepositoryConfigLoader implements IRepositoryConfigLoader {
+    public loadConfig(_repositoryId: string): Promise<Partial<IReviewConfigDTO> | null> {
+        return Promise.resolve({
+            severityThreshold: "MEDIUM",
+            ignorePaths: ["README.md"],
+            maxSuggestionsPerFile: 5,
+        })
+    }
+
     public loadDefault(): Promise<Partial<IReviewConfigDTO> | null> {
         return Promise.resolve({
             severityThreshold: "LOW",
@@ -31,6 +39,13 @@ class InMemoryRepositoryConfigLoader implements IRepositoryConfigLoader {
 }
 
 describe("IRepositoryConfigLoader contract", () => {
+    test("returns repo config through loadConfig", async () => {
+        const loader = new InMemoryRepositoryConfigLoader()
+        const repositoryLayer = await loader.loadConfig("repo-1")
+
+        expect(repositoryLayer?.severityThreshold).toBe("MEDIUM")
+    })
+
     test("returns layered partial review config entries", async () => {
         const loader = new InMemoryRepositoryConfigLoader()
 

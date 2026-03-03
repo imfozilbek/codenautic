@@ -110,12 +110,12 @@ export class ResolveConfigStageUseCase implements IPipelineStageUseCase {
         context: IConfigResolutionContext,
     ): Promise<Result<IStageTransition, StageError>> {
         try {
-            const defaultLayer = await this.repositoryConfigLoader.loadDefault()
-            const organizationLayer = await this.repositoryConfigLoader.loadOrganization(
+            const defaultLayer = await this.loadDefaultLayer()
+            const organizationLayer = await this.loadOrganizationLayer(
                 context.organizationId,
                 context.teamId,
             )
-            const repositoryLayer = await this.repositoryConfigLoader.loadRepository(context.repositoryId)
+            const repositoryLayer = await this.loadRepositoryLayer(context.repositoryId)
 
             const defaultMergedResult = await this.configMerger.execute({
                 default: DEFAULT_REVIEW_CONFIG as unknown as Readonly<Record<string, unknown>>,
@@ -241,6 +241,57 @@ export class ResolveConfigStageUseCase implements IPipelineStageUseCase {
         }
 
         return Result.ok<string, StageError>(teamId)
+    }
+
+    /**
+     * Loads repository-level configuration using the new primary method or legacy alias.
+     *
+     * @param repositoryId Repository identifier.
+     * @returns Repository config layer or null.
+     */
+    private async loadRepositoryLayer(
+        repositoryId: string,
+    ): Promise<Partial<Record<string, unknown>> | null> {
+        if (this.repositoryConfigLoader.loadConfig !== undefined) {
+            return this.repositoryConfigLoader.loadConfig(repositoryId)
+        }
+
+        if (this.repositoryConfigLoader.loadRepository !== undefined) {
+            return this.repositoryConfigLoader.loadRepository(repositoryId)
+        }
+
+        return null
+    }
+
+    /**
+     * Loads default config layer when a loader method is available.
+     *
+     * @returns Default config layer or null.
+     */
+    private async loadDefaultLayer(): Promise<Partial<Record<string, unknown>> | null> {
+        if (this.repositoryConfigLoader.loadDefault === undefined) {
+            return null
+        }
+
+        return this.repositoryConfigLoader.loadDefault()
+    }
+
+    /**
+     * Loads organization config layer when a loader method is available.
+     *
+     * @param organizationId Organization identifier.
+     * @param teamId Team identifier.
+     * @returns Organization config layer or null.
+     */
+    private async loadOrganizationLayer(
+        organizationId: string,
+        teamId: string,
+    ): Promise<Partial<Record<string, unknown>> | null> {
+        if (this.repositoryConfigLoader.loadOrganization === undefined) {
+            return null
+        }
+
+        return this.repositoryConfigLoader.loadOrganization(organizationId, teamId)
     }
 
     /**

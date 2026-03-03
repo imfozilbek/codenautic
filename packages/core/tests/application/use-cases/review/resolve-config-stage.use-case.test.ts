@@ -11,6 +11,15 @@ class InMemoryRepositoryConfigLoader implements IRepositoryConfigLoader {
     public repositoryLayer: Partial<IReviewConfigDTO> | null = null
     public shouldThrow = false
 
+    public loadConfig(repositoryId: string): Promise<Partial<IReviewConfigDTO> | null> {
+        if (this.shouldThrow) {
+            return Promise.reject(new Error("loader unavailable"))
+        }
+
+        expect(repositoryId).toBeDefined()
+        return Promise.resolve(this.repositoryLayer)
+    }
+
     public loadDefault(): Promise<Partial<IReviewConfigDTO> | null> {
         if (this.shouldThrow) {
             return Promise.reject(new Error("loader unavailable"))
@@ -120,6 +129,28 @@ describe("ResolveConfigStageUseCase", () => {
         expect(result.value.state.config["severityThreshold"]).toBe("MEDIUM")
         expect(result.value.state.config["maxSuggestionsPerFile"]).toBe(5)
         expect(result.value.state.config["maxSuggestionsPerCCR"]).toBe(30)
+    })
+
+    test("prefers new loadConfig method when implemented", async () => {
+        const loader = new InMemoryRepositoryConfigLoader()
+        const useCase = new ResolveConfigStageUseCase(loader)
+        const state = createState({
+            repositoryId: "repo-1",
+            organizationId: "org-1",
+            teamId: "team-1",
+        })
+        loader.repositoryLayer = {
+            severityThreshold: "LOW",
+            ignorePaths: ["repo/**"],
+        }
+
+        const result = await useCase.execute({
+            state,
+        })
+
+        expect(result.isOk).toBe(true)
+        expect(result.value.state.config["severityThreshold"]).toBe("LOW")
+        expect(result.value.state.config["ignorePaths"]).toEqual(["repo/**"])
     })
 
     test("fails with not found error when organization id is missing", async () => {

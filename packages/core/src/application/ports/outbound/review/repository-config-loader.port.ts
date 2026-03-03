@@ -5,11 +5,12 @@ import type {IReviewConfigDTO} from "../../../dto/review/review-config.dto"
  */
 export interface IRepositoryConfigLoader {
     /**
-     * Loads global default review configuration layer.
+     * Loads complete repository configuration from repository file.
      *
-     * @returns Partial default config or null when absent.
+     * @param repositoryId Repository identifier.
+     * @returns Partial review config layer or null when absent.
      */
-    loadDefault(): Promise<Partial<IReviewConfigDTO> | null>
+    loadConfig(repositoryId: string): Promise<Partial<IReviewConfigDTO> | null>
 
     /**
      * Loads organization/team-level configuration layer.
@@ -18,16 +19,23 @@ export interface IRepositoryConfigLoader {
      * @param teamId Team identifier.
      * @returns Partial organization layer config or null.
      */
-    loadOrganization(
+    loadOrganization?(
         organizationId: string,
         teamId: string,
     ): Promise<Partial<IReviewConfigDTO> | null>
 
     /**
-     * Loads repository-level configuration layer.
+     * Backward-compatible repository-layer loading method.
      *
      * @param repositoryId Repository identifier.
      * @returns Partial repository layer config or null.
      */
-    loadRepository(repositoryId: string): Promise<Partial<IReviewConfigDTO> | null>
+    loadRepository?(repositoryId: string): Promise<Partial<IReviewConfigDTO> | null>
+
+    /**
+     * Loads global default review configuration layer.
+     *
+     * @returns Partial default config or null when absent.
+     */
+    loadDefault?(): Promise<Partial<IReviewConfigDTO> | null>
 }
