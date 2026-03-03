@@ -55,6 +55,10 @@ interface IWorkQueuePayload {
         readonly title: string
         /** Подробности. */
         readonly description: string
+        /** Детальные подробности. */
+        readonly details?: string
+        /** День в рамках grouping (Today/Yesterday). */
+        readonly group?: string
     }>
 }
 
@@ -67,18 +71,24 @@ const TIMELINE_ENTRIES = [
         time: "16:10",
         title: "Code scan finished",
         description: "Repository core scanned: 3 high-impact findings cleared.",
+        details: "Repository core scanned: 3 high-impact findings cleared.",
+        group: "Today",
     },
     {
         id: "tl-2",
         time: "16:03",
         title: "New CCR queued",
         description: "repo/frontend: performance regression review added.",
+        details: "repo/frontend: performance regression review added.",
+        group: "Today",
     },
     {
         id: "tl-3",
         time: "15:48",
         title: "LLM provider health check",
         description: "OpenAI latency spike detected; fallback provider enabled.",
+        details: "OpenAI latency spike detected; fallback provider enabled.",
+        group: "Today",
     },
 ] as const satisfies ReadonlyArray<IWorkQueuePayload["timeline"][number]>
 

@@ -8,8 +8,10 @@ export interface IActivityTimelineItemProps {
     readonly time: string
     /** Заголовок события. */
     readonly title: string
-    /** Описание события. */
+    /** Короткое описание. */
     readonly description: string
+    /** Детальные сведения события. */
+    readonly details?: string
 }
 
 /**
@@ -26,6 +28,14 @@ export function ActivityTimelineItem(props: IActivityTimelineItemProps): ReactEl
             </p>
             <p className="mt-1 text-sm font-semibold text-slate-900">{props.title}</p>
             <p className="mt-1 text-sm text-slate-600">{props.description}</p>
+            {props.details === undefined ? null : (
+                <details className="mt-2">
+                    <summary className="cursor-pointer text-sm font-medium text-slate-700">
+                        View details
+                    </summary>
+                    <p className="mt-2 text-sm text-slate-600">{props.details}</p>
+                </details>
+            )}
         </li>
     )
 }
