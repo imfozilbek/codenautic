@@ -2,7 +2,7 @@
 
 > Источник: `packages/ui/TODO.md`
 
-> **Задач (ui):** 8 | **Проверка:** Chat панель для @mention conversation
+> **Задач (ui):** 9 | **Проверка:** Chat панель для @mention conversation
 
 > **Результат milestone:** Готов conversational UI для AI-взаимодействия в контексте review.
 
@@ -22,5 +22,6 @@
 | WEB-CHAT-006 | Реализовать чатContextIndicator  | DONE   | Реализован `ChatContextIndicator` с current context бейджем (repo/CCR + attached files), селектором смены контекста и интеграцией в `ChatPanel`; добавлены component + integration тесты. | Реализация: Badge показывающий текущий контекст: repo name, CCR number, attached files. Click to change context. Готово, если: для WEB-CHAT-006 ключевой пользовательский флоу проходит end-to-end в UI без ошибок, есть component + integration покрытие, проверены a11y (keyboard/focus/aria/contrast) и responsive для mobile/tablet/desktop; DoD: `cd packages/ui && bun run lint && bun run typecheck && bun run test`.                               |
 | WEB-CHAT-007 | Реализовать чатCodeReference     | TODO   | Не начато | Реализация: Кликабельные ссылки на файлы/строки в ответах. Click → открывает файл в review UI или code browser. Hover → preview. Готово, если: для WEB-CHAT-007 ключевой пользовательский флоу проходит end-to-end в UI без ошибок, есть component + integration покрытие, проверены a11y (keyboard/focus/aria/contrast) и responsive для mobile/tablet/desktop; DoD: `cd packages/ui && bun run lint && bun run typecheck && bun run test`.               |
 | WEB-CHAT-008 | Реализовать чатCCRИнтеграция     | TODO   | Не начато | Реализация: Чат panel на странице review: контекст автоматически = текущий CCR diff. Quick actions: "explain this file", "summarize changes". Готово, если: для WEB-CHAT-008 ключевой пользовательский флоу проходит end-to-end в UI без ошибок, есть component + integration покрытие, проверены a11y (keyboard/focus/aria/contrast) и responsive для mobile/tablet/desktop; DoD: `cd packages/ui && bun run lint && bun run typecheck && bun run test`.  |
+| WEB-CHAT-009 | Вынести markdown-рендеринг в библиотеку | TODO   | Не начато | Реализация: Заменить ручной парсер markdown в `chat-message-bubble` на готовую библиотеку (например `react-markdown` с плагинами для гитхаб-совместимой разметки), сохранить поддержку заголовков, списков, links, inline-code, code blocks и callback-и code reference. Готово, если: для WEB-CHAT-009 код ссылок и markdown-рендеринг корректен в E2E, есть component + integration покрытие, покрыт fallback для небезопасного markdown и не возникает regressions в a11y/производительности; DoD: `cd packages/ui && bun run lint && bun run typecheck && bun run test`. |
 
 ---
