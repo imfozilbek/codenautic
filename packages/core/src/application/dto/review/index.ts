@@ -5,6 +5,10 @@ export {
     type IReviewResultDTO,
     type IReviewResultMetricsDTO,
 } from "./review-result.dto"
+export {
+    type ISuggestionClusterDTO,
+    type SuggestionClusterType,
+} from "./suggestion-cluster.dto"
 export {type ISuggestionDTO} from "./suggestion.dto"
 export {
     type ITokenUsageBreakdownDTO,

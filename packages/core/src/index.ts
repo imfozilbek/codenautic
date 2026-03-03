@@ -81,6 +81,8 @@ export {
     type ValidatedConfig,
     type IReviewResultDTO,
     type IReviewResultMetricsDTO,
+    type ISuggestionClusterDTO,
+    type SuggestionClusterType,
     type ISuggestionDTO,
     type ITokenUsageBreakdownDTO,
     type ITokenUsageByModelDTO,
@@ -106,6 +108,14 @@ export {
     type IUpdateProjectOutput,
     mapProjectToDTO,
 } from "./application/dto/project/project.dto"
+export {
+    ClusterSuggestionsUseCase,
+    type ISuggestionForClustering,
+    type IClusterSuggestionsInput,
+    type IClusterSuggestionsOutput,
+    type ISuggestionEmbeddingDTO,
+    type SuggestionClusteringMode,
+} from "./application/use-cases/cluster-suggestions.use-case"
 export {
     CompleteReviewUseCase,
     type ICompleteReviewInput,
