@@ -17,6 +17,11 @@ import {
     type IFunctionCallNode,
     type IFunctionCallRelation,
 } from "@/components/graphs/function-class-call-graph"
+import {
+    PackageDependencyGraph,
+    type IPackageDependencyNode,
+    type IPackageDependencyRelation,
+} from "@/components/graphs/package-dependency-graph"
 import { Alert, Button, Card, CardBody, CardHeader, Chip } from "@/components/ui"
 import { type IMetricGridMetric, MetricsGrid } from "@/components/dashboard/metrics-grid"
 
@@ -81,6 +86,13 @@ interface IRepositoryFunctionCallProfile {
     readonly nodes: ReadonlyArray<IFunctionCallNode>
     /** Связи вызовов между сущностями. */
     readonly callRelations: ReadonlyArray<IFunctionCallRelation>
+}
+
+interface IRepositoryPackageDependencyProfile {
+    /** Список пакетов в виде зависимых модулей. */
+    readonly nodes: ReadonlyArray<IPackageDependencyNode>
+    /** Связи между модулями/пакетами. */
+    readonly packageRelations: ReadonlyArray<IPackageDependencyRelation>
 }
 
 interface IRescanScheduleValues {
@@ -1063,6 +1075,331 @@ const FUNCTION_CLASS_CALL_VIEWS: Readonly<Record<string, IRepositoryFunctionCall
     },
 } as const
 
+const PACKAGE_DEPENDENCY_VIEWS: Readonly<Record<string, IRepositoryPackageDependencyProfile>> = {
+    "platform-team/api-gateway": {
+        packageRelations: [
+            {
+                relationType: "runtime",
+                source: "api-gateway::api",
+                target: "shared::core",
+            },
+            {
+                relationType: "runtime",
+                source: "api-gateway::api",
+                target: "shared::auth",
+            },
+            {
+                relationType: "runtime",
+                source: "api-gateway::worker-adapter",
+                target: "shared::queue",
+            },
+            {
+                relationType: "runtime",
+                source: "api-gateway::worker-adapter",
+                target: "shared::logging",
+            },
+            {
+                relationType: "runtime",
+                source: "api-gateway::api",
+                target: "shared::logging",
+            },
+            {
+                relationType: "runtime",
+                source: "api-gateway::worker-adapter",
+                target: "infrastructure::monitoring",
+            },
+            {
+                relationType: "peer",
+                source: "api-gateway::shared-models",
+                target: "shared::core",
+            },
+            {
+                relationType: "peer",
+                source: "api-gateway::shared-models",
+                target: "shared::auth",
+            },
+        ],
+        nodes: [
+            {
+                id: "api-gateway::api",
+                layer: "api",
+                name: "api-gateway/api",
+                size: 20,
+            },
+            {
+                id: "api-gateway::worker-adapter",
+                layer: "api",
+                name: "api-gateway/worker-adapter",
+                size: 16,
+            },
+            {
+                id: "api-gateway::shared-models",
+                layer: "core",
+                name: "api-gateway/shared-models",
+                size: 10,
+            },
+            {
+                id: "shared::core",
+                layer: "core",
+                name: "shared/core",
+                size: 27,
+            },
+            {
+                id: "shared::auth",
+                layer: "core",
+                name: "shared/auth",
+                size: 18,
+            },
+            {
+                id: "shared::queue",
+                layer: "infra",
+                name: "shared/queue",
+                size: 14,
+            },
+            {
+                id: "shared::logging",
+                layer: "infra",
+                name: "shared/logging",
+                size: 12,
+            },
+            {
+                id: "infrastructure::monitoring",
+                layer: "infra",
+                name: "infrastructure/monitoring",
+                size: 11,
+            },
+        ],
+    },
+    "frontend-team/ui-dashboard": {
+        packageRelations: [
+            {
+                relationType: "runtime",
+                source: "ui-dashboard::app",
+                target: "ui-dashboard::routes",
+            },
+            {
+                relationType: "runtime",
+                source: "ui-dashboard::app",
+                target: "ui-dashboard::components",
+            },
+            {
+                relationType: "runtime",
+                source: "ui-dashboard::components",
+                target: "shared::ui-kit",
+            },
+            {
+                relationType: "runtime",
+                source: "ui-dashboard::services",
+                target: "ui-dashboard::state",
+            },
+            {
+                relationType: "runtime",
+                source: "ui-dashboard::services",
+                target: "shared::api-client",
+            },
+            {
+                relationType: "runtime",
+                source: "ui-dashboard::state",
+                target: "shared::storage",
+            },
+            {
+                relationType: "peer",
+                source: "ui-dashboard::routes",
+                target: "ui-dashboard::services",
+            },
+            {
+                relationType: "peer",
+                source: "ui-dashboard::app",
+                target: "shared::theme",
+            },
+            {
+                relationType: "runtime",
+                source: "ui-dashboard::layout",
+                target: "ui-dashboard::components",
+            },
+        ],
+        nodes: [
+            {
+                id: "ui-dashboard::app",
+                layer: "ui",
+                name: "ui-dashboard/app",
+                size: 22,
+            },
+            {
+                id: "ui-dashboard::routes",
+                layer: "ui",
+                name: "ui-dashboard/routes",
+                size: 16,
+            },
+            {
+                id: "ui-dashboard::components",
+                layer: "ui",
+                name: "ui-dashboard/components",
+                size: 27,
+            },
+            {
+                id: "ui-dashboard::services",
+                layer: "api",
+                name: "ui-dashboard/services",
+                size: 15,
+            },
+            {
+                id: "ui-dashboard::state",
+                layer: "core",
+                name: "ui-dashboard/state",
+                size: 18,
+            },
+            {
+                id: "ui-dashboard::layout",
+                layer: "ui",
+                name: "ui-dashboard/layout",
+                size: 12,
+            },
+            {
+                id: "shared::ui-kit",
+                layer: "ui",
+                name: "shared/ui-kit",
+                size: 24,
+            },
+            {
+                id: "shared::api-client",
+                layer: "api",
+                name: "shared/api-client",
+                size: 14,
+            },
+            {
+                id: "shared::storage",
+                layer: "infra",
+                name: "shared/storage",
+                size: 9,
+            },
+            {
+                id: "shared::theme",
+                layer: "ui",
+                name: "shared/theme",
+                size: 8,
+            },
+        ],
+    },
+    "backend-core/payment-worker": {
+        packageRelations: [
+            {
+                relationType: "runtime",
+                source: "payment-worker::handler",
+                target: "payment-worker::queue",
+            },
+            {
+                relationType: "runtime",
+                source: "payment-worker::handler",
+                target: "payment-worker::retry",
+            },
+            {
+                relationType: "runtime",
+                source: "payment-worker::queue",
+                target: "shared::queue",
+            },
+            {
+                relationType: "runtime",
+                source: "payment-worker::processor",
+                target: "payment-worker::services",
+            },
+            {
+                relationType: "runtime",
+                source: "payment-worker::processor",
+                target: "shared::payments",
+            },
+            {
+                relationType: "runtime",
+                source: "payment-worker::services",
+                target: "shared::storage",
+            },
+            {
+                relationType: "peer",
+                source: "shared::payments",
+                target: "shared::security",
+            },
+            {
+                relationType: "peer",
+                source: "payment-worker::handler",
+                target: "shared::security",
+            },
+            {
+                relationType: "runtime",
+                source: "payment-worker::monitoring",
+                target: "infrastructure::monitoring",
+            },
+        ],
+        nodes: [
+            {
+                id: "payment-worker::handler",
+                layer: "worker",
+                name: "payment-worker/handler",
+                size: 20,
+            },
+            {
+                id: "payment-worker::queue",
+                layer: "worker",
+                name: "payment-worker/queue",
+                size: 18,
+            },
+            {
+                id: "payment-worker::retry",
+                layer: "worker",
+                name: "payment-worker/retry",
+                size: 10,
+            },
+            {
+                id: "payment-worker::processor",
+                layer: "worker",
+                name: "payment-worker/processor",
+                size: 21,
+            },
+            {
+                id: "payment-worker::services",
+                layer: "worker",
+                name: "payment-worker/services",
+                size: 16,
+            },
+            {
+                id: "payment-worker::monitoring",
+                layer: "infra",
+                name: "payment-worker/monitoring",
+                size: 9,
+            },
+            {
+                id: "shared::queue",
+                layer: "infra",
+                name: "shared/queue",
+                size: 14,
+            },
+            {
+                id: "shared::payments",
+                layer: "core",
+                name: "shared/payments",
+                size: 13,
+            },
+            {
+                id: "shared::storage",
+                layer: "db",
+                name: "shared/storage",
+                size: 15,
+            },
+            {
+                id: "shared::security",
+                layer: "core",
+                name: "shared/security",
+                size: 11,
+            },
+            {
+                id: "infrastructure::monitoring",
+                layer: "infra",
+                name: "infrastructure/monitoring",
+                size: 12,
+            },
+        ],
+    },
+} as const
+
 const FALLBACK_FILE_DEPENDENCIES: IRepositoryFileDependencyProfile = {
     dependencies: [],
     files: [],
@@ -1071,6 +1408,11 @@ const FALLBACK_FILE_DEPENDENCIES: IRepositoryFileDependencyProfile = {
 const FALLBACK_FUNCTION_CALL_GRAPH: IRepositoryFunctionCallProfile = {
     callRelations: [],
     nodes: [],
+}
+
+const FALLBACK_PACKAGE_DEPENDENCIES: IRepositoryPackageDependencyProfile = {
+    nodes: [],
+    packageRelations: [],
 }
 
 function clampScore(rawScore: number): number {
@@ -1121,6 +1463,13 @@ function getRepositoryFileDependencies(repositoryId: string): IRepositoryFileDep
 function getRepositoryFunctionCallGraph(repositoryId: string): IRepositoryFunctionCallProfile {
     const functionGraph = FUNCTION_CLASS_CALL_VIEWS[repositoryId]
     return functionGraph ?? FALLBACK_FUNCTION_CALL_GRAPH
+}
+
+function getRepositoryPackageDependencyGraph(
+    repositoryId: string,
+): IRepositoryPackageDependencyProfile {
+    const packageGraph = PACKAGE_DEPENDENCY_VIEWS[repositoryId]
+    return packageGraph ?? FALLBACK_PACKAGE_DEPENDENCIES
 }
 
 function formatOverviewTimestamp(raw: string): string {
@@ -1535,6 +1884,7 @@ export function RepositoryOverviewPage(props: IRepositoryOverviewProps): ReactEl
             : repository.architectureSummary
     const fileDependencyGraph = getRepositoryFileDependencies(repository.id)
     const functionCallGraph = getRepositoryFunctionCallGraph(repository.id)
+    const packageDependencyGraph = getRepositoryPackageDependencyGraph(repository.id)
 
     return (
         <section className="space-y-4">
@@ -1778,6 +2128,14 @@ export function RepositoryOverviewPage(props: IRepositoryOverviewProps): ReactEl
                 showControls
                 showMiniMap
                 title="Function/Class call graph"
+            />
+            <PackageDependencyGraph
+                height="420px"
+                nodes={packageDependencyGraph.nodes}
+                packageRelations={packageDependencyGraph.packageRelations}
+                showControls
+                showMiniMap
+                title="Package dependency graph"
             />
         </section>
     )
