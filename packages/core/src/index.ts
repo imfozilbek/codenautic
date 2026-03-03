@@ -120,6 +120,11 @@ export {
     type IGetCodeCityDataUseCaseDependencies,
 } from "./application/use-cases/analytics/get-code-city-data.use-case"
 export {
+    GetScanStatusUseCase,
+    type IGetScanStatusInput,
+    type IGetScanStatusUseCaseDependencies,
+} from "./application/use-cases/scanning/get-scan-status.use-case"
+export {
     CHECK_RUN_CONCLUSION,
     CHECK_RUN_STATUS,
     INLINE_COMMENT_SIDE,
