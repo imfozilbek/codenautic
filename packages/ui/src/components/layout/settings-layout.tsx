@@ -50,6 +50,11 @@ const SETTINGS_NAV = [
         label: "Token Usage",
         to: "/settings-token-usage",
     },
+    {
+        icon: "🏢",
+        label: "Organization",
+        to: "/settings-organization",
+    },
 ] as const
 
 /**

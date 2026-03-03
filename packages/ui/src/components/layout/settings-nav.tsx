@@ -46,6 +46,11 @@ const DEFAULT_SETTINGS_NAV_ITEMS = [
         label: "Token Usage",
         to: "/settings-token-usage",
     },
+    {
+        icon: "🏢",
+        label: "Organization",
+        to: "/settings-organization",
+    },
 ] as const
 
 /**
