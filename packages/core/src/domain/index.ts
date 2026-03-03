@@ -17,6 +17,17 @@ export {
     User,
 } from "./entities/user.entity"
 export {
+    CUSTOM_RULE_SCOPE,
+    CUSTOM_RULE_STATUS,
+    CUSTOM_RULE_TYPE,
+    type CustomRuleScope,
+    type CustomRuleStatus,
+    type CustomRuleType,
+    type ICustomRuleExample,
+    type ICustomRuleProps,
+    CustomRule,
+} from "./entities/custom-rule.entity"
+export {
     type ITeamProps,
     Team,
 } from "./entities/team.entity"

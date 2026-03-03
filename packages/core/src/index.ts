@@ -250,6 +250,17 @@ export {
     User,
 } from "./domain/entities/user.entity"
 export {
+    CUSTOM_RULE_SCOPE,
+    CUSTOM_RULE_STATUS,
+    CUSTOM_RULE_TYPE,
+    type CustomRuleScope,
+    type CustomRuleStatus,
+    type CustomRuleType,
+    type ICustomRuleExample,
+    type ICustomRuleProps,
+    CustomRule,
+} from "./domain/entities/custom-rule.entity"
+export {
     type ITeamProps,
     Team,
 } from "./domain/entities/team.entity"
@@ -326,6 +337,11 @@ export {
     type IReconstituteProjectProps,
     ProjectFactory,
 } from "./domain/factories/project.factory"
+export {
+    type ICreateCustomRuleProps,
+    type IReconstituteCustomRuleProps,
+    CustomRuleFactory,
+} from "./domain/factories/custom-rule.factory"
 export {
     type ICreateUserProps,
     type IReconstituteUserProps,

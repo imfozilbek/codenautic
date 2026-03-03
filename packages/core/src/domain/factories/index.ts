@@ -30,6 +30,11 @@ export {
     ProjectFactory,
 } from "./project.factory"
 export {
+    type ICreateCustomRuleProps,
+    type IReconstituteCustomRuleProps,
+    CustomRuleFactory,
+} from "./custom-rule.factory"
+export {
     type ICreateUserProps,
     type IReconstituteUserProps,
     UserFactory,
