@@ -1,4 +1,4 @@
-import type { ReactElement, ReactNode } from "react"
+import type { MouseEvent, ReactElement, ReactNode } from "react"
 import { useState } from "react"
 
 import { Avatar, Button } from "@/components/ui"
@@ -7,11 +7,25 @@ import type { IChatPanelMessage } from "./chat-panel"
 
 type TMarkdownNode = ReactNode
 
+/** Ссылка на файл/диапазон в чате. */
+export interface IChatCodeReference {
+    /** Путь к файлу в репозитории. */
+    readonly filePath: string
+    /** Номер начальной строки. */
+    readonly lineStart?: number
+    /** Номер финальной строки (если диапазон). */
+    readonly lineEnd?: number
+}
+
 interface IChatMessageBubbleProps {
     /** Сообщение для рендера. */
     readonly message: IChatPanelMessage
     /** Признак короткого отображения. */
     readonly compact?: boolean
+    /** Callback клика по ссылке на код. */
+    readonly onCodeReferenceClick?: (reference: IChatCodeReference) => void
+    /** Callback hover/focus по ссылке на код. */
+    readonly onCodeReferencePreview?: (reference: IChatCodeReference) => void
 }
 
 const CODE_BLOCK_REGEXP = /```(\w+)?\n([\s\S]*?)```/g
@@ -46,6 +60,118 @@ const RESERVED_KEYWORDS = new Set([
     "function",
 ])
 
+function parseLineNumber(value: string): number | undefined {
+    const parsed = Number(value)
+    if (Number.isSafeInteger(parsed) === false || parsed < 1) {
+        return undefined
+    }
+
+    return parsed
+}
+
+function parseCodeReference(value: string): IChatCodeReference | undefined {
+    const normalized = value.trim()
+    if (normalized.includes("://")) {
+        return undefined
+    }
+
+    const fileRangeMatch = normalized.match(
+        /^(\.?\.?\/?(?:[\w.-]+[\\/])*[\w.-]+\.[\w-]+)(?::(\d+))?(?:-(\d+))?(?:#L?(\d+))?(?:-L?(\d+))?$/,
+    )
+    const fileOnlyMatch = normalized.match(
+        /^(\.?\.?\/?(?:[\w.-]+[\\/])*[\w.-]+\.[\w-]+)$/,
+    )
+    if (fileRangeMatch === null && fileOnlyMatch === null) {
+        return undefined
+    }
+
+    if (fileRangeMatch !== null) {
+        const [
+            ,
+            filePath,
+            lineStart,
+            lineEnd,
+            hashLineStart,
+            hashLineEnd,
+        ] = fileRangeMatch
+        const parsedLineStart = parseLineNumber(lineStart ?? "")
+        const parsedLineEnd = parseLineNumber(lineEnd ?? "")
+        const parsedHashStart = parseLineNumber(hashLineStart ?? "")
+        const parsedHashEnd = parseLineNumber(hashLineEnd ?? "")
+
+        return {
+            filePath,
+            lineStart: parsedLineStart ?? parsedHashStart,
+            lineEnd: parsedLineEnd ?? parsedHashEnd,
+        }
+    }
+
+    return { filePath: fileOnlyMatch[1] ?? "" }
+}
+
+function buildReferenceLabel(reference: IChatCodeReference): string {
+    if (reference.lineStart === undefined) {
+        return reference.filePath
+    }
+
+    if (reference.lineEnd === undefined || reference.lineEnd === reference.lineStart) {
+        return `${reference.filePath}:${String(reference.lineStart)}`
+    }
+
+    return `${reference.filePath}:${String(reference.lineStart)}-${String(reference.lineEnd)}`
+}
+
+function renderCodeReferenceLink(
+    label: string,
+    href: string,
+    keyPrefix: string,
+    onCodeReferenceClick?: (reference: IChatCodeReference) => void,
+    onCodeReferencePreview?: (reference: IChatCodeReference) => void,
+): ReactElement {
+    const reference = parseCodeReference(href)
+    if (reference === undefined) {
+        return (
+            <a
+                className="text-[var(--primary)] underline underline-offset-4"
+                href={href}
+                key={keyPrefix}
+                rel="noreferrer"
+                target="_blank"
+            >
+                {label}
+            </a>
+        )
+    }
+
+    const handleHoverOrFocus = (): void => {
+        onCodeReferencePreview?.(reference)
+    }
+    const shouldHandle = onCodeReferenceClick !== undefined || onCodeReferencePreview !== undefined
+
+    return (
+        <a
+            aria-label={`Code reference ${buildReferenceLabel(reference)}`}
+            className="text-[var(--primary)] underline underline-offset-4"
+            href={shouldHandle ? "#" : href}
+            key={keyPrefix}
+            onClick={(
+                event: MouseEvent<HTMLAnchorElement>,
+            ): void => {
+                if (onCodeReferenceClick === undefined) {
+                    return
+                }
+
+                event.preventDefault()
+                onCodeReferenceClick(reference)
+            }}
+            onFocus={handleHoverOrFocus}
+            onMouseEnter={handleHoverOrFocus}
+        >
+            {label}
+        </a>
+    )
+}
+
 function isValidDate(value: string | Date | undefined): value is Date {
     if (value === undefined) {
         return false
@@ -78,6 +204,8 @@ function getLanguageFromCodeBlock(language: string | undefined): string {
 function parseInlineMarkdown(
     source: string,
     keyPrefix: string,
+    onCodeReferenceClick?: (reference: IChatCodeReference) => void,
+    onCodeReferencePreview?: (reference: IChatCodeReference) => void,
 ): ReadonlyArray<TMarkdownNode> {
     MARKDOWN_TOKEN_REGEXP.lastIndex = 0
     const items: TMarkdownNode[] = []
@@ -109,15 +237,13 @@ function parseInlineMarkdown(
             const normalizedLink = token.match(LINK_REGEXP)
             if (normalizedLink !== null) {
                 items.push(
-                    <a
-                        key={`${keyPrefix}-inline-link-${String(tokenIndex)}`}
-                        className="text-[var(--primary)] underline underline-offset-4"
-                        href={normalizedLink[2]}
-                        rel="noreferrer"
-                        target="_blank"
-                    >
-                        {normalizedLink[1]}
-                    </a>,
+                    renderCodeReferenceLink(
+                        normalizedLink[1] ?? "",
+                        normalizedLink[2] ?? "",
+                        `${keyPrefix}-inline-link-${String(tokenIndex)}`,
+                        onCodeReferenceClick,
+                        onCodeReferencePreview,
+                    ),
                 )
             } else {
                 items.push(token)
@@ -284,6 +410,8 @@ function pushParagraphBlock(
     blocks: ReactElement[],
     lines: string[],
     keyPrefix: string,
+    onCodeReferenceClick?: (reference: IChatCodeReference) => void,
+    onCodeReferencePreview?: (reference: IChatCodeReference) => void,
 ): void {
     if (lines.length === 0) {
         return
@@ -294,7 +422,12 @@ function pushParagraphBlock(
     blocks.push(
         <p className="leading-relaxed text-[var(--foreground)]" key={`paragraph-${keyPrefix}`}>
             {paragraphChunks.map((line, index): TMarkdownNode | TMarkdownNode[] => {
-                const parsedLine = parseInlineMarkdown(line, `${keyPrefix}-${String(index)}`)
+                const parsedLine = parseInlineMarkdown(
+                    line,
+                    `${keyPrefix}-${String(index)}`,
+                    onCodeReferenceClick,
+                    onCodeReferencePreview,
+                )
                 if (index === paragraphChunks.length - 1) {
                     return parsedLine
                 }
@@ -312,6 +445,8 @@ function parseTextBlocks(
     expandedCodeBlocks: Set<string>,
     onCodeCopy: (text: string) => void,
     onCodeToggle: (index: number) => void,
+    onCodeReferenceClick?: (reference: IChatCodeReference) => void,
+    onCodeReferencePreview?: (reference: IChatCodeReference) => void,
 ): ReadonlyArray<ReactElement> {
     const lines = source.split("\n")
     const blocks: ReactElement[] = []
@@ -320,7 +455,13 @@ function parseTextBlocks(
     let blockIndex = 0
 
     const flushParagraph = (): void => {
-        pushParagraphBlock(blocks, paragraphLines, `${keyPrefix}-p-${String(blockIndex)}`)
+        pushParagraphBlock(
+            blocks,
+            paragraphLines,
+            `${keyPrefix}-p-${String(blockIndex)}`,
+            onCodeReferenceClick,
+            onCodeReferencePreview,
+        )
     }
 
     const flushList = (): void => {
@@ -333,7 +474,12 @@ function parseTextBlocks(
                 {listLines.map(
                     (item, index): ReactElement => (
                         <li key={`list-item-${String(index)}`}>
-                            {parseInlineMarkdown(item.slice(2).trim(), `${keyPrefix}-list-${String(index)}`)}
+                            {parseInlineMarkdown(
+                                item.slice(2).trim(),
+                                `${keyPrefix}-list-${String(index)}`,
+                                onCodeReferenceClick,
+                                onCodeReferencePreview,
+                            )}
                         </li>
                     ),
                 )}
@@ -355,6 +501,8 @@ function parseTextBlocks(
             const content = parseInlineMarkdown(
                 headingContent,
                 `${keyPrefix}-heading-${String(blockIndex)}`,
+                onCodeReferenceClick,
+                onCodeReferencePreview,
             )
 
             if (level === 1) {
@@ -399,6 +547,8 @@ function parseMarkdownMessage(
     onCodeCopy: (text: string) => void,
     expandedCodeBlocks: Set<string>,
     onCodeToggle: (index: number) => void,
+    onCodeReferenceClick?: (reference: IChatCodeReference) => void,
+    onCodeReferencePreview?: (reference: IChatCodeReference) => void,
 ): ReadonlyArray<ReactElement> {
     const nodes: ReactElement[] = []
     CODE_BLOCK_REGEXP.lastIndex = 0
@@ -422,6 +572,8 @@ function parseMarkdownMessage(
                     expandedCodeBlocks,
                     onCodeCopy,
                     onCodeToggle,
+                    onCodeReferenceClick,
+                    onCodeReferencePreview,
                 ),
             )
             blockIndex += 1
@@ -453,7 +605,9 @@ function parseMarkdownMessage(
                 expandedCodeBlocks,
                 onCodeCopy,
                 onCodeToggle,
-            ),
+                onCodeReferenceClick,
+                onCodeReferencePreview,
+            )
         )
     }
 
@@ -558,6 +712,8 @@ export function ChatMessageBubble(props: IChatMessageBubbleProps): ReactElement 
                         handleCodeCopy,
                         expandedSet,
                         handleCodeToggle,
+                        props.onCodeReferenceClick,
+                        props.onCodeReferencePreview,
                     ).map(
                         (node, index): ReactElement => <div key={`node-${String(index)}`}>{node}</div>,
                     )}
@@ -566,4 +722,3 @@ export function ChatMessageBubble(props: IChatMessageBubbleProps): ReactElement 
         </li>
         )
 }
-

@@ -6,6 +6,7 @@ import { ChatContextIndicator } from "@/components/chat/chat-context-indicator"
 import { ChatInput, type IChatFileContextOption } from "@/components/chat/chat-input"
 import { ChatStreamingResponse } from "@/components/chat/chat-streaming-response"
 import { Button, Card, CardBody, CardHeader } from "@/components/ui"
+import type { IChatCodeReference } from "@/components/chat/chat-message-bubble"
 
 /** Роль сообщения в чате. */
 export type TChatMessageRole = "assistant" | "system" | "user"
@@ -88,6 +89,10 @@ export interface IChatPanelProps {
     readonly streamingSenderLabel?: string
     /** Скорость token-to-token рендера (ms). */
     readonly streamingTokenDelayMs?: number
+    /** Callback клика по ссылке на код. */
+    readonly onCodeReferenceClick?: (reference: IChatCodeReference) => void
+    /** Callback hover/focus по ссылке на код. */
+    readonly onCodeReferencePreview?: (reference: IChatCodeReference) => void
     /** Закрыть панель (опционально). */
     readonly onClose?: () => void
 }
@@ -229,7 +234,12 @@ export function ChatPanel(props: IChatPanelProps): ReactElement {
                         ) : (
                             props.messages.map(
                                 (message): ReactElement => (
-                                    <ChatMessageBubble key={message.id} message={message} />
+                                    <ChatMessageBubble
+                                        key={message.id}
+                                        message={message}
+                                        onCodeReferenceClick={props.onCodeReferenceClick}
+                                        onCodeReferencePreview={props.onCodeReferencePreview}
+                                    />
                                 ),
                             )
                         )}

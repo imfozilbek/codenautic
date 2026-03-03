@@ -171,4 +171,48 @@ describe("chat panel", (): void => {
             vi.useRealTimers()
         }
     })
+
+    it("проксирует клики и hover code-reference из сообщений вверх через чат панель", async (): Promise<void> => {
+        const user = userEvent.setup()
+        const onCodeReferenceClick = vi.fn()
+        const onCodeReferencePreview = vi.fn()
+        const messagesWithCodeReference: ReadonlyArray<IChatPanelMessage> = [
+            {
+                content: "Проверь [src/index.ts:7](src/index.ts:7)",
+                createdAt: "2026-03-03T10:03:00.000Z",
+                id: "msg-ref",
+                role: "assistant",
+                sender: "AI",
+            },
+        ]
+
+        renderWithProviders(
+            <ChatPanel
+                isOpen
+                messages={messagesWithCodeReference}
+                onCodeReferenceClick={onCodeReferenceClick}
+                onCodeReferencePreview={onCodeReferencePreview}
+                onSendMessage={vi.fn()}
+            />,
+        )
+
+        const referenceLink = screen.getByRole("link", {
+            name: "Code reference src/index.ts:7",
+        })
+        await user.click(referenceLink)
+        expect(onCodeReferenceClick).toHaveBeenCalledTimes(1)
+        expect(onCodeReferenceClick).toHaveBeenCalledWith({
+            filePath: "src/index.ts",
+            lineStart: 7,
+            lineEnd: undefined,
+        })
+
+        await user.hover(referenceLink)
+        expect(onCodeReferencePreview).toHaveBeenCalledTimes(1)
+        expect(onCodeReferencePreview).toHaveBeenCalledWith({
+            filePath: "src/index.ts",
+            lineStart: 7,
+            lineEnd: undefined,
+        })
+    })
 })

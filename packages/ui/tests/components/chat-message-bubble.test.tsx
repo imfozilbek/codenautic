@@ -116,4 +116,42 @@ describe("chat message bubble", (): void => {
         expect(screen.getByRole("link", { name: "Docs" })).toHaveAttribute("href", "/docs")
         expect(screen.queryByText("код")).not.toBeNull()
     })
+
+    it("вызывает callbacks по клику и наведению кода-ссылок", async (): Promise<void> => {
+        const user = userEvent.setup()
+        const onCodeReferenceClick = vi.fn()
+        const onCodeReferencePreview = vi.fn()
+
+        renderWithProviders(
+            <ChatMessageBubble
+                message={{
+                    ...messageWithMarkdown,
+                    content: "[src/index.ts:10](src/index.ts:10)",
+                    id: "msg-ref",
+                    role: "assistant",
+                }}
+                onCodeReferenceClick={onCodeReferenceClick}
+                onCodeReferencePreview={onCodeReferencePreview}
+            />,
+        )
+
+        const referenceLink = screen.getByRole("link", {
+            name: "Code reference src/index.ts:10",
+        })
+        await user.click(referenceLink)
+        expect(onCodeReferenceClick).toHaveBeenCalledTimes(1)
+        expect(onCodeReferenceClick).toHaveBeenCalledWith({
+            filePath: "src/index.ts",
+            lineStart: 10,
+            lineEnd: undefined,
+        })
+
+        await user.hover(referenceLink)
+        expect(onCodeReferencePreview).toHaveBeenCalledTimes(1)
+        expect(onCodeReferencePreview).toHaveBeenCalledWith({
+            filePath: "src/index.ts",
+            lineStart: 10,
+            lineEnd: undefined,
+        })
+    })
 })
