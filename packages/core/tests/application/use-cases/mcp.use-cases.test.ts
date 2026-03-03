@@ -29,6 +29,9 @@ describe("MCP use cases", () => {
                     type: "object",
                     properties: {},
                 },
+                outputSchema: {
+                    type: "string",
+                },
             },
             handler: () => "ok",
         }
