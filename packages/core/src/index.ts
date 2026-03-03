@@ -83,6 +83,11 @@ export {
     type IRepositoryIndex,
     type ILanguageStat,
     type IScanResult,
+    type IScanProgress,
+    type ScanStatus,
+    type ScanPhase,
+    SCAN_PHASE,
+    SCAN_STATUS,
     type RepositoryIndexStatus,
     REPOSITORY_INDEX_STATUS,
 } from "./application/dto/scanning"
