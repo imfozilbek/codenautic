@@ -147,4 +147,30 @@ export const server = setupServer(
     http.put("http://localhost:3000/api/v1/user/preferences", () => {
         return HttpResponse.json({}, { status: 404 })
     }),
+    http.get("http://localhost:3000/api/v1/reviews/:reviewId", ({ params }) => {
+        const reviewId = String(params.reviewId)
+
+        return HttpResponse.json({
+            reviewId,
+            repositoryId: "repo-1",
+            mergeRequestId: "mr-1",
+            status: "completed",
+            issues: [],
+            metrics: {
+                duration: 1000,
+            },
+        })
+    }),
+    http.post("http://localhost:3000/api/v1/reviews", () => {
+        return HttpResponse.json({
+            reviewId: "review-default",
+            status: "queued",
+        })
+    }),
+    http.post("http://localhost:3000/api/v1/reviews/:reviewId/feedback", ({ params }) => {
+        return HttpResponse.json({
+            reviewId: String(params.reviewId),
+            acceptedCount: 0,
+        })
+    }),
 )

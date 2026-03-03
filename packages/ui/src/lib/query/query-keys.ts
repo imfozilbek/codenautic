@@ -17,4 +17,10 @@ export const queryKeys = {
     system: {
         health: (): readonly ["system", "health"] => ["system", "health"] as const,
     },
+    codeReview: {
+        all: (): readonly ["code-review"] => ["code-review"] as const,
+        byId: (reviewId: string): readonly ["code-review", "by-id", string] => {
+            return ["code-review", "by-id", reviewId] as const
+        },
+    },
 }
