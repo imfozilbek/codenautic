@@ -32,6 +32,23 @@ class InMemoryDomainEventBus implements IDomainEventBus {
     }
 }
 
+class FailingDomainEventBus extends InMemoryDomainEventBus {
+    private readonly shouldFailAfterFirstPublish: boolean
+
+    public constructor(shouldFailAfterFirstPublish: boolean = false) {
+        super()
+        this.shouldFailAfterFirstPublish = shouldFailAfterFirstPublish
+    }
+
+    public publish(events: readonly BaseDomainEvent<DomainEventPayload>[]): Promise<void> {
+        if (this.shouldFailAfterFirstPublish) {
+            return Promise.reject(new Error("event bus unavailable"))
+        }
+
+        return super.publish(events)
+    }
+}
+
 class InMemoryCheckpointStore implements IPipelineCheckpointStore {
     public readonly checkpoints: IPipelineStageCheckpoint[] = []
 
@@ -658,6 +675,39 @@ describe("PipelineOrchestratorUseCase", () => {
         expect(result.value.context.getStageAttempt("stage-b")).toBe(1)
         expect(result.value.context.getStageAttempt("stage-a")).toBe(1)
         expect(result.value.context.definitionVersion).toBe("v2")
+    })
+
+    test("returns fail when initial PipelineStarted event cannot be published", async () => {
+        const definition = {
+            definitionVersion: "v1",
+            stages: [{stageId: "stage-a", stageName: "Stage A"}],
+        }
+        const orchestrator = new PipelineOrchestratorUseCase({
+            stages: {
+                "stage-a": new StaticStageUseCase("stage-a", "Stage A", (state) => {
+                    return Result.ok<IStageTransition, StageError>({
+                        state,
+                    })
+                }),
+            },
+            domainEventBus: new FailingDomainEventBus(true),
+            checkpointStore: new InMemoryCheckpointStore(),
+            logger: new InMemoryLogger(),
+        })
+
+        const result = await orchestrator.execute({
+            initialState: ReviewPipelineState.create({
+                runId: "run-start-event-fail",
+                definitionVersion: "v1",
+                mergeRequest: {id: "mr-start-event-fail"},
+                config: {},
+            }),
+            definition,
+        })
+
+        expect(result.isFail).toBe(true)
+        expect(result.error.message).toContain("Failed to publish PipelineStarted event")
+        expect(result.error.recoverable).toBe(false)
     })
 
     test("marks pre-start stages as skipped when resuming from middle stage", async () => {
