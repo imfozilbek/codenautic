@@ -1,7 +1,7 @@
 import { type ChangeEvent, type ReactElement, useMemo, useState } from "react"
 import { Link } from "@tanstack/react-router"
 
-import { Card, CardBody, CardHeader } from "@/components/ui"
+import { Button, Card, CardBody, CardHeader } from "@/components/ui"
 
 type TRepositoryStatus = "error" | "ready" | "scanning"
 
@@ -20,11 +20,24 @@ interface IRepositoryListRepository {
     readonly issueCount: number
     /** Время последнего скана в ISO формате. */
     readonly lastScanAt: string
+    /** Информация об ошибке сканирования (если применимо). */
+    readonly scanError?: {
+        /** Количество частично обработанных файлов до ошибки. */
+        readonly partialFilesScanned: number
+        /** Общее планируемое количество файлов для полного сканирования. */
+        readonly totalFiles?: number
+        /** Короткий текст причины ошибки. */
+        readonly message: string
+        /** Подробный стек/логи для диагностики. */
+        readonly details?: ReadonlyArray<string>
+    }
 }
 
 interface IRepositoryListPageProps {
     /** Список репозиториев (для тестов и будущей интеграции). */
     readonly repositories?: ReadonlyArray<IRepositoryListRepository>
+    /** Колбек повторного запуска сканирования для конкретного репозитория. */
+    readonly onRetryScan?: (repositoryId: string) => void
 }
 
 type TRepositorySortKey = "name" | "lastScanAt" | "status"
@@ -56,6 +69,15 @@ const DEFAULT_REPOSITORIES: ReadonlyArray<IRepositoryListRepository> = [
         name: "payment-worker",
         owner: "backend-core",
         status: "error",
+        scanError: {
+            details: [
+                "Ошибка на этапе индексации: недоступен пакет react-markdown",
+                "Перезапустите сканирование после обновления зависимостей",
+            ],
+            message: "Сканирование прервалось во время построения AST",
+            partialFilesScanned: 41,
+            totalFiles: 112,
+        },
     },
     {
         id: "platform-team/docs-site",
@@ -212,6 +234,56 @@ function RepositoryCountSummary(props: { label: string; value: number }): ReactE
     )
 }
 
+function RepositoryScanErrorRecovery(props: {
+    repositoryId: string
+    scanError: IRepositoryListRepository["scanError"]
+    onRetryScan?: (repositoryId: string) => void
+}): ReactElement | null {
+    if (props.scanError === undefined) {
+        return <></>
+    }
+
+    const partialSummary = props.scanError.totalFiles === undefined
+        ? `Проанализировано файлов до ошибки: ${props.scanError.partialFilesScanned}`
+        : `Проанализировано файлов до ошибки: ${props.scanError.partialFilesScanned} из ${props.scanError.totalFiles}`
+
+    return (
+        <section className="mt-2 rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-900">
+            <p className="text-xs font-semibold uppercase tracking-[0.1em] text-rose-600">Ошибка сканирования</p>
+            <p className="mt-1 text-sm font-medium">{props.scanError.message}</p>
+            <p className="mt-1 text-sm text-rose-700">{partialSummary}</p>
+            {props.scanError.details === undefined || props.scanError.details.length === 0 ? null : (
+                <details className="mt-2">
+                    <summary className="cursor-pointer text-sm font-semibold text-rose-800">
+                        Подробнее об ошибке
+                    </summary>
+                    <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-rose-800">
+                        {props.scanError.details.map(
+                            (detail, index): ReactElement => (
+                                <li key={`scan-error-detail-${props.repositoryId}-${String(index)}`}>
+                                    {detail}
+                                </li>
+                            ),
+                        )}
+                    </ul>
+                </details>
+            )}
+            <Button
+                color="danger"
+                className="mt-2"
+                onPress={(): void => {
+                    props.onRetryScan?.(props.repositoryId)
+                }}
+                size="sm"
+                type="button"
+                variant="ghost"
+            >
+                Повторить сканирование
+            </Button>
+        </section>
+    )
+}
+
 function RepositoriesEmptyState(): ReactElement {
     return (
         <section className="rounded-lg border border-dashed border-slate-300 bg-slate-50 p-6 text-center">
@@ -350,21 +422,30 @@ export function RepositoriesListPage(props: IRepositoryListPageProps): ReactElem
                                 const repositoryId = getRepositoryId(item)
                                 return (
                                     <div
-                                        className="grid grid-cols-[1.8fr_1fr_1fr_1fr_1fr] border-t border-slate-200 px-3 py-2 text-sm"
+                                        className="border-t border-slate-200 px-3 py-2 text-sm"
                                         key={repositoryId}
                                     >
-                                        <Link
-                                            aria-label={`Открыть обзор репозитория ${item.owner}/${item.name}`}
-                                            className="font-medium text-slate-900 underline-offset-4 hover:underline"
-                                            to="/repositories/$repositoryId"
-                                            params={{ repositoryId }}
-                                        >
-                                            {item.name}
-                                        </Link>
-                                        <p>{item.owner}</p>
-                                        <p>{item.branch}</p>
-                                        <p>{formatScanDate(item.lastScanAt)}</p>
-                                        <RepositoryStatusBadge status={item.status} />
+                                        <div className="grid grid-cols-[1.8fr_1fr_1fr_1fr_1fr]">
+                                            <Link
+                                                aria-label={`Открыть обзор репозитория ${item.owner}/${item.name}`}
+                                                className="font-medium text-slate-900 underline-offset-4 hover:underline"
+                                                to="/repositories/$repositoryId"
+                                                params={{ repositoryId }}
+                                            >
+                                                {item.name}
+                                            </Link>
+                                            <p>{item.owner}</p>
+                                            <p>{item.branch}</p>
+                                            <p>{formatScanDate(item.lastScanAt)}</p>
+                                            <RepositoryStatusBadge status={item.status} />
+                                        </div>
+                                        {item.status !== "error" || item.scanError === undefined ? null : (
+                                            <RepositoryScanErrorRecovery
+                                                onRetryScan={props.onRetryScan}
+                                                repositoryId={repositoryId}
+                                                scanError={item.scanError}
+                                            />
+                                        )}
                                     </div>
                                 )
                             },
