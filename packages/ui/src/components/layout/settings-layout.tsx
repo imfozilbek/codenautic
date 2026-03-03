@@ -35,6 +35,11 @@ const SETTINGS_NAV = [
         label: "Git Providers",
         to: "/settings-git-providers",
     },
+    {
+        icon: "🔗",
+        label: "Integrations",
+        to: "/settings-integrations",
+    },
 ] as const
 
 /**
