@@ -31,6 +31,19 @@ export interface ICcrManagementPageProps extends ICcrFilters {
 
 const PAGE_SIZE = 8
 const CCR_SORT_ORDER = ["new", "queued", "in_progress", "approved", "rejected"] as const
+type TCcrFilterField = keyof ICcrFilters
+
+function isCcrFilterField(value: string): value is TCcrFilterField {
+    return value === "search" || value === "status" || value === "team" || value === "repository"
+}
+
+function toFilterMatch(fieldValue: string, filterValue: string): boolean {
+    if (filterValue.length === 0 || filterValue === "all") {
+        return true
+    }
+
+    return fieldValue === filterValue
+}
 
 const MOCK_CCR_ROWS: ReadonlyArray<ICcrRow> = [
     {
@@ -145,6 +158,165 @@ const MOCK_CCR_ROWS: ReadonlyArray<ICcrRow> = [
     },
 ]
 
+function createSortedOptions(values: ReadonlyArray<string>): ReadonlyArray<string> {
+    return Array.from(new Set(values)).sort()
+}
+
+function findFilterOptions(rows: ReadonlyArray<ICcrRow>): {
+    readonly statusOptions: ReadonlyArray<string>
+    readonly teamOptions: ReadonlyArray<string>
+    readonly repositoryOptions: ReadonlyArray<string>
+} {
+    return {
+        statusOptions: createSortedOptions(
+            CCR_SORT_ORDER.concat(rows.map((row): string => String(row.status))),
+        ),
+        teamOptions: createSortedOptions(rows.map((row): string => row.team)),
+        repositoryOptions: createSortedOptions(rows.map((row): string => row.repository)),
+    }
+}
+
+/**
+ * Преобразует значение в нижний регистр безопасно.
+ *
+ * @param value Исходная строка.
+ * @returns Lowercase представление.
+ */
+function toLowerSafe(value: string): string {
+    return value.toLowerCase()
+}
+
+function filterRows(rows: ReadonlyArray<ICcrRow>, filters: ICcrFilters): ReadonlyArray<ICcrRow> {
+    const search = filters.search.trim().toLowerCase()
+
+    return rows.filter((row): boolean => {
+        const isStatusMatch = toFilterMatch(row.status, filters.status)
+        const isTeamMatch = toFilterMatch(row.team, filters.team)
+        const isRepoMatch = toFilterMatch(row.repository, filters.repository)
+        const isSearchMatch =
+            search.length === 0 ||
+            toLowerSafe(row.id).includes(search) ||
+            toLowerSafe(row.title).includes(search) ||
+            toLowerSafe(row.repository).includes(search) ||
+            toLowerSafe(row.assignee).includes(search)
+
+        return isStatusMatch && isTeamMatch && isRepoMatch && isSearchMatch
+    })
+}
+
+interface ICcrFiltersPanelProps {
+    readonly filterState: ICcrFilters
+    readonly statusOptions: ReadonlyArray<string>
+    readonly teamOptions: ReadonlyArray<string>
+    readonly repositoryOptions: ReadonlyArray<string>
+    readonly onFilterChange: (next: ICcrFilters) => void
+}
+
+function CcrFiltersPanel(props: ICcrFiltersPanelProps): ReactElement {
+    const handleInputChange = (name: TCcrFilterField, value: string): void => {
+        props.onFilterChange({
+            ...props.filterState,
+            [name]: value,
+        })
+    }
+
+    const handleSearchChange = (event: ChangeEvent<HTMLInputElement>): void => {
+        handleInputChange("search", event.currentTarget.value)
+    }
+
+    const handleSelectChange = (event: ChangeEvent<HTMLSelectElement>): void => {
+        const name = event.currentTarget.name
+        if (isCcrFilterField(name) === false) {
+            return
+        }
+
+        handleInputChange(name, event.currentTarget.value)
+    }
+
+    return (
+        <div className="grid gap-3 rounded-lg border border-slate-200 bg-white p-3 md:grid-cols-4">
+            <input
+                aria-label="Search CCR"
+                className="rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none"
+                name="search"
+                placeholder="Search title / id / repo / assignee"
+                value={props.filterState.search}
+                onChange={handleSearchChange}
+            />
+            <select
+                aria-label="Filter by team"
+                className="rounded-lg border border-slate-200 px-3 py-2 text-sm"
+                name="team"
+                value={props.filterState.team}
+                onChange={handleSelectChange}
+            >
+                <option value="all">All teams</option>
+                {props.teamOptions.map(
+                    (team): ReactElement => (
+                        <option key={team} value={team}>
+                            {team}
+                        </option>
+                    ),
+                )}
+            </select>
+            <select
+                aria-label="Filter by repository"
+                className="rounded-lg border border-slate-200 px-3 py-2 text-sm"
+                name="repository"
+                value={props.filterState.repository}
+                onChange={handleSelectChange}
+            >
+                <option value="all">All repos</option>
+                {props.repositoryOptions.map(
+                    (repository): ReactElement => (
+                        <option key={repository} value={repository}>
+                            {repository}
+                        </option>
+                    ),
+                )}
+            </select>
+            <select
+                aria-label="Filter by status"
+                className="rounded-lg border border-slate-200 px-3 py-2 text-sm"
+                name="status"
+                value={props.filterState.status}
+                onChange={handleSelectChange}
+            >
+                <option value="all">All statuses</option>
+                {props.statusOptions.map(
+                    (status): ReactElement => (
+                        <option key={status} value={status}>
+                            {status}
+                        </option>
+                    ),
+                )}
+            </select>
+        </div>
+    )
+}
+
+function useCcrFilters(): {
+    readonly initialRows: ReadonlyArray<ICcrRow>
+    readonly filterOptions: {
+        readonly statusOptions: ReadonlyArray<string>
+        readonly teamOptions: ReadonlyArray<string>
+        readonly repositoryOptions: ReadonlyArray<string>
+    }
+} {
+    const filters = useMemo((): {
+        readonly statusOptions: ReadonlyArray<string>
+        readonly teamOptions: ReadonlyArray<string>
+        readonly repositoryOptions: ReadonlyArray<string>
+    } => {
+        return findFilterOptions(MOCK_CCR_ROWS)
+    }, [])
+
+    return {
+        initialRows: MOCK_CCR_ROWS,
+        filterOptions: filters,
+    }
+}
+
 /**
  * Страница списочного управления CCR (reviews) с URL фильтрами и infinite-like loading.
  *
@@ -170,77 +342,23 @@ export function CcrManagementPage(props: ICcrManagementPageProps): ReactElement 
         setVisibleItems(PAGE_SIZE)
     }, [props.repository, props.search, props.status, props.team])
 
-    const statusOptions = useMemo((): ReadonlyArray<string> => {
-        return Array.from(
-            new Set(CCR_SORT_ORDER.concat(MOCK_CCR_ROWS.map((row): string => row.status))),
-        ).sort()
-    }, [])
-
-    const teamOptions = useMemo((): ReadonlyArray<string> => {
-        return Array.from(new Set(MOCK_CCR_ROWS.map((row): string => row.team))).sort()
-    }, [])
-
-    const repositoryOptions = useMemo((): ReadonlyArray<string> => {
-        return Array.from(new Set(MOCK_CCR_ROWS.map((row): string => row.repository))).sort()
-    }, [])
-
-    const sortedRows = useMemo((): ReadonlyArray<ICcrRow> => {
-        const search = searchState.search.trim().toLowerCase()
-
-        return MOCK_CCR_ROWS.filter((row): boolean => {
-            const isStatusMatch =
-                searchState.status.length === 0 ||
-                searchState.status === "all" ||
-                row.status === searchState.status
-            const isTeamMatch =
-                searchState.team.length === 0 ||
-                searchState.team === "all" ||
-                row.team === searchState.team
-            const isRepoMatch =
-                searchState.repository.length === 0 ||
-                searchState.repository === "all" ||
-                row.repository === searchState.repository
-            const isSearchMatch =
-                search.length === 0 ||
-                row.id.toLowerCase().includes(search) ||
-                row.title.toLowerCase().includes(search) ||
-                row.repository.toLowerCase().includes(search) ||
-                row.assignee.toLowerCase().includes(search)
-
-            return isStatusMatch && isTeamMatch && isRepoMatch && isSearchMatch
-        })
-    }, [searchState.repository, searchState.search, searchState.status, searchState.team])
-
+    const { filterOptions } = useCcrFilters()
+    const filteredRows = useMemo((): ReadonlyArray<ICcrRow> => {
+        return filterRows(MOCK_CCR_ROWS, searchState)
+    }, [searchState])
     const visibleRows = useMemo((): ReadonlyArray<IReviewRow> => {
-        return sortedRows.slice(0, visibleItems)
-    }, [sortedRows, visibleItems])
+        return filteredRows.slice(0, visibleItems)
+    }, [filteredRows, visibleItems])
 
-    const hasMore = sortedRows.length > visibleItems
-
-    const handleLoadMore = async (): Promise<void> => {
+    const handleLoadMore = (): void => {
         setVisibleItems((previousValue): number => {
-            return Math.min(previousValue + PAGE_SIZE, sortedRows.length)
+            return Math.min(previousValue + PAGE_SIZE, filteredRows.length)
         })
     }
 
-    const handleFilterUpdate = (event: ChangeEvent<HTMLSelectElement | HTMLInputElement>): void => {
-        const { name, value } = event.currentTarget
-        const nextFilters = {
-            ...searchState,
-            [name]: value,
-        }
-        setSearchState(nextFilters)
-        props.onFilterChange(nextFilters)
-    }
+    const hasMore = filteredRows.length > visibleItems
 
-    const searchInputValue = searchState.search
-
-    const handleSearchInput = (event: ChangeEvent<HTMLInputElement>): void => {
-        const next = event.currentTarget.value
-        const nextFilters = {
-            ...searchState,
-            search: next,
-        }
+    const updateFilters = (nextFilters: ICcrFilters): void => {
         setSearchState(nextFilters)
         props.onFilterChange(nextFilters)
     }
@@ -252,64 +370,13 @@ export function CcrManagementPage(props: ICcrManagementPageProps): ReactElement 
                 Filters are synced with URL. Shareable state for search, status, team and
                 repository.
             </p>
-            <div className="grid gap-3 rounded-lg border border-slate-200 bg-white p-3 md:grid-cols-4">
-                <input
-                    aria-label="Search CCR"
-                    className="rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none"
-                    name="search"
-                    placeholder="Search title / id / repo / assignee"
-                    value={searchInputValue}
-                    onChange={handleSearchInput}
-                />
-                <select
-                    aria-label="Filter by team"
-                    className="rounded-lg border border-slate-200 px-3 py-2 text-sm"
-                    name="team"
-                    value={searchState.team}
-                    onChange={handleFilterUpdate}
-                >
-                    <option value="all">All teams</option>
-                    {teamOptions.map(
-                        (team): ReactElement => (
-                            <option key={team} value={team}>
-                                {team}
-                            </option>
-                        ),
-                    )}
-                </select>
-                <select
-                    aria-label="Filter by repository"
-                    className="rounded-lg border border-slate-200 px-3 py-2 text-sm"
-                    name="repository"
-                    value={searchState.repository}
-                    onChange={handleFilterUpdate}
-                >
-                    <option value="all">All repos</option>
-                    {repositoryOptions.map(
-                        (repository): ReactElement => (
-                            <option key={repository} value={repository}>
-                                {repository}
-                            </option>
-                        ),
-                    )}
-                </select>
-                <select
-                    aria-label="Filter by status"
-                    className="rounded-lg border border-slate-200 px-3 py-2 text-sm"
-                    name="status"
-                    value={searchState.status}
-                    onChange={handleFilterUpdate}
-                >
-                    <option value="all">All statuses</option>
-                    {statusOptions.map(
-                        (status): ReactElement => (
-                            <option key={status} value={status}>
-                                {status}
-                            </option>
-                        ),
-                    )}
-                </select>
-            </div>
+            <CcrFiltersPanel
+                filterState={searchState}
+                onFilterChange={updateFilters}
+                repositoryOptions={filterOptions.repositoryOptions}
+                statusOptions={filterOptions.statusOptions}
+                teamOptions={filterOptions.teamOptions}
+            />
             <ReviewsContent
                 hasMore={hasMore}
                 isLoadingMore={false}

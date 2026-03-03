@@ -54,9 +54,14 @@ export function CodeReviewForm(props: ICodeReviewFormProps): ReactElement {
         },
         resolver: zodResolver(codeReviewFormSchema),
     })
+    const handleSubmit = (): void => {
+        void form.handleSubmit((values: ICodeReviewFormValues): void => {
+            props.onSubmit(values)
+        })()
+    }
 
     return (
-        <form className="space-y-4" onSubmit={form.handleSubmit(props.onSubmit)}>
+        <form className="space-y-4" onSubmit={handleSubmit}>
             <FormSelectField
                 control={form.control}
                 id="code-review-cadence"

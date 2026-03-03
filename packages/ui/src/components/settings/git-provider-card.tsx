@@ -47,7 +47,13 @@ export function GitProviderCard(props: IGitProviderCardProps): ReactElement {
                         className="w-full"
                         size="sm"
                         variant={props.connected ? "bordered" : "solid"}
-                        onPress={props.onAction}
+                        onPress={(): void => {
+                            if (props.onAction === undefined) {
+                                return
+                            }
+
+                            void props.onAction()
+                        }}
                     >
                         {props.connected ? "Reconnect" : "Connect"}
                     </Button>

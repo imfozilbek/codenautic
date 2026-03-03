@@ -1,4 +1,4 @@
-import { createSanitizedStringSchema, sanitizeText } from "@/lib/validation/schema-validation"
+import { sanitizeText } from "@/lib/validation/schema-validation"
 import { z } from "zod"
 
 /**
@@ -43,10 +43,34 @@ export const codeReviewFormSchema = z.object({
 /**
  * Zod-схема для LLM provider формы.
  */
+const llmApiKeySchema = z
+    .string()
+    .transform((value: string): string => sanitizeText(value))
+    .superRefine((value, context): void => {
+        if (value.length < 8) {
+            context.addIssue({
+                code: z.ZodIssueCode.too_small,
+                message: "Секретный ключ должен быть не короче 8 символов",
+                minimum: 8,
+                inclusive: true,
+                type: "string",
+            })
+            return
+        }
+
+        if (value.length > 256) {
+            context.addIssue({
+                code: z.ZodIssueCode.too_big,
+                message: "Слишком длинный ключ",
+                maximum: 256,
+                inclusive: true,
+                type: "string",
+            })
+        }
+    })
+
 export const llmProviderFormSchema = z.object({
-    apiKey: createSanitizedStringSchema()
-        .min(8, "Секретный ключ должен быть не короче 8 символов")
-        .max(256, "Слишком длинный ключ"),
+    apiKey: llmApiKeySchema,
     endpoint: z.preprocess((value: unknown): string | undefined => {
         if (typeof value !== "string") {
             return undefined

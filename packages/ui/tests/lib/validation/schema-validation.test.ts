@@ -19,11 +19,15 @@ describe("schema-validation", (): void => {
             mode: "dark",
         })
 
-        expect(result.success).toBe(true)
-        expect(result.data).toEqual({
-            mode: "dark",
-            limit: 5,
-        })
+        if (result.success === true) {
+            expect(result.data).toEqual({
+                mode: "dark",
+                limit: 5,
+            })
+            return
+        }
+
+        throw new Error("Validation unexpectedly failed for valid payload")
     })
 
     it("возвращает человекочитаемую ошибку валидации", (): void => {
@@ -36,9 +40,13 @@ describe("schema-validation", (): void => {
             limit: "10",
         })
 
-        expect(result.success).toBe(false)
-        expect(result.error).toContain("mode")
-        expect(result.error).toContain("Expected string")
+        if (result.success !== true) {
+            expect(result.error).toContain("mode")
+            expect(result.error).toContain("Expected string")
+            return
+        }
+
+        throw new Error("Validation unexpectedly succeeded for invalid payload")
     })
 
     it("валидирует enum значения", (): void => {
@@ -66,7 +74,11 @@ describe("schema-validation", (): void => {
             enabled: "true",
         })
 
-        expect(result.success).toBe(false)
-        expect(result.error).toContain("enabled")
+        if (result.success !== true) {
+            expect(result.error).toContain("enabled")
+            return
+        }
+
+        throw new Error("Validation unexpectedly succeeded for invalid payload")
     })
 })

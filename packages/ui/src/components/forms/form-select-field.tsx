@@ -6,7 +6,7 @@ import {
     type FieldPath,
     type FieldValues,
 } from "react-hook-form"
-import { Select, SelectItem } from "@heroui/react"
+import { type Selection, Select, SelectItem } from "@heroui/react"
 
 import { pickFieldMessage } from "./form-field-utils"
 
@@ -99,7 +99,12 @@ export function FormSelectField<
                             id={fieldId}
                             isInvalid={hasError}
                             selectedKeys={selectedKeys}
-                            onSelectionChange={(keys: unknown): void => {
+                            onSelectionChange={(keys: Selection): void => {
+                                if (keys === "all") {
+                                    field.onChange(undefined)
+                                    return
+                                }
+
                                 if (keys instanceof Set === false) {
                                     field.onChange(undefined)
                                     return

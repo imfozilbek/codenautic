@@ -47,8 +47,8 @@ export function ReviewsTable(props: IReviewsTableProps): ReactElement {
                 <TableColumn>Updated</TableColumn>
                 <TableColumn>Status</TableColumn>
             </TableHeader>
-            <TableBody emptyContent="No CCRs found for this filter set" items={props.rows}>
-                {(row): ReactElement => (
+            <TableBody emptyContent="No CCRs found for this filter set">
+                {props.rows.map((row): ReactElement => (
                     <TableRow key={row.id}>
                         <TableCell>
                             <Link
@@ -67,7 +67,7 @@ export function ReviewsTable(props: IReviewsTableProps): ReactElement {
                             <ReviewStatusBadge status={row.status} />
                         </TableCell>
                     </TableRow>
-                )}
+                ))}
             </TableBody>
         </Table>
     )

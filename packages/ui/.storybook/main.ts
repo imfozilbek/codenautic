@@ -13,7 +13,7 @@ const config: StorybookConfig = {
         autodocs: "tag",
     },
     staticDirs: ["../public"],
-    async viteFinal(config) {
+    viteFinal(config) {
         return {
             ...config,
             resolve: {

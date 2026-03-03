@@ -49,115 +49,179 @@ export interface IThemeToggleProps {
  */
 export function ThemeToggle(props: IThemeToggleProps): ReactElement {
     const { mode, preset, presets, resolvedMode, setMode, setPreset } = useThemeMode()
-    const activePreset = preset
-
-    const getActivePresetLabel = (presetId: ThemePresetId): string => {
-        const nextPreset = presets.find((themePreset): boolean => themePreset.id === presetId)
-        if (nextPreset === undefined) {
-            return presetId
-        }
-
-        return nextPreset.label
-    }
-
-    const activePalette =
-        preset !== undefined ? presets.find((item): boolean => item.id === preset) : undefined
-    const previewPalette = activePalette === undefined ? undefined : activePalette[resolvedMode]
+    const previewPalette = getPresetPalette(presets, preset, resolvedMode)
 
     return (
         <div className={props.className}>
             <div className="flex flex-col gap-2">
-                <div
-                    aria-label="Theme mode"
-                    className="inline-flex items-center rounded-lg border border-slate-200 bg-white/85 p-1 backdrop-blur"
-                    role="radiogroup"
-                >
-                    {MODE_OPTIONS.map((option): ReactElement => {
-                        const Icon = option.Icon
-                        const isSelected = option.value === mode
-
-                        return (
-                            <Button
-                                key={option.value}
-                                aria-label={option.ariaLabel}
-                                aria-pressed={isSelected}
-                                aria-selected={isSelected}
-                                className="min-w-0 px-2"
-                                radius="full"
-                                role="radio"
-                                size="sm"
-                                variant={isSelected ? "solid" : "light"}
-                                onPress={(): void => {
-                                    setMode(option.value)
-                                }}
-                            >
-                                <span className="inline-flex items-center gap-1.5">
-                                    <Icon size={14} />
-                                    <span className="hidden sm:inline">{option.label}</span>
-                                </span>
-                            </Button>
-                        )
-                    })}
-                </div>
-                <div className="flex flex-wrap items-center gap-2">
-                    {presets.map((themePreset): ReactElement => {
-                        const isActive = themePreset.id === activePreset
-                        const style = {
-                            background: `linear-gradient(135deg, ${themePreset.light.primary} 0%, ${themePreset.light.accent} 45%, ${themePreset.light.surface} 100%)`,
-                        }
-
-                        return (
-                            <Button
-                                key={themePreset.id}
-                                aria-label={`Set ${themePreset.label} theme preset`}
-                                aria-pressed={isActive}
-                                className="min-w-0"
-                                radius="full"
-                                size="sm"
-                                style={style}
-                                variant={isActive ? "solid" : "light"}
-                                onPress={(): void => {
-                                    setPreset(themePreset.id)
-                                }}
-                            >
-                                <span className="sr-only">{themePreset.label}</span>
-                                <span
-                                    aria-hidden="true"
-                                    className="inline-block h-2 w-2 rounded-full border border-slate-900/20"
-                                />
-                            </Button>
-                        )
-                    })}
-                </div>
+                <ThemeModeButtons currentMode={mode} onModeChange={setMode} />
+                <ThemePresetButtons
+                    currentPreset={preset}
+                    onPresetChange={setPreset}
+                    presets={presets}
+                />
                 <p className="px-1 text-xs text-slate-600">
-                    Preset: {getActivePresetLabel(activePreset)}
+                    Preset: {getPresetLabel(presets, preset)}
                 </p>
                 <p className="sr-only" aria-live="polite">
                     Active theme resolved mode is {resolvedMode}.
                 </p>
             </div>
-            {previewPalette === undefined ? null : (
-                <div aria-hidden="true" className="mt-2 flex gap-2">
-                    <span
-                        className="h-3 w-8 rounded-full border border-slate-200"
-                        style={{
-                            backgroundColor: previewPalette.primary,
-                        }}
-                    />
-                    <span
-                        className="h-3 w-8 rounded-full border border-slate-200"
-                        style={{
-                            backgroundColor: previewPalette.accent,
-                        }}
-                    />
-                    <span
-                        className="h-3 w-8 rounded-full border border-slate-200"
-                        style={{
-                            backgroundColor: previewPalette.success,
-                        }}
-                    />
-                </div>
-            )}
+            <ThemePalettePreview palette={previewPalette} />
         </div>
     )
+}
+
+function ThemeModeButtons({
+    currentMode,
+    onModeChange,
+}: {
+    readonly currentMode: ThemeMode
+    readonly onModeChange: (nextMode: ThemeMode) => void
+}): ReactElement {
+    return (
+        <div
+            aria-label="Theme mode"
+            className="inline-flex items-center rounded-lg border border-slate-200 bg-white/85 p-1 backdrop-blur"
+            role="radiogroup"
+        >
+            {MODE_OPTIONS.map((option): ReactElement => {
+                const Icon = option.Icon
+                const isSelected = option.value === currentMode
+
+                return (
+                    <Button
+                        key={option.value}
+                        aria-label={option.ariaLabel}
+                        aria-pressed={isSelected}
+                        aria-selected={isSelected}
+                        className="min-w-0 px-2"
+                        radius="full"
+                        role="radio"
+                        size="sm"
+                        variant={isSelected ? "solid" : "light"}
+                        onPress={(): void => {
+                            onModeChange(option.value)
+                        }}
+                    >
+                        <span className="inline-flex items-center gap-1.5">
+                            <Icon size={14} />
+                            <span className="hidden sm:inline">{option.label}</span>
+                        </span>
+                    </Button>
+                )
+            })}
+        </div>
+    )
+}
+
+function ThemePresetButtons({
+    currentPreset,
+    onPresetChange,
+    presets,
+}: {
+    readonly currentPreset: ThemePresetId
+    readonly onPresetChange: (nextPreset: ThemePresetId) => void
+    readonly presets: ReadonlyArray<{
+        readonly id: ThemePresetId
+        readonly label: string
+        readonly light: {
+            readonly primary: string
+            readonly accent: string
+            readonly surface: string
+        }
+    }>
+}): ReactElement {
+    return (
+        <div className="flex flex-wrap items-center gap-2">
+            {presets.map((themePreset): ReactElement => {
+                const isActive = themePreset.id === currentPreset
+                const style = {
+                    background: `linear-gradient(135deg, ${themePreset.light.primary} 0%, ${themePreset.light.accent} 45%, ${themePreset.light.surface} 100%)`,
+                }
+
+                return (
+                    <Button
+                        key={themePreset.id}
+                        aria-label={`Set ${themePreset.label} theme preset`}
+                        aria-pressed={isActive}
+                        className="min-w-0"
+                        radius="full"
+                        size="sm"
+                        style={style}
+                        variant={isActive ? "solid" : "light"}
+                        onPress={(): void => {
+                            onPresetChange(themePreset.id)
+                        }}
+                    >
+                        <span className="sr-only">{themePreset.label}</span>
+                        <span
+                            aria-hidden="true"
+                            className="inline-block h-2 w-2 rounded-full border border-slate-900/20"
+                        />
+                    </Button>
+                )
+            })}
+        </div>
+    )
+}
+
+function ThemePalettePreview({
+    palette,
+}: {
+    readonly palette: {
+        readonly primary: string
+        readonly accent: string
+        readonly success: string
+    } | undefined
+}): ReactElement | null {
+    if (palette === undefined) {
+        return null
+    }
+
+    return (
+        <div aria-hidden="true" className="mt-2 flex gap-2">
+            <span
+                className="h-3 w-8 rounded-full border border-slate-200"
+                style={{ backgroundColor: palette.primary }}
+            />
+            <span
+                className="h-3 w-8 rounded-full border border-slate-200"
+                style={{ backgroundColor: palette.accent }}
+            />
+            <span
+                className="h-3 w-8 rounded-full border border-slate-200"
+                style={{ backgroundColor: palette.success }}
+            />
+        </div>
+    )
+}
+
+function getPresetLabel(
+    presets: ReadonlyArray<{ readonly id: ThemePresetId; readonly label: string }>,
+    presetId: ThemePresetId,
+): string {
+    const nextPreset = presets.find((themePreset): boolean => themePreset.id === presetId)
+    if (nextPreset === undefined) {
+        return presetId
+    }
+
+    return nextPreset.label
+}
+
+function getPresetPalette(
+    presets: ReadonlyArray<{
+        readonly id: ThemePresetId
+        readonly light: Record<"primary" | "accent" | "success", string>
+        readonly dark: Record<"primary" | "accent" | "success", string>
+    }>,
+    presetId: ThemePresetId,
+    resolvedMode: "light" | "dark",
+): { readonly primary: string; readonly accent: string; readonly success: string } | undefined {
+    const activePreset = presets.find((item): boolean => item.id === presetId)
+    if (activePreset === undefined) {
+        return undefined
+    }
+
+    return resolvedMode === "light" ? activePreset.light : activePreset.dark
 }

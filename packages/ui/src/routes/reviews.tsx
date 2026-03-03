@@ -44,13 +44,6 @@ interface IReviewsSearch {
     readonly repo?: string
 }
 
-const DEFAULT_FILTERS: ICcrFilters = {
-    repository: "all",
-    search: "",
-    status: "all",
-    team: "all",
-}
-
 function buildSearchFromRoute(input: IReviewsSearch): ICcrFilters {
     return {
         repository: typeof input.repo === "string" && input.repo.length > 0 ? input.repo : "all",

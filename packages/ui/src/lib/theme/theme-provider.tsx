@@ -11,7 +11,7 @@ import {
     useRef,
     useState,
 } from "react"
-import { createApiConfig } from "../api/config"
+import { createApiConfig, type IUiEnv } from "../api/config"
 import { FetchHttpClient, isApiHttpError } from "../api/http-client"
 import type { IHttpClient } from "../api/http-client"
 
@@ -78,9 +78,9 @@ export interface IThemePreset {
  */
 interface IThemeSettingsPayload {
     /** Темная/светлая/системная схема. */
-    readonly mode?: ThemeMode | string
+    readonly mode?: string
     /** Код пресета темы. */
-    readonly preset?: ThemePresetId | string
+    readonly preset?: string
 }
 
 /**
@@ -105,6 +105,7 @@ const THEME_SETTINGS_SAVE_DEBOUNCE_MS = 200
 const THEME_PROFILE_DEFAULT_UPDATED_AT_MS = 0
 const THEME_SETTINGS_ENDPOINTS = ["/api/v1/user/settings", "/api/v1/user/preferences"] as const
 const THEME_SETTINGS_WRITE_METHODS = ["PUT", "PATCH", "POST"] as const
+const THEME_SETTINGS_PAYLOAD_PATHS = ["theme", "settings", "preferences", "data"] as const
 
 /**
  * Ограниченный профиль темы для API-памяти.
@@ -132,6 +133,26 @@ interface IThemeProfileResponse {
     readonly profile: IThemeSettingsPayload
     /** Время обновления из источника. */
     readonly updatedAtMs: number
+}
+
+/**
+ * Безопасно приводит значение окружения к строке.
+ *
+ * @param value Значение из окружения.
+ * @returns Строка или undefined.
+ */
+function toStringEnv(value: unknown): string | undefined {
+    return typeof value === "string" ? value : undefined
+}
+
+/**
+ * Безопасно приводит значение окружения к boolean.
+ *
+ * @param value Значение из окружения.
+ * @returns Boolean или undefined.
+ */
+function toBooleanEnv(value: unknown): boolean | undefined {
+    return typeof value === "boolean" ? value : undefined
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -173,6 +194,20 @@ function readThemeSettingsPayload(raw: unknown): IThemeSettingsPayload {
         return {}
     }
 
+    const directPayload = readThemeSettingsPayloadFromObject(raw)
+    if (directPayload.mode !== undefined || directPayload.preset !== undefined) {
+        return directPayload
+    }
+
+    const nestedPayload = readThemeSettingsPayloadFromNestedValues(raw)
+    if (nestedPayload.mode !== undefined || nestedPayload.preset !== undefined) {
+        return nestedPayload
+    }
+
+    return {}
+}
+
+function readThemeSettingsPayloadFromObject(raw: Record<string, unknown>): IThemeSettingsPayload {
     const directMode =
         isThemeModeValue(raw.mode) === true
             ? raw.mode
@@ -186,38 +221,28 @@ function readThemeSettingsPayload(raw: unknown): IThemeSettingsPayload {
               ? raw.themePreset
               : undefined
 
-    if (directMode !== undefined || directPreset !== undefined) {
-        return {
-            mode: directMode,
-            preset: directPreset,
-        }
+    if (directMode === undefined && directPreset === undefined) {
+        return {}
     }
 
-    if (isRecord(raw.theme) === true) {
-        const fromTheme = readThemeSettingsPayload(raw.theme)
-        if (fromTheme.mode !== undefined || fromTheme.preset !== undefined) {
-            return fromTheme
-        }
+    return {
+        mode: directMode,
+        preset: directPreset,
     }
+}
 
-    if (isRecord(raw.settings) === true) {
-        const fromSettings = readThemeSettingsPayload(raw.settings)
-        if (fromSettings.mode !== undefined || fromSettings.preset !== undefined) {
-            return fromSettings
+function readThemeSettingsPayloadFromNestedValues(
+    raw: Record<string, unknown>,
+): IThemeSettingsPayload {
+    for (const path of THEME_SETTINGS_PAYLOAD_PATHS) {
+        const nested = raw[path]
+        if (isRecord(nested) === false) {
+            continue
         }
-    }
 
-    if (isRecord(raw.preferences) === true) {
-        const fromPreferences = readThemeSettingsPayload(raw.preferences)
-        if (fromPreferences.mode !== undefined || fromPreferences.preset !== undefined) {
-            return fromPreferences
-        }
-    }
-
-    if (isRecord(raw.data) === true) {
-        const fromData = readThemeSettingsPayload(raw.data)
-        if (fromData.mode !== undefined || fromData.preset !== undefined) {
-            return fromData
+        const payload = readThemeSettingsPayloadFromObject(nested)
+        if (payload.mode !== undefined || payload.preset !== undefined) {
+            return payload
         }
     }
 
@@ -285,12 +310,13 @@ function writeThemeProfileSyncState(profile: IThemeProfile): void {
 
 function createThemeSettingsApiClient(): IHttpClient | undefined {
     try {
-        const config = createApiConfig({
-            VITE_API_URL: import.meta.env.VITE_API_URL,
-            VITE_API_BEARER_TOKEN: import.meta.env.VITE_API_BEARER_TOKEN,
-            MODE: import.meta.env.MODE,
-            PROD: import.meta.env.PROD,
-        })
+        const themeApiEnv: IUiEnv = {
+            MODE: toStringEnv(import.meta.env.MODE),
+            PROD: toBooleanEnv(import.meta.env.PROD),
+            VITE_API_BEARER_TOKEN: toStringEnv(import.meta.env.VITE_API_BEARER_TOKEN),
+            VITE_API_URL: toStringEnv(import.meta.env.VITE_API_URL),
+        }
+        const config = createApiConfig(themeApiEnv)
 
         return new FetchHttpClient(config)
     } catch {
@@ -312,7 +338,10 @@ async function fetchThemeProfileFromApi(
         })
 
         const profile = readThemeSettingsPayload(response)
-        const updatedAtMs = parseUpdatedAtValue((response as Record<string, unknown>).updatedAt)
+        const responsePayload = isRecord(response)
+            ? response
+            : ({} as Record<string, unknown>)
+        const updatedAtMs = parseUpdatedAtValue(responsePayload.updatedAt)
 
         if (
             isThemeModeValue(profile.mode) === false &&
@@ -745,11 +774,13 @@ function selectThemeProfile(
  * @param props Пропсы provider.
  * @returns React элемент.
  */
-export function ThemeProvider(props: {
+type TThemeProviderProps = {
     readonly children: ReactNode
     readonly defaultMode?: ThemeMode
     readonly defaultPreset?: ThemePresetId
-}): ReactElement {
+}
+
+export function ThemeProvider(props: TThemeProviderProps): ReactElement {
     const { children, defaultMode, defaultPreset } = props
 
     const [mode, setThemeMode] = useState<ThemeMode>(() => {
@@ -800,6 +831,40 @@ export function ThemeProvider(props: {
         })
     }, [])
 
+    useThemeSystemModeSync(setSystemMode)
+    useThemeApplyModePresetEffect(mode, preset, resolvedMode)
+    useThemeSyncFromApiEffect({
+        mode,
+        preset,
+        setThemeMode,
+        setThemePreset,
+        shouldSyncProfileRef,
+    })
+    useThemeSyncToApiEffect({
+        mode,
+        preset,
+        lastSyncSignatureRef,
+        shouldSyncProfileRef,
+    })
+    useThemeStorageEffect(setMode, setPreset)
+
+    return (
+        <ThemeContext.Provider
+            value={{
+                mode,
+                preset,
+                presets: THEME_PRESETS,
+                resolvedMode,
+                setMode,
+                setPreset,
+            }}
+        >
+            {children}
+        </ThemeContext.Provider>
+    )
+}
+
+function useThemeSystemModeSync(setSystemMode: (mode: ThemeResolvedMode) => void): void {
     useEffect((): (() => void) | undefined => {
         if (typeof window === "undefined") {
             return undefined
@@ -814,8 +879,14 @@ export function ThemeProvider(props: {
         return (): void => {
             mediaQuery.removeEventListener("change", handleMediaChange)
         }
-    }, [])
+    }, [setSystemMode])
+}
 
+function useThemeApplyModePresetEffect(
+    mode: ThemeMode,
+    preset: ThemePresetId,
+    resolvedMode: ThemeResolvedMode,
+): void {
     useEffect((): void => {
         applyThemeTokens(resolvedMode, preset)
         if (typeof window === "undefined") {
@@ -830,6 +901,16 @@ export function ThemeProvider(props: {
             updatedAtMs: Date.now(),
         })
     }, [mode, preset, resolvedMode])
+}
+
+function useThemeSyncFromApiEffect(args: {
+    readonly mode: ThemeMode
+    readonly preset: ThemePresetId
+    readonly setThemeMode: (updater: SetStateAction<ThemeMode>) => void
+    readonly setThemePreset: (updater: SetStateAction<ThemePresetId>) => void
+    readonly shouldSyncProfileRef: { current: boolean }
+}): void {
+    const { mode, preset, setThemeMode, setThemePreset, shouldSyncProfileRef } = args
 
     useEffect((): (() => void) | undefined => {
         if (typeof window === "undefined") {
@@ -882,12 +963,14 @@ export function ThemeProvider(props: {
                 if (selectedProfile.mode !== localProfile.mode) {
                     return selectedProfile.mode
                 }
+
                 return localProfile.mode
             })
             setThemePreset((_: ThemePresetId): ThemePresetId => {
                 if (selectedProfile.preset !== localProfile.preset) {
                     return selectedProfile.preset
                 }
+
                 return localProfile.preset
             })
             writeThemeProfileSyncState({
@@ -897,7 +980,7 @@ export function ThemeProvider(props: {
             shouldSyncProfileRef.current = true
         }
 
-        void syncFromProfile().catch(() => {
+        void syncFromProfile().catch((): void => {
             shouldSyncProfileRef.current = true
         })
 
@@ -906,9 +989,18 @@ export function ThemeProvider(props: {
             abortController.abort()
             shouldSyncProfileRef.current = true
         }
-    }, [])
+    }, [mode, preset, setThemeMode, setThemePreset, shouldSyncProfileRef])
+}
 
-    useEffect(() => {
+function useThemeSyncToApiEffect(args: {
+    readonly mode: ThemeMode
+    readonly preset: ThemePresetId
+    readonly lastSyncSignatureRef: { current: string }
+    readonly shouldSyncProfileRef: { current: boolean }
+}): void {
+    const { mode, preset, lastSyncSignatureRef, shouldSyncProfileRef } = args
+
+    useEffect((): (() => void) | undefined => {
         if (typeof window === "undefined") {
             return undefined
         }
@@ -972,8 +1064,13 @@ export function ThemeProvider(props: {
             clearTimeout(timerHandle)
             abortController.abort()
         }
-    }, [mode, preset])
+    }, [mode, preset, lastSyncSignatureRef, shouldSyncProfileRef])
+}
 
+function useThemeStorageEffect(
+    setMode: (value: SetStateAction<ThemeMode>) => void,
+    setPreset: (value: SetStateAction<ThemePresetId>) => void,
+): void {
     useEffect((): (() => void) | undefined => {
         if (typeof window === "undefined") {
             return undefined
@@ -997,22 +1094,7 @@ export function ThemeProvider(props: {
         return (): void => {
             window.removeEventListener("storage", handleStorage)
         }
-    }, [])
-
-    return (
-        <ThemeContext.Provider
-            value={{
-                mode,
-                preset,
-                presets: THEME_PRESETS,
-                resolvedMode,
-                setMode,
-                setPreset,
-            }}
-        >
-            {children}
-        </ThemeContext.Provider>
-    )
+    }, [setMode, setPreset])
 }
 
 /**

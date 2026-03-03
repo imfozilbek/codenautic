@@ -30,6 +30,14 @@ export function DashboardLayout(props: IDashboardLayoutProps): ReactElement {
     const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false)
     const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false)
 
+    const handleSignOut = (): void => {
+        if (props.onSignOut === undefined) {
+            return
+        }
+
+        void props.onSignOut()
+    }
+
     return (
         <div className="relative min-h-screen bg-[linear-gradient(140deg,#f7f8fa_0%,#eef4ff_55%,#f6fbe7_100%)] text-slate-900">
             <Header
@@ -38,7 +46,7 @@ export function DashboardLayout(props: IDashboardLayoutProps): ReactElement {
                 }}
                 userEmail={props.userEmail}
                 userName={props.userName}
-                onSignOut={props.onSignOut}
+                onSignOut={handleSignOut}
                 title={props.title}
             />
             <MobileSidebar

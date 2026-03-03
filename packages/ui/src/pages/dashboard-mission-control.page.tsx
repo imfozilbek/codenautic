@@ -59,6 +59,235 @@ interface IWorkQueuePayload {
 }
 
 /**
+ * Базовые сигналы timeline для mission-control payload.
+ */
+const TIMELINE_ENTRIES = [
+    {
+        id: "tl-1",
+        time: "16:10",
+        title: "Code scan finished",
+        description: "Repository core scanned: 3 high-impact findings cleared.",
+    },
+    {
+        id: "tl-2",
+        time: "16:03",
+        title: "New CCR queued",
+        description: "repo/frontend: performance regression review added.",
+    },
+    {
+        id: "tl-3",
+        time: "15:48",
+        title: "LLM provider health check",
+        description: "OpenAI latency spike detected; fallback provider enabled.",
+    },
+] as const satisfies ReadonlyArray<IWorkQueuePayload["timeline"][number]>
+
+/**
+ * Базовые work-queue сигналы для mission-control payload.
+ */
+const WORK_QUEUE_ENTRIES = [
+    {
+        description: "12 pending. Click to review queue and continue workflow.",
+        id: "critical-ccr",
+        route: "/reviews",
+        title: "CCR queue",
+    },
+    {
+        description: "Signals suggest drift in architecture health by +12%.",
+        id: "impact-graph",
+        route: "/",
+        title: "Impact / Graph",
+    },
+    {
+        description: "Provider key usage limit reached in current period.",
+        id: "provider-health",
+        route: "/settings/llm-providers",
+        title: "Provider health",
+    },
+    {
+        description: "Repo onboarding delayed for team runtime.",
+        id: "drift-deploy",
+        route: "/settings",
+        title: "Ops drill-down",
+    },
+] as const satisfies ReadonlyArray<IWorkQueueSignal>
+
+/**
+ * Базовая payload-структура для mission-control секции.
+ */
+const DASHBOARD_PAYLOAD: IWorkQueuePayload = {
+    timeline: TIMELINE_ENTRIES,
+    workQueue: WORK_QUEUE_ENTRIES,
+}
+
+/**
+ * Формирует метрики по выбранному диапазону.
+ *
+ * @param range Выбранный диапазон дат.
+ * @returns Массив метрик для отображения.
+ */
+function getDashboardMetrics(range: TDashboardDateRange): ReadonlyArray<IMetricGridMetric> {
+    const isLongRange = range === "30d" || range === "90d"
+
+    return [
+        {
+            id: "ccr-open",
+            label: "Open CCR",
+            value: isLongRange ? "41" : "19",
+            caption: "Critical + warnings included",
+            trendDirection: "up",
+            trendLabel: "+8%",
+        },
+        {
+            id: "reviews-complete",
+            label: "CCR reviewed",
+            value: isLongRange ? "128" : "44",
+            caption: "Auto/manual accepted",
+            trendDirection: "up",
+            trendLabel: "+5%",
+        },
+        {
+            id: "suggestions",
+            label: "Suggestions emitted",
+            value: isLongRange ? "1,210" : "420",
+            caption: "Median quality score 82",
+            trendDirection: "neutral",
+            trendLabel: "Stable",
+        },
+        {
+            id: "jobs-health",
+            label: "Active jobs",
+            value: isLongRange ? "5" : "2",
+            caption: "1 degraded",
+            trendDirection: "down",
+            trendLabel: "-1",
+        },
+    ]
+}
+
+/**
+ * Формирует статусные точки для диаграммы по диапазону.
+ *
+ * @param range Выбранный диапазон дат.
+ * @returns Точки distribution.
+ */
+function getStatusDistribution(range: TDashboardDateRange): ReadonlyArray<IStatusDistributionPoint> {
+    if (range === "1d") {
+        return [
+            { status: "approved", count: 42, color: "oklch(0.65 0.17 142)" },
+            { status: "queued", count: 12, color: "oklch(0.78 0.17 90)" },
+            { status: "in_progress", count: 7, color: "oklch(0.68 0.16 260)" },
+            { status: "rejected", count: 4, color: "oklch(0.64 0.2 29)" },
+        ]
+    }
+
+    return [
+        { status: "approved", count: 122, color: "oklch(0.65 0.17 142)" },
+        { status: "queued", count: 38, color: "oklch(0.78 0.17 90)" },
+        { status: "in_progress", count: 26, color: "oklch(0.68 0.16 260)" },
+        { status: "rejected", count: 19, color: "oklch(0.64 0.2 29)" },
+        { status: "new", count: 11, color: "oklch(0.72 0.12 230)" },
+    ]
+}
+
+/**
+ * Формирует индикатор деградации по выбранному диапазону.
+ *
+ * @param range Диапазон дат.
+ * @returns Флаг деградации.
+ */
+function getOpsBanner(range: TDashboardDateRange): IOpsBannerProps {
+    return {
+        isDegraded: range !== "1d",
+    }
+}
+
+/**
+ * Рендерит список сигналов для dashboard content компонента.
+ *
+ * @param payload Payload для timeline.
+ * @returns Items для передачи в DashboardContent.
+ */
+function getTimelinePayload(
+    payload: IWorkQueuePayload,
+): ReadonlyArray<IWorkQueuePayload["timeline"][number]> {
+    return payload.timeline
+}
+
+/**
+ * Рендер блока быстрых ссылок.
+ *
+ * @returns JSX секции Explore.
+ */
+function renderExploreCard(): ReactElement {
+    return (
+        <Card>
+            <CardHeader>
+                <p className="text-sm font-semibold text-slate-900">Explore</p>
+            </CardHeader>
+            <CardBody>
+                <ul className="space-y-2">
+                    <li>
+                        <Link
+                            className="text-sm font-medium underline underline-offset-4"
+                            to="/reviews"
+                        >
+                            Open CCRs deep-link
+                        </Link>
+                    </li>
+                    <li>
+                        <Link
+                            className="text-sm font-medium underline underline-offset-4"
+                            to="/settings/code-review"
+                        >
+                            Code review configuration
+                        </Link>
+                    </li>
+                    <li>
+                        <Link
+                            className="text-sm font-medium underline underline-offset-4"
+                            to="/settings/llm-providers"
+                        >
+                            LLM provider config
+                        </Link>
+                    </li>
+                    <li>
+                        <Link
+                            className="text-sm font-medium underline underline-offset-4"
+                            to="/settings/git-providers"
+                        >
+                            Git provider config
+                        </Link>
+                    </li>
+                </ul>
+            </CardBody>
+        </Card>
+    )
+}
+
+/**
+ * Рендер блока сигналов.
+ *
+ * @returns JSX секции Signals.
+ */
+function renderSignalsCard(): ReactElement {
+    return (
+        <Card>
+            <CardHeader>
+                <p className="text-sm font-semibold text-slate-900">Signals</p>
+            </CardHeader>
+            <CardBody>
+                <ul className="space-y-2 text-sm text-slate-700">
+                    <li>Signals: drift + architecture health warnings.</li>
+                    <li>Predictions: release risk elevated in team runtime.</li>
+                    <li>Usage: plan for token topup before peak window.</li>
+                </ul>
+            </CardBody>
+        </Card>
+    )
+}
+
+/**
  * Страница mission-control dashboard с KPI + links + deep link в key sections.
  *
  * @returns Страница центра мониторинга.
@@ -66,118 +295,19 @@ interface IWorkQueuePayload {
 export function DashboardMissionControlPage(): ReactElement {
     const [range, setRange] = useState<TDashboardDateRange>("7d")
 
-    const metrics = useMemo((): ReadonlyArray<IMetricGridMetric> => {
-        const isLongRange = range === "30d" || range === "90d"
-
-        return [
-            {
-                id: "ccr-open",
-                label: "Open CCR",
-                value: isLongRange ? "41" : "19",
-                caption: "Critical + warnings included",
-                trendDirection: "up",
-                trendLabel: "+8%",
-            },
-            {
-                id: "reviews-complete",
-                label: "CCR reviewed",
-                value: isLongRange ? "128" : "44",
-                caption: "Auto/manual accepted",
-                trendDirection: "up",
-                trendLabel: "+5%",
-            },
-            {
-                id: "suggestions",
-                label: "Suggestions emitted",
-                value: isLongRange ? "1,210" : "420",
-                caption: "Median quality score 82",
-                trendDirection: "neutral",
-                trendLabel: "Stable",
-            },
-            {
-                id: "jobs-health",
-                label: "Active jobs",
-                value: isLongRange ? "5" : "2",
-                caption: "1 degraded",
-                trendDirection: "down",
-                trendLabel: "-1",
-            },
-        ]
-    }, [range])
-
-    const statusDistribution = useMemo((): ReadonlyArray<IStatusDistributionPoint> => {
-        if (range === "1d") {
-            return [
-                { status: "approved", count: 42, color: "oklch(0.65 0.17 142)" },
-                { status: "queued", count: 12, color: "oklch(0.78 0.17 90)" },
-                { status: "in_progress", count: 7, color: "oklch(0.68 0.16 260)" },
-                { status: "rejected", count: 4, color: "oklch(0.64 0.2 29)" },
-            ]
-        }
-
-        return [
-            { status: "approved", count: 122, color: "oklch(0.65 0.17 142)" },
-            { status: "queued", count: 38, color: "oklch(0.78 0.17 90)" },
-            { status: "in_progress", count: 26, color: "oklch(0.68 0.16 260)" },
-            { status: "rejected", count: 19, color: "oklch(0.64 0.2 29)" },
-            { status: "new", count: 11, color: "oklch(0.72 0.12 230)" },
-        ]
-    }, [range])
-
-    const opsBanner = useMemo((): IOpsBannerProps => {
-        return { isDegraded: range !== "1d" }
-    }, [range])
-
-    const dashboardPayload = useMemo((): IWorkQueuePayload => {
-        return {
-            timeline: [
-                {
-                    id: "tl-1",
-                    time: "16:10",
-                    title: "Code scan finished",
-                    description: "Repository core scanned: 3 high-impact findings cleared.",
-                },
-                {
-                    id: "tl-2",
-                    time: "16:03",
-                    title: "New CCR queued",
-                    description: "repo/frontend: performance regression review added.",
-                },
-                {
-                    id: "tl-3",
-                    time: "15:48",
-                    title: "LLM provider health check",
-                    description: "OpenAI latency spike detected; fallback provider enabled.",
-                },
-            ],
-            workQueue: [
-                {
-                    description: "12 pending. Click to review queue and continue workflow.",
-                    id: "critical-ccr",
-                    route: "/reviews",
-                    title: "CCR queue",
-                },
-                {
-                    description: "Signals suggest drift in architecture health by +12%.",
-                    id: "impact-graph",
-                    route: "/",
-                    title: "Impact / Graph",
-                },
-                {
-                    description: "Provider key usage limit reached in current period.",
-                    id: "provider-health",
-                    route: "/settings/llm-providers",
-                    title: "Provider health",
-                },
-                {
-                    description: "Repo onboarding delayed for team runtime.",
-                    id: "drift-deploy",
-                    route: "/settings",
-                    title: "Ops drill-down",
-                },
-            ],
-        }
-    }, [])
+    const metrics = useMemo((): ReadonlyArray<IMetricGridMetric> => getDashboardMetrics(range), [range])
+    const statusDistribution = useMemo(
+        (): ReadonlyArray<IStatusDistributionPoint> => getStatusDistribution(range),
+        [range],
+    )
+    const opsBanner = useMemo((): IOpsBannerProps => getOpsBanner(range), [range])
+    const dashboardPayload = useMemo((): IWorkQueuePayload => DASHBOARD_PAYLOAD, [])
+    const timelinePayload = useMemo(
+        (): ReadonlyArray<IWorkQueuePayload["timeline"][number]> => {
+            return getTimelinePayload(dashboardPayload)
+        },
+        [dashboardPayload],
+    )
 
     return (
         <section className="space-y-4">
@@ -207,78 +337,13 @@ export function DashboardMissionControlPage(): ReactElement {
 
             <MetricsGrid metrics={metrics} />
             <div className="grid gap-4 md:grid-cols-2">
-                <Card>
-                    <CardHeader>
-                        <p className="text-sm font-semibold text-slate-900">Explore</p>
-                    </CardHeader>
-                    <CardBody>
-                        <ul className="space-y-2">
-                            <li>
-                                <Link
-                                    className="text-sm font-medium underline underline-offset-4"
-                                    to="/reviews"
-                                >
-                                    Open CCRs deep-link
-                                </Link>
-                            </li>
-                            <li>
-                                <Link
-                                    className="text-sm font-medium underline underline-offset-4"
-                                    to="/settings/code-review"
-                                >
-                                    Code review configuration
-                                </Link>
-                            </li>
-                            <li>
-                                <Link
-                                    className="text-sm font-medium underline underline-offset-4"
-                                    to="/settings/llm-providers"
-                                >
-                                    LLM provider config
-                                </Link>
-                            </li>
-                            <li>
-                                <Link
-                                    className="text-sm font-medium underline underline-offset-4"
-                                    to="/settings/git-providers"
-                                >
-                                    Git provider config
-                                </Link>
-                            </li>
-                        </ul>
-                    </CardBody>
-                </Card>
-                <Card>
-                    <CardHeader>
-                        <p className="text-sm font-semibold text-slate-900">Signals</p>
-                    </CardHeader>
-                    <CardBody>
-                        <ul className="space-y-2 text-sm text-slate-700">
-                            <li>Signals: drift + architecture health warnings.</li>
-                            <li>Predictions: release risk elevated in team runtime.</li>
-                            <li>Usage: plan for token topup before peak window.</li>
-                        </ul>
-                    </CardBody>
-                </Card>
+                {renderExploreCard()}
+                {renderSignalsCard()}
             </div>
             <Suspense fallback={<DashboardSkeleton />}>
                 <DashboardContent
                     statusDistribution={statusDistribution}
-                    timeline={dashboardPayload.timeline.map(
-                        (
-                            item,
-                        ): {
-                            id: string
-                            time: string
-                            title: string
-                            description: string
-                        } => ({
-                            description: item.description,
-                            id: item.id,
-                            time: item.time,
-                            title: item.title,
-                        }),
-                    )}
+                    timeline={timelinePayload}
                     workQueue={dashboardPayload.workQueue}
                 />
             </Suspense>

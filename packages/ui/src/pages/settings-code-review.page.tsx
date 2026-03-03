@@ -9,7 +9,7 @@ import type { ICodeReviewFormValues } from "@/components/settings/code-review-fo
 /** Параметры сохранённой настройки code-review. */
 interface ICodeReviewSettingsState {
     /** Поле формы. */
-    readonly formValues: ICodeReviewFormValues
+    formValues: ICodeReviewFormValues
     /** Список ignored paths. */
     readonly ignoredPaths: ReadonlyArray<string>
 }

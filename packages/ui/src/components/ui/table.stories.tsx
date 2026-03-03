@@ -1,9 +1,16 @@
-import { type Meta, type StoryObj } from "@storybook/react"
-import type { ReactElement } from "react"
+import type { Meta, StoryObj } from "@storybook/react"
+import { type ComponentType, type ReactElement } from "react"
 
 import { Table, TableBody, TableCell, TableColumn, TableHeader, TableRow } from "./table"
 
-const rows = [
+const rows: ReadonlyArray<{
+    /** Идентификатор строки. */
+    readonly id: string
+    /** Репозиторий. */
+    readonly repository: string
+    /** Кол-во открытых issue. */
+    readonly issues: string
+}> = [
     {
         id: "1",
         repository: "acme/web",
@@ -21,17 +28,20 @@ const rows = [
     },
 ]
 
-const meta = {
+const storyComponent: ComponentType = Table
+
+const meta: Meta = {
     title: "Base/Table",
-    component: Table,
+    component: storyComponent,
     tags: ["autodocs"],
-} satisfies Meta<typeof Table>
+}
 
 export default meta
 
 type Story = StoryObj<typeof meta>
 
 export const Default: Story = {
+    args: {},
     render: () => (
         <Table aria-label="Repositories overview">
             <TableHeader>

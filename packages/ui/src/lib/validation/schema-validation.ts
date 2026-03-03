@@ -1,5 +1,5 @@
 import DOMPurify from "isomorphic-dompurify"
-import { type SafeParseError, z, type ZodError, type ZodTypeAny } from "zod"
+import { type ZodError, z } from "zod"
 
 /**
  * Результат валидации с нормализованным описанием ошибки.
@@ -40,10 +40,10 @@ export interface ITextSanitizerResult {
  * @param payload Данные для валидации.
  * @returns Нормализованный результат.
  */
-export function parseSchemaOrError<TSchema extends ZodTypeAny>(
-    schema: TSchema,
+export function parseSchemaOrError<TData>(
+    schema: z.ZodType<TData>,
     payload: unknown,
-): IZodParseResult<z.infer<TSchema>> {
+): IZodParseResult<TData> {
     const parseResult = schema.safeParse(payload)
     if (parseResult.success === true) {
         return {
@@ -54,7 +54,7 @@ export function parseSchemaOrError<TSchema extends ZodTypeAny>(
 
     return {
         success: false,
-        error: extractFirstIssueMessage(parseResult),
+        error: extractFirstIssueMessage(parseResult.error),
     }
 }
 
@@ -180,10 +180,8 @@ export function createOptionalSanitizedStringSchema(): z.ZodEffects<
 /**
  * Извлекает первое сообщение ошибки валидатора.
  */
-function extractFirstIssueMessage<T>(
-    parseResult: SafeParseError<T> | { error: ZodError<T> },
-): string {
-    const issues = parseResult.error.issues
+function extractFirstIssueMessage<T>(error: ZodError<T>): string {
+    const issues = error.issues
     const firstIssue = issues[0]
     if (firstIssue === undefined) {
         return "Ошибка валидации"

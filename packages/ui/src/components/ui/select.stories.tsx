@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react"
 import type { ReactElement } from "react"
-import { SelectItem } from "@heroui/react"
+import { type Selection, SelectItem } from "@heroui/react"
 import { useState } from "react"
 
 import { Select } from "./select"
@@ -44,7 +44,11 @@ function DefaultSelectStory(): ReactElement {
             selectionMode="single"
             selectedKeys={new Set([selected])}
             variant="flat"
-            onSelectionChange={(keys): void => {
+            onSelectionChange={(keys: Selection): void => {
+                if (keys instanceof Set === false) {
+                    return
+                }
+
                 const next = [...keys][0]
                 if (typeof next === "string") {
                     setSelected(next)

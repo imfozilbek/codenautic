@@ -1,4 +1,4 @@
-import type { ReactElement, ReactNode } from "react"
+import type { ReactElement } from "react"
 import { useEffect, useMemo, useRef, useState } from "react"
 import {
     type QueryClient,
@@ -133,25 +133,15 @@ export function AuthBoundary(props: IAuthBoundaryProps): ReactElement {
         navigateToLogin(loginRedirectPath)
     }, [loginRedirectPath, navigateToLogin, shouldRedirectToLogin])
 
-    if (state.isPending === true || shouldRedirectToLogin === true) {
+    const isLoadingState = state.isPending === true || shouldRedirectToLogin === true
+    if (isLoadingState === true) {
         return renderAuthLoadingState(labels.appTitle, labels.checkingSession)
     }
 
     const authStatusMessage = resolveAuthStatusMessage(effectiveAuthStatusCode, labels)
+    const isAuthenticatedSession = state.session !== undefined && state.session !== null
 
-    if (state.session === undefined) {
-        return (
-            <AuthLoginPanel
-                appTitle={labels.appTitle}
-                description={labels.loginTitle}
-                interactionError={state.interactionError}
-                onOAuthSignIn={state.handleOAuthSignIn}
-                statusMessage={authStatusMessage}
-            />
-        )
-    }
-
-    if (state.session === null) {
+    if (isAuthenticatedSession === false) {
         return (
             <AuthLoginPanel
                 appTitle={labels.appTitle}
@@ -171,28 +161,15 @@ export function AuthBoundary(props: IAuthBoundaryProps): ReactElement {
         })
     }
 
-    return (
-        <AuthenticatedShell
-            appTitle={labels.appTitle}
-            userDisplayName={state.session.user.displayName}
-            userEmail={state.session.user.email}
-            logoutLabel={labels.logout}
-            onLogout={state.handleLogout}
-        >
-            <>
-                {state.interactionError !== null ? (
-                    <p
-                        aria-live="assertive"
-                        className="px-6 pb-2 text-sm text-rose-700"
-                        role="alert"
-                    >
-                        {state.interactionError}
-                    </p>
-                ) : null}
-                {props.children}
-            </>
-        </AuthenticatedShell>
-    )
+    return renderAuthLoginShell({
+        appTitle: labels.appTitle,
+        userDisplayName: state.session.user.displayName,
+        userEmail: state.session.user.email,
+        logoutLabel: labels.logout,
+        onLogout: state.handleLogout,
+        interactionError: state.interactionError,
+        children: props.children,
+    })
 }
 
 /**
@@ -447,6 +424,19 @@ interface IAuthLoginPanelProps {
 }
 
 /**
+ * Параметры рендера авторизованной сессии.
+ */
+interface IAuthAuthenticatedShellRenderProps {
+    readonly appTitle: string
+    readonly userDisplayName: string
+    readonly userEmail: string
+    readonly logoutLabel: string
+    readonly onLogout: () => Promise<void>
+    readonly interactionError: string | null
+    readonly children: ReactElement
+}
+
+/**
  * Панель входа для неавторизованных пользователей.
  *
  * @param props Параметры панели входа.
@@ -481,6 +471,37 @@ function AuthLoginPanel(props: IAuthLoginPanelProps): ReactElement {
                 </p>
             ) : null}
         </section>
+    )
+}
+
+/**
+ * Рендерит shell для авторизованного состояния.
+ *
+ * @param props Параметры отрисовки shell.
+ * @returns Авторизованный layout.
+ */
+function renderAuthLoginShell(props: IAuthAuthenticatedShellRenderProps): ReactElement {
+    return (
+        <AuthenticatedShell
+            appTitle={props.appTitle}
+            userDisplayName={props.userDisplayName}
+            userEmail={props.userEmail}
+            logoutLabel={props.logoutLabel}
+            onLogout={props.onLogout}
+        >
+            <>
+                {props.interactionError !== null ? (
+                    <p
+                        aria-live="assertive"
+                        className="px-6 pb-2 text-sm text-rose-700"
+                        role="alert"
+                    >
+                        {props.interactionError}
+                    </p>
+                ) : null}
+                {props.children}
+            </>
+        </AuthenticatedShell>
     )
 }
 

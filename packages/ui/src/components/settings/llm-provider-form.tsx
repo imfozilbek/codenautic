@@ -30,6 +30,42 @@ export interface ILlmProviderFormProps {
     readonly onSubmit: (values: ILlmProviderFormValues) => void
 }
 
+function getSafeItems(values: ReadonlyArray<string>, fallback: string): ReadonlyArray<string> {
+    if (values.length === 0) {
+        return [fallback]
+    }
+
+    return values
+}
+
+function toSelectOptions(values: ReadonlyArray<string>): ReadonlyArray<IFormSelectOption> {
+    return values.map((item): IFormSelectOption => {
+        const safeLabel = String(item)
+        const safeValue = String(item)
+
+        return { label: safeLabel, value: safeValue }
+    })
+}
+
+function getLlmFormDefaults(props: ILlmProviderFormProps): {
+    readonly provider: string
+    readonly model: string
+    readonly endpoint: string | undefined
+    readonly apiKey: string
+    readonly testAfterSave: boolean
+} {
+    const providerOptions = getSafeItems(props.providers, LLM_PROVIDER_OPTIONS[0])
+    const modelOptions = getSafeItems(props.modelOptions, LLM_MODEL_OPTIONS[0])
+
+    return {
+        apiKey: props.initialValues?.apiKey ?? "",
+        endpoint: props.initialValues?.endpoint,
+        model: props.initialValues?.model ?? modelOptions[0],
+        provider: props.initialValues?.provider ?? providerOptions[0],
+        testAfterSave: props.initialValues?.testAfterSave === true,
+    }
+}
+
 /**
  * Страница-форма настройки LLM провайдера.
  *
@@ -37,34 +73,27 @@ export interface ILlmProviderFormProps {
  * @returns Форма с выбором provider, моделью и ключом.
  */
 export function LlmProviderForm(props: ILlmProviderFormProps): ReactElement {
-    const providers = props.providers.length > 0 ? props.providers : [LLM_PROVIDER_OPTIONS[0]]
-    const modelOptions = props.modelOptions.length > 0 ? props.modelOptions : [LLM_MODEL_OPTIONS[0]]
-    const providerOptions: ReadonlyArray<IFormSelectOption> = providers.map(
-        (item): IFormSelectOption => ({
-            label: item,
-            value: item,
-        }),
-    )
-    const llmModelOptions: ReadonlyArray<IFormSelectOption> = modelOptions.map(
-        (item): IFormSelectOption => ({
-            label: item,
-            value: item,
-        }),
-    )
+    const providers = getSafeItems(props.providers, LLM_PROVIDER_OPTIONS[0])
+    const modelOptions = getSafeItems(props.modelOptions, LLM_MODEL_OPTIONS[0])
+    const providerOptions = toSelectOptions(providers)
+    const llmModelOptions = toSelectOptions(modelOptions)
+    const defaults = getLlmFormDefaults(props)
     const form = useForm<ILlmProviderFormValues>({
         defaultValues: {
-            apiKey: props.initialValues?.apiKey ?? "",
-            endpoint: props.initialValues?.endpoint,
-            model: props.initialValues?.model ?? modelOptions[0]!,
-            provider: props.initialValues?.provider ?? providers[0]!,
-            testAfterSave: props.initialValues?.testAfterSave === true,
+            apiKey: defaults.apiKey,
+            endpoint: defaults.endpoint,
+            model: defaults.model,
+            provider: defaults.provider,
+            testAfterSave: defaults.testAfterSave,
         },
         resolver: zodResolver(llmProviderFormSchema),
     })
 
-    const handleSubmit = form.handleSubmit((values): void => {
-        props.onSubmit(values)
-    })
+    const handleSubmit = (): void => {
+        void form.handleSubmit((values: ILlmProviderFormValues): void => {
+            props.onSubmit(values)
+        })()
+    }
 
     return (
         <form className="space-y-3" onSubmit={handleSubmit}>

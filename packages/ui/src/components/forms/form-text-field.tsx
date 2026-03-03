@@ -40,7 +40,7 @@ export interface IFormTextFieldProps<
     /** Пропсы HeroUI Input без связанных с контролируемым значением полей. */
     readonly inputProps?: Omit<
         InputProps,
-        "name" | "value" | "defaultValue" | "onChange" | "onBlur" | "isInvalid" | "isDisabled"
+        "name" | "value" | "defaultValue" | "onChange" | "onBlur" | "isInvalid"
     >
     /** Идентификатор для accessibility. */
     readonly id?: string
@@ -58,6 +58,7 @@ export function FormTextField<
 >(props: IFormTextFieldProps<TFormValues, TName>): ReactElement {
     const fieldId = props.id ?? String(props.name)
     const hasRequiredMarker = props.rules?.required !== undefined
+    const isInputDisabled = props.inputProps?.isDisabled === true
 
     return (
         <Controller
@@ -65,9 +66,11 @@ export function FormTextField<
             name={props.name}
             rules={props.rules}
             render={({ field, fieldState }): ReactElement => {
-                const errorMessage = fieldState.error?.message
+                const rawErrorMessage = fieldState.error?.message
+                const errorMessage =
+                    typeof rawErrorMessage === "string" ? rawErrorMessage : undefined
                 const hasError = errorMessage !== undefined
-                const value = field.value === undefined ? "" : field.value
+                const value = typeof field.value === "string" ? field.value : ""
 
                 return (
                     <div className="flex flex-col gap-1.5">
@@ -85,7 +88,7 @@ export function FormTextField<
                             }
                             aria-invalid={hasError}
                             id={fieldId}
-                            isDisabled={props.inputProps?.isDisabled}
+                            isDisabled={isInputDisabled}
                             isInvalid={hasError}
                             name={field.name}
                             value={value}
