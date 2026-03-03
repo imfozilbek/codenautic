@@ -7,6 +7,11 @@ import {
 
 import { Link } from "@tanstack/react-router"
 
+import {
+    FileDependencyGraph,
+    type IFileDependencyNode,
+    type IFileDependencyRelation,
+} from "@/components/graphs/file-dependency-graph"
 import { Alert, Button, Card, CardBody, CardHeader, Chip } from "@/components/ui"
 import { type IMetricGridMetric, MetricsGrid } from "@/components/dashboard/metrics-grid"
 
@@ -57,6 +62,13 @@ interface IRepositoryOverviewProfile {
     readonly techStack: ReadonlyArray<ITechStackItem>
     /** Значение расписания скана по умолчанию (cron). */
     readonly defaultRescanCron: string
+}
+
+interface IRepositoryFileDependencyProfile {
+    /** Список файлов репозитория для отображения в графе зависимостей. */
+    readonly files: ReadonlyArray<IFileDependencyNode>
+    /** Список зависимостей между файлами в репозитории. */
+    readonly dependencies: ReadonlyArray<IFileDependencyRelation>
 }
 
 interface IRescanScheduleValues {
@@ -420,6 +432,237 @@ const FALLBACK_ARCHITECTURE_SUMMARY: ReadonlyArray<IArchitectureSummary> = [
     },
 ]
 
+const FILE_DEPENDENCY_VIEWS: Readonly<Record<string, IRepositoryFileDependencyProfile>> = {
+    "platform-team/api-gateway": {
+        dependencies: [
+            {
+                relationType: "import",
+                source: "src/index.ts",
+                target: "src/api/server.ts",
+            },
+            {
+                relationType: "import",
+                source: "src/index.ts",
+                target: "src/lib/config.ts",
+            },
+            {
+                relationType: "import",
+                source: "src/api/server.ts",
+                target: "src/api/auth.ts",
+            },
+            {
+                relationType: "import",
+                source: "src/api/server.ts",
+                target: "src/api/repository.ts",
+            },
+            {
+                relationType: "import",
+                source: "src/api/auth.ts",
+                target: "src/lib/config.ts",
+            },
+            {
+                relationType: "import",
+                source: "src/api/repository.ts",
+                target: "src/lib/logger.ts",
+            },
+            {
+                relationType: "import",
+                source: "src/api/auth.ts",
+                target: "src/api/notifications.ts",
+            },
+        ],
+        files: [
+            {
+                complexity: 12,
+                id: "src/api/auth.ts",
+                path: "src/api/auth.ts",
+            },
+            {
+                complexity: 10,
+                id: "src/api/repository.ts",
+                path: "src/api/repository.ts",
+            },
+            {
+                complexity: 14,
+                id: "src/api/server.ts",
+                path: "src/api/server.ts",
+            },
+            {
+                complexity: 8,
+                id: "src/index.ts",
+                path: "src/index.ts",
+            },
+            {
+                complexity: 6,
+                id: "src/lib/config.ts",
+                path: "src/lib/config.ts",
+            },
+            {
+                complexity: 4,
+                id: "src/lib/logger.ts",
+                path: "src/lib/logger.ts",
+            },
+            {
+                complexity: 5,
+                id: "src/api/notifications.ts",
+                path: "src/api/notifications.ts",
+            },
+        ],
+    },
+    "frontend-team/ui-dashboard": {
+        dependencies: [
+            {
+                relationType: "import",
+                source: "src/app.tsx",
+                target: "src/main.tsx",
+            },
+            {
+                relationType: "import",
+                source: "src/app.tsx",
+                target: "src/app/router.tsx",
+            },
+            {
+                relationType: "import",
+                source: "src/app/router.tsx",
+                target: "src/pages/dashboard.tsx",
+            },
+            {
+                relationType: "import",
+                source: "src/app/router.tsx",
+                target: "src/pages/settings.tsx",
+            },
+            {
+                relationType: "import",
+                source: "src/components/app-shell.tsx",
+                target: "src/hooks/use-auth.ts",
+            },
+            {
+                relationType: "import",
+                source: "src/components/app-shell.tsx",
+                target: "src/components/theme-switch.tsx",
+            },
+        ],
+        files: [
+            {
+                complexity: 10,
+                id: "src/app.tsx",
+                path: "src/app.tsx",
+            },
+            {
+                complexity: 16,
+                id: "src/app/router.tsx",
+                path: "src/app/router.tsx",
+            },
+            {
+                complexity: 9,
+                id: "src/components/app-shell.tsx",
+                path: "src/components/app-shell.tsx",
+            },
+            {
+                complexity: 7,
+                id: "src/hooks/use-auth.ts",
+                path: "src/hooks/use-auth.ts",
+            },
+            {
+                complexity: 12,
+                id: "src/main.tsx",
+                path: "src/main.tsx",
+            },
+            {
+                complexity: 8,
+                id: "src/pages/dashboard.tsx",
+                path: "src/pages/dashboard.tsx",
+            },
+            {
+                complexity: 8,
+                id: "src/pages/settings.tsx",
+                path: "src/pages/settings.tsx",
+            },
+            {
+                complexity: 6,
+                id: "src/components/theme-switch.tsx",
+                path: "src/components/theme-switch.tsx",
+            },
+        ],
+    },
+    "backend-core/payment-worker": {
+        dependencies: [
+            {
+                relationType: "import",
+                source: "src/main.ts",
+                target: "src/services/worker.ts",
+            },
+            {
+                relationType: "import",
+                source: "src/services/worker.ts",
+                target: "src/services/retry.ts",
+            },
+            {
+                relationType: "import",
+                source: "src/services/worker.ts",
+                target: "src/services/queue.ts",
+            },
+            {
+                relationType: "import",
+                source: "src/services/retry.ts",
+                target: "src/lib/lock.ts",
+            },
+            {
+                relationType: "import",
+                source: "src/services/queue.ts",
+                target: "src/lib/metrics.ts",
+            },
+            {
+                relationType: "import",
+                source: "src/services/queue.ts",
+                target: "src/lib/error-codes.ts",
+            },
+        ],
+        files: [
+            {
+                complexity: 18,
+                id: "src/main.ts",
+                path: "src/main.ts",
+            },
+            {
+                complexity: 16,
+                id: "src/services/queue.ts",
+                path: "src/services/queue.ts",
+            },
+            {
+                complexity: 13,
+                id: "src/services/retry.ts",
+                path: "src/services/retry.ts",
+            },
+            {
+                complexity: 15,
+                id: "src/services/worker.ts",
+                path: "src/services/worker.ts",
+            },
+            {
+                complexity: 7,
+                id: "src/lib/error-codes.ts",
+                path: "src/lib/error-codes.ts",
+            },
+            {
+                complexity: 9,
+                id: "src/lib/lock.ts",
+                path: "src/lib/lock.ts",
+            },
+            {
+                complexity: 12,
+                id: "src/lib/metrics.ts",
+                path: "src/lib/metrics.ts",
+            },
+        ],
+    },
+} as const
+
+const FALLBACK_FILE_DEPENDENCIES: IRepositoryFileDependencyProfile = {
+    dependencies: [],
+    files: [],
+}
+
 function clampScore(rawScore: number): number {
     if (rawScore < 0) {
         return 0
@@ -458,6 +701,11 @@ function mapRiskToLabel(risk: TRepositoryRisk): string {
 
 function getRepositoryOverviewById(repositoryId: string): IRepositoryOverviewProfile | undefined {
     return REPOSITORY_OVERVIEWS.find((entry): boolean => entry.id === repositoryId)
+}
+
+function getRepositoryFileDependencies(repositoryId: string): IRepositoryFileDependencyProfile {
+    const repositoryDependencies = FILE_DEPENDENCY_VIEWS[repositoryId]
+    return repositoryDependencies ?? FALLBACK_FILE_DEPENDENCIES
 }
 
 function formatOverviewTimestamp(raw: string): string {
@@ -870,6 +1118,7 @@ export function RepositoryOverviewPage(props: IRepositoryOverviewProps): ReactEl
         repository.architectureSummary.length === 0
             ? FALLBACK_ARCHITECTURE_SUMMARY
             : repository.architectureSummary
+    const fileDependencyGraph = getRepositoryFileDependencies(repository.id)
 
     return (
         <section className="space-y-4">
@@ -1097,6 +1346,15 @@ export function RepositoryOverviewPage(props: IRepositoryOverviewProps): ReactEl
                 <ArchitectureSummaryList lines={fallbackSummary} />
                 <TechnologyStackList stack={repository.techStack} />
             </div>
+
+            <FileDependencyGraph
+                dependencies={fileDependencyGraph.dependencies}
+                files={fileDependencyGraph.files}
+                height="460px"
+                showControls
+                showMiniMap
+                title="File dependency graph"
+            />
         </section>
     )
 }
