@@ -407,6 +407,9 @@ export {
     ManageReviewCadenceUseCase,
 } from "./application/use-cases/review/manage-review-cadence.use-case"
 export {
+    ThrottleReviewUseCase,
+} from "./application/use-cases/review/throttle-review.use-case"
+export {
     ResolveConfigStageUseCase,
 } from "./application/use-cases/review/resolve-config-stage.use-case"
 export {
