@@ -16,6 +16,7 @@ export {
     type IOutboxMessageEnvelope,
     toMessageBrokerEnvelope,
 } from "./application/ports/outbound/messaging/message-broker.port"
+export {type IConversationThreadRepository} from "./application/ports/outbound/messaging/conversation-thread-repository.port"
 export {type IOutboxRepository} from "./application/ports/outbound/messaging/outbox-repository.port"
 export {type IInboxRepository} from "./application/ports/outbound/messaging/inbox-repository.port"
 export {type IGraphRepository} from "./application/ports/outbound/graph/code-graph-repository.port"

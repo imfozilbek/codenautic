@@ -50,6 +50,11 @@ export {
     UserFactory,
 } from "./user.factory"
 export {
+    type ICreateConversationThreadProps,
+    type IReconstituteConversationThreadProps,
+    ConversationThreadFactory,
+} from "./conversation-thread.factory"
+export {
     type ICreateTaskProps,
     type IReconstituteTaskProps,
     TaskFactory,

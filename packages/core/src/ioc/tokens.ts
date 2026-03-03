@@ -7,6 +7,7 @@ import {createToken} from "./create-token"
 import type {IFileMetricsProvider} from "../application/ports/outbound/analysis/file-metrics-provider"
 import type {IIssueAggregationProvider} from "../application/ports/outbound/review/issue-aggregation-provider"
 import type {ITeamRuleProvider} from "../application/ports/outbound/rule/team-rule-provider.port"
+import type {IConversationThreadRepository} from "../application/ports/outbound/messaging/conversation-thread-repository.port"
 
 /**
  * Core package DI tokens.
@@ -35,5 +36,10 @@ export const TOKENS = {
     },
     Rules: {
         TeamRuleProvider: createToken<ITeamRuleProvider>("core.rules.team-rule-provider"),
+    },
+    Messaging: {
+        ConversationThreadRepository: createToken<IConversationThreadRepository>(
+            "core.messaging.conversation-thread-repository",
+        ),
     },
 } as const

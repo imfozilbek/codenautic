@@ -8,6 +8,7 @@ import {type IIssueAggregationProvider} from "../../src/application/ports/outbou
 import {type IReviewRepository} from "../../src/application/ports/outbound/review/review-repository.port"
 import {type IRuleRepository} from "../../src/application/ports/outbound/rule/rule-repository.port"
 import type {ITeamRuleProvider} from "../../src/application/ports/outbound/rule/team-rule-provider.port"
+import type {IConversationThreadRepository} from "../../src/application/ports/outbound/messaging/conversation-thread-repository.port"
 import {createToken, TOKENS, type InjectionToken} from "../../src/index"
 
 interface IExamplePort {
@@ -51,6 +52,8 @@ describe("TOKENS", () => {
         const ruleToken: InjectionToken<IRuleRepository> = TOKENS.Rule.Repository
         const teamRuleProviderToken: InjectionToken<ITeamRuleProvider> =
             TOKENS.Rules.TeamRuleProvider
+        const conversationThreadRepositoryToken: InjectionToken<IConversationThreadRepository> =
+            TOKENS.Messaging.ConversationThreadRepository
         const eventBusToken: InjectionToken<IDomainEventBus> = TOKENS.Common.DomainEventBus
         const loggerToken: InjectionToken<ILogger> = TOKENS.Common.Logger
         const reviewSymbol: symbol = reviewToken
@@ -59,6 +62,8 @@ describe("TOKENS", () => {
         const fileMetricsSymbol: symbol = fileMetricsProviderToken
         const ruleSymbol: symbol = ruleToken
         const teamRuleProviderSymbol: symbol = teamRuleProviderToken
+        const conversationThreadRepositorySymbol: symbol =
+            conversationThreadRepositoryToken
         const eventBusSymbol: symbol = eventBusToken
         const loggerSymbol: symbol = loggerToken
 
@@ -68,6 +73,7 @@ describe("TOKENS", () => {
         expect(typeof fileMetricsProviderToken).toBe("symbol")
         expect(typeof ruleToken).toBe("symbol")
         expect(typeof teamRuleProviderToken).toBe("symbol")
+        expect(typeof conversationThreadRepositoryToken).toBe("symbol")
         expect(typeof eventBusToken).toBe("symbol")
         expect(typeof loggerToken).toBe("symbol")
         expect(reviewSymbol === ruleSymbol).toBe(false)
@@ -91,6 +97,14 @@ describe("TOKENS", () => {
         expect(teamRuleProviderSymbol === loggerSymbol).toBe(false)
         expect(teamRuleProviderSymbol === issueAggregationSymbol).toBe(false)
         expect(teamRuleProviderSymbol === fileMetricsSymbol).toBe(false)
+        expect(conversationThreadRepositorySymbol === reviewSymbol).toBe(false)
+        expect(conversationThreadRepositorySymbol === checkpointSymbol).toBe(false)
+        expect(conversationThreadRepositorySymbol === ruleSymbol).toBe(false)
+        expect(conversationThreadRepositorySymbol === teamRuleProviderSymbol).toBe(false)
+        expect(conversationThreadRepositorySymbol === eventBusSymbol).toBe(false)
+        expect(conversationThreadRepositorySymbol === loggerSymbol).toBe(false)
+        expect(conversationThreadRepositorySymbol === issueAggregationSymbol).toBe(false)
+        expect(conversationThreadRepositorySymbol === fileMetricsSymbol).toBe(false)
         expect(issueAggregationSymbol === fileMetricsSymbol).toBe(false)
         expect(eventBusSymbol === loggerSymbol).toBe(false)
     })
