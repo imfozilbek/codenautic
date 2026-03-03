@@ -7,6 +7,7 @@ import {
     GitPullRequest,
     Link2,
     SlidersHorizontal,
+    Users,
     Webhook,
 } from "lucide-react"
 
@@ -60,6 +61,11 @@ const DEFAULT_SETTINGS_NAV_ITEMS = [
         icon: <Building2 aria-hidden="true" size={16} />,
         label: "Organization",
         to: "/settings-organization",
+    },
+    {
+        icon: <Users aria-hidden="true" size={16} />,
+        label: "Team",
+        to: "/settings-team",
     },
 ] as const
 
