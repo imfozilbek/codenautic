@@ -610,6 +610,56 @@ describe("PipelineOrchestratorUseCase", () => {
         expect(result.error.message).toContain("Cannot change definitionVersion")
     })
 
+    test("executes stages in the order declared by the new definition for clean runs", async () => {
+        const executionOrder: string[] = []
+        const orchestrator = new PipelineOrchestratorUseCase({
+            stages: {
+                "stage-a": new StaticStageUseCase("stage-a", "Stage A", (state) => {
+                    executionOrder.push("stage-a")
+
+                    return Result.ok<IStageTransition, StageError>({
+                        state,
+                    })
+                }),
+                "stage-b": new StaticStageUseCase("stage-b", "Stage B", (state) => {
+                    executionOrder.push("stage-b")
+
+                    return Result.ok<IStageTransition, StageError>({
+                        state,
+                    })
+                }),
+            },
+            domainEventBus: new InMemoryDomainEventBus(),
+            checkpointStore: new InMemoryCheckpointStore(),
+            logger: new InMemoryLogger(),
+        })
+
+        const result = await orchestrator.execute({
+            initialState: ReviewPipelineState.create({
+                runId: "run-reordered",
+                definitionVersion: "v1",
+                mergeRequest: {id: "mr-reorder"},
+                config: {},
+            }),
+            definition: {
+                definitionVersion: "v2",
+                stages: [
+                    {stageId: "stage-b", stageName: "Stage B"},
+                    {stageId: "stage-a", stageName: "Stage A"},
+                ],
+            },
+        })
+
+        expect(result.isOk).toBe(true)
+        expect(result.value.success).toBe(true)
+        expect(executionOrder).toEqual(["stage-b", "stage-a"])
+        expect(result.value.stageResults[0]?.stageId).toBe("stage-b")
+        expect(result.value.stageResults[1]?.stageId).toBe("stage-a")
+        expect(result.value.context.getStageAttempt("stage-b")).toBe(1)
+        expect(result.value.context.getStageAttempt("stage-a")).toBe(1)
+        expect(result.value.context.definitionVersion).toBe("v2")
+    })
+
     test("marks pre-start stages as skipped when resuming from middle stage", async () => {
         const definition = {
             definitionVersion: "v1",
