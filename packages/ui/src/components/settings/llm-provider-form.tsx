@@ -7,8 +7,8 @@ import {
     FormSubmitButton,
     FormSwitchField,
     FormTextField,
-    type IFormSelectOption,
 } from "@/components/forms"
+import { type IFormSelectOption } from "@/components/forms/form-select-field"
 import {
     type ILlmProviderFormValues,
     LLM_MODEL_OPTIONS,
@@ -39,12 +39,12 @@ function getSafeItems(values: ReadonlyArray<string>, fallback: string): Readonly
 }
 
 function toSelectOptions(values: ReadonlyArray<string>): ReadonlyArray<IFormSelectOption> {
-    return values.map((item): IFormSelectOption => {
-        const safeLabel = String(item)
-        const safeValue = String(item)
+    const options: IFormSelectOption[] = []
+    for (const item of values) {
+        options.push({ label: String(item), value: String(item) })
+    }
 
-        return { label: safeLabel, value: safeValue }
-    })
+    return options
 }
 
 function getLlmFormDefaults(props: ILlmProviderFormProps): {

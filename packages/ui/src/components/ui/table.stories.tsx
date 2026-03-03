@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react"
-import { type ComponentType, type ReactElement } from "react"
+import type { ReactElement } from "react"
+import { type ComponentType } from "react"
 
 import { Table, TableBody, TableCell, TableColumn, TableHeader, TableRow } from "./table"
 
@@ -28,13 +29,11 @@ const rows: ReadonlyArray<{
     },
 ]
 
-const storyComponent: ComponentType = Table
-
-const meta: Meta = {
+const meta = {
     title: "Base/Table",
-    component: storyComponent,
+    component: Table as ComponentType,
     tags: ["autodocs"],
-}
+} satisfies Meta<typeof Table>
 
 export default meta
 

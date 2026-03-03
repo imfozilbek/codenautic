@@ -4,15 +4,9 @@ import { Button } from "@/components/ui"
 import { showToastInfo, showToastSuccess } from "@/lib/notifications/toast"
 import { IgnorePathsEditor } from "@/components/settings/ignore-paths-editor"
 import { CodeReviewForm } from "@/components/settings/code-review-form"
-import type { ICodeReviewFormValues } from "@/components/settings/code-review-form"
+import type { ICodeReviewFormValues } from "@/components/settings/settings-form-schemas"
 
-/** Параметры сохранённой настройки code-review. */
-interface ICodeReviewSettingsState {
-    /** Поле формы. */
-    formValues: ICodeReviewFormValues
-    /** Список ignored paths. */
-    readonly ignoredPaths: ReadonlyArray<string>
-}
+const DEFAULT_IGNORED_PATHS: ReadonlyArray<string> = ["/dist", "/node_modules", "/coverage"] as const
 
 /**
  * Страница настроек code-review.
@@ -20,44 +14,27 @@ interface ICodeReviewSettingsState {
  * @returns Форма управления cadence/severity/suggestions + ignore paths.
  */
 export function SettingsCodeReviewPage(): ReactElement {
-    const [state, setState] = useState<ICodeReviewSettingsState>({
-        formValues: {
-            cadence: "daily",
-            enableDriftSignals: true,
-            severity: "medium",
-            suggestionsLimit: 8,
-        },
-        ignoredPaths: ["/dist", "/node_modules", "/coverage"],
+    const [formValues, setFormValues] = useState<ICodeReviewFormValues>({
+        cadence: "daily",
+        enableDriftSignals: true,
+        severity: "medium",
+        suggestionsLimit: 8,
     })
+    const [ignoredPaths, setIgnoredPaths] = useState<ReadonlyArray<string>>(DEFAULT_IGNORED_PATHS)
 
     const saveReviewForm = (nextValues: ICodeReviewFormValues): void => {
-        setState(
-            (previousValue): ICodeReviewSettingsState => ({
-                ...previousValue,
-                formValues: nextValues,
-            }),
-        )
+        setFormValues(nextValues)
         showToastSuccess("Code Review settings saved.")
     }
 
     const handlePathsChange = (nextPaths: ReadonlyArray<string>): void => {
-        setState(
-            (previousValue): ICodeReviewSettingsState => ({
-                ...previousValue,
-                ignoredPaths: nextPaths,
-            }),
-        )
+        setIgnoredPaths(nextPaths)
         showToastSuccess("Ignore paths updated.")
     }
 
     const handlePathReset = (event: FormEvent): void => {
         event.preventDefault()
-        setState(
-            (previousValue): ICodeReviewSettingsState => ({
-                ...previousValue,
-                ignoredPaths: ["/dist", "/node_modules", "/coverage"],
-            }),
-        )
+        setIgnoredPaths(DEFAULT_IGNORED_PATHS)
         showToastInfo("Ignore paths reset to defaults.")
     }
 
@@ -67,10 +44,10 @@ export function SettingsCodeReviewPage(): ReactElement {
             <p className="text-sm text-slate-600">
                 Configure cadence, severity threshold и ignore path rules for automated review.
             </p>
-            <CodeReviewForm initialValues={state.formValues} onSubmit={saveReviewForm} />
+            <CodeReviewForm initialValues={formValues} onSubmit={saveReviewForm} />
             <IgnorePathsEditor
                 helperText="Игнорируемые пути используются как фильтр для сканирования и выдачи CCR."
-                ignoredPaths={state.ignoredPaths}
+                ignoredPaths={ignoredPaths}
                 onChange={handlePathsChange}
             />
             <form onSubmit={handlePathReset}>

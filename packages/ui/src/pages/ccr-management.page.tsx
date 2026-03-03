@@ -167,12 +167,20 @@ function findFilterOptions(rows: ReadonlyArray<ICcrRow>): {
     readonly teamOptions: ReadonlyArray<string>
     readonly repositoryOptions: ReadonlyArray<string>
 } {
+    const statusValues: string[] = [ ...CCR_SORT_ORDER ]
+    const teamValues: string[] = []
+    const repositoryValues: string[] = []
+
+    for (const row of rows) {
+        statusValues.push(String(row.status))
+        teamValues.push(String(row.team))
+        repositoryValues.push(String(row.repository))
+    }
+
     return {
-        statusOptions: createSortedOptions(
-            CCR_SORT_ORDER.concat(rows.map((row): string => String(row.status))),
-        ),
-        teamOptions: createSortedOptions(rows.map((row): string => row.team)),
-        repositoryOptions: createSortedOptions(rows.map((row): string => row.repository)),
+        statusOptions: createSortedOptions(statusValues),
+        teamOptions: createSortedOptions(teamValues),
+        repositoryOptions: createSortedOptions(repositoryValues),
     }
 }
 
@@ -187,18 +195,22 @@ function toLowerSafe(value: string): string {
 }
 
 function filterRows(rows: ReadonlyArray<ICcrRow>, filters: ICcrFilters): ReadonlyArray<ICcrRow> {
-    const search = filters.search.trim().toLowerCase()
+    const search = String(filters.search).trim().toLowerCase()
 
     return rows.filter((row): boolean => {
-        const isStatusMatch = toFilterMatch(row.status, filters.status)
-        const isTeamMatch = toFilterMatch(row.team, filters.team)
-        const isRepoMatch = toFilterMatch(row.repository, filters.repository)
+        const rowStatus = String(row.status)
+        const rowTeam = String(row.team)
+        const rowRepository = String(row.repository)
+        const rowIdentifier = String(row.id)
+        const isStatusMatch = toFilterMatch(rowStatus, String(filters.status))
+        const isTeamMatch = toFilterMatch(rowTeam, String(filters.team))
+        const isRepoMatch = toFilterMatch(rowRepository, String(filters.repository))
         const isSearchMatch =
             search.length === 0 ||
-            toLowerSafe(row.id).includes(search) ||
-            toLowerSafe(row.title).includes(search) ||
-            toLowerSafe(row.repository).includes(search) ||
-            toLowerSafe(row.assignee).includes(search)
+            toLowerSafe(rowIdentifier).includes(search) ||
+            toLowerSafe(String(row.title)).includes(search) ||
+            toLowerSafe(rowRepository).includes(search) ||
+            toLowerSafe(String(row.assignee)).includes(search)
 
         return isStatusMatch && isTeamMatch && isRepoMatch && isSearchMatch
     })

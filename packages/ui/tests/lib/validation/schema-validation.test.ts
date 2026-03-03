@@ -42,7 +42,7 @@ describe("schema-validation", (): void => {
 
         if (result.success !== true) {
             expect(result.error).toContain("mode")
-            expect(result.error).toContain("Expected string")
+            expect(result.error.toLowerCase()).toContain("expected string")
             return
         }
 
@@ -60,10 +60,19 @@ describe("schema-validation", (): void => {
     })
 
     it("очищает строку через sanitize-схему", (): void => {
-        const schema = createSanitizedStringSchema()
+        const schema = createSanitizedStringSchema() as z.ZodType<string>
+        const sanitizedSafe = parseSchemaOrError<string>(schema, "  <b>safe</b>  ")
+        const scriptSafe = parseSchemaOrError<string>(schema, "  <script>alert(1)</script>test  ")
 
-        expect(schema.parse("  <b>safe</b>  ")).toBe("safe")
-        expect(schema.parse("  <script>alert(1)</script>test  ")).toBe("test")
+        if (sanitizedSafe.success === false) {
+            throw new Error("Expected sanitization schema to validate safe value")
+        }
+        if (scriptSafe.success === false) {
+            throw new Error("Expected sanitization schema to validate script payload")
+        }
+
+        expect(sanitizedSafe.data).toBe("safe")
+        expect(scriptSafe.data).toBe("test")
     })
 
     it("parseSchemaOrError защищает от ошибок без доступа к внутренним полям", (): void => {
