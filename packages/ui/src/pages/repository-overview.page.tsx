@@ -1,12 +1,18 @@
-import type { ReactElement } from "react"
+import {
+    type ChangeEvent,
+    type ReactElement,
+    useEffect,
+    useState,
+} from "react"
 
 import { Link } from "@tanstack/react-router"
 
-import { Alert, Card, CardBody, CardHeader, Chip } from "@/components/ui"
+import { Alert, Button, Card, CardBody, CardHeader, Chip } from "@/components/ui"
 import { type IMetricGridMetric, MetricsGrid } from "@/components/dashboard/metrics-grid"
 
 type TRepositoryRisk = "critical" | "high" | "low"
 type THighlight = "danger" | "warning" | "success"
+type TRescanScheduleMode = "manual" | "hourly" | "daily" | "weekly" | "custom"
 
 interface IArchitectureSummary {
     /** Компонент архитектуры. */
@@ -49,9 +55,105 @@ interface IRepositoryOverviewProfile {
     readonly keyMetrics: ReadonlyArray<IMetricGridMetric>
     /** Используемый стек. */
     readonly techStack: ReadonlyArray<ITechStackItem>
+    /** Значение расписания скана по умолчанию (cron). */
+    readonly defaultRescanCron: string
 }
 
-type TRepositoryOverviewProps = Readonly<{ repositoryId: string }>
+interface IRescanScheduleValues {
+    /** Режим расписания. */
+    readonly mode: TRescanScheduleMode
+    /** Минута запуска (0-59). */
+    readonly minute: number
+    /** Час запуска (0-23). */
+    readonly hour: number
+    /** День недели (0-6, 0 — Sunday). */
+    readonly weekday: number
+    /** Кастомное cron-выражение для режима `custom`. */
+    readonly customCron: string
+}
+
+interface IRescanScheduleChangePayload {
+    /** Идентификатор репозитория. */
+    readonly repositoryId: string
+    /** Итоговое cron-выражение после сохранения. */
+    readonly cronExpression: string
+    /** Режим расписания после сохранения. */
+    readonly mode: TRescanScheduleMode
+}
+
+interface IRescanScheduleOption {
+    /** Значение режима. */
+    readonly value: TRescanScheduleMode
+    /** Человекочитаемая метка. */
+    readonly label: string
+}
+
+interface IRescanWeekdayOption {
+    /** Число дня недели для cron (0–6). */
+    readonly value: number
+    /** Название дня. */
+    readonly label: string
+}
+
+interface IRepositoryOverviewProps {
+    /** ID репозитория (`owner/repo`). */
+    readonly repositoryId: string
+    /** Колбек после сохранения расписания рескана. */
+    readonly onRescanScheduleChange?: (payload: IRescanScheduleChangePayload) => void
+}
+
+const RESCAN_HOUR_OPTIONS: ReadonlyArray<number> = createRangeValues(24)
+const RESCAN_MINUTE_OPTIONS: ReadonlyArray<number> = createRangeValues(60)
+const RESCAN_FREQUENCY_OPTIONS: ReadonlyArray<IRescanScheduleOption> = [
+    {
+        label: "По требованию",
+        value: "manual",
+    },
+    {
+        label: "Каждый час",
+        value: "hourly",
+    },
+    {
+        label: "Ежедневно",
+        value: "daily",
+    },
+    {
+        label: "Еженедельно",
+        value: "weekly",
+    },
+    {
+        label: "Кастомный cron",
+        value: "custom",
+    },
+]
+
+const RESCAN_WEEKDAY_OPTIONS: ReadonlyArray<IRescanWeekdayOption> = [
+    { label: "Воскресенье", value: 0 },
+    { label: "Понедельник", value: 1 },
+    { label: "Вторник", value: 2 },
+    { label: "Среда", value: 3 },
+    { label: "Четверг", value: 4 },
+    { label: "Пятница", value: 5 },
+    { label: "Суббота", value: 6 },
+]
+
+const DEFAULT_RESCAN_VALUES: IRescanScheduleValues = {
+    customCron: "",
+    hour: 8,
+    minute: 0,
+    mode: "manual",
+    weekday: 1,
+} as const
+
+const WEEKDAYS_TO_LABELS: Readonly<Record<number, string>> = {
+    0: "Воскресенье",
+    1: "Понедельник",
+    2: "Вторник",
+    3: "Среда",
+    4: "Четверг",
+    5: "Пятница",
+    6: "Суббота",
+}
 
 const REPOSITORY_OVERVIEWS: ReadonlyArray<IRepositoryOverviewProfile> = [
     {
@@ -135,6 +237,7 @@ const REPOSITORY_OVERVIEWS: ReadonlyArray<IRepositoryOverviewProfile> = [
             },
         ],
         totalFindings: 3,
+        defaultRescanCron: "10 3 * * *",
     },
     {
         architectureSummary: [
@@ -219,6 +322,7 @@ const REPOSITORY_OVERVIEWS: ReadonlyArray<IRepositoryOverviewProfile> = [
             },
         ],
         totalFindings: 5,
+        defaultRescanCron: "0 5 * * *",
     },
     {
         architectureSummary: [
@@ -302,6 +406,7 @@ const REPOSITORY_OVERVIEWS: ReadonlyArray<IRepositoryOverviewProfile> = [
             },
         ],
         totalFindings: 11,
+        defaultRescanCron: "0 2 * * 1",
     },
 ]
 
@@ -369,6 +474,153 @@ function formatOverviewTimestamp(raw: string): string {
         second: "2-digit",
         year: "numeric",
     })
+}
+
+function createRangeValues(limit: number): ReadonlyArray<number> {
+    const values: number[] = []
+    for (let index = 0; index < limit; index += 1) {
+        values.push(index)
+    }
+    return values
+}
+
+function padCronValue(value: number): string {
+    return String(value).padStart(2, "0")
+}
+
+function parseCronNumber(value: string, min: number, max: number, fallback: number): number {
+    const parsed = Number.parseInt(value, 10)
+    if (Number.isNaN(parsed) === true || parsed < min || parsed > max) {
+        return fallback
+    }
+    return parsed
+}
+
+function getRepositoryDefaultSchedule(canonicalRepositoryId: string): string {
+    const repository = getRepositoryOverviewById(canonicalRepositoryId)
+    return repository?.defaultRescanCron ?? "manual"
+}
+
+function isCronManual(cronExpression: string): boolean {
+    return cronExpression.trim() === "manual"
+}
+
+function createRescanScheduleFromCron(
+    cronExpression: string,
+): IRescanScheduleValues {
+    if (isCronManual(cronExpression)) {
+        return DEFAULT_RESCAN_VALUES
+    }
+
+    const values = cronExpression
+        .trim()
+        .split(/\s+/)
+        .filter((value): boolean => value.length > 0)
+    if (values.length !== 5) {
+        return {
+            ...DEFAULT_RESCAN_VALUES,
+            mode: "custom",
+            customCron: cronExpression.trim(),
+        }
+    }
+
+    const minute = parseCronNumber(values[0], 0, 59, 0)
+    const hour = parseCronNumber(values[1], 0, 23, 0)
+    const weekDay = parseCronNumber(values[4], 0, 6, 0)
+    const isHourPattern =
+        values[1] === "*" && values[2] === "*" && values[3] === "*" && values[4] === "*"
+
+    if (isHourPattern === true) {
+        return {
+            ...DEFAULT_RESCAN_VALUES,
+            customCron: "",
+            mode: "hourly",
+            minute,
+        }
+    }
+
+    const isDailyPattern =
+        values[2] === "*" && values[3] === "*" && values[4] === "*"
+    if (isDailyPattern === true) {
+        return {
+            ...DEFAULT_RESCAN_VALUES,
+            customCron: "",
+            hour,
+            mode: "daily",
+            minute,
+        }
+    }
+
+    const isWeeklyPattern = values[2] === "*" && values[3] === "*"
+    if (isWeeklyPattern === true) {
+        return {
+            ...DEFAULT_RESCAN_VALUES,
+            customCron: "",
+            hour,
+            mode: "weekly",
+            minute,
+            weekday: weekDay,
+        }
+    }
+
+    return {
+        ...DEFAULT_RESCAN_VALUES,
+        customCron: cronExpression.trim(),
+        mode: "custom",
+    }
+}
+
+function createCronExpressionFromReschedule(values: IRescanScheduleValues): string {
+    if (values.mode === "manual") {
+        return "manual"
+    }
+
+    if (values.mode === "hourly") {
+        return `${values.minute} * * * *`
+    }
+
+    if (values.mode === "daily") {
+        return `${values.minute} ${values.hour} * * *`
+    }
+
+    if (values.mode === "weekly") {
+        return `${values.minute} ${values.hour} * * ${values.weekday}`
+    }
+
+    if (values.customCron.trim().length === 0) {
+        return "manual"
+    }
+
+    return values.customCron.trim().replace(/\s+/g, " ")
+}
+
+function getRescanSummaryLabel(values: IRescanScheduleValues): string {
+    if (values.mode === "manual") {
+        return "По требованию"
+    }
+
+    if (values.mode === "hourly") {
+        return `Ежечасно в :${padCronValue(values.minute)}`
+    }
+
+    if (values.mode === "daily") {
+        return `Ежедневно в ${padCronValue(values.hour)}:${padCronValue(values.minute)}`
+    }
+
+    if (values.mode === "weekly") {
+        const weekdayLabel = WEEKDAYS_TO_LABELS[values.weekday]
+        return `Еженедельно, ${weekdayLabel} в ${padCronValue(values.hour)}:${padCronValue(values.minute)}`
+    }
+
+    if (values.customCron.trim().length === 0) {
+        return "Кастомный cron не задан"
+    }
+
+    return `Кастомный cron: ${values.customCron.trim()}`
+}
+
+function isRescanScheduleMode(value: string): value is TRescanScheduleMode {
+    return RESCAN_FREQUENCY_OPTIONS.some((entry): boolean => entry.value === value)
 }
 
 function resolveHealthChipColor(score: number): THighlight {
@@ -510,8 +762,106 @@ function RepositoryOverviewNotFound(props: { repositoryId: string }): ReactEleme
  * @param props Идентификатор репозитория.
  * @returns Страница с метриками, архитектурным резюме и health score.
  */
-export function RepositoryOverviewPage(props: TRepositoryOverviewProps): ReactElement {
+export function RepositoryOverviewPage(props: IRepositoryOverviewProps): ReactElement {
     const repository = getRepositoryOverviewById(props.repositoryId)
+    const defaultReschedule = createRescanScheduleFromCron(
+        getRepositoryDefaultSchedule(props.repositoryId),
+    )
+
+    const [isRescheduleDialogOpen, setIsRescheduleDialogOpen] = useState<boolean>(false)
+    const [currentReschedule, setCurrentReschedule] = useState<IRescanScheduleValues>(
+        defaultReschedule,
+    )
+    const [draftReschedule, setDraftReschedule] = useState<IRescanScheduleValues>(
+        defaultReschedule,
+    )
+
+    useEffect((): void => {
+        const nextReschedule = createRescanScheduleFromCron(
+            getRepositoryDefaultSchedule(props.repositoryId),
+        )
+        setCurrentReschedule(nextReschedule)
+        setDraftReschedule(nextReschedule)
+    }, [props.repositoryId])
+
+    const currentCron = createCronExpressionFromReschedule(currentReschedule)
+    const draftCron = createCronExpressionFromReschedule(draftReschedule)
+    const isSaveButtonDisabled =
+        draftReschedule.mode === "custom" && draftReschedule.customCron.trim().length === 0
+
+    const openRescheduleDialog = (): void => {
+        setDraftReschedule(currentReschedule)
+        setIsRescheduleDialogOpen(true)
+    }
+
+    const closeRescheduleDialog = (): void => {
+        setIsRescheduleDialogOpen(false)
+    }
+
+    const saveReschedule = (): void => {
+        if (isSaveButtonDisabled === true) {
+            return
+        }
+
+        const next = createRescanScheduleFromCron(draftCron)
+        setCurrentReschedule(next)
+        setIsRescheduleDialogOpen(false)
+
+        if (props.onRescanScheduleChange !== undefined) {
+            props.onRescanScheduleChange({
+                cronExpression: createCronExpressionFromReschedule(next),
+                mode: next.mode,
+                repositoryId: props.repositoryId,
+            })
+        }
+    }
+
+    const updateRescheduleMode = (event: ChangeEvent<HTMLSelectElement>): void => {
+        const nextMode = event.currentTarget.value
+        if (isRescanScheduleMode(nextMode) === false) {
+            return
+        }
+
+        setDraftReschedule((previous): IRescanScheduleValues => ({
+            ...previous,
+            mode: nextMode,
+        }))
+    }
+
+    const updateRescheduleMinute = (event: ChangeEvent<HTMLSelectElement>): void => {
+        const nextMinute = parseCronNumber(event.currentTarget.value, 0, 59, draftReschedule.minute)
+        setDraftReschedule((previous): IRescanScheduleValues => ({
+            ...previous,
+            minute: nextMinute,
+        }))
+    }
+
+    const updateRescheduleHour = (event: ChangeEvent<HTMLSelectElement>): void => {
+        const nextHour = parseCronNumber(event.currentTarget.value, 0, 23, draftReschedule.hour)
+        setDraftReschedule((previous): IRescanScheduleValues => ({
+            ...previous,
+            hour: nextHour,
+        }))
+    }
+
+    const updateRescheduleWeekday = (event: ChangeEvent<HTMLSelectElement>): void => {
+        const nextWeekday = parseCronNumber(event.currentTarget.value, 0, 6, draftReschedule.weekday)
+        setDraftReschedule((previous): IRescanScheduleValues => ({
+            ...previous,
+            weekday: nextWeekday,
+        }))
+    }
+
+    const updateRescheduleCustomCron = (
+        event: ChangeEvent<HTMLInputElement>,
+    ): void => {
+        const nextCustomCron = event.currentTarget.value
+        setDraftReschedule((previous): IRescanScheduleValues => ({
+            ...previous,
+            customCron: nextCustomCron,
+        }))
+    }
+
     if (repository === undefined) {
         return <RepositoryOverviewNotFound repositoryId={props.repositoryId} />
     }
@@ -550,10 +900,194 @@ export function RepositoryOverviewPage(props: TRepositoryOverviewProps): ReactEl
                         <p className="text-sm text-slate-700">
                             Total findings: {repository.totalFindings}
                         </p>
+                        <p className="text-sm text-slate-700">
+                            Rescan schedule: {getRescanSummaryLabel(currentReschedule)}
+                        </p>
+                        <p className="text-sm font-mono text-slate-700">Cron: {currentCron}</p>
+                        <Button
+                            onPress={openRescheduleDialog}
+                            className="mt-1"
+                            color="primary"
+                            type="button"
+                        >
+                            Настроить расписание рескана
+                        </Button>
                     </div>
                     <RepositoryHealthScore score={repository.healthScore} />
                 </CardBody>
             </Card>
+
+            {isRescheduleDialogOpen === true ? (
+                <div className="fixed inset-0 z-40 flex items-center justify-center bg-slate-900/60 p-4">
+                    <div
+                        aria-labelledby="rescan-schedule-title"
+                        aria-modal="true"
+                        className="w-full max-w-lg rounded-lg border border-slate-200 bg-white p-4"
+                        role="dialog"
+                    >
+                        <div className="mb-3 flex items-center justify-between">
+                            <h2 className="text-lg font-semibold" id="rescan-schedule-title">
+                                Настройка периодического рескана
+                            </h2>
+                            <button
+                                aria-label="Закрыть"
+                                className="rounded-md border border-slate-200 px-3 py-1 text-sm"
+                                onClick={closeRescheduleDialog}
+                                type="button"
+                            >
+                                ×
+                            </button>
+                        </div>
+
+                        <p className="mb-4 text-sm text-slate-600">
+                            Последний scan: {formatOverviewTimestamp(repository.lastScanAt)}
+                        </p>
+
+                        <div className="space-y-2">
+                            <label className="text-sm text-slate-700" htmlFor="rescan-mode">
+                                Режим
+                            </label>
+                            <select
+                                aria-label="Режим расписания рескана"
+                                className="w-full rounded-md border border-slate-200 px-3 py-2"
+                                id="rescan-mode"
+                                onChange={updateRescheduleMode}
+                                value={draftReschedule.mode}
+                            >
+                                {RESCAN_FREQUENCY_OPTIONS.map(
+                                    (entry): ReactElement => (
+                                        <option value={entry.value} key={entry.value}>
+                                            {entry.label}
+                                        </option>
+                                    ),
+                                )}
+                            </select>
+                        </div>
+
+                        {draftReschedule.mode !== "manual" && draftReschedule.mode !== "custom" ? (
+                            <>
+                                <div className="mt-3 space-y-2">
+                                    <label
+                                        className="text-sm text-slate-700"
+                                        htmlFor="rescan-minute"
+                                    >
+                                        Минуты
+                                    </label>
+                                    <select
+                                        aria-label="Минута"
+                                        className="w-full rounded-md border border-slate-200 px-3 py-2"
+                                        id="rescan-minute"
+                                        onChange={updateRescheduleMinute}
+                                        value={draftReschedule.minute}
+                                    >
+                                        {RESCAN_MINUTE_OPTIONS.map(
+                                            (minute): ReactElement => (
+                                                <option value={minute} key={`minute-${minute}`}>
+                                                    {padCronValue(minute)}
+                                                </option>
+                                            ),
+                                        )}
+                                    </select>
+                                </div>
+
+                                {draftReschedule.mode !== "hourly" ? (
+                                    <div className="mt-3 space-y-2">
+                                        <label
+                                            className="text-sm text-slate-700"
+                                            htmlFor="rescan-hour"
+                                        >
+                                            Час
+                                        </label>
+                                        <select
+                                            aria-label="Час"
+                                            className="w-full rounded-md border border-slate-200 px-3 py-2"
+                                            id="rescan-hour"
+                                            onChange={updateRescheduleHour}
+                                            value={draftReschedule.hour}
+                                        >
+                                            {RESCAN_HOUR_OPTIONS.map(
+                                                (hour): ReactElement => (
+                                                    <option value={hour} key={`hour-${hour}`}>
+                                                        {padCronValue(hour)}
+                                                    </option>
+                                                ),
+                                            )}
+                                        </select>
+                                    </div>
+                                ) : null}
+                            </>
+                        ) : null}
+
+                        {draftReschedule.mode === "weekly" ? (
+                            <div className="mt-3 space-y-2">
+                                <label
+                                    className="text-sm text-slate-700"
+                                    htmlFor="rescan-weekday"
+                                >
+                                    День недели
+                                </label>
+                                <select
+                                    aria-label="День недели"
+                                    className="w-full rounded-md border border-slate-200 px-3 py-2"
+                                    id="rescan-weekday"
+                                    onChange={updateRescheduleWeekday}
+                                    value={draftReschedule.weekday}
+                                >
+                                    {RESCAN_WEEKDAY_OPTIONS.map(
+                                        (option): ReactElement => (
+                                            <option value={option.value} key={option.value}>
+                                                {option.label}
+                                            </option>
+                                        ),
+                                    )}
+                                </select>
+                            </div>
+                        ) : null}
+
+                        {draftReschedule.mode === "custom" ? (
+                            <div className="mt-3 space-y-2">
+                                <label
+                                    className="text-sm text-slate-700"
+                                    htmlFor="rescan-custom-cron"
+                                >
+                                    Cron-выражение
+                                </label>
+                                <input
+                                    aria-label="Кастомное cron-выражение"
+                                    className="w-full rounded-md border border-slate-200 px-3 py-2"
+                                    id="rescan-custom-cron"
+                                    onChange={updateRescheduleCustomCron}
+                                    value={draftReschedule.customCron}
+                                    type="text"
+                                />
+                            </div>
+                        ) : null}
+
+                        <p className="mt-4 rounded bg-slate-50 p-2 text-xs text-slate-700">
+                            Cron preview: <code>{draftCron}</code>
+                        </p>
+
+                        <div className="mt-4 flex justify-end gap-2">
+                            <Button
+                                color="default"
+                                onPress={closeRescheduleDialog}
+                                type="button"
+                                variant="light"
+                            >
+                                Отменить
+                            </Button>
+                            <Button
+                                color="primary"
+                                isDisabled={isSaveButtonDisabled}
+                                onPress={saveReschedule}
+                                type="button"
+                            >
+                                Сохранить расписание
+                            </Button>
+                        </div>
+                    </div>
+                </div>
+            ) : null}
 
             <section aria-label="Key metrics">
                 <MetricsGrid metrics={repository.keyMetrics} />
