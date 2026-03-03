@@ -69,6 +69,15 @@ export function SidebarNav(props: ISidebarNavProps): ReactElement {
     const currentLocation = useLocation()
     const navigate = useNavigate()
     const items = props.items ?? DEFAULT_SIDEBAR_ITEMS
+    const isItemActive = (to: string): boolean => {
+        if (to === "/") {
+            return currentLocation.pathname === "/"
+        }
+
+        return (
+            currentLocation.pathname === to || currentLocation.pathname.startsWith(`${to}/`)
+        )
+    }
 
     return (
         <nav aria-label="Main navigation">
@@ -77,7 +86,7 @@ export function SidebarNav(props: ISidebarNavProps): ReactElement {
                     const isNavigable = item.to !== undefined && item.isDisabled !== true
                     const isActive =
                         item.to !== undefined &&
-                        currentLocation.pathname === item.to &&
+                        isItemActive(item.to) &&
                         item.isDisabled !== true
 
                     const handlePress = (): void => {

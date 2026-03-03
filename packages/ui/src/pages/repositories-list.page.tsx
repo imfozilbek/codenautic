@@ -1,4 +1,5 @@
 import { type ChangeEvent, type ReactElement, useMemo, useState } from "react"
+import { Link } from "@tanstack/react-router"
 
 import { Card, CardBody, CardHeader } from "@/components/ui"
 
@@ -13,6 +14,8 @@ interface IRepositoryListRepository {
     readonly branch: string
     /** Текущее состояние последнего скана. */
     readonly status: TRepositoryStatus
+    /** Идентификатор репозитория для перехода к обзору. */
+    readonly id?: string
     /** Количество найденных инцидентов. */
     readonly issueCount: number
     /** Время последнего скана в ISO формате. */
@@ -28,6 +31,7 @@ type TRepositorySortKey = "name" | "lastScanAt" | "status"
 
 const DEFAULT_REPOSITORIES: ReadonlyArray<IRepositoryListRepository> = [
     {
+        id: "platform-team/api-gateway",
         branch: "main",
         issueCount: 0,
         lastScanAt: "2026-01-01T10:40:00Z",
@@ -36,6 +40,7 @@ const DEFAULT_REPOSITORIES: ReadonlyArray<IRepositoryListRepository> = [
         status: "ready",
     },
     {
+        id: "frontend-team/ui-dashboard",
         branch: "main",
         issueCount: 4,
         lastScanAt: "2026-01-01T09:10:00Z",
@@ -44,6 +49,7 @@ const DEFAULT_REPOSITORIES: ReadonlyArray<IRepositoryListRepository> = [
         status: "scanning",
     },
     {
+        id: "backend-core/payment-worker",
         branch: "release",
         issueCount: 1,
         lastScanAt: "2026-01-01T07:50:00Z",
@@ -52,6 +58,7 @@ const DEFAULT_REPOSITORIES: ReadonlyArray<IRepositoryListRepository> = [
         status: "error",
     },
     {
+        id: "platform-team/docs-site",
         branch: "main",
         issueCount: 2,
         lastScanAt: "2025-12-31T23:20:00Z",
@@ -60,6 +67,10 @@ const DEFAULT_REPOSITORIES: ReadonlyArray<IRepositoryListRepository> = [
         status: "ready",
     },
 ]
+
+function getRepositoryId(props: IRepositoryListRepository): string {
+    return props.id ?? `${props.owner}/${props.name}`
+}
 
 interface IRepositoryListSearchValues {
     readonly search: string
@@ -305,18 +316,28 @@ export function RepositoriesListPage(props: IRepositoryListPageProps): ReactElem
                             <span>Status</span>
                         </div>
                         {visible.map(
-                            (item): ReactElement => (
-                                <div
-                                    className="grid grid-cols-[1.8fr_1fr_1fr_1fr_1fr] border-t border-slate-200 px-3 py-2 text-sm"
-                                    key={item.name}
-                                >
-                                    <p>{item.name}</p>
-                                    <p>{item.owner}</p>
-                                    <p>{item.branch}</p>
-                                    <p>{formatScanDate(item.lastScanAt)}</p>
-                                    <RepositoryStatusBadge status={item.status} />
-                                </div>
-                            ),
+                            (item): ReactElement => {
+                                const repositoryId = getRepositoryId(item)
+                                return (
+                                    <div
+                                        className="grid grid-cols-[1.8fr_1fr_1fr_1fr_1fr] border-t border-slate-200 px-3 py-2 text-sm"
+                                        key={repositoryId}
+                                    >
+                                        <Link
+                                            aria-label={`Открыть обзор репозитория ${item.owner}/${item.name}`}
+                                            className="font-medium text-slate-900 underline-offset-4 hover:underline"
+                                            to="/repositories/$repositoryId"
+                                            params={{ repositoryId }}
+                                        >
+                                            {item.name}
+                                        </Link>
+                                        <p>{item.owner}</p>
+                                        <p>{item.branch}</p>
+                                        <p>{formatScanDate(item.lastScanAt)}</p>
+                                        <RepositoryStatusBadge status={item.status} />
+                                    </div>
+                                )
+                            },
                         )}
                         {visible.length === 0 ? (
                             <p className="px-3 py-4 text-sm text-slate-500">
