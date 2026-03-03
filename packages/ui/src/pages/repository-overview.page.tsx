@@ -12,6 +12,11 @@ import {
     type IFileDependencyNode,
     type IFileDependencyRelation,
 } from "@/components/graphs/file-dependency-graph"
+import {
+    FunctionClassCallGraph,
+    type IFunctionCallNode,
+    type IFunctionCallRelation,
+} from "@/components/graphs/function-class-call-graph"
 import { Alert, Button, Card, CardBody, CardHeader, Chip } from "@/components/ui"
 import { type IMetricGridMetric, MetricsGrid } from "@/components/dashboard/metrics-grid"
 
@@ -69,6 +74,13 @@ interface IRepositoryFileDependencyProfile {
     readonly files: ReadonlyArray<IFileDependencyNode>
     /** Список зависимостей между файлами в репозитории. */
     readonly dependencies: ReadonlyArray<IFileDependencyRelation>
+}
+
+interface IRepositoryFunctionCallProfile {
+    /** Сущности (функции и классы) для отображения в call-graph. */
+    readonly nodes: ReadonlyArray<IFunctionCallNode>
+    /** Связи вызовов между сущностями. */
+    readonly callRelations: ReadonlyArray<IFunctionCallRelation>
 }
 
 interface IRescanScheduleValues {
@@ -658,9 +670,407 @@ const FILE_DEPENDENCY_VIEWS: Readonly<Record<string, IRepositoryFileDependencyPr
     },
 } as const
 
+const FUNCTION_CLASS_CALL_VIEWS: Readonly<Record<string, IRepositoryFunctionCallProfile>> = {
+    "platform-team/api-gateway": {
+        callRelations: [
+            {
+                relationType: "calls",
+                source: "authController.login",
+                target: "sessionService.createSession",
+            },
+            {
+                relationType: "uses",
+                source: "authController.login",
+                target: "auditService.record",
+            },
+            {
+                relationType: "calls",
+                source: "repoController.getRepo",
+                target: "repoService.fetchRepository",
+            },
+            {
+                relationType: "calls",
+                source: "repoService.fetchRepository",
+                target: "repoService.normalizeRepo",
+            },
+            {
+                relationType: "calls",
+                source: "notificationsService.send",
+                target: "queueAdapter.enqueue",
+            },
+            {
+                relationType: "calls",
+                source: "repoService.fetchRepository",
+                target: "metricsCollector.trackCall",
+            },
+            {
+                relationType: "contains",
+                source: "class AuthController",
+                target: "authController.login",
+            },
+        ],
+        nodes: [
+            {
+                complexity: 20,
+                file: "src/api/auth.ts",
+                id: "authController.login",
+                kind: "function",
+                name: "authController.login",
+            },
+            {
+                complexity: 18,
+                file: "src/services/session.ts",
+                id: "sessionService.createSession",
+                kind: "function",
+                name: "sessionService.createSession",
+            },
+            {
+                complexity: 10,
+                file: "src/services/audit.ts",
+                id: "auditService.record",
+                kind: "function",
+                name: "auditService.record",
+            },
+            {
+                complexity: 16,
+                file: "src/api/repository.ts",
+                id: "repoController.getRepo",
+                kind: "function",
+                name: "repoController.getRepo",
+            },
+            {
+                complexity: 22,
+                file: "src/services/repository.ts",
+                id: "repoService.fetchRepository",
+                kind: "function",
+                name: "repoService.fetchRepository",
+            },
+            {
+                complexity: 12,
+                file: "src/services/repository.ts",
+                id: "repoService.normalizeRepo",
+                kind: "function",
+                name: "repoService.normalizeRepo",
+            },
+            {
+                complexity: 11,
+                file: "src/services/notifications.ts",
+                id: "notificationsService.send",
+                kind: "function",
+                name: "notificationsService.send",
+            },
+            {
+                complexity: 8,
+                file: "src/adapters/queue.ts",
+                id: "queueAdapter.enqueue",
+                kind: "function",
+                name: "queueAdapter.enqueue",
+            },
+            {
+                complexity: 9,
+                file: "src/services/metrics.ts",
+                id: "metricsCollector.trackCall",
+                kind: "function",
+                name: "metricsCollector.trackCall",
+            },
+            {
+                complexity: 14,
+                file: "src/domain/auth-controller.ts",
+                id: "class AuthController",
+                kind: "class",
+                name: "class AuthController",
+            },
+            {
+                complexity: 9,
+                file: "src/domain/auth-controller.ts",
+                id: "AuthController.validate",
+                kind: "method",
+                name: "AuthController.validate",
+            },
+            {
+                complexity: 10,
+                file: "src/services/session.ts",
+                id: "SessionService.authorize",
+                kind: "method",
+                name: "SessionService.authorize",
+            },
+        ],
+    },
+    "frontend-team/ui-dashboard": {
+        callRelations: [
+            {
+                relationType: "calls",
+                source: "router.bootstrap",
+                target: "authGuard.requireAuth",
+            },
+            {
+                relationType: "calls",
+                source: "dashboardService.loadMetrics",
+                target: "apiClient.fetchDashboard",
+            },
+            {
+                relationType: "renders",
+                source: "settingsPage.load",
+                target: "settingsApi.getConfig",
+            },
+            {
+                relationType: "mutates",
+                source: "themeStore.setTheme",
+                target: "localStorageAdapter.write",
+            },
+            {
+                relationType: "calls",
+                source: "apiClient.fetchDashboard",
+                target: "httpClient.request",
+            },
+            {
+                relationType: "calls",
+                source: "dashboard.page",
+                target: "dashboardService.loadMetrics",
+            },
+            {
+                relationType: "uses",
+                source: "ThemeSwitcher",
+                target: "themeStore.setTheme",
+            },
+            {
+                relationType: "uses",
+                source: "ThemeSwitcher",
+                target: "themeStore.current",
+            },
+            {
+                relationType: "uses",
+                source: "ThemeSwitcher",
+                target: "documentStorage.updateMeta",
+            },
+        ],
+        nodes: [
+            {
+                complexity: 16,
+                file: "src/app/router.tsx",
+                id: "router.bootstrap",
+                kind: "function",
+                name: "router.bootstrap",
+            },
+            {
+                complexity: 11,
+                file: "src/routes/auth.tsx",
+                id: "authGuard.requireAuth",
+                kind: "function",
+                name: "authGuard.requireAuth",
+            },
+            {
+                complexity: 19,
+                file: "src/services/dashboard.ts",
+                id: "dashboardService.loadMetrics",
+                kind: "function",
+                name: "dashboardService.loadMetrics",
+            },
+            {
+                complexity: 14,
+                file: "src/services/api.ts",
+                id: "apiClient.fetchDashboard",
+                kind: "function",
+                name: "apiClient.fetchDashboard",
+            },
+            {
+                complexity: 14,
+                file: "src/components/dashboard.tsx",
+                id: "dashboard.page",
+                kind: "function",
+                name: "dashboard.page",
+            },
+            {
+                complexity: 8,
+                file: "src/pages/settings.tsx",
+                id: "settingsPage.load",
+                kind: "function",
+                name: "settingsPage.load",
+            },
+            {
+                complexity: 17,
+                file: "src/services/settings.ts",
+                id: "settingsApi.getConfig",
+                kind: "function",
+                name: "settingsApi.getConfig",
+            },
+            {
+                complexity: 13,
+                file: "src/components/theme-switch.tsx",
+                id: "ThemeSwitcher",
+                kind: "class",
+                name: "ThemeSwitcher",
+            },
+            {
+                complexity: 13,
+                file: "src/store/theme.ts",
+                id: "themeStore.setTheme",
+                kind: "function",
+                name: "themeStore.setTheme",
+            },
+            {
+                complexity: 10,
+                file: "src/store/theme.ts",
+                id: "themeStore.current",
+                kind: "function",
+                name: "themeStore.current",
+            },
+            {
+                complexity: 9,
+                file: "src/network/http.ts",
+                id: "httpClient.request",
+                kind: "function",
+                name: "httpClient.request",
+            },
+            {
+                complexity: 7,
+                file: "src/utils/doc.ts",
+                id: "documentStorage.updateMeta",
+                kind: "function",
+                name: "documentStorage.updateMeta",
+            },
+            {
+                complexity: 12,
+                file: "src/utils/storage.ts",
+                id: "localStorageAdapter.write",
+                kind: "function",
+                name: "localStorageAdapter.write",
+            },
+        ],
+    },
+    "backend-core/payment-worker": {
+        callRelations: [
+            {
+                relationType: "calls",
+                source: "worker.run",
+                target: "queueManager.poll",
+            },
+            {
+                relationType: "calls",
+                source: "queueManager.poll",
+                target: "retryPolicy.shouldRetry",
+            },
+            {
+                relationType: "calls",
+                source: "queueManager.poll",
+                target: "queueManager.dispatch",
+            },
+            {
+                relationType: "calls",
+                source: "queueManager.dispatch",
+                target: "processorFactory.createProcessor",
+            },
+            {
+                relationType: "calls",
+                source: "queueManager.dispatch",
+                target: "processorRegistry.resolve",
+            },
+            {
+                relationType: "calls",
+                source: "processorBase.process",
+                target: "lockManager.acquire",
+            },
+            {
+                relationType: "calls",
+                source: "processorBase.process",
+                target: "auditLogger.record",
+            },
+            {
+                relationType: "delegates",
+                source: "PaymentWorker",
+                target: "worker.run",
+            },
+        ],
+        nodes: [
+            {
+                complexity: 22,
+                file: "src/main.ts",
+                id: "worker.run",
+                kind: "function",
+                name: "worker.run",
+            },
+            {
+                complexity: 18,
+                file: "src/services/queue.ts",
+                id: "queueManager.poll",
+                kind: "function",
+                name: "queueManager.poll",
+            },
+            {
+                complexity: 16,
+                file: "src/services/retry.ts",
+                id: "retryPolicy.shouldRetry",
+                kind: "method",
+                name: "retryPolicy.shouldRetry",
+            },
+            {
+                complexity: 20,
+                file: "src/services/processor.ts",
+                id: "queueManager.dispatch",
+                kind: "function",
+                name: "queueManager.dispatch",
+            },
+            {
+                complexity: 14,
+                file: "src/services/processor.ts",
+                id: "processorFactory.createProcessor",
+                kind: "function",
+                name: "processorFactory.createProcessor",
+            },
+            {
+                complexity: 15,
+                file: "src/services/processor-registry.ts",
+                id: "processorRegistry.resolve",
+                kind: "function",
+                name: "processorRegistry.resolve",
+            },
+            {
+                complexity: 14,
+                file: "src/services/processor-base.ts",
+                id: "processorBase.process",
+                kind: "method",
+                name: "processorBase.process",
+            },
+            {
+                complexity: 12,
+                file: "src/services/lock.ts",
+                id: "lockManager.acquire",
+                kind: "function",
+                name: "lockManager.acquire",
+            },
+            {
+                complexity: 11,
+                file: "src/services/audit.ts",
+                id: "auditLogger.record",
+                kind: "function",
+                name: "auditLogger.record",
+            },
+            {
+                complexity: 14,
+                file: "src/services/worker.ts",
+                id: "PaymentWorker",
+                kind: "class",
+                name: "PaymentWorker",
+            },
+            {
+                complexity: 9,
+                file: "src/services/worker.ts",
+                id: "PaymentWorker.handleTask",
+                kind: "method",
+                name: "PaymentWorker.handleTask",
+            },
+        ],
+    },
+} as const
+
 const FALLBACK_FILE_DEPENDENCIES: IRepositoryFileDependencyProfile = {
     dependencies: [],
     files: [],
+}
+
+const FALLBACK_FUNCTION_CALL_GRAPH: IRepositoryFunctionCallProfile = {
+    callRelations: [],
+    nodes: [],
 }
 
 function clampScore(rawScore: number): number {
@@ -706,6 +1116,11 @@ function getRepositoryOverviewById(repositoryId: string): IRepositoryOverviewPro
 function getRepositoryFileDependencies(repositoryId: string): IRepositoryFileDependencyProfile {
     const repositoryDependencies = FILE_DEPENDENCY_VIEWS[repositoryId]
     return repositoryDependencies ?? FALLBACK_FILE_DEPENDENCIES
+}
+
+function getRepositoryFunctionCallGraph(repositoryId: string): IRepositoryFunctionCallProfile {
+    const functionGraph = FUNCTION_CLASS_CALL_VIEWS[repositoryId]
+    return functionGraph ?? FALLBACK_FUNCTION_CALL_GRAPH
 }
 
 function formatOverviewTimestamp(raw: string): string {
@@ -1119,6 +1534,7 @@ export function RepositoryOverviewPage(props: IRepositoryOverviewProps): ReactEl
             ? FALLBACK_ARCHITECTURE_SUMMARY
             : repository.architectureSummary
     const fileDependencyGraph = getRepositoryFileDependencies(repository.id)
+    const functionCallGraph = getRepositoryFunctionCallGraph(repository.id)
 
     return (
         <section className="space-y-4">
@@ -1354,6 +1770,14 @@ export function RepositoryOverviewPage(props: IRepositoryOverviewProps): ReactEl
                 showControls
                 showMiniMap
                 title="File dependency graph"
+            />
+            <FunctionClassCallGraph
+                callRelations={functionCallGraph.callRelations}
+                height="420px"
+                nodes={functionCallGraph.nodes}
+                showControls
+                showMiniMap
+                title="Function/Class call graph"
             />
         </section>
     )

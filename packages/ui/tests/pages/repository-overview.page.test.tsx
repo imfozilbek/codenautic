@@ -21,12 +21,32 @@ const mockFileDependencyGraph = vi.fn(
     },
 )
 
+const mockFunctionClassCallGraph = vi.fn(
+    (props: {
+        readonly callRelations: ReadonlyArray<unknown>
+        readonly nodes: ReadonlyArray<unknown>
+        readonly title?: string
+    }): JSX.Element => {
+        return (
+            <div>
+                <p>{props.title}</p>
+                <p>{String(props.nodes.length)}</p>
+                <p>{String(props.callRelations.length)}</p>
+            </div>
+        )
+    },
+)
+
 vi.mock("@/components/graphs/file-dependency-graph", () => ({
     FileDependencyGraph: mockFileDependencyGraph,
+}))
+vi.mock("@/components/graphs/function-class-call-graph", () => ({
+    FunctionClassCallGraph: mockFunctionClassCallGraph,
 }))
 
 beforeEach((): void => {
     mockFileDependencyGraph.mockClear()
+    mockFunctionClassCallGraph.mockClear()
 })
 
 describe("repository overview page", (): void => {
@@ -39,6 +59,11 @@ describe("repository overview page", (): void => {
         expect(firstRenderCall).not.toBeUndefined()
         expect(firstRenderCall?.title).toBe("File dependency graph")
         expect(firstRenderCall?.files.length).toBeGreaterThan(0)
+
+        const secondRenderCall = mockFunctionClassCallGraph.mock.calls[0]?.[0]
+        expect(secondRenderCall).not.toBeUndefined()
+        expect(secondRenderCall?.title).toBe("Function/Class call graph")
+        expect(secondRenderCall?.nodes.length).toBeGreaterThan(0)
         expect(screen.getByText("Tech stack")).not.toBeNull()
         expect(screen.getByText("Architecture summary")).not.toBeNull()
         expect(screen.getByLabelText("Repository health score")).not.toBeNull()
