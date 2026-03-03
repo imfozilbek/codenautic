@@ -24,8 +24,8 @@ export interface IMobileSidebarProps {
  */
 export function MobileSidebar(props: IMobileSidebarProps): ReactElement {
     return (
-        <Drawer isOpen={props.isOpen} placement="left" size="xs" onOpenChange={props.onOpenChange}>
-            <DrawerContent>
+        <Drawer isOpen={props.isOpen} onOpenChange={props.onOpenChange}>
+            <DrawerContent className="!m-0 !h-full !w-72 !rounded-none">
                 <DrawerHeader className="border-b border-slate-200 px-4 py-3">
                     <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
                         {props.title ?? "Navigation"}
