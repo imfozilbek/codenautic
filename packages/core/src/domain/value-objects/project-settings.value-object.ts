@@ -10,6 +10,8 @@ export type ProjectCadence = (typeof PROJECT_CADENCE)[keyof typeof PROJECT_CADEN
 
 export const PROJECT_SETTINGS_LIMIT = {
     AUTO_PAUSE_THRESHOLD: "autoPauseThreshold",
+    MAX_REVIEWS_PER_WINDOW: "maxReviewsPerWindow",
+    THROTTLE_WINDOW_SECONDS: "throttleWindowSeconds",
 } as const
 
 export type ProjectSettingsLimitKey = (typeof PROJECT_SETTINGS_LIMIT)[keyof typeof PROJECT_SETTINGS_LIMIT]
