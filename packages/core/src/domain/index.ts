@@ -171,6 +171,8 @@ export {
 } from "./value-objects/org-settings.value-object"
 export {
     PROJECT_CADENCE,
+    PROJECT_SETTINGS_LIMIT,
+    type ProjectSettingsLimitKey,
     type IProjectSettingsProps,
     type IProjectSettingsInput,
     type ProjectCadence,
@@ -207,6 +209,20 @@ export {
     type IRiskScoreFactors,
     type RiskScoreLevel,
 } from "./value-objects/risk-score.value-object"
+export {
+    NOTIFICATION_CHANNEL,
+    type NotificationChannel,
+    NOTIFICATION_EVENT,
+    type NotificationEvent,
+    NOTIFICATION_URGENCY,
+    type NotificationUrgency,
+} from "./value-objects/notification-channel.value-object"
+export {
+    type INotificationChannelPreference,
+    type INotificationPreferencesInput,
+    type INotificationPreferencesProps,
+    NotificationPreferences,
+} from "./value-objects/notification-preferences.value-object"
 export {SEVERITY_LEVEL, Severity, type SeverityLevel} from "./value-objects/severity.value-object"
 export {UniqueId} from "./value-objects/unique-id.value-object"
 export {ValueObject} from "./value-objects/value-object"

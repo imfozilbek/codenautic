@@ -9,6 +9,7 @@ export {type ICache} from "./application/ports/outbound/cache/cache.port"
 export {type IGitProvider} from "./application/ports/outbound/git/git-provider.port"
 export {type IFileMetricsProvider} from "./application/ports/outbound/analysis/file-metrics-provider"
 export {type IIssueAggregationProvider} from "./application/ports/outbound/review/issue-aggregation-provider"
+export {type IAnalyticsService} from "./application/ports/outbound/analytics/analytics-service.port"
 export {
     type MessageBrokerHandler,
     type MessageBrokerPayload,
@@ -50,6 +51,8 @@ export {
 export {type IRuleCategoryRepository} from "./application/ports/outbound/rule/rule-category-repository.port"
 export {type ICustomRuleRepository} from "./application/ports/outbound/custom-rule-repository.port"
 export {type ITeamRuleProvider} from "./application/ports/outbound/rule/team-rule-provider.port"
+export {type INotificationProvider} from "./application/ports/outbound/notification/notification-provider.port"
+export {type INotificationService} from "./application/ports/outbound/notification/notification-service.port"
 export {type IRepositoryScanner} from "./application/ports/outbound/scanning/repository-scanner"
 export {type IRepositoryIndexRepository} from "./application/ports/outbound/scanning/repository-index-repository"
 export {type IScanProgressRepository} from "./application/ports/outbound/scanning/scan-progress-repository"
@@ -82,6 +85,20 @@ export {
     type IHeuristicVerificationRule,
 } from "./application/dto/heuristics/heuristic-registry-entry.dto"
 export {type IFileMetricsDTO} from "./application/dto/analytics"
+export {
+    ANALYTICS_GROUP_BY,
+    type IAnalyticsAggregatedMetrics,
+    type IAnalyticsAggregationInput,
+    type IAnalyticsAggregationBucket,
+    type IAnalyticsCcrMetrics,
+    type IAnalyticsCostEstimate,
+    type IAnalyticsDoraMetrics,
+    type IAnalyticsGroupBy,
+    type IAnalyticsTokenUsage,
+    type IAnalyticsTokenUsageByModel,
+    type IAnalyticsTimeRange,
+    type INormalizedAnalyticsAggregationQuery,
+} from "./application/dto/analytics"
 export {type ICodeCityDataDTO, type IHotspotMetric} from "./application/dto/analytics"
 export {
     type IFileMetricField,
@@ -98,6 +115,7 @@ export {
     type TreemapNodeType,
 } from "./application/dto/analytics"
 export {type IIssueHeatmapEntryDTO} from "./application/dto/analytics"
+export {type INotificationPayload} from "./application/dto/notifications"
 export {
     type IRepositoryIndex,
     type ILanguageStat,
@@ -124,6 +142,10 @@ export {
 } from "./application/dto/architecture"
 export {ArchitectureAnalyzer, type IArchitectureAnalyzer} from "./application/services/architecture-analyzer.service"
 export {
+    NotificationService,
+    type INotificationServiceDependencies,
+} from "./application/services/notification.service"
+export {
     SuggestionClusteringService,
     type ISuggestionClusteringService,
 } from "./application/services/suggestion-clustering.service"
@@ -141,6 +163,10 @@ export {
     type IGetCodeCityDataInput,
     type IGetCodeCityDataUseCaseDependencies,
 } from "./application/use-cases/analytics/get-code-city-data.use-case"
+export {
+    AnalyticsAggregationUseCase,
+    type IAnalyticsAggregationUseCaseDependencies,
+} from "./application/use-cases/analytics/analytics-aggregation.use-case"
 export {
     GetTemporalDiffUseCase,
     type IGetTemporalDiffUseCaseDependencies,
@@ -373,6 +399,13 @@ export {
     type IGeneratePromptInput,
     type IGeneratePromptUseCaseDependencies,
 } from "./application/use-cases/generate-prompt.use-case"
+export {
+    GenerateCCRSummaryUseCase,
+    type IGenerateCCRSummaryUseCaseDependencies,
+} from "./application/use-cases/review/generate-ccr-summary.use-case"
+export {
+    ManageReviewCadenceUseCase,
+} from "./application/use-cases/review/manage-review-cadence.use-case"
 export {
     ResolveConfigStageUseCase,
 } from "./application/use-cases/review/resolve-config-stage.use-case"
