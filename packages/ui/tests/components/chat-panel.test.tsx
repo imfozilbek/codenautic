@@ -2,7 +2,11 @@ import { screen } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { describe, expect, it, vi } from "vitest"
 
-import { ChatPanel, type IChatPanelMessage } from "@/components/chat/chat-panel"
+import {
+    ChatPanel,
+    type IChatPanelContext,
+    type IChatPanelMessage,
+} from "@/components/chat/chat-panel"
 import { renderWithProviders } from "../utils/render"
 
 const messageList: ReadonlyArray<IChatPanelMessage> = [
@@ -27,6 +31,21 @@ const messageList: ReadonlyArray<IChatPanelMessage> = [
         id: "msg-assistant",
         role: "assistant",
         sender: "AI",
+    },
+]
+
+const chatContextItems: ReadonlyArray<IChatPanelContext> = [
+    {
+        attachedFiles: ["src/index.ts", "src/app.ts"],
+        ccrNumber: "1201",
+        id: "context-alpha",
+        repoName: "repo-alpha",
+    },
+    {
+        attachedFiles: ["README.md"],
+        ccrNumber: "1202",
+        id: "context-beta",
+        repoName: "repo-beta",
     },
 ]
 
@@ -58,6 +77,32 @@ describe("chat panel", (): void => {
         expect(screen.queryByText("Система")).not.toBeNull()
         expect(screen.queryByText("const ok = true")).not.toBeNull()
         expect(screen.getByRole("link", { name: "Docs" })).toHaveAttribute("href", "/settings")
+    })
+
+    it("рендерит индикатор активного контекста и меняет его", async (): Promise<void> => {
+        const user = userEvent.setup()
+        const onContextChange = vi.fn()
+
+        renderWithProviders(
+            <ChatPanel
+                contextItems={chatContextItems}
+                isOpen
+                messages={messageList}
+                onContextChange={onContextChange}
+                activeContextId="context-alpha"
+                onSendMessage={vi.fn()}
+            />,
+        )
+
+        expect(screen.getByText("Current context")).not.toBeNull()
+        expect(screen.getByText("repo-alpha — CCR #1201")).not.toBeNull()
+
+        await user.click(screen.getByRole("button", { name: "Change context" }))
+        await user.click(screen.getByRole("option", { name: "Change context to repo-beta — CCR #1202" }))
+
+        expect(onContextChange).toHaveBeenCalledTimes(1)
+        expect(onContextChange).toHaveBeenCalledWith("context-beta")
+        expect(screen.getByText("repo-beta — CCR #1202")).not.toBeNull()
     })
 
     it("отправляет сообщение и очищает input после submit", async (): Promise<void> => {

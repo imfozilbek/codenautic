@@ -33,6 +33,8 @@ export interface IChatInputProps {
     readonly contextAriaLabel?: string
     /** Список контекстов для выбора файла/ресурса. */
     readonly contextOptions?: ReadonlyArray<IChatFileContextOption>
+    /** Идентификатор выбранного контекста (если выбранный контролируется извне). */
+    readonly selectedContextId?: string
     /** Callback при смене контекста. */
     readonly onContextChange?: (contextId: string) => void
 }
@@ -71,13 +73,31 @@ export function ChatInput(props: IChatInputProps): ReactElement {
 
     useEffect((): void => {
         if (contextOptions.length === 0) {
-            setSelectedContext("")
+            if (selectedContext !== "") {
+                setSelectedContext("")
+            }
+
             return
         }
 
         const fallback = contextOptions[0]
         if (fallback === undefined) {
-            setSelectedContext("")
+            if (selectedContext !== "") {
+                setSelectedContext("")
+            }
+            return
+        }
+
+        if (props.selectedContextId !== undefined) {
+            const isValidSelectedContext = contextOptions.some((context): boolean => {
+                return context.id === props.selectedContextId
+            })
+
+            const nextContext = isValidSelectedContext ? props.selectedContextId : ""
+            if (selectedContext !== nextContext) {
+                setSelectedContext(nextContext)
+            }
+
             return
         }
 
@@ -85,7 +105,7 @@ export function ChatInput(props: IChatInputProps): ReactElement {
             setSelectedContext(fallback.id)
             props.onContextChange?.(fallback.id)
         }
-    }, [contextOptions, selectedContext, props.onContextChange])
+    }, [contextOptions, selectedContext, props.onContextChange, props.selectedContextId])
 
     const submit = (): void => {
         if (canSubmit === false) {

@@ -1,7 +1,8 @@
 import type { ReactElement } from "react"
-import { useRef, useState } from "react"
+import { useEffect, useMemo, useRef, useState } from "react"
 
 import { ChatMessageBubble } from "@/components/chat/chat-message-bubble"
+import { ChatContextIndicator } from "@/components/chat/chat-context-indicator"
 import { ChatInput, type IChatFileContextOption } from "@/components/chat/chat-input"
 import { ChatStreamingResponse } from "@/components/chat/chat-streaming-response"
 import { Button, Card, CardBody, CardHeader } from "@/components/ui"
@@ -23,6 +24,20 @@ export interface IChatPanelMessage {
     readonly sender?: string
     /** Временная метка сообщения. */
     readonly createdAt?: string | Date
+}
+
+/**
+ * Контекст, доступный в чате.
+ */
+export interface IChatPanelContext {
+    /** Идентификатор контекста. */
+    readonly id: string
+    /** Репозиторий для контекста. */
+    readonly repoName: string
+    /** Идентификатор CCR. */
+    readonly ccrNumber: string
+    /** Список прикреплённых файлов. */
+    readonly attachedFiles: ReadonlyArray<string>
 }
 
 /**
@@ -51,6 +66,10 @@ export interface IChatPanelProps {
     readonly messageListAriaLabel?: string
     /** Опции контекста файла для отправки сообщения. */
     readonly contextOptions?: ReadonlyArray<IChatFileContextOption>
+    /** Контексты, которые можно выбрать (с репозиторием/CCR/файлами). */
+    readonly contextItems?: ReadonlyArray<IChatPanelContext>
+    /** Идентификатор активного контекста. */
+    readonly activeContextId?: string
     /** Ария-метка для селектора контекста. */
     readonly contextAriaLabel?: string
     /** Callback смены выбранного контекста. */
@@ -78,6 +97,7 @@ export interface IChatPanelProps {
  */
 export function ChatPanel(props: IChatPanelProps): ReactElement {
     const [draftMessage, setDraftMessage] = useState("")
+    const [selectedContextId, setSelectedContextId] = useState("")
     const isPanelOpen = props.isOpen === true
     const isStreaming = props.isStreaming === true
     const streamingTokens = props.streamTokens ?? []
@@ -93,6 +113,55 @@ export function ChatPanel(props: IChatPanelProps): ReactElement {
     const inputAriaLabel = props.inputAriaLabel ?? "Message input"
     const contextAriaLabel = props.contextAriaLabel ?? "File context"
     const maxMessageLength = props.maxMessageLength ?? 4000
+    const normalizedContextItems: ReadonlyArray<IChatPanelContext> = useMemo(() => {
+        return props.contextItems ?? []
+    }, [props.contextItems])
+    const inputContextOptions: ReadonlyArray<IChatFileContextOption> = useMemo(() => {
+        if (props.contextOptions !== undefined) {
+            return props.contextOptions
+        }
+
+        return normalizedContextItems.map(
+            (context): IChatFileContextOption => ({
+                id: context.id,
+                label: `${context.repoName} — CCR #${context.ccrNumber}`,
+            }),
+        )
+    }, [props.contextOptions, normalizedContextItems])
+    const availableContextId =
+        inputContextOptions.length === 0
+            ? ""
+            : inputContextOptions[0]?.id ?? ""
+    const effectiveContextId =
+        selectedContextId === "" ? availableContextId : selectedContextId
+
+    useEffect((): void => {
+        if (props.activeContextId !== undefined) {
+            const isActiveFromParent = inputContextOptions.some(
+                (context): boolean => context.id === props.activeContextId,
+            )
+            if (isActiveFromParent === true && selectedContextId !== props.activeContextId) {
+                setSelectedContextId(props.activeContextId)
+            }
+
+            if (isActiveFromParent === false && selectedContextId !== availableContextId) {
+                setSelectedContextId(availableContextId)
+            }
+            return
+        }
+
+        if (inputContextOptions.length === 0 && selectedContextId !== "") {
+            setSelectedContextId("")
+            return
+        }
+
+        if (
+            selectedContextId === ""
+            || inputContextOptions.some((context): boolean => context.id === selectedContextId) === false
+        ) {
+            setSelectedContextId(availableContextId)
+        }
+    }, [availableContextId, inputContextOptions, props.activeContextId, selectedContextId])
     const wrapperClassName =
         `fixed inset-y-0 right-0 z-40 flex w-full transform flex-col border-l border-[var(--border)] bg-[var(--surface)] shadow-2xl transition-transform duration-200 sm:max-w-[420px] ${
             isPanelOpen ? "translate-x-0" : "translate-x-full"
@@ -108,6 +177,7 @@ export function ChatPanel(props: IChatPanelProps): ReactElement {
     }
 
     const handleContextChange = (contextId: string): void => {
+        setSelectedContextId(contextId)
         props.onContextChange?.(contextId)
     }
 
@@ -135,6 +205,16 @@ export function ChatPanel(props: IChatPanelProps): ReactElement {
                 </CardHeader>
 
                 <CardBody className="flex min-h-0 flex-1 flex-col gap-3 bg-[var(--surface-muted)] p-0">
+                    {normalizedContextItems.length === 0 ? null : (
+                        <div className="px-3 pt-2">
+                            <ChatContextIndicator
+                                activeContextId={effectiveContextId}
+                                contexts={normalizedContextItems}
+                                onContextChange={handleContextChange}
+                                title="Current context"
+                            />
+                        </div>
+                    )}
                     <ul
                         aria-label={messageListAriaLabel}
                         aria-live="polite"
@@ -166,7 +246,8 @@ export function ChatPanel(props: IChatPanelProps): ReactElement {
                     </ul>
                     <ChatInput
                         contextAriaLabel={contextAriaLabel}
-                        contextOptions={props.contextOptions}
+                        contextOptions={inputContextOptions}
+                        selectedContextId={effectiveContextId}
                         counterAriaLabel="Message character count"
                         draft={draftMessage}
                         inputAriaLabel={inputAriaLabel}
