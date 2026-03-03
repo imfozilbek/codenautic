@@ -39,7 +39,7 @@ export function DashboardLayout(props: IDashboardLayoutProps): ReactElement {
     }
 
     return (
-        <div className="relative min-h-screen bg-[linear-gradient(140deg,#f7f8fa_0%,#eef4ff_55%,#f6fbe7_100%)] text-slate-900">
+        <div className="relative min-h-screen bg-[var(--background)] text-[var(--foreground)]">
             <Header
                 onMobileMenuOpen={(): void => {
                     setIsMobileSidebarOpen(true)
@@ -67,7 +67,7 @@ export function DashboardLayout(props: IDashboardLayoutProps): ReactElement {
                         title="Menu"
                     />
                 </div>
-                <div className="min-h-0 flex-1 rounded-lg bg-white/80 p-4 shadow-sm">
+                <div className="min-h-0 flex-1 rounded-lg border border-[var(--border)] bg-[color:color-mix(in_oklab,var(--surface)_88%,transparent)] p-4 shadow-sm">
                     {props.children}
                 </div>
             </div>

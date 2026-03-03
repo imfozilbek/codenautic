@@ -1,5 +1,6 @@
 import type { ChangeEvent, ReactElement } from "react"
 import { useMemo, useState } from "react"
+import { Archive, X } from "lucide-react"
 
 import { Button, Input } from "@/components/ui"
 
@@ -165,7 +166,7 @@ export function ChatThreadList(props: IChatThreadListProps): ReactElement {
                                                 size="sm"
                                                 variant="light"
                                             >
-                                                ×
+                                                <X aria-hidden="true" size={14} />
                                             </Button>
                                             <Button
                                                 aria-label={`Archive thread ${thread.title}`}
@@ -177,7 +178,7 @@ export function ChatThreadList(props: IChatThreadListProps): ReactElement {
                                                 size="sm"
                                                 variant="light"
                                             >
-                                                🗄
+                                                <Archive aria-hidden="true" size={14} />
                                             </Button>
                                         </div>
                                     </div>

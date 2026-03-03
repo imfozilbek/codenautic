@@ -67,7 +67,7 @@ export function ThemeToggle(props: IThemeToggleProps): ReactElement {
                     }}
                     presets={presets}
                 />
-                <p className="px-1 text-xs text-slate-600">
+                <p className="px-1 text-xs text-[var(--foreground)]/70">
                     Preset: {getPresetLabel(presets, preset)}
                 </p>
                 <p className="sr-only" aria-live="polite">
@@ -89,7 +89,7 @@ function ThemeModeButtons({
     return (
         <div
             aria-label="Theme mode"
-            className="inline-flex items-center rounded-lg border border-slate-200 bg-white/85 p-1 backdrop-blur"
+            className="inline-flex items-center rounded-lg border border-[var(--border)] bg-[color:color-mix(in_oklab,var(--surface)_85%,transparent)] p-1 backdrop-blur"
             role="radiogroup"
         >
             {MODE_OPTIONS.map((option): ReactElement => {
@@ -97,16 +97,16 @@ function ThemeModeButtons({
                 const isSelected = option.value === currentMode
 
                 return (
-                        <Button
-                            key={option.value}
-                            aria-label={option.ariaLabel}
-                            aria-pressed={isSelected}
-                            aria-selected={isSelected}
-                            className="min-w-0 px-2"
-                            radius="full"
-                            size="sm"
-                            variant={isSelected ? "solid" : "light"}
-                            onPress={(): void => {
+                    <Button
+                        key={option.value}
+                        aria-label={option.ariaLabel}
+                        aria-pressed={isSelected}
+                        aria-selected={isSelected}
+                        className="min-w-0 px-2"
+                        radius="full"
+                        size="sm"
+                        variant={isSelected ? "solid" : "light"}
+                        onPress={(): void => {
                             onModeChange(option.value)
                         }}
                     >
@@ -155,7 +155,7 @@ function ThemePresetButtons({
                         <span className="sr-only">{themePreset.label}</span>
                         <span
                             aria-hidden="true"
-                            className="inline-block h-2 w-2 rounded-full border border-slate-900/20"
+                            className="inline-block h-2 w-2 rounded-full border border-[color:color-mix(in_oklab,var(--foreground)_20%,transparent)]"
                         />
                     </Button>
                 )
@@ -182,15 +182,15 @@ function ThemePalettePreview({
     return (
         <div aria-hidden="true" className="mt-2 flex gap-2">
             <span
-                className="h-3 w-8 rounded-full border border-slate-200"
+                className="h-3 w-8 rounded-full border border-[var(--border)]"
                 style={{ backgroundColor: palette.primary }}
             />
             <span
-                className="h-3 w-8 rounded-full border border-slate-200"
+                className="h-3 w-8 rounded-full border border-[var(--border)]"
                 style={{ backgroundColor: palette.accent }}
             />
             <span
-                className="h-3 w-8 rounded-full border border-slate-200"
+                className="h-3 w-8 rounded-full border border-[var(--border)]"
                 style={{ backgroundColor: palette.success }}
             />
         </div>

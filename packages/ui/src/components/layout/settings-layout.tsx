@@ -1,5 +1,15 @@
 import { Outlet } from "@tanstack/react-router"
 import type { ReactElement, ReactNode } from "react"
+import {
+    Bot,
+    Building2,
+    Coins,
+    GitBranch,
+    GitPullRequest,
+    Link2,
+    Settings,
+    Webhook,
+} from "lucide-react"
 
 import { SidebarNav } from "./sidebar-nav"
 import { SettingsNav } from "./settings-nav"
@@ -16,42 +26,42 @@ export interface ISettingsLayoutProps {
 
 const SETTINGS_NAV = [
     {
-        icon: "⚙️",
+        icon: <Settings aria-hidden="true" size={16} />,
         label: "Settings",
         to: "/settings",
     },
     {
-        icon: "🧩",
+        icon: <GitPullRequest aria-hidden="true" size={16} />,
         label: "Code Review",
         to: "/settings-code-review",
     },
     {
-        icon: "🧠",
+        icon: <Bot aria-hidden="true" size={16} />,
         label: "LLM Providers",
         to: "/settings-llm-providers",
     },
     {
-        icon: "🐙",
+        icon: <GitBranch aria-hidden="true" size={16} />,
         label: "Git Providers",
         to: "/settings-git-providers",
     },
     {
-        icon: "🔗",
+        icon: <Link2 aria-hidden="true" size={16} />,
         label: "Integrations",
         to: "/settings-integrations",
     },
     {
-        icon: "🪝",
+        icon: <Webhook aria-hidden="true" size={16} />,
         label: "Webhooks",
         to: "/settings-webhooks",
     },
     {
-        icon: "💳",
+        icon: <Coins aria-hidden="true" size={16} />,
         label: "Token Usage",
         to: "/settings-token-usage",
     },
     {
-        icon: "🏢",
+        icon: <Building2 aria-hidden="true" size={16} />,
         label: "Organization",
         to: "/settings-organization",
     },
@@ -65,14 +75,14 @@ export function SettingsLayout(props: ISettingsLayoutProps): ReactElement {
 
     return (
         <div className="grid gap-4 md:grid-cols-[230px_1fr]">
-            <aside className="rounded-lg bg-white/75 p-2 shadow-sm">
-                <p className="px-2 pb-2 text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
+            <aside className="rounded-lg bg-[color:color-mix(in_oklab,var(--surface)_84%,transparent)] p-2 shadow-sm">
+                <p className="px-2 pb-2 text-xs font-semibold uppercase tracking-[0.2em] text-[var(--foreground)]/60">
                     {title}
                 </p>
                 <SidebarNav items={SETTINGS_NAV} />
                 <SettingsNav />
             </aside>
-            <main className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+            <main className="rounded-lg border border-[var(--border)] bg-[var(--surface)] p-4 shadow-sm">
                 {props.children === undefined ? <Outlet /> : props.children}
             </main>
         </div>

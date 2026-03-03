@@ -756,6 +756,13 @@ export {
     type ISourceFileSnapshot,
     validateDependencyDirection,
 } from "./shared/dependency-direction-guard"
+export {
+    definePromptSeedRegistry,
+    type IPromptSeedData,
+    type PromptCategory,
+    PROMPT_SEED_REGISTRY,
+    type PromptType,
+} from "./infrastructure/data/seed/prompts/prompt-seed-registry"
 export {deduplicate} from "./shared/utils/deduplicate"
 export {hash} from "./shared/utils/hash"
 export {serialize, deserialize} from "./shared/utils/serialize"

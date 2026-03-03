@@ -34,10 +34,10 @@ export function Sidebar(props: ISidebarProps): ReactElement {
 
     return (
         <aside
-            className={`h-full rounded-lg bg-white/75 p-2 shadow-sm ${widthClass} ${props.className ?? ""}`}
+            className={`h-full rounded-lg bg-[color:color-mix(in_oklab,var(--surface)_84%,transparent)] p-2 shadow-sm ${widthClass} ${props.className ?? ""}`}
         >
             <div className="mb-2 flex items-center justify-between px-2">
-                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
+                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--foreground)]/60">
                     {isCollapsed ? " " : (props.title ?? "Navigation")}
                 </p>
                 <Button

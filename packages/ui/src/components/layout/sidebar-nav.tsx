@@ -1,6 +1,16 @@
 import type { ReactElement } from "react"
 import { useLocation, useNavigate } from "@tanstack/react-router"
-import { Avatar, Button } from "@/components/ui"
+import {
+    Bug,
+    Building2,
+    ChartNoAxesColumn,
+    FolderKanban,
+    GitPullRequest,
+    House,
+    Rocket,
+    Settings,
+} from "lucide-react"
+import { Button } from "@/components/ui"
 
 /**
  * Навигационный элемент сайдбара.
@@ -10,8 +20,8 @@ export interface ISidebarItem {
     readonly label: string
     /** Маршрут. Не указывается для disabled-состояния. */
     readonly to?: string
-    /** Иконка инициалов или маркер состояния. */
-    readonly icon?: string
+    /** Иконка пункта меню. */
+    readonly icon?: ReactElement
     /** Доступен ли пункт для перехода. */
     readonly isDisabled?: boolean
 }
@@ -28,42 +38,42 @@ export interface ISidebarNavProps {
 
 const DEFAULT_SIDEBAR_ITEMS: readonly ISidebarItem[] = [
     {
-        icon: "🏠",
+        icon: <House aria-hidden="true" size={16} />,
         label: "Dashboard",
         to: "/",
     },
     {
-        icon: "🏙️",
+        icon: <Building2 aria-hidden="true" size={16} />,
         label: "CodeCity",
         to: "/dashboard/code-city",
     },
     {
-        icon: "🧩",
+        icon: <GitPullRequest aria-hidden="true" size={16} />,
         label: "CCR Management",
         to: "/reviews",
     },
     {
-        icon: "🐞",
+        icon: <Bug aria-hidden="true" size={16} />,
         label: "Issues",
         to: "/issues",
     },
     {
-        icon: "🚀",
+        icon: <Rocket aria-hidden="true" size={16} />,
         label: "Onboarding",
         to: "/onboarding",
     },
     {
-        icon: "📈",
+        icon: <ChartNoAxesColumn aria-hidden="true" size={16} />,
         label: "Scan Progress",
         to: "/scan-progress",
     },
     {
-        icon: "🗂️",
+        icon: <FolderKanban aria-hidden="true" size={16} />,
         label: "Repositories",
         to: "/repositories",
     },
     {
-        icon: "⚙️",
+        icon: <Settings aria-hidden="true" size={16} />,
         label: "Settings",
         to: "/settings",
     },
@@ -125,8 +135,11 @@ export function SidebarNav(props: ISidebarNavProps): ReactElement {
                         void navigate({ to: item.to })
                     }
 
-                    const startContent =
-                        item.icon === undefined ? undefined : <Avatar name={item.icon} size="sm" />
+                    const startContent = item.icon === undefined ? undefined : (
+                        <span aria-hidden="true" className="inline-flex items-center justify-center">
+                            {item.icon}
+                        </span>
+                    )
 
                     return (
                         <li key={item.label}>

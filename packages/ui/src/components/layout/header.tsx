@@ -34,7 +34,7 @@ export function Header(props: IHeaderProps): ReactElement {
     const hasNotifications = props.notificationCount !== undefined && props.notificationCount > 0
 
     return (
-        <div className="border-b border-slate-200 bg-white/80 backdrop-blur">
+        <div className="border-b border-[var(--border)] bg-[color:color-mix(in_oklab,var(--surface)_88%,transparent)] backdrop-blur">
             <div className="mx-auto flex h-16 items-center gap-3 px-3">
                 <div className={props.title === undefined ? "md:hidden" : "hidden md:flex"}>
                     <Button
@@ -47,10 +47,10 @@ export function Header(props: IHeaderProps): ReactElement {
                         <Menu size={20} />
                     </Button>
                 </div>
-                <p className="text-sm font-semibold tracking-wide text-slate-900">CodeNautic</p>
+                <p className="text-sm font-semibold tracking-wide text-[var(--foreground)]">CodeNautic</p>
                 <div className="mx-auto hidden md:block">
                     {props.title !== undefined ? (
-                        <p className="text-sm font-medium text-slate-700">{props.title}</p>
+                        <p className="text-sm font-medium text-[var(--foreground)]/80">{props.title}</p>
                     ) : null}
                 </div>
                 <div className="ml-auto flex items-center gap-2">
@@ -81,8 +81,8 @@ export function Header(props: IHeaderProps): ReactElement {
                 </div>
             </div>
             {props.title === undefined ? null : (
-                <div className="border-t border-slate-100 px-3 py-2 md:hidden">
-                    <p className="text-sm text-slate-700">{props.title}</p>
+                <div className="border-t border-[var(--border)] px-3 py-2 md:hidden">
+                    <p className="text-sm text-[var(--foreground)]/80">{props.title}</p>
                 </div>
             )}
         </div>
