@@ -1,4 +1,4 @@
-import type {IApiConfig} from "./config"
+import type { IApiConfig } from "./config"
 
 /**
  * Разрешённые HTTP-методы для UI API-клиента.
@@ -99,10 +99,7 @@ export interface IFetchHttpClientDependencies {
  * @param timeoutMs Время ожидания в миллисекундах.
  * @param signal Сигнал отмены.
  */
-export type IDelayFunction = (
-    timeoutMs: number,
-    signal: AbortSignal | undefined,
-) => Promise<void>
+export type IDelayFunction = (timeoutMs: number, signal: AbortSignal | undefined) => Promise<void>
 
 const DEFAULT_RETRY_POLICY: IRetryPolicy = {
     maxAttempts: 3,
@@ -244,7 +241,10 @@ export class FetchHttpClient implements IHttpClient {
         return JSON.stringify(body)
     }
 
-    private buildUrl(path: string, query: Readonly<Record<string, QueryValue | undefined>> | undefined): string {
+    private buildUrl(
+        path: string,
+        query: Readonly<Record<string, QueryValue | undefined>> | undefined,
+    ): string {
         const normalizedPath = normalizeRequestPath(path)
         const target = new URL(normalizedPath, this.config.baseUrl)
 
@@ -341,7 +341,11 @@ export class FetchHttpClient implements IHttpClient {
 
         return {
             type: "error",
-            error: new ApiHttpError(response.status, request.path, `HTTP ${response.status} for ${request.path}`),
+            error: new ApiHttpError(
+                response.status,
+                request.path,
+                `HTTP ${response.status} for ${request.path}`,
+            ),
         }
     }
 
@@ -527,7 +531,10 @@ function isAbortError(error: unknown): error is Error {
  * @param timeoutMs Время ожидания в миллисекундах.
  * @param signal Сигнал отмены.
  */
-async function waitWithAbortSupport(timeoutMs: number, signal: AbortSignal | undefined): Promise<void> {
+async function waitWithAbortSupport(
+    timeoutMs: number,
+    signal: AbortSignal | undefined,
+): Promise<void> {
     if (timeoutMs <= 0) {
         return
     }
@@ -551,7 +558,7 @@ async function waitWithAbortSupport(timeoutMs: number, signal: AbortSignal | und
         }
 
         if (signal !== undefined) {
-            signal.addEventListener("abort", onAbort, {once: true})
+            signal.addEventListener("abort", onAbort, { once: true })
         }
     })
 }

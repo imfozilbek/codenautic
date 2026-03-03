@@ -1,5 +1,5 @@
 import DOMPurify from "isomorphic-dompurify"
-import {type SafeParseError, z, type ZodError, type ZodTypeAny} from "zod"
+import { type SafeParseError, z, type ZodError, type ZodTypeAny } from "zod"
 
 /**
  * Результат валидации с нормализованным описанием ошибки.
@@ -181,7 +181,7 @@ export function createOptionalSanitizedStringSchema(): z.ZodEffects<
  * Извлекает первое сообщение ошибки валидатора.
  */
 function extractFirstIssueMessage<T>(
-    parseResult: SafeParseError<T> | {error: ZodError<T>},
+    parseResult: SafeParseError<T> | { error: ZodError<T> },
 ): string {
     const issues = parseResult.error.issues
     const firstIssue = issues[0]

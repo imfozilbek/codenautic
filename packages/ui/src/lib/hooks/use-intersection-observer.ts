@@ -1,4 +1,4 @@
-import {useEffect, useRef, useState} from "react"
+import { useEffect, useRef, useState } from "react"
 
 /**
  * Параметры observer-хука.
@@ -33,7 +33,7 @@ export interface IUseIntersectionObserverResult {
 export function useIntersectionObserver(
     options: IUseIntersectionObserverOptions = {},
 ): IUseIntersectionObserverResult {
-    const {enabled = true, root = null, rootMargin = "0px", threshold = 0} = options
+    const { enabled = true, root = null, rootMargin = "0px", threshold = 0 } = options
     const targetRef = useRef<HTMLElement | null>(null)
     const [isIntersecting, setIsIntersecting] = useState<boolean>(false)
 
@@ -44,7 +44,11 @@ export function useIntersectionObserver(
         }
 
         const target = targetRef.current
-        if (target === null || typeof window === "undefined" || "IntersectionObserver" in window === false) {
+        if (
+            target === null ||
+            typeof window === "undefined" ||
+            "IntersectionObserver" in window === false
+        ) {
             setIsIntersecting(false)
             return (): void => undefined
         }

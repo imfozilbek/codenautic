@@ -1,4 +1,4 @@
-import type {IAuthSession, IAuthUser, TOAuthProvider} from "./types"
+import type { IAuthSession, IAuthUser, TOAuthProvider } from "./types"
 
 /**
  * Ключ хранения безопасного snapshot auth session.
@@ -79,7 +79,9 @@ export function persistAuthSession(storage: Storage | undefined, session: IAuthS
  * @param storage Browser storage.
  * @returns Валидный snapshot или undefined.
  */
-export function loadPersistedAuthSession(storage: Storage | undefined): IAuthSessionSnapshot | undefined {
+export function loadPersistedAuthSession(
+    storage: Storage | undefined,
+): IAuthSessionSnapshot | undefined {
     if (storage === undefined) {
         return undefined
     }

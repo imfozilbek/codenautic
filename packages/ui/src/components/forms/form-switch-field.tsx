@@ -1,21 +1,30 @@
-import {type ReactElement} from "react"
-import {Controller, type Control, type ControllerProps, type FieldPath, type FieldValues} from "react-hook-form"
-import {Switch} from "@/components/ui"
+import { type ReactElement } from "react"
+import {
+    Controller,
+    type Control,
+    type ControllerProps,
+    type FieldPath,
+    type FieldValues,
+} from "react-hook-form"
+import { Switch } from "@/components/ui"
 
-import {pickFieldMessage} from "./form-field-utils"
+import { pickFieldMessage } from "./form-field-utils"
 
 /**
  * Правила валидации для switch.
  */
-type FormSwitchFieldRules<TFormValues extends FieldValues, TName extends FieldPath<TFormValues>> = Omit<
-    ControllerProps<TFormValues, TName>,
-    "render" | "name" | "control"
->["rules"]
+type FormSwitchFieldRules<
+    TFormValues extends FieldValues,
+    TName extends FieldPath<TFormValues>,
+> = Omit<ControllerProps<TFormValues, TName>, "render" | "name" | "control">["rules"]
 
 /**
  * Свойства switch-поля.
  */
-export interface IFormSwitchFieldProps<TFormValues extends FieldValues, TName extends FieldPath<TFormValues>> {
+export interface IFormSwitchFieldProps<
+    TFormValues extends FieldValues,
+    TName extends FieldPath<TFormValues>,
+> {
     /** Контроллер формы. */
     readonly control: Control<TFormValues>
     /** Имя поля в форме. */
@@ -43,7 +52,7 @@ export function FormSwitchField<
             control={props.control}
             name={props.name}
             rules={props.rules}
-            render={({field, fieldState}): ReactElement => {
+            render={({ field, fieldState }): ReactElement => {
                 const errorMessage = fieldState.error?.message
                 const hasError = errorMessage !== undefined
                 const helperId = `${String(props.name)}-helper`
@@ -51,7 +60,9 @@ export function FormSwitchField<
                 return (
                     <div className="flex flex-col gap-1">
                         <Switch
-                            aria-describedby={hasError || props.helperText !== undefined ? helperId : undefined}
+                            aria-describedby={
+                                hasError || props.helperText !== undefined ? helperId : undefined
+                            }
                             aria-invalid={hasError}
                             name={field.name}
                             isInvalid={hasError}
@@ -60,7 +71,9 @@ export function FormSwitchField<
                         >
                             {props.label}
                         </Switch>
-                        <span id={helperId}>{pickFieldMessage(errorMessage, props.helperText)}</span>
+                        <span id={helperId}>
+                            {pickFieldMessage(errorMessage, props.helperText)}
+                        </span>
                     </div>
                 )
             }}

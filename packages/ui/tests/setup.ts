@@ -1,9 +1,9 @@
-import {cleanup} from "@testing-library/react"
+import { cleanup } from "@testing-library/react"
 import i18next from "i18next"
-import {afterAll, afterEach, beforeAll} from "vitest"
+import { afterAll, afterEach, beforeAll } from "vitest"
 
-import {DEFAULT_LOCALE, LOCALE_STORAGE_KEY, initializeI18n} from "@/lib/i18n/i18n"
-import {server} from "./mocks/server"
+import { DEFAULT_LOCALE, LOCALE_STORAGE_KEY, initializeI18n } from "@/lib/i18n/i18n"
+import { server } from "./mocks/server"
 
 const originalFetch = globalThis.fetch
 

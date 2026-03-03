@@ -1,21 +1,30 @@
-import {type ReactElement} from "react"
-import {Controller, type Control, type ControllerProps, type FieldPath, type FieldValues} from "react-hook-form"
-import {Checkbox} from "@/components/ui"
+import { type ReactElement } from "react"
+import {
+    Controller,
+    type Control,
+    type ControllerProps,
+    type FieldPath,
+    type FieldValues,
+} from "react-hook-form"
+import { Checkbox } from "@/components/ui"
 
-import {pickFieldMessage} from "./form-field-utils"
+import { pickFieldMessage } from "./form-field-utils"
 
 /**
  * Правила валидации для checkbox.
  */
-type FormCheckboxFieldRules<TFormValues extends FieldValues, TName extends FieldPath<TFormValues>> = Omit<
-    ControllerProps<TFormValues, TName>,
-    "render" | "name" | "control"
->["rules"]
+type FormCheckboxFieldRules<
+    TFormValues extends FieldValues,
+    TName extends FieldPath<TFormValues>,
+> = Omit<ControllerProps<TFormValues, TName>, "render" | "name" | "control">["rules"]
 
 /**
  * Свойства checkbox-поля.
  */
-export interface IFormCheckboxFieldProps<TFormValues extends FieldValues, TName extends FieldPath<TFormValues>> {
+export interface IFormCheckboxFieldProps<
+    TFormValues extends FieldValues,
+    TName extends FieldPath<TFormValues>,
+> {
     /** Контроллер формы. */
     readonly control: Control<TFormValues>
     /** Имя поля в форме. */
@@ -43,7 +52,7 @@ export function FormCheckboxField<
             control={props.control}
             name={props.name}
             rules={props.rules}
-            render={({field, fieldState}): ReactElement => {
+            render={({ field, fieldState }): ReactElement => {
                 const errorMessage = fieldState.error?.message
                 const hasError = errorMessage !== undefined
                 const helperId = `${String(props.name)}-helper`
@@ -51,7 +60,9 @@ export function FormCheckboxField<
                 return (
                     <div className="flex flex-col gap-1">
                         <Checkbox
-                            aria-describedby={hasError || props.helperText !== undefined ? helperId : undefined}
+                            aria-describedby={
+                                hasError || props.helperText !== undefined ? helperId : undefined
+                            }
                             aria-invalid={hasError}
                             isSelected={field.value === true}
                             name={field.name}
@@ -60,7 +71,9 @@ export function FormCheckboxField<
                         >
                             {props.label}
                         </Checkbox>
-                        <span id={helperId}>{pickFieldMessage(errorMessage, props.helperText)}</span>
+                        <span id={helperId}>
+                            {pickFieldMessage(errorMessage, props.helperText)}
+                        </span>
                     </div>
                 )
             }}

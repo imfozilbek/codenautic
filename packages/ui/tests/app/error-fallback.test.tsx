@@ -1,9 +1,9 @@
-import {screen, waitFor} from "@testing-library/react"
+import { screen, waitFor } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
-import {describe, expect, it, vi} from "vitest"
+import { describe, expect, it, vi } from "vitest"
 
-import {GlobalErrorFallback, NotFoundFallback, RouteErrorFallback} from "@/app/error-fallback"
-import {renderWithProviders} from "../utils/render"
+import { GlobalErrorFallback, NotFoundFallback, RouteErrorFallback } from "@/app/error-fallback"
+import { renderWithProviders } from "../utils/render"
 
 class HttpError extends Error {
     public readonly statusCode: number
@@ -31,8 +31,12 @@ describe("error fallback ui", (): void => {
             expect(assignSpy).toHaveBeenCalledWith("/sign-in")
         })
 
-        const pendingRedirect = screen.getByText("Сессия истекла, перенаправляем на страницу входа...")
-        expect(pendingRedirect.textContent).toBe("Сессия истекла, перенаправляем на страницу входа...")
+        const pendingRedirect = screen.getByText(
+            "Сессия истекла, перенаправляем на страницу входа...",
+        )
+        expect(pendingRedirect.textContent).toBe(
+            "Сессия истекла, перенаправляем на страницу входа...",
+        )
 
         assignSpy.mockRestore()
     })
@@ -52,7 +56,7 @@ describe("error fallback ui", (): void => {
         const message = screen.getByText("Доступ запрещён для текущего пользователя.")
         expect(message.textContent).toBe("Доступ запрещён для текущего пользователя.")
 
-        const backButton = screen.getByRole("button", {name: "Вернуться на главную"})
+        const backButton = screen.getByRole("button", { name: "Вернуться на главную" })
         await user.click(backButton)
 
         expect(assignSpy).toHaveBeenCalledWith("/")
@@ -72,7 +76,7 @@ describe("error fallback ui", (): void => {
             />,
         )
 
-        const retryButton = screen.getByRole("button", {name: "Повторить"})
+        const retryButton = screen.getByRole("button", { name: "Повторить" })
         await user.click(retryButton)
 
         expect(resetMock).toHaveBeenCalledTimes(1)
@@ -81,17 +85,13 @@ describe("error fallback ui", (): void => {
     it("показывает not-found fallback", (): void => {
         renderWithProviders(<NotFoundFallback />)
 
-        const heading = screen.getByRole("heading", {name: "Страница не найдена"})
+        const heading = screen.getByRole("heading", { name: "Страница не найдена" })
         expect(heading.textContent).toBe("Страница не найдена")
     })
 
     it("использует fallback message для пустой Error.message", (): void => {
         renderWithProviders(
-            <RouteErrorFallback
-                error={new Error("   ")}
-                info={undefined}
-                reset={vi.fn()}
-            />,
+            <RouteErrorFallback error={new Error("   ")} info={undefined} reset={vi.fn()} />,
         )
 
         const fallbackMessage = screen.getByText("Не удалось обработать ошибку маршрута")
@@ -109,16 +109,12 @@ describe("error fallback ui", (): void => {
 
         const message = screen.getByText("Too many requests")
         expect(message.textContent).toBe("Too many requests")
-        expect(screen.queryByRole("button", {name: "Повторить"})).toBeNull()
+        expect(screen.queryByRole("button", { name: "Повторить" })).toBeNull()
     })
 
     it("обрабатывает не-объектный error payload", (): void => {
         renderWithProviders(
-            <GlobalErrorFallback
-                error={42 as unknown as Error}
-                info={undefined}
-                reset={vi.fn()}
-            />,
+            <GlobalErrorFallback error={42 as unknown as Error} info={undefined} reset={vi.fn()} />,
         )
 
         const fallbackMessage = screen.getByText("Не удалось обработать ошибку маршрута")
@@ -128,7 +124,7 @@ describe("error fallback ui", (): void => {
     it("извлекает message из plain object со statusCode", (): void => {
         renderWithProviders(
             <RouteErrorFallback
-                error={{statusCode: 500, message: "Object-based error"} as unknown as Error}
+                error={{ statusCode: 500, message: "Object-based error" } as unknown as Error}
                 info={undefined}
                 reset={vi.fn()}
             />,

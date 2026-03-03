@@ -1,5 +1,5 @@
-import type {IFeatureFlagsResponse} from "@/lib/feature-flags/feature-flags"
-import type {IHttpClient} from "../http-client"
+import type { IFeatureFlagsResponse } from "@/lib/feature-flags/feature-flags"
+import type { IHttpClient } from "../http-client"
 
 /**
  * Контракт endpoint-слоя feature flags API.

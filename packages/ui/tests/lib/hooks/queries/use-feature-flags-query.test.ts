@@ -1,6 +1,6 @@
-import {describe, expect, it} from "vitest"
+import { describe, expect, it } from "vitest"
 
-import {FEATURE_FLAG_KEYS, type IFeatureFlagsResponse} from "@/lib/feature-flags/feature-flags"
+import { FEATURE_FLAG_KEYS, type IFeatureFlagsResponse } from "@/lib/feature-flags/feature-flags"
 import {
     isFeatureFlagEnabled,
     type IFeatureFlagQueryState,

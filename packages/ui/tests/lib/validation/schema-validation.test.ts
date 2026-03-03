@@ -1,5 +1,5 @@
-import {describe, expect, it} from "vitest"
-import {z} from "zod"
+import { describe, expect, it } from "vitest"
+import { z } from "zod"
 
 import {
     createSanitizedStringSchema,
@@ -43,7 +43,7 @@ describe("schema-validation", (): void => {
 
     it("валидирует enum значения", (): void => {
         const values = ["light", "dark", "system"] as const
-        expect(parseEnumValue(values, "dark")).toEqual({value: "dark"})
+        expect(parseEnumValue(values, "dark")).toEqual({ value: "dark" })
         expect(parseEnumValue(values, "unknown")).toEqual({
             message: 'Недопустимое значение "unknown".',
         })

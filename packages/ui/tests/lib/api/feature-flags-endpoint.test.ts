@@ -1,8 +1,8 @@
-import {describe, expect, it, vi} from "vitest"
+import { describe, expect, it, vi } from "vitest"
 
-import type {IHttpClient} from "@/lib/api"
-import {FeatureFlagsApi} from "@/lib/api/endpoints/feature-flags.endpoint"
-import type {IFeatureFlagsResponse} from "@/lib/feature-flags/feature-flags"
+import type { IHttpClient } from "@/lib/api"
+import { FeatureFlagsApi } from "@/lib/api/endpoints/feature-flags.endpoint"
+import type { IFeatureFlagsResponse } from "@/lib/feature-flags/feature-flags"
 
 /**
  * Создаёт типизированный mock HTTP-клиента.
@@ -29,7 +29,7 @@ describe("FeatureFlagsApi", (): void => {
                 premium_dashboard: true,
             },
         }
-        const {httpClient, requestMock} = createHttpClientMock()
+        const { httpClient, requestMock } = createHttpClientMock()
         requestMock.mockResolvedValueOnce(response)
 
         const api = new FeatureFlagsApi(httpClient)

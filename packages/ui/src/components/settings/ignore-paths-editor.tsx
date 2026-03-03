@@ -1,8 +1,8 @@
-import {type ChangeEvent, type FormEvent, type ReactElement, useEffect, useState} from "react"
+import { type ChangeEvent, type FormEvent, type ReactElement, useEffect, useState } from "react"
 
-import {Textarea} from "@/components/ui"
-import {Button} from "@/components/ui"
-import {sanitizeTextInput} from "@/lib/validation/schema-validation"
+import { Textarea } from "@/components/ui"
+import { Button } from "@/components/ui"
+import { sanitizeTextInput } from "@/lib/validation/schema-validation"
 
 /**
  * Параметры редактора ignore-patterns.
@@ -48,7 +48,9 @@ export function IgnorePathsEditor(props: IIgnorePathsEditorProps): ReactElement 
         props.onChange(Array.from(new Set(nextValue)))
     }
 
-    const handleValueChange = (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>): void => {
+    const handleValueChange = (
+        event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+    ): void => {
         setRawValue(event.target.value)
     }
 

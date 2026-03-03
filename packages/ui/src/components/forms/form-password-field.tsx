@@ -1,22 +1,31 @@
-import {type ReactElement, useState} from "react"
-import {Eye, EyeOff} from "lucide-react"
-import {Controller, type Control, type ControllerProps, type FieldPath, type FieldValues} from "react-hook-form"
-import {Button, Input} from "@/components/ui"
+import { type ReactElement, useState } from "react"
+import { Eye, EyeOff } from "lucide-react"
+import {
+    Controller,
+    type Control,
+    type ControllerProps,
+    type FieldPath,
+    type FieldValues,
+} from "react-hook-form"
+import { Button, Input } from "@/components/ui"
 
-import {pickFieldMessage} from "./form-field-utils"
+import { pickFieldMessage } from "./form-field-utils"
 
 /**
  * Правила валидации для password field.
  */
-type FormPasswordFieldRules<TFormValues extends FieldValues, TName extends FieldPath<TFormValues>> = Omit<
-    ControllerProps<TFormValues, TName>,
-    "render" | "name" | "control"
->["rules"]
+type FormPasswordFieldRules<
+    TFormValues extends FieldValues,
+    TName extends FieldPath<TFormValues>,
+> = Omit<ControllerProps<TFormValues, TName>, "render" | "name" | "control">["rules"]
 
 /**
  * Свойства password-поля.
  */
-export interface IFormPasswordFieldProps<TFormValues extends FieldValues, TName extends FieldPath<TFormValues>> {
+export interface IFormPasswordFieldProps<
+    TFormValues extends FieldValues,
+    TName extends FieldPath<TFormValues>,
+> {
     /** Контроллер формы. */
     readonly control: Control<TFormValues>
     /** Имя поля в форме. */
@@ -49,7 +58,7 @@ export function FormPasswordField<
             control={props.control}
             name={props.name}
             rules={props.rules}
-            render={({field, fieldState}): ReactElement => {
+            render={({ field, fieldState }): ReactElement => {
                 const errorMessage = fieldState.error?.message
                 const hasError = errorMessage !== undefined
                 const value = field.value === undefined ? "" : field.value
@@ -63,19 +72,25 @@ export function FormPasswordField<
                         )}
                         <Input
                             aria-describedby={
-                                hasError || props.helperText !== undefined ? `${fieldId}-helper` : undefined
+                                hasError || props.helperText !== undefined
+                                    ? `${fieldId}-helper`
+                                    : undefined
                             }
                             aria-invalid={hasError}
                             endContent={
                                 <Button
                                     aria-label={
-                                        isPasswordVisible ? "Hide password text" : "Show password text"
+                                        isPasswordVisible
+                                            ? "Hide password text"
+                                            : "Show password text"
                                     }
                                     isIconOnly
                                     size="sm"
                                     variant="light"
                                     onPress={(): void => {
-                                        setIsPasswordVisible((previousValue: boolean): boolean => !previousValue)
+                                        setIsPasswordVisible(
+                                            (previousValue: boolean): boolean => !previousValue,
+                                        )
                                     }}
                                 >
                                     {isPasswordVisible ? <Eye size={16} /> : <EyeOff size={16} />}
@@ -91,7 +106,9 @@ export function FormPasswordField<
                             onBlur={field.onBlur}
                             onChange={field.onChange}
                         />
-                        <span id={`${fieldId}-helper`}>{pickFieldMessage(errorMessage, props.helperText)}</span>
+                        <span id={`${fieldId}-helper`}>
+                            {pickFieldMessage(errorMessage, props.helperText)}
+                        </span>
                     </div>
                 )
             }}

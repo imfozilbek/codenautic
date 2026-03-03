@@ -1,1 +1,1 @@
-export {Alert} from "@heroui/react"
+export { Alert } from "@heroui/react"

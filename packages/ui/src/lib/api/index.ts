@@ -1,8 +1,8 @@
-import {createApiConfig} from "./config"
-import {AuthApi} from "./endpoints/auth.endpoint"
-import {FeatureFlagsApi} from "./endpoints/feature-flags.endpoint"
-import {SystemApi} from "./endpoints/system.endpoint"
-import {FetchHttpClient} from "./http-client"
+import { createApiConfig } from "./config"
+import { AuthApi } from "./endpoints/auth.endpoint"
+import { FeatureFlagsApi } from "./endpoints/feature-flags.endpoint"
+import { SystemApi } from "./endpoints/system.endpoint"
+import { FetchHttpClient } from "./http-client"
 
 /**
  * Создаёт централизованный объект API-контрактов для UI.
@@ -24,7 +24,7 @@ export function createApiContracts(): {
     }
 }
 
-export {createApiConfig} from "./config"
+export { createApiConfig } from "./config"
 export {
     ApiHttpError,
     ApiNetworkError,
@@ -34,8 +34,8 @@ export {
     isApiNetworkError,
     isApiRateLimitError,
 } from "./http-client"
-export type {IApiConfig, IUiEnv} from "./config"
-export type {IAuthApi} from "./endpoints/auth.endpoint"
+export type { IApiConfig, IUiEnv } from "./config"
+export type { IAuthApi } from "./endpoints/auth.endpoint"
 export type {
     IDelayFunction,
     IFetchHttpClientDependencies,
@@ -45,6 +45,6 @@ export type {
     IRetryPolicy,
     QueryValue,
 } from "./http-client"
-export type {IFeatureFlagsApi} from "./endpoints/feature-flags.endpoint"
-export type {ISystemApi} from "./endpoints/system.endpoint"
-export type {TSystemHealthResponse, THealthStatus} from "./types"
+export type { IFeatureFlagsApi } from "./endpoints/feature-flags.endpoint"
+export type { ISystemApi } from "./endpoints/system.endpoint"
+export type { TSystemHealthResponse, THealthStatus } from "./types"

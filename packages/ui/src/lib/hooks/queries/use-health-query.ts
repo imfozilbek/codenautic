@@ -1,8 +1,8 @@
-import {useQuery, type UseQueryResult} from "@tanstack/react-query"
+import { useQuery, type UseQueryResult } from "@tanstack/react-query"
 
-import {createApiContracts} from "@/lib/api"
-import type {TSystemHealthResponse} from "@/lib/api"
-import {queryKeys} from "@/lib/query/query-keys"
+import { createApiContracts } from "@/lib/api"
+import type { TSystemHealthResponse } from "@/lib/api"
+import { queryKeys } from "@/lib/query/query-keys"
 
 const api = createApiContracts()
 

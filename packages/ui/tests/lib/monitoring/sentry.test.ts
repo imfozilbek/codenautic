@@ -1,4 +1,4 @@
-import {describe, expect, it, vi} from "vitest"
+import { describe, expect, it, vi } from "vitest"
 import * as Sentry from "@sentry/react"
 
 import {
@@ -128,7 +128,7 @@ describe("sentry monitoring", (): void => {
                 readonly url: string
                 readonly headers: Record<string, unknown>
             }
-            readonly breadcrumbs: Array<{readonly data: {readonly url: string}} | string>
+            readonly breadcrumbs: Array<{ readonly data: { readonly url: string } } | string>
         }
 
         expect(sanitizedPayload.request.url.includes("api_key=%5BREDACTED%5D")).toBe(true)

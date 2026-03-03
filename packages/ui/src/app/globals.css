@@ -117,9 +117,21 @@ body {
     margin: 0;
     color: var(--foreground);
     background:
-        radial-gradient(circle at 15% 15%, color-mix(in oklch, var(--accent) 16%, transparent), transparent 36%),
-        radial-gradient(circle at 85% 10%, color-mix(in oklch, var(--primary) 14%, transparent), transparent 32%),
-        radial-gradient(circle at 60% 90%, color-mix(in oklch, var(--success) 10%, transparent), transparent 40%),
+        radial-gradient(
+            circle at 15% 15%,
+            color-mix(in oklch, var(--accent) 16%, transparent),
+            transparent 36%
+        ),
+        radial-gradient(
+            circle at 85% 10%,
+            color-mix(in oklch, var(--primary) 14%, transparent),
+            transparent 32%
+        ),
+        radial-gradient(
+            circle at 60% 90%,
+            color-mix(in oklch, var(--success) 10%, transparent),
+            transparent 40%
+        ),
         var(--background);
 }
 

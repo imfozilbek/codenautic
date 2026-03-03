@@ -1,5 +1,5 @@
-import type {ReactElement} from "react"
-import {Avatar, Button} from "@/components/ui"
+import type { ReactElement } from "react"
+import { Avatar, Button } from "@/components/ui"
 import {
     Dropdown,
     DropdownItem,
@@ -37,22 +37,21 @@ export function UserMenu(props: IUserMenuProps): ReactElement {
                 <Button className="h-8 min-h-8 px-1" radius="full" size="sm" variant="light">
                     <div className="inline-flex items-center gap-2 rounded-full">
                         <Avatar name={props.userName ?? "User"} size="sm" />
-                        <span className="hidden text-xs font-medium sm:inline">{props.userName ?? "User"}</span>
+                        <span className="hidden text-xs font-medium sm:inline">
+                            {props.userName ?? "User"}
+                        </span>
                         <span className="sr-only">{initials}</span>
                     </div>
                 </Button>
             </DropdownTrigger>
             <DropdownMenu aria-label="User menu">
-                <DropdownSection
-                    showDivider
-                    title="Account"
-                >
+                <DropdownSection showDivider title="Account">
                     <DropdownItem key="name">{props.userName ?? "User"}</DropdownItem>
                     <DropdownItem key="email">{props.userEmail ?? "user@example.com"}</DropdownItem>
                 </DropdownSection>
                 {props.onSignOut === undefined ? null : (
                     <DropdownItem
-                            key="logout"
+                        key="logout"
                         color="danger"
                         onPress={(): void => {
                             const signOut = props.onSignOut

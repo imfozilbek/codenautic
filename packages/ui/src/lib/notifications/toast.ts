@@ -1,4 +1,4 @@
-import {toast} from "@heroui/react"
+import { toast } from "@heroui/react"
 
 /**
  * Показать toast-success в едином HeroUI-слое.
@@ -35,4 +35,3 @@ export function showToastWarning(message: string): void {
 export function showToastError(message: string): void {
     toast.error(message)
 }
-

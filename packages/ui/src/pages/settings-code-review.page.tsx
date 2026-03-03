@@ -1,10 +1,10 @@
-import {type FormEvent, type ReactElement, useState} from "react"
+import { type FormEvent, type ReactElement, useState } from "react"
 
-import {Button} from "@/components/ui"
-import {showToastInfo, showToastSuccess} from "@/lib/notifications/toast"
-import {IgnorePathsEditor} from "@/components/settings/ignore-paths-editor"
-import {CodeReviewForm} from "@/components/settings/code-review-form"
-import type {ICodeReviewFormValues} from "@/components/settings/code-review-form"
+import { Button } from "@/components/ui"
+import { showToastInfo, showToastSuccess } from "@/lib/notifications/toast"
+import { IgnorePathsEditor } from "@/components/settings/ignore-paths-editor"
+import { CodeReviewForm } from "@/components/settings/code-review-form"
+import type { ICodeReviewFormValues } from "@/components/settings/code-review-form"
 
 /** Параметры сохранённой настройки code-review. */
 interface ICodeReviewSettingsState {
@@ -31,21 +31,33 @@ export function SettingsCodeReviewPage(): ReactElement {
     })
 
     const saveReviewForm = (nextValues: ICodeReviewFormValues): void => {
-        setState((previousValue): ICodeReviewSettingsState => ({...previousValue, formValues: nextValues}))
+        setState(
+            (previousValue): ICodeReviewSettingsState => ({
+                ...previousValue,
+                formValues: nextValues,
+            }),
+        )
         showToastSuccess("Code Review settings saved.")
     }
 
     const handlePathsChange = (nextPaths: ReadonlyArray<string>): void => {
-        setState((previousValue): ICodeReviewSettingsState => ({...previousValue, ignoredPaths: nextPaths}))
+        setState(
+            (previousValue): ICodeReviewSettingsState => ({
+                ...previousValue,
+                ignoredPaths: nextPaths,
+            }),
+        )
         showToastSuccess("Ignore paths updated.")
     }
 
     const handlePathReset = (event: FormEvent): void => {
         event.preventDefault()
-        setState((previousValue): ICodeReviewSettingsState => ({
-            ...previousValue,
-            ignoredPaths: ["/dist", "/node_modules", "/coverage"],
-        }))
+        setState(
+            (previousValue): ICodeReviewSettingsState => ({
+                ...previousValue,
+                ignoredPaths: ["/dist", "/node_modules", "/coverage"],
+            }),
+        )
         showToastInfo("Ignore paths reset to defaults.")
     }
 

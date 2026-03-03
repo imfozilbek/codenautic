@@ -1,8 +1,8 @@
-import {Outlet} from "@tanstack/react-router"
-import type {ReactElement, ReactNode} from "react"
+import { Outlet } from "@tanstack/react-router"
+import type { ReactElement, ReactNode } from "react"
 
-import {SidebarNav} from "./sidebar-nav"
-import {SettingsNav} from "./settings-nav"
+import { SidebarNav } from "./sidebar-nav"
+import { SettingsNav } from "./settings-nav"
 
 /**
  * Пропсы для layout страницы настроек.

@@ -1,8 +1,8 @@
-import type {ReactElement} from "react"
+import type { ReactElement } from "react"
 
-import {Table, TableBody, TableCell, TableColumn, TableHeader, TableRow} from "@/components/ui"
-import {Link} from "@tanstack/react-router"
-import {ReviewStatusBadge, type TReviewStatus} from "./review-status-badge"
+import { Table, TableBody, TableCell, TableColumn, TableHeader, TableRow } from "@/components/ui"
+import { Link } from "@tanstack/react-router"
+import { ReviewStatusBadge, type TReviewStatus } from "./review-status-badge"
 
 /**
  * Тип строки CCR review.
@@ -47,10 +47,7 @@ export function ReviewsTable(props: IReviewsTableProps): ReactElement {
                 <TableColumn>Updated</TableColumn>
                 <TableColumn>Status</TableColumn>
             </TableHeader>
-            <TableBody
-                emptyContent="No CCRs found for this filter set"
-                items={props.rows}
-            >
+            <TableBody emptyContent="No CCRs found for this filter set" items={props.rows}>
                 {(row): ReactElement => (
                     <TableRow key={row.id}>
                         <TableCell>

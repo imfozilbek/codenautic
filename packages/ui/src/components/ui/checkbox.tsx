@@ -1,1 +1,1 @@
-export {Checkbox} from "@heroui/react"
+export { Checkbox } from "@heroui/react"

@@ -1,8 +1,8 @@
-import type {Meta, StoryObj} from "@storybook/react"
-import {useState} from "react"
+import type { Meta, StoryObj } from "@storybook/react"
+import { useState } from "react"
 
-import {Button} from "@/components/ui"
-import {Modal, ModalBody, ModalContent, ModalFooter, ModalHeader} from "./modal"
+import { Button } from "@/components/ui"
+import { Modal, ModalBody, ModalContent, ModalFooter, ModalHeader } from "./modal"
 
 const meta = {
     title: "Base/Modal",
@@ -34,9 +34,11 @@ export const Default: Story = {
                             <p>Этот модал полезен для подтверждений и детальной информации.</p>
                         </ModalBody>
                         <ModalFooter>
-                            <Button onPress={() => {
-                                setIsOpen(false)
-                            }}>
+                            <Button
+                                onPress={() => {
+                                    setIsOpen(false)
+                                }}
+                            >
                                 Закрыть
                             </Button>
                         </ModalFooter>

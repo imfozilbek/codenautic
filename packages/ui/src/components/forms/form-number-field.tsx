@@ -1,22 +1,31 @@
-import {type ChangeEvent, type ReactElement} from "react"
-import {Controller, type Control, type ControllerProps, type FieldPath, type FieldValues} from "react-hook-form"
-import {Input} from "@/components/ui"
-import {type InputProps} from "@/components/ui/input"
+import { type ChangeEvent, type ReactElement } from "react"
+import {
+    Controller,
+    type Control,
+    type ControllerProps,
+    type FieldPath,
+    type FieldValues,
+} from "react-hook-form"
+import { Input } from "@/components/ui"
+import { type InputProps } from "@/components/ui/input"
 
-import {pickFieldMessage} from "./form-field-utils"
+import { pickFieldMessage } from "./form-field-utils"
 
 /**
  * Правила валидации для числового поля.
  */
-type FormNumberFieldRules<TFormValues extends FieldValues, TName extends FieldPath<TFormValues>> = Omit<
-    ControllerProps<TFormValues, TName>,
-    "render" | "name" | "control"
->["rules"]
+type FormNumberFieldRules<
+    TFormValues extends FieldValues,
+    TName extends FieldPath<TFormValues>,
+> = Omit<ControllerProps<TFormValues, TName>, "render" | "name" | "control">["rules"]
 
 /**
  * Свойства числового поля.
  */
-export interface IFormNumberFieldProps<TFormValues extends FieldValues, TName extends FieldPath<TFormValues>> {
+export interface IFormNumberFieldProps<
+    TFormValues extends FieldValues,
+    TName extends FieldPath<TFormValues>,
+> {
     /** Контроллер формы. */
     readonly control: Control<TFormValues>
     /** Имя поля в форме. */
@@ -53,7 +62,7 @@ export function FormNumberField<
             control={props.control}
             name={props.name}
             rules={props.rules}
-            render={({field, fieldState}): ReactElement => {
+            render={({ field, fieldState }): ReactElement => {
                 const errorMessage = fieldState.error?.message
                 const hasError = errorMessage !== undefined
                 const value = field.value === undefined ? "" : String(field.value)
@@ -67,7 +76,9 @@ export function FormNumberField<
                         )}
                         <Input
                             aria-describedby={
-                                hasError || props.helperText !== undefined ? `${fieldId}-helper` : undefined
+                                hasError || props.helperText !== undefined
+                                    ? `${fieldId}-helper`
+                                    : undefined
                             }
                             aria-invalid={hasError}
                             id={fieldId}
@@ -96,7 +107,9 @@ export function FormNumberField<
                             }}
                             {...props.inputProps}
                         />
-                        <span id={`${fieldId}-helper`}>{pickFieldMessage(errorMessage, props.helperText)}</span>
+                        <span id={`${fieldId}-helper`}>
+                            {pickFieldMessage(errorMessage, props.helperText)}
+                        </span>
                     </div>
                 )
             }}

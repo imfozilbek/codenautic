@@ -1,6 +1,6 @@
-import {type ReactElement} from "react"
+import { type ReactElement } from "react"
 
-import {Card, CardBody, CardHeader, Chip} from "@/components/ui"
+import { Card, CardBody, CardHeader, Chip } from "@/components/ui"
 
 /**
  * Направление динамики метрики.
@@ -42,7 +42,9 @@ export function MetricCard(props: IMetricCardProps): ReactElement {
             </CardHeader>
             <CardBody className="pt-2">
                 <p className="text-2xl font-semibold text-slate-900">{props.value}</p>
-                {props.caption === undefined ? null : <p className="mt-1 text-sm text-slate-600">{props.caption}</p>}
+                {props.caption === undefined ? null : (
+                    <p className="mt-1 text-sm text-slate-600">{props.caption}</p>
+                )}
                 {hasTrend ? (
                     <Chip className={`mt-3 ${trendLabel}`} color="default" size="sm" variant="flat">
                         {props.trendLabel}

@@ -1,4 +1,4 @@
-import {describe, expect, it} from "vitest"
+import { describe, expect, it } from "vitest"
 
 import {
     AUTH_SESSION_STORAGE_KEY,
@@ -8,7 +8,7 @@ import {
     persistAuthSession,
     shouldRefreshAuthSession,
 } from "@/lib/auth/auth-session"
-import type {IAuthSession} from "@/lib/auth/types"
+import type { IAuthSession } from "@/lib/auth/types"
 
 function createSession(expiresAt: string): IAuthSession {
     return {

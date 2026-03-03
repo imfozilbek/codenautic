@@ -1,1 +1,1 @@
-export {Tooltip} from "@heroui/react"
+export { Tooltip } from "@heroui/react"

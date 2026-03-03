@@ -1,7 +1,7 @@
-import type {ReactElement} from "react"
-import {Cell, Pie, PieChart, ResponsiveContainer, Tooltip} from "recharts"
+import type { ReactElement } from "react"
+import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts"
 
-import {Card, CardBody, CardHeader, Chip} from "@/components/ui"
+import { Card, CardBody, CardHeader, Chip } from "@/components/ui"
 
 /**
  * Строка для Recharts.
@@ -50,24 +50,28 @@ export function StatusDistributionChart(props: IStatusDistributionChartProps): R
                                 outerRadius={80}
                                 paddingAngle={2}
                             >
-                                {props.data.map((point): ReactElement => (
-                                    <Cell key={point.status} fill={point.color} />
-                                ))}
+                                {props.data.map(
+                                    (point): ReactElement => (
+                                        <Cell key={point.status} fill={point.color} />
+                                    ),
+                                )}
                             </Pie>
                             <Tooltip />
                         </PieChart>
                     </ResponsiveContainer>
                 </div>
                 <div className="mt-2 flex flex-wrap gap-2" aria-label="Status legend">
-                    {props.data.map((point): ReactElement => (
-                        <Chip
-                            key={point.status}
-                            style={{backgroundColor: `${point.color}20`}}
-                            className="border border-current/20"
-                        >
-                            {point.status}: {point.count}
-                        </Chip>
-                    ))}
+                    {props.data.map(
+                        (point): ReactElement => (
+                            <Chip
+                                key={point.status}
+                                style={{ backgroundColor: `${point.color}20` }}
+                                className="border border-current/20"
+                            >
+                                {point.status}: {point.count}
+                            </Chip>
+                        ),
+                    )}
                 </div>
             </CardBody>
         </Card>

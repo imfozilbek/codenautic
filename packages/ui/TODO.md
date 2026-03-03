@@ -13,20 +13,20 @@
 3. **Нулевой мертвый код** — удаляй неиспользуемое
 4. **JSDoc only** — только `/** */`, без `//`
 5. **A11y Built-in** — ARIA labels, keyboard navigation, focus management в каждом компоненте. WCAG AA. Не отдельная
-задача — встроено в acceptance criteria каждого UI-элемента
+   задача — встроено в acceptance criteria каждого UI-элемента
 6. **Performance Built-in** — корректные размеры изображений (`width/height` + `loading="lazy"` + `decoding="async"`),
-dynamic imports для тяжёлых компонентов, proper cleanup в useEffect. Базовые практики, не отдельная версия
+   dynamic imports для тяжёлых компонентов, proper cleanup в useEffect. Базовые практики, не отдельная версия
 
 ---
 
 ## Дополнительные UI-правила
 
 1. **Brand Guidelines** — при планировании любой задачи читай `.skills/brand-guidelines/SKILL.md` (цвета, типографика,
-spacing, компоненты)
+   spacing, компоненты)
 2. **frontend-design skill** — при создании UI компонентов и страниц используй skill `frontend-design` для генерации
-production-grade интерфейсов
+   production-grade интерфейсов
 3. **Consistency** — все компоненты следуют OKLch color palette, HeroUI v3 паттерну и Tailwind utility
-classes
+   classes
 
 ---
 
@@ -81,14 +81,14 @@ classes
 
 ## Milestones
 
-| Milestone | Файл |
-|---|---|
-| M10 — UI Foundation & Dashboard | [todo/m10-ui-foundation-dashboard.md](todo/m10-ui-foundation-dashboard.md) |
-| M11 — Conversation Chat UI | [todo/m11-conversation-chat-ui.md](todo/m11-conversation-chat-ui.md) |
-| M12 — Repository Onboarding UI | [todo/m12-repository-onboarding-ui.md](todo/m12-repository-onboarding-ui.md) |
-| M13 — CodeCity & Review UI | [todo/m13-codecity-review-ui.md](todo/m13-codecity-review-ui.md) |
-| M14 — All Providers & Pages | [todo/m14-all-providers-pages.md](todo/m14-all-providers-pages.md) |
-| M17 — Full UI + Production | [todo/m17-full-ui-production.md](todo/m17-full-ui-production.md) |
+| Milestone                       | Файл                                                                         |
+| ------------------------------- | ---------------------------------------------------------------------------- |
+| M10 — UI Foundation & Dashboard | [todo/m10-ui-foundation-dashboard.md](todo/m10-ui-foundation-dashboard.md)   |
+| M11 — Conversation Chat UI      | [todo/m11-conversation-chat-ui.md](todo/m11-conversation-chat-ui.md)         |
+| M12 — Repository Onboarding UI  | [todo/m12-repository-onboarding-ui.md](todo/m12-repository-onboarding-ui.md) |
+| M13 — CodeCity & Review UI      | [todo/m13-codecity-review-ui.md](todo/m13-codecity-review-ui.md)             |
+| M14 — All Providers & Pages     | [todo/m14-all-providers-pages.md](todo/m14-all-providers-pages.md)           |
+| M17 — Full UI + Production      | [todo/m17-full-ui-production.md](todo/m17-full-ui-production.md)             |
 
 ## Notes
 

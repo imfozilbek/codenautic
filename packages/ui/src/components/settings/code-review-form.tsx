@@ -1,6 +1,6 @@
-import {type ReactElement} from "react"
-import {zodResolver} from "@hookform/resolvers/zod"
-import {useForm} from "react-hook-form"
+import { type ReactElement } from "react"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { useForm } from "react-hook-form"
 
 import {
     FormNumberField,
@@ -33,10 +33,12 @@ export interface ICodeReviewFormProps {
  * @returns Набор полей для конфигурации ревью.
  */
 export function CodeReviewForm(props: ICodeReviewFormProps): ReactElement {
-    const cadenceOptions: ReadonlyArray<IFormSelectOption> = CODE_REVIEW_CADENCE_OPTIONS.map((item): IFormSelectOption => ({
-        label: item[0].toUpperCase() + item.slice(1),
-        value: item,
-    }))
+    const cadenceOptions: ReadonlyArray<IFormSelectOption> = CODE_REVIEW_CADENCE_OPTIONS.map(
+        (item): IFormSelectOption => ({
+            label: item[0].toUpperCase() + item.slice(1),
+            value: item,
+        }),
+    )
     const severityOptions: ReadonlyArray<IFormSelectOption> = CODE_REVIEW_SEVERITY_OPTIONS.map(
         (item): IFormSelectOption => ({
             label: item[0].toUpperCase() + item.slice(1),
@@ -85,7 +87,9 @@ export function CodeReviewForm(props: ICodeReviewFormProps): ReactElement {
                 label="Enable drift signals"
                 name="enableDriftSignals"
             />
-            <FormSubmitButton isSubmitting={form.formState.isSubmitting}>Save review config</FormSubmitButton>
+            <FormSubmitButton isSubmitting={form.formState.isSubmitting}>
+                Save review config
+            </FormSubmitButton>
         </form>
     )
 }

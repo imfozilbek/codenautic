@@ -1,1 +1,1 @@
-export {Textarea} from "@heroui/react"
+export { Textarea } from "@heroui/react"

@@ -1,9 +1,9 @@
-import type {Meta, StoryObj} from "@storybook/react"
-import type {ReactElement} from "react"
-import {SelectItem} from "@heroui/react"
-import {useState} from "react"
+import type { Meta, StoryObj } from "@storybook/react"
+import type { ReactElement } from "react"
+import { SelectItem } from "@heroui/react"
+import { useState } from "react"
 
-import {Select} from "./select"
+import { Select } from "./select"
 
 const meta = {
     title: "Base/Select",
@@ -51,9 +51,11 @@ function DefaultSelectStory(): ReactElement {
                 }
             }}
         >
-            {providers.map((provider): ReactElement => (
-                <SelectItem key={provider.value}>{provider.label}</SelectItem>
-            ))}
+            {providers.map(
+                (provider): ReactElement => (
+                    <SelectItem key={provider.value}>{provider.label}</SelectItem>
+                ),
+            )}
         </Select>
     )
 }

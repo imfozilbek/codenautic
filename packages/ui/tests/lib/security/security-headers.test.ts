@@ -1,9 +1,6 @@
-import {describe, expect, it} from "vitest"
+import { describe, expect, it } from "vitest"
 
-import {
-    buildContentSecurityPolicy,
-    createSecurityHeaders,
-} from "@/lib/security/security-headers"
+import { buildContentSecurityPolicy, createSecurityHeaders } from "@/lib/security/security-headers"
 
 describe("security headers", (): void => {
     it("формирует CSP с обязательными директивами", (): void => {

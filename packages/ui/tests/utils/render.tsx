@@ -1,9 +1,9 @@
-import type {ReactElement} from "react"
-import {render, type RenderResult} from "@testing-library/react"
-import {QueryClientProvider, type QueryClient} from "@tanstack/react-query"
+import type { ReactElement } from "react"
+import { render, type RenderResult } from "@testing-library/react"
+import { QueryClientProvider, type QueryClient } from "@tanstack/react-query"
 
-import {createQueryClient} from "@/lib/query/query-client"
-import {ThemeProvider, type ThemeMode} from "@/lib/theme/theme-provider"
+import { createQueryClient } from "@/lib/query/query-client"
+import { ThemeProvider, type ThemeMode } from "@/lib/theme/theme-provider"
 
 /**
  * Расширенный результат рендера с доступом к QueryClient.

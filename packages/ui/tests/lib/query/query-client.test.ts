@@ -1,6 +1,6 @@
-import {describe, expect, it} from "vitest"
+import { describe, expect, it } from "vitest"
 
-import {UI_QUERY_DEFAULTS, createQueryClient} from "@/lib/query/query-client"
+import { UI_QUERY_DEFAULTS, createQueryClient } from "@/lib/query/query-client"
 
 describe("query-client", (): void => {
     it("создаёт QueryClient с ожидаемыми default options", (): void => {
@@ -13,7 +13,9 @@ describe("query-client", (): void => {
 
         expect(queryDefaults.staleTime).toBe(UI_QUERY_DEFAULTS.queries?.staleTime)
         expect(queryDefaults.gcTime).toBe(UI_QUERY_DEFAULTS.queries?.gcTime)
-        expect(queryDefaults.refetchOnWindowFocus).toBe(UI_QUERY_DEFAULTS.queries?.refetchOnWindowFocus)
+        expect(queryDefaults.refetchOnWindowFocus).toBe(
+            UI_QUERY_DEFAULTS.queries?.refetchOnWindowFocus,
+        )
         expect(queryDefaults.retry).toBe(UI_QUERY_DEFAULTS.queries?.retry)
         expect(defaults.mutations?.retry).toBe(UI_QUERY_DEFAULTS.mutations?.retry)
     })

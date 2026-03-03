@@ -1,13 +1,13 @@
-import type {ReactElement} from "react"
-import {Suspense, lazy} from "react"
-import {createFileRoute} from "@tanstack/react-router"
+import type { ReactElement } from "react"
+import { Suspense, lazy } from "react"
+import { createFileRoute } from "@tanstack/react-router"
 
-import {RouteErrorFallback} from "@/app/error-fallback"
-import {RouteSuspenseFallback} from "@/app/route-suspense-fallback"
-import {DashboardLayout} from "@/components/layout"
-import {AuthBoundary} from "@/lib/auth/auth-boundary"
+import { RouteErrorFallback } from "@/app/error-fallback"
+import { RouteSuspenseFallback } from "@/app/route-suspense-fallback"
+import { DashboardLayout } from "@/components/layout"
+import { AuthBoundary } from "@/lib/auth/auth-boundary"
 
-const LazySystemHealthPage = lazy(async (): Promise<{default: () => ReactElement}> => {
+const LazySystemHealthPage = lazy(async (): Promise<{ default: () => ReactElement }> => {
     const pageModule = await import("@/pages/dashboard-mission-control.page")
     return {
         default: pageModule.DashboardMissionControlPage,

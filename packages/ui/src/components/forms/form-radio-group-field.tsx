@@ -1,8 +1,14 @@
-import {type ReactElement} from "react"
-import {Controller, type Control, type ControllerProps, type FieldPath, type FieldValues} from "react-hook-form"
-import {Radio, RadioGroup} from "@heroui/react"
+import { type ReactElement } from "react"
+import {
+    Controller,
+    type Control,
+    type ControllerProps,
+    type FieldPath,
+    type FieldValues,
+} from "react-hook-form"
+import { Radio, RadioGroup } from "@heroui/react"
 
-import {pickFieldMessage} from "./form-field-utils"
+import { pickFieldMessage } from "./form-field-utils"
 
 /**
  * Опция для radio-group.
@@ -19,15 +25,18 @@ export interface IFormRadioOption {
 /**
  * Правила валидации для radio group.
  */
-type FormRadioGroupFieldRules<TFormValues extends FieldValues, TName extends FieldPath<TFormValues>> = Omit<
-    ControllerProps<TFormValues, TName>,
-    "render" | "name" | "control"
->["rules"]
+type FormRadioGroupFieldRules<
+    TFormValues extends FieldValues,
+    TName extends FieldPath<TFormValues>,
+> = Omit<ControllerProps<TFormValues, TName>, "render" | "name" | "control">["rules"]
 
 /**
  * Свойства radio-group поля.
  */
-export interface IFormRadioGroupFieldProps<TFormValues extends FieldValues, TName extends FieldPath<TFormValues>> {
+export interface IFormRadioGroupFieldProps<
+    TFormValues extends FieldValues,
+    TName extends FieldPath<TFormValues>,
+> {
     /** Контроллер формы. */
     readonly control: Control<TFormValues>
     /** Имя поля в форме. */
@@ -57,7 +66,7 @@ export function FormRadioGroupField<
             control={props.control}
             name={props.name}
             rules={props.rules}
-            render={({field, fieldState}): ReactElement => {
+            render={({ field, fieldState }): ReactElement => {
                 const errorMessage = fieldState.error?.message
                 const hasError = errorMessage !== undefined
                 const helperId = `${String(props.name)}-helper`
@@ -72,7 +81,9 @@ export function FormRadioGroupField<
                             </span>
                         )}
                         <RadioGroup
-                            aria-describedby={hasError || props.helperText !== undefined ? helperId : undefined}
+                            aria-describedby={
+                                hasError || props.helperText !== undefined ? helperId : undefined
+                            }
                             aria-invalid={hasError}
                             isInvalid={hasError}
                             name={field.name}
@@ -83,13 +94,19 @@ export function FormRadioGroupField<
                         >
                             {props.options.map((option): ReactElement => {
                                 return (
-                                    <Radio key={option.value} isDisabled={option.isDisabled} value={option.value}>
+                                    <Radio
+                                        key={option.value}
+                                        isDisabled={option.isDisabled}
+                                        value={option.value}
+                                    >
                                         {option.label}
                                     </Radio>
                                 )
                             })}
                         </RadioGroup>
-                        <span id={helperId}>{pickFieldMessage(errorMessage, props.helperText)}</span>
+                        <span id={helperId}>
+                            {pickFieldMessage(errorMessage, props.helperText)}
+                        </span>
                     </div>
                 )
             }}

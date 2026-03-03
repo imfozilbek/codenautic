@@ -1,6 +1,6 @@
-import type {ReactElement} from "react"
+import type { ReactElement } from "react"
 
-import {Chip} from "@/components/ui"
+import { Chip } from "@/components/ui"
 
 /**
  * Статусы CCR для бейджа.

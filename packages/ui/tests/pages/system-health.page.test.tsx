@@ -1,12 +1,12 @@
-import {screen} from "@testing-library/react"
+import { screen } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
-import {QueryClient} from "@tanstack/react-query"
-import {delay, http, HttpResponse} from "msw"
-import {describe, expect, it} from "vitest"
+import { QueryClient } from "@tanstack/react-query"
+import { delay, http, HttpResponse } from "msw"
+import { describe, expect, it } from "vitest"
 
-import {SystemHealthPage} from "@/pages/system-health.page"
-import {server} from "../mocks/server"
-import {renderWithProviders} from "../utils/render"
+import { SystemHealthPage } from "@/pages/system-health.page"
+import { server } from "../mocks/server"
+import { renderWithProviders } from "../utils/render"
 
 describe("SystemHealthPage", (): void => {
     it("показывает загрузку и затем отрисовывает состояние API", async (): Promise<void> => {
@@ -67,12 +67,12 @@ describe("SystemHealthPage", (): void => {
                 },
             },
         })
-        renderWithProviders(<SystemHealthPage />, {queryClient})
+        renderWithProviders(<SystemHealthPage />, { queryClient })
 
         const alert = await screen.findByRole("alert")
         expect(alert.textContent).toBe("Не удалось получить статус API")
 
-        const retryButton = screen.getByRole("button", {name: "Повторить проверку"})
+        const retryButton = screen.getByRole("button", { name: "Повторить проверку" })
         await user.click(retryButton)
 
         const statusMessage = await screen.findByText("ok")

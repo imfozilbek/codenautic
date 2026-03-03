@@ -1,6 +1,6 @@
-import {type ReactElement} from "react"
-import {zodResolver} from "@hookform/resolvers/zod"
-import {useForm} from "react-hook-form"
+import { type ReactElement } from "react"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { useForm } from "react-hook-form"
 
 import {
     FormSelectField,
@@ -37,16 +37,20 @@ export interface ILlmProviderFormProps {
  * @returns Форма с выбором provider, моделью и ключом.
  */
 export function LlmProviderForm(props: ILlmProviderFormProps): ReactElement {
-    const providers = props.providers.length > 0 ? props.providers : [LLM_PROVIDER_OPTIONS[0]!]
-    const modelOptions = props.modelOptions.length > 0 ? props.modelOptions : [LLM_MODEL_OPTIONS[0]!]
-    const providerOptions: ReadonlyArray<IFormSelectOption> = providers.map((item): IFormSelectOption => ({
-        label: item,
-        value: item,
-    }))
-    const llmModelOptions: ReadonlyArray<IFormSelectOption> = modelOptions.map((item): IFormSelectOption => ({
-        label: item,
-        value: item,
-    }))
+    const providers = props.providers.length > 0 ? props.providers : [LLM_PROVIDER_OPTIONS[0]]
+    const modelOptions = props.modelOptions.length > 0 ? props.modelOptions : [LLM_MODEL_OPTIONS[0]]
+    const providerOptions: ReadonlyArray<IFormSelectOption> = providers.map(
+        (item): IFormSelectOption => ({
+            label: item,
+            value: item,
+        }),
+    )
+    const llmModelOptions: ReadonlyArray<IFormSelectOption> = modelOptions.map(
+        (item): IFormSelectOption => ({
+            label: item,
+            value: item,
+        }),
+    )
     const form = useForm<ILlmProviderFormValues>({
         defaultValues: {
             apiKey: props.initialValues?.apiKey ?? "",
@@ -98,12 +102,10 @@ export function LlmProviderForm(props: ILlmProviderFormProps): ReactElement {
                 label="Custom endpoint"
                 name="endpoint"
             />
-            <FormSwitchField
-                control={form.control}
-                label="Test after save"
-                name="testAfterSave"
-            />
-            <FormSubmitButton isSubmitting={form.formState.isSubmitting}>Save LLM configuration</FormSubmitButton>
+            <FormSwitchField control={form.control} label="Test after save" name="testAfterSave" />
+            <FormSubmitButton isSubmitting={form.formState.isSubmitting}>
+                Save LLM configuration
+            </FormSubmitButton>
         </form>
     )
 }

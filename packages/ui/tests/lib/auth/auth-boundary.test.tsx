@@ -1,11 +1,11 @@
-import {screen, waitFor} from "@testing-library/react"
+import { screen, waitFor } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
-import {afterEach, describe, expect, it, vi} from "vitest"
+import { afterEach, describe, expect, it, vi } from "vitest"
 
-import {ApiHttpError, type IAuthApi} from "@/lib/api"
-import {AuthBoundary} from "@/lib/auth/auth-boundary"
-import type {IAuthSession, IAuthSessionEnvelope} from "@/lib/auth/types"
-import {renderWithProviders} from "../../utils/render"
+import { ApiHttpError, type IAuthApi } from "@/lib/api"
+import { AuthBoundary } from "@/lib/auth/auth-boundary"
+import type { IAuthSession, IAuthSessionEnvelope } from "@/lib/auth/types"
+import { renderWithProviders } from "../../utils/render"
 
 /**
  * Создаёт test auth session.
@@ -82,7 +82,7 @@ describe("AuthBoundary", (): void => {
         )
 
         const dashboardLabel = await screen.findByText("Private dashboard")
-        const logoutButton = screen.getByRole("button", {name: "Выйти"})
+        const logoutButton = screen.getByRole("button", { name: "Выйти" })
         const userName = screen.getByText("Dev User")
 
         expect(dashboardLabel.textContent).toBe("Private dashboard")
@@ -114,7 +114,7 @@ describe("AuthBoundary", (): void => {
         const loginTitle = await screen.findByText("Войдите, чтобы открыть dashboard")
         expect(loginTitle.textContent).toBe("Войдите, чтобы открыть dashboard")
 
-        const githubButton = screen.getByRole("button", {name: "GitHub"})
+        const githubButton = screen.getByRole("button", { name: "GitHub" })
         await user.click(githubButton)
 
         expect(startOAuth).toHaveBeenCalledTimes(1)
@@ -149,7 +149,7 @@ describe("AuthBoundary", (): void => {
             </AuthBoundary>,
         )
 
-        const githubButton = await screen.findByRole("button", {name: "GitHub"})
+        const githubButton = await screen.findByRole("button", { name: "GitHub" })
         await user.click(githubButton)
 
         expect(startOAuth).toHaveBeenCalledWith({
@@ -177,7 +177,7 @@ describe("AuthBoundary", (): void => {
             </AuthBoundary>,
         )
 
-        const githubButton = await screen.findByRole("button", {name: "GitHub"})
+        const githubButton = await screen.findByRole("button", { name: "GitHub" })
         await user.click(githubButton)
 
         expect(startOAuth).toHaveBeenCalledWith({
@@ -200,12 +200,16 @@ describe("AuthBoundary", (): void => {
         const user = userEvent.setup()
 
         renderWithProviders(
-            <AuthBoundary authApi={api} intendedDestination="https://evil.example/phishing" onRedirect={vi.fn()}>
+            <AuthBoundary
+                authApi={api}
+                intendedDestination="https://evil.example/phishing"
+                onRedirect={vi.fn()}
+            >
                 <div>Private dashboard</div>
             </AuthBoundary>,
         )
 
-        const githubButton = await screen.findByRole("button", {name: "GitHub"})
+        const githubButton = await screen.findByRole("button", { name: "GitHub" })
         await user.click(githubButton)
 
         expect(startOAuth).toHaveBeenCalledWith({
@@ -233,7 +237,7 @@ describe("AuthBoundary", (): void => {
             </AuthBoundary>,
         )
 
-        const githubButton = await screen.findByRole("button", {name: "GitHub"})
+        const githubButton = await screen.findByRole("button", { name: "GitHub" })
         await user.click(githubButton)
 
         expect(startOAuth).toHaveBeenCalledWith({
@@ -265,7 +269,7 @@ describe("AuthBoundary", (): void => {
             </AuthBoundary>,
         )
 
-        const githubButton = await screen.findByRole("button", {name: "GitHub"})
+        const githubButton = await screen.findByRole("button", { name: "GitHub" })
         await user.click(githubButton)
 
         expect(startOAuth).toHaveBeenCalledWith({
@@ -347,7 +351,11 @@ describe("AuthBoundary", (): void => {
         const api = createAuthApiMock({
             getSession: (): Promise<IAuthSessionEnvelope> => {
                 return Promise.reject(
-                    new ApiHttpError(500, "/api/v1/auth/session", "HTTP 500 for /api/v1/auth/session"),
+                    new ApiHttpError(
+                        500,
+                        "/api/v1/auth/session",
+                        "HTTP 500 for /api/v1/auth/session",
+                    ),
                 )
             },
         })
@@ -409,7 +417,7 @@ describe("AuthBoundary", (): void => {
                 </AuthBoundary>,
             )
 
-            const githubButton = await screen.findByRole("button", {name: "GitHub"})
+            const githubButton = await screen.findByRole("button", { name: "GitHub" })
             await user.click(githubButton)
 
             expect(assignSpy).toHaveBeenCalledWith("https://auth.example/default-redirect")
@@ -568,7 +576,7 @@ describe("AuthBoundary", (): void => {
             </AuthBoundary>,
         )
 
-        const logoutButton = await screen.findByRole("button", {name: "Выйти"})
+        const logoutButton = await screen.findByRole("button", { name: "Выйти" })
         await user.click(logoutButton)
 
         expect(logout).toHaveBeenCalledTimes(1)
@@ -598,7 +606,7 @@ describe("AuthBoundary", (): void => {
             </AuthBoundary>,
         )
 
-        const logoutButton = await screen.findByRole("button", {name: "Выйти"})
+        const logoutButton = await screen.findByRole("button", { name: "Выйти" })
         await user.click(logoutButton)
 
         const errorAlert = await screen.findByRole("alert")
@@ -621,18 +629,24 @@ describe("AuthBoundary", (): void => {
             </AuthBoundary>,
         )
 
-        const gitlabButton = await screen.findByRole("button", {name: "GitLab"})
+        const gitlabButton = await screen.findByRole("button", { name: "GitLab" })
         await user.click(gitlabButton)
 
         const errorAlert = await screen.findByRole("alert")
-        expect(errorAlert.textContent).toBe("Не удалось начать OAuth авторизацию. Повторите попытку.")
+        expect(errorAlert.textContent).toBe(
+            "Не удалось начать OAuth авторизацию. Повторите попытку.",
+        )
     })
 
     it("явно отображает состояние 403 при отсутствии доступа", async (): Promise<void> => {
         const api = createAuthApiMock({
             getSession: (): Promise<IAuthSessionEnvelope> => {
                 return Promise.reject(
-                    new ApiHttpError(403, "/api/v1/auth/session", "HTTP 403 for /api/v1/auth/session"),
+                    new ApiHttpError(
+                        403,
+                        "/api/v1/auth/session",
+                        "HTTP 403 for /api/v1/auth/session",
+                    ),
                 )
             },
         })

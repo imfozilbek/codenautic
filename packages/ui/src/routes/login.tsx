@@ -1,9 +1,9 @@
-import type {ReactElement} from "react"
-import {useEffect} from "react"
-import {createFileRoute} from "@tanstack/react-router"
-import {useTranslation} from "react-i18next"
+import type { ReactElement } from "react"
+import { useEffect } from "react"
+import { createFileRoute } from "@tanstack/react-router"
+import { useTranslation } from "react-i18next"
 
-import {AuthBoundary, type TAuthGuardStatusCode} from "@/lib/auth/auth-boundary"
+import { AuthBoundary, type TAuthGuardStatusCode } from "@/lib/auth/auth-boundary"
 
 interface ILoginRouteSearch {
     readonly next?: string
@@ -27,7 +27,7 @@ function LoginRouteComponent(): ReactElement {
 }
 
 function LoginRedirectContent(props: ILoginRedirectContentProps): ReactElement {
-    const {t} = useTranslation(["auth"])
+    const { t } = useTranslation(["auth"])
 
     useEffect((): void => {
         window.location.assign(props.intendedDestination)
@@ -78,7 +78,9 @@ export function resolveLoginDestination(next: string | undefined): string {
     return "/"
 }
 
-export function resolveAuthStatusHint(reason: string | undefined): TAuthGuardStatusCode | undefined {
+export function resolveAuthStatusHint(
+    reason: string | undefined,
+): TAuthGuardStatusCode | undefined {
     if (reason === "401") {
         return 401
     }

@@ -1,8 +1,8 @@
 import console from "node:console"
-import {readFile} from "node:fs/promises"
+import { readFile } from "node:fs/promises"
 import path from "node:path"
-import {fileURLToPath} from "node:url"
-import {gzipSync} from "node:zlib"
+import { fileURLToPath } from "node:url"
+import { gzipSync } from "node:zlib"
 
 const SCRIPT_FILE_PATH = fileURLToPath(import.meta.url)
 const SCRIPT_DIRECTORY = path.dirname(SCRIPT_FILE_PATH)
@@ -26,7 +26,10 @@ async function main() {
 
     const manifest = validateManifest(await readJsonFile(VITE_MANIFEST_PATH))
     const routeBundles = await collectRouteBundles(manifest)
-    const routeViolations = collectRouteViolations(routeBundles, budgetConfig.thresholds.jsPerRouteKb)
+    const routeViolations = collectRouteViolations(
+        routeBundles,
+        budgetConfig.thresholds.jsPerRouteKb,
+    )
 
     const webVitalsPath = resolveBudgetRelativePath(budgetConfig.webVitalsSnapshotPath)
     const webVitalsSnapshot = validateWebVitalsSnapshot(await readJsonFile(webVitalsPath))
@@ -324,7 +327,9 @@ function printReport(routeBundles, metrics, thresholds) {
  * @returns {string} Formatted failure message.
  */
 function formatViolations(violations) {
-    return ["Performance budget check failed:", ...violations.map((item) => ` - ${item}`)].join("\n")
+    return ["Performance budget check failed:", ...violations.map((item) => ` - ${item}`)].join(
+        "\n",
+    )
 }
 
 /**

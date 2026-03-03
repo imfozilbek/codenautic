@@ -1,15 +1,15 @@
 import path from "path"
-import {sentryVitePlugin} from "@sentry/vite-plugin"
-import {TanStackRouterVite} from "@tanstack/router-plugin/vite"
+import { sentryVitePlugin } from "@sentry/vite-plugin"
+import { TanStackRouterVite } from "@tanstack/router-plugin/vite"
 import react from "@vitejs/plugin-react"
-import {visualizer} from "rollup-plugin-visualizer"
-import {defineConfig} from "vite"
+import { visualizer } from "rollup-plugin-visualizer"
+import { defineConfig } from "vite"
 
-import {createSecurityHeaders} from "./src/lib/security/security-headers"
+import { createSecurityHeaders } from "./src/lib/security/security-headers"
 
 const securityHeaders = createSecurityHeaders()
 
-export default defineConfig(({mode}) => {
+export default defineConfig(({ mode }) => {
     const analyzeBundle = mode === "analyze"
     const plugins = [
         TanStackRouterVite({

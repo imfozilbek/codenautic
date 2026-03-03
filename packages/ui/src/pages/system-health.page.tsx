@@ -1,10 +1,10 @@
-import type {ReactElement} from "react"
-import {useTranslation} from "react-i18next"
+import type { ReactElement } from "react"
+import { useTranslation } from "react-i18next"
 
-import {FEATURE_FLAG_KEYS} from "@/lib/feature-flags/feature-flags"
-import {isFeatureFlagEnabled, useFeatureFlagsQuery, useHealthQuery} from "@/lib/hooks/queries"
-import {formatLocalizedDateTime, getCurrentLocale} from "@/lib/i18n/i18n"
-import {Button} from "@/components/ui"
+import { FEATURE_FLAG_KEYS } from "@/lib/feature-flags/feature-flags"
+import { isFeatureFlagEnabled, useFeatureFlagsQuery, useHealthQuery } from "@/lib/hooks/queries"
+import { formatLocalizedDateTime, getCurrentLocale } from "@/lib/i18n/i18n"
+import { Button } from "@/components/ui"
 
 /**
  * Первый системный экран foundation-этапа: статус runtime/api.
@@ -12,7 +12,7 @@ import {Button} from "@/components/ui"
  * @returns Визуальное состояние health-check запроса.
  */
 export function SystemHealthPage(): ReactElement {
-    const {t, i18n} = useTranslation(["common", "system"])
+    const { t, i18n } = useTranslation(["common", "system"])
     const locale = getCurrentLocale(i18n)
     const healthQuery = useHealthQuery()
     const featureFlagsQuery = useFeatureFlagsQuery()
@@ -65,7 +65,8 @@ export function SystemHealthPage(): ReactElement {
             </p>
             <p className="mt-2 text-4xl font-bold text-emerald-700">{healthData.status}</p>
             <p className="mt-4 text-sm text-slate-600">
-                {t("system:service")}: <span className="font-medium text-slate-900">{healthData.service}</span>
+                {t("system:service")}:{" "}
+                <span className="font-medium text-slate-900">{healthData.service}</span>
             </p>
             <p className="mt-1 text-sm text-slate-600">
                 {t("system:timestamp")}:{" "}
@@ -88,9 +89,13 @@ export function SystemHealthPage(): ReactElement {
                         : t("system:premiumDisabled")}
                 </p>
                 {isPremiumDashboardEnabled === true ? (
-                    <p className="mt-1 text-sm text-slate-600">{t("system:premiumEnabledDescription")}</p>
+                    <p className="mt-1 text-sm text-slate-600">
+                        {t("system:premiumEnabledDescription")}
+                    </p>
                 ) : (
-                    <p className="mt-1 text-sm text-slate-600">{t("system:premiumDisabledDescription")}</p>
+                    <p className="mt-1 text-sm text-slate-600">
+                        {t("system:premiumDisabledDescription")}
+                    </p>
                 )}
             </section>
         </section>

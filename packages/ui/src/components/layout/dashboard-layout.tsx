@@ -1,8 +1,8 @@
-import {type ReactElement, type ReactNode, useState} from "react"
+import { type ReactElement, type ReactNode, useState } from "react"
 
-import {Header} from "./header"
-import {Sidebar} from "./sidebar"
-import {MobileSidebar} from "./mobile-sidebar"
+import { Header } from "./header"
+import { Sidebar } from "./sidebar"
+import { MobileSidebar } from "./mobile-sidebar"
 
 /**
  * Свойства layout-контейнера для страниц dashboard.

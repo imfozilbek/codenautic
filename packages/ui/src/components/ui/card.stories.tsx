@@ -1,6 +1,6 @@
-import type {Meta, StoryObj} from "@storybook/react"
+import type { Meta, StoryObj } from "@storybook/react"
 
-import {Card, CardBody, CardFooter, CardHeader} from "./card"
+import { Card, CardBody, CardFooter, CardHeader } from "./card"
 
 const meta = {
     title: "Base/Card",
@@ -19,7 +19,9 @@ export const Default: Story = {
                 <p className="text-sm font-semibold">CodeNautic</p>
             </CardHeader>
             <CardBody>
-                <p className="text-sm text-slate-600">Инструментальные карточки для мониторинга пайплайна ревью.</p>
+                <p className="text-sm text-slate-600">
+                    Инструментальные карточки для мониторинга пайплайна ревью.
+                </p>
             </CardBody>
             <CardFooter>
                 <p className="text-xs text-slate-500">Updated 2 min ago</p>

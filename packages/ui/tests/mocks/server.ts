@@ -55,8 +55,8 @@ function createInMemoryStorage(): Storage {
 
 ensureBrowserStorageAvailability()
 
-const {http, HttpResponse} = await import("msw")
-const {setupServer} = await import("msw/node")
+const { http, HttpResponse } = await import("msw")
+const { setupServer } = await import("msw/node")
 
 /**
  * Дефолтный мок health endpoint для UI-интеграционных тестов.
@@ -93,7 +93,7 @@ export const server = setupServer(
             loggedOut: true,
         })
     }),
-    http.post("http://localhost:3000/api/v1/auth/oauth/start", async ({request}) => {
+    http.post("http://localhost:3000/api/v1/auth/oauth/start", async ({ request }) => {
         const payload = (await request.json()) as {
             readonly provider?: string
         }

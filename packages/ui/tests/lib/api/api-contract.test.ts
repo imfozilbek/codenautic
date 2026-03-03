@@ -1,7 +1,7 @@
-import {afterEach, describe, expect, it, vi} from "vitest"
+import { afterEach, describe, expect, it, vi } from "vitest"
 
-import {createApiConfig} from "@/lib/api/config"
-import {SystemApi} from "@/lib/api/endpoints/system.endpoint"
+import { createApiConfig } from "@/lib/api/config"
+import { SystemApi } from "@/lib/api/endpoints/system.endpoint"
 import {
     ApiHttpError,
     ApiNetworkError,
@@ -21,7 +21,7 @@ describe("UI API contract", (): void => {
     })
 
     it("использует дефолтный API URL в dev режиме", (): void => {
-        const config = createApiConfig({MODE: "development"})
+        const config = createApiConfig({ MODE: "development" })
 
         expect(config.baseUrl).toBe("http://localhost:3000")
         expect(config.defaultHeaders["Content-Type"]).toBe("application/json")
@@ -47,42 +47,42 @@ describe("UI API contract", (): void => {
 
     it("бросает ошибку при пустом VITE_API_URL", (): void => {
         expect((): void => {
-            createApiConfig({VITE_API_URL: "   "})
+            createApiConfig({ VITE_API_URL: "   " })
         }).toThrowError("VITE_API_URL не должен быть пустым")
     })
 
     it("бросает ошибку при отсутствии VITE_API_URL в production", (): void => {
         expect((): void => {
-            createApiConfig({MODE: "production"})
+            createApiConfig({ MODE: "production" })
         }).toThrowError("VITE_API_URL обязателен в production режиме")
     })
 
     it("бросает ошибку при PROD=true и отсутствии VITE_API_URL", (): void => {
         expect((): void => {
-            createApiConfig({MODE: "development", PROD: true})
+            createApiConfig({ MODE: "development", PROD: true })
         }).toThrowError("VITE_API_URL обязателен в production режиме")
     })
 
     it("бросает ошибку при невалидном абсолютном URL", (): void => {
         expect((): void => {
-            createApiConfig({VITE_API_URL: "localhost:3000"})
+            createApiConfig({ VITE_API_URL: "localhost:3000" })
         }).toThrowError("VITE_API_URL должен использовать http или https")
     })
 
     it("бросает ошибку при синтаксически невалидном URL", (): void => {
         expect((): void => {
-            createApiConfig({VITE_API_URL: "http://[::1"})
+            createApiConfig({ VITE_API_URL: "http://[::1" })
         }).toThrowError("VITE_API_URL должен быть абсолютным URL")
     })
 
     it("нормализует VITE_API_URL без завершающего слеша", (): void => {
-        const config = createApiConfig({VITE_API_URL: "http://localhost:3000/"})
+        const config = createApiConfig({ VITE_API_URL: "http://localhost:3000/" })
 
         expect(config.baseUrl).toBe("http://localhost:3000")
     })
 
     it("сохраняет VITE_API_URL без завершающего слеша без изменений", (): void => {
-        const config = createApiConfig({VITE_API_URL: "http://localhost:3001"})
+        const config = createApiConfig({ VITE_API_URL: "http://localhost:3001" })
 
         expect(config.baseUrl).toBe("http://localhost:3001")
     })
@@ -112,7 +112,7 @@ describe("UI API contract", (): void => {
             )
         }) as unknown as typeof fetch
 
-        const httpClient = new FetchHttpClient(createApiConfig({MODE: "development"}))
+        const httpClient = new FetchHttpClient(createApiConfig({ MODE: "development" }))
         const api = new SystemApi(httpClient)
 
         const response = await api.getHealth()
@@ -124,11 +124,7 @@ describe("UI API contract", (): void => {
         globalThis.fetch = vi.fn(
             (_input: RequestInfo | URL, init?: RequestInit): Promise<Response> => {
                 const headers = init?.headers
-                if (
-                    headers === undefined ||
-                    headers instanceof Headers ||
-                    Array.isArray(headers)
-                ) {
+                if (headers === undefined || headers instanceof Headers || Array.isArray(headers)) {
                     throw new Error("Headers должны быть plain object")
                 }
 
@@ -137,7 +133,7 @@ describe("UI API contract", (): void => {
                 expect(headers["Content-Type"]).toBe("application/json")
 
                 return Promise.resolve(
-                    new Response(JSON.stringify({status: "ok"}), {
+                    new Response(JSON.stringify({ status: "ok" }), {
                         status: 200,
                     }),
                 )
@@ -166,25 +162,25 @@ describe("UI API contract", (): void => {
 
             if (callIndex === 1) {
                 return Promise.resolve(
-                    new Response(JSON.stringify({message: "unavailable"}), {
+                    new Response(JSON.stringify({ message: "unavailable" }), {
                         status: 503,
                     }),
                 )
             }
 
             return Promise.resolve(
-                new Response(JSON.stringify({status: "ok"}), {
+                new Response(JSON.stringify({ status: "ok" }), {
                     status: 200,
                 }),
             )
         }) as unknown as typeof fetch
 
         const delay = vi.fn(async (): Promise<void> => Promise.resolve())
-        const httpClient = new FetchHttpClient(createApiConfig({MODE: "development"}), {
+        const httpClient = new FetchHttpClient(createApiConfig({ MODE: "development" }), {
             delay,
         })
 
-        const response = await httpClient.request<{status: string}>({
+        const response = await httpClient.request<{ status: string }>({
             method: "GET",
             path: "/api/v1/health",
         })
@@ -205,18 +201,18 @@ describe("UI API contract", (): void => {
             }
 
             return Promise.resolve(
-                new Response(JSON.stringify({status: "ok"}), {
+                new Response(JSON.stringify({ status: "ok" }), {
                     status: 200,
                 }),
             )
         }) as unknown as typeof fetch
 
         const delay = vi.fn(async (): Promise<void> => Promise.resolve())
-        const httpClient = new FetchHttpClient(createApiConfig({MODE: "development"}), {
+        const httpClient = new FetchHttpClient(createApiConfig({ MODE: "development" }), {
             delay,
         })
 
-        const response = await httpClient.request<{status: string}>({
+        const response = await httpClient.request<{ status: string }>({
             method: "GET",
             path: "/api/v1/health",
         })
@@ -234,7 +230,7 @@ describe("UI API contract", (): void => {
 
             if (callIndex === 1) {
                 return Promise.resolve(
-                    new Response(JSON.stringify({message: "too many requests"}), {
+                    new Response(JSON.stringify({ message: "too many requests" }), {
                         status: 429,
                         headers: {
                             "Retry-After": "1",
@@ -244,18 +240,18 @@ describe("UI API contract", (): void => {
             }
 
             return Promise.resolve(
-                new Response(JSON.stringify({status: "ok"}), {
+                new Response(JSON.stringify({ status: "ok" }), {
                     status: 200,
                 }),
             )
         }) as unknown as typeof fetch
 
         const delay = vi.fn(async (): Promise<void> => Promise.resolve())
-        const httpClient = new FetchHttpClient(createApiConfig({MODE: "development"}), {
+        const httpClient = new FetchHttpClient(createApiConfig({ MODE: "development" }), {
             delay,
         })
 
-        const response = await httpClient.request<{status: string}>({
+        const response = await httpClient.request<{ status: string }>({
             method: "GET",
             path: "/api/v1/health",
         })
@@ -270,7 +266,7 @@ describe("UI API contract", (): void => {
         const retryDate = new Date(Date.now() + 2_000).toUTCString()
         globalThis.fetch = vi.fn((): Promise<Response> => {
             return Promise.resolve(
-                new Response(JSON.stringify({message: "too many requests"}), {
+                new Response(JSON.stringify({ message: "too many requests" }), {
                     status: 429,
                     headers: {
                         "Retry-After": retryDate,
@@ -279,7 +275,7 @@ describe("UI API contract", (): void => {
             )
         }) as unknown as typeof fetch
 
-        const httpClient = new FetchHttpClient(createApiConfig({MODE: "development"}), {
+        const httpClient = new FetchHttpClient(createApiConfig({ MODE: "development" }), {
             retryPolicy: {
                 maxAttempts: 1,
             },
@@ -302,7 +298,7 @@ describe("UI API contract", (): void => {
     it("игнорирует невалидный Retry-After заголовок", async (): Promise<void> => {
         globalThis.fetch = vi.fn((): Promise<Response> => {
             return Promise.resolve(
-                new Response(JSON.stringify({message: "too many requests"}), {
+                new Response(JSON.stringify({ message: "too many requests" }), {
                     status: 429,
                     headers: {
                         "Retry-After": "not-a-date",
@@ -311,7 +307,7 @@ describe("UI API contract", (): void => {
             )
         }) as unknown as typeof fetch
 
-        const httpClient = new FetchHttpClient(createApiConfig({MODE: "development"}), {
+        const httpClient = new FetchHttpClient(createApiConfig({ MODE: "development" }), {
             retryPolicy: {
                 maxAttempts: 1,
             },
@@ -334,7 +330,7 @@ describe("UI API contract", (): void => {
     it("игнорирует пустой Retry-After заголовок", async (): Promise<void> => {
         globalThis.fetch = vi.fn((): Promise<Response> => {
             return Promise.resolve(
-                new Response(JSON.stringify({message: "too many requests"}), {
+                new Response(JSON.stringify({ message: "too many requests" }), {
                     status: 429,
                     headers: {
                         "Retry-After": "   ",
@@ -343,7 +339,7 @@ describe("UI API contract", (): void => {
             )
         }) as unknown as typeof fetch
 
-        const httpClient = new FetchHttpClient(createApiConfig({MODE: "development"}), {
+        const httpClient = new FetchHttpClient(createApiConfig({ MODE: "development" }), {
             retryPolicy: {
                 maxAttempts: 1,
             },
@@ -367,7 +363,7 @@ describe("UI API contract", (): void => {
         const pastDate = new Date(Date.now() - 5_000).toUTCString()
         globalThis.fetch = vi.fn((): Promise<Response> => {
             return Promise.resolve(
-                new Response(JSON.stringify({message: "too many requests"}), {
+                new Response(JSON.stringify({ message: "too many requests" }), {
                     status: 429,
                     headers: {
                         "Retry-After": pastDate,
@@ -376,7 +372,7 @@ describe("UI API contract", (): void => {
             )
         }) as unknown as typeof fetch
 
-        const httpClient = new FetchHttpClient(createApiConfig({MODE: "development"}), {
+        const httpClient = new FetchHttpClient(createApiConfig({ MODE: "development" }), {
             retryPolicy: {
                 maxAttempts: 1,
             },
@@ -399,7 +395,7 @@ describe("UI API contract", (): void => {
     it("прокидывает ApiRateLimitError после исчерпания попыток", async (): Promise<void> => {
         globalThis.fetch = vi.fn((): Promise<Response> => {
             return Promise.resolve(
-                new Response(JSON.stringify({message: "too many requests"}), {
+                new Response(JSON.stringify({ message: "too many requests" }), {
                     status: 429,
                     headers: {
                         "Retry-After": "3",
@@ -409,7 +405,7 @@ describe("UI API contract", (): void => {
         }) as unknown as typeof fetch
 
         const delay = vi.fn(async (): Promise<void> => Promise.resolve())
-        const httpClient = new FetchHttpClient(createApiConfig({MODE: "development"}), {
+        const httpClient = new FetchHttpClient(createApiConfig({ MODE: "development" }), {
             delay,
             retryPolicy: {
                 maxAttempts: 2,
@@ -439,7 +435,7 @@ describe("UI API contract", (): void => {
         }) as unknown as typeof fetch
 
         const controller = new AbortController()
-        const httpClient = new FetchHttpClient(createApiConfig({MODE: "development"}), {
+        const httpClient = new FetchHttpClient(createApiConfig({ MODE: "development" }), {
             retryPolicy: {
                 maxAttempts: 2,
                 baseDelayMs: 500,
@@ -470,7 +466,7 @@ describe("UI API contract", (): void => {
         const controller = new AbortController()
         controller.abort()
 
-        const httpClient = new FetchHttpClient(createApiConfig({MODE: "development"}), {
+        const httpClient = new FetchHttpClient(createApiConfig({ MODE: "development" }), {
             retryPolicy: {
                 maxAttempts: 2,
             },
@@ -503,7 +499,7 @@ describe("UI API contract", (): void => {
             const controller = new AbortController()
             controller.abort()
 
-            const httpClient = new FetchHttpClient(createApiConfig({MODE: "development"}), {
+            const httpClient = new FetchHttpClient(createApiConfig({ MODE: "development" }), {
                 retryPolicy: {
                     maxAttempts: 2,
                 },
@@ -536,7 +532,7 @@ describe("UI API contract", (): void => {
 
         const controller = new AbortController()
         const delay = vi.fn(async (): Promise<void> => Promise.resolve())
-        const httpClient = new FetchHttpClient(createApiConfig({MODE: "development"}), {
+        const httpClient = new FetchHttpClient(createApiConfig({ MODE: "development" }), {
             delay,
         })
 
@@ -557,13 +553,13 @@ describe("UI API contract", (): void => {
     it("прокидывает ApiHttpError для неуспешного ответа", async (): Promise<void> => {
         globalThis.fetch = vi.fn((): Promise<Response> => {
             return Promise.resolve(
-                new Response(JSON.stringify({message: "bad request"}), {
+                new Response(JSON.stringify({ message: "bad request" }), {
                     status: 400,
                 }),
             )
         }) as unknown as typeof fetch
 
-        const httpClient = new FetchHttpClient(createApiConfig({MODE: "development"}))
+        const httpClient = new FetchHttpClient(createApiConfig({ MODE: "development" }))
 
         await expect(
             httpClient.request({
@@ -576,14 +572,14 @@ describe("UI API contract", (): void => {
     it("не ретраит 503 для non-retryable POST запроса", async (): Promise<void> => {
         globalThis.fetch = vi.fn((): Promise<Response> => {
             return Promise.resolve(
-                new Response(JSON.stringify({message: "unavailable"}), {
+                new Response(JSON.stringify({ message: "unavailable" }), {
                     status: 503,
                 }),
             )
         }) as unknown as typeof fetch
 
         const delay = vi.fn(async (): Promise<void> => Promise.resolve())
-        const httpClient = new FetchHttpClient(createApiConfig({MODE: "development"}), {
+        const httpClient = new FetchHttpClient(createApiConfig({ MODE: "development" }), {
             delay,
             retryPolicy: {
                 maxAttempts: 3,
@@ -610,7 +606,7 @@ describe("UI API contract", (): void => {
         }) as unknown as typeof fetch
 
         const delay = vi.fn(async (): Promise<void> => Promise.resolve())
-        const httpClient = new FetchHttpClient(createApiConfig({MODE: "development"}), {
+        const httpClient = new FetchHttpClient(createApiConfig({ MODE: "development" }), {
             delay,
             retryPolicy: {
                 maxAttempts: 3,
@@ -637,7 +633,7 @@ describe("UI API contract", (): void => {
             return Promise.reject(originalError)
         }) as unknown as typeof fetch
 
-        const httpClient = new FetchHttpClient(createApiConfig({MODE: "development"}), {
+        const httpClient = new FetchHttpClient(createApiConfig({ MODE: "development" }), {
             retryPolicy: {
                 maxAttempts: 1,
             },
@@ -658,7 +654,7 @@ describe("UI API contract", (): void => {
             return Promise.reject(unknownError)
         }) as unknown as typeof fetch
 
-        const httpClient = new FetchHttpClient(createApiConfig({MODE: "development"}), {
+        const httpClient = new FetchHttpClient(createApiConfig({ MODE: "development" }), {
             retryPolicy: {
                 maxAttempts: 1,
             },
@@ -682,7 +678,7 @@ describe("UI API contract", (): void => {
             return Promise.reject(originalError)
         }) as unknown as typeof fetch
 
-        const httpClient = new FetchHttpClient(createApiConfig({MODE: "development"}), {
+        const httpClient = new FetchHttpClient(createApiConfig({ MODE: "development" }), {
             retryPolicy: {
                 maxAttempts: 1,
             },
@@ -703,7 +699,7 @@ describe("UI API contract", (): void => {
             })
         }) as unknown as typeof fetch
 
-        const httpClient = new FetchHttpClient(createApiConfig({MODE: "development"}), {
+        const httpClient = new FetchHttpClient(createApiConfig({ MODE: "development" }), {
             retryPolicy: {
                 maxAttempts: 1,
             },
@@ -731,20 +727,20 @@ describe("UI API contract", (): void => {
 
             if (callIndex === 1) {
                 return Promise.resolve(
-                    new Response(JSON.stringify({message: "unavailable"}), {
+                    new Response(JSON.stringify({ message: "unavailable" }), {
                         status: 503,
                     }),
                 )
             }
 
             return Promise.resolve(
-                new Response(JSON.stringify({status: "ok"}), {
+                new Response(JSON.stringify({ status: "ok" }), {
                     status: 200,
                 }),
             )
         }) as unknown as typeof fetch
 
-        const httpClient = new FetchHttpClient(createApiConfig({MODE: "development"}), {
+        const httpClient = new FetchHttpClient(createApiConfig({ MODE: "development" }), {
             retryPolicy: {
                 maxAttempts: 2,
                 baseDelayMs: 0,
@@ -752,7 +748,7 @@ describe("UI API contract", (): void => {
             },
         })
 
-        const response = await httpClient.request<{status: string}>({
+        const response = await httpClient.request<{ status: string }>({
             method: "GET",
             path: "/api/v1/health",
         })
@@ -770,14 +766,14 @@ describe("UI API contract", (): void => {
             }
 
             return Promise.resolve(
-                new Response(JSON.stringify({status: "ok"}), {
+                new Response(JSON.stringify({ status: "ok" }), {
                     status: 200,
                 }),
             )
         }) as unknown as typeof fetch
 
         const controller = new AbortController()
-        const httpClient = new FetchHttpClient(createApiConfig({MODE: "development"}), {
+        const httpClient = new FetchHttpClient(createApiConfig({ MODE: "development" }), {
             retryPolicy: {
                 maxAttempts: 2,
                 baseDelayMs: 1,
@@ -785,7 +781,7 @@ describe("UI API contract", (): void => {
             },
         })
 
-        const response = await httpClient.request<{status: string}>({
+        const response = await httpClient.request<{ status: string }>({
             method: "GET",
             path: "/api/v1/health",
             signal: controller.signal,
@@ -796,7 +792,7 @@ describe("UI API contract", (): void => {
     })
 
     it("бросает защитную ошибку при некорректной retry политике maxAttempts=0", async (): Promise<void> => {
-        const httpClient = new FetchHttpClient(createApiConfig({MODE: "development"}), {
+        const httpClient = new FetchHttpClient(createApiConfig({ MODE: "development" }), {
             retryPolicy: {
                 maxAttempts: 0,
             },
@@ -825,13 +821,13 @@ describe("UI API contract", (): void => {
             expect(parsed.searchParams.has("ignored")).toBe(false)
 
             return Promise.resolve(
-                new Response(JSON.stringify({status: "ok"}), {
+                new Response(JSON.stringify({ status: "ok" }), {
                     status: 200,
                 }),
             )
         }) as unknown as typeof fetch
 
-        const httpClient = new FetchHttpClient(createApiConfig({MODE: "development"}))
+        const httpClient = new FetchHttpClient(createApiConfig({ MODE: "development" }))
         await httpClient.request({
             method: "GET",
             path: "/api/v1/health",
@@ -846,17 +842,17 @@ describe("UI API contract", (): void => {
     it("сериализует body в JSON для non-GET запроса", async (): Promise<void> => {
         globalThis.fetch = vi.fn(
             (_input: RequestInfo | URL, init?: RequestInit): Promise<Response> => {
-                expect(init?.body).toBe(JSON.stringify({name: "rule"}))
+                expect(init?.body).toBe(JSON.stringify({ name: "rule" }))
 
                 return Promise.resolve(
-                    new Response(JSON.stringify({status: "ok"}), {
+                    new Response(JSON.stringify({ status: "ok" }), {
                         status: 200,
                     }),
                 )
             },
         ) as unknown as typeof fetch
 
-        const httpClient = new FetchHttpClient(createApiConfig({MODE: "development"}))
+        const httpClient = new FetchHttpClient(createApiConfig({ MODE: "development" }))
         await httpClient.request({
             method: "POST",
             path: "/api/v1/rules",
@@ -869,7 +865,11 @@ describe("UI API contract", (): void => {
     it("предоставляет корректные type guards для ошибок API-клиента", (): void => {
         const httpError = new ApiHttpError(500, "/api/v1/health", "HTTP 500")
         const rateLimitError = new ApiRateLimitError("/api/v1/health", 1000)
-        const networkError = new ApiNetworkError("/api/v1/health", "Failed to fetch", new Error("cause"))
+        const networkError = new ApiNetworkError(
+            "/api/v1/health",
+            "Failed to fetch",
+            new Error("cause"),
+        )
 
         expect(isApiHttpError(httpError)).toBe(true)
         expect(isApiHttpError(rateLimitError)).toBe(true)
@@ -882,7 +882,7 @@ describe("UI API contract", (): void => {
     })
 
     it("блокирует абсолютный URL в path", async (): Promise<void> => {
-        const httpClient = new FetchHttpClient(createApiConfig({MODE: "development"}))
+        const httpClient = new FetchHttpClient(createApiConfig({ MODE: "development" }))
 
         await expect(
             httpClient.request({
@@ -893,7 +893,7 @@ describe("UI API contract", (): void => {
     })
 
     it("блокирует traversal сегменты в path", async (): Promise<void> => {
-        const httpClient = new FetchHttpClient(createApiConfig({MODE: "development"}))
+        const httpClient = new FetchHttpClient(createApiConfig({ MODE: "development" }))
 
         await expect(
             httpClient.request({
@@ -904,7 +904,7 @@ describe("UI API contract", (): void => {
     })
 
     it("блокирует пустой path", async (): Promise<void> => {
-        const httpClient = new FetchHttpClient(createApiConfig({MODE: "development"}))
+        const httpClient = new FetchHttpClient(createApiConfig({ MODE: "development" }))
 
         await expect(
             httpClient.request({
@@ -915,7 +915,7 @@ describe("UI API contract", (): void => {
     })
 
     it("блокирует path, начинающийся с //", async (): Promise<void> => {
-        const httpClient = new FetchHttpClient(createApiConfig({MODE: "development"}))
+        const httpClient = new FetchHttpClient(createApiConfig({ MODE: "development" }))
 
         await expect(
             httpClient.request({
@@ -926,7 +926,7 @@ describe("UI API contract", (): void => {
     })
 
     it("блокирует path с пробелами", async (): Promise<void> => {
-        const httpClient = new FetchHttpClient(createApiConfig({MODE: "development"}))
+        const httpClient = new FetchHttpClient(createApiConfig({ MODE: "development" }))
 
         await expect(
             httpClient.request({

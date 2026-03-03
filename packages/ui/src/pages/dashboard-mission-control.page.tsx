@@ -1,17 +1,20 @@
-import {type ReactElement, Suspense, lazy, useMemo, useState} from "react"
+import { type ReactElement, Suspense, lazy, useMemo, useState } from "react"
 
-import {Card, CardBody, CardHeader, Alert} from "@/components/ui"
-import {DashboardDateRangeFilter, type TDashboardDateRange} from "@/components/dashboard/dashboard-date-range-filter"
-import {type IMetricGridMetric, MetricsGrid} from "@/components/dashboard/metrics-grid"
-import {type IStatusDistributionPoint} from "@/components/dashboard/status-distribution-chart"
-import {Link} from "@tanstack/react-router"
+import { Card, CardBody, CardHeader, Alert } from "@/components/ui"
+import {
+    DashboardDateRangeFilter,
+    type TDashboardDateRange,
+} from "@/components/dashboard/dashboard-date-range-filter"
+import { type IMetricGridMetric, MetricsGrid } from "@/components/dashboard/metrics-grid"
+import { type IStatusDistributionPoint } from "@/components/dashboard/status-distribution-chart"
+import { Link } from "@tanstack/react-router"
 
-import {DashboardSkeleton} from "@/components/skeletons/dashboard-skeleton"
+import { DashboardSkeleton } from "@/components/skeletons/dashboard-skeleton"
 
 const DashboardContent = lazy(async () => {
     const module = await import("@/components/dashboard/dashboard-content")
 
-    return {default: module.DashboardContent}
+    return { default: module.DashboardContent }
 })
 
 /**
@@ -105,24 +108,24 @@ export function DashboardMissionControlPage(): ReactElement {
     const statusDistribution = useMemo((): ReadonlyArray<IStatusDistributionPoint> => {
         if (range === "1d") {
             return [
-                {status: "approved", count: 42, color: "oklch(0.65 0.17 142)"},
-                {status: "queued", count: 12, color: "oklch(0.78 0.17 90)"},
-                {status: "in_progress", count: 7, color: "oklch(0.68 0.16 260)"},
-                {status: "rejected", count: 4, color: "oklch(0.64 0.2 29)"},
+                { status: "approved", count: 42, color: "oklch(0.65 0.17 142)" },
+                { status: "queued", count: 12, color: "oklch(0.78 0.17 90)" },
+                { status: "in_progress", count: 7, color: "oklch(0.68 0.16 260)" },
+                { status: "rejected", count: 4, color: "oklch(0.64 0.2 29)" },
             ]
         }
 
         return [
-            {status: "approved", count: 122, color: "oklch(0.65 0.17 142)"},
-            {status: "queued", count: 38, color: "oklch(0.78 0.17 90)"},
-            {status: "in_progress", count: 26, color: "oklch(0.68 0.16 260)"},
-            {status: "rejected", count: 19, color: "oklch(0.64 0.2 29)"},
-            {status: "new", count: 11, color: "oklch(0.72 0.12 230)"},
+            { status: "approved", count: 122, color: "oklch(0.65 0.17 142)" },
+            { status: "queued", count: 38, color: "oklch(0.78 0.17 90)" },
+            { status: "in_progress", count: 26, color: "oklch(0.68 0.16 260)" },
+            { status: "rejected", count: 19, color: "oklch(0.64 0.2 29)" },
+            { status: "new", count: 11, color: "oklch(0.72 0.12 230)" },
         ]
     }, [range])
 
     const opsBanner = useMemo((): IOpsBannerProps => {
-        return {isDegraded: range !== "1d"}
+        return { isDegraded: range !== "1d" }
     }, [range])
 
     const dashboardPayload = useMemo((): IWorkQueuePayload => {
@@ -180,7 +183,9 @@ export function DashboardMissionControlPage(): ReactElement {
         <section className="space-y-4">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                 <div>
-                    <h1 className="text-2xl font-semibold text-slate-900">Dashboard Mission Control</h1>
+                    <h1 className="text-2xl font-semibold text-slate-900">
+                        Dashboard Mission Control
+                    </h1>
                     <p className="text-sm text-slate-600">
                         Scope: all org units. Use quick links for deep navigation.
                     </p>
@@ -195,7 +200,8 @@ export function DashboardMissionControlPage(): ReactElement {
 
             {opsBanner.isDegraded === true ? (
                 <Alert color="warning" title="Ops notice" variant="flat">
-                    Provider health degraded in this window. Check settings and review queue for mitigation.
+                    Provider health degraded in this window. Check settings and review queue for
+                    mitigation.
                 </Alert>
             ) : null}
 
@@ -208,22 +214,34 @@ export function DashboardMissionControlPage(): ReactElement {
                     <CardBody>
                         <ul className="space-y-2">
                             <li>
-                                <Link className="text-sm font-medium underline underline-offset-4" to="/reviews">
+                                <Link
+                                    className="text-sm font-medium underline underline-offset-4"
+                                    to="/reviews"
+                                >
                                     Open CCRs deep-link
                                 </Link>
                             </li>
                             <li>
-                                <Link className="text-sm font-medium underline underline-offset-4" to="/settings/code-review">
+                                <Link
+                                    className="text-sm font-medium underline underline-offset-4"
+                                    to="/settings/code-review"
+                                >
                                     Code review configuration
                                 </Link>
                             </li>
                             <li>
-                                <Link className="text-sm font-medium underline underline-offset-4" to="/settings/llm-providers">
+                                <Link
+                                    className="text-sm font-medium underline underline-offset-4"
+                                    to="/settings/llm-providers"
+                                >
                                     LLM provider config
                                 </Link>
                             </li>
                             <li>
-                                <Link className="text-sm font-medium underline underline-offset-4" to="/settings/git-providers">
+                                <Link
+                                    className="text-sm font-medium underline underline-offset-4"
+                                    to="/settings/git-providers"
+                                >
                                     Git provider config
                                 </Link>
                             </li>
@@ -246,17 +264,21 @@ export function DashboardMissionControlPage(): ReactElement {
             <Suspense fallback={<DashboardSkeleton />}>
                 <DashboardContent
                     statusDistribution={statusDistribution}
-                    timeline={dashboardPayload.timeline.map((item): {
-                        id: string
-                        time: string
-                        title: string
-                        description: string
-                    } => ({
-                        description: item.description,
-                        id: item.id,
-                        time: item.time,
-                        title: item.title,
-                    }))}
+                    timeline={dashboardPayload.timeline.map(
+                        (
+                            item,
+                        ): {
+                            id: string
+                            time: string
+                            title: string
+                            description: string
+                        } => ({
+                            description: item.description,
+                            id: item.id,
+                            time: item.time,
+                            title: item.title,
+                        }),
+                    )}
                     workQueue={dashboardPayload.workQueue}
                 />
             </Suspense>

@@ -1,4 +1,4 @@
-import {QueryClient, type DefaultOptions} from "@tanstack/react-query"
+import { QueryClient, type DefaultOptions } from "@tanstack/react-query"
 
 /**
  * Базовые опции React Query для UI-приложения.

@@ -1,7 +1,7 @@
-import {type ChangeEvent, type ReactElement, useEffect, useMemo, useState} from "react"
+import { type ChangeEvent, type ReactElement, useEffect, useMemo, useState } from "react"
 
-import {ReviewsContent, type IReviewRow} from "@/components/reviews/reviews-content"
-import {type IReviewsTableProps} from "@/components/reviews/reviews-table"
+import { ReviewsContent, type IReviewRow } from "@/components/reviews/reviews-content"
+import { type IReviewsTableProps } from "@/components/reviews/reviews-table"
 
 /** Параметры URL-фильтров для страницы CCR. */
 export interface ICcrFilters {
@@ -171,7 +171,9 @@ export function CcrManagementPage(props: ICcrManagementPageProps): ReactElement 
     }, [props.repository, props.search, props.status, props.team])
 
     const statusOptions = useMemo((): ReadonlyArray<string> => {
-        return Array.from(new Set(CCR_SORT_ORDER.concat(MOCK_CCR_ROWS.map((row): string => row.status)))).sort()
+        return Array.from(
+            new Set(CCR_SORT_ORDER.concat(MOCK_CCR_ROWS.map((row): string => row.status))),
+        ).sort()
     }, [])
 
     const teamOptions = useMemo((): ReadonlyArray<string> => {
@@ -187,9 +189,13 @@ export function CcrManagementPage(props: ICcrManagementPageProps): ReactElement 
 
         return MOCK_CCR_ROWS.filter((row): boolean => {
             const isStatusMatch =
-                searchState.status.length === 0 || searchState.status === "all" || row.status === searchState.status
+                searchState.status.length === 0 ||
+                searchState.status === "all" ||
+                row.status === searchState.status
             const isTeamMatch =
-                searchState.team.length === 0 || searchState.team === "all" || row.team === searchState.team
+                searchState.team.length === 0 ||
+                searchState.team === "all" ||
+                row.team === searchState.team
             const isRepoMatch =
                 searchState.repository.length === 0 ||
                 searchState.repository === "all" ||
@@ -218,7 +224,7 @@ export function CcrManagementPage(props: ICcrManagementPageProps): ReactElement 
     }
 
     const handleFilterUpdate = (event: ChangeEvent<HTMLSelectElement | HTMLInputElement>): void => {
-        const {name, value} = event.currentTarget
+        const { name, value } = event.currentTarget
         const nextFilters = {
             ...searchState,
             [name]: value,
@@ -243,7 +249,8 @@ export function CcrManagementPage(props: ICcrManagementPageProps): ReactElement 
         <section className="space-y-4">
             <h1 className="text-2xl font-semibold text-slate-900">CCR Management</h1>
             <p className="text-sm text-slate-600">
-                Filters are synced with URL. Shareable state for search, status, team and repository.
+                Filters are synced with URL. Shareable state for search, status, team and
+                repository.
             </p>
             <div className="grid gap-3 rounded-lg border border-slate-200 bg-white p-3 md:grid-cols-4">
                 <input
@@ -262,11 +269,13 @@ export function CcrManagementPage(props: ICcrManagementPageProps): ReactElement 
                     onChange={handleFilterUpdate}
                 >
                     <option value="all">All teams</option>
-                    {teamOptions.map((team): ReactElement => (
-                        <option key={team} value={team}>
-                            {team}
-                        </option>
-                    ))}
+                    {teamOptions.map(
+                        (team): ReactElement => (
+                            <option key={team} value={team}>
+                                {team}
+                            </option>
+                        ),
+                    )}
                 </select>
                 <select
                     aria-label="Filter by repository"
@@ -276,11 +285,13 @@ export function CcrManagementPage(props: ICcrManagementPageProps): ReactElement 
                     onChange={handleFilterUpdate}
                 >
                     <option value="all">All repos</option>
-                    {repositoryOptions.map((repository): ReactElement => (
-                        <option key={repository} value={repository}>
-                            {repository}
-                        </option>
-                    ))}
+                    {repositoryOptions.map(
+                        (repository): ReactElement => (
+                            <option key={repository} value={repository}>
+                                {repository}
+                            </option>
+                        ),
+                    )}
                 </select>
                 <select
                     aria-label="Filter by status"
@@ -290,11 +301,13 @@ export function CcrManagementPage(props: ICcrManagementPageProps): ReactElement 
                     onChange={handleFilterUpdate}
                 >
                     <option value="all">All statuses</option>
-                    {statusOptions.map((status): ReactElement => (
-                        <option key={status} value={status}>
-                            {status}
-                        </option>
-                    ))}
+                    {statusOptions.map(
+                        (status): ReactElement => (
+                            <option key={status} value={status}>
+                                {status}
+                            </option>
+                        ),
+                    )}
                 </select>
             </div>
             <ReviewsContent

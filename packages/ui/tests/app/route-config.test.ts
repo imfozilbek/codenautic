@@ -1,8 +1,8 @@
-import {describe, expect, it} from "vitest"
+import { describe, expect, it } from "vitest"
 
-import {Route as RootRoute} from "@/routes/__root"
-import {Route as IndexRoute} from "@/routes/index"
-import {Route as LoginRoute} from "@/routes/login"
+import { Route as RootRoute } from "@/routes/__root"
+import { Route as IndexRoute } from "@/routes/index"
+import { Route as LoginRoute } from "@/routes/login"
 
 describe("route configuration", (): void => {
     it("настраивает глобальные fallback components в root route", (): void => {

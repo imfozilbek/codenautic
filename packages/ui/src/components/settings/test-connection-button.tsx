@@ -1,6 +1,6 @@
-import {type ReactElement, useState} from "react"
+import { type ReactElement, useState } from "react"
 
-import {Button} from "@/components/ui"
+import { Button } from "@/components/ui"
 
 /**
  * Параметры кнопки тестирования провайдера.

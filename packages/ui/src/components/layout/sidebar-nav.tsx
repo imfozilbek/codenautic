@@ -1,6 +1,6 @@
-import type {ReactElement} from "react"
-import {useLocation, useNavigate} from "@tanstack/react-router"
-import {Avatar, Button} from "@/components/ui"
+import type { ReactElement } from "react"
+import { useLocation, useNavigate } from "@tanstack/react-router"
+import { Avatar, Button } from "@/components/ui"
 
 /**
  * Навигационный элемент сайдбара.
@@ -61,7 +61,9 @@ export function SidebarNav(props: ISidebarNavProps): ReactElement {
                 {items.map((item): ReactElement => {
                     const isNavigable = item.to !== undefined && item.isDisabled !== true
                     const isActive =
-                        item.to !== undefined && currentLocation.pathname === item.to && item.isDisabled !== true
+                        item.to !== undefined &&
+                        currentLocation.pathname === item.to &&
+                        item.isDisabled !== true
 
                     const handlePress = (): void => {
                         if (isNavigable !== true) {
@@ -86,7 +88,7 @@ export function SidebarNav(props: ISidebarNavProps): ReactElement {
                             return
                         }
 
-                        void navigate({to: item.to})
+                        void navigate({ to: item.to })
                     }
 
                     const startContent =

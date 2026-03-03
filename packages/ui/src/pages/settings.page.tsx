@@ -1,8 +1,8 @@
-import {type ReactElement} from "react"
+import { type ReactElement } from "react"
 
-import {Link} from "@tanstack/react-router"
+import { Link } from "@tanstack/react-router"
 
-import {Card, CardBody, CardHeader} from "@/components/ui"
+import { Card, CardBody, CardHeader } from "@/components/ui"
 
 /**
  * Базовая overview-страница раздела settings.
@@ -18,20 +18,32 @@ export function SettingsPage(): ReactElement {
                     <p className="text-base font-semibold">Quick setup</p>
                 </CardHeader>
                 <CardBody className="space-y-2 text-sm text-slate-700">
-                    <p>Настройте review-политику, провайдеров и подключения через быстрые страницы ниже.</p>
+                    <p>
+                        Настройте review-политику, провайдеров и подключения через быстрые страницы
+                        ниже.
+                    </p>
                     <ul className="space-y-1">
                         <li>
-                            <Link className="underline underline-offset-4" to="/settings/code-review">
+                            <Link
+                                className="underline underline-offset-4"
+                                to="/settings/code-review"
+                            >
                                 Code Review configuration
                             </Link>
                         </li>
                         <li>
-                            <Link className="underline underline-offset-4" to="/settings/llm-providers">
+                            <Link
+                                className="underline underline-offset-4"
+                                to="/settings/llm-providers"
+                            >
                                 LLM providers
                             </Link>
                         </li>
                         <li>
-                            <Link className="underline underline-offset-4" to="/settings/git-providers">
+                            <Link
+                                className="underline underline-offset-4"
+                                to="/settings/git-providers"
+                            >
                                 Git providers
                             </Link>
                         </li>

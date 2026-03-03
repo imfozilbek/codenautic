@@ -1,6 +1,6 @@
-import {useEffect, type ReactElement} from "react"
-import type {ErrorComponentProps} from "@tanstack/react-router"
-import {Button} from "@/components/ui"
+import { useEffect, type ReactElement } from "react"
+import type { ErrorComponentProps } from "@tanstack/react-router"
+import { Button } from "@/components/ui"
 
 interface IErrorWithStatusCode {
     readonly statusCode: number
@@ -68,7 +68,9 @@ function ErrorFallback(props: IErrorFallbackProps): ReactElement {
         return (
             <section className="mx-auto flex min-h-screen w-full max-w-3xl flex-col items-center justify-center p-8">
                 <h1 className="text-3xl font-semibold tracking-tight">{props.scopeLabel}</h1>
-                <p className="mt-4 text-base text-slate-600">Сессия истекла, перенаправляем на страницу входа...</p>
+                <p className="mt-4 text-base text-slate-600">
+                    Сессия истекла, перенаправляем на страницу входа...
+                </p>
             </section>
         )
     }
@@ -77,7 +79,9 @@ function ErrorFallback(props: IErrorFallbackProps): ReactElement {
         return (
             <section className="mx-auto flex min-h-screen w-full max-w-3xl flex-col items-center justify-center p-8">
                 <h1 className="text-3xl font-semibold tracking-tight">{props.scopeLabel}</h1>
-                <p className="mt-4 text-base text-amber-700">Доступ запрещён для текущего пользователя.</p>
+                <p className="mt-4 text-base text-amber-700">
+                    Доступ запрещён для текущего пользователя.
+                </p>
                 <Button
                     className="mt-6 rounded-full bg-slate-900 px-5 py-2 text-sm font-medium text-white transition hover:bg-slate-700"
                     onPress={(): void => {

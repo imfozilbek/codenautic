@@ -1,6 +1,6 @@
-import type {ReactElement} from "react"
+import type { ReactElement } from "react"
 
-import {SidebarNav} from "./sidebar-nav"
+import { SidebarNav } from "./sidebar-nav"
 
 /**
  * Свойства блока настроек sidebar.

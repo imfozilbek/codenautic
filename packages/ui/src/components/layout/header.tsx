@@ -1,11 +1,11 @@
-import type {ReactElement} from "react"
-import {Bell, Menu} from "lucide-react"
-import {Navbar, NavbarBrand, NavbarContent, NavbarItem} from "@heroui/react"
+import type { ReactElement } from "react"
+import { Bell, Menu } from "lucide-react"
+import { Navbar, NavbarBrand, NavbarContent, NavbarItem } from "@heroui/react"
 
-import {Button} from "@/components/ui"
+import { Button } from "@/components/ui"
 
-import {ThemeToggle} from "./theme-toggle"
-import {UserMenu} from "./user-menu"
+import { ThemeToggle } from "./theme-toggle"
+import { UserMenu } from "./user-menu"
 
 /**
  * Параметры для layout header.
@@ -35,7 +35,11 @@ export function Header(props: IHeaderProps): ReactElement {
     const hasNotifications = props.notificationCount !== undefined && props.notificationCount > 0
 
     return (
-        <Navbar isBlurred className="border-b border-slate-200 bg-white/80 backdrop-blur" maxWidth="full">
+        <Navbar
+            isBlurred
+            className="border-b border-slate-200 bg-white/80 backdrop-blur"
+            maxWidth="full"
+        >
             <NavbarContent justify="start">
                 <NavbarItem className="md:hidden">
                     <Button

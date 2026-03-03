@@ -1,10 +1,10 @@
-import {type ReactElement, useMemo, useState} from "react"
+import { type ReactElement, useMemo, useState } from "react"
 
-import {useDebounce} from "@/lib/hooks/use-debounce"
-import {InfiniteScrollContainer} from "@/components/infrastructure/infinite-scroll-container"
-import {ReviewsFilters} from "./reviews-filters"
-import {ReviewsTable, type IReviewRow} from "./reviews-table"
-import {type TReviewStatus} from "./review-status-badge"
+import { useDebounce } from "@/lib/hooks/use-debounce"
+import { InfiniteScrollContainer } from "@/components/infrastructure/infinite-scroll-container"
+import { ReviewsFilters } from "./reviews-filters"
+import { ReviewsTable, type IReviewRow } from "./reviews-table"
+import { type TReviewStatus } from "./review-status-badge"
 
 /**
  * Параметры списка CCR.
@@ -81,7 +81,9 @@ export function ReviewsContent(props: IReviewsContentProps): ReactElement {
                 onStatusChange={setStatusFilter}
             />
             {hasActiveFilter ? (
-                <p className="text-sm text-slate-600">Showing {filteredRows.length} from {props.rows.length} CCR entries.</p>
+                <p className="text-sm text-slate-600">
+                    Showing {filteredRows.length} from {props.rows.length} CCR entries.
+                </p>
             ) : null}
             <InfiniteScrollContainer
                 hasMore={props.hasMore}
@@ -89,9 +91,7 @@ export function ReviewsContent(props: IReviewsContentProps): ReactElement {
                 loadingText="Подгружаем дополнительные CCR..."
                 onLoadMore={props.onLoadMore}
             >
-                <ReviewsTable
-                    rows={filteredRows as IReviewRow[]}
-                />
+                <ReviewsTable rows={filteredRows as IReviewRow[]} />
             </InfiniteScrollContainer>
         </section>
     )
@@ -100,4 +100,4 @@ export function ReviewsContent(props: IReviewsContentProps): ReactElement {
 /**
  * Тип статуса для удобства сборки фильтров.
  */
-export type {TReviewStatus}
+export type { TReviewStatus }

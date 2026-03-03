@@ -1,7 +1,7 @@
-import {type ReactElement} from "react"
-import {Laptop, Moon, Sun} from "lucide-react"
-import {Button} from "@/components/ui"
-import {type ThemeMode, type ThemePresetId, useThemeMode} from "@/lib/theme/theme-provider"
+import { type ReactElement } from "react"
+import { Laptop, Moon, Sun } from "lucide-react"
+import { Button } from "@/components/ui"
+import { type ThemeMode, type ThemePresetId, useThemeMode } from "@/lib/theme/theme-provider"
 
 const MODE_OPTIONS: ReadonlyArray<{
     /** Значение режима. */
@@ -48,7 +48,7 @@ export interface IThemeToggleProps {
  * @returns Блок с тремя кнопками выбора `light`, `system`, `dark`.
  */
 export function ThemeToggle(props: IThemeToggleProps): ReactElement {
-    const {mode, preset, presets, resolvedMode, setMode, setPreset} = useThemeMode()
+    const { mode, preset, presets, resolvedMode, setMode, setPreset } = useThemeMode()
     const activePreset = preset
 
     const getActivePresetLabel = (presetId: ThemePresetId): string => {
@@ -60,7 +60,8 @@ export function ThemeToggle(props: IThemeToggleProps): ReactElement {
         return nextPreset.label
     }
 
-    const activePalette = preset !== undefined ? presets.find((item): boolean => item.id === preset) : undefined
+    const activePalette =
+        preset !== undefined ? presets.find((item): boolean => item.id === preset) : undefined
     const previewPalette = activePalette === undefined ? undefined : activePalette[resolvedMode]
 
     return (
@@ -128,19 +129,15 @@ export function ThemeToggle(props: IThemeToggleProps): ReactElement {
                         )
                     })}
                 </div>
-                <p className="px-1 text-xs text-slate-600">Preset: {getActivePresetLabel(activePreset)}</p>
-                <p
-                    className="sr-only"
-                    aria-live="polite"
-                >
+                <p className="px-1 text-xs text-slate-600">
+                    Preset: {getActivePresetLabel(activePreset)}
+                </p>
+                <p className="sr-only" aria-live="polite">
                     Active theme resolved mode is {resolvedMode}.
                 </p>
             </div>
             {previewPalette === undefined ? null : (
-                <div
-                    aria-hidden="true"
-                    className="mt-2 flex gap-2"
-                >
+                <div aria-hidden="true" className="mt-2 flex gap-2">
                     <span
                         className="h-3 w-8 rounded-full border border-slate-200"
                         style={{

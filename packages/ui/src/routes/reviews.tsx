@@ -1,31 +1,37 @@
-import type {ReactElement} from "react"
-import {Suspense, lazy} from "react"
+import type { ReactElement } from "react"
+import { Suspense, lazy } from "react"
 
-import {createFileRoute} from "@tanstack/react-router"
-import {useNavigate} from "@tanstack/react-router"
+import { createFileRoute } from "@tanstack/react-router"
+import { useNavigate } from "@tanstack/react-router"
 
-import {RouteSuspenseFallback} from "@/app/route-suspense-fallback"
-import {AuthBoundary} from "@/lib/auth/auth-boundary"
-import {DashboardLayout} from "@/components/layout"
-import {type ICcrFilters} from "@/pages/ccr-management.page"
+import { RouteSuspenseFallback } from "@/app/route-suspense-fallback"
+import { AuthBoundary } from "@/lib/auth/auth-boundary"
+import { DashboardLayout } from "@/components/layout"
+import { type ICcrFilters } from "@/pages/ccr-management.page"
 
-const LazyCcrManagementPage = lazy(async (): Promise<{default: (props: ICcrFilters & {
-    onFilterChange: (next: ICcrFilters) => void
-}) => ReactElement}> => {
-    const pageModule = await import("@/pages/ccr-management.page")
+const LazyCcrManagementPage = lazy(
+    async (): Promise<{
+        default: (
+            props: ICcrFilters & {
+                onFilterChange: (next: ICcrFilters) => void
+            },
+        ) => ReactElement
+    }> => {
+        const pageModule = await import("@/pages/ccr-management.page")
 
-    return {
-        default: (props): ReactElement => (
-            <pageModule.CcrManagementPage
-                onFilterChange={props.onFilterChange}
-                repository={props.repository}
-                search={props.search}
-                status={props.status}
-                team={props.team}
-            />
-        ),
-    }
-})
+        return {
+            default: (props): ReactElement => (
+                <pageModule.CcrManagementPage
+                    onFilterChange={props.onFilterChange}
+                    repository={props.repository}
+                    search={props.search}
+                    status={props.status}
+                    team={props.team}
+                />
+            ),
+        }
+    },
+)
 
 interface IReviewsSearch {
     /** Search term. */

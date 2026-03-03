@@ -1,6 +1,6 @@
-import type {ReactElement} from "react"
+import type { ReactElement } from "react"
 
-import {Button, Input, Select, SelectItem} from "@/components/ui"
+import { Button, Input, Select, SelectItem } from "@/components/ui"
 
 /**
  * Параметры поиска и фильтрации CCR.
@@ -51,9 +51,11 @@ export function ReviewsFilters(props: IReviewsFiltersProps): ReactElement {
                 }}
             >
                 <SelectItem key="all">All statuses</SelectItem>
-                {props.statusOptions.map((status): ReactElement => (
-                    <SelectItem key={status}>{status}</SelectItem>
-                ))}
+                {props.statusOptions.map(
+                    (status): ReactElement => (
+                        <SelectItem key={status}>{status}</SelectItem>
+                    ),
+                )}
             </Select>
             <Select
                 aria-label="Filter by assignee"
@@ -65,9 +67,11 @@ export function ReviewsFilters(props: IReviewsFiltersProps): ReactElement {
                 }}
             >
                 <SelectItem key="all">All assignees</SelectItem>
-                {props.assigneeOptions.map((assignee): ReactElement => (
-                    <SelectItem key={assignee}>{assignee}</SelectItem>
-                ))}
+                {props.assigneeOptions.map(
+                    (assignee): ReactElement => (
+                        <SelectItem key={assignee}>{assignee}</SelectItem>
+                    ),
+                )}
             </Select>
             <Button variant="flat" onPress={props.onReset}>
                 Reset

@@ -1,12 +1,12 @@
-import {Suspense, lazy, type ReactElement} from "react"
+import { Suspense, lazy, type ReactElement } from "react"
 
-import {RouteErrorFallback} from "@/app/error-fallback"
-import {RouteSuspenseFallback} from "@/app/route-suspense-fallback"
-import {AuthBoundary} from "@/lib/auth/auth-boundary"
-import {DashboardLayout, SettingsLayout} from "@/components/layout"
-import {createFileRoute} from "@tanstack/react-router"
+import { RouteErrorFallback } from "@/app/error-fallback"
+import { RouteSuspenseFallback } from "@/app/route-suspense-fallback"
+import { AuthBoundary } from "@/lib/auth/auth-boundary"
+import { DashboardLayout, SettingsLayout } from "@/components/layout"
+import { createFileRoute } from "@tanstack/react-router"
 
-const LazySettingsCodeReviewPage = lazy(async (): Promise<{default: () => ReactElement}> => {
+const LazySettingsCodeReviewPage = lazy(async (): Promise<{ default: () => ReactElement }> => {
     const pageModule = await import("@/pages/settings-code-review.page")
     return {
         default: pageModule.SettingsCodeReviewPage,
@@ -34,7 +34,7 @@ function SettingsCodeReviewRouteComponent(): ReactElement {
     )
 }
 
-export const Route = createFileRoute("/settings/code-review")({
+export const Route = createFileRoute("/settings-code-review")({
     component: SettingsCodeReviewRouteComponent,
     errorComponent: RouteErrorFallback,
 })

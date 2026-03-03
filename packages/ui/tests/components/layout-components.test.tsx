@@ -1,0 +1,200 @@
+import { screen } from "@testing-library/react"
+import userEvent, { type UserEvent } from "@testing-library/user-event"
+import type { ReactElement } from "react"
+import { describe, expect, it, vi } from "vitest"
+
+import { THEME_PRESETS, type ThemeMode } from "@/lib/theme/theme-provider"
+import { renderWithProviders } from "../utils/render"
+import {
+    DashboardLayout,
+    Header,
+    MobileSidebar,
+    Sidebar,
+    SidebarNav,
+    ThemeToggle,
+} from "@/components/layout"
+import { SettingsNav } from "@/components/layout/settings-nav"
+
+const mockNavigate = vi.fn()
+let currentRoute = "/"
+vi.mock("@tanstack/react-router", () => ({
+    useLocation: () => ({ pathname: currentRoute }),
+    useNavigate: () => mockNavigate,
+}))
+
+interface ILayoutHarnessProps {
+    readonly children: ReactElement
+}
+
+function DashboardLayoutHarness(props: ILayoutHarnessProps): ReactElement {
+    return (
+        <DashboardLayout
+            onSignOut={(): void => {
+                return undefined
+            }}
+            title="Техстатус"
+            userEmail="dev@example.com"
+            userName="Dev"
+        >
+            {props.children}
+        </DashboardLayout>
+    )
+}
+
+describe("layout components", (): void => {
+    it("рендерит Header с брендом и темным режимом переключателя", (): void => {
+        renderWithProviders(
+            <Header
+                notificationCount={3}
+                onMobileMenuOpen={(): void => {
+                    return undefined
+                }}
+                title="Reviews"
+                userEmail="reviewer@example.com"
+                userName="Reviewer"
+            />,
+            {
+                defaultThemeMode: "dark" as ThemeMode,
+            },
+        )
+
+        expect(screen.queryByText("CodeNautic")).not.toBeNull()
+        expect(screen.queryByText("Reviews")).not.toBeNull()
+        expect(screen.queryByRole("button", { name: "Open navigation menu" })).not.toBeNull()
+        expect(screen.queryByRole("button", { name: "Notifications (3)" })).not.toBeNull()
+        expect(screen.queryByRole("radiogroup", { name: "Theme mode" })).not.toBeNull()
+        expect(screen.queryByText("Reviewer")).not.toBeNull()
+    })
+
+    it("обрабатывает callback для collapse sidebar", async (): Promise<void> => {
+        const user: UserEvent = userEvent.setup()
+        const onNavigate = vi.fn()
+        const onSidebarToggle = vi.fn()
+        currentRoute = "/"
+
+        renderWithProviders(
+            <Sidebar
+                isCollapsed={false}
+                onNavigate={onNavigate}
+                onSidebarToggle={onSidebarToggle}
+                title="Navigation"
+            />,
+            {
+                defaultThemeMode: "light" as ThemeMode,
+            },
+        )
+
+        expect(screen.queryByText("Navigation")).not.toBeNull()
+        expect(screen.queryByRole("button", { name: "Dashboard" })).not.toBeNull()
+        expect(screen.queryByRole("button", { name: "CCR Management" })).not.toBeNull()
+
+        const collapseButton = screen.getByRole("button", { name: "Collapse navigation" })
+        await user.click(collapseButton)
+        expect(onSidebarToggle).toHaveBeenCalledTimes(1)
+        expect(onNavigate).toHaveBeenCalledTimes(0)
+    })
+
+    it("передаёт выбор пункта навигации в коллбэк", async (): Promise<void> => {
+        const user = userEvent.setup()
+        const onNavigate = vi.fn()
+        currentRoute = "/settings"
+
+        renderWithProviders(
+            <SidebarNav
+                items={[
+                    {
+                        icon: "🏠",
+                        label: "Dashboard",
+                        to: "/",
+                    },
+                    {
+                        icon: "⚙️",
+                        isDisabled: true,
+                        label: "Disabled",
+                        to: "/disabled",
+                    },
+                    {
+                        icon: "🧩",
+                        label: "Settings",
+                        to: "/settings",
+                    },
+                ]}
+                onNavigate={onNavigate}
+            />,
+            {
+                defaultThemeMode: "light" as ThemeMode,
+            },
+        )
+
+        const settingsButton = screen.getByRole("button", { name: "Settings" })
+        await user.click(settingsButton)
+        expect(onNavigate).toHaveBeenCalledWith("/settings")
+
+        const dashboardButton = screen.getByRole("button", { name: "Dashboard" })
+        await user.click(dashboardButton)
+        expect(onNavigate).toHaveBeenCalledWith("/")
+    })
+
+    it("рендерит mobile sidebar с заголовком", (): void => {
+        const onOpenChange = vi.fn()
+
+        renderWithProviders(
+            <MobileSidebar isOpen={false} onOpenChange={onOpenChange} title="Menu" />,
+        )
+        expect(onOpenChange).not.toHaveBeenCalled()
+    })
+
+    it("рендерит mobile sidebar в открытом состоянии", (): void => {
+        const onOpenChange = vi.fn()
+        renderWithProviders(<MobileSidebar isOpen onOpenChange={onOpenChange} title="Menu" />)
+        expect(screen.queryByText("Menu")).not.toBeNull()
+        expect(onOpenChange).not.toHaveBeenCalled()
+    })
+
+    it("меняет theme mode и preset через ThemeToggle", async (): Promise<void> => {
+        const user = userEvent.setup()
+        renderWithProviders(<ThemeToggle />)
+
+        const lightModeButton = screen.getByRole("button", { name: "Use light theme" })
+        const darkModeButton = screen.getByRole("button", { name: "Use dark theme" })
+        const presetButton = screen.getByRole("button", {
+            name: `Set ${THEME_PRESETS.at(1)?.label ?? ""} theme preset`,
+        })
+
+        await user.click(darkModeButton)
+        expect(darkModeButton.getAttribute("aria-pressed")).toBe("true")
+        expect(lightModeButton.getAttribute("aria-pressed")).toBe("false")
+
+        await user.click(lightModeButton)
+        expect(lightModeButton.getAttribute("aria-pressed")).toBe("true")
+
+        await user.click(presetButton)
+        expect(presetButton.getAttribute("aria-pressed")).toBe("true")
+        expect(screen.queryByText(`Preset: ${THEME_PRESETS.at(1)?.label ?? ""}`)).not.toBeNull()
+    })
+
+    it("рендерит dashboard layout с контентом", (): void => {
+        renderWithProviders(
+            <DashboardLayoutHarness>
+                <p>Panel content</p>
+            </DashboardLayoutHarness>,
+            {
+                defaultThemeMode: "light" as ThemeMode,
+            },
+        )
+
+        expect(screen.queryByText("Dev")).not.toBeNull()
+        expect(screen.queryByText("Panel content")).not.toBeNull()
+        expect(screen.queryByText("Техстатус")).not.toBeNull()
+    })
+
+    it("рендерит секции настроек", (): void => {
+        renderWithProviders(<SettingsNav />)
+
+        expect(screen.queryByText("Settings")).not.toBeNull()
+        expect(screen.queryByRole("button", { name: "General" })).not.toBeNull()
+        expect(screen.queryByRole("button", { name: "LLM Providers" })).not.toBeNull()
+        expect(screen.queryByRole("button", { name: "Code Review" })).not.toBeNull()
+        expect(screen.queryByRole("button", { name: "Git Providers" })).not.toBeNull()
+    })
+})

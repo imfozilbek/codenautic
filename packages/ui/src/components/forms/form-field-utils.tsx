@@ -1,4 +1,4 @@
-import type {ReactNode} from "react"
+import type { ReactNode } from "react"
 
 /**
  * Утилита для выбора текста ошибки или helper-текста.
@@ -12,9 +12,11 @@ export function pickFieldMessage(
     helperText: string | undefined,
 ): ReactNode | null {
     if (errorMessage !== undefined && errorMessage !== "") {
-        return <p className="text-xs text-rose-700" role="alert">
-            {errorMessage}
-        </p>
+        return (
+            <p className="text-xs text-rose-700" role="alert">
+                {errorMessage}
+            </p>
+        )
     }
 
     if (helperText === undefined || helperText === "") {

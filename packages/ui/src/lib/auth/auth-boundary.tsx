@@ -1,5 +1,5 @@
-import type {ReactElement, ReactNode} from "react"
-import {useEffect, useMemo, useRef, useState} from "react"
+import type { ReactElement, ReactNode } from "react"
+import { useEffect, useMemo, useRef, useState } from "react"
 import {
     type QueryClient,
     type UseMutationResult,
@@ -7,19 +7,19 @@ import {
     useQuery,
     useQueryClient,
 } from "@tanstack/react-query"
-import {useTranslation} from "react-i18next"
+import { useTranslation } from "react-i18next"
 
-import {Button} from "@/components/ui"
-import type {IAuthApi} from "@/lib/api"
-import {createApiContracts, isApiHttpError} from "@/lib/api"
-import {queryKeys} from "@/lib/query/query-keys"
+import { Button } from "@/components/ui"
+import type { IAuthApi } from "@/lib/api"
+import { createApiContracts, isApiHttpError } from "@/lib/api"
+import { queryKeys } from "@/lib/query/query-keys"
 import {
     clearPersistedAuthSession,
     loadPersistedAuthSession,
     persistAuthSession,
     shouldRefreshAuthSession,
 } from "./auth-session"
-import {OAUTH_PROVIDERS, type IAuthSession, type TOAuthProvider} from "./types"
+import { OAUTH_PROVIDERS, type IAuthSession, type TOAuthProvider } from "./types"
 
 const DEFAULT_AUTH_API = createApiContracts().auth
 
@@ -92,7 +92,7 @@ interface IAuthBoundaryState {
  * @returns UI для loading/login/authenticated состояний.
  */
 export function AuthBoundary(props: IAuthBoundaryProps): ReactElement {
-    const {t} = useTranslation(["auth", "common"])
+    const { t } = useTranslation(["auth", "common"])
     const labels = createAuthBoundaryLabels(t)
     const storage = props.storage ?? getSessionStorageOrUndefined()
     const authApi = props.authApi ?? DEFAULT_AUTH_API
@@ -106,10 +106,7 @@ export function AuthBoundary(props: IAuthBoundaryProps): ReactElement {
         labels,
         intendedDestination,
     })
-    const authStatusCode = resolveAuthStatusCode(
-        state.authStatusCode,
-        props.authStatusHint,
-    )
+    const authStatusCode = resolveAuthStatusCode(state.authStatusCode, props.authStatusHint)
     const effectiveAuthStatusCode = resolveDefaultAuthStatusCode(authStatusCode, state.session)
     const shouldRedirectToLogin = shouldNavigateToLogin(
         props.loginPath,
@@ -140,10 +137,7 @@ export function AuthBoundary(props: IAuthBoundaryProps): ReactElement {
         return renderAuthLoadingState(labels.appTitle, labels.checkingSession)
     }
 
-    const authStatusMessage = resolveAuthStatusMessage(
-        effectiveAuthStatusCode,
-        labels,
-    )
+    const authStatusMessage = resolveAuthStatusMessage(effectiveAuthStatusCode, labels)
 
     if (state.session === undefined) {
         return (
@@ -187,7 +181,11 @@ export function AuthBoundary(props: IAuthBoundaryProps): ReactElement {
         >
             <>
                 {state.interactionError !== null ? (
-                    <p aria-live="assertive" className="px-6 pb-2 text-sm text-rose-700" role="alert">
+                    <p
+                        aria-live="assertive"
+                        className="px-6 pb-2 text-sm text-rose-700"
+                        role="alert"
+                    >
                         {state.interactionError}
                     </p>
                 ) : null}
@@ -233,12 +231,7 @@ function useAuthBoundaryState(args: IUseAuthBoundaryStateArgs): IAuthBoundarySta
     })
 
     usePersistedSessionEffect(sessionQuery.data, args.storage)
-    useRefreshSessionEffect(
-        sessionQuery.data,
-        refreshMutation,
-        queryClient,
-        refreshAttemptRef,
-    )
+    useRefreshSessionEffect(sessionQuery.data, refreshMutation, queryClient, refreshAttemptRef)
 
     return {
         session: sessionQuery.data,
@@ -319,7 +312,7 @@ function useRefreshSessionEffect(
     session: IAuthSession | null | undefined,
     refreshMutation: UseMutationResult<IAuthSession | null, Error, void, unknown>,
     queryClient: QueryClient,
-    refreshAttemptRef: {current: string | null},
+    refreshAttemptRef: { current: string | null },
 ): void {
     useEffect((): void => {
         if (session === undefined || session === null) {
@@ -515,7 +508,9 @@ function AuthenticatedShell(props: IAuthenticatedShellProps): ReactElement {
             <header className="mx-auto flex w-full max-w-5xl items-center justify-between px-6 pt-6">
                 <div>
                     <p className="text-sm text-slate-500">{props.appTitle}</p>
-                    <h2 className="text-lg font-semibold text-slate-900">{props.userDisplayName}</h2>
+                    <h2 className="text-lg font-semibold text-slate-900">
+                        {props.userDisplayName}
+                    </h2>
                     <p className="text-sm text-slate-600">{props.userEmail}</p>
                 </div>
                 <Button

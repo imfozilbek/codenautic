@@ -1,6 +1,6 @@
-import type {CSSProperties, RefObject} from "react"
-import {useRef} from "react"
-import {useVirtualizer, type VirtualItem} from "@tanstack/react-virtual"
+import type { CSSProperties, RefObject } from "react"
+import { useRef } from "react"
+import { useVirtualizer, type VirtualItem } from "@tanstack/react-virtual"
 
 /**
  * Опции virtual-сетка.

@@ -1,4 +1,4 @@
-import type {IHttpClient} from "../http-client"
+import type { IHttpClient } from "../http-client"
 import type {
     IAuthLogoutResponse,
     IAuthSessionEnvelope,

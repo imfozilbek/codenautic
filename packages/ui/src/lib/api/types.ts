@@ -1,4 +1,4 @@
-import type {components, operations} from "./generated"
+import type { components, operations } from "./generated"
 
 /**
  * Статус системной доступности runtime/api.

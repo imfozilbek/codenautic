@@ -1,5 +1,5 @@
-import {describe, expect, it, vi} from "vitest"
-import type {Metric, MetricType} from "web-vitals"
+import { describe, expect, it, vi } from "vitest"
+import type { Metric, MetricType } from "web-vitals"
 
 import {
     createWebVitalReporter,
@@ -16,10 +16,7 @@ import {
  * @param overrides Частичное переопределение полей.
  * @returns Metric-объект для отчёта.
  */
-function createMetric(
-    name: Metric["name"],
-    overrides: Partial<Metric> = {},
-): MetricType {
+function createMetric(name: Metric["name"], overrides: Partial<Metric> = {}): MetricType {
     return {
         name,
         value: 123.45,
@@ -134,7 +131,7 @@ describe("web vitals monitoring", (): void => {
     it("не инициализирует listeners при disabled режиме", (): void => {
         resetWebVitalsMonitoringStateForTests()
 
-        const {dependencies, onCLS, onINP, onLCP} = createMonitoringDependenciesMocks()
+        const { dependencies, onCLS, onINP, onLCP } = createMonitoringDependenciesMocks()
 
         const initialized = initializeWebVitalsMonitoring(
             {
@@ -152,7 +149,7 @@ describe("web vitals monitoring", (): void => {
     it("инициализирует listeners один раз и блокирует повторную регистрацию", (): void => {
         resetWebVitalsMonitoringStateForTests()
 
-        const {dependencies, onCLS, onINP, onLCP} = createMonitoringDependenciesMocks()
+        const { dependencies, onCLS, onINP, onLCP } = createMonitoringDependenciesMocks()
 
         const firstInit = initializeWebVitalsMonitoring(
             {
@@ -181,7 +178,8 @@ describe("web vitals monitoring", (): void => {
     it("отправляет LCP/INP/CLS как Sentry transaction events", (): void => {
         resetWebVitalsMonitoringStateForTests()
 
-        const {dependencies, onCLS, onINP, onLCP, captureEvent} = createMonitoringDependenciesMocks()
+        const { dependencies, onCLS, onINP, onLCP, captureEvent } =
+            createMonitoringDependenciesMocks()
 
         initializeWebVitalsMonitoring(
             {
@@ -194,9 +192,9 @@ describe("web vitals monitoring", (): void => {
         const inpReporter = getRegisteredReporter(onINP, "onINP")
         const lcpReporter = getRegisteredReporter(onLCP, "onLCP")
 
-        clsReporter(createMetric("CLS", {id: "cls-1", value: 0.07}))
-        inpReporter(createMetric("INP", {id: "inp-1", value: 185}))
-        lcpReporter(createMetric("LCP", {id: "lcp-1", value: 2200}))
+        clsReporter(createMetric("CLS", { id: "cls-1", value: 0.07 }))
+        inpReporter(createMetric("INP", { id: "inp-1", value: 185 }))
+        lcpReporter(createMetric("LCP", { id: "lcp-1", value: 2200 }))
 
         expect(captureEvent).toHaveBeenCalledTimes(3)
 
@@ -224,8 +222,8 @@ describe("web vitals monitoring", (): void => {
             seenMetricKeys,
         })
 
-        reportWebVital(createMetric("LCP", {id: "dup-id"}))
-        reportWebVital(createMetric("LCP", {id: "dup-id", value: 1500}))
+        reportWebVital(createMetric("LCP", { id: "dup-id" }))
+        reportWebVital(createMetric("LCP", { id: "dup-id", value: 1500 }))
 
         expect(captureEvent).toHaveBeenCalledTimes(1)
         expect(seenMetricKeys.has("LCP:dup-id")).toBe(true)

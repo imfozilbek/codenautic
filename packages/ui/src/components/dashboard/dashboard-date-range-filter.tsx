@@ -1,6 +1,6 @@
-import type {ReactElement} from "react"
+import type { ReactElement } from "react"
 
-import {Button} from "@/components/ui"
+import { Button } from "@/components/ui"
 
 /**
  * Варианты диапазона дат.
@@ -20,12 +20,13 @@ export interface IDashboardDateRangeFilterProps {
 /**
  * Переключатель диапазона времени для mission control.
  */
-const DATE_RANGES: ReadonlyArray<{readonly value: TDashboardDateRange; readonly label: string}> = [
-    {value: "1d", label: "24h"},
-    {value: "7d", label: "7d"},
-    {value: "30d", label: "30d"},
-    {value: "90d", label: "90d"},
-]
+const DATE_RANGES: ReadonlyArray<{ readonly value: TDashboardDateRange; readonly label: string }> =
+    [
+        { value: "1d", label: "24h" },
+        { value: "7d", label: "7d" },
+        { value: "30d", label: "30d" },
+        { value: "90d", label: "90d" },
+    ]
 
 /**
  * Диапазонный фильтр для графиков/таблиц.

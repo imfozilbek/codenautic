@@ -1,6 +1,6 @@
-import i18n, {type i18n as II18n} from "i18next"
+import i18n, { type i18n as II18n } from "i18next"
 import LanguageDetector from "i18next-browser-languagedetector"
-import {initReactI18next} from "react-i18next"
+import { initReactI18next } from "react-i18next"
 
 export const SUPPORTED_LOCALES = ["en", "ru"] as const
 

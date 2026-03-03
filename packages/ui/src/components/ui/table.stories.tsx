@@ -1,7 +1,7 @@
-import {type Meta, type StoryObj} from "@storybook/react"
-import type {ReactElement} from "react"
+import { type Meta, type StoryObj } from "@storybook/react"
+import type { ReactElement } from "react"
 
-import {Table, TableBody, TableCell, TableColumn, TableHeader, TableRow} from "./table"
+import { Table, TableBody, TableCell, TableColumn, TableHeader, TableRow } from "./table"
 
 const rows = [
     {
@@ -39,12 +39,14 @@ export const Default: Story = {
                 <TableColumn>Open issues</TableColumn>
             </TableHeader>
             <TableBody>
-                {rows.map((item): ReactElement => (
-                    <TableRow key={item.id}>
-                        <TableCell>{item.repository}</TableCell>
-                        <TableCell>{item.issues}</TableCell>
-                    </TableRow>
-                ))}
+                {rows.map(
+                    (item): ReactElement => (
+                        <TableRow key={item.id}>
+                            <TableCell>{item.repository}</TableCell>
+                            <TableCell>{item.issues}</TableCell>
+                        </TableRow>
+                    ),
+                )}
             </TableBody>
         </Table>
     ),

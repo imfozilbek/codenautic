@@ -1,5 +1,5 @@
 import * as Sentry from "@sentry/react"
-import {onCLS, onINP, onLCP, type Metric, type ReportCallback} from "web-vitals"
+import { onCLS, onINP, onLCP, type Metric, type ReportCallback } from "web-vitals"
 
 /**
  * Core Web Vitals, отправляемые в мониторинг.

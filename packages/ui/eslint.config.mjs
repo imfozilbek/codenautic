@@ -35,7 +35,7 @@ export default tseslint.config(
             ],
             "@typescript-eslint/strict-boolean-expressions": "error",
             "@typescript-eslint/no-non-null-assertion": "error",
-            "@typescript-eslint/no-empty-object-type": ["error", {allowInterfaces: "always"}],
+            "@typescript-eslint/no-empty-object-type": ["error", { allowInterfaces: "always" }],
             "@typescript-eslint/naming-convention": [
                 "error",
                 {
@@ -53,13 +53,13 @@ export default tseslint.config(
             eqeqeq: ["error", "always"],
             curly: ["error", "all"],
             "no-console": "error",
-            "max-params": ["error", {max: 5}],
+            "max-params": ["error", { max: 5 }],
             "max-lines-per-function": [
                 "error",
-                {max: 100, skipBlankLines: true, skipComments: true},
+                { max: 100, skipBlankLines: true, skipComments: true },
             ],
-            complexity: ["error", {max: 10}],
-            "max-depth": ["error", {max: 4}],
+            complexity: ["error", { max: 10 }],
+            "max-depth": ["error", { max: 4 }],
             "no-restricted-imports": [
                 "error",
                 {

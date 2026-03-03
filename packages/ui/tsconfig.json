@@ -1,50 +1,38 @@
 {
-  "compilerOptions": {
-    "target": "ESNext",
-    "module": "ESNext",
-    "moduleResolution": "bundler",
-    "strict": true,
-    "noUncheckedIndexedAccess": true,
-    "sourceMap": true,
-    "esModuleInterop": true,
-    "forceConsistentCasingInFileNames": true,
-    "skipLibCheck": true,
-    "resolveJsonModule": true,
-    "isolatedModules": true,
-    "noEmit": true,
-    "rootDir": ".",
-    "outDir": "./dist",
-    "types": [
-      "vite/client"
+    "compilerOptions": {
+        "target": "ESNext",
+        "module": "ESNext",
+        "moduleResolution": "bundler",
+        "strict": true,
+        "noUncheckedIndexedAccess": true,
+        "sourceMap": true,
+        "esModuleInterop": true,
+        "forceConsistentCasingInFileNames": true,
+        "skipLibCheck": true,
+        "resolveJsonModule": true,
+        "isolatedModules": true,
+        "noEmit": true,
+        "rootDir": ".",
+        "outDir": "./dist",
+        "types": ["vite/client"],
+        "jsx": "react-jsx",
+        "lib": ["dom", "dom.iterable", "esnext"],
+        "allowJs": true,
+        "incremental": true,
+        "verbatimModuleSyntax": false,
+        "declaration": false,
+        "declarationMap": false,
+        "paths": {
+            "@/*": ["./src/*"]
+        }
+    },
+    "include": [
+        "src/**/*",
+        "vite.config.ts",
+        "vitest.config.ts",
+        "postcss.config.mjs",
+        "tests/**/*",
+        ".storybook/**/*"
     ],
-    "jsx": "react-jsx",
-    "lib": [
-      "dom",
-      "dom.iterable",
-      "esnext"
-    ],
-    "allowJs": true,
-    "incremental": true,
-    "verbatimModuleSyntax": false,
-    "declaration": false,
-    "declarationMap": false,
-    "paths": {
-      "@/*": [
-        "./src/*"
-      ]
-    }
-  },
-  "include": [
-    "src/**/*",
-    "vite.config.ts",
-    "vitest.config.ts",
-    "postcss.config.mjs",
-    "tests/**/*",
-    ".storybook/**/*"
-  ],
-  "exclude": [
-    "node_modules",
-    "dist",
-    "coverage"
-  ]
+    "exclude": ["node_modules", "dist", "coverage"]
 }

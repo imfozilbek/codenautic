@@ -9,36 +9,27 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as LoginRouteImport } from './routes/login'
-import { Route as SettingsCodeReviewRouteImport } from './routes/settings-code-review'
-import { Route as SettingsGitProvidersRouteImport } from './routes/settings-git-providers'
 import { Route as SettingsLlmProvidersRouteImport } from './routes/settings-llm-providers'
-import { Route as IndexRouteImport } from './routes/index'
+import { Route as SettingsGitProvidersRouteImport } from './routes/settings-git-providers'
+import { Route as SettingsCodeReviewRouteImport } from './routes/settings-code-review'
 import { Route as SettingsRouteImport } from './routes/settings'
+import { Route as ReviewsRouteImport } from './routes/reviews'
+import { Route as LoginRouteImport } from './routes/login'
+import { Route as IndexRouteImport } from './routes/index'
 
-const LoginRoute = LoginRouteImport.update({
-  id: '/login',
-  path: '/login',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const SettingsCodeReviewRoute = SettingsCodeReviewRouteImport.update({
-  id: '/settings/code-review',
-  path: '/settings/code-review',
+const SettingsLlmProvidersRoute = SettingsLlmProvidersRouteImport.update({
+  id: '/settings-llm-providers',
+  path: '/settings-llm-providers',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SettingsGitProvidersRoute = SettingsGitProvidersRouteImport.update({
-  id: '/settings/git-providers',
-  path: '/settings/git-providers',
+  id: '/settings-git-providers',
+  path: '/settings-git-providers',
   getParentRoute: () => rootRouteImport,
 } as any)
-const SettingsLlmProvidersRoute = SettingsLlmProvidersRouteImport.update({
-  id: '/settings/llm-providers',
-  path: '/settings/llm-providers',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
+const SettingsCodeReviewRoute = SettingsCodeReviewRouteImport.update({
+  id: '/settings-code-review',
+  path: '/settings-code-review',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SettingsRoute = SettingsRouteImport.update({
@@ -46,56 +37,111 @@ const SettingsRoute = SettingsRouteImport.update({
   path: '/settings',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ReviewsRoute = ReviewsRouteImport.update({
+  id: '/reviews',
+  path: '/reviews',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const IndexRoute = IndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
+  '/reviews': typeof ReviewsRoute
   '/settings': typeof SettingsRoute
-  '/settings/code-review': typeof SettingsCodeReviewRoute
-  '/settings/llm-providers': typeof SettingsLlmProvidersRoute
-  '/settings/git-providers': typeof SettingsGitProvidersRoute
+  '/settings-code-review': typeof SettingsCodeReviewRoute
+  '/settings-git-providers': typeof SettingsGitProvidersRoute
+  '/settings-llm-providers': typeof SettingsLlmProvidersRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
+  '/reviews': typeof ReviewsRoute
   '/settings': typeof SettingsRoute
-  '/settings/code-review': typeof SettingsCodeReviewRoute
-  '/settings/llm-providers': typeof SettingsLlmProvidersRoute
-  '/settings/git-providers': typeof SettingsGitProvidersRoute
+  '/settings-code-review': typeof SettingsCodeReviewRoute
+  '/settings-git-providers': typeof SettingsGitProvidersRoute
+  '/settings-llm-providers': typeof SettingsLlmProvidersRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
+  '/reviews': typeof ReviewsRoute
   '/settings': typeof SettingsRoute
-  '/settings/code-review': typeof SettingsCodeReviewRoute
-  '/settings/llm-providers': typeof SettingsLlmProvidersRoute
-  '/settings/git-providers': typeof SettingsGitProvidersRoute
+  '/settings-code-review': typeof SettingsCodeReviewRoute
+  '/settings-git-providers': typeof SettingsGitProvidersRoute
+  '/settings-llm-providers': typeof SettingsLlmProvidersRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/login' | '/settings' | '/settings/code-review' | '/settings/llm-providers' | '/settings/git-providers'
+  fullPaths:
+    | '/'
+    | '/login'
+    | '/reviews'
+    | '/settings'
+    | '/settings-code-review'
+    | '/settings-git-providers'
+    | '/settings-llm-providers'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/login' | '/settings' | '/settings/code-review' | '/settings/llm-providers' | '/settings/git-providers'
-  id: '__root__' | '/' | '/login' | '/settings' | '/settings/code-review' | '/settings/llm-providers' | '/settings/git-providers'
+  to:
+    | '/'
+    | '/login'
+    | '/reviews'
+    | '/settings'
+    | '/settings-code-review'
+    | '/settings-git-providers'
+    | '/settings-llm-providers'
+  id:
+    | '__root__'
+    | '/'
+    | '/login'
+    | '/reviews'
+    | '/settings'
+    | '/settings-code-review'
+    | '/settings-git-providers'
+    | '/settings-llm-providers'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   LoginRoute: typeof LoginRoute
+  ReviewsRoute: typeof ReviewsRoute
+  SettingsRoute: typeof SettingsRoute
   SettingsCodeReviewRoute: typeof SettingsCodeReviewRoute
   SettingsGitProvidersRoute: typeof SettingsGitProvidersRoute
   SettingsLlmProvidersRoute: typeof SettingsLlmProvidersRoute
-  SettingsRoute: typeof SettingsRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/login': {
-      id: '/login'
-      path: '/login'
-      fullPath: '/login'
-      preLoaderRoute: typeof LoginRouteImport
+    '/settings-llm-providers': {
+      id: '/settings-llm-providers'
+      path: '/settings-llm-providers'
+      fullPath: '/settings-llm-providers'
+      preLoaderRoute: typeof SettingsLlmProvidersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/settings-git-providers': {
+      id: '/settings-git-providers'
+      path: '/settings-git-providers'
+      fullPath: '/settings-git-providers'
+      preLoaderRoute: typeof SettingsGitProvidersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/settings-code-review': {
+      id: '/settings-code-review'
+      path: '/settings-code-review'
+      fullPath: '/settings-code-review'
+      preLoaderRoute: typeof SettingsCodeReviewRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/settings': {
@@ -105,25 +151,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SettingsRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/settings/code-review': {
-      id: '/settings/code-review'
-      path: '/settings/code-review'
-      fullPath: '/settings/code-review'
-      preLoaderRoute: typeof SettingsCodeReviewRouteImport
+    '/reviews': {
+      id: '/reviews'
+      path: '/reviews'
+      fullPath: '/reviews'
+      preLoaderRoute: typeof ReviewsRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/settings/git-providers': {
-      id: '/settings/git-providers'
-      path: '/settings/git-providers'
-      fullPath: '/settings/git-providers'
-      preLoaderRoute: typeof SettingsGitProvidersRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/settings/llm-providers': {
-      id: '/settings/llm-providers'
-      path: '/settings/llm-providers'
-      fullPath: '/settings/llm-providers'
-      preLoaderRoute: typeof SettingsLlmProvidersRouteImport
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -139,10 +178,11 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   LoginRoute: LoginRoute,
-  SettingsCodeReviewRoute,
-  SettingsGitProvidersRoute,
-  SettingsLlmProvidersRoute,
-  SettingsRoute,
+  ReviewsRoute: ReviewsRoute,
+  SettingsRoute: SettingsRoute,
+  SettingsCodeReviewRoute: SettingsCodeReviewRoute,
+  SettingsGitProvidersRoute: SettingsGitProvidersRoute,
+  SettingsLlmProvidersRoute: SettingsLlmProvidersRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

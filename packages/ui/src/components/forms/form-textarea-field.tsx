@@ -1,22 +1,31 @@
-import {type ReactElement} from "react"
-import {Controller, type Control, type ControllerProps, type FieldPath, type FieldValues} from "react-hook-form"
-import {Textarea} from "@/components/ui"
-import {type TextareaProps} from "@heroui/react"
+import { type ReactElement } from "react"
+import {
+    Controller,
+    type Control,
+    type ControllerProps,
+    type FieldPath,
+    type FieldValues,
+} from "react-hook-form"
+import { Textarea } from "@/components/ui"
+import { type TextareaProps } from "@heroui/react"
 
-import {pickFieldMessage} from "./form-field-utils"
+import { pickFieldMessage } from "./form-field-utils"
 
 /**
  * Правила валидации для RHF textarea.
  */
-type FormTextareaFieldRules<TFormValues extends FieldValues, TName extends FieldPath<TFormValues>> = Omit<
-    ControllerProps<TFormValues, TName>,
-    "render" | "name" | "control"
->["rules"]
+type FormTextareaFieldRules<
+    TFormValues extends FieldValues,
+    TName extends FieldPath<TFormValues>,
+> = Omit<ControllerProps<TFormValues, TName>, "render" | "name" | "control">["rules"]
 
 /**
  * Свойства textarea-поля.
  */
-export interface IFormTextareaFieldProps<TFormValues extends FieldValues, TName extends FieldPath<TFormValues>> {
+export interface IFormTextareaFieldProps<
+    TFormValues extends FieldValues,
+    TName extends FieldPath<TFormValues>,
+> {
     /** Контроллер формы. */
     readonly control: Control<TFormValues>
     /** Имя поля в форме. */
@@ -54,7 +63,7 @@ export function FormTextareaField<
             control={props.control}
             name={props.name}
             rules={props.rules}
-            render={({field, fieldState}): ReactElement => {
+            render={({ field, fieldState }): ReactElement => {
                 const errorMessage = fieldState.error?.message
                 const hasError = errorMessage !== undefined
                 const value = field.value === undefined ? "" : field.value
@@ -69,7 +78,9 @@ export function FormTextareaField<
                         )}
                         <Textarea
                             aria-describedby={
-                                hasError || props.helperText !== undefined ? `${fieldId}-helper` : undefined
+                                hasError || props.helperText !== undefined
+                                    ? `${fieldId}-helper`
+                                    : undefined
                             }
                             aria-invalid={hasError}
                             id={fieldId}
@@ -81,7 +92,9 @@ export function FormTextareaField<
                             onChange={field.onChange}
                             {...props.textareaProps}
                         />
-                        <span id={`${fieldId}-helper`}>{pickFieldMessage(errorMessage, props.helperText)}</span>
+                        <span id={`${fieldId}-helper`}>
+                            {pickFieldMessage(errorMessage, props.helperText)}
+                        </span>
                     </div>
                 )
             }}

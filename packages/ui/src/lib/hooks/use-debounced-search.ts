@@ -1,5 +1,10 @@
-import {useDebounce} from "@/lib/hooks/use-debounce"
-import {type UseQueryOptions, useQuery, type UseQueryResult, type QueryKey} from "@tanstack/react-query"
+import { useDebounce } from "@/lib/hooks/use-debounce"
+import {
+    type UseQueryOptions,
+    useQuery,
+    type UseQueryResult,
+    type QueryKey,
+} from "@tanstack/react-query"
 
 /**
  * Параметры debounced search + React Query хука.
@@ -12,7 +17,7 @@ export interface IUseDebouncedSearchOptions<TData, TError = Error> {
     /** Debounce delay. */
     readonly delayMs?: number
     /** Функция запроса данных. */
-    readonly queryFn: (args: {search: string; signal: AbortSignal}) => Promise<TData>
+    readonly queryFn: (args: { search: string; signal: AbortSignal }) => Promise<TData>
     /** Базовые опции React Query. */
     readonly options?: Omit<UseQueryOptions<TData, TError, TData, QueryKey>, "queryKey" | "queryFn">
     /** Разрешение запроса при пустом вводе. */
@@ -41,10 +46,13 @@ export function useDebouncedSearch<TData, TError = Error>(
     const debouncedSearch = useDebounce(options.search, options.delayMs ?? 400)
     const queryResult = useQuery({
         queryKey: [...options.queryKey, debouncedSearch] as QueryKey,
-        queryFn: async ({signal}): Promise<TData> => {
-            return options.queryFn({search: debouncedSearch, signal})
+        queryFn: async ({ signal }): Promise<TData> => {
+            return options.queryFn({ search: debouncedSearch, signal })
         },
-        enabled: options.allowEmpty === true ? options.options?.enabled ?? true : debouncedSearch.length > 0,
+        enabled:
+            options.allowEmpty === true
+                ? (options.options?.enabled ?? true)
+                : debouncedSearch.length > 0,
         ...options.options,
     })
 

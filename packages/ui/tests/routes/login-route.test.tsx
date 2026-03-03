@@ -1,16 +1,16 @@
-import {screen, waitFor} from "@testing-library/react"
-import {RouterProvider, createRouter} from "@tanstack/react-router"
-import {afterEach, describe, expect, it, vi} from "vitest"
-import {http, HttpResponse} from "msw"
+import { screen, waitFor } from "@testing-library/react"
+import { RouterProvider, createRouter } from "@tanstack/react-router"
+import { afterEach, describe, expect, it, vi } from "vitest"
+import { http, HttpResponse } from "msw"
 
-import {routeTree} from "@/routeTree.gen"
+import { routeTree } from "@/routeTree.gen"
 import {
     resolveAuthStatusHint,
     resolveLoginDestination,
     validateLoginRouteSearch,
 } from "@/routes/login"
-import {server} from "../mocks/server"
-import {renderWithProviders} from "../utils/render"
+import { server } from "../mocks/server"
+import { renderWithProviders } from "../utils/render"
 
 /**
  * Рендерит приложение с новым router и QueryClient для изолированных route-тестов.
@@ -68,7 +68,6 @@ describe("login route helpers", (): void => {
         expect(resolveAuthStatusHint("500")).toBeUndefined()
         expect(resolveAuthStatusHint(undefined)).toBeUndefined()
     })
-
 })
 
 describe("login route", (): void => {

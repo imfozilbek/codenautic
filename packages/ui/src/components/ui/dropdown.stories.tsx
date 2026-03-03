@@ -1,14 +1,9 @@
-import type {Meta, StoryObj} from "@storybook/react"
-import {
-    DropdownItem,
-    DropdownMenu,
-    DropdownSection,
-    DropdownTrigger,
-} from "@heroui/react"
-import {useState} from "react"
+import type { Meta, StoryObj } from "@storybook/react"
+import { DropdownItem, DropdownMenu, DropdownSection, DropdownTrigger } from "@heroui/react"
+import { useState } from "react"
 
-import {Button} from "@/components/ui"
-import {Dropdown} from "./dropdown"
+import { Button } from "@/components/ui"
+import { Dropdown } from "./dropdown"
 
 const meta = {
     title: "Base/Dropdown",

@@ -1,8 +1,8 @@
-import type {ReactElement, ReactNode} from "react"
+import type { ReactElement, ReactNode } from "react"
 
-import {SidebarNav} from "./sidebar-nav"
-import {SettingsNav} from "./settings-nav"
-import {Button} from "@/components/ui"
+import { SidebarNav } from "./sidebar-nav"
+import { SettingsNav } from "./settings-nav"
+import { Button } from "@/components/ui"
 
 /**
  * Свойства sidebar компонента.
@@ -38,7 +38,7 @@ export function Sidebar(props: ISidebarProps): ReactElement {
         >
             <div className="mb-2 flex items-center justify-between px-2">
                 <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
-                    {isCollapsed ? " " : props.title ?? "Navigation"}
+                    {isCollapsed ? " " : (props.title ?? "Navigation")}
                 </p>
                 <Button
                     aria-label={isCollapsed ? "Expand navigation" : "Collapse navigation"}
@@ -52,7 +52,9 @@ export function Sidebar(props: ISidebarProps): ReactElement {
                     {isCollapsed ? "›" : "‹"}
                 </Button>
             </div>
-            {props.headerSlot !== undefined ? <div className="mb-3 px-2">{props.headerSlot}</div> : null}
+            {props.headerSlot !== undefined ? (
+                <div className="mb-3 px-2">{props.headerSlot}</div>
+            ) : null}
             {isCollapsed ? null : <SidebarNav onNavigate={props.onNavigate} />}
             {isCollapsed ? null : <SettingsNav onNavigate={props.onNavigate} />}
         </aside>

@@ -26,7 +26,10 @@ export interface IFeatureFlagsResponse {
  * @param key Ключ feature flag.
  * @returns true только если флаг явно включен.
  */
-export function resolveFeatureFlag(flags: TFeatureFlagsMap | undefined, key: TFeatureFlagKey): boolean {
+export function resolveFeatureFlag(
+    flags: TFeatureFlagsMap | undefined,
+    key: TFeatureFlagKey,
+): boolean {
     if (flags === undefined) {
         return false
     }

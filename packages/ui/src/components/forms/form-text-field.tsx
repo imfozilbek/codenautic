@@ -1,23 +1,32 @@
-import {type ReactElement} from "react"
-import {Controller, type Control, type ControllerProps, type FieldPath, type FieldValues} from "react-hook-form"
+import { type ReactElement } from "react"
+import {
+    Controller,
+    type Control,
+    type ControllerProps,
+    type FieldPath,
+    type FieldValues,
+} from "react-hook-form"
 
-import {Input} from "@/components/ui"
-import {type InputProps} from "@/components/ui/input"
+import { Input } from "@/components/ui"
+import { type InputProps } from "@/components/ui/input"
 
-import {pickFieldMessage} from "./form-field-utils"
+import { pickFieldMessage } from "./form-field-utils"
 
 /**
  * Правила валидации для form field.
  */
-type FormTextFieldRules<TFormValues extends FieldValues, TName extends FieldPath<TFormValues>> = Omit<
-    ControllerProps<TFormValues, TName>,
-    "render" | "name" | "control"
->["rules"]
+type FormTextFieldRules<
+    TFormValues extends FieldValues,
+    TName extends FieldPath<TFormValues>,
+> = Omit<ControllerProps<TFormValues, TName>, "render" | "name" | "control">["rules"]
 
 /**
  * Свойства текстового RHF-поля.
  */
-export interface IFormTextFieldProps<TFormValues extends FieldValues, TName extends FieldPath<TFormValues>> {
+export interface IFormTextFieldProps<
+    TFormValues extends FieldValues,
+    TName extends FieldPath<TFormValues>,
+> {
     /** Контроллер формы. */
     readonly control: Control<TFormValues>
     /** Имя поля в форме. */
@@ -55,7 +64,7 @@ export function FormTextField<
             control={props.control}
             name={props.name}
             rules={props.rules}
-            render={({field, fieldState}): ReactElement => {
+            render={({ field, fieldState }): ReactElement => {
                 const errorMessage = fieldState.error?.message
                 const hasError = errorMessage !== undefined
                 const value = field.value === undefined ? "" : field.value
@@ -70,7 +79,9 @@ export function FormTextField<
                         )}
                         <Input
                             aria-describedby={
-                                hasError || props.helperText !== undefined ? `${fieldId}-helper` : undefined
+                                hasError || props.helperText !== undefined
+                                    ? `${fieldId}-helper`
+                                    : undefined
                             }
                             aria-invalid={hasError}
                             id={fieldId}
@@ -82,7 +93,9 @@ export function FormTextField<
                             onChange={field.onChange}
                             {...props.inputProps}
                         />
-                        <span id={`${fieldId}-helper`}>{pickFieldMessage(errorMessage, props.helperText)}</span>
+                        <span id={`${fieldId}-helper`}>
+                            {pickFieldMessage(errorMessage, props.helperText)}
+                        </span>
                     </div>
                 )
             }}

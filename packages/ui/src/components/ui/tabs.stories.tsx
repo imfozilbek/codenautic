@@ -1,8 +1,8 @@
-import {type Meta, type StoryObj} from "@storybook/react"
-import {useState} from "react"
-import type {ReactElement} from "react"
+import { type Meta, type StoryObj } from "@storybook/react"
+import { useState } from "react"
+import type { ReactElement } from "react"
 
-import {Tab, Tabs} from "./tabs"
+import { Tab, Tabs } from "./tabs"
 
 const meta = {
     title: "Base/Tabs",

@@ -1,39 +1,39 @@
 openapi: 3.0.3
 info:
-  title: CodeNautic Runtime API
-  version: 0.1.0
+    title: CodeNautic Runtime API
+    version: 0.1.0
 paths:
-  /api/v1/health:
-    get:
-      operationId: getSystemHealth
-      summary: Runtime API health check
-      tags:
-        - system
-      responses:
-        "200":
-          description: Service is reachable
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/SystemHealthResponse"
+    /api/v1/health:
+        get:
+            operationId: getSystemHealth
+            summary: Runtime API health check
+            tags:
+                - system
+            responses:
+                "200":
+                    description: Service is reachable
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/SystemHealthResponse"
 components:
-  schemas:
-    HealthStatus:
-      type: string
-      enum:
-        - ok
-        - degraded
-    SystemHealthResponse:
-      type: object
-      required:
-        - status
-        - service
-        - timestamp
-      properties:
-        status:
-          $ref: "#/components/schemas/HealthStatus"
-        service:
-          type: string
-        timestamp:
-          type: string
-          format: date-time
+    schemas:
+        HealthStatus:
+            type: string
+            enum:
+                - ok
+                - degraded
+        SystemHealthResponse:
+            type: object
+            required:
+                - status
+                - service
+                - timestamp
+            properties:
+                status:
+                    $ref: "#/components/schemas/HealthStatus"
+                service:
+                    type: string
+                timestamp:
+                    type: string
+                    format: date-time

@@ -1,6 +1,6 @@
-import type {ReactElement} from "react"
+import type { ReactElement } from "react"
 
-import {Button, Card, CardBody, CardHeader, Chip} from "@/components/ui"
+import { Button, Card, CardBody, CardHeader, Chip } from "@/components/ui"
 
 /**
  * Конфиг Git provider.
@@ -33,7 +33,9 @@ export function GitProviderCard(props: IGitProviderCardProps): ReactElement {
             <CardBody>
                 <div className="flex flex-col gap-2">
                     <p className="text-sm text-slate-600">
-                        {props.connected ? `Connected as ${props.account ?? "Unknown"}` : "Not connected"}
+                        {props.connected
+                            ? `Connected as ${props.account ?? "Unknown"}`
+                            : "Not connected"}
                     </p>
                     {props.lastSyncAt === undefined ? null : (
                         <p className="text-xs text-slate-500">Last sync: {props.lastSyncAt}</p>

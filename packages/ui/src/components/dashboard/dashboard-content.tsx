@@ -1,9 +1,9 @@
-import type {ReactElement} from "react"
+import type { ReactElement } from "react"
 
-import {Link} from "@tanstack/react-router"
-import {Alert, Card, CardBody, CardHeader} from "@/components/ui"
-import {ActivityTimeline, type IActivityTimelineEntry} from "./activity-timeline"
-import {StatusDistributionChart, type IStatusDistributionPoint} from "./status-distribution-chart"
+import { Link } from "@tanstack/react-router"
+import { Alert, Card, CardBody, CardHeader } from "@/components/ui"
+import { ActivityTimeline, type IActivityTimelineEntry } from "./activity-timeline"
+import { StatusDistributionChart, type IStatusDistributionPoint } from "./status-distribution-chart"
 
 /**
  * Запись в work queue.
@@ -41,37 +41,50 @@ export interface IDashboardContentProps {
  * @returns Контент: очереди + сигналы + активность.
  */
 export function DashboardContent(props: IDashboardContentProps): ReactElement {
-    const hasCriticalSignals = props.workQueue.some((item): boolean => item.id.startsWith("critical"))
+    const hasCriticalSignals = props.workQueue.some((item): boolean =>
+        item.id.startsWith("critical"),
+    )
 
     return (
         <section className="grid gap-4 lg:grid-cols-[2fr_1fr]">
             <div className="space-y-4">
                 <Card>
                     <CardHeader>
-                        <h3 className="text-base font-semibold text-slate-900">Signals & Work Queue</h3>
+                        <h3 className="text-base font-semibold text-slate-900">
+                            Signals & Work Queue
+                        </h3>
                     </CardHeader>
                     <CardBody>
                         {hasCriticalSignals ? (
-                            <Alert className="mb-4" color="warning" title="Ops notice" variant="flat">
+                            <Alert
+                                className="mb-4"
+                                color="warning"
+                                title="Ops notice"
+                                variant="flat"
+                            >
                                 Есть критические сигналы, проверьте вкладку CCR Management.
                             </Alert>
                         ) : null}
                         <ul className="space-y-2" aria-label="Work queue">
-                            {props.workQueue.map((item): ReactElement => (
-                                <li
-                                    key={item.id}
-                                    className="rounded-lg border border-slate-200 bg-slate-50 p-3"
-                                >
-                                    <p className="text-sm font-semibold text-slate-900">{item.title}</p>
-                                    <p className="text-sm text-slate-600">{item.description}</p>
-                                    <Link
-                                        className="mt-2 inline-block text-sm text-slate-900 underline underline-offset-4"
-                                        to={item.route}
+                            {props.workQueue.map(
+                                (item): ReactElement => (
+                                    <li
+                                        key={item.id}
+                                        className="rounded-lg border border-slate-200 bg-slate-50 p-3"
                                     >
-                                        Open {item.id}
-                                    </Link>
-                                </li>
-                            ))}
+                                        <p className="text-sm font-semibold text-slate-900">
+                                            {item.title}
+                                        </p>
+                                        <p className="text-sm text-slate-600">{item.description}</p>
+                                        <Link
+                                            className="mt-2 inline-block text-sm text-slate-900 underline underline-offset-4"
+                                            to={item.route}
+                                        >
+                                            Open {item.id}
+                                        </Link>
+                                    </li>
+                                ),
+                            )}
                         </ul>
                     </CardBody>
                 </Card>

@@ -1,5 +1,5 @@
-import type {ReactElement} from "react"
-import {useTranslation} from "react-i18next"
+import type { ReactElement } from "react"
+import { useTranslation } from "react-i18next"
 
 /**
  * Fallback для route-level Suspense границ во время lazy загрузки экрана.
@@ -7,7 +7,7 @@ import {useTranslation} from "react-i18next"
  * @returns Временное состояние загрузки экрана.
  */
 export function RouteSuspenseFallback(): ReactElement {
-    const {t} = useTranslation(["common"])
+    const { t } = useTranslation(["common"])
 
     return (
         <section

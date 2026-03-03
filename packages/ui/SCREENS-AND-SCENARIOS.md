@@ -28,112 +28,112 @@
 
 ## 2.1 Core App, Auth, Dashboard, Review Hub
 
-| Экран | Назначение | Основные действия | Референсы задач |
-|---|---|---|---|
-| Login Screen | Авторизация и возврат на целевой маршрут | OAuth/OIDC login, обработка 401/403, redirect обратно в `next` | `WEB-AUTH-001`, `WEB-AUTH-005` |
-| App Shell | Базовый layout приложения | Sidebar, header, route-level lazy loading, loading states | `WEB-LAYOUT-001..005` |
-| Command Palette | Глобальная навигация и действия | Cmd+K palette, global search, actions, recent | `WEB-SRCH-004`, `WEB-KBD-001`, `WEB-KBD-002` |
-| Keyboard Cheatsheet | Быстрый доступ к шорткатам | Overlay справка, поиск по командам, page-scope shortcuts | `WEB-KBD-001`, `WEB-KBD-002` |
-| Dashboard | Операционный обзор состояния системы | Метрики, timeline, фильтры периода, drill-down | `WEB-PAGE-001`, `WEB-DASH-001..006`, `WEB-COMP-001..004`, `WEB-CHART-001..002` |
-| Activation Checklist | Быстрый путь к first value в новом org | Setup progress, role-aware шаги, deep-links, blockers | `WEB-ACT-001` |
-| My Work / Triage | Единый triage для ежедневной работы | Очередь: CCRs/issues/inbox/jobs, фильтры, быстрые actions, deep-links | `WEB-INBOX-001`, `WEB-INBOX-002`, `WEB-KBD-001` |
-| CCR Management | Управление списком ревью/CCR | Фильтры, виртуализация, infinite list, переход в review context | `WEB-PAGE-002`, `WEB-VIRT-003`, `WEB-INF-003`, `WEB-SRCH-001..004` |
-| Issues Tracking | Трекинг найденных issues | Список issues, фильтры по severity/status, inline actions | `WEB-PAGE-006` |
-| Review Diff Workspace | Детальный просмотр ревью | Diff viewer, comment threads, streaming updates, контекстный sidebar | `WEB-COMP-005..007`, `WEB-RVCTX-001..005` |
-| Dry Run Results | Пробный прогон правил перед применением | Просмотр dry-run результата, выбор cadence | `WEB-PAGE-020`, `WEB-COMP-013`, `WEB-PAGE-021`, `WEB-COMP-014` |
+| Экран                 | Назначение                               | Основные действия                                                     | Референсы задач                                                                |
+| --------------------- | ---------------------------------------- | --------------------------------------------------------------------- | ------------------------------------------------------------------------------ |
+| Login Screen          | Авторизация и возврат на целевой маршрут | OAuth/OIDC login, обработка 401/403, redirect обратно в `next`        | `WEB-AUTH-001`, `WEB-AUTH-005`                                                 |
+| App Shell             | Базовый layout приложения                | Sidebar, header, route-level lazy loading, loading states             | `WEB-LAYOUT-001..005`                                                          |
+| Command Palette       | Глобальная навигация и действия          | Cmd+K palette, global search, actions, recent                         | `WEB-SRCH-004`, `WEB-KBD-001`, `WEB-KBD-002`                                   |
+| Keyboard Cheatsheet   | Быстрый доступ к шорткатам               | Overlay справка, поиск по командам, page-scope shortcuts              | `WEB-KBD-001`, `WEB-KBD-002`                                                   |
+| Dashboard             | Операционный обзор состояния системы     | Метрики, timeline, фильтры периода, drill-down                        | `WEB-PAGE-001`, `WEB-DASH-001..006`, `WEB-COMP-001..004`, `WEB-CHART-001..002` |
+| Activation Checklist  | Быстрый путь к first value в новом org   | Setup progress, role-aware шаги, deep-links, blockers                 | `WEB-ACT-001`                                                                  |
+| My Work / Triage      | Единый triage для ежедневной работы      | Очередь: CCRs/issues/inbox/jobs, фильтры, быстрые actions, deep-links | `WEB-INBOX-001`, `WEB-INBOX-002`, `WEB-KBD-001`                                |
+| CCR Management        | Управление списком ревью/CCR             | Фильтры, виртуализация, infinite list, переход в review context       | `WEB-PAGE-002`, `WEB-VIRT-003`, `WEB-INF-003`, `WEB-SRCH-001..004`             |
+| Issues Tracking       | Трекинг найденных issues                 | Список issues, фильтры по severity/status, inline actions             | `WEB-PAGE-006`                                                                 |
+| Review Diff Workspace | Детальный просмотр ревью                 | Diff viewer, comment threads, streaming updates, контекстный sidebar  | `WEB-COMP-005..007`, `WEB-RVCTX-001..005`                                      |
+| Dry Run Results       | Пробный прогон правил перед применением  | Просмотр dry-run результата, выбор cadence                            | `WEB-PAGE-020`, `WEB-COMP-013`, `WEB-PAGE-021`, `WEB-COMP-014`                 |
 
 ## 2.2 Conversation And Assistant Surfaces
 
-| Экран | Назначение | Основные действия | Референсы задач |
-|---|---|---|---|
-| Chat Panel | Контекстный AI-чат в рамках CCR и кода | Отправка запросов, стриминг ответов, markdown/code rendering | `WEB-CHAT-001`, `WEB-CHAT-003`, `WEB-CHAT-005` |
-| Chat Thread List | История и навигация по тредам | Новый тред, переключение, архив, фильтры | `WEB-CHAT-004` |
-| Chat Context Strip | Понимание контекста для ответа | Показывает текущий репозиторий/CCR/файлы, code references | `WEB-CHAT-006`, `WEB-CHAT-007`, `WEB-CHAT-008` |
+| Экран              | Назначение                             | Основные действия                                            | Референсы задач                                |
+| ------------------ | -------------------------------------- | ------------------------------------------------------------ | ---------------------------------------------- |
+| Chat Panel         | Контекстный AI-чат в рамках CCR и кода | Отправка запросов, стриминг ответов, markdown/code rendering | `WEB-CHAT-001`, `WEB-CHAT-003`, `WEB-CHAT-005` |
+| Chat Thread List   | История и навигация по тредам          | Новый тред, переключение, архив, фильтры                     | `WEB-CHAT-004`                                 |
+| Chat Context Strip | Понимание контекста для ответа         | Показывает текущий репозиторий/CCR/файлы, code references    | `WEB-CHAT-006`, `WEB-CHAT-007`, `WEB-CHAT-008` |
 
 ## 2.3 Onboarding And Repository Lifecycle
 
-| Экран | Назначение | Основные действия | Референсы задач |
-|---|---|---|---|
-| Onboarding Wizard | Первичное подключение репозитория | Выбор провайдера, подключение, запуск скана | `WEB-ONBRD-001` |
-| Bulk Onboarding | Подключение десятков репозиториев за один проход | Import repos, multi-select, templates, parallel scans, progress | `WEB-ONBRD-008`, `WEB-ONBRD-009` |
-| Scan Progress Page | Мониторинг состояния скана | Просмотр прогресса, статус пайплайна | `WEB-ONBRD-002` |
-| Repositories List | Каталог подключенных репозиториев | Поиск/фильтры, выбор репозитория | `WEB-ONBRD-003` |
-| Repository Overview | Сводка по одному репозиторию | Статус, метрики, действия сканирования | `WEB-ONBRD-004` |
-| Rescan Schedule Dialog | Планирование повторного сканирования | Cron-like schedule, ручной запуск | `WEB-ONBRD-005` |
-| Scan Error Recovery | Восстановление после ошибок скана | Retry, диагностика, fallback сценарии | `WEB-ONBRD-007` |
-| Onboarding Empty State | Стартовый экран без репозиториев | CTA на onboarding wizard | `WEB-ONBRD-006` |
+| Экран                  | Назначение                                       | Основные действия                                               | Референсы задач                  |
+| ---------------------- | ------------------------------------------------ | --------------------------------------------------------------- | -------------------------------- |
+| Onboarding Wizard      | Первичное подключение репозитория                | Выбор провайдера, подключение, запуск скана                     | `WEB-ONBRD-001`                  |
+| Bulk Onboarding        | Подключение десятков репозиториев за один проход | Import repos, multi-select, templates, parallel scans, progress | `WEB-ONBRD-008`, `WEB-ONBRD-009` |
+| Scan Progress Page     | Мониторинг состояния скана                       | Просмотр прогресса, статус пайплайна                            | `WEB-ONBRD-002`                  |
+| Repositories List      | Каталог подключенных репозиториев                | Поиск/фильтры, выбор репозитория                                | `WEB-ONBRD-003`                  |
+| Repository Overview    | Сводка по одному репозиторию                     | Статус, метрики, действия сканирования                          | `WEB-ONBRD-004`                  |
+| Rescan Schedule Dialog | Планирование повторного сканирования             | Cron-like schedule, ручной запуск                               | `WEB-ONBRD-005`                  |
+| Scan Error Recovery    | Восстановление после ошибок скана                | Retry, диагностика, fallback сценарии                           | `WEB-ONBRD-007`                  |
+| Onboarding Empty State | Стартовый экран без репозиториев                 | CTA на onboarding wizard                                        | `WEB-ONBRD-006`                  |
 
 ## 2.4 Settings, Providers, Governance
 
-| Экран | Назначение | Основные действия | Референсы задач |
-|---|---|---|---|
-| Code Review Config | Настройки ревью-правил | Ignore paths, severity, limits, cadence | `WEB-PAGE-003`, `WEB-PAGE-021`, `WEB-COMP-016`, `WEB-COMP-017` |
-| LLM Provider Config | Настройка LLM-провайдеров | BYOK key, модель, test connection | `WEB-PAGE-004`, `WEB-PAGE-015` |
-| Git Provider Config | Настройка git-провайдеров | OAuth/connectivity, webhook setup | `WEB-PAGE-005` |
-| Integrations | Сторонние интеграции | Jira/Linear/Sentry/Slack connect/disconnect | `WEB-PAGE-007` |
-| Webhook Management | Управление webhook endpoints | Create/delete, rotate secret, logs | `WEB-PAGE-008` |
-| Token Usage | Мониторинг использования LLM | Usage by model/developer/CCR, cost estimate, date range | `WEB-PAGE-009` |
-| Usage & Adoption Analytics | Внедрение и value realization | Funnels time-to-first-value, drop-offs, adoption, activity | `WEB-PAGE-025`, `WEB-HOOK-007` |
-| Team Management | Управление командами и ролями | Create team, assign repos, roles | `WEB-PAGE-011` |
-| Organization Settings | Орг-настройки и billing | Name, members, billing, audit points | `WEB-PAGE-010` |
-| SAML/OIDC Management | Корпоративный SSO | Configure, validate, test SSO | `WEB-PAGE-014` |
-| Audit Logs | История действий | Фильтры actor/action/date, экспорт | `WEB-PAGE-013` |
-| External Context Settings | Подключение внешнего контекста | Source list, preview, enable/disable | `WEB-PAGE-016`, `WEB-PAGE-017`, `WEB-COMP-009`, `WEB-COMP-010` |
-| Repo Config Settings | Конфигурация репозитория | Ignore patterns, config editor, save/validate | `WEB-PAGE-018`, `WEB-PAGE-019`, `WEB-COMP-011`, `WEB-COMP-012` |
-| MCP Admin Screen | Управление MCP на UI-уровне | Tool list, enablement, health checks | `WEB-PAGE-024`, `WEB-COMP-018` |
-| Rules Library | Библиотека правил и редактор | Browse/import/create/test custom rules | `WEB-PAGE-012`, `WEB-COMP-008` |
-| Notification Center | Центр событий и алертов | Inbox, read/unread, deep-link в контекст, channel preferences | `WEB-NOTIF-001` |
-| SafeGuard Explain Panel | Прозрачность фильтров AI | Trace по dedup/hallucination/severity и причины фильтрации | `WEB-SAFE-001` |
-| Feedback Learning Console | UI-цикл обучения на фидбеке | Accept/reject reason, false-positive marking, feedback status | `WEB-FDBK-001` |
-| Organization Switcher | Переключение tenant-контекста | Смена организации/workspace, guard от смешивания данных | `WEB-TEN-001` |
-| RBAC Policy States | Ролевой контроль действий | Hidden/disabled states, reason hints для restricted actions | `WEB-RBAC-001` |
-| Navigation IA Guarded Routes | Управляемая навигационная карта | Route tree, breadcrumb, search shortcuts, guard matrix | `WEB-NAV-001` |
-| Billing Lifecycle Console | Состояния подписки и entitlement | trial/active/past-due/canceled, feature locks, upgrade/downgrade | `WEB-BILL-001` |
-| Job Operations Center | Операционный мониторинг фоновых задач | Status/ETA/retries, stuck recovery, requeue/cancel, audit trail | `WEB-JOB-001` |
-| Session Recovery Flow | Восстановление работы после истечения сессии | Autosave draft, forced re-auth, restore and retry | `WEB-SESSION-001` |
-| Concurrent Edit Resolver | Разрешение конфликтов при параллельном редактировании | Version conflict detect, compare/merge, safe retry | `WEB-CONCUR-001` |
-| Runtime Policy Drift Guard | Актуализация прав доступа в активной сессии | Permission cache invalidation, non-destructive action lock, fallback route | `WEB-POLICY-001` |
-| Deep-link Guard Screen | Безопасный вход по ссылкам из уведомлений и внешних систем | Tenant/role/query validation, sanitize params, safe redirect | `WEB-LINK-001` |
-| Provider Degradation Console | Работа в режиме деградации внешних провайдеров | Degraded banners, retry windows, runbook shortcuts | `WEB-OUTAGE-001` |
-| Bulk Action Command Bar | Массовые операции с контролируемым откатом | Multi-select, batch actions, undo timer, audit event | `WEB-BULK-001` |
-| Enterprise Data Table Kit | Единые enterprise-паттерны таблиц | Виртуализация, колонки, плотность, клавиатура, экспорт, saved views | `WEB-TBL-001` |
-| Data Freshness & Provenance | Доверие к данным и объяснение источника | Last updated, staleness, provenance drawer, refresh/rescan CTA | `WEB-FRESH-001` |
-| Timezone & Schedule Preview | Предсказуемые расписания без двусмысленностей | Timezone selection, next-runs preview, DST-safe schedule | `WEB-TZ-001` |
-| Help & Diagnostics Center | Self-serve помощь и диагностика | Search help, run diagnostics, generate redacted support bundle | `WEB-HELP-001` |
-| System Empty/Error States | Единые состояния empty/error/loading/partial | Microcopy + CTA, reusable templates, consistent semantics | `WEB-STATE-001` |
-| Data Contract Validator | Контроль совместимости импортируемых данных | Schema/version checks, migration hints, preview before apply | `WEB-CONTRACT-001` |
-| Safe Export Redaction Panel | Защита от утечки секретов и PII | Redaction suggestions, secure copy/export, compliance hints | `WEB-PRIV-001` |
-| Cross-tab State Sync Guard | Консистентность контекста между вкладками | Tenant/theme/permissions sync через broadcast + safe refresh | `WEB-MTAB-001` |
-| Accessibility & Localization Regression Lab | Системный e2e контроль качества интерфейса | Keyboard-only journeys, long-locale checks, screen reader assertions | `WEB-E2E-001` |
+| Экран                                       | Назначение                                                 | Основные действия                                                          | Референсы задач                                                |
+| ------------------------------------------- | ---------------------------------------------------------- | -------------------------------------------------------------------------- | -------------------------------------------------------------- |
+| Code Review Config                          | Настройки ревью-правил                                     | Ignore paths, severity, limits, cadence                                    | `WEB-PAGE-003`, `WEB-PAGE-021`, `WEB-COMP-016`, `WEB-COMP-017` |
+| LLM Provider Config                         | Настройка LLM-провайдеров                                  | BYOK key, модель, test connection                                          | `WEB-PAGE-004`, `WEB-PAGE-015`                                 |
+| Git Provider Config                         | Настройка git-провайдеров                                  | OAuth/connectivity, webhook setup                                          | `WEB-PAGE-005`                                                 |
+| Integrations                                | Сторонние интеграции                                       | Jira/Linear/Sentry/Slack connect/disconnect                                | `WEB-PAGE-007`                                                 |
+| Webhook Management                          | Управление webhook endpoints                               | Create/delete, rotate secret, logs                                         | `WEB-PAGE-008`                                                 |
+| Token Usage                                 | Мониторинг использования LLM                               | Usage by model/developer/CCR, cost estimate, date range                    | `WEB-PAGE-009`                                                 |
+| Usage & Adoption Analytics                  | Внедрение и value realization                              | Funnels time-to-first-value, drop-offs, adoption, activity                 | `WEB-PAGE-025`, `WEB-HOOK-007`                                 |
+| Team Management                             | Управление командами и ролями                              | Create team, assign repos, roles                                           | `WEB-PAGE-011`                                                 |
+| Organization Settings                       | Орг-настройки и billing                                    | Name, members, billing, audit points                                       | `WEB-PAGE-010`                                                 |
+| SAML/OIDC Management                        | Корпоративный SSO                                          | Configure, validate, test SSO                                              | `WEB-PAGE-014`                                                 |
+| Audit Logs                                  | История действий                                           | Фильтры actor/action/date, экспорт                                         | `WEB-PAGE-013`                                                 |
+| External Context Settings                   | Подключение внешнего контекста                             | Source list, preview, enable/disable                                       | `WEB-PAGE-016`, `WEB-PAGE-017`, `WEB-COMP-009`, `WEB-COMP-010` |
+| Repo Config Settings                        | Конфигурация репозитория                                   | Ignore patterns, config editor, save/validate                              | `WEB-PAGE-018`, `WEB-PAGE-019`, `WEB-COMP-011`, `WEB-COMP-012` |
+| MCP Admin Screen                            | Управление MCP на UI-уровне                                | Tool list, enablement, health checks                                       | `WEB-PAGE-024`, `WEB-COMP-018`                                 |
+| Rules Library                               | Библиотека правил и редактор                               | Browse/import/create/test custom rules                                     | `WEB-PAGE-012`, `WEB-COMP-008`                                 |
+| Notification Center                         | Центр событий и алертов                                    | Inbox, read/unread, deep-link в контекст, channel preferences              | `WEB-NOTIF-001`                                                |
+| SafeGuard Explain Panel                     | Прозрачность фильтров AI                                   | Trace по dedup/hallucination/severity и причины фильтрации                 | `WEB-SAFE-001`                                                 |
+| Feedback Learning Console                   | UI-цикл обучения на фидбеке                                | Accept/reject reason, false-positive marking, feedback status              | `WEB-FDBK-001`                                                 |
+| Organization Switcher                       | Переключение tenant-контекста                              | Смена организации/workspace, guard от смешивания данных                    | `WEB-TEN-001`                                                  |
+| RBAC Policy States                          | Ролевой контроль действий                                  | Hidden/disabled states, reason hints для restricted actions                | `WEB-RBAC-001`                                                 |
+| Navigation IA Guarded Routes                | Управляемая навигационная карта                            | Route tree, breadcrumb, search shortcuts, guard matrix                     | `WEB-NAV-001`                                                  |
+| Billing Lifecycle Console                   | Состояния подписки и entitlement                           | trial/active/past-due/canceled, feature locks, upgrade/downgrade           | `WEB-BILL-001`                                                 |
+| Job Operations Center                       | Операционный мониторинг фоновых задач                      | Status/ETA/retries, stuck recovery, requeue/cancel, audit trail            | `WEB-JOB-001`                                                  |
+| Session Recovery Flow                       | Восстановление работы после истечения сессии               | Autosave draft, forced re-auth, restore and retry                          | `WEB-SESSION-001`                                              |
+| Concurrent Edit Resolver                    | Разрешение конфликтов при параллельном редактировании      | Version conflict detect, compare/merge, safe retry                         | `WEB-CONCUR-001`                                               |
+| Runtime Policy Drift Guard                  | Актуализация прав доступа в активной сессии                | Permission cache invalidation, non-destructive action lock, fallback route | `WEB-POLICY-001`                                               |
+| Deep-link Guard Screen                      | Безопасный вход по ссылкам из уведомлений и внешних систем | Tenant/role/query validation, sanitize params, safe redirect               | `WEB-LINK-001`                                                 |
+| Provider Degradation Console                | Работа в режиме деградации внешних провайдеров             | Degraded banners, retry windows, runbook shortcuts                         | `WEB-OUTAGE-001`                                               |
+| Bulk Action Command Bar                     | Массовые операции с контролируемым откатом                 | Multi-select, batch actions, undo timer, audit event                       | `WEB-BULK-001`                                                 |
+| Enterprise Data Table Kit                   | Единые enterprise-паттерны таблиц                          | Виртуализация, колонки, плотность, клавиатура, экспорт, saved views        | `WEB-TBL-001`                                                  |
+| Data Freshness & Provenance                 | Доверие к данным и объяснение источника                    | Last updated, staleness, provenance drawer, refresh/rescan CTA             | `WEB-FRESH-001`                                                |
+| Timezone & Schedule Preview                 | Предсказуемые расписания без двусмысленностей              | Timezone selection, next-runs preview, DST-safe schedule                   | `WEB-TZ-001`                                                   |
+| Help & Diagnostics Center                   | Self-serve помощь и диагностика                            | Search help, run diagnostics, generate redacted support bundle             | `WEB-HELP-001`                                                 |
+| System Empty/Error States                   | Единые состояния empty/error/loading/partial               | Microcopy + CTA, reusable templates, consistent semantics                  | `WEB-STATE-001`                                                |
+| Data Contract Validator                     | Контроль совместимости импортируемых данных                | Schema/version checks, migration hints, preview before apply               | `WEB-CONTRACT-001`                                             |
+| Safe Export Redaction Panel                 | Защита от утечки секретов и PII                            | Redaction suggestions, secure copy/export, compliance hints                | `WEB-PRIV-001`                                                 |
+| Cross-tab State Sync Guard                  | Консистентность контекста между вкладками                  | Tenant/theme/permissions sync через broadcast + safe refresh               | `WEB-MTAB-001`                                                 |
+| Accessibility & Localization Regression Lab | Системный e2e контроль качества интерфейса                 | Keyboard-only journeys, long-locale checks, screen reader assertions       | `WEB-E2E-001`                                                  |
 
 ## 2.5 Theme And Personalization (HeroUI-like)
 
-| Экран | Назначение | Основные действия | Референсы задач |
-|---|---|---|---|
-| Global Theme Switcher | Быстрая смена темы из header/menu | Mode `light/dark/system`, preset switch, keyboard access | `WEB-DS-006` |
-| Appearance Settings | Расширенная настройка темы | Presets, preview, reset default | `WEB-THEME-001` |
-| Advanced Theme Controls | Тонкая настройка визуала | Accent/Base palette, radius form/global | `WEB-THEME-002` |
-| Random Preset Picker | Быстрый выбор и exploration | Random preset, quick chips, undo last random | `WEB-THEME-003` |
-| User Theme Library | Персональная библиотека тем | Create/save/duplicate/delete/import/export | `WEB-THEME-004`, `WEB-DS-005`, `WEB-DS-007` |
-| Workspace Personalization | Персонализация рабочего пространства | Default scope, pinned widgets/shortcuts, saved views, share | `WEB-PERS-001` |
+| Экран                     | Назначение                           | Основные действия                                           | Референсы задач                             |
+| ------------------------- | ------------------------------------ | ----------------------------------------------------------- | ------------------------------------------- |
+| Global Theme Switcher     | Быстрая смена темы из header/menu    | Mode `light/dark/system`, preset switch, keyboard access    | `WEB-DS-006`                                |
+| Appearance Settings       | Расширенная настройка темы           | Presets, preview, reset default                             | `WEB-THEME-001`                             |
+| Advanced Theme Controls   | Тонкая настройка визуала             | Accent/Base palette, radius form/global                     | `WEB-THEME-002`                             |
+| Random Preset Picker      | Быстрый выбор и exploration          | Random preset, quick chips, undo last random                | `WEB-THEME-003`                             |
+| User Theme Library        | Персональная библиотека тем          | Create/save/duplicate/delete/import/export                  | `WEB-THEME-004`, `WEB-DS-005`, `WEB-DS-007` |
+| Workspace Personalization | Персонализация рабочего пространства | Default scope, pinned widgets/shortcuts, saved views, share | `WEB-PERS-001`                              |
 
 ## 2.6 CodeCity, Graph, Analytics, Planning, Reports
 
-| Экран | Назначение | Основные действия | Референсы задач |
-|---|---|---|---|
-| CodeCity 2D Dashboard | 2D обзор кодовой базы | Treemap, overlays, drill-down, temporal compare | `WEB-CITY-001..008` |
-| Graph Explorer | Граф зависимостей/вызовов | Node details, highlight paths, export SVG/PNG, cross-repo | `WEB-GRAPH-001..012` |
-| CodeCity 3D View | 3D навигация по кодовой базе | Camera presets, interactions, time-lapse, performance fallback | `WEB-CITY3-001..010` |
-| Causal Analysis Workspace | Анализ причинно-следственных связей | Temporal coupling, bug heat, chain viewer, timeline | `WEB-CAUSAL-001..006`, `WEB-CAUS3D-001..005` |
-| Guided Tour Workspace | Онбординг в CodeCity | Guided steps, hot areas, role-based explore paths | `WEB-TOUR-001..006` |
-| Refactoring Planner | Планирование рефакторинга | ROI calc, timeline, simulation, export to tracker | `WEB-REFAC-001..006` |
-| Impact Planning Workspace | Оценка blast radius | What-if panel, impact graph, risk gauge, city overlay | `WEB-IMPACT-001..005` |
-| Knowledge Map Workspace | Карта владения и bus factor | Ownership overlay, silo panel, contributor graph, trends | `WEB-KNOW-001..007` |
-| Prediction Workspace | Прогнозы и ранние сигналы | Prediction dashboard, explain panel, alerts, comparison | `WEB-PRED-001..007` |
-| Team Gamification Board | Мотивационные метрики команды | Leaderboard, achievements, sprint comparison | `WEB-GAME-001..006` |
-| Drift Detection Workspace | Контроль архитектурного дрейфа | Blueprint editor, drift report, guardrails, alerts | `WEB-DRIFT-001..007` |
-| Reporting Workspace | Генерация и доставка отчётов | Generator, viewer, list, schedule, template editor | `WEB-REPORT-001..006` |
-| Explainability Drawer | Объяснимость скорингов и сигналов | Why this score, factors, confidence, data window, export | `WEB-XAI-001` |
+| Экран                     | Назначение                          | Основные действия                                              | Референсы задач                              |
+| ------------------------- | ----------------------------------- | -------------------------------------------------------------- | -------------------------------------------- |
+| CodeCity 2D Dashboard     | 2D обзор кодовой базы               | Treemap, overlays, drill-down, temporal compare                | `WEB-CITY-001..008`                          |
+| Graph Explorer            | Граф зависимостей/вызовов           | Node details, highlight paths, export SVG/PNG, cross-repo      | `WEB-GRAPH-001..012`                         |
+| CodeCity 3D View          | 3D навигация по кодовой базе        | Camera presets, interactions, time-lapse, performance fallback | `WEB-CITY3-001..010`                         |
+| Causal Analysis Workspace | Анализ причинно-следственных связей | Temporal coupling, bug heat, chain viewer, timeline            | `WEB-CAUSAL-001..006`, `WEB-CAUS3D-001..005` |
+| Guided Tour Workspace     | Онбординг в CodeCity                | Guided steps, hot areas, role-based explore paths              | `WEB-TOUR-001..006`                          |
+| Refactoring Planner       | Планирование рефакторинга           | ROI calc, timeline, simulation, export to tracker              | `WEB-REFAC-001..006`                         |
+| Impact Planning Workspace | Оценка blast radius                 | What-if panel, impact graph, risk gauge, city overlay          | `WEB-IMPACT-001..005`                        |
+| Knowledge Map Workspace   | Карта владения и bus factor         | Ownership overlay, silo panel, contributor graph, trends       | `WEB-KNOW-001..007`                          |
+| Prediction Workspace      | Прогнозы и ранние сигналы           | Prediction dashboard, explain panel, alerts, comparison        | `WEB-PRED-001..007`                          |
+| Team Gamification Board   | Мотивационные метрики команды       | Leaderboard, achievements, sprint comparison                   | `WEB-GAME-001..006`                          |
+| Drift Detection Workspace | Контроль архитектурного дрейфа      | Blueprint editor, drift report, guardrails, alerts             | `WEB-DRIFT-001..007`                         |
+| Reporting Workspace       | Генерация и доставка отчётов        | Generator, viewer, list, schedule, template editor             | `WEB-REPORT-001..006`                        |
+| Explainability Drawer     | Объяснимость скорингов и сигналов   | Why this score, factors, confidence, data window, export       | `WEB-XAI-001`                                |
 
 ---
 

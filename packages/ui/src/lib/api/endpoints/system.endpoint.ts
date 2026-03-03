@@ -1,5 +1,5 @@
-import type {TSystemHealthResponse} from "../types"
-import type {IHttpClient} from "../http-client"
+import type { TSystemHealthResponse } from "../types"
+import type { IHttpClient } from "../http-client"
 
 /**
  * Контракт endpoint-слоя системных API-вызовов.

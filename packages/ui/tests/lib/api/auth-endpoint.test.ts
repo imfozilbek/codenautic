@@ -1,7 +1,7 @@
-import {describe, expect, it, vi} from "vitest"
+import { describe, expect, it, vi } from "vitest"
 
-import type {IHttpClient} from "@/lib/api"
-import {AuthApi} from "@/lib/api/endpoints/auth.endpoint"
+import type { IHttpClient } from "@/lib/api"
+import { AuthApi } from "@/lib/api/endpoints/auth.endpoint"
 import type {
     IAuthLogoutResponse,
     IAuthSessionEnvelope,
@@ -31,7 +31,7 @@ describe("AuthApi", (): void => {
         const response: IAuthSessionEnvelope = {
             session: null,
         }
-        const {httpClient, requestMock} = createHttpClientMock()
+        const { httpClient, requestMock } = createHttpClientMock()
         requestMock.mockResolvedValueOnce(response)
 
         const api = new AuthApi(httpClient)
@@ -51,7 +51,7 @@ describe("AuthApi", (): void => {
             authorizationUrl: "https://auth.example/github",
             state: "state-1",
         }
-        const {httpClient, requestMock} = createHttpClientMock()
+        const { httpClient, requestMock } = createHttpClientMock()
         requestMock.mockResolvedValueOnce(response)
 
         const api = new AuthApi(httpClient)
@@ -84,7 +84,7 @@ describe("AuthApi", (): void => {
                 },
             },
         }
-        const {httpClient, requestMock} = createHttpClientMock()
+        const { httpClient, requestMock } = createHttpClientMock()
         requestMock.mockResolvedValueOnce(response)
 
         const api = new AuthApi(httpClient)
@@ -102,7 +102,7 @@ describe("AuthApi", (): void => {
         const response: IAuthLogoutResponse = {
             loggedOut: true,
         }
-        const {httpClient, requestMock} = createHttpClientMock()
+        const { httpClient, requestMock } = createHttpClientMock()
         requestMock.mockResolvedValueOnce(response)
 
         const api = new AuthApi(httpClient)

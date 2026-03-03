@@ -1,9 +1,12 @@
-import {type ReactElement, useMemo, useState} from "react"
+import { type ReactElement, useMemo, useState } from "react"
 
-import {Button, Card, CardBody, CardHeader} from "@/components/ui"
-import {showToastError, showToastInfo, showToastSuccess} from "@/lib/notifications/toast"
-import {LlmProviderForm, type ILlmProviderFormValues} from "@/components/settings/llm-provider-form"
-import {TestConnectionButton} from "@/components/settings/test-connection-button"
+import { Button, Card, CardBody, CardHeader } from "@/components/ui"
+import { showToastError, showToastInfo, showToastSuccess } from "@/lib/notifications/toast"
+import {
+    LlmProviderForm,
+    type ILlmProviderFormValues,
+} from "@/components/settings/llm-provider-form"
+import { TestConnectionButton } from "@/components/settings/test-connection-button"
 
 /** Конфигурация LLM integration. */
 interface ILlmProviderConfig {
@@ -59,16 +62,20 @@ export function SettingsLlmProvidersPage(): ReactElement {
     }, [configs])
 
     const saveConfig = (provider: string, next: ILlmProviderFormValues): void => {
-        setConfigs((previousValue): Record<string, ILlmProviderConfig> => ({
-            ...previousValue,
-            [provider]: {
-                connected: next.testAfterSave ? previousValue[provider]?.connected === true : false,
-                provider: next.provider,
-                apiKey: next.apiKey,
-                model: next.model,
-                endpoint: next.endpoint ?? "",
-            },
-        }))
+        setConfigs(
+            (previousValue): Record<string, ILlmProviderConfig> => ({
+                ...previousValue,
+                [provider]: {
+                    connected: next.testAfterSave
+                        ? previousValue[provider]?.connected === true
+                        : false,
+                    provider: next.provider,
+                    apiKey: next.apiKey,
+                    model: next.model,
+                    endpoint: next.endpoint ?? "",
+                },
+            }),
+        )
         showToastSuccess(`Saved ${provider} provider config.`)
     }
 
@@ -83,13 +90,15 @@ export function SettingsLlmProvidersPage(): ReactElement {
     }
 
     const handleConnectionResult = (provider: string, next: boolean): void => {
-        setConfigs((previousValue): Record<string, ILlmProviderConfig> => ({
-            ...previousValue,
-            [provider]: {
-                ...previousValue[provider]!,
-                connected: next,
-            },
-        }))
+        setConfigs(
+            (previousValue): Record<string, ILlmProviderConfig> => ({
+                ...previousValue,
+                [provider]: {
+                    ...previousValue[provider]!,
+                    connected: next,
+                },
+            }),
+        )
         if (next === true) {
             showToastSuccess(`${provider} marked as connected.`)
             return
@@ -102,7 +111,8 @@ export function SettingsLlmProvidersPage(): ReactElement {
         <section className="space-y-4">
             <h1 className="text-2xl font-semibold text-slate-900">LLM Providers</h1>
             <p className="text-sm text-slate-600">
-                Configure provider credentials and model defaults for automated suggestion generation.
+                Configure provider credentials and model defaults for automated suggestion
+                generation.
             </p>
             <div className="rounded-md border border-blue-200 bg-blue-50 p-3 text-sm text-blue-800">
                 BYOK keys are masked in UI. Keep secrets in secure storage on save.

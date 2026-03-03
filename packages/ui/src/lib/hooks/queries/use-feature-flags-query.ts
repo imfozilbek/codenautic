@@ -1,12 +1,9 @@
-import {useQuery, type UseQueryResult} from "@tanstack/react-query"
+import { useQuery, type UseQueryResult } from "@tanstack/react-query"
 
-import {createApiContracts} from "@/lib/api"
-import type {
-    IFeatureFlagsResponse,
-    TFeatureFlagKey,
-} from "@/lib/feature-flags/feature-flags"
-import {resolveFeatureFlag} from "@/lib/feature-flags/feature-flags"
-import {queryKeys} from "@/lib/query/query-keys"
+import { createApiContracts } from "@/lib/api"
+import type { IFeatureFlagsResponse, TFeatureFlagKey } from "@/lib/feature-flags/feature-flags"
+import { resolveFeatureFlag } from "@/lib/feature-flags/feature-flags"
+import { queryKeys } from "@/lib/query/query-keys"
 
 const api = createApiContracts()
 

@@ -1,6 +1,6 @@
-import {type ReactElement, type ReactNode, useEffect, useRef} from "react"
+import { type ReactElement, type ReactNode, useEffect, useRef } from "react"
 
-import {useIntersectionObserver} from "@/lib/hooks/use-intersection-observer"
+import { useIntersectionObserver } from "@/lib/hooks/use-intersection-observer"
 
 /**
  * Параметры контейнера бесконечного скролла.
@@ -28,7 +28,7 @@ export interface IInfiniteScrollContainerProps {
  */
 export function InfiniteScrollContainer(props: IInfiniteScrollContainerProps): ReactElement {
     const loadMoreRef = useRef<HTMLDivElement>(null)
-    const {isIntersecting, targetRef} = useIntersectionObserver({
+    const { isIntersecting, targetRef } = useIntersectionObserver({
         enabled: props.hasMore && props.isLoading !== true,
         root: props.rootRef?.current ?? null,
         threshold: 0,
@@ -49,16 +49,12 @@ export function InfiniteScrollContainer(props: IInfiniteScrollContainerProps): R
     return (
         <div>
             {props.children}
-            <div
-                ref={setLoadMoreRef}
-                aria-hidden="true"
-                className="h-1"
-            />
+            <div ref={setLoadMoreRef} aria-hidden="true" className="h-1" />
             <div
                 aria-live="polite"
                 className="mt-2 flex justify-center py-2 text-sm text-slate-600"
             >
-                {props.isLoading === true ? props.loadingText ?? "Загружаем..." : null}
+                {props.isLoading === true ? (props.loadingText ?? "Загружаем...") : null}
             </div>
         </div>
     )

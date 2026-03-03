@@ -1,7 +1,7 @@
-import type {ReactElement} from "react"
+import type { ReactElement } from "react"
 
-import {Card, CardBody, CardHeader} from "@/components/ui"
-import {ActivityTimelineItem} from "./activity-timeline-item"
+import { Card, CardBody, CardHeader } from "@/components/ui"
+import { ActivityTimelineItem } from "./activity-timeline-item"
 
 /**
  * Параметры для элемента временной шкалы.
@@ -39,9 +39,11 @@ export function ActivityTimeline(props: IActivityTimelineProps): ReactElement {
             </CardHeader>
             <CardBody>
                 <ul className="space-y-2" aria-label="Timeline">
-                    {props.items.map((item): ReactElement => (
-                        <ActivityTimelineItem key={item.id} {...item} />
-                    ))}
+                    {props.items.map(
+                        (item): ReactElement => (
+                            <ActivityTimelineItem key={item.id} {...item} />
+                        ),
+                    )}
                 </ul>
             </CardBody>
         </Card>

@@ -1,8 +1,8 @@
-import {Drawer, DrawerBody, DrawerContent, DrawerHeader} from "@heroui/react"
+import { Drawer, DrawerBody, DrawerContent, DrawerHeader } from "@heroui/react"
 
-import type {ReactElement} from "react"
+import type { ReactElement } from "react"
 
-import {Sidebar} from "./sidebar"
+import { Sidebar } from "./sidebar"
 
 /**
  * Свойства мобильного sidebar.
@@ -32,9 +32,11 @@ export function MobileSidebar(props: IMobileSidebarProps): ReactElement {
                     </p>
                 </DrawerHeader>
                 <DrawerBody>
-                    <Sidebar onNavigate={(): void => {
-                        props.onOpenChange(false)
-                    }} />
+                    <Sidebar
+                        onNavigate={(): void => {
+                            props.onOpenChange(false)
+                        }}
+                    />
                 </DrawerBody>
             </DrawerContent>
         </Drawer>

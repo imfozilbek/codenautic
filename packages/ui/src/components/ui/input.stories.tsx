@@ -1,8 +1,8 @@
-import type {Meta, StoryObj} from "@storybook/react"
-import type {ReactElement} from "react"
-import {useState} from "react"
+import type { Meta, StoryObj } from "@storybook/react"
+import type { ReactElement } from "react"
+import { useState } from "react"
 
-import {Input, Textarea} from "./"
+import { Input, Textarea } from "./"
 
 const meta = {
     title: "Base/Inputs",
