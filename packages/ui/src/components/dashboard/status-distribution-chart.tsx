@@ -1,7 +1,8 @@
 import type { ReactElement } from "react"
 import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts"
 
-import { Card, CardBody, CardHeader, Chip } from "@/components/ui"
+import { Chip } from "@/components/ui"
+import { RechartsChartWrapper } from "@/components/charts/recharts-chart-wrapper"
 
 /**
  * Строка для Recharts.
@@ -23,6 +24,10 @@ export interface IStatusDistributionChartProps {
     readonly data: ReadonlyArray<IStatusDistributionPoint>
     /** Заголовок секции. */
     readonly title?: string
+    /** Состояние загрузки данных. */
+    readonly isLoading?: boolean
+    /** Текст для fallback-состояния. */
+    readonly loadingText?: string
 }
 
 /**
@@ -35,45 +40,44 @@ export function StatusDistributionChart(props: IStatusDistributionChartProps): R
     const title = props.title ?? "CCR status distribution"
 
     return (
-        <Card>
-            <CardHeader>
-                <h3 className="text-base font-semibold text-slate-900">{title}</h3>
-            </CardHeader>
-            <CardBody>
-                <div className="h-72">
-                    <ResponsiveContainer height="100%" width="100%">
-                        <PieChart>
-                            <Pie
-                                data={props.data}
-                                dataKey="count"
-                                nameKey="status"
-                                outerRadius={80}
-                                paddingAngle={2}
-                            >
-                                {props.data.map(
-                                    (point): ReactElement => (
-                                        <Cell key={point.status} fill={point.color} />
-                                    ),
-                                )}
-                            </Pie>
-                            <Tooltip />
-                        </PieChart>
-                    </ResponsiveContainer>
-                </div>
-                <div className="mt-2 flex flex-wrap gap-2" aria-label="Status legend">
-                    {props.data.map(
-                        (point): ReactElement => (
-                            <Chip
-                                key={point.status}
-                                style={{ backgroundColor: `${point.color}20` }}
-                                className="border border-current/20"
-                            >
-                                {point.status}: {point.count}
-                            </Chip>
-                        ),
-                    )}
-                </div>
-            </CardBody>
-        </Card>
+        <RechartsChartWrapper
+            isLoading={props.isLoading === true}
+            loadingText={props.loadingText}
+            title={title}
+        >
+            <div className="h-72">
+                <ResponsiveContainer height="100%" width="100%">
+                    <PieChart>
+                        <Pie
+                            data={props.data}
+                            dataKey="count"
+                            nameKey="status"
+                            outerRadius={80}
+                            paddingAngle={2}
+                        >
+                            {props.data.map(
+                                (point): ReactElement => (
+                                    <Cell key={point.status} fill={point.color} />
+                                ),
+                            )}
+                        </Pie>
+                        <Tooltip />
+                    </PieChart>
+                </ResponsiveContainer>
+            </div>
+            <div className="mt-2 flex flex-wrap gap-2" aria-label="Status legend">
+                {props.data.map(
+                    (point): ReactElement => (
+                        <Chip
+                            key={point.status}
+                            style={{ backgroundColor: `${point.color}20` }}
+                            className="border border-current/20"
+                        >
+                            {point.status}: {point.count}
+                        </Chip>
+                    ),
+                )}
+            </div>
+        </RechartsChartWrapper>
     )
 }
