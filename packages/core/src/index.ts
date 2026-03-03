@@ -43,6 +43,23 @@ export {
     type IHeuristicType,
     type IHeuristicVerificationRule,
 } from "./application/dto/heuristics/heuristic-registry-entry.dto"
+export {
+    type IAnemicModelViolationType,
+    type IDDDComplianceReport,
+    type IDDDViolation,
+    type IDDDViolationType,
+    type IDDDAggregateHealth,
+} from "./application/dto/architecture/ddd-compliance-report.dto"
+export {
+    type IArchitectureHealthScore,
+    type IArchitectureHealthScoreDimensions,
+    type ILayerViolationDTO,
+} from "./application/dto/architecture"
+export {ArchitectureAnalyzer, type IArchitectureAnalyzer} from "./application/services/architecture-analyzer.service"
+export {
+    SuggestionClusteringService,
+    type ISuggestionClusteringService,
+} from "./application/services/suggestion-clustering.service"
 export {type IImportedRuleHeuristicsMetadata} from "./application/dto/rules/rule-import-metadata.dto"
 export {
     CHECK_RUN_CONCLUSION,
