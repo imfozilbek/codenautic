@@ -725,6 +725,11 @@ export {
 } from "./domain/value-objects/project-settings.value-object"
 export {Expert, type IExpertProps} from "./domain/value-objects/prompt/expert"
 export {
+    ExpertPanel,
+    type IExpertPanelProps,
+    type IExpertPanelSnapshot,
+} from "./domain/value-objects/prompt/expert-panel"
+export {
     REPOSITORY_PLATFORM,
     RepositoryId,
     type RepositoryPlatform,
