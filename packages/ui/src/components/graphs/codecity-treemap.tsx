@@ -9,16 +9,46 @@ const DEFAULT_EMPTY_LABEL = "No file data for CodeCity treemap yet."
 const DEFAULT_METRIC_SELECTOR_ID = "codecity-metric-selector"
 
 const CODE_CITY_METRICS = ["complexity", "coverage", "churn"] as const
+const CODE_CITY_IMPACT_LEVELS = ["changed", "impacted", "ripple"] as const
 
 /** Метрика для цветовой индикации.
  * @see WEB-CITY-002
  */
 type ICodeCityTreemapMetric = (typeof CODE_CITY_METRICS)[number]
+type ICodeCityTreemapImpactLevel = (typeof CODE_CITY_IMPACT_LEVELS)[number]
 
 const CODE_CITY_METRIC_LABELS: Record<ICodeCityTreemapMetric, string> = {
     complexity: "Complexity",
     coverage: "Coverage",
     churn: "Churn",
+}
+const CODE_CITY_IMPACT_LABELS: Record<ICodeCityTreemapImpactLevel, string> = {
+    changed: "Changed",
+    impacted: "Impacted",
+    ripple: "Ripple",
+}
+const CODE_CITY_IMPACT_PRIORITIES: Record<ICodeCityTreemapImpactLevel, number> = {
+    changed: 3,
+    impacted: 2,
+    ripple: 1,
+}
+const CODE_CITY_IMPACT_COLOR: Record<ICodeCityTreemapImpactLevel, string> = {
+    changed: "hsl(348, 83%, 58%)",
+    impacted: "hsl(35, 96%, 59%)",
+    ripple: "hsl(212, 86%, 57%)",
+}
+
+export interface ICodeCityTreemapImpactedFileDescriptor {
+    /** Идентификатор файла в выборке. */
+    readonly fileId: string
+    /** Степень влияния CCR на файл. */
+    readonly impactType: ICodeCityTreemapImpactLevel
+}
+
+interface ICodeCityTreemapImpactSummary {
+    readonly changed: number
+    readonly impacted: number
+    readonly ripple: number
 }
 
 interface ICodeCityTreemapMetricRange {
@@ -31,6 +61,7 @@ interface ICodeCityTreemapTreemapNodePayload {
     readonly color?: string
     readonly depth?: number
     readonly height?: number
+    readonly impactType?: ICodeCityTreemapImpactLevel
     readonly name?: string
     readonly value?: number
     readonly width?: number
@@ -45,6 +76,76 @@ interface ICodeCityTreemapTreemapContentProps {
     readonly y?: number
     readonly width?: number
     readonly height?: number
+}
+
+function buildImpactedFileIndex(
+    impactedFiles: ReadonlyArray<ICodeCityTreemapImpactedFileDescriptor>,
+): Map<string, ICodeCityTreemapImpactLevel> {
+    const impactByFileId = new Map<string, ICodeCityTreemapImpactLevel>()
+
+    for (const entry of impactedFiles) {
+        if (entry.fileId.trim().length === 0) {
+            continue
+        }
+
+        const currentImpact = impactByFileId.get(entry.fileId)
+        if (
+            currentImpact === undefined
+            || CODE_CITY_IMPACT_PRIORITIES[entry.impactType] > CODE_CITY_IMPACT_PRIORITIES[currentImpact]
+        ) {
+            impactByFileId.set(entry.fileId, entry.impactType)
+        }
+    }
+
+    return impactByFileId
+}
+
+function resolveImpactSummary(
+    packages: ReadonlyArray<ICodeCityTreemapPackageNode>,
+): ICodeCityTreemapImpactSummary {
+    const summary: ICodeCityTreemapImpactSummary = {
+        changed: 0,
+        impacted: 0,
+        ripple: 0,
+    }
+
+    for (const packageItem of packages) {
+        for (const file of packageItem.children) {
+            if (file.impactType === "changed") {
+                summary.changed += 1
+            } else if (file.impactType === "impacted") {
+                summary.impacted += 1
+            } else if (file.impactType === "ripple") {
+                summary.ripple += 1
+            }
+        }
+    }
+
+    return summary
+}
+
+function resolveImpactStyle(
+    props: ICodeCityTreemapTreemapContentProps,
+): { readonly stroke: string; readonly strokeWidth: number; readonly strokeDasharray?: string } {
+    const node = props.payload
+    if (node?.impactType === "changed") {
+        return { stroke: CODE_CITY_IMPACT_COLOR.changed, strokeWidth: 2.5 }
+    }
+    if (node?.impactType === "impacted") {
+        return { stroke: CODE_CITY_IMPACT_COLOR.impacted, strokeWidth: 2.2 }
+    }
+    if (node?.impactType === "ripple") {
+        return {
+            stroke: CODE_CITY_IMPACT_COLOR.ripple,
+            strokeWidth: 2,
+            strokeDasharray: "5 3",
+        }
+    }
+
+    return {
+        stroke: "hsl(var(--nextui-colors-defaultBorder))",
+        strokeWidth: 1,
+    }
 }
 
 function resolveMetricByValue(value: string): ICodeCityTreemapMetric {
@@ -123,6 +224,7 @@ function renderTreemapCell(props: ICodeCityTreemapTreemapContentProps): ReactEle
     const height = props.height ?? 0
     const node = props.payload
     const color = node?.color ?? (props.fill ?? "hsl(120, 80%, 44%)")
+    const strokeStyle = resolveImpactStyle(props)
     const nodeName = typeof node?.name === "string" ? node.name : ""
     const canShowText = width > 42 && height > 16
     const isLeaf = (node?.children?.length ?? 0) === 0
@@ -136,8 +238,9 @@ function renderTreemapCell(props: ICodeCityTreemapTreemapContentProps): ReactEle
             <rect
                 fill={color}
                 height={height}
-                stroke="hsl(var(--nextui-colors-defaultBorder))"
-                strokeWidth={1}
+                stroke={strokeStyle.stroke}
+                strokeDasharray={strokeStyle.strokeDasharray}
+                strokeWidth={strokeStyle.strokeWidth}
                 width={width}
                 x={x}
                 y={y}
@@ -157,6 +260,8 @@ export interface ICodeCityTreemapFileDescriptor {
     readonly loc?: number
     /** Комплексная метрика сложности (fallback при отсутствии LOC). */
     readonly complexity?: number
+    /** Явный уровень CCR-влияния для файла. */
+    readonly impactType?: ICodeCityTreemapImpactLevel
     /** Покрытие по файла в проценте (0..100). */
     readonly coverage?: number
     /** Churn/изменчивость файла в окне анализа. */
@@ -176,6 +281,8 @@ interface ICodeCityTreemapFileNode {
     readonly value: number
     /** Значение выбранной метрики для цветовой шкалы. */
     readonly metricValue: number
+    /** Уровень CCR-влияния для узла (если применимо). */
+    readonly impactType?: ICodeCityTreemapImpactLevel
     /** Цвет по метрике для узла. */
     readonly color: string
 }
@@ -201,6 +308,8 @@ export interface ICodeCityTreemapData {
     readonly totalLoc: number
     /** Общее число файлов в виджете. */
     readonly totalFiles: number
+    /** Метрики CCR-влияния. */
+    readonly impactSummary: ICodeCityTreemapImpactSummary
     /** Выбранная метрика цвета. */
     readonly metric: ICodeCityTreemapMetric
     /** Диапазон значений выбранной метрики. */
@@ -213,6 +322,8 @@ export interface ICodeCityTreemapProps {
     readonly files: ReadonlyArray<ICodeCityTreemapFileDescriptor>
     /** Выбранная метрика по умолчанию для цветовой кодировки. */
     readonly defaultMetric?: ICodeCityTreemapMetric
+    /** Файлы, затронутые в рамках текущего CCR. */
+    readonly impactedFiles?: ReadonlyArray<ICodeCityTreemapImpactedFileDescriptor>
     /** Высота контейнера. */
     readonly height?: string
     /** Заголовок. */
@@ -263,12 +374,14 @@ function resolveFileLoc(file: ICodeCityTreemapFileDescriptor): number {
 export function buildCodeCityTreemapData(
     files: ReadonlyArray<ICodeCityTreemapFileDescriptor>,
     metric: ICodeCityTreemapMetric = DEFAULT_METRIC,
+    impactedFiles: ReadonlyArray<ICodeCityTreemapImpactedFileDescriptor> = [],
 ): ICodeCityTreemapData {
     const packageMap = new Map<string, ICodeCityTreemapFileNode[]>()
     const fileIds = new Set<string>()
     let totalFiles = 0
     let totalLoc = 0
     const metricValues: number[] = []
+    const impactByFileId = buildImpactedFileIndex(impactedFiles)
 
     for (const file of files) {
         const normalizedPath = normalizePath(file.path)
@@ -284,12 +397,14 @@ export function buildCodeCityTreemapData(
         const fileName = resolveFileName(normalizedPath)
         const fileLoc = resolveFileLoc(file)
         const metricValue = resolveTreemapFileMetricValue(file, metric)
+        const impactType = file.impactType ?? impactByFileId.get(file.id)
         const packageFiles = packageMap.get(packageName)
         const fileNode: ICodeCityTreemapFileNode = {
             id: file.id,
             name: fileName,
             path: normalizedPath,
             color: "",
+            impactType,
             metricValue,
             value: fileLoc,
         }
@@ -348,6 +463,7 @@ export function buildCodeCityTreemapData(
     return {
         packages,
         totalFiles,
+        impactSummary: resolveImpactSummary(packages),
         totalLoc,
         metric,
         metricRange,
@@ -367,11 +483,13 @@ export function CodeCityTreemap(props: ICodeCityTreemapProps): ReactElement {
         props.defaultMetric ?? DEFAULT_METRIC,
     )
     const treemapData = useMemo(
-        () => buildCodeCityTreemapData(props.files, metric),
-        [props.files, metric],
+        () => buildCodeCityTreemapData(props.files, metric, props.impactedFiles ?? []),
+        [props.files, props.impactedFiles, metric],
     )
     const metricLabel = resolveMetricLabel(metric)
     const selectorId = `${DEFAULT_METRIC_SELECTOR_ID}-${title.toLowerCase().replaceAll(" ", "-")}`
+    const impactSummary = treemapData.impactSummary
+    const impactSummaryText = `Changed: ${impactSummary.changed}, Impacted: ${impactSummary.impacted}, Ripple: ${impactSummary.ripple}`
 
     const summaryText = `Packages: ${treemapData.packages.length}, Files: ${treemapData.totalFiles}, LOC: ${treemapData.totalLoc}`
     const metricRangeText = `Min ${treemapData.metricRange.min} — Max ${treemapData.metricRange.max}`
@@ -431,6 +549,26 @@ export function CodeCityTreemap(props: ICodeCityTreemapProps): ReactElement {
                         <span>High</span>
                         <span>{metricRangeText}</span>
                     </div>
+                    {impactSummary.changed + impactSummary.impacted + impactSummary.ripple > 0 ? (
+                        <div
+                            aria-label="Impact legend"
+                            className="flex flex-wrap items-center gap-3 text-xs text-foreground-500"
+                        >
+                            {CODE_CITY_IMPACT_LEVELS.map(
+                                (impact): ReactElement => (
+                                    <div className="flex items-center gap-1" key={impact}>
+                                        <span
+                                            aria-hidden={true}
+                                            className="inline-block h-3 w-3 rounded-full"
+                                            style={{ backgroundColor: CODE_CITY_IMPACT_COLOR[impact] }}
+                                        />
+                                        <span>{CODE_CITY_IMPACT_LABELS[impact]}</span>
+                                    </div>
+                                ),
+                            )}
+                            <span>{impactSummaryText}</span>
+                        </div>
+                    ) : null}
                 </div>
             </CardHeader>
             <CardBody>

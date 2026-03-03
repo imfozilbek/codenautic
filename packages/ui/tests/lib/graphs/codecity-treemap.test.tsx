@@ -5,14 +5,19 @@ import {
     CodeCityTreemap,
     buildCodeCityTreemapData,
     type ICodeCityTreemapFileDescriptor,
+    type ICodeCityTreemapImpactedFileDescriptor,
 } from "@/components/graphs/codecity-treemap"
 
-interface ITreeNode {
-    readonly children?: ReadonlyArray<unknown>
+interface ICodeCityTreemapNodeData {
+    readonly children?: ReadonlyArray<{
+        readonly color?: string
+        readonly id?: string
+        readonly impactType?: string
+    }>
     readonly name?: string
 }
 
-const mockTreemap = vi.fn((props: { readonly data: ReadonlyArray<ITreeNode> }): JSX.Element => {
+const mockTreemap = vi.fn((props: { readonly data: ReadonlyArray<ICodeCityTreemapNodeData> }): JSX.Element => {
     return (
         <div>
             <span data-testid="treemap-packages">{props.data.length}</span>
@@ -21,11 +26,7 @@ const mockTreemap = vi.fn((props: { readonly data: ReadonlyArray<ITreeNode> }): 
 })
 
 const mockResponsiveContainer = vi.fn(
-    ({
-        children,
-    }: {
-        readonly children: JSX.Element | null
-    }): JSX.Element => {
+    ({ children }: { readonly children: JSX.Element | null }): JSX.Element => {
         return <div>{children}</div>
     },
 )
@@ -41,6 +42,10 @@ describe("codecity treemap graph", (): void => {
         { id: "src/api/session.ts", complexity: 30, path: "src/api/session.ts" },
         { id: "src/ui/index.ts", size: 40, path: "src/ui/index.ts" },
     ]
+    const sampleImpactedFiles: ReadonlyArray<ICodeCityTreemapImpactedFileDescriptor> = [
+        { fileId: "src/api/auth.ts", impactType: "changed" },
+        { fileId: "src/ui/index.ts", impactType: "ripple" },
+    ]
 
     it("формирует иерархию package->files и считает LOC", (): void => {
         const graph = buildCodeCityTreemapData(sampleFiles)
@@ -53,6 +58,8 @@ describe("codecity treemap graph", (): void => {
         expect(apiPackage).not.toBeUndefined()
         expect(apiPackage?.children).toHaveLength(2)
         expect(apiPackage?.value).toBe(110)
+        expect(graph.impactSummary.changed).toBe(0)
+        expect(graph.impactSummary.ripple).toBe(0)
     })
 
     it("формирует метрики цвета для выбранной шкалы", (): void => {
@@ -76,6 +83,22 @@ describe("codecity treemap graph", (): void => {
         )
     })
 
+    it("передаёт уровни CCR-импакта в treemap данные", (): void => {
+        const impactData = buildCodeCityTreemapData(
+            sampleFiles,
+            "complexity",
+            sampleImpactedFiles,
+        )
+        const apiPackage = impactData.packages.find((entry) => entry.name === "src/api")
+        const uiPackage = impactData.packages.find((entry) => entry.name === "src/ui")
+
+        expect(apiPackage?.children[0]?.impactType).toBe("changed")
+        expect(uiPackage?.children[0]?.impactType).toBe("ripple")
+        expect(impactData.impactSummary.changed).toBe(1)
+        expect(impactData.impactSummary.ripple).toBe(1)
+        expect(impactData.impactSummary.impacted).toBe(0)
+    })
+
     it("рендерит treemap и отображает summary", (): void => {
         mockTreemap.mockClear()
         mockResponsiveContainer.mockClear()
@@ -96,26 +119,33 @@ describe("codecity treemap graph", (): void => {
         expect(mockTreemap).toHaveBeenCalledTimes(1)
     })
 
-    it("передаёт цвет в данные treemap и позволяет менять метрику", (): void => {
+    it("передаёт color + impact в payload и позволяет менять метрику", (): void => {
         mockTreemap.mockClear()
 
-        render(<CodeCityTreemap files={sampleFiles} title="CodeCity treemap" />)
+        render(
+            <CodeCityTreemap
+                files={sampleFiles}
+                impactedFiles={sampleImpactedFiles}
+                title="CodeCity treemap"
+            />,
+        )
 
         expect(screen.getByTestId("treemap-packages")).not.toBeNull()
-        const firstCallPackages = mockTreemap.mock.calls[0]?.[0]?.data as
-            | ReadonlyArray<{ readonly children: ReadonlyArray<{ readonly color: string }> }>
-            | undefined
-        expect(firstCallPackages?.[0]?.children[0]?.color).not.toBe(undefined)
+        const firstCallPackages = mockTreemap.mock.calls[0]?.[0]?.data
+        expect(firstCallPackages?.[0]?.children?.[0]?.impactType).toBe("changed")
+        expect(firstCallPackages?.[1]?.children?.[0]?.impactType).toBe("ripple")
+        expect(screen.getByLabelText("Impact legend")).not.toBeNull()
+        expect(screen.getByText("Changed")).not.toBeNull()
+        expect(screen.getByText("Impacted")).not.toBeNull()
+        expect(screen.getByText("Ripple")).not.toBeNull()
 
         const selector = screen.getByLabelText("Metric")
         fireEvent.change(selector, { target: { value: "churn" } })
 
         expect(screen.getByText("Color metric: Churn")).not.toBeNull()
-        const secondCallPackages = mockTreemap.mock.calls[1]?.[0]?.data as
-            | ReadonlyArray<{ readonly children: ReadonlyArray<{ readonly color: string }> }>
-            | undefined
-        expect(secondCallPackages?.[0]?.children[0]?.color).not.toBe(
-            firstCallPackages?.[0]?.children[0]?.color,
+        const secondCallPackages = mockTreemap.mock.calls[1]?.[0]?.data
+        expect(secondCallPackages?.[0]?.children?.[0]?.color).not.toBe(
+            firstCallPackages?.[0]?.children?.[0]?.color,
         )
     })
 
