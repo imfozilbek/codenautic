@@ -1,6 +1,7 @@
 import type {ReactElement, ReactNode} from "react"
 
 import {SidebarNav} from "./sidebar-nav"
+import {SettingsNav} from "./settings-nav"
 
 /**
  * Свойства sidebar компонента.
@@ -12,6 +13,8 @@ export interface ISidebarProps {
     readonly title?: string
     /** Содержимое слева от основного меню (если нужно). */
     readonly headerSlot?: ReactNode
+    /** Коллбэк при выборе пункта (close mobile sidebar). */
+    readonly onNavigate?: (to?: string) => void
 }
 
 /**
@@ -27,7 +30,8 @@ export function Sidebar(props: ISidebarProps): ReactElement {
             <p className="px-2 pb-2 text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
                 {props.title ?? "Navigation"}
             </p>
-            <SidebarNav />
+            <SidebarNav onNavigate={props.onNavigate} />
+            <SettingsNav onNavigate={props.onNavigate} />
         </aside>
     )
 }

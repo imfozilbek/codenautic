@@ -5,13 +5,15 @@ import {Avatar, Button} from "@/components/ui"
 /**
  * Навигационный элемент сайдбара.
  */
-interface ISidebarItem {
+export interface ISidebarItem {
     /** Отображаемый лейбл пункта. */
     readonly label: string
-    /** Маршрут. */
-    readonly to: string
+    /** Маршрут. Не указывается для disabled-состояния. */
+    readonly to?: string
     /** Иконка инициалов или маркер состояния. */
     readonly icon?: string
+    /** Доступен ли пункт для перехода. */
+    readonly isDisabled?: boolean
 }
 
 /**
@@ -21,7 +23,7 @@ export interface ISidebarNavProps {
     /** Список элементов меню. */
     readonly items?: ReadonlyArray<ISidebarItem>
     /** Коллбэк при выборе элемента, полезен для закрытия mobile-drawer. */
-    readonly onNavigate?: (to: string) => void
+    readonly onNavigate?: (to?: string) => void
 }
 
 const DEFAULT_SIDEBAR_ITEMS: readonly ISidebarItem[] = [
@@ -47,10 +49,19 @@ export function SidebarNav(props: ISidebarNavProps): ReactElement {
         <nav aria-label="Main navigation">
             <ul className="flex flex-col gap-1">
                 {items.map((item): ReactElement => {
-                    const isActive = currentLocation.pathname === item.to
+                    const isNavigable = item.to !== undefined && item.isDisabled !== true
+                    const isActive =
+                        item.to !== undefined && currentLocation.pathname === item.to && item.isDisabled !== true
 
                     const handlePress = (): void => {
-                        if (item.to === currentLocation.pathname) {
+                        if (isNavigable !== true) {
+                            if (props.onNavigate !== undefined) {
+                                props.onNavigate(item.to)
+                            }
+                            return
+                        }
+
+                        if (currentLocation.pathname === item.to) {
                             if (props.onNavigate !== undefined) {
                                 props.onNavigate(item.to)
                             }
@@ -61,16 +72,24 @@ export function SidebarNav(props: ISidebarNavProps): ReactElement {
                             props.onNavigate(item.to)
                         }
 
+                        if (item.to === undefined) {
+                            return
+                        }
+
                         void navigate({to: item.to})
                     }
 
+                    const startContent =
+                        item.icon === undefined ? undefined : <Avatar name={item.icon} size="sm" />
+
                     return (
-                        <li key={item.to}>
+                        <li key={item.label}>
                             <Button
                                 aria-current={isActive ? "page" : undefined}
                                 className="w-full justify-start"
                                 fullWidth
-                                startContent={item.icon === undefined ? undefined : <Avatar name={item.icon} size="sm" />}
+                                isDisabled={item.isDisabled}
+                                startContent={startContent}
                                 variant={isActive ? "solid" : "light"}
                                 onPress={handlePress}
                             >
