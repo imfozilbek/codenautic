@@ -38,6 +38,11 @@ const DEFAULT_SIDEBAR_ITEMS: readonly ISidebarItem[] = [
         to: "/reviews",
     },
     {
+        icon: "🚀",
+        label: "Onboarding",
+        to: "/onboarding",
+    },
+    {
         icon: "⚙️",
         label: "Settings",
         to: "/settings",

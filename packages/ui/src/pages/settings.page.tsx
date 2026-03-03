@@ -47,6 +47,14 @@ export function SettingsPage(): ReactElement {
                                 Git providers
                             </Link>
                         </li>
+                        <li>
+                            <Link
+                                className="underline underline-offset-4"
+                                to="/onboarding"
+                            >
+                                Start repository onboarding
+                            </Link>
+                        </li>
                     </ul>
                 </CardBody>
             </Card>
