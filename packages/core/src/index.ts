@@ -272,7 +272,12 @@ export {
     type CommandType,
     type ICommandHandler,
     type IMentionCommand,
+    type IRawMentionCommandInput,
 } from "./application/use-cases/messaging/mention-command.types"
+export {
+    ExecuteMentionCommandUseCase,
+    type IExecuteMentionCommandUseCaseDependencies,
+} from "./application/use-cases/messaging/execute-mention-command.use-case"
 export {
     GetEnabledRulesUseCase,
     type IGetEnabledRulesDependencies,

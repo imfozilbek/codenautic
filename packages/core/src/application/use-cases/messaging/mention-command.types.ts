@@ -13,6 +13,21 @@ export const COMMAND_TYPES = [
 ] as const
 
 /**
+ * One command result per execution.
+ */
+export interface ICommandResult {
+    /**
+     * True when command executed successfully.
+     */
+    readonly success: boolean
+
+    /**
+     * Human-readable response.
+     */
+    readonly response: string
+}
+
+/**
  * Supported @codenautic command type.
  */
 export type CommandType = (typeof COMMAND_TYPES)[number]
@@ -48,18 +63,28 @@ export interface IMentionCommand {
 }
 
 /**
- * Result of command execution.
+ * Raw mention command input before parsing.
  */
-export interface ICommandResult {
+export interface IRawMentionCommandInput {
     /**
-     * True when command executed successfully.
+     * Source comment text containing @codenautic mention.
      */
-    readonly success: boolean
+    readonly sourceComment: string
 
     /**
-     * Human-readable response.
+     * User who sent mention.
      */
-    readonly response: string
+    readonly userId: string
+
+    /**
+     * Merge request identifier used as default chat channel.
+     */
+    readonly mergeRequestId: string
+
+    /**
+     * Additional execution context for handlers.
+     */
+    readonly context?: unknown
 }
 
 /**
@@ -75,7 +100,8 @@ export interface ICommandHandler {
      * Executes command and returns response.
      *
      * @param command Parsed mention command.
+     * @param context Optional execution context.
      * @returns Execution result.
      */
-    handle(command: IMentionCommand): Promise<ICommandResult>
+    handle(command: IMentionCommand, context?: unknown): Promise<ICommandResult>
 }

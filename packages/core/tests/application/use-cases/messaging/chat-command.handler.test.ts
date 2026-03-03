@@ -45,7 +45,7 @@ class FakeChatUseCase implements IUseCase<IChatInput, IChatOutput, ValidationErr
 function createCommand(overrides: Partial<IMentionCommand> = {}): IMentionCommand {
     return {
         commandType: "chat",
-        args: ["chat"],
+        args: ["chat", "Привет,", "как", "дела?"],
         sourceComment: "@codenautic chat Привет, как дела?",
         userId: "user-1",
         mergeRequestId: "mr-1",
@@ -71,7 +71,7 @@ describe("ChatCommandHandler", () => {
         const handler = new ChatCommandHandler(chatUseCase)
 
         const result = await handler.handle(createCommand({
-            sourceComment: "@codenautic chat Подскажи, какой путь лучше выбрать?",
+            args: ["chat", "Подскажи,", "какой", "путь", "лучше", "выбрать?"],
             mergeRequestId: "mr-command",
         }))
 
@@ -92,7 +92,7 @@ describe("ChatCommandHandler", () => {
         const handler = new ChatCommandHandler(chatUseCase)
 
         const result = await handler.handle(createCommand({
-            sourceComment: "@codenautic chat   ",
+            args: ["chat"],
         }))
 
         expect(result).toEqual({

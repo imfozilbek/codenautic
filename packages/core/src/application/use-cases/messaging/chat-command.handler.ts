@@ -14,16 +14,9 @@ import type {IUseCase} from "../../ports/inbound/use-case.port"
 const CHAT_COMMAND_TYPE: CommandType = "chat"
 
 /**
- * Match chat command from mention text.
- */
-const CHAT_COMMAND_PATTERN =
-    /^\s*@codenautic\s+chat\s+([\s\S]+?)\s*$/i
-
-/**
  * Error message when chat command body is missing.
  */
 const CHAT_COMMAND_MISSING_MESSAGE = "Используйте `@codenautic chat <message>`."
-const CHAT_COMMAND_INVALID_FORMAT_MESSAGE = "Mention command validation failed"
 
 /**
  * Command handler that delegates @codenautic chat to ChatUseCase.
@@ -53,7 +46,7 @@ export class ChatCommandHandler implements ICommandHandler {
      * @param command Parsed mention command.
      * @returns Execution result.
      */
-    public async handle(command: IMentionCommand): Promise<ICommandResult> {
+    public async handle(command: IMentionCommand, _context?: unknown): Promise<ICommandResult> {
         if (command.commandType !== CHAT_COMMAND_TYPE) {
             return {
                 success: false,
@@ -61,11 +54,11 @@ export class ChatCommandHandler implements ICommandHandler {
             }
         }
 
-        const message = this.extractMessage(command.sourceComment)
+        const message = this.extractMessage(command.args)
         if (message === undefined) {
             return {
                 success: false,
-                response: `${CHAT_COMMAND_INVALID_FORMAT_MESSAGE} ${CHAT_COMMAND_MISSING_MESSAGE}`,
+                response: `Mention command validation failed ${CHAT_COMMAND_MISSING_MESSAGE}`,
             }
         }
 
@@ -86,19 +79,18 @@ export class ChatCommandHandler implements ICommandHandler {
     }
 
     /**
-     * Parses comment payload and returns chat message.
+     * Extracts chat message from parsed args.
      *
-     * @param sourceComment Full source comment.
+     * @param args Parsed command arguments.
      * @returns Parsed chat message or undefined.
      */
-    private extractMessage(sourceComment: string): string | undefined {
-        const match = sourceComment.match(CHAT_COMMAND_PATTERN)
-        if (match === null || match.length < 2) {
+    private extractMessage(args: readonly string[]): string | undefined {
+        if (args.length < 2) {
             return undefined
         }
 
-        const message = match[1]?.trim()
-        if (message === undefined || message.length === 0) {
+        const message = args.slice(1).join(" ").trim()
+        if (message.length === 0) {
             return undefined
         }
 
