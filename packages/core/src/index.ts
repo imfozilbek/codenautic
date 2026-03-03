@@ -198,6 +198,10 @@ export {
     type IReviewIssueProps,
     type IssueCategory,
 } from "./domain/entities/review-issue.entity"
+export {
+    type IUserProps,
+    User,
+} from "./domain/entities/user.entity"
 export {ConflictError} from "./domain/errors/conflict.error"
 export {DomainError} from "./domain/errors/domain.error"
 export {InvalidUniqueIdError} from "./domain/errors/invalid-unique-id.error"
@@ -248,6 +252,11 @@ export {
     ReviewFactory,
 } from "./domain/factories/review.factory"
 export {type ICreateRuleProps, type IReconstituteRuleProps, RuleFactory} from "./domain/factories/rule.factory"
+export {
+    type ICreateUserProps,
+    type IReconstituteUserProps,
+    UserFactory,
+} from "./domain/factories/user.factory"
 export {RuleStatusPolicyService} from "./domain/services/rule-status-policy.service"
 export {CodeChunk, type ICreateCodeChunkProps} from "./domain/value-objects/code-chunk.value-object"
 export {
@@ -256,6 +265,13 @@ export {
     type DiffFileStatus,
     type ICreateDiffFileProps,
 } from "./domain/value-objects/diff-file.value-object"
+export {
+    USER_THEME,
+    type IUserPreferencesInput,
+    type IUserPreferencesProps,
+    type UserTheme,
+    UserPreferences,
+} from "./domain/value-objects/user-preferences.value-object"
 export {Embedding, type ICreateEmbeddingProps} from "./domain/value-objects/embedding.value-object"
 export {FilePath} from "./domain/value-objects/file-path.value-object"
 export {LineRange} from "./domain/value-objects/line-range.value-object"

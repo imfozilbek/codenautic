@@ -7,6 +7,10 @@ export {
     type IReviewIssueProps,
     type IssueCategory,
 } from "./entities/review-issue.entity"
+export {
+    type IUserProps,
+    User,
+} from "./entities/user.entity"
 export {BaseDomainEvent, type DomainEventPayload} from "./events/base-domain-event"
 export {
     FEEDBACK_TYPE,
@@ -50,6 +54,13 @@ export {
     type DiffFileStatus,
     type ICreateDiffFileProps,
 } from "./value-objects/diff-file.value-object"
+export {
+    USER_THEME,
+    type IUserPreferencesInput,
+    type IUserPreferencesProps,
+    type UserTheme,
+    UserPreferences,
+} from "./value-objects/user-preferences.value-object"
 export {Embedding, type ICreateEmbeddingProps} from "./value-objects/embedding.value-object"
 export {FilePath} from "./value-objects/file-path.value-object"
 export {LineRange} from "./value-objects/line-range.value-object"

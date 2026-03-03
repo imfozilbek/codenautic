@@ -9,4 +9,13 @@ export {
     type IReconstituteReviewProps,
     ReviewFactory,
 } from "./review.factory"
-export {type ICreateRuleProps, type IReconstituteRuleProps, RuleFactory} from "./rule.factory"
+export {
+    type ICreateRuleProps,
+    type IReconstituteRuleProps,
+    RuleFactory,
+} from "./rule.factory"
+export {
+    type ICreateUserProps,
+    type IReconstituteUserProps,
+    UserFactory,
+} from "./user.factory"
