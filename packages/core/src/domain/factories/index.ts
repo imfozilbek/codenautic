@@ -35,6 +35,11 @@ export {
     CustomRuleFactory,
 } from "./custom-rule.factory"
 export {
+    type ICreateLibraryRuleProps,
+    type IReconstituteLibraryRuleProps,
+    LibraryRuleFactory,
+} from "./library-rule.factory"
+export {
     type ICreatePromptConfigurationProps,
     type IReconstitutePromptConfigurationProps,
     PromptConfigurationFactory,

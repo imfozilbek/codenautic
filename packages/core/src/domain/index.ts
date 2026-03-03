@@ -38,6 +38,13 @@ export {
     PromptTemplate,
 } from "./entities/prompt-template.entity"
 export {
+    type ILibraryRuleExample,
+    LIBRARY_RULE_SCOPE,
+    LibraryRule,
+    type ILibraryRuleProps,
+    type LibraryRuleScope,
+} from "./entities/library-rule.entity"
+export {
     type IPromptConfigurationProps,
     PromptConfiguration,
 } from "./entities/prompt-configuration.entity"
@@ -129,6 +136,25 @@ export {
     type IssueFeedbackType,
 } from "./value-objects/issue-feedback.value-object"
 export {ISSUE_FEEDBACK_TYPE} from "./value-objects/issue-feedback.value-object"
+export {
+    DoraMetrics,
+    type IDoraMetricsProps,
+    type IDoraTimeRange,
+} from "./value-objects/dora-metrics.value-object"
+export {
+    CCRMetrics,
+    type ICCRMetricsProps,
+} from "./value-objects/ccr-metrics.value-object"
+export {
+    type ICostByModel,
+    type ICostEstimatePricing,
+    type IModelTokenPricing,
+    CostEstimate,
+} from "./value-objects/cost-estimate.value-object"
+export {
+    TokenUsageRecord,
+    type ITokenUsageRecordProps,
+} from "./value-objects/token-usage-record.value-object"
 export {
     API_KEY_STATUS,
     type ApiKeyStatus,

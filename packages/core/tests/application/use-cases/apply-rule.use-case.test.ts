@@ -6,6 +6,11 @@ import type {
 } from "../../../src/application/dto/llm"
 import type {IStreamingChatResponseDTO} from "../../../src/application/dto/llm/streaming-chat.dto"
 import type {ILLMProvider} from "../../../src/application/ports/outbound/llm/llm-provider.port"
+import type {
+    ICustomRuleAstEvaluator,
+    ICustomRuleAstTarget,
+    ICustomRuleAstMatch,
+} from "../../../src/application/ports/outbound/rule/custom-rule-ast-evaluator.port"
 import type {CustomRule} from "../../../src/domain/entities/custom-rule.entity"
 import {CUSTOM_RULE_SCOPE, CUSTOM_RULE_STATUS, CUSTOM_RULE_TYPE} from "../../../src/domain/entities/custom-rule.entity"
 import {CustomRuleFactory} from "../../../src/domain/factories/custom-rule.factory"
@@ -90,6 +95,19 @@ class StaticFilter implements ISafeGuardFilter {
             passed: suggestions,
             discarded: [],
         }
+    }
+}
+
+class StaticAstEvaluator implements ICustomRuleAstEvaluator {
+    public constructor(
+        private readonly matches: readonly ICustomRuleAstMatch[],
+    ) {}
+
+    public async execute(
+        _rule: CustomRule,
+        _target: ICustomRuleAstTarget,
+    ): Promise<readonly ICustomRuleAstMatch[]> {
+        return Promise.resolve(this.matches)
     }
 }
 
@@ -203,7 +221,9 @@ describe("ApplyRuleUseCase", () => {
         expect(result.isFail).toBe(true)
         expect(result.error.fields).toContainEqual({
             field: "rule:r-invalid",
-            message: "Invalid regex pattern for rule r-invalid",
+            message:
+                "REGEX rule validation failed: Invalid regular expression: missing terminating ] " +
+                "for character class",
         })
     })
 
@@ -410,5 +430,114 @@ describe("ApplyRuleUseCase", () => {
         expect(result.value.suggestions).toHaveLength(1)
         expect(result.value.suggestions[0]?.filePath).toBe("GLOBAL")
         expect(result.value.suggestions[0]?.message).toContain("ccr rule")
+    })
+
+    test("applies AST rule using external evaluator", async () => {
+        const llmProvider = new InMemoryLLMProvider()
+        const useCase = new ApplyRuleUseCase({
+            llmProvider,
+            astEvaluator: new StaticAstEvaluator([
+                {
+                    filePath: "src/a.ts",
+                    lineStart: 1,
+                    lineEnd: 2,
+                    message: "Avoid nested complexity",
+                    severity: "high",
+                    committable: true,
+                    rankScore: 88,
+                },
+            ]),
+        })
+
+        const result = await useCase.execute({
+            rules: [
+                createActiveRule({
+                    id: "r8",
+                    title: "ast rule",
+                    type: "AST",
+                    rule: "{ \"kind\": \"Program\" }",
+                }),
+            ],
+            scope: CUSTOM_RULE_SCOPE.FILE,
+            config: {},
+            files: [
+                {
+                    path: "src/a.ts",
+                    patch: "const a = 1",
+                },
+            ],
+        })
+
+        expect(result.isOk).toBe(true)
+        if (result.isFail) {
+            throw new Error("Expected success result")
+        }
+
+        expect(result.value.suggestions).toHaveLength(1)
+        expect(result.value.suggestions[0]?.message).toContain("ast rule")
+        expect(result.value.suggestions[0]?.message).toContain("Avoid nested complexity")
+        expect(result.value.suggestions[0]?.severity).toBe("HIGH")
+    })
+
+    test("fails AST rule when evaluator is missing", async () => {
+        const llmProvider = new InMemoryLLMProvider()
+        const useCase = new ApplyRuleUseCase({llmProvider})
+
+        const result = await useCase.execute({
+            rules: [
+                createActiveRule({
+                    id: "r9",
+                    title: "ast no evaluator",
+                    type: "AST",
+                    rule: "{ \"kind\": \"Program\" }",
+                }),
+            ],
+            scope: CUSTOM_RULE_SCOPE.FILE,
+            config: {},
+            files: [
+                {
+                    path: "src/a.ts",
+                    patch: "const a = 1",
+                },
+            ],
+        })
+
+        expect(result.isFail).toBe(true)
+        expect(result.error.fields).toContainEqual({
+            field: "rule:r9",
+            message: "AST rule evaluator is required for AST rule type",
+        })
+    })
+
+    test("validates invalid AST rule payload before execution", async () => {
+        const llmProvider = new InMemoryLLMProvider()
+        const useCase = new ApplyRuleUseCase({
+            llmProvider,
+            astEvaluator: new StaticAstEvaluator([]),
+        })
+
+        const result = await useCase.execute({
+            rules: [
+                createActiveRule({
+                    id: "r10",
+                    title: "ast invalid",
+                    type: "AST",
+                    rule: "{kind:Program",
+                }),
+            ],
+            scope: CUSTOM_RULE_SCOPE.FILE,
+            config: {},
+            files: [
+                {
+                    path: "src/a.ts",
+                    patch: "const a = 1",
+                },
+            ],
+        })
+
+        expect(result.isFail).toBe(true)
+        expect(result.error.fields).toHaveLength(1)
+        expect(result.error.fields[0]?.field).toBe("rule:r10")
+        expect(result.error.fields[0]?.message).toContain("AST rule validation failed")
     })
 })

@@ -12,6 +12,11 @@ import type {
 import type {ISafeGuardFilter} from "../types/review/safeguard-filter.contract"
 import type {IUseCase} from "../ports/inbound/use-case.port"
 import type {ILLMProvider} from "../ports/outbound/llm/llm-provider.port"
+import type {
+    ICustomRuleAstEvaluator,
+    ICustomRuleAstMatch,
+    ICustomRuleAstTarget,
+} from "../ports/outbound/rule/custom-rule-ast-evaluator.port"
 import {
     CUSTOM_RULE_SCOPE,
     CUSTOM_RULE_STATUS,
@@ -21,6 +26,7 @@ import {
 } from "../../domain/entities/custom-rule.entity"
 import type {IValidationErrorField} from "../../domain/errors/validation.error"
 import {ValidationError} from "../../domain/errors/validation.error"
+import {RuleValidationService} from "../../domain/services/rule-validation.service"
 import {type SeverityLevel, SEVERITY_LEVEL} from "../../domain/value-objects/severity.value-object"
 import {Result} from "../../shared/result"
 import {deduplicate} from "../../shared/utils/deduplicate"
@@ -122,6 +128,16 @@ export interface IApplyRuleUseCaseDependencies {
      * Optional SafeGuard filters.
      */
     readonly filters?: readonly ISafeGuardFilter[]
+
+    /**
+     * Optional AST evaluator for AST custom rules.
+     */
+    readonly astEvaluator?: ICustomRuleAstEvaluator
+
+    /**
+     * Optional validation service override.
+     */
+    readonly ruleValidationService?: RuleValidationService
 }
 
 /**
@@ -132,6 +148,8 @@ export class ApplyRuleUseCase implements
 {
     private readonly llmProvider: ILLMProvider
     private readonly filters: readonly ISafeGuardFilter[]
+    private readonly astEvaluator: ICustomRuleAstEvaluator | undefined
+    private readonly ruleValidationService: RuleValidationService
 
     /**
      * Creates apply rule use case.
@@ -141,6 +159,8 @@ export class ApplyRuleUseCase implements
     public constructor(dependencies: IApplyRuleUseCaseDependencies) {
         this.llmProvider = dependencies.llmProvider
         this.filters = dependencies.filters ?? []
+        this.astEvaluator = dependencies.astEvaluator
+        this.ruleValidationService = dependencies.ruleValidationService ?? new RuleValidationService()
     }
 
     /**
@@ -352,6 +372,19 @@ export class ApplyRuleUseCase implements
         input: IApplyRuleUseCaseInput,
         rule: CustomRule,
     ): Promise<Result<readonly ISuggestionDTO[], ValidationError>> {
+        const validation = this.ruleValidationService.validate(rule.type, rule.rule)
+        if (validation.isFail) {
+            const detail = validation.error.fields[0]?.message ?? "Rule payload is invalid"
+            return Result.fail<readonly ISuggestionDTO[], ValidationError>(
+                new ValidationError("Failed to apply one or more custom rules", [
+                    {
+                        field: `rule:${rule.id.value}`,
+                        message: `${rule.type} rule validation failed: ${detail}`,
+                    },
+                ]),
+            )
+        }
+
         if (rule.type === CUSTOM_RULE_TYPE.REGEX) {
             return this.applyRegexRule(input, rule)
         }
@@ -360,11 +393,15 @@ export class ApplyRuleUseCase implements
             return this.applyPromptRule(input, rule)
         }
 
+        if (rule.type === CUSTOM_RULE_TYPE.AST) {
+            return this.applyAstRule(input, rule)
+        }
+
         return Result.fail<readonly ISuggestionDTO[], ValidationError>(
             new ValidationError("Failed to apply one or more custom rules", [
                 {
                     field: `rule:${rule.id.value}`,
-                    message: `Unsupported rule type ${rule.type}`,
+                    message: `Unsupported rule type ${String(rule.type)}`,
                 },
             ]),
         )
@@ -398,6 +435,61 @@ export class ApplyRuleUseCase implements
 
         for (const target of targets) {
             suggestions.push(...this.applyRegexRuleToTarget(target, rule, regex))
+        }
+
+        return Result.ok<readonly ISuggestionDTO[], ValidationError>(suggestions)
+    }
+
+    /**
+     * Applies AST rule to targets via injected evaluator.
+     *
+     * @param input Use-case payload.
+     * @param rule Custom rule.
+     * @returns Suggestions.
+     */
+    private async applyAstRule(
+        input: IApplyRuleUseCaseInput,
+        rule: CustomRule,
+    ): Promise<Result<readonly ISuggestionDTO[], ValidationError>> {
+        if (this.astEvaluator === undefined) {
+            return Result.fail<readonly ISuggestionDTO[], ValidationError>(
+                new ValidationError("Failed to apply one or more custom rules", [
+                    {
+                        field: `rule:${rule.id.value}`,
+                        message: "AST rule evaluator is required for AST rule type",
+                    },
+                ]),
+            )
+        }
+
+        const targets = this.resolveTargets(input)
+        const suggestions: ISuggestionDTO[] = []
+
+        for (const target of targets) {
+            let matches: readonly ICustomRuleAstMatch[]
+            try {
+                const astTarget: ICustomRuleAstTarget = {
+                    filePath: target.filePath,
+                    content: target.content,
+                }
+                matches = await this.astEvaluator.execute(rule, astTarget)
+            } catch (error: unknown) {
+                return Result.fail<readonly ISuggestionDTO[], ValidationError>(
+                    new ValidationError("Failed to apply one or more custom rules", [
+                        {
+                            field: `rule:${rule.id.value}`,
+                            message:
+                                error instanceof Error
+                                    ? error.message
+                                    : "AST rule execution failed",
+                        },
+                    ]),
+                )
+            }
+
+            for (const match of matches) {
+                suggestions.push(this.mapAstMatch(rule, target.filePath, match))
+            }
         }
 
         return Result.ok<readonly ISuggestionDTO[], ValidationError>(suggestions)
@@ -898,6 +990,43 @@ export class ApplyRuleUseCase implements
             category,
             message: `${rule.title}: ${message}`,
             codeBlock: this.normalizeCodeBlock(codeBlock),
+            committable,
+            rankScore,
+        }
+    }
+
+    /**
+     * Maps AST evaluator match to suggestion DTO with resilient normalization.
+     *
+     * @param rule Rule descriptor.
+     * @param fallbackPath Target file path.
+     * @param source Raw AST suggestion match.
+     * @returns Normalized suggestion.
+     */
+    private mapAstMatch(
+        rule: CustomRule,
+        fallbackPath: string,
+        source: ICustomRuleAstMatch,
+    ): ISuggestionDTO {
+        const message = this.readNonEmptyString(source.message) ?? `${rule.title}: AST suggestion`
+        const lineStart = this.readPositiveInteger(source.lineStart) ?? 1
+        const lineEnd = this.readPositiveInteger(source.lineEnd) ?? lineStart
+        const severity = this.readNonEmptyString(source.severity) ?? DEFAULT_RULE_SEVERITY
+        const category = this.readNonEmptyString(source.category) ?? CUSTOM_RULE_CATEGORY
+        const filePath = this.readNonEmptyString(source.filePath) ?? fallbackPath
+        const committable = this.readBoolean(source.committable) ?? true
+        const rankScore = this.readPositiveInteger(source.rankScore) ??
+            DEFAULT_PROMPT_RANK_SCORE + rule.severity.weight
+
+        return {
+            id: `${rule.id.value}:ast:${hash(`${filePath}|${lineStart}|${lineEnd}|${message}`)}`,
+            filePath,
+            lineStart,
+            lineEnd: Math.max(lineStart, lineEnd),
+            severity: this.normalizeSeverity(severity),
+            category,
+            message: `${rule.title}: ${message}`,
+            codeBlock: this.normalizeCodeBlock(this.readNonEmptyString(source.codeBlock)),
             committable,
             rankScore,
         }
