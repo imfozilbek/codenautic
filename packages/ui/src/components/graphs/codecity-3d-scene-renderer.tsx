@@ -42,6 +42,8 @@ export interface ICodeCityBuildingMesh {
     readonly depth: number
     readonly height: number
     readonly color: string
+    readonly recentBugCount: number
+    readonly totalBugCount: number
 }
 
 /**
@@ -101,6 +103,7 @@ const CAUSAL_ARC_BASE_LIFT = 1.8
 const CAUSAL_ARC_SEGMENTS = 20
 const MAX_CAUSAL_ARCS_HIGH_QUALITY = 42
 const MAX_CAUSAL_ARCS_LOW_QUALITY = 16
+const MAX_BUG_EMISSION_CLOUDS = 80
 
 type TVec3 = readonly [number, number, number]
 type TCodeCityBuildingImpactState = TCodeCityImpactType | "none"
@@ -137,6 +140,12 @@ interface ICodeCityCausalArc {
     readonly control: TVec3
     readonly end: TVec3
     readonly particleSpeed: number
+}
+
+interface IBugEmissionSettings {
+    readonly color: string
+    readonly particleCount: number
+    readonly pulseStrength: number
 }
 
 interface ICodeCityLayoutWorkerRequest {
@@ -334,6 +343,38 @@ export function resolveCodeCityBuildingColor(coverage: number | undefined): stri
         return "#fb923c"
     }
     return "#ef4444"
+}
+
+/**
+ * Определяет параметры bug-emission эффекта по bug frequency файла.
+ *
+ * @param totalBugCount Общий объём bug events.
+ * @param recentBugCount Объём багов за последние 7 дней.
+ * @returns Профиль цвета, числа частиц и силы pulse.
+ */
+export function resolveCodeCityBugEmissionSettings(
+    totalBugCount: number,
+    recentBugCount: number,
+): IBugEmissionSettings {
+    if (totalBugCount >= 9) {
+        return {
+            color: "#ef4444",
+            particleCount: 6,
+            pulseStrength: recentBugCount > 0 ? 1 : 0.4,
+        }
+    }
+    if (totalBugCount >= 5) {
+        return {
+            color: "#f97316",
+            particleCount: 4,
+            pulseStrength: recentBugCount > 0 ? 0.9 : 0.3,
+        }
+    }
+    return {
+        color: "#facc15",
+        particleCount: 2,
+        pulseStrength: recentBugCount > 0 ? 0.75 : 0.2,
+    }
 }
 
 /**
@@ -632,6 +673,10 @@ export function createCodeCityBuildingMeshes(
             const height = Math.max(MIN_BUILDING_HEIGHT, fileLoc / LOC_TO_HEIGHT_RATIO)
             const x = districtLeft + cellWidth * (columnIndex + 0.5)
             const z = districtTop + cellDepth * (rowIndex + 0.5)
+            const recentBugCount = file.bugIntroductions?.["7d"] ?? 0
+            const mediumBugCount = file.bugIntroductions?.["30d"] ?? 0
+            const longTermBugCount = file.bugIntroductions?.["90d"] ?? 0
+            const totalBugCount = recentBugCount + mediumBugCount + longTermBugCount
 
             return {
                 color: resolveCodeCityBuildingColor(file.coverage),
@@ -639,6 +684,8 @@ export function createCodeCityBuildingMeshes(
                 districtId: district.id,
                 height,
                 id: file.id,
+                recentBugCount,
+                totalBugCount,
                 width,
                 x,
                 z,
@@ -954,6 +1001,102 @@ function InstancedBuildingsMesh(props: IInstancedBuildingsMeshProps): ReactEleme
     )
 }
 
+interface IBugEmissionMeshProps {
+    readonly building: ICodeCityBuildingMesh
+    readonly settings: IBugEmissionSettings
+}
+
+/**
+ * Рендерит эмиссию багов: поток частиц над зданием и pulse-ring при recent bugs.
+ *
+ * @param props Целевое здание и профиль эмиссии.
+ * @returns Группа bug-emission эффектов.
+ */
+function BugEmissionMesh(props: IBugEmissionMeshProps): ReactElement {
+    const particleRefs = useRef<Array<Mesh | null>>([])
+    const pulseRef = useRef<Mesh | null>(null)
+    const particleOffsets = useMemo((): ReadonlyArray<{
+        readonly phaseSeed: number
+        readonly radius: number
+        readonly speed: number
+    }> => {
+        return Array.from({ length: props.settings.particleCount }, (_value, index) => {
+            return {
+                phaseSeed: index * 0.8,
+                radius: 0.16 + (index % 3) * 0.07,
+                speed: 1 + index * 0.12,
+            }
+        })
+    }, [props.settings.particleCount])
+
+    useFrame((state): void => {
+        const elapsed = state.clock.getElapsedTime()
+        const baseY = props.building.height + 0.14
+        const verticalRange = 0.55 + props.settings.particleCount * 0.11
+
+        particleOffsets.forEach((offset, index): void => {
+            const particle = particleRefs.current[index]
+            if (particle === null || particle === undefined) {
+                return
+            }
+
+            const phase = elapsed * offset.speed + offset.phaseSeed
+            const normalized = (Math.sin(phase) + 1) / 2
+            const orbitX = Math.cos(phase) * offset.radius
+            const orbitZ = Math.sin(phase) * offset.radius
+            particle.position.set(
+                props.building.x + orbitX,
+                baseY + normalized * verticalRange,
+                props.building.z + orbitZ,
+            )
+            const scale = 0.65 + normalized * 0.45
+            particle.scale.set(scale, scale, scale)
+        })
+
+        if (props.building.recentBugCount <= 0) {
+            return
+        }
+
+        const pulseMesh = pulseRef.current
+        if (pulseMesh === null) {
+            return
+        }
+        const pulse = (Math.sin(elapsed * 2.4) + 1) / 2
+        const scale = 1 + pulse * props.settings.pulseStrength * 1.5
+        pulseMesh.position.set(props.building.x, props.building.height + 0.06, props.building.z)
+        pulseMesh.scale.set(scale, scale, scale)
+    })
+
+    return (
+        <group>
+            {particleOffsets.map((offset, index): ReactElement => (
+                <mesh
+                    key={`${props.building.id}-bug-particle-${String(index)}`}
+                    ref={(mesh): void => {
+                        particleRefs.current[index] = mesh
+                    }}
+                >
+                    <sphereGeometry args={[0.08, 8, 8]} />
+                    <meshStandardMaterial
+                        color={props.settings.color}
+                        emissive={props.settings.color}
+                        emissiveIntensity={0.85}
+                        opacity={0.7}
+                        toneMapped={false}
+                        transparent={true}
+                    />
+                </mesh>
+            ))}
+            {props.building.recentBugCount > 0 ? (
+                <mesh ref={pulseRef} rotation={[-Math.PI / 2, 0, 0]}>
+                    <ringGeometry args={[0.28, 0.44, 24]} />
+                    <meshBasicMaterial color={props.settings.color} opacity={0.28} transparent={true} />
+                </mesh>
+            ) : null}
+        </group>
+    )
+}
+
 interface IImpactBuildingMeshProps {
     readonly building: ICodeCityBuildingMesh
     readonly impactState: TCodeCityBuildingImpactState
@@ -1159,6 +1302,14 @@ export function CodeCity3DSceneRenderer(props: ICodeCity3DSceneRendererProps): R
             return interactiveBuildingIds.has(building.id) === false
         })
     }, [interactiveBuildingIds, renderBudget.useInstancing, visibleBuildings])
+    const bugEmissionBuildings = useMemo((): ReadonlyArray<ICodeCityBuildingMesh> => {
+        return interactiveBuildings
+            .filter((building): boolean => building.totalBugCount > 0)
+            .sort((leftBuilding, rightBuilding): number => {
+                return rightBuilding.totalBugCount - leftBuilding.totalBugCount
+            })
+            .slice(0, MAX_BUG_EMISSION_CLOUDS)
+    }, [interactiveBuildings])
     const cameraPresetTarget = useMemo((): ICameraPresetTarget => {
         return resolveCameraPresetTarget(props.cameraPreset, buildings.at(0))
     }, [buildings, props.cameraPreset])
@@ -1198,6 +1349,16 @@ export function CodeCity3DSceneRenderer(props: ICodeCity3DSceneRendererProps): R
                     arc={arc}
                     key={`${arc.sourceFileId}-${arc.targetFileId}-${arc.couplingType}`}
                     phaseSeed={index * 0.31}
+                />
+            ))}
+            {bugEmissionBuildings.map((building): ReactElement => (
+                <BugEmissionMesh
+                    building={building}
+                    key={`${building.id}-bug-emission`}
+                    settings={resolveCodeCityBugEmissionSettings(
+                        building.totalBugCount,
+                        building.recentBugCount,
+                    )}
                 />
             ))}
             {interactiveBuildings.map((building, index): ReactElement => (

@@ -6,6 +6,7 @@ import {
     createCodeCityBuildingMeshes,
     createCodeCityDistrictMeshes,
     resolveCodeCityCausalArcColor,
+    resolveCodeCityBugEmissionSettings,
     resolveCodeCityRenderBudget,
     resolveCodeCityBuildingImpactProfile,
     resolveCodeCityBuildingColor,
@@ -20,6 +21,11 @@ describe("CodeCity3DSceneRenderer building generation", (): void => {
     it("строит здания из файлов по правилам height=LOC, width=complexity, color=coverage", (): void => {
         const files: ReadonlyArray<ICodeCity3DSceneFileDescriptor> = [
             {
+                bugIntroductions: {
+                    "30d": 4,
+                    "7d": 2,
+                    "90d": 6,
+                },
                 complexity: 32,
                 coverage: 91,
                 id: "src/core/auth.ts",
@@ -27,6 +33,11 @@ describe("CodeCity3DSceneRenderer building generation", (): void => {
                 path: "src/core/auth.ts",
             },
             {
+                bugIntroductions: {
+                    "30d": 2,
+                    "7d": 0,
+                    "90d": 1,
+                },
                 complexity: 8,
                 coverage: 58,
                 id: "src/core/cache.ts",
@@ -34,6 +45,11 @@ describe("CodeCity3DSceneRenderer building generation", (): void => {
                 path: "src/core/cache.ts",
             },
             {
+                bugIntroductions: {
+                    "30d": 1,
+                    "7d": 0,
+                    "90d": 0,
+                },
                 complexity: 3,
                 coverage: undefined,
                 id: "src/core/worker.ts",
@@ -53,6 +69,8 @@ describe("CodeCity3DSceneRenderer building generation", (): void => {
             districtId: "core",
             height: 10,
             id: "src/core/auth.ts",
+            recentBugCount: 2,
+            totalBugCount: 12,
             width: 3.4,
         })
         expect(firstBuilding?.depth).toBeGreaterThan(0.5)
@@ -67,6 +85,8 @@ describe("CodeCity3DSceneRenderer building generation", (): void => {
             districtId: "core",
             height: 4,
             id: "src/core/cache.ts",
+            recentBugCount: 0,
+            totalBugCount: 3,
             width: 1,
         })
         expect(secondBuilding?.depth).toBeGreaterThan(0.5)
@@ -81,6 +101,8 @@ describe("CodeCity3DSceneRenderer building generation", (): void => {
             districtId: "core",
             height: 1.25,
             id: "src/core/worker.ts",
+            recentBugCount: 0,
+            totalBugCount: 1,
             width: 1,
         })
         expect(thirdBuilding?.depth).toBeGreaterThan(0.5)
@@ -302,5 +324,22 @@ describe("CodeCity3DSceneRenderer building generation", (): void => {
         expect(resolveCodeCityCausalArcColor("temporal")).toBe("#38bdf8")
         expect(resolveCodeCityCausalArcColor("dependency")).toBe("#fb923c")
         expect(resolveCodeCityCausalArcColor("ownership")).toBe("#22c55e")
+    })
+
+    it("подбирает bug emission профиль по частоте багов и recent активности", (): void => {
+        expect(resolveCodeCityBugEmissionSettings(12, 3)).toMatchObject({
+            color: "#ef4444",
+            particleCount: 6,
+        })
+        expect(resolveCodeCityBugEmissionSettings(6, 0)).toMatchObject({
+            color: "#f97316",
+            particleCount: 4,
+            pulseStrength: 0.3,
+        })
+        expect(resolveCodeCityBugEmissionSettings(2, 1)).toMatchObject({
+            color: "#facc15",
+            particleCount: 2,
+            pulseStrength: 0.75,
+        })
     })
 })

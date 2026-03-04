@@ -19,6 +19,8 @@ interface ICodeCity3DSceneFileDescriptor {
     readonly complexity?: number
     /** Покрытие файла тестами. */
     readonly coverage?: number
+    /** Частота внесения багов по окнам наблюдения. */
+    readonly bugIntroductions?: Readonly<Partial<Record<"7d" | "30d" | "90d", number>>>
 }
 
 /**
