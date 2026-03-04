@@ -61,6 +61,13 @@ export interface IFunctionCallGraphProps {
 interface IFunctionCallGraphState {
     /** Значение поискового поля. */
     readonly query: string
+    /** id выбранного узла. */
+    readonly selectedNodeId?: string
+}
+
+interface ICallRelationStats {
+    readonly incoming: number
+    readonly outgoing: number
 }
 
 /** Лимит длины label, чтобы не ломать layout. */
@@ -154,13 +161,36 @@ function createSummaryText(nodesCount: number, edgesCount: number): string {
     return `Nodes: ${nodesCount}, edges: ${edgesCount}`
 }
 
+/** Подсчитывает входящие/исходящие вызовы для выбранной функции/класса. */
+function calculateCallStats(
+    relations: ReadonlyArray<IFunctionCallRelation>,
+    nodeId: string,
+): ICallRelationStats {
+    let incoming = 0
+    let outgoing = 0
+
+    for (const relation of relations) {
+        if (relation.source === nodeId) {
+            outgoing += 1
+        }
+        if (relation.target === nodeId) {
+            incoming += 1
+        }
+    }
+
+    return { incoming, outgoing }
+}
+
 /**
  * Рендерит function/class call graph для одного репозитория.
  *
  * @param props Пропсы графа.
  */
 export function FunctionClassCallGraph(props: IFunctionCallGraphProps): ReactElement {
-    const [state, setState] = useState<IFunctionCallGraphState>({ query: "" })
+    const [state, setState] = useState<IFunctionCallGraphState>({
+        query: "",
+        selectedNodeId: undefined,
+    })
     const title = props.title ?? "Function/Class call graph"
     const emptyStateLabel = props.emptyStateLabel ?? "No function or class call relationships yet."
     const graphData = useMemo(
@@ -187,6 +217,25 @@ export function FunctionClassCallGraph(props: IFunctionCallGraphProps): ReactEle
 
     const isEmptyState = visibleGraphData.nodes.length === 0
     const summaryText = createSummaryText(visibleGraphData.nodes.length, visibleGraphData.edges.length)
+    const nodesById = useMemo((): ReadonlyMap<string, IFunctionCallNode> => {
+        const nextMap = new Map<string, IFunctionCallNode>()
+        for (const node of props.nodes) {
+            nextMap.set(node.id, node)
+        }
+        return nextMap
+    }, [props.nodes])
+    const selectedNode = useMemo((): IFunctionCallNode | undefined => {
+        if (state.selectedNodeId === undefined) {
+            return undefined
+        }
+        return nodesById.get(state.selectedNodeId)
+    }, [nodesById, state.selectedNodeId])
+    const selectedCallStats = useMemo((): ICallRelationStats | undefined => {
+        if (state.selectedNodeId === undefined) {
+            return undefined
+        }
+        return calculateCallStats(props.callRelations, state.selectedNodeId)
+    }, [props.callRelations, state.selectedNodeId])
 
     if (layoutedNodes.length === 0 || isEmptyState === true) {
         return (
@@ -234,15 +283,43 @@ export function FunctionClassCallGraph(props: IFunctionCallGraphProps): ReactEle
                     ) : null}
                 </div>
             </CardHeader>
-            <CardBody>
+            <CardBody className="gap-4">
                 <XyFlowGraph
                     ariaLabel={`${title} canvas`}
                     edges={visibleGraphData.edges}
                     height={props.height}
                     nodes={layoutedNodes}
+                    onNodeSelect={(nodeId): void => {
+                        setState((previousState) => ({
+                            ...previousState,
+                            selectedNodeId:
+                                previousState.selectedNodeId === nodeId ? undefined : nodeId,
+                        }))
+                    }}
+                    selectedNodeId={state.selectedNodeId}
                     showControls={props.showControls}
                     showMiniMap={props.showMiniMap}
                 />
+                <section
+                    aria-live="polite"
+                    className="rounded-xl border border-default-200 bg-content2 p-4"
+                >
+                    <h4 className="text-sm font-semibold text-foreground">Node details</h4>
+                    {selectedNode === undefined || selectedCallStats === undefined ? (
+                        <p className="mt-2 text-sm text-foreground-500">
+                            Select a node to inspect call relationships.
+                        </p>
+                    ) : (
+                        <div className="mt-2 space-y-1 text-sm text-foreground-700">
+                            <p>{`Name: ${selectedNode.name}`}</p>
+                            <p>{`Kind: ${selectedNode.kind}`}</p>
+                            <p>{`Source file: ${selectedNode.file ?? "n/a"}`}</p>
+                            <p>{`Complexity: ${selectedNode.complexity ?? "n/a"}`}</p>
+                            <p>{`Incoming calls: ${selectedCallStats.incoming}`}</p>
+                            <p>{`Outgoing calls: ${selectedCallStats.outgoing}`}</p>
+                        </div>
+                    )}
+                </section>
             </CardBody>
         </Card>
     )

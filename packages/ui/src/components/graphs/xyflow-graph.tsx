@@ -28,6 +28,10 @@ export interface IXYFlowGraphProps {
     readonly loadingLabel?: string
     /** aria-label для контейнера графа. */
     readonly ariaLabel?: string
+    /** Обработчик выбора узла по клику. */
+    readonly onNodeSelect?: (nodeId: string) => void
+    /** id выбранного узла для визуального выделения. */
+    readonly selectedNodeId?: string
 }
 
 const DEFAULT_GRAPH_HEIGHT = "420px"
@@ -51,6 +55,8 @@ export function XyFlowGraph(props: IXYFlowGraphProps): ReactElement {
                 layoutOptions={props.layoutOptions}
                 nodes={props.nodes}
                 nodesDraggable={props.nodesDraggable}
+                onNodeSelect={props.onNodeSelect}
+                selectedNodeId={props.selectedNodeId}
                 showControls={props.showControls}
                 showMiniMap={props.showMiniMap}
             />

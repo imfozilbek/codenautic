@@ -40,6 +40,10 @@ interface IXYFlowGraphRendererProps {
     readonly ariaLabel?: string
     /** Высота графа. */
     readonly height: string
+    /** Обработчик выбора узла по клику. */
+    readonly onNodeSelect?: (nodeId: string) => void
+    /** id выбранного узла для визуального выделения. */
+    readonly selectedNodeId?: string
 }
 
 const VIEWPORT_ZOOM_STEP = 0.25
@@ -165,6 +169,7 @@ export function XYFlowGraphRenderer(props: IXYFlowGraphRendererProps): ReactElem
 
     const reactFlowNodes = useMemo((): Array<Node<IGraphNode>> => {
         return layoutedNodes.map((node): Node<IGraphNode> => {
+            const isSelected = props.selectedNodeId === node.id
             return {
                 id: node.id,
                 data: node,
@@ -175,16 +180,21 @@ export function XYFlowGraphRenderer(props: IXYFlowGraphRendererProps): ReactElem
                     height: `${node.height}px`,
                     padding: 8,
                     borderRadius: 12,
-                    border: "1px solid hsl(var(--nextui-colors-defaultBorder))",
+                    border: isSelected
+                        ? "2px solid hsl(var(--nextui-colors-primary))"
+                        : "1px solid hsl(var(--nextui-colors-defaultBorder))",
                     backgroundColor: "hsl(var(--nextui-colors-content1))",
                     color: "hsl(var(--nextui-colors-foreground))",
+                    boxShadow: isSelected
+                        ? "0 0 0 3px color-mix(in srgb, hsl(var(--nextui-colors-primary)) 20%, transparent)"
+                        : undefined,
                 },
                 type: "default",
                 sourcePosition: "right",
                 targetPosition: "left",
             }
         })
-    }, [layoutedNodes, nodesDraggable])
+    }, [layoutedNodes, nodesDraggable, props.selectedNodeId])
 
     const reactFlowEdges = useMemo((): Array<Edge<IGraphEdge>> => {
         return props.edges.map((edge): Edge<IGraphEdge> => {
@@ -221,6 +231,11 @@ export function XYFlowGraphRenderer(props: IXYFlowGraphRendererProps): ReactElem
                 nodesDraggable={nodesDraggable}
                 nodesConnectable={false}
                 elementsSelectable={false}
+                onNodeClick={(_event, node): void => {
+                    if (props.onNodeSelect !== undefined) {
+                        props.onNodeSelect(node.id)
+                    }
+                }}
             >
                 <Background color="hsl(var(--nextui-colors-defaultBorder))" gap={16} />
                 {showControls === true ? (

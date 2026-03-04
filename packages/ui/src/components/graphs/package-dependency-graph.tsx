@@ -61,6 +61,13 @@ interface IPackageDependencyGraphState {
     readonly query: string
     /** Фильтры по типам зависимостей. */
     readonly selectedRelationTypes: ReadonlyArray<string>
+    /** id выбранного узла. */
+    readonly selectedNodeId?: string
+}
+
+interface IPackageRelationStats {
+    readonly incoming: number
+    readonly outgoing: number
 }
 
 const MAX_LABEL_LENGTH = 40
@@ -203,6 +210,26 @@ function createSummaryText(nodesCount: number, edgesCount: number): string {
     return `Nodes: ${nodesCount}, edges: ${edgesCount}`
 }
 
+/** Подсчитывает входящие/исходящие связи для выбранного пакета. */
+function calculatePackageRelationStats(
+    relations: ReadonlyArray<IPackageDependencyRelation>,
+    nodeId: string,
+): IPackageRelationStats {
+    let incoming = 0
+    let outgoing = 0
+
+    for (const relation of relations) {
+        if (relation.source === nodeId) {
+            outgoing += 1
+        }
+        if (relation.target === nodeId) {
+            incoming += 1
+        }
+    }
+
+    return { incoming, outgoing }
+}
+
 /**
  * Рендерит module/package dependency graph.
  *
@@ -212,6 +239,7 @@ export function PackageDependencyGraph(props: IPackageDependencyGraphProps): Rea
     const [state, setState] = useState<IPackageDependencyGraphState>({
         query: "",
         selectedRelationTypes: [],
+        selectedNodeId: undefined,
     })
     const title = props.title ?? "Package dependency graph"
     const emptyStateLabel = props.emptyStateLabel ?? "No package dependencies yet."
@@ -239,6 +267,25 @@ export function PackageDependencyGraph(props: IPackageDependencyGraphProps): Rea
     )
 
     const summaryText = createSummaryText(visibleGraphData.nodes.length, visibleGraphData.edges.length)
+    const packageNodesById = useMemo((): ReadonlyMap<string, IPackageDependencyNode> => {
+        const nextMap = new Map<string, IPackageDependencyNode>()
+        for (const node of props.nodes) {
+            nextMap.set(node.id, node)
+        }
+        return nextMap
+    }, [props.nodes])
+    const selectedNode = useMemo((): IPackageDependencyNode | undefined => {
+        if (state.selectedNodeId === undefined) {
+            return undefined
+        }
+        return packageNodesById.get(state.selectedNodeId)
+    }, [packageNodesById, state.selectedNodeId])
+    const selectedRelationStats = useMemo((): IPackageRelationStats | undefined => {
+        if (state.selectedNodeId === undefined) {
+            return undefined
+        }
+        return calculatePackageRelationStats(props.relations, state.selectedNodeId)
+    }, [props.relations, state.selectedNodeId])
 
     if (layoutedNodes.length === 0) {
         return (
@@ -327,15 +374,42 @@ export function PackageDependencyGraph(props: IPackageDependencyGraphProps): Rea
                     </div>
                 ) : null}
             </CardHeader>
-            <CardBody>
+            <CardBody className="gap-4">
                 <XyFlowGraph
                     ariaLabel={`${title} canvas`}
                     edges={visibleGraphData.edges}
                     height={props.height}
                     nodes={layoutedNodes}
+                    onNodeSelect={(nodeId): void => {
+                        setState((previousState): IPackageDependencyGraphState => ({
+                            ...previousState,
+                            selectedNodeId:
+                                previousState.selectedNodeId === nodeId ? undefined : nodeId,
+                        }))
+                    }}
+                    selectedNodeId={state.selectedNodeId}
                     showControls={props.showControls}
                     showMiniMap={props.showMiniMap}
                 />
+                <section
+                    aria-live="polite"
+                    className="rounded-xl border border-default-200 bg-content2 p-4"
+                >
+                    <h4 className="text-sm font-semibold text-foreground">Node details</h4>
+                    {selectedNode === undefined || selectedRelationStats === undefined ? (
+                        <p className="mt-2 text-sm text-foreground-500">
+                            Select a node to inspect package relationships.
+                        </p>
+                    ) : (
+                        <div className="mt-2 space-y-1 text-sm text-foreground-700">
+                            <p>{`Name: ${selectedNode.name}`}</p>
+                            <p>{`Layer: ${selectedNode.layer}`}</p>
+                            <p>{`Size: ${selectedNode.size ?? "n/a"}`}</p>
+                            <p>{`Incoming relations: ${selectedRelationStats.incoming}`}</p>
+                            <p>{`Outgoing relations: ${selectedRelationStats.outgoing}`}</p>
+                        </div>
+                    )}
+                </section>
             </CardBody>
         </Card>
     )

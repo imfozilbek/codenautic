@@ -1,4 +1,4 @@
-import { type ChangeEvent, type ReactElement, useMemo, useState } from "react"
+import { type ReactElement, useMemo, useState } from "react"
 
 import { Button, Card, CardBody, CardHeader, Input } from "@/components/ui"
 import { XyFlowGraph } from "@/components/graphs/xyflow-graph"
@@ -58,6 +58,12 @@ export interface IFileDependencyGraphProps {
 
 interface IFileDependencyGraphState {
     readonly query: string
+    readonly selectedNodeId?: string
+}
+
+interface INodeDependencyStats {
+    readonly incoming: number
+    readonly outgoing: number
 }
 
 /** Лимитируем длину label, чтобы избежать расширения верстки. */
@@ -154,13 +160,36 @@ function createSummaryText(nodesCount: number, edgesCount: number): string {
     return `Nodes: ${nodesCount}, edges: ${edgesCount}`
 }
 
+/** Возвращает входящие/исходящие связи для выбранного узла. */
+function calculateDependencyStats(
+    dependencies: ReadonlyArray<IFileDependencyRelation>,
+    nodeId: string,
+): INodeDependencyStats {
+    let incoming = 0
+    let outgoing = 0
+
+    for (const relation of dependencies) {
+        if (relation.source === nodeId) {
+            outgoing += 1
+        }
+        if (relation.target === nodeId) {
+            incoming += 1
+        }
+    }
+
+    return { incoming, outgoing }
+}
+
 /**
  * Рендерит file-level dependency graph для одного репозитория.
  *
  * @param props Пропсы графа.
  */
 export function FileDependencyGraph(props: IFileDependencyGraphProps): ReactElement {
-    const [state, setState] = useState<IFileDependencyGraphState>({ query: "" })
+    const [state, setState] = useState<IFileDependencyGraphState>({
+        query: "",
+        selectedNodeId: undefined,
+    })
     const title = props.title ?? "File dependency graph"
     const emptyStateLabel = props.emptyStateLabel ?? "No file dependencies yet."
     const graphData = useMemo(
@@ -185,13 +214,25 @@ export function FileDependencyGraph(props: IFileDependencyGraphProps): ReactElem
 
     const isEmptyState = visibleGraphData.nodes.length === 0
     const summaryText = createSummaryText(visibleGraphData.nodes.length, visibleGraphData.edges.length)
-
-    const handleSearchChange = (event: ChangeEvent<HTMLInputElement>): void => {
-        setState((previousState) => ({
-            ...previousState,
-            query: event.target.value,
-        }))
-    }
+    const filesById = useMemo((): ReadonlyMap<string, IFileDependencyNode> => {
+        const nextMap = new Map<string, IFileDependencyNode>()
+        for (const file of props.files) {
+            nextMap.set(file.id, file)
+        }
+        return nextMap
+    }, [props.files])
+    const selectedFile = useMemo((): IFileDependencyNode | undefined => {
+        if (state.selectedNodeId === undefined) {
+            return undefined
+        }
+        return filesById.get(state.selectedNodeId)
+    }, [filesById, state.selectedNodeId])
+    const selectedDependencyStats = useMemo((): INodeDependencyStats | undefined => {
+        if (state.selectedNodeId === undefined) {
+            return undefined
+        }
+        return calculateDependencyStats(props.dependencies, state.selectedNodeId)
+    }, [props.dependencies, state.selectedNodeId])
 
     if (layoutedNodes.length === 0) {
         return (
@@ -239,7 +280,7 @@ export function FileDependencyGraph(props: IFileDependencyGraphProps): ReactElem
                     ) : null}
                 </div>
             </CardHeader>
-            <CardBody>
+            <CardBody className="gap-4">
                 {isEmptyState ? (
                     <p>{emptyStateLabel}</p>
                 ) : (
@@ -248,6 +289,14 @@ export function FileDependencyGraph(props: IFileDependencyGraphProps): ReactElem
                         nodes={state.query.length > 0 ? visibleGraphData.nodes : layoutedNodes}
                         edges={visibleGraphData.edges}
                         height={props.height}
+                        onNodeSelect={(nodeId): void => {
+                            setState((previousState) => ({
+                                ...previousState,
+                                selectedNodeId:
+                                    previousState.selectedNodeId === nodeId ? undefined : nodeId,
+                            }))
+                        }}
+                        selectedNodeId={state.selectedNodeId}
                         showControls={props.showControls}
                         showMiniMap={props.showMiniMap}
                         fitView
@@ -259,6 +308,26 @@ export function FileDependencyGraph(props: IFileDependencyGraphProps): ReactElem
                         }}
                     />
                 )}
+                <section
+                    aria-live="polite"
+                    className="rounded-xl border border-default-200 bg-content2 p-4"
+                >
+                    <h4 className="text-sm font-semibold text-foreground">Node details</h4>
+                    {selectedFile === undefined || selectedDependencyStats === undefined ? (
+                        <p className="mt-2 text-sm text-foreground-500">
+                            Select a node to inspect dependencies.
+                        </p>
+                    ) : (
+                        <div className="mt-2 space-y-1 text-sm text-foreground-700">
+                            <p>{`Path: ${selectedFile.path}`}</p>
+                            <p>{`Node id: ${selectedFile.id}`}</p>
+                            <p>{`Complexity: ${selectedFile.complexity ?? "n/a"}`}</p>
+                            <p>{`Churn: ${selectedFile.churn ?? "n/a"}`}</p>
+                            <p>{`Incoming deps: ${selectedDependencyStats.incoming}`}</p>
+                            <p>{`Outgoing deps: ${selectedDependencyStats.outgoing}`}</p>
+                        </div>
+                    )}
+                </section>
             </CardBody>
         </Card>
     )

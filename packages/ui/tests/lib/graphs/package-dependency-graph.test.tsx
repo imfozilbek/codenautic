@@ -12,15 +12,37 @@ vi.mock("@/components/graphs/xyflow-graph", () => ({
         ariaLabel,
         edges,
         nodes,
+        onNodeSelect,
+        selectedNodeId,
     }: {
         readonly ariaLabel?: string
         readonly edges: ReadonlyArray<unknown>
         readonly nodes: ReadonlyArray<unknown>
+        readonly onNodeSelect?: (nodeId: string) => void
+        readonly selectedNodeId?: string
     }): React.JSX.Element => {
         return (
             <div aria-label={ariaLabel}>
                 <span data-testid="xyflow-node-count">{nodes.length}</span>
                 <span data-testid="xyflow-edge-count">{edges.length}</span>
+                <span data-testid="selected-node-id">{selectedNodeId ?? ""}</span>
+                {nodes.map((node, index): React.JSX.Element => {
+                    const nodeRecord = node as { readonly id?: unknown }
+                    const nodeId = typeof nodeRecord.id === "string" ? nodeRecord.id : `node-${index}`
+                    return (
+                        <button
+                            key={nodeId}
+                            onClick={(): void => {
+                                if (onNodeSelect !== undefined) {
+                                    onNodeSelect(nodeId)
+                                }
+                            }}
+                            type="button"
+                        >
+                            {`select-${nodeId}`}
+                        </button>
+                    )
+                })}
             </div>
         )
     },
@@ -93,6 +115,8 @@ describe("package dependency graph", (): void => {
         expect(screen.getByTestId("xyflow-node-count")).toHaveTextContent("2")
         expect(screen.getByTestId("xyflow-edge-count")).toHaveTextContent("1")
         expect(screen.getByPlaceholderText("Filter packages by name")).not.toBeNull()
+        expect(screen.getByText("Node details")).not.toBeNull()
+        expect(screen.getByText("Select a node to inspect package relationships.")).not.toBeNull()
     })
 
     it("фильтрует граф по типу связи", async (): Promise<void> => {
@@ -141,5 +165,47 @@ describe("package dependency graph", (): void => {
         const clearFiltersButton = screen.getByRole("button", { name: "Clear relation filters" })
         await user.click(clearFiltersButton)
         expect(screen.getByTestId("xyflow-edge-count")).toHaveTextContent("2")
+    })
+
+    it("показывает детали выбранного package node", async (): Promise<void> => {
+        const user = userEvent.setup()
+        render(
+            <PackageDependencyGraph
+                nodes={[
+                    {
+                        id: "pkg-ui",
+                        layer: "ui",
+                        name: "pkg-ui",
+                        size: 16,
+                    },
+                    {
+                        id: "pkg-core",
+                        layer: "core",
+                        name: "pkg-core",
+                        size: 20,
+                    },
+                ]}
+                relations={[
+                    {
+                        relationType: "runtime",
+                        source: "pkg-ui",
+                        target: "pkg-core",
+                    },
+                    {
+                        relationType: "peer",
+                        source: "pkg-core",
+                        target: "pkg-ui",
+                    },
+                ]}
+            />,
+        )
+
+        await user.click(screen.getByRole("button", { name: "select-pkg-ui" }))
+
+        expect(screen.getByText("Name: pkg-ui")).not.toBeNull()
+        expect(screen.getByText("Layer: ui")).not.toBeNull()
+        expect(screen.getByText("Size: 16")).not.toBeNull()
+        expect(screen.getByText("Incoming relations: 1")).not.toBeNull()
+        expect(screen.getByText("Outgoing relations: 1")).not.toBeNull()
     })
 })

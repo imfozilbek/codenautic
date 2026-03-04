@@ -1,4 +1,5 @@
 import { render, screen } from "@testing-library/react"
+import userEvent from "@testing-library/user-event"
 import { describe, expect, it, vi } from "vitest"
 
 import {
@@ -11,15 +12,37 @@ vi.mock("@/components/graphs/xyflow-graph", () => ({
         ariaLabel,
         edges,
         nodes,
+        onNodeSelect,
+        selectedNodeId,
     }: {
         readonly ariaLabel?: string
         readonly edges: ReadonlyArray<unknown>
         readonly nodes: ReadonlyArray<unknown>
+        readonly onNodeSelect?: (nodeId: string) => void
+        readonly selectedNodeId?: string
     }): React.JSX.Element => {
         return (
             <div aria-label={ariaLabel}>
                 <span data-testid="xyflow-node-count">{nodes.length}</span>
                 <span data-testid="xyflow-edge-count">{edges.length}</span>
+                <span data-testid="selected-node-id">{selectedNodeId ?? ""}</span>
+                {nodes.map((node, index): React.JSX.Element => {
+                    const nodeRecord = node as { readonly id?: unknown }
+                    const nodeId = typeof nodeRecord.id === "string" ? nodeRecord.id : `node-${index}`
+                    return (
+                        <button
+                            key={nodeId}
+                            onClick={(): void => {
+                                if (onNodeSelect !== undefined) {
+                                    onNodeSelect(nodeId)
+                                }
+                            }}
+                            type="button"
+                        >
+                            {`select-${nodeId}`}
+                        </button>
+                    )
+                })}
             </div>
         )
     },
@@ -117,6 +140,50 @@ describe("function/class call graph", (): void => {
         expect(screen.getByTestId("xyflow-node-count")).toHaveTextContent("3")
         expect(screen.getByTestId("xyflow-edge-count")).toHaveTextContent("2")
         expect(screen.getByPlaceholderText("Filter by function or class")).not.toBeNull()
+        expect(screen.getByText("Node details")).not.toBeNull()
+        expect(screen.getByText("Select a node to inspect call relationships.")).not.toBeNull()
+    })
+
+    it("показывает детали выбранной функции", async (): Promise<void> => {
+        const user = userEvent.setup()
+        render(
+            <FunctionClassCallGraph
+                callRelations={[
+                    {
+                        relationType: "calls",
+                        source: "worker.run",
+                        target: "queueManager.poll",
+                    },
+                    {
+                        relationType: "calls",
+                        source: "queueManager.poll",
+                        target: "worker.run",
+                    },
+                ]}
+                nodes={[
+                    {
+                        complexity: 4,
+                        file: "src/worker.ts",
+                        id: "worker.run",
+                        kind: "function",
+                        name: "worker.run",
+                    },
+                    {
+                        id: "queueManager.poll",
+                        kind: "method",
+                        name: "queueManager.poll",
+                    },
+                ]}
+            />,
+        )
+
+        await user.click(screen.getByRole("button", { name: "select-worker.run" }))
+
+        expect(screen.getByText("Name: worker.run")).not.toBeNull()
+        expect(screen.getByText("Kind: function")).not.toBeNull()
+        expect(screen.getByText("Source file: src/worker.ts")).not.toBeNull()
+        expect(screen.getByText("Complexity: 4")).not.toBeNull()
+        expect(screen.getByText("Incoming calls: 1")).not.toBeNull()
+        expect(screen.getByText("Outgoing calls: 1")).not.toBeNull()
     })
 })
-
