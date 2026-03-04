@@ -120,6 +120,16 @@ interface ICodeCityRenderBudget {
     readonly cullingRadius: number
 }
 
+interface ICodeCityLayoutWorkerRequest {
+    readonly files: ReadonlyArray<ICodeCity3DSceneFileDescriptor>
+}
+
+interface ICodeCityLayoutWorkerResponse {
+    readonly type: "layout"
+    readonly buildings: ReadonlyArray<ICodeCityBuildingMesh>
+    readonly districts: ReadonlyArray<ICodeCityDistrictMesh>
+}
+
 const BASE_CAMERA_PRESETS: Readonly<Record<TCodeCityCameraPreset, ICameraPresetTarget>> = {
     "bird-eye": {
         focus: [0, 0, 0],
@@ -869,15 +879,60 @@ function ImpactBuildingMesh(props: IImpactBuildingMeshProps): ReactElement {
  */
 export function CodeCity3DSceneRenderer(props: ICodeCity3DSceneRendererProps): ReactElement {
     const controlsRef = useRef<IOrbitControlsLike | null>(null)
+    const [buildings, setBuildings] = useState<ReadonlyArray<ICodeCityBuildingMesh>>([])
+    const [districts, setDistricts] = useState<ReadonlyArray<ICodeCityDistrictMesh>>([])
     const [sampledFps, setSampledFps] = useState<number | undefined>(undefined)
-    const districts = useMemo(
-        (): ReadonlyArray<ICodeCityDistrictMesh> => createCodeCityDistrictMeshes(props.files),
-        [props.files],
-    )
-    const buildings = useMemo(
-        (): ReadonlyArray<ICodeCityBuildingMesh> => createCodeCityBuildingMeshes(props.files),
-        [props.files],
-    )
+
+    useEffect((): (() => void) => {
+        if (props.files.length === 0) {
+            setBuildings([])
+            setDistricts([])
+            return (): void => {
+                return
+            }
+        }
+
+        if (typeof Worker === "undefined") {
+            setDistricts(createCodeCityDistrictMeshes(props.files))
+            setBuildings(createCodeCityBuildingMeshes(props.files))
+            return (): void => {
+                return
+            }
+        }
+
+        let disposed = false
+        const layoutWorker = new Worker(new URL("./codecity-3d-layout.worker.ts", import.meta.url), {
+            type: "module",
+        })
+        const handleMessage = (event: Event): void => {
+            const messageEvent = event as MessageEvent<ICodeCityLayoutWorkerResponse>
+            if (disposed || messageEvent.data.type !== "layout") {
+                return
+            }
+            setBuildings(messageEvent.data.buildings)
+            setDistricts(messageEvent.data.districts)
+        }
+        const handleError = (): void => {
+            if (disposed) {
+                return
+            }
+            setDistricts(createCodeCityDistrictMeshes(props.files))
+            setBuildings(createCodeCityBuildingMeshes(props.files))
+        }
+
+        layoutWorker.addEventListener("message", handleMessage)
+        layoutWorker.addEventListener("error", handleError)
+        layoutWorker.postMessage({
+            files: props.files,
+        } satisfies ICodeCityLayoutWorkerRequest)
+
+        return (): void => {
+            disposed = true
+            layoutWorker.removeEventListener("message", handleMessage)
+            layoutWorker.removeEventListener("error", handleError)
+            layoutWorker.terminate()
+        }
+    }, [props.files])
     const impactMap = useMemo((): ReadonlyMap<string, TCodeCityImpactType> => {
         return createCodeCityBuildingImpactMap(buildings, props.impactedFiles)
     }, [buildings, props.impactedFiles])
