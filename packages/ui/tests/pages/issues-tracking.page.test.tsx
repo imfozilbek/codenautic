@@ -7,7 +7,19 @@ import { renderWithProviders } from "../utils/render"
 
 const ISSUE_FILTER_PERSISTENCE_KEY = "issues-tracking:filters:v1"
 
-const issues = [
+interface IIssuesTrackingTestIssue {
+    readonly detectedAt: string
+    readonly filePath: string
+    readonly id: string
+    readonly message: string
+    readonly owner: string
+    readonly repository: string
+    readonly severity: "critical" | "high" | "low" | "medium"
+    readonly status: "dismissed" | "fixed" | "in_progress" | "open"
+    readonly title: string
+}
+
+const issues: ReadonlyArray<IIssuesTrackingTestIssue> = [
     {
         detectedAt: "2026-01-12T07:11:00Z",
         filePath: "src/api/repository.ts",
@@ -53,6 +65,24 @@ const issues = [
         title: "Virtualization key fallback",
     },
 ]
+
+function createLargeIssueSet(total: number): ReadonlyArray<IIssuesTrackingTestIssue> {
+    return Array.from({ length: total }, (_unusedValue, index): IIssuesTrackingTestIssue => {
+        const issueNumber = String(index + 1).padStart(3, "0")
+
+        return {
+            detectedAt: "2026-02-01T08:00:00Z",
+            filePath: `src/modules/module-${issueNumber}.ts`,
+            id: `ISS-VIRT-${issueNumber}`,
+            message: `Virtualized row payload ${issueNumber}`,
+            owner: `Owner ${issueNumber}`,
+            repository: "frontend-team/ui-dashboard",
+            severity: index % 2 === 0 ? "high" : "medium",
+            status: index % 3 === 0 ? "open" : "in_progress",
+            title: `Virtualized issue ${issueNumber}`,
+        }
+    })
+}
 
 describe("IssuesTrackingPage", (): void => {
     beforeEach((): void => {
@@ -102,6 +132,21 @@ describe("IssuesTrackingPage", (): void => {
 
         expect(screen.getByRole("table", { name: "Issue list" })).not.toBeNull()
         expect(screen.getAllByRole("columnheader").length).toBeGreaterThan(0)
+    })
+
+    it("использует virtualized table для большого списка issues", (): void => {
+        const largeIssues = createLargeIssueSet(180)
+        renderWithProviders(<IssuesTrackingPage issues={largeIssues} />)
+
+        const table = screen.getByRole("table", { name: "Issue list" })
+        expect(table).toHaveAttribute("data-virtualized", "true")
+        expect(screen.getByText("180 of 180 issues")).not.toBeNull()
+
+        const renderedRowSelectionCheckboxes = screen.getAllByRole("checkbox", {
+            name: /Select ISS-VIRT-/i,
+        })
+        expect(renderedRowSelectionCheckboxes.length).toBeGreaterThan(0)
+        expect(renderedRowSelectionCheckboxes.length).toBeLessThan(largeIssues.length)
     })
 
     it("загружает persisted filters из localStorage при инициализации", (): void => {

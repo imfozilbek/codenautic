@@ -58,6 +58,20 @@ interface IEnterpriseDataTableProps<TRow> {
     readonly ariaLabel: string
     /** Текст empty state. */
     readonly emptyMessage: string
+    /** Конфигурация виртуализации body таблицы. */
+    readonly virtualization?: IEnterpriseDataTableVirtualizationOptions
+}
+
+interface IEnterpriseDataTableVirtualizationOptions {
+    /** Оценка высоты строки для разных density режимов. */
+    readonly estimateRowHeight?: {
+        readonly comfortable: number
+        readonly compact: number
+    }
+    /** Overscan для virtualizer. */
+    readonly overscan?: number
+    /** Максимальная высота scroll контейнера body. */
+    readonly maxBodyHeight?: number
 }
 
 interface IEnterpriseTableSavedView {
@@ -276,21 +290,33 @@ export function EnterpriseDataTable<TRow>(props: IEnterpriseDataTableProps<TRow>
         }, 0)
 
     const parentRef = useRef<HTMLDivElement | null>(null)
+    const defaultComfortableRowHeight = 56
+    const defaultCompactRowHeight = 42
+    const rowHeight =
+        density === "compact"
+            ? (props.virtualization?.estimateRowHeight?.compact ?? defaultCompactRowHeight)
+            : (props.virtualization?.estimateRowHeight?.comfortable ?? defaultComfortableRowHeight)
+    const maxBodyHeight = props.virtualization?.maxBodyHeight ?? 520
+    const overscan = props.virtualization?.overscan ?? 8
     const rowVirtualizer = useVirtualizer({
         count: rowModel.length,
-        estimateSize: (): number => (density === "compact" ? 42 : 56),
+        estimateSize: (): number => rowHeight,
         getScrollElement: (): HTMLDivElement | null => parentRef.current,
-        overscan: 8,
+        overscan,
     })
-    const fallbackRowHeight = density === "compact" ? 42 : 56
+    const fallbackRowHeight = rowHeight
     const virtualItems = rowVirtualizer.getVirtualItems()
+    const fallbackRenderedRowCount = Math.min(
+        rowModel.length,
+        Math.max(1, Math.ceil(maxBodyHeight / fallbackRowHeight) + overscan),
+    )
     const renderedRowOffsets: ReadonlyArray<IRenderedRowOffset> = virtualItems.length > 0
         ? virtualItems.map((item): IRenderedRowOffset => ({
             index: item.index,
             key: String(item.key),
             start: item.start,
         }))
-        : rowModel.map((_, index): IRenderedRowOffset => ({
+        : Array.from({ length: fallbackRenderedRowCount }, (_unusedValue, index): IRenderedRowOffset => ({
             index,
             key: `fallback-row-${props.id}-${String(index)}`,
             start: index * fallbackRowHeight,
@@ -542,7 +568,9 @@ export function EnterpriseDataTable<TRow>(props: IEnterpriseDataTableProps<TRow>
             <div
                 aria-label={props.ariaLabel}
                 className="overflow-auto rounded-lg border border-[var(--border)]"
+                data-virtualized="true"
                 role="table"
+                aria-rowcount={rowModel.length}
                 style={{ minWidth: `${String(totalTableWidth)}px` }}
             >
                 <div
@@ -583,7 +611,13 @@ export function EnterpriseDataTable<TRow>(props: IEnterpriseDataTableProps<TRow>
                 {rowModel.length === 0 ? (
                     <p className="px-3 py-6 text-sm text-[var(--foreground)]/70">{props.emptyMessage}</p>
                 ) : (
-                    <div ref={parentRef} className="max-h-[520px] overflow-auto" role="rowgroup">
+                    <div
+                        ref={parentRef}
+                        className="overflow-auto"
+                        data-rendered-row-count={renderedRowOffsets.length}
+                        role="rowgroup"
+                        style={{ maxHeight: `${String(maxBodyHeight)}px` }}
+                    >
                         <div
                             className="relative"
                             style={{ height: `${String(totalRowsHeight)}px` }}

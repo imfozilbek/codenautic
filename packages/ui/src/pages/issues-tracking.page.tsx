@@ -487,6 +487,14 @@ export function IssuesTrackingPage(props: IIssueTrackingPageProps = {}): ReactEl
                         getRowId={(issue): string => issue.id}
                         id="issues-tracking-table"
                         rows={filteredIssues}
+                        virtualization={{
+                            estimateRowHeight: {
+                                comfortable: 58,
+                                compact: 44,
+                            },
+                            maxBodyHeight: 560,
+                            overscan: 12,
+                        }}
                     />
                 </CardBody>
             </Card>

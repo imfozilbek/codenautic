@@ -16,6 +16,18 @@ const TEST_ROWS: ReadonlyArray<ITestRow> = [
     { id: "B2", name: "beta", status: "closed" },
 ]
 
+const MANY_ROWS: ReadonlyArray<ITestRow> = Array.from(
+    { length: 140 },
+    (_unusedValue, index): ITestRow => {
+        const suffix = String(index + 1).padStart(3, "0")
+        return {
+            id: `ROW-${suffix}`,
+            name: `row ${suffix}`,
+            status: index % 2 === 0 ? "open" : "closed",
+        }
+    },
+)
+
 describe("EnterpriseDataTable", (): void => {
     it("поддерживает selection, filtering и density controls", async (): Promise<void> => {
         const user = userEvent.setup()
@@ -68,5 +80,35 @@ describe("EnterpriseDataTable", (): void => {
 
         await user.click(screen.getByRole("button", { name: "Reset view" }))
         expect(screen.getByRole("textbox", { name: "Saved view table search" })).toHaveValue("")
+    })
+
+    it("рендерит виртуализованный body без вывода всех строк сразу", (): void => {
+        renderWithProviders(
+            <EnterpriseDataTable
+                ariaLabel="Virtual table"
+                columns={[
+                    { accessor: (row): string => row.id, header: "ID", id: "id", pin: "left" },
+                    { accessor: (row): string => row.name, header: "Name", id: "name" },
+                    { accessor: (row): string => row.status, header: "Status", id: "status" },
+                ]}
+                emptyMessage="No rows"
+                getRowId={(row): string => row.id}
+                id="virtual-table"
+                rows={MANY_ROWS}
+                virtualization={{
+                    maxBodyHeight: 280,
+                    overscan: 4,
+                }}
+            />,
+        )
+
+        const table = screen.getByRole("table", { name: "Virtual table" })
+        expect(table).toHaveAttribute("data-virtualized", "true")
+
+        const renderedRows = screen.getAllByRole("checkbox", {
+            name: /Select ROW-/i,
+        })
+        expect(renderedRows.length).toBeGreaterThan(0)
+        expect(renderedRows.length).toBeLessThan(MANY_ROWS.length)
     })
 })
