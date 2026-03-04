@@ -4,6 +4,7 @@ import {
     createCodeCityBuildingImpactMap,
     createCodeCityBuildingMeshes,
     createCodeCityDistrictMeshes,
+    resolveCodeCityRenderBudget,
     resolveCodeCityBuildingImpactProfile,
     resolveCodeCityBuildingColor,
 } from "@/components/graphs/codecity-3d-scene-renderer"
@@ -209,6 +210,28 @@ describe("CodeCity3DSceneRenderer building generation", (): void => {
         expect(resolveCodeCityBuildingImpactProfile("ripple")).toMatchObject({
             emissive: "#38bdf8",
             rippleLift: 0.16,
+        })
+    })
+
+    it("применяет render budget для LOD, instancing и dpr в зависимости от нагрузки", (): void => {
+        expect(resolveCodeCityRenderBudget(120, 62)).toMatchObject({
+            dpr: [1, 1.5],
+            quality: "high",
+            useInstancing: false,
+        })
+        expect(resolveCodeCityRenderBudget(320, 60)).toMatchObject({
+            dpr: [0.95, 1.25],
+            quality: "medium",
+            useInstancing: true,
+        })
+        expect(resolveCodeCityRenderBudget(720, 58)).toMatchObject({
+            dpr: [0.75, 1],
+            quality: "low",
+            useInstancing: true,
+        })
+        expect(resolveCodeCityRenderBudget(180, 46)).toMatchObject({
+            quality: "medium",
+            useInstancing: true,
         })
     })
 })

@@ -1,7 +1,15 @@
-import { useMemo, useRef, type ReactElement } from "react"
+import { useEffect, useMemo, useRef, useState, type ReactElement } from "react"
 import { OrbitControls, Text } from "@react-three/drei"
 import { Canvas, useFrame, useThree, type ThreeEvent } from "@react-three/fiber"
-import { Mesh, MeshStandardMaterial, Vector3 } from "three"
+import {
+    Color,
+    InstancedMesh,
+    Matrix4,
+    Mesh,
+    MeshStandardMaterial,
+    Object3D,
+    Vector3,
+} from "three"
 
 import type {
     ICodeCity3DSceneImpactedFileDescriptor,
@@ -81,9 +89,15 @@ const BUILDING_FILL_RATIO = 0.72
 const MIN_DISTRICT_SPAN = 24
 const CAMERA_LERP_FACTOR = 0.12
 const IMPACT_NEIGHBOR_COUNT = 2
+const HIGH_QUALITY_MAX_BUILDINGS = 220
+const MEDIUM_QUALITY_MAX_BUILDINGS = 480
+const LOW_QUALITY_MAX_BUILDINGS = 900
+const PERFORMANCE_SAMPLE_WINDOW_SECONDS = 1
+const TARGET_FPS = 60
 
 type TVec3 = readonly [number, number, number]
 type TCodeCityBuildingImpactState = TCodeCityImpactType | "none"
+type TCodeCityRenderQuality = "high" | "medium" | "low"
 
 interface ICameraPresetTarget {
     readonly position: TVec3
@@ -96,6 +110,14 @@ interface ICodeCityBuildingImpactProfile {
     readonly pulseAmplitude: number
     readonly pulseSpeed: number
     readonly rippleLift: number
+}
+
+interface ICodeCityRenderBudget {
+    readonly quality: TCodeCityRenderQuality
+    readonly useInstancing: boolean
+    readonly maxInteractiveBuildings: number
+    readonly dpr: [number, number]
+    readonly cullingRadius: number
 }
 
 const BASE_CAMERA_PRESETS: Readonly<Record<TCodeCityCameraPreset, ICameraPresetTarget>> = {
@@ -111,6 +133,58 @@ const BASE_CAMERA_PRESETS: Readonly<Record<TCodeCityCameraPreset, ICameraPresetT
         focus: [0, 2, 0],
         position: [10, 7, 15],
     },
+}
+
+/**
+ * Рассчитывает бюджет рендера CodeCity по количеству зданий и наблюдаемому FPS.
+ *
+ * @param buildingCount Количество зданий в текущем snapshot.
+ * @param sampledFps Сэмпл FPS за окно рендера.
+ * @returns Профиль качества (LOD, instancing, dpr, culling).
+ */
+export function resolveCodeCityRenderBudget(
+    buildingCount: number,
+    sampledFps: number | undefined,
+): ICodeCityRenderBudget {
+    let quality: TCodeCityRenderQuality = "high"
+
+    if (buildingCount > MEDIUM_QUALITY_MAX_BUILDINGS) {
+        quality = "low"
+    } else if (buildingCount > HIGH_QUALITY_MAX_BUILDINGS) {
+        quality = "medium"
+    }
+
+    if (sampledFps !== undefined && sampledFps < TARGET_FPS - 10) {
+        quality = quality === "high" ? "medium" : "low"
+    }
+
+    if (quality === "high") {
+        return {
+            cullingRadius: LOW_QUALITY_MAX_BUILDINGS,
+            dpr: [1, 1.5],
+            maxInteractiveBuildings: LOW_QUALITY_MAX_BUILDINGS,
+            quality,
+            useInstancing: false,
+        }
+    }
+
+    if (quality === "medium") {
+        return {
+            cullingRadius: 210,
+            dpr: [0.95, 1.25],
+            maxInteractiveBuildings: 180,
+            quality,
+            useInstancing: true,
+        }
+    }
+
+    return {
+        cullingRadius: 150,
+        dpr: [0.75, 1],
+        maxInteractiveBuildings: 100,
+        quality,
+        useInstancing: true,
+    }
 }
 
 /**
@@ -613,6 +687,90 @@ function CameraPresetController(props: ICameraPresetControllerProps): null {
     return null
 }
 
+interface IRenderPerformanceControllerProps {
+    readonly onSample: (fps: number) => void
+}
+
+/**
+ * Сэмплирует FPS и сообщает его в renderer для адаптивной деградации качества.
+ *
+ * @param props Callback получения текущего FPS.
+ * @returns null (служебный controller).
+ */
+function RenderPerformanceController(props: IRenderPerformanceControllerProps): null {
+    const frameCountRef = useRef<number>(0)
+    const elapsedRef = useRef<number>(0)
+
+    useFrame((_, delta): void => {
+        frameCountRef.current += 1
+        elapsedRef.current += delta
+        if (elapsedRef.current < PERFORMANCE_SAMPLE_WINDOW_SECONDS) {
+            return
+        }
+
+        const fps = frameCountRef.current / Math.max(elapsedRef.current, 1e-6)
+        props.onSample(fps)
+        frameCountRef.current = 0
+        elapsedRef.current = 0
+    })
+
+    return null
+}
+
+interface IInstancedBuildingsMeshProps {
+    readonly buildings: ReadonlyArray<ICodeCityBuildingMesh>
+}
+
+/**
+ * Рендерит неинтерактивный хвост зданий через instanced mesh для экономии draw calls.
+ *
+ * @param props Набор зданий для пакетного рендера.
+ * @returns Instanced mesh контейнер.
+ */
+function InstancedBuildingsMesh(props: IInstancedBuildingsMeshProps): ReactElement | null {
+    const meshRef = useRef<InstancedMesh | null>(null)
+    const matrix = useMemo((): Matrix4 => new Matrix4(), [])
+    const dummy = useMemo((): Object3D => new Object3D(), [])
+
+    useEffect((): void => {
+        const mesh = meshRef.current
+        if (mesh === null) {
+            return
+        }
+
+        for (let index = 0; index < props.buildings.length; index += 1) {
+            const building = props.buildings[index]
+            if (building === undefined) {
+                continue
+            }
+
+            dummy.position.set(building.x, building.height / 2, building.z)
+            dummy.scale.set(building.width, building.height, building.depth)
+            dummy.updateMatrix()
+            matrix.copy(dummy.matrix)
+            mesh.setMatrixAt(index, matrix)
+            mesh.setColorAt(index, new Color(building.color))
+        }
+
+        mesh.count = props.buildings.length
+        mesh.instanceMatrix.needsUpdate = true
+        if (mesh.instanceColor !== null) {
+            mesh.instanceColor.needsUpdate = true
+        }
+    }, [dummy, matrix, props.buildings])
+
+    if (props.buildings.length === 0) {
+        return null
+    }
+
+    return (
+        <instancedMesh args={[undefined, undefined, props.buildings.length]} frustumCulled={true} ref={meshRef}>
+            <boxGeometry args={[1, 1, 1]} />
+            <meshStandardMaterial metalness={0.05} roughness={0.68} vertexColors={true} />
+        </instancedMesh>
+    )
+}
+
 interface IImpactBuildingMeshProps {
     readonly building: ICodeCityBuildingMesh
     readonly impactState: TCodeCityBuildingImpactState
@@ -711,6 +869,7 @@ function ImpactBuildingMesh(props: IImpactBuildingMeshProps): ReactElement {
  */
 export function CodeCity3DSceneRenderer(props: ICodeCity3DSceneRendererProps): ReactElement {
     const controlsRef = useRef<IOrbitControlsLike | null>(null)
+    const [sampledFps, setSampledFps] = useState<number | undefined>(undefined)
     const districts = useMemo(
         (): ReadonlyArray<ICodeCityDistrictMesh> => createCodeCityDistrictMeshes(props.files),
         [props.files],
@@ -722,17 +881,64 @@ export function CodeCity3DSceneRenderer(props: ICodeCity3DSceneRendererProps): R
     const impactMap = useMemo((): ReadonlyMap<string, TCodeCityImpactType> => {
         return createCodeCityBuildingImpactMap(buildings, props.impactedFiles)
     }, [buildings, props.impactedFiles])
+    const renderBudget = useMemo((): ICodeCityRenderBudget => {
+        return resolveCodeCityRenderBudget(buildings.length, sampledFps)
+    }, [buildings.length, sampledFps])
+    const visibleBuildings = useMemo((): ReadonlyArray<ICodeCityBuildingMesh> => {
+        return buildings.filter((building): boolean => {
+            return Math.hypot(building.x, building.z) <= renderBudget.cullingRadius
+        })
+    }, [buildings, renderBudget.cullingRadius])
+    const interactiveBuildings = useMemo((): ReadonlyArray<ICodeCityBuildingMesh> => {
+        if (renderBudget.useInstancing === false) {
+            return visibleBuildings
+        }
+
+        const prioritized = visibleBuildings.filter((building): boolean => {
+            if (props.selectedFileId === building.id) {
+                return true
+            }
+            const impactState = impactMap.get(building.id)
+            return impactState === "changed" || impactState === "impacted"
+        })
+        const remaining = visibleBuildings.filter((building): boolean => {
+            return prioritized.some((priorityBuilding): boolean => priorityBuilding.id === building.id) === false
+        })
+        return [...prioritized, ...remaining].slice(0, renderBudget.maxInteractiveBuildings)
+    }, [
+        impactMap,
+        props.selectedFileId,
+        renderBudget.maxInteractiveBuildings,
+        renderBudget.useInstancing,
+        visibleBuildings,
+    ])
+    const interactiveBuildingIds = useMemo((): ReadonlySet<string> => {
+        return new Set(interactiveBuildings.map((building): string => building.id))
+    }, [interactiveBuildings])
+    const instancedBuildings = useMemo((): ReadonlyArray<ICodeCityBuildingMesh> => {
+        if (renderBudget.useInstancing === false) {
+            return []
+        }
+        return visibleBuildings.filter((building): boolean => {
+            return interactiveBuildingIds.has(building.id) === false
+        })
+    }, [interactiveBuildingIds, renderBudget.useInstancing, visibleBuildings])
     const cameraPresetTarget = useMemo((): ICameraPresetTarget => {
         return resolveCameraPresetTarget(props.cameraPreset, buildings.at(0))
     }, [buildings, props.cameraPreset])
 
     return (
-        <Canvas camera={{ fov: 45, position: [30, 26, 30] }} dpr={[1, 1.5]} shadows={false}>
+        <Canvas camera={{ fov: 45, position: [30, 26, 30] }} dpr={renderBudget.dpr} shadows={false}>
             <CameraPresetController controlsRef={controlsRef} target={cameraPresetTarget} />
+            <RenderPerformanceController
+                onSample={(fps): void => {
+                    setSampledFps(Math.round(fps))
+                }}
+            />
             <color args={["#020617"]} attach="background" />
             <ambientLight intensity={0.55} />
             <directionalLight intensity={0.9} position={[18, 30, 12]} />
-            <gridHelper args={[100, 80, "#334155", "#1e293b"]} />
+            <gridHelper args={[100, 80, "#334155", "#1e293b"]} visible={renderBudget.quality !== "low"} />
             {districts.map((district): ReactElement => (
                 <group key={`district-${district.id}`}>
                     <mesh position={[district.x, -0.03, district.z]}>
@@ -751,7 +957,7 @@ export function CodeCity3DSceneRenderer(props: ICodeCity3DSceneRendererProps): R
                     </Text>
                 </group>
             ))}
-            {buildings.map((building, index): ReactElement => (
+            {interactiveBuildings.map((building, index): ReactElement => (
                 <ImpactBuildingMesh
                     building={building}
                     impactState={impactMap.get(building.id) ?? "none"}
@@ -762,6 +968,7 @@ export function CodeCity3DSceneRenderer(props: ICodeCity3DSceneRendererProps): R
                     phaseSeed={index * 0.45}
                 />
             ))}
+            <InstancedBuildingsMesh buildings={instancedBuildings} />
             <OrbitControls
                 enablePan={true}
                 enableRotate={true}
