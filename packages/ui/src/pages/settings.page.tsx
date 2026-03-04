@@ -3,6 +3,8 @@ import { type ReactElement } from "react"
 import { Link } from "@tanstack/react-router"
 
 import { Card, CardBody, CardHeader } from "@/components/ui"
+import { ActivationChecklist } from "@/components/onboarding/activation-checklist"
+import { readUiRoleFromStorage } from "@/lib/permissions/ui-policy"
 
 /**
  * Базовая overview-страница раздела settings.
@@ -10,9 +12,13 @@ import { Card, CardBody, CardHeader } from "@/components/ui"
  * @returns Блок с входными ссылками в поднастройки.
  */
 export function SettingsPage(): ReactElement {
+    const uiRole = readUiRoleFromStorage()
+    const checklistRole = uiRole === "admin" ? "admin" : "developer"
+
     return (
         <section className="space-y-4">
             <h1 className="text-2xl font-semibold text-slate-900">Settings</h1>
+            <ActivationChecklist role={checklistRole} />
             <Card>
                 <CardHeader>
                     <p className="text-base font-semibold">Quick setup</p>

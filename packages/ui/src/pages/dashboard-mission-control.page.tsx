@@ -1,12 +1,14 @@
 import { type ReactElement, Suspense, lazy, useMemo, useState } from "react"
 
 import { Card, CardBody, CardHeader, Alert } from "@/components/ui"
+import { ActivationChecklist } from "@/components/onboarding/activation-checklist"
 import {
     DashboardDateRangeFilter,
     type TDashboardDateRange,
 } from "@/components/dashboard/dashboard-date-range-filter"
 import { type IMetricGridMetric, MetricsGrid } from "@/components/dashboard/metrics-grid"
 import { type IStatusDistributionPoint } from "@/components/dashboard/status-distribution-chart"
+import { readUiRoleFromStorage } from "@/lib/permissions/ui-policy"
 import { Link } from "@tanstack/react-router"
 
 import { DashboardSkeleton } from "@/components/skeletons/dashboard-skeleton"
@@ -329,6 +331,8 @@ function renderSignalsCard(): ReactElement {
  * @returns Страница центра мониторинга.
  */
 export function DashboardMissionControlPage(): ReactElement {
+    const uiRole = readUiRoleFromStorage()
+    const checklistRole = uiRole === "admin" ? "admin" : "developer"
     const [range, setRange] = useState<TDashboardDateRange>("7d")
     const [orgScope, setOrgScope] = useState<TOrgScope>("all-orgs")
     const [repositoryScope, setRepositoryScope] = useState<TRepositoryScope>("all-repos")
@@ -423,6 +427,7 @@ export function DashboardMissionControlPage(): ReactElement {
                 </Alert>
             ) : null}
 
+            <ActivationChecklist role={checklistRole} />
             <MetricsGrid metrics={metrics} />
             <div className="grid gap-4 md:grid-cols-2">
                 {renderExploreCard()}
