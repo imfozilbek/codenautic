@@ -1,5 +1,7 @@
 # CodeNautic
 
+![CodeCity 3D workspace](media/codecity_3d_workspace.png)
+
 **AI-powered code intelligence platform** — automated code review, architecture analysis, codebase visualization, and
 problem zone prediction.
 
