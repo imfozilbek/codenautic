@@ -5,6 +5,7 @@ import {
     Coins,
     GitBranch,
     GitPullRequest,
+    LibraryBig,
     Link2,
     SlidersHorizontal,
     Users,
@@ -51,6 +52,11 @@ const DEFAULT_SETTINGS_NAV_ITEMS = [
         icon: <Webhook aria-hidden="true" size={16} />,
         label: "Webhooks",
         to: "/settings-webhooks",
+    },
+    {
+        icon: <LibraryBig aria-hidden="true" size={16} />,
+        label: "Rules Library",
+        to: "/settings-rules-library",
     },
     {
         icon: <Coins aria-hidden="true" size={16} />,

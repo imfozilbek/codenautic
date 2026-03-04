@@ -90,6 +90,14 @@ export function SettingsPage(): ReactElement {
                         <li>
                             <Link
                                 className="underline underline-offset-4"
+                                to="/settings-rules-library"
+                            >
+                                Rules library
+                            </Link>
+                        </li>
+                        <li>
+                            <Link
+                                className="underline underline-offset-4"
                                 to="/onboarding"
                             >
                                 Start repository onboarding
