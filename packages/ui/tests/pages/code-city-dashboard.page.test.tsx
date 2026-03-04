@@ -66,6 +66,7 @@ const { mockCodeCity3DScene } = vi.hoisted(() => ({
     mockCodeCity3DScene: vi.fn(
         (props: {
             readonly title: string
+            readonly causalCouplings: ReadonlyArray<unknown>
             readonly files: ReadonlyArray<unknown>
             readonly impactedFiles: ReadonlyArray<unknown>
             readonly height?: number
@@ -75,6 +76,7 @@ const { mockCodeCity3DScene } = vi.hoisted(() => ({
                     <p>{props.title}</p>
                     <p>3d-files:{props.files.length}</p>
                     <p>3d-impacted:{props.impactedFiles.length}</p>
+                    <p>3d-couplings:{props.causalCouplings.length}</p>
                 </div>
             )
         },
@@ -188,6 +190,7 @@ describe("CodeCityDashboardPage", (): void => {
         expect(first3DCall?.title).toBe("platform-team/api-gateway 3D scene")
         expect(first3DCall?.files.length).toBeGreaterThan(0)
         expect(first3DCall?.impactedFiles.length).toBeGreaterThan(0)
+        expect(first3DCall?.causalCouplings.length).toBe(0)
         const first3DFile = first3DCall?.files.at(0) as
             | {
                 readonly complexity?: number
@@ -251,6 +254,7 @@ describe("CodeCityDashboardPage", (): void => {
         expect(current3DCall).not.toBeUndefined()
         expect(current3DCall?.title).toBe("frontend-team/ui-dashboard 3D scene")
         expect(current3DCall?.impactedFiles.length).toBeGreaterThan(0)
+        expect(current3DCall?.causalCouplings.length).toBe(0)
 
         const overlaySelect = screen.getByRole("combobox", { name: "Causal overlay" })
         await user.selectOptions(overlaySelect, "root-cause")
@@ -263,6 +267,9 @@ describe("CodeCityDashboardPage", (): void => {
         expect(rootCauseTreemapCall).not.toBeUndefined()
         expect(rootCauseTreemapCall?.impactedFiles.length).toBe(0)
         expect(rootCauseTreemapCall?.temporalCouplings.length).toBe(0)
+        const rootCause3DCall = mockCodeCity3DScene.mock.calls.at(-1)?.[0]
+        expect(rootCause3DCall).not.toBeUndefined()
+        expect(rootCause3DCall?.causalCouplings.length).toBe(0)
 
         await user.selectOptions(overlaySelect, "temporal-coupling")
 
@@ -270,6 +277,10 @@ describe("CodeCityDashboardPage", (): void => {
         expect(temporalOverlayCall).not.toBeUndefined()
         expect(temporalOverlayCall?.impactedFiles.length).toBe(0)
         expect(temporalOverlayCall?.temporalCouplings.length).toBeGreaterThan(0)
+        const temporal3DCall = mockCodeCity3DScene.mock.calls.at(-1)?.[0]
+        expect(temporal3DCall).not.toBeUndefined()
+        expect(temporal3DCall?.impactedFiles.length).toBe(0)
+        expect(temporal3DCall?.causalCouplings.length).toBeGreaterThan(0)
 
         const temporalRootCauseCall = mockRootCauseChainViewer.mock.calls.at(-1)?.[0]
         expect(temporalRootCauseCall).not.toBeUndefined()

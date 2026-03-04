@@ -37,6 +37,25 @@ export interface ICodeCity3DSceneImpactedFileDescriptor {
 }
 
 /**
+ * Тип связи в causal 3D-дугах.
+ */
+export type TCodeCityCausalCouplingType = "temporal" | "dependency" | "ownership"
+
+/**
+ * Связь между файлами для causal arc overlay.
+ */
+export interface ICodeCity3DCausalCouplingDescriptor {
+    /** Исходный файл связи. */
+    readonly sourceFileId: string
+    /** Целевой файл связи. */
+    readonly targetFileId: string
+    /** Категория связи для цветовой кодировки. */
+    readonly couplingType: TCodeCityCausalCouplingType
+    /** Сила связи (0..1). */
+    readonly strength: number
+}
+
+/**
  * Пресеты позиции камеры для 3D CodeCity.
  */
 export type TCodeCityCameraPreset = "bird-eye" | "street-level" | "focus-on-building"
@@ -51,6 +70,8 @@ export interface ICodeCity3DSceneProps {
     readonly files: ReadonlyArray<ICodeCity3DSceneFileDescriptor>
     /** Набор impact-файлов для подсветки зданий. */
     readonly impactedFiles?: ReadonlyArray<ICodeCity3DSceneImpactedFileDescriptor>
+    /** Causal coupling связи для 3D arc overlay. */
+    readonly causalCouplings?: ReadonlyArray<ICodeCity3DCausalCouplingDescriptor>
     /** Высота canvas-контейнера. */
     readonly height?: number
 }
@@ -59,6 +80,7 @@ const LazyCodeCity3DSceneRenderer = lazy(
     async (): Promise<{
         default: (props: {
             readonly cameraPreset: TCodeCityCameraPreset
+            readonly causalCouplings: ReadonlyArray<ICodeCity3DCausalCouplingDescriptor>
             readonly files: ReadonlyArray<ICodeCity3DSceneFileDescriptor>
             readonly impactedFiles: ReadonlyArray<ICodeCity3DSceneImpactedFileDescriptor>
             readonly selectedFileId?: string
@@ -456,6 +478,7 @@ export function CodeCity3DScene(props: ICodeCity3DSceneProps): ReactElement {
             >
                 <LazyCodeCity3DSceneRenderer
                     cameraPreset={cameraPreset}
+                    causalCouplings={props.causalCouplings ?? []}
                     files={currentSnapshot?.files ?? []}
                     impactedFiles={props.impactedFiles ?? []}
                     onBuildingHover={setHoveredFileId}

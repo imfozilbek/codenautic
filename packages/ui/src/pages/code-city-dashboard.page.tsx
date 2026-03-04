@@ -13,7 +13,11 @@ import {
     type ICodeCityTreemapImpactedFileDescriptor,
     type ICodeCityTreemapTemporalCouplingDescriptor,
 } from "@/components/graphs/codecity-treemap"
-import { CodeCity3DScene } from "@/components/graphs/codecity-3d-scene"
+import {
+    CodeCity3DScene,
+    type ICodeCity3DCausalCouplingDescriptor,
+    type TCodeCityCausalCouplingType,
+} from "@/components/graphs/codecity-3d-scene"
 import {
     CausalOverlaySelector,
     type TCausalOverlayMode,
@@ -135,6 +139,29 @@ function buildRootCauseIssues(
             title: `Root cause: ${secondaryFile.path}`,
         },
     ]
+}
+
+function resolveCausalCouplingType(strength: number): TCodeCityCausalCouplingType {
+    if (strength >= 0.75) {
+        return "dependency"
+    }
+    if (strength >= 0.5) {
+        return "temporal"
+    }
+    return "ownership"
+}
+
+function buildCausalCouplings(
+    temporalCouplings: ReadonlyArray<ICodeCityTreemapTemporalCouplingDescriptor>,
+): ReadonlyArray<ICodeCity3DCausalCouplingDescriptor> {
+    return temporalCouplings.map((coupling): ICodeCity3DCausalCouplingDescriptor => {
+        return {
+            couplingType: resolveCausalCouplingType(coupling.strength),
+            sourceFileId: coupling.sourceFileId,
+            strength: coupling.strength,
+            targetFileId: coupling.targetFileId,
+        }
+    })
 }
 
 const CODE_CITY_DASHBOARD_REPOSITORIES: ReadonlyArray<ICodeCityDashboardRepositoryProfile> = [
@@ -585,12 +612,15 @@ export function CodeCityDashboardPage(
 
     const currentProfile = resolveDashboardProfile(repositoryId)
     const rootCauseIssues = buildRootCauseIssues(currentProfile.files)
+    const causalCouplings = buildCausalCouplings(currentProfile.temporalCouplings)
     const fileLink = createRepositoryFilesLink(currentProfile.id)
     const overlayImpactedFiles =
         overlayMode === "impact" ? currentProfile.impactedFiles : []
     const overlayTemporalCouplings =
         overlayMode === "temporal-coupling" ? currentProfile.temporalCouplings : []
     const overlayRootCauseIssues = overlayMode === "root-cause" ? rootCauseIssues : []
+    const overlayCausalCouplings =
+        overlayMode === "temporal-coupling" ? causalCouplings : []
 
     const handleRepositoryChange = (event: ChangeEvent<HTMLSelectElement>): void => {
         const nextRepositoryId = event.currentTarget.value
@@ -685,6 +715,7 @@ export function CodeCityDashboardPage(
                 </CardHeader>
                 <CardBody>
                     <CodeCity3DScene
+                        causalCouplings={overlayCausalCouplings}
                         files={currentProfile.files}
                         impactedFiles={overlayImpactedFiles}
                         title={`${currentProfile.label} 3D scene`}

@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState, type ReactElement } from "react"
-import { OrbitControls, Text } from "@react-three/drei"
+import { Line, OrbitControls, Text } from "@react-three/drei"
 import { Canvas, useFrame, useThree, type ThreeEvent } from "@react-three/fiber"
 import {
     Color,
@@ -12,14 +12,17 @@ import {
 } from "three"
 
 import type {
+    ICodeCity3DCausalCouplingDescriptor,
     ICodeCity3DSceneImpactedFileDescriptor,
     ICodeCity3DSceneFileDescriptor,
+    TCodeCityCausalCouplingType,
     TCodeCityCameraPreset,
     TCodeCityImpactType,
 } from "./codecity-3d-scene"
 
 interface ICodeCity3DSceneRendererProps {
     readonly cameraPreset: TCodeCityCameraPreset
+    readonly causalCouplings: ReadonlyArray<ICodeCity3DCausalCouplingDescriptor>
     readonly files: ReadonlyArray<ICodeCity3DSceneFileDescriptor>
     readonly impactedFiles: ReadonlyArray<ICodeCity3DSceneImpactedFileDescriptor>
     readonly selectedFileId?: string
@@ -94,6 +97,10 @@ const MEDIUM_QUALITY_MAX_BUILDINGS = 480
 const LOW_QUALITY_MAX_BUILDINGS = 900
 const PERFORMANCE_SAMPLE_WINDOW_SECONDS = 1
 const TARGET_FPS = 60
+const CAUSAL_ARC_BASE_LIFT = 1.8
+const CAUSAL_ARC_SEGMENTS = 20
+const MAX_CAUSAL_ARCS_HIGH_QUALITY = 42
+const MAX_CAUSAL_ARCS_LOW_QUALITY = 16
 
 type TVec3 = readonly [number, number, number]
 type TCodeCityBuildingImpactState = TCodeCityImpactType | "none"
@@ -120,6 +127,18 @@ interface ICodeCityRenderBudget {
     readonly cullingRadius: number
 }
 
+interface ICodeCityCausalArc {
+    readonly sourceFileId: string
+    readonly targetFileId: string
+    readonly couplingType: TCodeCityCausalCouplingType
+    readonly color: string
+    readonly strength: number
+    readonly start: TVec3
+    readonly control: TVec3
+    readonly end: TVec3
+    readonly particleSpeed: number
+}
+
 interface ICodeCityLayoutWorkerRequest {
     readonly files: ReadonlyArray<ICodeCity3DSceneFileDescriptor>
 }
@@ -143,6 +162,104 @@ const BASE_CAMERA_PRESETS: Readonly<Record<TCodeCityCameraPreset, ICameraPresetT
         focus: [0, 2, 0],
         position: [10, 7, 15],
     },
+}
+
+/**
+ * Возвращает цвет causal-дуги по типу coupling-связи.
+ *
+ * @param couplingType Категория причинной связи.
+ * @returns Hex-цвет линии и particle-flow.
+ */
+export function resolveCodeCityCausalArcColor(
+    couplingType: TCodeCityCausalCouplingType,
+): string {
+    if (couplingType === "dependency") {
+        return "#fb923c"
+    }
+    if (couplingType === "ownership") {
+        return "#22c55e"
+    }
+    return "#38bdf8"
+}
+
+/**
+ * Строит causal-дуги для 3D overlay: связь между зданиями с контрольной точкой и скоростью particle-flow.
+ *
+ * @param buildings Сгенерированные здания.
+ * @param couplings Causal coupling связи.
+ * @returns Набор дуг для рендера.
+ */
+export function createCodeCityCausalArcs(
+    buildings: ReadonlyArray<ICodeCityBuildingMesh>,
+    couplings: ReadonlyArray<ICodeCity3DCausalCouplingDescriptor>,
+): ReadonlyArray<ICodeCityCausalArc> {
+    const buildingById = new Map<string, ICodeCityBuildingMesh>()
+    for (const building of buildings) {
+        buildingById.set(building.id, building)
+    }
+
+    const arcs: Array<ICodeCityCausalArc> = []
+    for (const coupling of couplings) {
+        const source = buildingById.get(coupling.sourceFileId)
+        const target = buildingById.get(coupling.targetFileId)
+        if (source === undefined || target === undefined) {
+            continue
+        }
+        if (source.id === target.id) {
+            continue
+        }
+
+        const normalizedStrength = Math.max(0.15, Math.min(1, coupling.strength))
+        const start: TVec3 = [source.x, source.height + 0.16, source.z]
+        const end: TVec3 = [target.x, target.height + 0.16, target.z]
+        const planarDistance = Math.hypot(source.x - target.x, source.z - target.z)
+        const lift = CAUSAL_ARC_BASE_LIFT + Math.min(8, planarDistance * 0.28)
+        const control: TVec3 = [
+            (start[0] + end[0]) / 2,
+            Math.max(start[1], end[1]) + lift,
+            (start[2] + end[2]) / 2,
+        ]
+
+        arcs.push({
+            color: resolveCodeCityCausalArcColor(coupling.couplingType),
+            control,
+            couplingType: coupling.couplingType,
+            end,
+            particleSpeed: 0.25 + normalizedStrength * 0.55,
+            sourceFileId: source.id,
+            start,
+            strength: normalizedStrength,
+            targetFileId: target.id,
+        })
+    }
+
+    return arcs
+}
+
+function interpolateQuadraticBezierPoint(
+    start: TVec3,
+    control: TVec3,
+    end: TVec3,
+    t: number,
+): TVec3 {
+    const inverse = 1 - t
+    const x = inverse * inverse * start[0] + 2 * inverse * t * control[0] + t * t * end[0]
+    const y = inverse * inverse * start[1] + 2 * inverse * t * control[1] + t * t * end[1]
+    const z = inverse * inverse * start[2] + 2 * inverse * t * control[2] + t * t * end[2]
+    return [x, y, z]
+}
+
+function sampleQuadraticBezierPath(
+    start: TVec3,
+    control: TVec3,
+    end: TVec3,
+): ReadonlyArray<TVec3> {
+    const sampled: Array<TVec3> = []
+    for (let segment = 0; segment <= CAUSAL_ARC_SEGMENTS; segment += 1) {
+        const ratio = segment / CAUSAL_ARC_SEGMENTS
+        sampled.push(interpolateQuadraticBezierPoint(start, control, end, ratio))
+    }
+    return sampled
 }
 
 /**
@@ -731,6 +848,62 @@ interface IInstancedBuildingsMeshProps {
     readonly buildings: ReadonlyArray<ICodeCityBuildingMesh>
 }
 
+interface ICausalArcMeshProps {
+    readonly arc: ICodeCityCausalArc
+    readonly phaseSeed: number
+}
+
+/**
+ * Рендерит причинно-следственную дугу с анимированным particle-flow.
+ *
+ * @param props Параметры дуги.
+ * @returns Группа с линией и движущимся particle.
+ */
+function CausalArcMesh(props: ICausalArcMeshProps): ReactElement {
+    const particleRef = useRef<Mesh | null>(null)
+    const linePoints = useMemo((): ReadonlyArray<Vector3> => {
+        return sampleQuadraticBezierPath(props.arc.start, props.arc.control, props.arc.end).map(
+            (point): Vector3 => new Vector3(...point),
+        )
+    }, [props.arc.control, props.arc.end, props.arc.start])
+
+    useFrame((state): void => {
+        const flowPhase = (state.clock.getElapsedTime() * props.arc.particleSpeed + props.phaseSeed) % 1
+        const point = interpolateQuadraticBezierPoint(
+            props.arc.start,
+            props.arc.control,
+            props.arc.end,
+            flowPhase,
+        )
+        const particle = particleRef.current
+        if (particle === null) {
+            return
+        }
+        particle.position.set(point[0], point[1], point[2])
+    })
+
+    return (
+        <group>
+            <Line
+                color={props.arc.color}
+                lineWidth={1 + props.arc.strength * 1.8}
+                opacity={0.35 + props.arc.strength * 0.45}
+                points={linePoints}
+                transparent={true}
+            />
+            <mesh ref={particleRef}>
+                <sphereGeometry args={[0.08 + props.arc.strength * 0.1, 8, 8]} />
+                <meshStandardMaterial
+                    color={props.arc.color}
+                    emissive={props.arc.color}
+                    emissiveIntensity={0.8}
+                    toneMapped={false}
+                />
+            </mesh>
+        </group>
+    )
+}
+
 /**
  * Рендерит неинтерактивный хвост зданий через instanced mesh для экономии draw calls.
  *
@@ -939,6 +1112,14 @@ export function CodeCity3DSceneRenderer(props: ICodeCity3DSceneRendererProps): R
     const renderBudget = useMemo((): ICodeCityRenderBudget => {
         return resolveCodeCityRenderBudget(buildings.length, sampledFps)
     }, [buildings.length, sampledFps])
+    const causalArcs = useMemo((): ReadonlyArray<ICodeCityCausalArc> => {
+        return createCodeCityCausalArcs(buildings, props.causalCouplings)
+    }, [buildings, props.causalCouplings])
+    const visibleCausalArcs = useMemo((): ReadonlyArray<ICodeCityCausalArc> => {
+        const maxArcs =
+            renderBudget.quality === "low" ? MAX_CAUSAL_ARCS_LOW_QUALITY : MAX_CAUSAL_ARCS_HIGH_QUALITY
+        return causalArcs.slice(0, maxArcs)
+    }, [causalArcs, renderBudget.quality])
     const visibleBuildings = useMemo((): ReadonlyArray<ICodeCityBuildingMesh> => {
         return buildings.filter((building): boolean => {
             return Math.hypot(building.x, building.z) <= renderBudget.cullingRadius
@@ -1011,6 +1192,13 @@ export function CodeCity3DSceneRenderer(props: ICodeCity3DSceneRendererProps): R
                         {district.label}
                     </Text>
                 </group>
+            ))}
+            {visibleCausalArcs.map((arc, index): ReactElement => (
+                <CausalArcMesh
+                    arc={arc}
+                    key={`${arc.sourceFileId}-${arc.targetFileId}-${arc.couplingType}`}
+                    phaseSeed={index * 0.31}
+                />
             ))}
             {interactiveBuildings.map((building, index): ReactElement => (
                 <ImpactBuildingMesh

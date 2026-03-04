@@ -4,6 +4,7 @@ import { describe, expect, it, vi } from "vitest"
 
 import {
     CodeCity3DScene,
+    type ICodeCity3DCausalCouplingDescriptor,
     type TCodeCityCameraPreset,
     type ICodeCity3DSceneImpactedFileDescriptor,
     type ICodeCity3DSceneFileDescriptor,
@@ -14,6 +15,7 @@ vi.mock("@/components/graphs/codecity-3d-scene-renderer", () => {
     return {
         CodeCity3DSceneRenderer: (props: {
             readonly cameraPreset: TCodeCityCameraPreset
+            readonly causalCouplings: ReadonlyArray<ICodeCity3DCausalCouplingDescriptor>
             readonly files: ReadonlyArray<ICodeCity3DSceneFileDescriptor>
             readonly impactedFiles: ReadonlyArray<ICodeCity3DSceneImpactedFileDescriptor>
             readonly selectedFileId?: string
@@ -22,7 +24,8 @@ vi.mock("@/components/graphs/codecity-3d-scene-renderer", () => {
         }): React.JSX.Element => {
             return (
                 <div>
-                    renderer-files:{props.files.length};impacts:{props.impactedFiles.length};preset:
+                    renderer-files:{props.files.length};impacts:{props.impactedFiles.length};couplings:
+                    {props.causalCouplings.length};preset:
                     {props.cameraPreset}
                     ;selected:{props.selectedFileId ?? "none"}
                     <button
@@ -92,6 +95,20 @@ const TEST_TIMELINE_FILES: ReadonlyArray<ICodeCity3DSceneFileDescriptor> = [
         path: "src/worker/index.ts",
     },
 ]
+const TEST_CAUSAL_COUPLINGS: ReadonlyArray<ICodeCity3DCausalCouplingDescriptor> = [
+    {
+        couplingType: "temporal",
+        sourceFileId: "src/api/repository.ts",
+        strength: 0.82,
+        targetFileId: "src/api/router.ts",
+    },
+    {
+        couplingType: "dependency",
+        sourceFileId: "src/api/router.ts",
+        strength: 0.55,
+        targetFileId: "src/services/metrics.ts",
+    },
+]
 const LARGE_GPU_BUDGET_FILES: ReadonlyArray<ICodeCity3DSceneFileDescriptor> = Array.from(
     { length: 720 },
     (_value, index): ICodeCity3DSceneFileDescriptor => {
@@ -142,7 +159,7 @@ describe("CodeCity3DScene", (): void => {
         renderWithProviders(<CodeCity3DScene files={TEST_FILES} title="3D loaded scene" />)
         await waitFor((): void => {
             expect(
-                screen.getByText("renderer-files:1;impacts:0;preset:bird-eye;selected:none"),
+                screen.getByText("renderer-files:1;impacts:0;couplings:0;preset:bird-eye;selected:none"),
             ).not.toBeNull()
         })
         getContextSpy.mockRestore()
@@ -157,6 +174,7 @@ describe("CodeCity3DScene", (): void => {
 
         renderWithProviders(
             <CodeCity3DScene
+                causalCouplings={TEST_CAUSAL_COUPLINGS}
                 files={TEST_FILES}
                 impactedFiles={TEST_IMPACTED_FILES}
                 title="3D preset scene"
@@ -164,21 +182,25 @@ describe("CodeCity3DScene", (): void => {
         )
         await waitFor((): void => {
             expect(
-                screen.getByText("renderer-files:1;impacts:1;preset:bird-eye;selected:none"),
+                screen.getByText("renderer-files:1;impacts:1;couplings:2;preset:bird-eye;selected:none"),
             ).not.toBeNull()
         })
 
         await user.click(screen.getByRole("button", { name: "Camera preset Street level" }))
         await waitFor((): void => {
             expect(
-                screen.getByText("renderer-files:1;impacts:1;preset:street-level;selected:none"),
+                screen.getByText(
+                    "renderer-files:1;impacts:1;couplings:2;preset:street-level;selected:none",
+                ),
             ).not.toBeNull()
         })
 
         await user.click(screen.getByRole("button", { name: "Camera preset Focus building" }))
         await waitFor((): void => {
             expect(
-                screen.getByText("renderer-files:1;impacts:1;preset:focus-on-building;selected:none"),
+                screen.getByText(
+                    "renderer-files:1;impacts:1;couplings:2;preset:focus-on-building;selected:none",
+                ),
             ).not.toBeNull()
         })
 
@@ -194,6 +216,7 @@ describe("CodeCity3DScene", (): void => {
 
         renderWithProviders(
             <CodeCity3DScene
+                causalCouplings={TEST_CAUSAL_COUPLINGS}
                 files={TEST_FILES}
                 impactedFiles={TEST_IMPACTED_FILES}
                 title="3D interaction scene"

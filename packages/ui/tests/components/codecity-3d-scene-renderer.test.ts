@@ -1,14 +1,17 @@
 import { describe, expect, it } from "vitest"
 
 import {
+    createCodeCityCausalArcs,
     createCodeCityBuildingImpactMap,
     createCodeCityBuildingMeshes,
     createCodeCityDistrictMeshes,
+    resolveCodeCityCausalArcColor,
     resolveCodeCityRenderBudget,
     resolveCodeCityBuildingImpactProfile,
     resolveCodeCityBuildingColor,
 } from "@/components/graphs/codecity-3d-scene-renderer"
 import type {
+    ICodeCity3DCausalCouplingDescriptor,
     ICodeCity3DSceneFileDescriptor,
     ICodeCity3DSceneImpactedFileDescriptor,
 } from "@/components/graphs/codecity-3d-scene"
@@ -233,5 +236,71 @@ describe("CodeCity3DSceneRenderer building generation", (): void => {
             quality: "medium",
             useInstancing: true,
         })
+    })
+
+    it("строит causal arcs между связанными зданиями и кодирует цвет по типу связи", (): void => {
+        const files: ReadonlyArray<ICodeCity3DSceneFileDescriptor> = [
+            {
+                complexity: 18,
+                coverage: 88,
+                id: "src/api/auth.ts",
+                loc: 140,
+                path: "src/api/auth.ts",
+            },
+            {
+                complexity: 22,
+                coverage: 74,
+                id: "src/api/repository.ts",
+                loc: 170,
+                path: "src/api/repository.ts",
+            },
+            {
+                complexity: 13,
+                coverage: 69,
+                id: "src/services/retry.ts",
+                loc: 110,
+                path: "src/services/retry.ts",
+            },
+        ]
+        const couplings: ReadonlyArray<ICodeCity3DCausalCouplingDescriptor> = [
+            {
+                couplingType: "temporal",
+                sourceFileId: "src/api/auth.ts",
+                strength: 0.62,
+                targetFileId: "src/api/repository.ts",
+            },
+            {
+                couplingType: "dependency",
+                sourceFileId: "src/api/repository.ts",
+                strength: 0.84,
+                targetFileId: "src/services/retry.ts",
+            },
+            {
+                couplingType: "ownership",
+                sourceFileId: "src/services/retry.ts",
+                strength: 0.41,
+                targetFileId: "src/api/auth.ts",
+            },
+        ]
+
+        const buildings = createCodeCityBuildingMeshes(files)
+        const arcs = createCodeCityCausalArcs(buildings, couplings)
+
+        expect(arcs).toHaveLength(3)
+        expect(arcs.map((arc): string => arc.color)).toEqual([
+            "#38bdf8",
+            "#fb923c",
+            "#22c55e",
+        ])
+        const firstArc = arcs[0]
+        expect(firstArc?.control[1]).toBeGreaterThan(firstArc?.start[1] ?? 0)
+        expect(firstArc?.control[1]).toBeGreaterThan(firstArc?.end[1] ?? 0)
+        expect(firstArc?.particleSpeed).toBeGreaterThan(0.25)
+    })
+
+    it("возвращает стабильные цвета causal arcs для всех coupling типов", (): void => {
+        expect(resolveCodeCityCausalArcColor("temporal")).toBe("#38bdf8")
+        expect(resolveCodeCityCausalArcColor("dependency")).toBe("#fb923c")
+        expect(resolveCodeCityCausalArcColor("ownership")).toBe("#22c55e")
     })
 })
