@@ -69,6 +69,9 @@ const { mockCodeCity3DScene } = vi.hoisted(() => ({
             readonly causalCouplings: ReadonlyArray<unknown>
             readonly files: ReadonlyArray<unknown>
             readonly impactedFiles: ReadonlyArray<unknown>
+            readonly navigationChainFileIds: ReadonlyArray<string>
+            readonly navigationActiveFileId?: string
+            readonly navigationLabel?: string
             readonly height?: number
         }): React.JSX.Element => {
             return (
@@ -77,6 +80,9 @@ const { mockCodeCity3DScene } = vi.hoisted(() => ({
                     <p>3d-files:{props.files.length}</p>
                     <p>3d-impacted:{props.impactedFiles.length}</p>
                     <p>3d-couplings:{props.causalCouplings.length}</p>
+                    <p>3d-nav-chain:{props.navigationChainFileIds.length}</p>
+                    <p>3d-nav-active:{props.navigationActiveFileId ?? "none"}</p>
+                    <p>3d-nav-label:{props.navigationLabel ?? "none"}</p>
                 </div>
             )
         },
@@ -117,8 +123,38 @@ const { mockHealthTrendChart } = vi.hoisted(() => ({
 }))
 const { mockRootCauseChainViewer } = vi.hoisted(() => ({
     mockRootCauseChainViewer: vi.fn(
-        (props: { readonly issues: ReadonlyArray<unknown> }): React.JSX.Element => {
-            return <p>root-cause-issues:{props.issues.length}</p>
+        (props: {
+            readonly issues: ReadonlyArray<unknown>
+            readonly onChainFocusChange?: (payload: {
+                readonly issueId: string
+                readonly issueTitle: string
+                readonly chainFileIds: ReadonlyArray<string>
+                readonly activeFileId?: string
+                readonly activeNodeId?: string
+            }) => void
+        }): React.JSX.Element => {
+            return (
+                <div>
+                    <p>root-cause-issues:{props.issues.length}</p>
+                    <button
+                        onClick={(): void => {
+                            props.onChainFocusChange?.({
+                                activeFileId: "src/components/graphs/codecity-treemap.tsx",
+                                activeNodeId: "node-1",
+                                chainFileIds: [
+                                    "src/pages/ccr-management.page.tsx",
+                                    "src/components/graphs/codecity-treemap.tsx",
+                                ],
+                                issueId: "issue-1",
+                                issueTitle: "Mock issue chain",
+                            })
+                        }}
+                        type="button"
+                    >
+                        trigger root cause focus
+                    </button>
+                </div>
+            )
         },
     ),
 }))
@@ -191,6 +227,8 @@ describe("CodeCityDashboardPage", (): void => {
         expect(first3DCall?.files.length).toBeGreaterThan(0)
         expect(first3DCall?.impactedFiles.length).toBeGreaterThan(0)
         expect(first3DCall?.causalCouplings.length).toBe(0)
+        expect(first3DCall?.navigationChainFileIds.length).toBe(0)
+        expect(first3DCall?.navigationActiveFileId).toBeUndefined()
         const first3DFile = first3DCall?.files.at(0) as
             | {
                 readonly complexity?: number
@@ -255,6 +293,7 @@ describe("CodeCityDashboardPage", (): void => {
         expect(current3DCall?.title).toBe("frontend-team/ui-dashboard 3D scene")
         expect(current3DCall?.impactedFiles.length).toBeGreaterThan(0)
         expect(current3DCall?.causalCouplings.length).toBe(0)
+        expect(current3DCall?.navigationChainFileIds.length).toBe(0)
 
         const overlaySelect = screen.getByRole("combobox", { name: "Causal overlay" })
         await user.selectOptions(overlaySelect, "root-cause")
@@ -270,6 +309,17 @@ describe("CodeCityDashboardPage", (): void => {
         const rootCause3DCall = mockCodeCity3DScene.mock.calls.at(-1)?.[0]
         expect(rootCause3DCall).not.toBeUndefined()
         expect(rootCause3DCall?.causalCouplings.length).toBe(0)
+        expect(rootCause3DCall?.navigationChainFileIds.length).toBe(0)
+
+        await user.click(screen.getByRole("button", { name: "trigger root cause focus" }))
+
+        const chainNavigation3DCall = mockCodeCity3DScene.mock.calls.at(-1)?.[0]
+        expect(chainNavigation3DCall).not.toBeUndefined()
+        expect(chainNavigation3DCall?.navigationChainFileIds.length).toBeGreaterThan(0)
+        expect(chainNavigation3DCall?.navigationActiveFileId).toBe(
+            "src/components/graphs/codecity-treemap.tsx",
+        )
+        expect(chainNavigation3DCall?.navigationLabel).toBe("Mock issue chain")
 
         await user.selectOptions(overlaySelect, "temporal-coupling")
 

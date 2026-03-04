@@ -18,6 +18,8 @@ vi.mock("@/components/graphs/codecity-3d-scene-renderer", () => {
             readonly causalCouplings: ReadonlyArray<ICodeCity3DCausalCouplingDescriptor>
             readonly files: ReadonlyArray<ICodeCity3DSceneFileDescriptor>
             readonly impactedFiles: ReadonlyArray<ICodeCity3DSceneImpactedFileDescriptor>
+            readonly navigationChainFileIds: ReadonlyArray<string>
+            readonly navigationActiveFileId?: string
             readonly selectedFileId?: string
             readonly onBuildingHover?: (fileId: string | undefined) => void
             readonly onBuildingSelect?: (fileId: string | undefined) => void
@@ -28,6 +30,8 @@ vi.mock("@/components/graphs/codecity-3d-scene-renderer", () => {
                     {props.causalCouplings.length};preset:
                     {props.cameraPreset}
                     ;selected:{props.selectedFileId ?? "none"}
+                    ;nav-chain:{props.navigationChainFileIds.length};nav-active:
+                    {props.navigationActiveFileId ?? "none"}
                     <button
                         onClick={(): void => {
                             props.onBuildingHover?.(props.files[0]?.id)
@@ -159,7 +163,9 @@ describe("CodeCity3DScene", (): void => {
         renderWithProviders(<CodeCity3DScene files={TEST_FILES} title="3D loaded scene" />)
         await waitFor((): void => {
             expect(
-                screen.getByText("renderer-files:1;impacts:0;couplings:0;preset:bird-eye;selected:none"),
+                screen.getByText(
+                    /renderer-files:1;impacts:0;couplings:0;preset:bird-eye;selected:none/,
+                ),
             ).not.toBeNull()
         })
         getContextSpy.mockRestore()
@@ -182,7 +188,9 @@ describe("CodeCity3DScene", (): void => {
         )
         await waitFor((): void => {
             expect(
-                screen.getByText("renderer-files:1;impacts:1;couplings:2;preset:bird-eye;selected:none"),
+                screen.getByText(
+                    /renderer-files:1;impacts:1;couplings:2;preset:bird-eye;selected:none/,
+                ),
             ).not.toBeNull()
         })
 
@@ -190,7 +198,7 @@ describe("CodeCity3DScene", (): void => {
         await waitFor((): void => {
             expect(
                 screen.getByText(
-                    "renderer-files:1;impacts:1;couplings:2;preset:street-level;selected:none",
+                    /renderer-files:1;impacts:1;couplings:2;preset:street-level;selected:none/,
                 ),
             ).not.toBeNull()
         })
@@ -199,7 +207,7 @@ describe("CodeCity3DScene", (): void => {
         await waitFor((): void => {
             expect(
                 screen.getByText(
-                    "renderer-files:1;impacts:1;couplings:2;preset:focus-on-building;selected:none",
+                    /renderer-files:1;impacts:1;couplings:2;preset:focus-on-building;selected:none/,
                 ),
             ).not.toBeNull()
         })
@@ -225,7 +233,7 @@ describe("CodeCity3DScene", (): void => {
 
         await user.click(screen.getByRole("button", { name: "mock hover building" }))
         expect(screen.getByText("Hover preview")).not.toBeNull()
-        expect(screen.getByText("src/api/repository.ts")).not.toBeNull()
+        expect(screen.getAllByText("src/api/repository.ts").length).toBeGreaterThan(0)
 
         await user.click(screen.getByRole("button", { name: "mock select building" }))
         expect(screen.getByText("File details")).not.toBeNull()
@@ -300,5 +308,34 @@ describe("CodeCity3DScene", (): void => {
         getContextSpy.mockRestore()
         restoreCores()
         restoreMemory()
+    })
+
+    it("активирует 3D chain navigation и показывает breadcrumb trail", async (): Promise<void> => {
+        const fakeContext = {} as GPUCanvasContext
+        const getContextSpy = vi
+            .spyOn(HTMLCanvasElement.prototype, "getContext")
+            .mockImplementation((): GPUCanvasContext => fakeContext)
+
+        renderWithProviders(
+            <CodeCity3DScene
+                files={TEST_FILES}
+                navigationActiveFileId="src/api/repository.ts"
+                navigationChainFileIds={["src/api/repository.ts"]}
+                navigationLabel="Queue latency spike"
+                title="3D navigation scene"
+            />,
+        )
+
+        await waitFor((): void => {
+            expect(screen.getByText(/selected:src\/api\/repository\.ts/)).not.toBeNull()
+        })
+        expect(screen.getByText("Root-cause trail: Queue latency spike")).not.toBeNull()
+        expect(screen.getAllByText("src/api/repository.ts").length).toBeGreaterThan(0)
+        expect(screen.getByRole("button", { name: "Camera preset Focus building" })).toHaveAttribute(
+            "aria-pressed",
+            "true",
+        )
+
+        getContextSpy.mockRestore()
     })
 })

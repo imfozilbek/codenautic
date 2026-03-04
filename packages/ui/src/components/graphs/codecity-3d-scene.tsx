@@ -74,6 +74,12 @@ export interface ICodeCity3DSceneProps {
     readonly impactedFiles?: ReadonlyArray<ICodeCity3DSceneImpactedFileDescriptor>
     /** Causal coupling связи для 3D arc overlay. */
     readonly causalCouplings?: ReadonlyArray<ICodeCity3DCausalCouplingDescriptor>
+    /** Цепочка файлов для 3D chain navigation. */
+    readonly navigationChainFileIds?: ReadonlyArray<string>
+    /** Текущий активный файл в root-cause chain navigation. */
+    readonly navigationActiveFileId?: string
+    /** Текстовый лейбл цепочки для breadcrumb overlay. */
+    readonly navigationLabel?: string
     /** Высота canvas-контейнера. */
     readonly height?: number
 }
@@ -85,6 +91,8 @@ const LazyCodeCity3DSceneRenderer = lazy(
             readonly causalCouplings: ReadonlyArray<ICodeCity3DCausalCouplingDescriptor>
             readonly files: ReadonlyArray<ICodeCity3DSceneFileDescriptor>
             readonly impactedFiles: ReadonlyArray<ICodeCity3DSceneImpactedFileDescriptor>
+            readonly navigationChainFileIds: ReadonlyArray<string>
+            readonly navigationActiveFileId?: string
             readonly selectedFileId?: string
             readonly onBuildingHover?: (fileId: string | undefined) => void
             readonly onBuildingSelect?: (fileId: string | undefined) => void
@@ -123,6 +131,7 @@ interface ICodeCity3DSnapshot {
 
 const TIMELINE_SNAPSHOT_RATIOS: ReadonlyArray<number> = [0.35, 0.55, 0.75, 0.9, 1]
 const TIMELINE_PLAYBACK_INTERVAL_MS = 1200
+const CHAIN_NAVIGATION_INTERVAL_MS = 900
 const GPU_MEMORY_BUDGET_MB = 220
 const ESTIMATED_GPU_COST_PER_BUILDING_MB = 1.1
 const WEAK_DEVICE_MAX_CORES = 4
@@ -267,6 +276,7 @@ export function CodeCity3DScene(props: ICodeCity3DSceneProps): ReactElement {
     const [cameraPreset, setCameraPreset] = useState<TCodeCityCameraPreset>("bird-eye")
     const [hoveredFileId, setHoveredFileId] = useState<string | undefined>(undefined)
     const [isTimelinePlaying, setIsTimelinePlaying] = useState<boolean>(false)
+    const [chainNavigationIndex, setChainNavigationIndex] = useState<number>(0)
     const [selectedFileId, setSelectedFileId] = useState<string | undefined>(undefined)
     const [timelineIndex, setTimelineIndex] = useState<number>(0)
     const snapshots = useMemo((): ReadonlyArray<ICodeCity3DSnapshot> => {
@@ -313,8 +323,58 @@ export function CodeCity3DScene(props: ICodeCity3DSceneProps): ReactElement {
             ),
         )
     }, [currentSnapshot.files])
+    const navigationBreadcrumbPaths = useMemo((): ReadonlyArray<string> => {
+        const chainFileIds = props.navigationChainFileIds ?? []
+        return chainFileIds
+            .map((fileId): string | undefined => fileById.get(fileId)?.path)
+            .filter((path): path is string => path !== undefined)
+    }, [fileById, props.navigationChainFileIds])
     const hoveredFile = hoveredFileId !== undefined ? fileById.get(hoveredFileId) : undefined
     const selectedFile = selectedFileId !== undefined ? fileById.get(selectedFileId) : undefined
+    const navigationChainFileIds = props.navigationChainFileIds ?? []
+
+    useEffect((): void => {
+        setChainNavigationIndex(0)
+    }, [navigationChainFileIds])
+
+    useEffect((): (() => void) | void => {
+        if (navigationChainFileIds.length <= 1) {
+            return
+        }
+
+        const intervalId = globalThis.setInterval((): void => {
+            setChainNavigationIndex((currentIndex): number => {
+                return (currentIndex + 1) % navigationChainFileIds.length
+            })
+        }, CHAIN_NAVIGATION_INTERVAL_MS)
+
+        return (): void => {
+            globalThis.clearInterval(intervalId)
+        }
+    }, [navigationChainFileIds])
+
+    useEffect((): void => {
+        const nextFileId = navigationChainFileIds[chainNavigationIndex]
+        if (nextFileId === undefined) {
+            return
+        }
+        setCameraPreset("focus-on-building")
+        setSelectedFileId(nextFileId)
+    }, [chainNavigationIndex, navigationChainFileIds])
+
+    useEffect((): void => {
+        if (props.navigationActiveFileId === undefined) {
+            return
+        }
+        setCameraPreset("focus-on-building")
+        setSelectedFileId(props.navigationActiveFileId)
+        const activeIndex = navigationChainFileIds.findIndex((fileId): boolean => {
+            return fileId === props.navigationActiveFileId
+        })
+        if (activeIndex >= 0) {
+            setChainNavigationIndex(activeIndex)
+        }
+    }, [navigationChainFileIds, props.navigationActiveFileId])
 
     if (renderCapability.shouldUse2DFallback) {
         const fallbackFiles = currentSnapshot.files.slice(0, 24)
@@ -386,6 +446,18 @@ export function CodeCity3DScene(props: ICodeCity3DSceneProps): ReactElement {
                     </button>
                 ))}
             </div>
+            {navigationBreadcrumbPaths.length > 0 ? (
+                <aside className="absolute left-3 top-14 z-10 max-w-lg rounded-md border border-cyan-400/50 bg-slate-900/90 px-3 py-2 text-xs text-slate-100 shadow-lg">
+                    <p className="font-semibold text-cyan-200">
+                        {props.navigationLabel !== undefined
+                            ? `Root-cause trail: ${props.navigationLabel}`
+                            : "Root-cause trail"}
+                    </p>
+                    <p className="mt-1 text-slate-300">
+                        {navigationBreadcrumbPaths.join(" -> ")}
+                    </p>
+                </aside>
+            ) : null}
             <div className="absolute right-3 top-3 z-10 w-72 rounded-md border border-slate-500/50 bg-slate-900/90 p-2.5 text-xs text-slate-100 shadow-lg">
                 <div className="flex items-center justify-between">
                     <p className="font-semibold text-cyan-200">City time-lapse</p>
@@ -483,6 +555,8 @@ export function CodeCity3DScene(props: ICodeCity3DSceneProps): ReactElement {
                     causalCouplings={props.causalCouplings ?? []}
                     files={currentSnapshot?.files ?? []}
                     impactedFiles={props.impactedFiles ?? []}
+                    navigationActiveFileId={props.navigationActiveFileId}
+                    navigationChainFileIds={props.navigationChainFileIds ?? []}
                     onBuildingHover={setHoveredFileId}
                     onBuildingSelect={setSelectedFileId}
                     selectedFileId={selectedFileId}

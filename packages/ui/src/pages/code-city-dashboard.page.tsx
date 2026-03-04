@@ -26,6 +26,7 @@ import { ChurnComplexityScatter } from "@/components/graphs/churn-complexity-sca
 import { HealthTrendChart, type IHealthTrendPoint } from "@/components/graphs/health-trend-chart"
 import {
     RootCauseChainViewer,
+    type IRootCauseChainFocusPayload,
     type IRootCauseIssueDescriptor,
 } from "@/components/graphs/root-cause-chain-viewer"
 import { Card, CardBody, CardHeader } from "@/components/ui"
@@ -98,18 +99,21 @@ function buildRootCauseIssues(
             chain: [
                 {
                     description: `${primaryFile.path} shows rising issue density after recent CCR.`,
+                    fileId: primaryFile.id,
                     id: `${primaryFile.id}-event`,
                     label: "Issue spike detected",
                     type: "event",
                 },
                 {
                     description: `${secondaryFile.path} is temporally coupled and amplifies blast radius.`,
+                    fileId: secondaryFile.id,
                     id: `${secondaryFile.id}-module`,
                     label: "Coupled dependency node",
                     type: "module",
                 },
                 {
                     description: "Health trend indicates persistent degradation in this district.",
+                    fileId: secondaryFile.id,
                     id: `${primaryFile.id}-metric`,
                     label: "Health degradation signal",
                     type: "metric",
@@ -123,12 +127,14 @@ function buildRootCauseIssues(
             chain: [
                 {
                     description: `${secondaryFile.path} has increased churn and contributes to instability.`,
+                    fileId: secondaryFile.id,
                     id: `${secondaryFile.id}-event`,
                     label: "Churn volatility",
                     type: "event",
                 },
                 {
                     description: `Coverage gaps near ${secondaryFile.path} increase regression likelihood.`,
+                    fileId: primaryFile.id,
                     id: `${secondaryFile.id}-metric`,
                     label: "Coverage regression pressure",
                     type: "metric",
@@ -609,6 +615,11 @@ export function CodeCityDashboardPage(
     const [metric, setMetric] = useState<TCodeCityDashboardMetric>("complexity")
     const [overlayMode, setOverlayMode] = useState<TCausalOverlayMode>("impact")
     const [highlightedFileId, setHighlightedFileId] = useState<string | undefined>()
+    const [rootCauseChainFocus, setRootCauseChainFocus] = useState<IRootCauseChainFocusPayload>({
+        chainFileIds: [],
+        issueId: "",
+        issueTitle: "",
+    })
 
     const currentProfile = resolveDashboardProfile(repositoryId)
     const rootCauseIssues = buildRootCauseIssues(currentProfile.files)
@@ -630,6 +641,11 @@ export function CodeCityDashboardPage(
 
         setRepositoryId(nextRepositoryId)
         setHighlightedFileId(undefined)
+        setRootCauseChainFocus({
+            chainFileIds: [],
+            issueId: "",
+            issueTitle: "",
+        })
     }
 
     const handleMetricChange = (event: ChangeEvent<HTMLSelectElement>): void => {
@@ -717,6 +733,17 @@ export function CodeCityDashboardPage(
                     <CodeCity3DScene
                         causalCouplings={overlayCausalCouplings}
                         files={currentProfile.files}
+                        navigationActiveFileId={
+                            overlayMode === "root-cause"
+                                ? rootCauseChainFocus.activeFileId
+                                : undefined
+                        }
+                        navigationChainFileIds={
+                            overlayMode === "root-cause" ? rootCauseChainFocus.chainFileIds : []
+                        }
+                        navigationLabel={
+                            overlayMode === "root-cause" ? rootCauseChainFocus.issueTitle : undefined
+                        }
                         impactedFiles={overlayImpactedFiles}
                         title={`${currentProfile.label} 3D scene`}
                     />
@@ -752,7 +779,10 @@ export function CodeCityDashboardPage(
                     <p className="text-sm font-semibold text-slate-900">Root cause chain viewer</p>
                 </CardHeader>
                 <CardBody>
-                    <RootCauseChainViewer issues={overlayRootCauseIssues} />
+                    <RootCauseChainViewer
+                        issues={overlayRootCauseIssues}
+                        onChainFocusChange={setRootCauseChainFocus}
+                    />
                 </CardBody>
             </Card>
 

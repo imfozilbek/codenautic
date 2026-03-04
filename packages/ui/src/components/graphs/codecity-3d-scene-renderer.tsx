@@ -26,6 +26,8 @@ interface ICodeCity3DSceneRendererProps {
     readonly causalCouplings: ReadonlyArray<ICodeCity3DCausalCouplingDescriptor>
     readonly files: ReadonlyArray<ICodeCity3DSceneFileDescriptor>
     readonly impactedFiles: ReadonlyArray<ICodeCity3DSceneImpactedFileDescriptor>
+    readonly navigationChainFileIds: ReadonlyArray<string>
+    readonly navigationActiveFileId?: string
     readonly selectedFileId?: string
     readonly onBuildingHover?: (fileId: string | undefined) => void
     readonly onBuildingSelect?: (fileId: string | undefined) => void
@@ -282,6 +284,30 @@ function sampleQuadraticBezierPath(
         sampled.push(interpolateQuadraticBezierPoint(start, control, end, ratio))
     }
     return sampled
+}
+
+/**
+ * Строит breadcrumb trail в 3D пространстве по file-id цепочке root cause.
+ *
+ * @param buildings Доступные здания города.
+ * @param chainFileIds Последовательность file-id из causal chain.
+ * @returns Точки breadcrumb trail поверх зданий.
+ */
+export function createCodeCityNavigationTrail(
+    buildings: ReadonlyArray<ICodeCityBuildingMesh>,
+    chainFileIds: ReadonlyArray<string>,
+): ReadonlyArray<TVec3> {
+    const buildingById = new Map<string, ICodeCityBuildingMesh>()
+    for (const building of buildings) {
+        buildingById.set(building.id, building)
+    }
+
+    return chainFileIds
+        .map((fileId): ICodeCityBuildingMesh | undefined => buildingById.get(fileId))
+        .filter((building): building is ICodeCityBuildingMesh => building !== undefined)
+        .map((building): TVec3 => {
+            return [building.x, building.height + 0.35, building.z]
+        })
 }
 
 /**
@@ -1392,6 +1418,12 @@ export function CodeCity3DSceneRenderer(props: ICodeCity3DSceneRendererProps): R
     const districtHealthAuras = useMemo((): ReadonlyArray<ICodeCityDistrictHealthAura> => {
         return createCodeCityDistrictHealthAuras(districts, buildings)
     }, [buildings, districts])
+    const navigationTrail = useMemo((): ReadonlyArray<TVec3> => {
+        return createCodeCityNavigationTrail(buildings, props.navigationChainFileIds)
+    }, [buildings, props.navigationChainFileIds])
+    const navigationTrailVectors = useMemo((): ReadonlyArray<Vector3> => {
+        return navigationTrail.map((point): Vector3 => new Vector3(...point))
+    }, [navigationTrail])
     const visibleBuildings = useMemo((): ReadonlyArray<ICodeCityBuildingMesh> => {
         return buildings.filter((building): boolean => {
             return Math.hypot(building.x, building.z) <= renderBudget.cullingRadius
@@ -1439,9 +1471,18 @@ export function CodeCity3DSceneRenderer(props: ICodeCity3DSceneRendererProps): R
             })
             .slice(0, MAX_BUG_EMISSION_CLOUDS)
     }, [interactiveBuildings])
+    const focusBuilding = useMemo((): ICodeCityBuildingMesh | undefined => {
+        if (props.navigationActiveFileId !== undefined) {
+            return buildings.find((building): boolean => building.id === props.navigationActiveFileId)
+        }
+        if (props.selectedFileId !== undefined) {
+            return buildings.find((building): boolean => building.id === props.selectedFileId)
+        }
+        return buildings.at(0)
+    }, [buildings, props.navigationActiveFileId, props.selectedFileId])
     const cameraPresetTarget = useMemo((): ICameraPresetTarget => {
-        return resolveCameraPresetTarget(props.cameraPreset, buildings.at(0))
-    }, [buildings, props.cameraPreset])
+        return resolveCameraPresetTarget(props.cameraPreset, focusBuilding)
+    }, [focusBuilding, props.cameraPreset])
 
     return (
         <Canvas camera={{ fov: 45, position: [30, 26, 30] }} dpr={renderBudget.dpr} shadows={false}>
@@ -1479,6 +1520,30 @@ export function CodeCity3DSceneRenderer(props: ICodeCity3DSceneRendererProps): R
                     key={`${aura.districtId}-health-aura`}
                     phaseSeed={index * 0.44}
                 />
+            ))}
+            {navigationTrailVectors.length >= 2 ? (
+                <Line
+                    color="#e2e8f0"
+                    dashScale={2}
+                    dashSize={0.3}
+                    dashed={true}
+                    gapSize={0.18}
+                    lineWidth={1.2}
+                    opacity={0.8}
+                    points={navigationTrailVectors}
+                    transparent={true}
+                />
+            ) : null}
+            {navigationTrail.map((point, index): ReactElement => (
+                <mesh key={`breadcrumb-${String(index)}`} position={[point[0], point[1], point[2]]}>
+                    <sphereGeometry args={[0.16, 10, 10]} />
+                    <meshStandardMaterial
+                        color="#f8fafc"
+                        emissive="#bae6fd"
+                        emissiveIntensity={0.9}
+                        toneMapped={false}
+                    />
+                </mesh>
             ))}
             {visibleCausalArcs.map((arc, index): ReactElement => (
                 <CausalArcMesh

@@ -1,7 +1,8 @@
-import { useMemo, useState, type ReactElement } from "react"
+import { useEffect, useMemo, useState, type ReactElement } from "react"
 
 export interface IRootCauseChainNodeDescriptor {
     readonly id: string
+    readonly fileId?: string
     readonly label: string
     readonly type: "event" | "metric" | "module"
     readonly description: string
@@ -14,8 +15,17 @@ export interface IRootCauseIssueDescriptor {
     readonly chain: ReadonlyArray<IRootCauseChainNodeDescriptor>
 }
 
+export interface IRootCauseChainFocusPayload {
+    readonly issueId: string
+    readonly issueTitle: string
+    readonly chainFileIds: ReadonlyArray<string>
+    readonly activeFileId?: string
+    readonly activeNodeId?: string
+}
+
 interface IRootCauseChainViewerProps {
     readonly issues: ReadonlyArray<IRootCauseIssueDescriptor>
+    readonly onChainFocusChange?: (payload: IRootCauseChainFocusPayload) => void
 }
 
 const SEVERITY_TONE: Readonly<Record<IRootCauseIssueDescriptor["severity"], string>> = {
@@ -53,6 +63,29 @@ export function RootCauseChainViewer(props: IRootCauseChainViewerProps): ReactEl
             selectedIssue.chain.find((node): boolean => node.id === selectedNodeId) ?? selectedIssue.chain[0]
         )
     }, [selectedIssue, selectedNodeId])
+    const chainFileIds = useMemo((): ReadonlyArray<string> => {
+        if (selectedIssue === undefined) {
+            return []
+        }
+        const fileIds = selectedIssue.chain
+            .map((node): string | undefined => node.fileId)
+            .filter((fileId): fileId is string => fileId !== undefined)
+
+        return Array.from(new Set(fileIds))
+    }, [selectedIssue])
+
+    useEffect((): void => {
+        if (selectedIssue === undefined) {
+            return
+        }
+        props.onChainFocusChange?.({
+            activeFileId: selectedNode?.fileId,
+            activeNodeId: selectedNode?.id,
+            chainFileIds,
+            issueId: selectedIssue.id,
+            issueTitle: selectedIssue.title,
+        })
+    }, [chainFileIds, props, selectedIssue, selectedNode])
 
     if (props.issues.length === 0 || selectedIssue === undefined) {
         return (
