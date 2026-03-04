@@ -201,6 +201,8 @@ describe("CodeCityDashboardPage", (): void => {
         expect(screen.getByRole("option", { name: "backend-core/payment-worker" }))
             .not.toBeNull()
         expect(screen.getByText("Active overlay: Impact map")).not.toBeNull()
+        expect(screen.getByText("Guided tour")).not.toBeNull()
+        expect(screen.getByText("Step 1 of 3")).not.toBeNull()
 
         const firstTreemapCall = mockCodeCityTreemap.mock.calls.at(0)?.[0]
         expect(firstTreemapCall).not.toBeUndefined()
@@ -267,6 +269,11 @@ describe("CodeCityDashboardPage", (): void => {
     it("обновляет treemap при смене репозитория и метрики", async (): Promise<void> => {
         const user = userEvent.setup()
         renderWithProviders(<CodeCityDashboardPage />)
+
+        await user.click(screen.getByRole("button", { name: "Next tour step" }))
+        expect(screen.getByText("Step 2 of 3")).not.toBeNull()
+        await user.click(screen.getByRole("button", { name: "Skip guided tour" }))
+        expect(screen.queryByText("Guided tour")).toBeNull()
 
         const repositorySelect = screen.getByRole("combobox", { name: "Repository" })
         const metricSelect = screen.getByRole("combobox", { name: "Metric" })

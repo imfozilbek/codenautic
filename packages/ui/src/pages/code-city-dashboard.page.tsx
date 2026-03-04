@@ -22,6 +22,10 @@ import {
     CausalOverlaySelector,
     type TCausalOverlayMode,
 } from "@/components/graphs/causal-overlay-selector"
+import {
+    GuidedTourOverlay,
+    type IGuidedTourStep,
+} from "@/components/graphs/guided-tour-overlay"
 import { ChurnComplexityScatter } from "@/components/graphs/churn-complexity-scatter"
 import { HealthTrendChart, type IHealthTrendPoint } from "@/components/graphs/health-trend-chart"
 import {
@@ -600,6 +604,27 @@ function createRepositoryFilesLink(repositoryId: string):
 /**
  * Страница CodeCity для кросс-репозитория с выбором метрики и репозитория.
  */
+const CODE_CITY_GUIDED_TOUR_STEPS: ReadonlyArray<IGuidedTourStep> = [
+    {
+        description:
+            "Start from repository and metric filters to align the city view with your current investigation context.",
+        id: "controls",
+        title: "Configure dashboard scope",
+    },
+    {
+        description:
+            "Use 3D preview to inspect topology, causal overlays, and local hotspots before drilling into specific files.",
+        id: "city-3d",
+        title: "Inspect 3D city",
+    },
+    {
+        description:
+            "Open root cause chains to follow issue propagation and jump directly into affected files and neighborhoods.",
+        id: "root-cause",
+        title: "Trace root causes",
+    },
+] as const
+
 export function CodeCityDashboardPage(
     props: ICodeCityDashboardPageProps = {},
 ): ReactElement {
@@ -615,11 +640,17 @@ export function CodeCityDashboardPage(
     const [metric, setMetric] = useState<TCodeCityDashboardMetric>("complexity")
     const [overlayMode, setOverlayMode] = useState<TCausalOverlayMode>("impact")
     const [highlightedFileId, setHighlightedFileId] = useState<string | undefined>()
+    const [guidedTourStepIndex, setGuidedTourStepIndex] = useState<number>(0)
+    const [isGuidedTourActive, setIsGuidedTourActive] = useState<boolean>(true)
     const [rootCauseChainFocus, setRootCauseChainFocus] = useState<IRootCauseChainFocusPayload>({
         chainFileIds: [],
         issueId: "",
         issueTitle: "",
     })
+    const activeGuidedTourStep =
+        CODE_CITY_GUIDED_TOUR_STEPS[
+            Math.max(0, Math.min(guidedTourStepIndex, CODE_CITY_GUIDED_TOUR_STEPS.length - 1))
+        ] ?? CODE_CITY_GUIDED_TOUR_STEPS[0]
 
     const currentProfile = resolveDashboardProfile(repositoryId)
     const rootCauseIssues = buildRootCauseIssues(currentProfile.files)
@@ -657,9 +688,40 @@ export function CodeCityDashboardPage(
         setMetric(nextMetric)
     }
 
+    const resolveTourCardClassName = (stepId: string): string | undefined => {
+        if (isGuidedTourActive === false || activeGuidedTourStep?.id !== stepId) {
+            return undefined
+        }
+
+        return "ring-2 ring-cyan-400/80 ring-offset-2 ring-offset-slate-100"
+    }
+
     return (
-        <section className="space-y-4">
-            <Card>
+        <section className="relative space-y-4">
+            <GuidedTourOverlay
+                currentStepIndex={guidedTourStepIndex}
+                isActive={isGuidedTourActive}
+                onNext={(): void => {
+                    setGuidedTourStepIndex((currentStepIndex): number => {
+                        const lastStepIndex = CODE_CITY_GUIDED_TOUR_STEPS.length - 1
+                        if (currentStepIndex >= lastStepIndex) {
+                            setIsGuidedTourActive(false)
+                            return currentStepIndex
+                        }
+                        return currentStepIndex + 1
+                    })
+                }}
+                onPrevious={(): void => {
+                    setGuidedTourStepIndex((currentStepIndex): number => {
+                        return Math.max(0, currentStepIndex - 1)
+                    })
+                }}
+                onSkip={(): void => {
+                    setIsGuidedTourActive(false)
+                }}
+                steps={CODE_CITY_GUIDED_TOUR_STEPS}
+            />
+            <Card className={resolveTourCardClassName("controls")}>
                 <CardHeader>
                     <p className="text-sm font-semibold text-slate-900">CodeCity dashboard</p>
                 </CardHeader>
@@ -725,7 +787,7 @@ export function CodeCityDashboardPage(
                 </CardBody>
             </Card>
 
-            <Card>
+            <Card className={resolveTourCardClassName("city-3d")}>
                 <CardHeader>
                     <p className="text-sm font-semibold text-slate-900">CodeCity 3D preview</p>
                 </CardHeader>
@@ -774,7 +836,7 @@ export function CodeCityDashboardPage(
                 </CardBody>
             </Card>
 
-            <Card>
+            <Card className={resolveTourCardClassName("root-cause")}>
                 <CardHeader>
                     <p className="text-sm font-semibold text-slate-900">Root cause chain viewer</p>
                 </CardHeader>
