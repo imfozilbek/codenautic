@@ -6,6 +6,7 @@ import {
     BellRing,
     Bot,
     Building2,
+    ChartNoAxesColumn,
     Coins,
     CreditCard,
     FileClock,
@@ -121,6 +122,11 @@ const SETTINGS_NAV = [
         icon: <Coins aria-hidden="true" size={16} />,
         label: "Token Usage",
         to: "/settings-token-usage",
+    },
+    {
+        icon: <ChartNoAxesColumn aria-hidden="true" size={16} />,
+        label: "Adoption Analytics",
+        to: "/settings-adoption-analytics",
     },
     {
         icon: <Building2 aria-hidden="true" size={16} />,

@@ -10,6 +10,10 @@ describe("route guard map", (): void => {
     it("строит breadcrumbs для известных маршрутов", (): void => {
         expect(getBreadcrumbs("/my-work")).toEqual(["Dashboard", "My Work"])
         expect(getBreadcrumbs("/help-diagnostics")).toEqual(["Dashboard", "Help & diagnostics"])
+        expect(getBreadcrumbs("/settings-adoption-analytics")).toEqual([
+            "Settings",
+            "Adoption analytics",
+        ])
         expect(getBreadcrumbs("/settings-team")).toEqual(["Settings", "Team"])
         expect(getBreadcrumbs("/reviews/ccr-101")).toEqual(["Dashboard", "Reviews"])
     })

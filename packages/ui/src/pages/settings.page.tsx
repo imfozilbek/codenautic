@@ -96,6 +96,14 @@ export function SettingsPage(): ReactElement {
                         <li>
                             <Link
                                 className="underline underline-offset-4"
+                                to="/settings-adoption-analytics"
+                            >
+                                Usage & adoption analytics
+                            </Link>
+                        </li>
+                        <li>
+                            <Link
+                                className="underline underline-offset-4"
                                 to="/settings-organization"
                             >
                                 Organization settings

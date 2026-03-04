@@ -205,6 +205,18 @@ export const ROUTE_GUARD_MAP: ReadonlyArray<INavigationRouteEntry> = [
         searchKeywords: ["cost", "models", "usage"],
         section: "analytics",
     },
+    {
+        breadcrumbs: ["Settings", "Adoption analytics"],
+        guards: {
+            requiresAuth: true,
+            roles: ["lead", "admin"],
+            tenants: ["runtime-team", "platform-team"],
+        },
+        label: "Adoption analytics",
+        path: "/settings-adoption-analytics",
+        searchKeywords: ["adoption", "funnel", "ttfv", "analytics"],
+        section: "analytics",
+    },
 ]
 
 function normalizePathname(pathname: string): string {
