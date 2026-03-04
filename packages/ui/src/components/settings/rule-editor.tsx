@@ -1,4 +1,4 @@
-import { lazy, Suspense, type ReactElement, useId, useState } from "react"
+import { lazy, Suspense, type ReactElement, useEffect, useId, useState } from "react"
 
 import { Button, Card, CardBody, CardHeader, Textarea } from "@/components/ui"
 import type { IRuleEditorMarkdownPreviewProps } from "./rule-editor-markdown-preview"
@@ -6,6 +6,8 @@ import type { IRuleEditorMarkdownPreviewProps } from "./rule-editor-markdown-pre
 const LazyRuleEditorPreview = lazy((): Promise<{
     default: (props: IRuleEditorMarkdownPreviewProps) => ReactElement
 }> => import("./rule-editor-markdown-preview"))
+
+type TTipTapLoadState = "fallback" | "loading" | "ready"
 
 /** Параметры редактора правил. */
 export interface IRuleEditorProps {
@@ -62,6 +64,29 @@ function insertCodeBlock(text: string, start: number, end: number): string {
     return `${before}${block}${after}`
 }
 
+async function canLoadTipTapCoreModules(): Promise<boolean> {
+    const dynamicImport = new Function(
+        "moduleName",
+        "return import(moduleName)",
+    ) as (moduleName: string) => Promise<unknown>
+
+    try {
+        const [reactAdapter, starterKit, codeBlockExtension] = await Promise.all([
+            dynamicImport("@tiptap/react"),
+            dynamicImport("@tiptap/starter-kit"),
+            dynamicImport("@tiptap/extension-code-block"),
+        ])
+
+        return (
+            reactAdapter !== undefined
+            && starterKit !== undefined
+            && codeBlockExtension !== undefined
+        )
+    } catch (_error: unknown) {
+        return false
+    }
+}
+
 /** Редактор markdown-правил с toolbar и live preview. */
 export function RuleEditor(props: IRuleEditorProps): ReactElement {
     const {
@@ -74,12 +99,28 @@ export function RuleEditor(props: IRuleEditorProps): ReactElement {
         value,
     } = props
     const [isPreviewVisible, setIsPreviewVisible] = useState<boolean>(showPreview)
+    const [tipTapLoadState, setTipTapLoadState] = useState<TTipTapLoadState>("loading")
     const fallbackId = useId()
     const editorId = id ?? `rule-editor-${fallbackId}`
     const textareaId = `${editorId}-input`
     const previewId = `${editorId}-preview`
     const characterCountId = `${editorId}-character-count`
     const maxLengthId = `${editorId}-max-length`
+
+    useEffect((): void => {
+        let isMounted = true
+
+        void canLoadTipTapCoreModules().then((isAvailable): void => {
+            if (isMounted !== true) {
+                return
+            }
+            setTipTapLoadState(isAvailable ? "ready" : "fallback")
+        })
+
+        return (): void => {
+            isMounted = false
+        }
+    }, [])
 
     const resolveTextarea = (): HTMLTextAreaElement | undefined => {
         if (typeof document === "undefined") {
@@ -157,6 +198,14 @@ export function RuleEditor(props: IRuleEditorProps): ReactElement {
                         {isPreviewVisible === true ? "Hide preview" : "Show preview"}
                     </Button>
                 </div>
+                <p className="text-xs text-slate-600">
+                    TipTap mode:{" "}
+                    {tipTapLoadState === "loading"
+                        ? "loading"
+                        : tipTapLoadState === "ready"
+                          ? "ready (OSS core loaded via dynamic import)"
+                          : "fallback markdown editor (TipTap unavailable)"}
+                </p>
                 <Textarea
                     aria-label={label}
                     aria-describedby={
