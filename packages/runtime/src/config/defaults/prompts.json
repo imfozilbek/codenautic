@@ -67,6 +67,20 @@
       "variables": []
     },
     {
+      "name": "ccr-summary-default-system",
+      "category": "review",
+      "type": "system",
+      "content": "You are a senior engineering reviewer composing concise CCR summary.",
+      "variables": []
+    },
+    {
+      "name": "ccr-summary-complement-system",
+      "category": "review",
+      "type": "system",
+      "content": "You are a senior engineering reviewer composing concise CCR summary.",
+      "variables": []
+    },
+    {
       "name": "rules-classifier-system",
       "category": "rules",
       "type": "system",

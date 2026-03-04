@@ -1,6 +1,6 @@
 {
   "heuristicsSchemaVersion": 1,
-  "generatedAt": "2026-03-04T08:51:26.550Z",
+  "generatedAt": "2026-03-04T09:34:02.409Z",
   "entries": [
     {
       "id": "H-CODE-1AFD81A33705",
@@ -7220,6 +7220,27 @@
       }
     },
     {
+      "id": "H-CODE-9361C07F97F1",
+      "source_file": "packages/core/src/application/use-cases/apply-rule.use-case.ts",
+      "source_line": 73,
+      "heuristic_type": "FALLBACK_DEFAULT",
+      "current_expression": "* Custom rules list from repository and config defaults.",
+      "risk_level": "MEDIUM",
+      "resolution_mode": "KEEP_CODE_FIRST",
+      "target_change": "Harden fallback/default policy and validate environment-specific behavior.",
+      "tests_required": [
+        "unit-env-matrix",
+        "integration-default-behavior"
+      ],
+      "owner_package": "@codenautic/core",
+      "status": "TRIAGED",
+      "verification_rule": {
+        "name": "h-code-9361c07f97f1-verification",
+        "description": "Ensure heuristic entry H-CODE-9361C07F97F1 stays covered by unit/integration assertions.",
+        "testCommand": "bun scripts/heuristics/validate-registry.ts"
+      }
+    },
+    {
       "id": "H-CODE-B360EC6D2019",
       "source_file": "packages/core/src/application/use-cases/apply-rule.use-case.ts",
       "source_line": 607,
@@ -11939,9 +11960,30 @@
       }
     },
     {
-      "id": "H-CODE-D6675203593D",
+      "id": "H-CODE-AD21E25933D7",
       "source_file": "packages/core/src/application/use-cases/messaging/execute-mention-command.use-case.ts",
-      "source_line": 33,
+      "source_line": 8,
+      "heuristic_type": "FALLBACK_DEFAULT",
+      "current_expression": "DEFAULT_COMMAND_TYPES,",
+      "risk_level": "MEDIUM",
+      "resolution_mode": "KEEP_CODE_FIRST",
+      "target_change": "Harden fallback/default policy and validate environment-specific behavior.",
+      "tests_required": [
+        "unit-env-matrix",
+        "integration-default-behavior"
+      ],
+      "owner_package": "@codenautic/core",
+      "status": "TRIAGED",
+      "verification_rule": {
+        "name": "h-code-ad21e25933d7-verification",
+        "description": "Ensure heuristic entry H-CODE-AD21E25933D7 stays covered by unit/integration assertions.",
+        "testCommand": "bun scripts/heuristics/validate-registry.ts"
+      }
+    },
+    {
+      "id": "H-CODE-71F66EE90D7A",
+      "source_file": "packages/core/src/application/use-cases/messaging/execute-mention-command.use-case.ts",
+      "source_line": 34,
       "heuristic_type": "FALLBACK_DEFAULT",
       "current_expression": "/** Unknown command, if parsed as help fallback. */",
       "risk_level": "MEDIUM",
@@ -11954,8 +11996,176 @@
       "owner_package": "@codenautic/core",
       "status": "TRIAGED",
       "verification_rule": {
-        "name": "h-code-d6675203593d-verification",
-        "description": "Ensure heuristic entry H-CODE-D6675203593D stays covered by unit/integration assertions.",
+        "name": "h-code-71f66ee90d7a-verification",
+        "description": "Ensure heuristic entry H-CODE-71F66EE90D7A stays covered by unit/integration assertions.",
+        "testCommand": "bun scripts/heuristics/validate-registry.ts"
+      }
+    },
+    {
+      "id": "H-CODE-EE42ECE02236",
+      "source_file": "packages/core/src/application/use-cases/messaging/execute-mention-command.use-case.ts",
+      "source_line": 291,
+      "heuristic_type": "FALLBACK_DEFAULT",
+      "current_expression": "const defaults = DEFAULT_COMMAND_TYPES",
+      "risk_level": "MEDIUM",
+      "resolution_mode": "KEEP_CODE_FIRST",
+      "target_change": "Harden fallback/default policy and validate environment-specific behavior.",
+      "tests_required": [
+        "unit-env-matrix",
+        "integration-default-behavior"
+      ],
+      "owner_package": "@codenautic/core",
+      "status": "TRIAGED",
+      "verification_rule": {
+        "name": "h-code-ee42ece02236-verification",
+        "description": "Ensure heuristic entry H-CODE-EE42ECE02236 stays covered by unit/integration assertions.",
+        "testCommand": "bun scripts/heuristics/validate-registry.ts"
+      }
+    },
+    {
+      "id": "H-CODE-EA255515C03D",
+      "source_file": "packages/core/src/application/use-cases/messaging/execute-mention-command.use-case.ts",
+      "source_line": 293,
+      "heuristic_type": "FALLBACK_DEFAULT",
+      "current_expression": "return defaults",
+      "risk_level": "MEDIUM",
+      "resolution_mode": "KEEP_CODE_FIRST",
+      "target_change": "Harden fallback/default policy and validate environment-specific behavior.",
+      "tests_required": [
+        "unit-env-matrix",
+        "integration-default-behavior"
+      ],
+      "owner_package": "@codenautic/core",
+      "status": "TRIAGED",
+      "verification_rule": {
+        "name": "h-code-ea255515c03d-verification",
+        "description": "Ensure heuristic entry H-CODE-EA255515C03D stays covered by unit/integration assertions.",
+        "testCommand": "bun scripts/heuristics/validate-registry.ts"
+      }
+    },
+    {
+      "id": "H-CODE-61E2DD3DD50A",
+      "source_file": "packages/core/src/application/use-cases/messaging/execute-mention-command.use-case.ts",
+      "source_line": 301,
+      "heuristic_type": "FALLBACK_DEFAULT",
+      "current_expression": "return defaults",
+      "risk_level": "MEDIUM",
+      "resolution_mode": "KEEP_CODE_FIRST",
+      "target_change": "Harden fallback/default policy and validate environment-specific behavior.",
+      "tests_required": [
+        "unit-env-matrix",
+        "integration-default-behavior"
+      ],
+      "owner_package": "@codenautic/core",
+      "status": "TRIAGED",
+      "verification_rule": {
+        "name": "h-code-61e2dd3dd50a-verification",
+        "description": "Ensure heuristic entry H-CODE-61E2DD3DD50A stays covered by unit/integration assertions.",
+        "testCommand": "bun scripts/heuristics/validate-registry.ts"
+      }
+    },
+    {
+      "id": "H-CODE-AFE0D0B3CBEB",
+      "source_file": "packages/core/src/application/use-cases/messaging/execute-mention-command.use-case.ts",
+      "source_line": 307,
+      "heuristic_type": "FALLBACK_DEFAULT",
+      "current_expression": ".filter((value): value is CommandType => defaults.includes(value as CommandType))",
+      "risk_level": "MEDIUM",
+      "resolution_mode": "KEEP_CODE_FIRST",
+      "target_change": "Harden fallback/default policy and validate environment-specific behavior.",
+      "tests_required": [
+        "unit-env-matrix",
+        "integration-default-behavior"
+      ],
+      "owner_package": "@codenautic/core",
+      "status": "TRIAGED",
+      "verification_rule": {
+        "name": "h-code-afe0d0b3cbeb-verification",
+        "description": "Ensure heuristic entry H-CODE-AFE0D0B3CBEB stays covered by unit/integration assertions.",
+        "testCommand": "bun scripts/heuristics/validate-registry.ts"
+      }
+    },
+    {
+      "id": "H-CODE-82997F597186",
+      "source_file": "packages/core/src/application/use-cases/messaging/execute-mention-command.use-case.ts",
+      "source_line": 309,
+      "heuristic_type": "FALLBACK_DEFAULT",
+      "current_expression": "return normalized.length > 0 ? normalized : defaults",
+      "risk_level": "MEDIUM",
+      "resolution_mode": "KEEP_CODE_FIRST",
+      "target_change": "Harden fallback/default policy and validate environment-specific behavior.",
+      "tests_required": [
+        "unit-env-matrix",
+        "integration-default-behavior"
+      ],
+      "owner_package": "@codenautic/core",
+      "status": "TRIAGED",
+      "verification_rule": {
+        "name": "h-code-82997f597186-verification",
+        "description": "Ensure heuristic entry H-CODE-82997F597186 stays covered by unit/integration assertions.",
+        "testCommand": "bun scripts/heuristics/validate-registry.ts"
+      }
+    },
+    {
+      "id": "H-CODE-87E68E97B100",
+      "source_file": "packages/core/src/application/use-cases/messaging/execute-mention-command.use-case.ts",
+      "source_line": 311,
+      "heuristic_type": "FALLBACK_DEFAULT",
+      "current_expression": "return defaults",
+      "risk_level": "MEDIUM",
+      "resolution_mode": "KEEP_CODE_FIRST",
+      "target_change": "Harden fallback/default policy and validate environment-specific behavior.",
+      "tests_required": [
+        "unit-env-matrix",
+        "integration-default-behavior"
+      ],
+      "owner_package": "@codenautic/core",
+      "status": "TRIAGED",
+      "verification_rule": {
+        "name": "h-code-87e68e97b100-verification",
+        "description": "Ensure heuristic entry H-CODE-87E68E97B100 stays covered by unit/integration assertions.",
+        "testCommand": "bun scripts/heuristics/validate-registry.ts"
+      }
+    },
+    {
+      "id": "H-CODE-585E6C840442",
+      "source_file": "packages/core/src/application/use-cases/messaging/mention-command.types.ts",
+      "source_line": 5,
+      "heuristic_type": "FALLBACK_DEFAULT",
+      "current_expression": "export const DEFAULT_COMMAND_TYPES = [",
+      "risk_level": "MEDIUM",
+      "resolution_mode": "KEEP_CODE_FIRST",
+      "target_change": "Harden fallback/default policy and validate environment-specific behavior.",
+      "tests_required": [
+        "unit-env-matrix",
+        "integration-default-behavior"
+      ],
+      "owner_package": "@codenautic/core",
+      "status": "TRIAGED",
+      "verification_rule": {
+        "name": "h-code-585e6c840442-verification",
+        "description": "Ensure heuristic entry H-CODE-585E6C840442 stays covered by unit/integration assertions.",
+        "testCommand": "bun scripts/heuristics/validate-registry.ts"
+      }
+    },
+    {
+      "id": "H-CODE-05720822764C",
+      "source_file": "packages/core/src/application/use-cases/messaging/mention-command.types.ts",
+      "source_line": 33,
+      "heuristic_type": "FALLBACK_DEFAULT",
+      "current_expression": "export type CommandType = (typeof DEFAULT_COMMAND_TYPES)[number]",
+      "risk_level": "MEDIUM",
+      "resolution_mode": "KEEP_CODE_FIRST",
+      "target_change": "Harden fallback/default policy and validate environment-specific behavior.",
+      "tests_required": [
+        "unit-env-matrix",
+        "integration-default-behavior"
+      ],
+      "owner_package": "@codenautic/core",
+      "status": "TRIAGED",
+      "verification_rule": {
+        "name": "h-code-05720822764c-verification",
+        "description": "Ensure heuristic entry H-CODE-05720822764C stays covered by unit/integration assertions.",
         "testCommand": "bun scripts/heuristics/validate-registry.ts"
       }
     },
@@ -13334,9 +13544,9 @@
       }
     },
     {
-      "id": "H-CODE-E7D9227FE5E9",
+      "id": "H-CODE-131F189B0812",
       "source_file": "packages/core/src/application/use-cases/review/generate-ccr-summary.use-case.ts",
-      "source_line": 27,
+      "source_line": 28,
       "heuristic_type": "FALLBACK_DEFAULT",
       "current_expression": "* Optional default model override.",
       "risk_level": "MEDIUM",
@@ -13349,15 +13559,15 @@
       "owner_package": "@codenautic/core",
       "status": "TRIAGED",
       "verification_rule": {
-        "name": "h-code-e7d9227fe5e9-verification",
-        "description": "Ensure heuristic entry H-CODE-E7D9227FE5E9 stays covered by unit/integration assertions.",
+        "name": "h-code-131f189b0812-verification",
+        "description": "Ensure heuristic entry H-CODE-131F189B0812 stays covered by unit/integration assertions.",
         "testCommand": "bun scripts/heuristics/validate-registry.ts"
       }
     },
     {
-      "id": "H-CODE-F448DF86D7A9",
+      "id": "H-CODE-F7A2276CB403",
       "source_file": "packages/core/src/application/use-cases/review/generate-ccr-summary.use-case.ts",
-      "source_line": 32,
+      "source_line": 33,
       "heuristic_type": "FALLBACK_DEFAULT",
       "current_expression": "* Optional default max tokens override.",
       "risk_level": "MEDIUM",
@@ -13370,15 +13580,15 @@
       "owner_package": "@codenautic/core",
       "status": "TRIAGED",
       "verification_rule": {
-        "name": "h-code-f448df86d7a9-verification",
-        "description": "Ensure heuristic entry H-CODE-F448DF86D7A9 stays covered by unit/integration assertions.",
+        "name": "h-code-f7a2276cb403-verification",
+        "description": "Ensure heuristic entry H-CODE-F7A2276CB403 stays covered by unit/integration assertions.",
         "testCommand": "bun scripts/heuristics/validate-registry.ts"
       }
     },
     {
-      "id": "H-CODE-97DBC1715347",
+      "id": "H-CODE-025759E219A7",
       "source_file": "packages/core/src/application/use-cases/review/generate-ccr-summary.use-case.ts",
-      "source_line": 46,
+      "source_line": 52,
       "heuristic_type": "FALLBACK_DEFAULT",
       "current_expression": "const DEFAULT_MODEL = \"gpt-4o-mini\"",
       "risk_level": "MEDIUM",
@@ -13391,15 +13601,15 @@
       "owner_package": "@codenautic/core",
       "status": "TRIAGED",
       "verification_rule": {
-        "name": "h-code-97dbc1715347-verification",
-        "description": "Ensure heuristic entry H-CODE-97DBC1715347 stays covered by unit/integration assertions.",
+        "name": "h-code-025759e219a7-verification",
+        "description": "Ensure heuristic entry H-CODE-025759E219A7 stays covered by unit/integration assertions.",
         "testCommand": "bun scripts/heuristics/validate-registry.ts"
       }
     },
     {
-      "id": "H-CODE-2F993CDC23E6",
+      "id": "H-CODE-B42E0E140F7C",
       "source_file": "packages/core/src/application/use-cases/review/generate-ccr-summary.use-case.ts",
-      "source_line": 47,
+      "source_line": 53,
       "heuristic_type": "FALLBACK_DEFAULT",
       "current_expression": "const DEFAULT_MAX_TOKENS = 700",
       "risk_level": "MEDIUM",
@@ -13412,15 +13622,36 @@
       "owner_package": "@codenautic/core",
       "status": "TRIAGED",
       "verification_rule": {
-        "name": "h-code-2f993cdc23e6-verification",
-        "description": "Ensure heuristic entry H-CODE-2F993CDC23E6 stays covered by unit/integration assertions.",
+        "name": "h-code-b42e0e140f7c-verification",
+        "description": "Ensure heuristic entry H-CODE-B42E0E140F7C stays covered by unit/integration assertions.",
         "testCommand": "bun scripts/heuristics/validate-registry.ts"
       }
     },
     {
-      "id": "H-CODE-9F8FE13C8E88",
+      "id": "H-CODE-A3AE83AF7522",
       "source_file": "packages/core/src/application/use-cases/review/generate-ccr-summary.use-case.ts",
-      "source_line": 67,
+      "source_line": 54,
+      "heuristic_type": "FALLBACK_DEFAULT",
+      "current_expression": "const DEFAULT_SYSTEM_PROMPT_NAME = \"ccr-summary-default-system\"",
+      "risk_level": "MEDIUM",
+      "resolution_mode": "KEEP_CODE_FIRST",
+      "target_change": "Harden fallback/default policy and validate environment-specific behavior.",
+      "tests_required": [
+        "unit-env-matrix",
+        "integration-default-behavior"
+      ],
+      "owner_package": "@codenautic/core",
+      "status": "TRIAGED",
+      "verification_rule": {
+        "name": "h-code-a3ae83af7522-verification",
+        "description": "Ensure heuristic entry H-CODE-A3AE83AF7522 stays covered by unit/integration assertions.",
+        "testCommand": "bun scripts/heuristics/validate-registry.ts"
+      }
+    },
+    {
+      "id": "H-CODE-8EFA37DF0DDC",
+      "source_file": "packages/core/src/application/use-cases/review/generate-ccr-summary.use-case.ts",
+      "source_line": 76,
       "heuristic_type": "FALLBACK_DEFAULT",
       "current_expression": "this.model = dependencies.model ?? DEFAULT_MODEL",
       "risk_level": "MEDIUM",
@@ -13433,15 +13664,15 @@
       "owner_package": "@codenautic/core",
       "status": "TRIAGED",
       "verification_rule": {
-        "name": "h-code-9f8fe13c8e88-verification",
-        "description": "Ensure heuristic entry H-CODE-9F8FE13C8E88 stays covered by unit/integration assertions.",
+        "name": "h-code-8efa37df0ddc-verification",
+        "description": "Ensure heuristic entry H-CODE-8EFA37DF0DDC stays covered by unit/integration assertions.",
         "testCommand": "bun scripts/heuristics/validate-registry.ts"
       }
     },
     {
-      "id": "H-CODE-EFF063B24475",
+      "id": "H-CODE-F49F9F2E07A2",
       "source_file": "packages/core/src/application/use-cases/review/generate-ccr-summary.use-case.ts",
-      "source_line": 68,
+      "source_line": 77,
       "heuristic_type": "FALLBACK_DEFAULT",
       "current_expression": "this.maxTokens = dependencies.maxTokens ?? DEFAULT_MAX_TOKENS",
       "risk_level": "MEDIUM",
@@ -13454,15 +13685,15 @@
       "owner_package": "@codenautic/core",
       "status": "TRIAGED",
       "verification_rule": {
-        "name": "h-code-eff063b24475-verification",
-        "description": "Ensure heuristic entry H-CODE-EFF063B24475 stays covered by unit/integration assertions.",
+        "name": "h-code-f49f9f2e07a2-verification",
+        "description": "Ensure heuristic entry H-CODE-F49F9F2E07A2 stays covered by unit/integration assertions.",
         "testCommand": "bun scripts/heuristics/validate-registry.ts"
       }
     },
     {
-      "id": "H-CODE-6334086E1CDD",
+      "id": "H-CODE-A37EDC242EF7",
       "source_file": "packages/core/src/application/use-cases/review/generate-ccr-summary.use-case.ts",
-      "source_line": 112,
+      "source_line": 127,
       "heuristic_type": "FALLBACK_DEFAULT",
       "current_expression": "* Validates payload and applies defaults.",
       "risk_level": "MEDIUM",
@@ -13475,17 +13706,17 @@
       "owner_package": "@codenautic/core",
       "status": "TRIAGED",
       "verification_rule": {
-        "name": "h-code-6334086e1cdd-verification",
-        "description": "Ensure heuristic entry H-CODE-6334086E1CDD stays covered by unit/integration assertions.",
+        "name": "h-code-a37edc242ef7-verification",
+        "description": "Ensure heuristic entry H-CODE-A37EDC242EF7 stays covered by unit/integration assertions.",
         "testCommand": "bun scripts/heuristics/validate-registry.ts"
       }
     },
     {
-      "id": "H-CODE-98D37FD5A78B",
+      "id": "H-CODE-0B03B0EE8B01",
       "source_file": "packages/core/src/application/use-cases/review/generate-ccr-summary.use-case.ts",
-      "source_line": 201,
+      "source_line": 216,
       "heuristic_type": "FALLBACK_DEFAULT",
-      "current_expression": "* Creates deterministic seed summary for fallback.",
+      "current_expression": "* Creates deterministic config seed summary for fallback.",
       "risk_level": "MEDIUM",
       "resolution_mode": "KEEP_CODE_FIRST",
       "target_change": "Harden fallback/default policy and validate environment-specific behavior.",
@@ -13496,15 +13727,15 @@
       "owner_package": "@codenautic/core",
       "status": "TRIAGED",
       "verification_rule": {
-        "name": "h-code-98d37fd5a78b-verification",
-        "description": "Ensure heuristic entry H-CODE-98D37FD5A78B stays covered by unit/integration assertions.",
+        "name": "h-code-0b03b0ee8b01-verification",
+        "description": "Ensure heuristic entry H-CODE-0B03B0EE8B01 stays covered by unit/integration assertions.",
         "testCommand": "bun scripts/heuristics/validate-registry.ts"
       }
     },
     {
-      "id": "H-CODE-992DEFC47AC5",
+      "id": "H-CODE-2534B70AA1D2",
       "source_file": "packages/core/src/application/use-cases/review/generate-ccr-summary.use-case.ts",
-      "source_line": 374,
+      "source_line": 389,
       "heuristic_type": "FALLBACK_DEFAULT",
       "current_expression": "* Returns fallback text when provider returns blank response.",
       "risk_level": "MEDIUM",
@@ -13517,15 +13748,15 @@
       "owner_package": "@codenautic/core",
       "status": "TRIAGED",
       "verification_rule": {
-        "name": "h-code-992defc47ac5-verification",
-        "description": "Ensure heuristic entry H-CODE-992DEFC47AC5 stays covered by unit/integration assertions.",
+        "name": "h-code-2534b70aa1d2-verification",
+        "description": "Ensure heuristic entry H-CODE-2534B70AA1D2 stays covered by unit/integration assertions.",
         "testCommand": "bun scripts/heuristics/validate-registry.ts"
       }
     },
     {
-      "id": "H-CODE-E46BFEB07529",
+      "id": "H-CODE-C898C8A333F2",
       "source_file": "packages/core/src/application/use-cases/review/generate-ccr-summary.use-case.ts",
-      "source_line": 377,
+      "source_line": 392,
       "heuristic_type": "FALLBACK_DEFAULT",
       "current_expression": "* @param fallback Deterministic fallback.",
       "risk_level": "MEDIUM",
@@ -13538,15 +13769,15 @@
       "owner_package": "@codenautic/core",
       "status": "TRIAGED",
       "verification_rule": {
-        "name": "h-code-e46bfeb07529-verification",
-        "description": "Ensure heuristic entry H-CODE-E46BFEB07529 stays covered by unit/integration assertions.",
+        "name": "h-code-c898c8a333f2-verification",
+        "description": "Ensure heuristic entry H-CODE-C898C8A333F2 stays covered by unit/integration assertions.",
         "testCommand": "bun scripts/heuristics/validate-registry.ts"
       }
     },
     {
-      "id": "H-CODE-BB050E7F59BA",
+      "id": "H-CODE-05C4DF9C4FCC",
       "source_file": "packages/core/src/application/use-cases/review/generate-ccr-summary.use-case.ts",
-      "source_line": 380,
+      "source_line": 395,
       "heuristic_type": "FALLBACK_DEFAULT",
       "current_expression": "private normalizeSummaryText(value: string, fallback: string): string {",
       "risk_level": "MEDIUM",
@@ -13559,15 +13790,15 @@
       "owner_package": "@codenautic/core",
       "status": "TRIAGED",
       "verification_rule": {
-        "name": "h-code-bb050e7f59ba-verification",
-        "description": "Ensure heuristic entry H-CODE-BB050E7F59BA stays covered by unit/integration assertions.",
+        "name": "h-code-05c4df9c4fcc-verification",
+        "description": "Ensure heuristic entry H-CODE-05C4DF9C4FCC stays covered by unit/integration assertions.",
         "testCommand": "bun scripts/heuristics/validate-registry.ts"
       }
     },
     {
-      "id": "H-CODE-9CC8FB83D122",
+      "id": "H-CODE-E12D3B2F19E8",
       "source_file": "packages/core/src/application/use-cases/review/generate-ccr-summary.use-case.ts",
-      "source_line": 383,
+      "source_line": 398,
       "heuristic_type": "FALLBACK_DEFAULT",
       "current_expression": "return fallback",
       "risk_level": "MEDIUM",
@@ -13580,8 +13811,29 @@
       "owner_package": "@codenautic/core",
       "status": "TRIAGED",
       "verification_rule": {
-        "name": "h-code-9cc8fb83d122-verification",
-        "description": "Ensure heuristic entry H-CODE-9CC8FB83D122 stays covered by unit/integration assertions.",
+        "name": "h-code-e12d3b2f19e8-verification",
+        "description": "Ensure heuristic entry H-CODE-E12D3B2F19E8 stays covered by unit/integration assertions.",
+        "testCommand": "bun scripts/heuristics/validate-registry.ts"
+      }
+    },
+    {
+      "id": "H-CODE-B61A507982E5",
+      "source_file": "packages/core/src/application/use-cases/review/generate-ccr-summary.use-case.ts",
+      "source_line": 410,
+      "heuristic_type": "FALLBACK_DEFAULT",
+      "current_expression": ": DEFAULT_SYSTEM_PROMPT_NAME",
+      "risk_level": "MEDIUM",
+      "resolution_mode": "KEEP_CODE_FIRST",
+      "target_change": "Harden fallback/default policy and validate environment-specific behavior.",
+      "tests_required": [
+        "unit-env-matrix",
+        "integration-default-behavior"
+      ],
+      "owner_package": "@codenautic/core",
+      "status": "TRIAGED",
+      "verification_rule": {
+        "name": "h-code-b61a507982e5-verification",
+        "description": "Ensure heuristic entry H-CODE-B61A507982E5 stays covered by unit/integration assertions.",
         "testCommand": "bun scripts/heuristics/validate-registry.ts"
       }
     },
@@ -23095,9 +23347,9 @@
       }
     },
     {
-      "id": "H-CODE-E0B07A3FE617",
+      "id": "H-CODE-5BD02E0B93AC",
       "source_file": "packages/core/src/index.ts",
-      "source_line": 87,
+      "source_line": 88,
       "heuristic_type": "OTHER",
       "current_expression": "type IHeuristicRegistryEntry,",
       "risk_level": "LOW",
@@ -23109,15 +23361,15 @@
       "owner_package": "@codenautic/core",
       "status": "TRIAGED",
       "verification_rule": {
-        "name": "h-code-e0b07a3fe617-verification",
-        "description": "Ensure heuristic entry H-CODE-E0B07A3FE617 stays covered by unit/integration assertions.",
+        "name": "h-code-5bd02e0b93ac-verification",
+        "description": "Ensure heuristic entry H-CODE-5BD02E0B93AC stays covered by unit/integration assertions.",
         "testCommand": "bun scripts/heuristics/validate-registry.ts"
       }
     },
     {
-      "id": "H-CODE-0007008C4206",
+      "id": "H-CODE-E1A7FFA823D9",
       "source_file": "packages/core/src/index.ts",
-      "source_line": 88,
+      "source_line": 89,
       "heuristic_type": "OTHER",
       "current_expression": "type IHeuristicResolutionMode,",
       "risk_level": "LOW",
@@ -23129,15 +23381,15 @@
       "owner_package": "@codenautic/core",
       "status": "TRIAGED",
       "verification_rule": {
-        "name": "h-code-0007008c4206-verification",
-        "description": "Ensure heuristic entry H-CODE-0007008C4206 stays covered by unit/integration assertions.",
+        "name": "h-code-e1a7ffa823d9-verification",
+        "description": "Ensure heuristic entry H-CODE-E1A7FFA823D9 stays covered by unit/integration assertions.",
         "testCommand": "bun scripts/heuristics/validate-registry.ts"
       }
     },
     {
-      "id": "H-CODE-DB9FD34D0724",
+      "id": "H-CODE-5D36074AE4FE",
       "source_file": "packages/core/src/index.ts",
-      "source_line": 89,
+      "source_line": 90,
       "heuristic_type": "SCORING",
       "current_expression": "type IHeuristicRiskLevel,",
       "risk_level": "HIGH",
@@ -23150,15 +23402,15 @@
       "owner_package": "@codenautic/core",
       "status": "TRIAGED",
       "verification_rule": {
-        "name": "h-code-db9fd34d0724-verification",
-        "description": "Ensure heuristic entry H-CODE-DB9FD34D0724 stays covered by unit/integration assertions.",
+        "name": "h-code-5d36074ae4fe-verification",
+        "description": "Ensure heuristic entry H-CODE-5D36074AE4FE stays covered by unit/integration assertions.",
         "testCommand": "bun scripts/heuristics/validate-registry.ts"
       }
     },
     {
-      "id": "H-CODE-D7683BB25E83",
+      "id": "H-CODE-E561C58B4ED8",
       "source_file": "packages/core/src/index.ts",
-      "source_line": 90,
+      "source_line": 91,
       "heuristic_type": "OTHER",
       "current_expression": "type IHeuristicStatus,",
       "risk_level": "LOW",
@@ -23170,15 +23422,15 @@
       "owner_package": "@codenautic/core",
       "status": "TRIAGED",
       "verification_rule": {
-        "name": "h-code-d7683bb25e83-verification",
-        "description": "Ensure heuristic entry H-CODE-D7683BB25E83 stays covered by unit/integration assertions.",
+        "name": "h-code-e561c58b4ed8-verification",
+        "description": "Ensure heuristic entry H-CODE-E561C58B4ED8 stays covered by unit/integration assertions.",
         "testCommand": "bun scripts/heuristics/validate-registry.ts"
       }
     },
     {
-      "id": "H-CODE-8391E080E52B",
+      "id": "H-CODE-9F8E475F521D",
       "source_file": "packages/core/src/index.ts",
-      "source_line": 91,
+      "source_line": 92,
       "heuristic_type": "OTHER",
       "current_expression": "type IHeuristicType,",
       "risk_level": "LOW",
@@ -23190,15 +23442,15 @@
       "owner_package": "@codenautic/core",
       "status": "TRIAGED",
       "verification_rule": {
-        "name": "h-code-8391e080e52b-verification",
-        "description": "Ensure heuristic entry H-CODE-8391E080E52B stays covered by unit/integration assertions.",
+        "name": "h-code-9f8e475f521d-verification",
+        "description": "Ensure heuristic entry H-CODE-9F8E475F521D stays covered by unit/integration assertions.",
         "testCommand": "bun scripts/heuristics/validate-registry.ts"
       }
     },
     {
-      "id": "H-CODE-FBAD246664F7",
+      "id": "H-CODE-9D1A5F804805",
       "source_file": "packages/core/src/index.ts",
-      "source_line": 92,
+      "source_line": 93,
       "heuristic_type": "OTHER",
       "current_expression": "type IHeuristicVerificationRule,",
       "risk_level": "LOW",
@@ -23210,15 +23462,15 @@
       "owner_package": "@codenautic/core",
       "status": "TRIAGED",
       "verification_rule": {
-        "name": "h-code-fbad246664f7-verification",
-        "description": "Ensure heuristic entry H-CODE-FBAD246664F7 stays covered by unit/integration assertions.",
+        "name": "h-code-9d1a5f804805-verification",
+        "description": "Ensure heuristic entry H-CODE-9D1A5F804805 stays covered by unit/integration assertions.",
         "testCommand": "bun scripts/heuristics/validate-registry.ts"
       }
     },
     {
-      "id": "H-CODE-398F6323C851",
+      "id": "H-CODE-B87EED6C8506",
       "source_file": "packages/core/src/index.ts",
-      "source_line": 93,
+      "source_line": 94,
       "heuristic_type": "OTHER",
       "current_expression": "} from \"./application/dto/heuristics/heuristic-registry-entry.dto\"",
       "risk_level": "LOW",
@@ -23230,15 +23482,15 @@
       "owner_package": "@codenautic/core",
       "status": "TRIAGED",
       "verification_rule": {
-        "name": "h-code-398f6323c851-verification",
-        "description": "Ensure heuristic entry H-CODE-398F6323C851 stays covered by unit/integration assertions.",
+        "name": "h-code-b87eed6c8506-verification",
+        "description": "Ensure heuristic entry H-CODE-B87EED6C8506 stays covered by unit/integration assertions.",
         "testCommand": "bun scripts/heuristics/validate-registry.ts"
       }
     },
     {
-      "id": "H-CODE-48CC260A6695",
+      "id": "H-CODE-DC14BA55EDD3",
       "source_file": "packages/core/src/index.ts",
-      "source_line": 109,
+      "source_line": 110,
       "heuristic_type": "DRIFT_SIGNAL",
       "current_expression": "export {type ICodeCityDataDTO, type IHotspotMetric} from \"./application/dto/analytics\"",
       "risk_level": "HIGH",
@@ -23250,15 +23502,15 @@
       "owner_package": "@codenautic/core",
       "status": "TRIAGED",
       "verification_rule": {
-        "name": "h-code-48cc260a6695-verification",
-        "description": "Ensure heuristic entry H-CODE-48CC260A6695 stays covered by unit/integration assertions.",
+        "name": "h-code-dc14ba55edd3-verification",
+        "description": "Ensure heuristic entry H-CODE-DC14BA55EDD3 stays covered by unit/integration assertions.",
         "testCommand": "bun scripts/heuristics/validate-registry.ts"
       }
     },
     {
-      "id": "H-CODE-FD56520A57ED",
+      "id": "H-CODE-986674398FF0",
       "source_file": "packages/core/src/index.ts",
-      "source_line": 146,
+      "source_line": 147,
       "heuristic_type": "SCORING",
       "current_expression": "type IArchitectureHealthScore,",
       "risk_level": "MEDIUM",
@@ -23271,15 +23523,15 @@
       "owner_package": "@codenautic/core",
       "status": "TRIAGED",
       "verification_rule": {
-        "name": "h-code-fd56520a57ed-verification",
-        "description": "Ensure heuristic entry H-CODE-FD56520A57ED stays covered by unit/integration assertions.",
+        "name": "h-code-986674398ff0-verification",
+        "description": "Ensure heuristic entry H-CODE-986674398FF0 stays covered by unit/integration assertions.",
         "testCommand": "bun scripts/heuristics/validate-registry.ts"
       }
     },
     {
-      "id": "H-CODE-3F3A5DB6CE0A",
+      "id": "H-CODE-D22C4A910233",
       "source_file": "packages/core/src/index.ts",
-      "source_line": 147,
+      "source_line": 148,
       "heuristic_type": "SCORING",
       "current_expression": "type IArchitectureHealthScoreDimensions,",
       "risk_level": "MEDIUM",
@@ -23292,15 +23544,15 @@
       "owner_package": "@codenautic/core",
       "status": "TRIAGED",
       "verification_rule": {
-        "name": "h-code-3f3a5db6ce0a-verification",
-        "description": "Ensure heuristic entry H-CODE-3F3A5DB6CE0A stays covered by unit/integration assertions.",
+        "name": "h-code-d22c4a910233-verification",
+        "description": "Ensure heuristic entry H-CODE-D22C4A910233 stays covered by unit/integration assertions.",
         "testCommand": "bun scripts/heuristics/validate-registry.ts"
       }
     },
     {
-      "id": "H-CODE-944D59F0A377",
+      "id": "H-CODE-579A083A7D92",
       "source_file": "packages/core/src/index.ts",
-      "source_line": 159,
+      "source_line": 160,
       "heuristic_type": "OTHER",
       "current_expression": "export {type IImportedRuleHeuristicsMetadata} from \"./application/dto/rules/rule-import-metadata.dto\"",
       "risk_level": "LOW",
@@ -23312,15 +23564,15 @@
       "owner_package": "@codenautic/core",
       "status": "TRIAGED",
       "verification_rule": {
-        "name": "h-code-944d59f0a377-verification",
-        "description": "Ensure heuristic entry H-CODE-944D59F0A377 stays covered by unit/integration assertions.",
+        "name": "h-code-579a083a7d92-verification",
+        "description": "Ensure heuristic entry H-CODE-579A083A7D92 stays covered by unit/integration assertions.",
         "testCommand": "bun scripts/heuristics/validate-registry.ts"
       }
     },
     {
-      "id": "H-CODE-03616CCFFE38",
+      "id": "H-CODE-E0D0AEB05208",
       "source_file": "packages/core/src/index.ts",
-      "source_line": 484,
+      "source_line": 485,
       "heuristic_type": "THRESHOLD",
       "current_expression": "SeverityThresholdSafeguardFilter,",
       "risk_level": "MEDIUM",
@@ -23332,15 +23584,15 @@
       "owner_package": "@codenautic/core",
       "status": "TRIAGED",
       "verification_rule": {
-        "name": "h-code-03616ccffe38-verification",
-        "description": "Ensure heuristic entry H-CODE-03616CCFFE38 stays covered by unit/integration assertions.",
+        "name": "h-code-e0d0aeb05208-verification",
+        "description": "Ensure heuristic entry H-CODE-E0D0AEB05208 stays covered by unit/integration assertions.",
         "testCommand": "bun scripts/heuristics/validate-registry.ts"
       }
     },
     {
-      "id": "H-CODE-E95FF4F38B62",
+      "id": "H-CODE-DCAE2306F856",
       "source_file": "packages/core/src/index.ts",
-      "source_line": 739,
+      "source_line": 740,
       "heuristic_type": "SCORING",
       "current_expression": "RISK_SCORE_LEVEL,",
       "risk_level": "HIGH",
@@ -23353,15 +23605,15 @@
       "owner_package": "@codenautic/core",
       "status": "TRIAGED",
       "verification_rule": {
-        "name": "h-code-e95ff4f38b62-verification",
-        "description": "Ensure heuristic entry H-CODE-E95FF4F38B62 stays covered by unit/integration assertions.",
+        "name": "h-code-dcae2306f856-verification",
+        "description": "Ensure heuristic entry H-CODE-DCAE2306F856 stays covered by unit/integration assertions.",
         "testCommand": "bun scripts/heuristics/validate-registry.ts"
       }
     },
     {
-      "id": "H-CODE-9A53F4DC0DF7",
+      "id": "H-CODE-02394C8961E1",
       "source_file": "packages/core/src/index.ts",
-      "source_line": 740,
+      "source_line": 741,
       "heuristic_type": "SCORING",
       "current_expression": "RiskScore,",
       "risk_level": "HIGH",
@@ -23374,15 +23626,15 @@
       "owner_package": "@codenautic/core",
       "status": "TRIAGED",
       "verification_rule": {
-        "name": "h-code-9a53f4dc0df7-verification",
-        "description": "Ensure heuristic entry H-CODE-9A53F4DC0DF7 stays covered by unit/integration assertions.",
+        "name": "h-code-02394c8961e1-verification",
+        "description": "Ensure heuristic entry H-CODE-02394C8961E1 stays covered by unit/integration assertions.",
         "testCommand": "bun scripts/heuristics/validate-registry.ts"
       }
     },
     {
-      "id": "H-CODE-DFF201DB497E",
+      "id": "H-CODE-31575C10666B",
       "source_file": "packages/core/src/index.ts",
-      "source_line": 741,
+      "source_line": 742,
       "heuristic_type": "SCORING",
       "current_expression": "type IRiskScoreFactors,",
       "risk_level": "HIGH",
@@ -23395,15 +23647,15 @@
       "owner_package": "@codenautic/core",
       "status": "TRIAGED",
       "verification_rule": {
-        "name": "h-code-dff201db497e-verification",
-        "description": "Ensure heuristic entry H-CODE-DFF201DB497E stays covered by unit/integration assertions.",
+        "name": "h-code-31575c10666b-verification",
+        "description": "Ensure heuristic entry H-CODE-31575C10666B stays covered by unit/integration assertions.",
         "testCommand": "bun scripts/heuristics/validate-registry.ts"
       }
     },
     {
-      "id": "H-CODE-9EE0D54EC769",
+      "id": "H-CODE-2D1B1ECCC9D7",
       "source_file": "packages/core/src/index.ts",
-      "source_line": 742,
+      "source_line": 743,
       "heuristic_type": "SCORING",
       "current_expression": "type RiskScoreLevel,",
       "risk_level": "HIGH",
@@ -23416,15 +23668,15 @@
       "owner_package": "@codenautic/core",
       "status": "TRIAGED",
       "verification_rule": {
-        "name": "h-code-9ee0d54ec769-verification",
-        "description": "Ensure heuristic entry H-CODE-9EE0D54EC769 stays covered by unit/integration assertions.",
+        "name": "h-code-2d1b1eccc9d7-verification",
+        "description": "Ensure heuristic entry H-CODE-2D1B1ECCC9D7 stays covered by unit/integration assertions.",
         "testCommand": "bun scripts/heuristics/validate-registry.ts"
       }
     },
     {
-      "id": "H-CODE-22F846EFD226",
+      "id": "H-CODE-C77EAAB87E0D",
       "source_file": "packages/core/src/index.ts",
-      "source_line": 743,
+      "source_line": 744,
       "heuristic_type": "SCORING",
       "current_expression": "} from \"./domain/value-objects/risk-score.value-object\"",
       "risk_level": "HIGH",
@@ -23437,70 +23689,8 @@
       "owner_package": "@codenautic/core",
       "status": "TRIAGED",
       "verification_rule": {
-        "name": "h-code-22f846efd226-verification",
-        "description": "Ensure heuristic entry H-CODE-22F846EFD226 stays covered by unit/integration assertions.",
-        "testCommand": "bun scripts/heuristics/validate-registry.ts"
-      }
-    },
-    {
-      "id": "H-CODE-07FBB532897B",
-      "source_file": "packages/core/src/infrastructure/data/seed/prompts/review/review-prompt-seeds.ts",
-      "source_line": 9,
-      "heuristic_type": "TIMEOUT",
-      "current_expression": "content: \"You are CodeNautic Bug-Hunter, a senior engineer specialized in identifying verifiable issues through mental code execution. Your mission is to detect bugs, performance problems, and security vulnerabilities that will actually ...",
-      "risk_level": "CRITICAL",
-      "resolution_mode": "HARDEN",
-      "target_change": "Harden timeout policy with explicit limits and failure-path assertions.",
-      "tests_required": [
-        "unit-timeout-boundaries",
-        "integration-timeout-failure-path"
-      ],
-      "owner_package": "@codenautic/core",
-      "status": "TRIAGED",
-      "verification_rule": {
-        "name": "h-code-07fbb532897b-verification",
-        "description": "Ensure heuristic entry H-CODE-07FBB532897B stays covered by unit/integration assertions.",
-        "testCommand": "bun scripts/heuristics/validate-registry.ts"
-      }
-    },
-    {
-      "id": "H-CODE-0131518C66ED",
-      "source_file": "packages/core/src/infrastructure/data/seed/prompts/review/review-prompt-seeds.ts",
-      "source_line": 23,
-      "heuristic_type": "DRIFT_SIGNAL",
-      "current_expression": "content: \"You are CodeNautic PR-Reviewer, a senior engineer specialized in understanding and reviewing code, with deep knowledge of how LLMs function. You are **context-aware** and prioritize **developer intent** over rigid rule-followin...",
-      "risk_level": "CRITICAL",
-      "resolution_mode": "HARDEN",
-      "target_change": "Keep drift/hotspot signals explicit and validate signal provenance.",
-      "tests_required": [
-        "integration-drift-signal"
-      ],
-      "owner_package": "@codenautic/core",
-      "status": "TRIAGED",
-      "verification_rule": {
-        "name": "h-code-0131518c66ed-verification",
-        "description": "Ensure heuristic entry H-CODE-0131518C66ED stays covered by unit/integration assertions.",
-        "testCommand": "bun scripts/heuristics/validate-registry.ts"
-      }
-    },
-    {
-      "id": "H-CODE-C948D1E8C005",
-      "source_file": "packages/core/src/infrastructure/data/seed/prompts/safeguard/safeguard-prompt-seeds.ts",
-      "source_line": 9,
-      "heuristic_type": "FALLBACK_DEFAULT",
-      "current_expression": "content: \"{{expertPanel}}\\n\\n## Analysis Flow:\\n\\n### Phase 1: Neo's Pre-Analysis (Special Cases Check)\\n**Neo evaluates FIRST** - before any other expert analysis:\\n\\n<SpecialCasesForAutoDiscard>\\n\\n1. **Configuration File Syntax Errors...",
-      "risk_level": "CRITICAL",
-      "resolution_mode": "HARDEN",
-      "target_change": "Harden fallback/default policy and validate environment-specific behavior.",
-      "tests_required": [
-        "unit-env-matrix",
-        "integration-default-behavior"
-      ],
-      "owner_package": "@codenautic/core",
-      "status": "TRIAGED",
-      "verification_rule": {
-        "name": "h-code-c948d1e8c005-verification",
-        "description": "Ensure heuristic entry H-CODE-C948D1E8C005 stays covered by unit/integration assertions.",
+        "name": "h-code-c77eaab87e0d-verification",
+        "description": "Ensure heuristic entry H-CODE-C77EAAB87E0D stays covered by unit/integration assertions.",
         "testCommand": "bun scripts/heuristics/validate-registry.ts"
       }
     },
@@ -26040,9 +26230,30 @@
       }
     },
     {
-      "id": "H-CODE-78843F33C447",
+      "id": "H-CODE-06C2B137E5C7",
       "source_file": "packages/runtime/src/config/defaults/prompts.json",
-      "source_line": 181,
+      "source_line": 70,
+      "heuristic_type": "FALLBACK_DEFAULT",
+      "current_expression": "\"name\": \"ccr-summary-default-system\",",
+      "risk_level": "MEDIUM",
+      "resolution_mode": "KEEP_CODE_FIRST",
+      "target_change": "Harden fallback/default policy and validate environment-specific behavior.",
+      "tests_required": [
+        "unit-env-matrix",
+        "integration-default-behavior"
+      ],
+      "owner_package": "@codenautic/runtime",
+      "status": "TRIAGED",
+      "verification_rule": {
+        "name": "h-code-06c2b137e5c7-verification",
+        "description": "Ensure heuristic entry H-CODE-06C2B137E5C7 stays covered by unit/integration assertions.",
+        "testCommand": "bun scripts/heuristics/validate-registry.ts"
+      }
+    },
+    {
+      "id": "H-CODE-2E6AE3399F44",
+      "source_file": "packages/runtime/src/config/defaults/prompts.json",
+      "source_line": 195,
       "heuristic_type": "FALLBACK_DEFAULT",
       "current_expression": "\"content\": \"{{expertPanel}}\\n\\n## Analysis Flow:\\n\\n### Phase 1: Neo's Pre-Analysis (Special Cases Check)\\n**Neo evaluates FIRST** - before any other expert analysis:\\n\\n<SpecialCasesForAutoDiscard>\\n\\n1. **Configuration File Syntax Erro...",
       "risk_level": "CRITICAL",
@@ -26055,8 +26266,8 @@
       "owner_package": "@codenautic/runtime",
       "status": "TRIAGED",
       "verification_rule": {
-        "name": "h-code-78843f33c447-verification",
-        "description": "Ensure heuristic entry H-CODE-78843F33C447 stays covered by unit/integration assertions.",
+        "name": "h-code-2e6ae3399f44-verification",
+        "description": "Ensure heuristic entry H-CODE-2E6AE3399F44 stays covered by unit/integration assertions.",
         "testCommand": "bun scripts/heuristics/validate-registry.ts"
       }
     },
@@ -30815,9 +31026,9 @@
       }
     },
     {
-      "id": "H-CODE-2BBCC762AB34",
+      "id": "H-CODE-D9CAC842AAC2",
       "source_file": "packages/runtime/src/config/defaults/settings.json",
-      "source_line": 115,
+      "source_line": 116,
       "heuristic_type": "FALLBACK_DEFAULT",
       "current_expression": "\"name\": \"default-review-overrides\",",
       "risk_level": "MEDIUM",
@@ -30830,15 +31041,15 @@
       "owner_package": "@codenautic/runtime",
       "status": "TRIAGED",
       "verification_rule": {
-        "name": "h-code-2bbcc762ab34-verification",
-        "description": "Ensure heuristic entry H-CODE-2BBCC762AB34 stays covered by unit/integration assertions.",
+        "name": "h-code-d9cac842aac2-verification",
+        "description": "Ensure heuristic entry H-CODE-D9CAC842AAC2 stays covered by unit/integration assertions.",
         "testCommand": "bun scripts/heuristics/validate-registry.ts"
       }
     },
     {
-      "id": "H-CODE-C6759903CC26",
+      "id": "H-CODE-249EF47AC4B7",
       "source_file": "packages/runtime/src/config/defaults/settings.json",
-      "source_line": 120,
+      "source_line": 121,
       "heuristic_type": "RESOURCE_LIMIT",
       "current_expression": "\"security\": \"- Injection vulnerabilities: SQL/NoSQL/command/LDAP injection\\n- AuthZ/AuthN flaws: Missing checks, privilege escalation\\n- Data exposure: Sensitive data in logs, responses, or errors\\n- Crypto issues: Weak algorithms, hardc...",
       "risk_level": "CRITICAL",
@@ -30850,15 +31061,15 @@
       "owner_package": "@codenautic/runtime",
       "status": "TRIAGED",
       "verification_rule": {
-        "name": "h-code-c6759903cc26-verification",
-        "description": "Ensure heuristic entry H-CODE-C6759903CC26 stays covered by unit/integration assertions.",
+        "name": "h-code-249ef47ac4b7-verification",
+        "description": "Ensure heuristic entry H-CODE-249EF47AC4B7 stays covered by unit/integration assertions.",
         "testCommand": "bun scripts/heuristics/validate-registry.ts"
       }
     },
     {
-      "id": "H-CODE-A8572698BE58",
+      "id": "H-CODE-3084AE46C351",
       "source_file": "packages/runtime/src/config/defaults/settings.json",
-      "source_line": 128,
+      "source_line": 129,
       "heuristic_type": "SCORING",
       "current_expression": "\"low\": \"Minor performance overhead\\nLow-risk security improvements\\nIncorrect metrics/logs\\nRarely affecting few users\\nEdge-case issues\"",
       "risk_level": "HIGH",
@@ -30871,8 +31082,8 @@
       "owner_package": "@codenautic/runtime",
       "status": "TRIAGED",
       "verification_rule": {
-        "name": "h-code-a8572698be58-verification",
-        "description": "Ensure heuristic entry H-CODE-A8572698BE58 stays covered by unit/integration assertions.",
+        "name": "h-code-3084ae46c351-verification",
+        "description": "Ensure heuristic entry H-CODE-3084AE46C351 stays covered by unit/integration assertions.",
         "testCommand": "bun scripts/heuristics/validate-registry.ts"
       }
     },
@@ -34082,9 +34293,51 @@
       }
     },
     {
-      "id": "H-CODE-B9B38C53E2AB",
+      "id": "H-CODE-F072AB49D312",
+      "source_file": "packages/ui/src/components/layout/dashboard-layout.tsx",
+      "source_line": 42,
+      "heuristic_type": "FALLBACK_DEFAULT",
+      "current_expression": "const DEFAULT_ORGANIZATION_ID = ORGANIZATION_OPTIONS[0].id",
+      "risk_level": "MEDIUM",
+      "resolution_mode": "KEEP_CODE_FIRST",
+      "target_change": "Harden fallback/default policy and validate environment-specific behavior.",
+      "tests_required": [
+        "unit-env-matrix",
+        "integration-default-behavior"
+      ],
+      "owner_package": "@codenautic/ui",
+      "status": "TRIAGED",
+      "verification_rule": {
+        "name": "h-code-f072ab49d312-verification",
+        "description": "Ensure heuristic entry H-CODE-F072AB49D312 stays covered by unit/integration assertions.",
+        "testCommand": "bun scripts/heuristics/validate-registry.ts"
+      }
+    },
+    {
+      "id": "H-CODE-17361240A7E1",
+      "source_file": "packages/ui/src/components/layout/dashboard-layout.tsx",
+      "source_line": 142,
+      "heuristic_type": "FALLBACK_DEFAULT",
+      "current_expression": "useState<string>(DEFAULT_ORGANIZATION_ID)",
+      "risk_level": "MEDIUM",
+      "resolution_mode": "KEEP_CODE_FIRST",
+      "target_change": "Harden fallback/default policy and validate environment-specific behavior.",
+      "tests_required": [
+        "unit-env-matrix",
+        "integration-default-behavior"
+      ],
+      "owner_package": "@codenautic/ui",
+      "status": "TRIAGED",
+      "verification_rule": {
+        "name": "h-code-17361240a7e1-verification",
+        "description": "Ensure heuristic entry H-CODE-17361240A7E1 stays covered by unit/integration assertions.",
+        "testCommand": "bun scripts/heuristics/validate-registry.ts"
+      }
+    },
+    {
+      "id": "H-CODE-07B8EF51E142",
       "source_file": "packages/ui/src/components/layout/settings-nav.tsx",
-      "source_line": 29,
+      "source_line": 30,
       "heuristic_type": "FALLBACK_DEFAULT",
       "current_expression": "const DEFAULT_SETTINGS_NAV_ITEMS = [",
       "risk_level": "MEDIUM",
@@ -34097,15 +34350,15 @@
       "owner_package": "@codenautic/ui",
       "status": "TRIAGED",
       "verification_rule": {
-        "name": "h-code-b9b38c53e2ab-verification",
-        "description": "Ensure heuristic entry H-CODE-B9B38C53E2AB stays covered by unit/integration assertions.",
+        "name": "h-code-07b8ef51e142-verification",
+        "description": "Ensure heuristic entry H-CODE-07B8EF51E142 stays covered by unit/integration assertions.",
         "testCommand": "bun scripts/heuristics/validate-registry.ts"
       }
     },
     {
-      "id": "H-CODE-5D916E16992E",
+      "id": "H-CODE-0B5154ECBD63",
       "source_file": "packages/ui/src/components/layout/settings-nav.tsx",
-      "source_line": 114,
+      "source_line": 120,
       "heuristic_type": "FALLBACK_DEFAULT",
       "current_expression": "<SidebarNav items={DEFAULT_SETTINGS_NAV_ITEMS} onNavigate={props.onNavigate} />",
       "risk_level": "MEDIUM",
@@ -34118,8 +34371,8 @@
       "owner_package": "@codenautic/ui",
       "status": "TRIAGED",
       "verification_rule": {
-        "name": "h-code-5d916e16992e-verification",
-        "description": "Ensure heuristic entry H-CODE-5D916E16992E stays covered by unit/integration assertions.",
+        "name": "h-code-0b5154ecbd63-verification",
+        "description": "Ensure heuristic entry H-CODE-0B5154ECBD63 stays covered by unit/integration assertions.",
         "testCommand": "bun scripts/heuristics/validate-registry.ts"
       }
     },
@@ -39159,6 +39412,153 @@
       }
     },
     {
+      "id": "H-CODE-24B0B70A0AB2",
+      "source_file": "packages/ui/src/lib/permissions/ui-policy.ts",
+      "source_line": 23,
+      "heuristic_type": "FALLBACK_DEFAULT",
+      "current_expression": "const DEFAULT_UI_ROLE: TUiRole = \"admin\"",
+      "risk_level": "MEDIUM",
+      "resolution_mode": "KEEP_CODE_FIRST",
+      "target_change": "Harden fallback/default policy and validate environment-specific behavior.",
+      "tests_required": [
+        "unit-env-matrix",
+        "integration-default-behavior"
+      ],
+      "owner_package": "@codenautic/ui",
+      "status": "TRIAGED",
+      "verification_rule": {
+        "name": "h-code-24b0b70a0ab2-verification",
+        "description": "Ensure heuristic entry H-CODE-24B0B70A0AB2 stays covered by unit/integration assertions.",
+        "testCommand": "bun scripts/heuristics/validate-registry.ts"
+      }
+    },
+    {
+      "id": "H-CODE-A57826D95AAE",
+      "source_file": "packages/ui/src/lib/permissions/ui-policy.ts",
+      "source_line": 25,
+      "heuristic_type": "FALLBACK_DEFAULT",
+      "current_expression": "const DEFAULT_POLICY: Readonly<IUiActionPolicy> = {",
+      "risk_level": "MEDIUM",
+      "resolution_mode": "KEEP_CODE_FIRST",
+      "target_change": "Harden fallback/default policy and validate environment-specific behavior.",
+      "tests_required": [
+        "unit-env-matrix",
+        "integration-default-behavior"
+      ],
+      "owner_package": "@codenautic/ui",
+      "status": "TRIAGED",
+      "verification_rule": {
+        "name": "h-code-a57826d95aae-verification",
+        "description": "Ensure heuristic entry H-CODE-A57826D95AAE stays covered by unit/integration assertions.",
+        "testCommand": "bun scripts/heuristics/validate-registry.ts"
+      }
+    },
+    {
+      "id": "H-CODE-272DCCB92FA1",
+      "source_file": "packages/ui/src/lib/permissions/ui-policy.ts",
+      "source_line": 131,
+      "heuristic_type": "FALLBACK_DEFAULT",
+      "current_expression": "* @returns Текущая роль или fallback admin.",
+      "risk_level": "MEDIUM",
+      "resolution_mode": "KEEP_CODE_FIRST",
+      "target_change": "Harden fallback/default policy and validate environment-specific behavior.",
+      "tests_required": [
+        "unit-env-matrix",
+        "integration-default-behavior"
+      ],
+      "owner_package": "@codenautic/ui",
+      "status": "TRIAGED",
+      "verification_rule": {
+        "name": "h-code-272dccb92fa1-verification",
+        "description": "Ensure heuristic entry H-CODE-272DCCB92FA1 stays covered by unit/integration assertions.",
+        "testCommand": "bun scripts/heuristics/validate-registry.ts"
+      }
+    },
+    {
+      "id": "H-CODE-4EBDF312132A",
+      "source_file": "packages/ui/src/lib/permissions/ui-policy.ts",
+      "source_line": 135,
+      "heuristic_type": "FALLBACK_DEFAULT",
+      "current_expression": "return DEFAULT_UI_ROLE",
+      "risk_level": "MEDIUM",
+      "resolution_mode": "KEEP_CODE_FIRST",
+      "target_change": "Harden fallback/default policy and validate environment-specific behavior.",
+      "tests_required": [
+        "unit-env-matrix",
+        "integration-default-behavior"
+      ],
+      "owner_package": "@codenautic/ui",
+      "status": "TRIAGED",
+      "verification_rule": {
+        "name": "h-code-4ebdf312132a-verification",
+        "description": "Ensure heuristic entry H-CODE-4EBDF312132A stays covered by unit/integration assertions.",
+        "testCommand": "bun scripts/heuristics/validate-registry.ts"
+      }
+    },
+    {
+      "id": "H-CODE-4FEFC853F5E6",
+      "source_file": "packages/ui/src/lib/permissions/ui-policy.ts",
+      "source_line": 143,
+      "heuristic_type": "FALLBACK_DEFAULT",
+      "current_expression": "return DEFAULT_UI_ROLE",
+      "risk_level": "MEDIUM",
+      "resolution_mode": "KEEP_CODE_FIRST",
+      "target_change": "Harden fallback/default policy and validate environment-specific behavior.",
+      "tests_required": [
+        "unit-env-matrix",
+        "integration-default-behavior"
+      ],
+      "owner_package": "@codenautic/ui",
+      "status": "TRIAGED",
+      "verification_rule": {
+        "name": "h-code-4fefc853f5e6-verification",
+        "description": "Ensure heuristic entry H-CODE-4FEFC853F5E6 stays covered by unit/integration assertions.",
+        "testCommand": "bun scripts/heuristics/validate-registry.ts"
+      }
+    },
+    {
+      "id": "H-CODE-DBAD0E06CAF2",
+      "source_file": "packages/ui/src/lib/permissions/ui-policy.ts",
+      "source_line": 176,
+      "heuristic_type": "FALLBACK_DEFAULT",
+      "current_expression": "return DEFAULT_POLICY",
+      "risk_level": "MEDIUM",
+      "resolution_mode": "KEEP_CODE_FIRST",
+      "target_change": "Harden fallback/default policy and validate environment-specific behavior.",
+      "tests_required": [
+        "unit-env-matrix",
+        "integration-default-behavior"
+      ],
+      "owner_package": "@codenautic/ui",
+      "status": "TRIAGED",
+      "verification_rule": {
+        "name": "h-code-dbad0e06caf2-verification",
+        "description": "Ensure heuristic entry H-CODE-DBAD0E06CAF2 stays covered by unit/integration assertions.",
+        "testCommand": "bun scripts/heuristics/validate-registry.ts"
+      }
+    },
+    {
+      "id": "H-CODE-D329CFA25DCE",
+      "source_file": "packages/ui/src/lib/permissions/ui-policy.ts",
+      "source_line": 179,
+      "heuristic_type": "FALLBACK_DEFAULT",
+      "current_expression": "return rolePolicy[actionId] ?? DEFAULT_POLICY",
+      "risk_level": "MEDIUM",
+      "resolution_mode": "KEEP_CODE_FIRST",
+      "target_change": "Harden fallback/default policy and validate environment-specific behavior.",
+      "tests_required": [
+        "unit-env-matrix",
+        "integration-default-behavior"
+      ],
+      "owner_package": "@codenautic/ui",
+      "status": "TRIAGED",
+      "verification_rule": {
+        "name": "h-code-d329cfa25dce-verification",
+        "description": "Ensure heuristic entry H-CODE-D329CFA25DCE stays covered by unit/integration assertions.",
+        "testCommand": "bun scripts/heuristics/validate-registry.ts"
+      }
+    },
+    {
       "id": "H-CODE-6D0624C4B911",
       "source_file": "packages/ui/src/lib/query/query-client.ts",
       "source_line": 1,
@@ -40229,9 +40629,9 @@
       }
     },
     {
-      "id": "H-CODE-885DDD71BF5F",
+      "id": "H-CODE-292F688C4FA8",
       "source_file": "packages/ui/src/pages/ccr-review-detail.page.tsx",
-      "source_line": 40,
+      "source_line": 110,
       "heuristic_type": "SCORING",
       "current_expression": "return `Please summarize the key changes and risks in ${ccr.id}: ${ccr.title}.`",
       "risk_level": "HIGH",
@@ -40244,8 +40644,90 @@
       "owner_package": "@codenautic/ui",
       "status": "TRIAGED",
       "verification_rule": {
-        "name": "h-code-885ddd71bf5f-verification",
-        "description": "Ensure heuristic entry H-CODE-885DDD71BF5F stays covered by unit/integration assertions.",
+        "name": "h-code-292f688c4fa8-verification",
+        "description": "Ensure heuristic entry H-CODE-292F688C4FA8 stays covered by unit/integration assertions.",
+        "testCommand": "bun scripts/heuristics/validate-registry.ts"
+      }
+    },
+    {
+      "id": "H-CODE-14CFFD219372",
+      "source_file": "packages/ui/src/pages/ccr-review-detail.page.tsx",
+      "source_line": 192,
+      "heuristic_type": "THRESHOLD",
+      "current_expression": "reason: \"Severity = high, above policy threshold (medium).\",",
+      "risk_level": "HIGH",
+      "resolution_mode": "HARDEN",
+      "target_change": "Keep in code-first mode and validate threshold semantics with tests.",
+      "tests_required": [
+        "unit-threshold-boundaries"
+      ],
+      "owner_package": "@codenautic/ui",
+      "status": "TRIAGED",
+      "verification_rule": {
+        "name": "h-code-14cffd219372-verification",
+        "description": "Ensure heuristic entry H-CODE-14CFFD219372 stays covered by unit/integration assertions.",
+        "testCommand": "bun scripts/heuristics/validate-registry.ts"
+      }
+    },
+    {
+      "id": "H-CODE-36E9C04C81AF",
+      "source_file": "packages/ui/src/pages/ccr-review-detail.page.tsx",
+      "source_line": 202,
+      "heuristic_type": "FALLBACK_DEFAULT",
+      "current_expression": "remark: \"Potential tenant mismatch in deep-link fallback branch.\",",
+      "risk_level": "MEDIUM",
+      "resolution_mode": "KEEP_CODE_FIRST",
+      "target_change": "Harden fallback/default policy and validate environment-specific behavior.",
+      "tests_required": [
+        "unit-env-matrix",
+        "integration-default-behavior"
+      ],
+      "owner_package": "@codenautic/ui",
+      "status": "TRIAGED",
+      "verification_rule": {
+        "name": "h-code-36e9c04c81af-verification",
+        "description": "Ensure heuristic entry H-CODE-36E9C04C81AF stays covered by unit/integration assertions.",
+        "testCommand": "bun scripts/heuristics/validate-registry.ts"
+      }
+    },
+    {
+      "id": "H-CODE-0CBD24301D74",
+      "source_file": "packages/ui/src/pages/ccr-review-detail.page.tsx",
+      "source_line": 224,
+      "heuristic_type": "PREDICTION_CONFIDENCE",
+      "current_expression": "hiddenReason: \"Filtered by severity: low confidence minor style suggestion.\",",
+      "risk_level": "MEDIUM",
+      "resolution_mode": "KEEP_CODE_FIRST",
+      "target_change": "Harden confidence logic with calibration checks and dataset constraints.",
+      "tests_required": [
+        "unit-confidence-calibration",
+        "regression-confidence-trend"
+      ],
+      "owner_package": "@codenautic/ui",
+      "status": "TRIAGED",
+      "verification_rule": {
+        "name": "h-code-0cbd24301d74-verification",
+        "description": "Ensure heuristic entry H-CODE-0CBD24301D74 stays covered by unit/integration assertions.",
+        "testCommand": "bun scripts/heuristics/validate-registry.ts"
+      }
+    },
+    {
+      "id": "H-CODE-748AC571C3DD",
+      "source_file": "packages/ui/src/pages/ccr-review-detail.page.tsx",
+      "source_line": 240,
+      "heuristic_type": "THRESHOLD",
+      "current_expression": "reason: \"Severity below configured threshold (low < medium).\",",
+      "risk_level": "MEDIUM",
+      "resolution_mode": "KEEP_CODE_FIRST",
+      "target_change": "Keep in code-first mode and validate threshold semantics with tests.",
+      "tests_required": [
+        "unit-threshold-boundaries"
+      ],
+      "owner_package": "@codenautic/ui",
+      "status": "TRIAGED",
+      "verification_rule": {
+        "name": "h-code-748ac571c3dd-verification",
+        "description": "Ensure heuristic entry H-CODE-748AC571C3DD stays covered by unit/integration assertions.",
         "testCommand": "bun scripts/heuristics/validate-registry.ts"
       }
     },
@@ -43481,9 +43963,9 @@
       }
     },
     {
-      "id": "H-CODE-FC2B2CED98F0",
+      "id": "H-CODE-C3A523957D0F",
       "source_file": "packages/ui/src/pages/settings-appearance.page.tsx",
-      "source_line": 566,
+      "source_line": 570,
       "heuristic_type": "FALLBACK_DEFAULT",
       "current_expression": "readStoredHexColor(APPEARANCE_ACCENT_STORAGE_KEY, DEFAULT_ACCENT_COLOR),",
       "risk_level": "MEDIUM",
@@ -43496,15 +43978,15 @@
       "owner_package": "@codenautic/ui",
       "status": "TRIAGED",
       "verification_rule": {
-        "name": "h-code-fc2b2ced98f0-verification",
-        "description": "Ensure heuristic entry H-CODE-FC2B2CED98F0 stays covered by unit/integration assertions.",
+        "name": "h-code-c3a523957d0f-verification",
+        "description": "Ensure heuristic entry H-CODE-C3A523957D0F stays covered by unit/integration assertions.",
         "testCommand": "bun scripts/heuristics/validate-registry.ts"
       }
     },
     {
-      "id": "H-CODE-661440EACDD1",
+      "id": "H-CODE-A6F7FA5AB3A5",
       "source_file": "packages/ui/src/pages/settings-appearance.page.tsx",
-      "source_line": 571,
+      "source_line": 575,
       "heuristic_type": "FALLBACK_DEFAULT",
       "current_expression": "DEFAULT_ACCENT_INTENSITY,",
       "risk_level": "MEDIUM",
@@ -43517,15 +43999,15 @@
       "owner_package": "@codenautic/ui",
       "status": "TRIAGED",
       "verification_rule": {
-        "name": "h-code-661440eacdd1-verification",
-        "description": "Ensure heuristic entry H-CODE-661440EACDD1 stays covered by unit/integration assertions.",
+        "name": "h-code-a6f7fa5ab3a5-verification",
+        "description": "Ensure heuristic entry H-CODE-A6F7FA5AB3A5 stays covered by unit/integration assertions.",
         "testCommand": "bun scripts/heuristics/validate-registry.ts"
       }
     },
     {
-      "id": "H-CODE-F396ECEA900E",
+      "id": "H-CODE-1110F4C11FF9",
       "source_file": "packages/ui/src/pages/settings-appearance.page.tsx",
-      "source_line": 577,
+      "source_line": 581,
       "heuristic_type": "FALLBACK_DEFAULT",
       "current_expression": "readStoredBasePalette(APPEARANCE_BASE_PALETTE_STORAGE_KEY, DEFAULT_BASE_PALETTE),",
       "risk_level": "MEDIUM",
@@ -43538,15 +44020,15 @@
       "owner_package": "@codenautic/ui",
       "status": "TRIAGED",
       "verification_rule": {
-        "name": "h-code-f396ecea900e-verification",
-        "description": "Ensure heuristic entry H-CODE-F396ECEA900E stays covered by unit/integration assertions.",
+        "name": "h-code-1110f4c11ff9-verification",
+        "description": "Ensure heuristic entry H-CODE-1110F4C11FF9 stays covered by unit/integration assertions.",
         "testCommand": "bun scripts/heuristics/validate-registry.ts"
       }
     },
     {
-      "id": "H-CODE-2F573DAD5256",
+      "id": "H-CODE-69FF01A1096D",
       "source_file": "packages/ui/src/pages/settings-appearance.page.tsx",
-      "source_line": 582,
+      "source_line": 586,
       "heuristic_type": "FALLBACK_DEFAULT",
       "current_expression": "DEFAULT_GLOBAL_RADIUS,",
       "risk_level": "MEDIUM",
@@ -43559,15 +44041,15 @@
       "owner_package": "@codenautic/ui",
       "status": "TRIAGED",
       "verification_rule": {
-        "name": "h-code-2f573dad5256-verification",
-        "description": "Ensure heuristic entry H-CODE-2F573DAD5256 stays covered by unit/integration assertions.",
+        "name": "h-code-69ff01a1096d-verification",
+        "description": "Ensure heuristic entry H-CODE-69FF01A1096D stays covered by unit/integration assertions.",
         "testCommand": "bun scripts/heuristics/validate-registry.ts"
       }
     },
     {
-      "id": "H-CODE-9B92F196CD8A",
+      "id": "H-CODE-023204735682",
       "source_file": "packages/ui/src/pages/settings-appearance.page.tsx",
-      "source_line": 590,
+      "source_line": 594,
       "heuristic_type": "FALLBACK_DEFAULT",
       "current_expression": "DEFAULT_FORM_RADIUS,",
       "risk_level": "MEDIUM",
@@ -43580,15 +44062,15 @@
       "owner_package": "@codenautic/ui",
       "status": "TRIAGED",
       "verification_rule": {
-        "name": "h-code-9b92f196cd8a-verification",
-        "description": "Ensure heuristic entry H-CODE-9B92F196CD8A stays covered by unit/integration assertions.",
+        "name": "h-code-023204735682-verification",
+        "description": "Ensure heuristic entry H-CODE-023204735682 stays covered by unit/integration assertions.",
         "testCommand": "bun scripts/heuristics/validate-registry.ts"
       }
     },
     {
-      "id": "H-CODE-4FF9DA49AA8C",
+      "id": "H-CODE-F3D182D92F6A",
       "source_file": "packages/ui/src/pages/settings-appearance.page.tsx",
-      "source_line": 779,
+      "source_line": 968,
       "heuristic_type": "FALLBACK_DEFAULT",
       "current_expression": "event.preventDefault()",
       "risk_level": "MEDIUM",
@@ -43601,15 +44083,57 @@
       "owner_package": "@codenautic/ui",
       "status": "TRIAGED",
       "verification_rule": {
-        "name": "h-code-4ff9da49aa8c-verification",
-        "description": "Ensure heuristic entry H-CODE-4FF9DA49AA8C stays covered by unit/integration assertions.",
+        "name": "h-code-f3d182d92f6a-verification",
+        "description": "Ensure heuristic entry H-CODE-F3D182D92F6A stays covered by unit/integration assertions.",
         "testCommand": "bun scripts/heuristics/validate-registry.ts"
       }
     },
     {
-      "id": "H-CODE-B66FEE307256",
+      "id": "H-CODE-13F4F1D766FA",
       "source_file": "packages/ui/src/pages/settings-appearance.page.tsx",
-      "source_line": 790,
+      "source_line": 1051,
+      "heuristic_type": "TIMEOUT",
+      "current_expression": "const timer = window.setTimeout((): void => {",
+      "risk_level": "HIGH",
+      "resolution_mode": "HARDEN",
+      "target_change": "Harden timeout policy with explicit limits and failure-path assertions.",
+      "tests_required": [
+        "unit-timeout-boundaries",
+        "integration-timeout-failure-path"
+      ],
+      "owner_package": "@codenautic/ui",
+      "status": "TRIAGED",
+      "verification_rule": {
+        "name": "h-code-13f4f1d766fa-verification",
+        "description": "Ensure heuristic entry H-CODE-13F4F1D766FA stays covered by unit/integration assertions.",
+        "testCommand": "bun scripts/heuristics/validate-registry.ts"
+      }
+    },
+    {
+      "id": "H-CODE-D423EBDE1C31",
+      "source_file": "packages/ui/src/pages/settings-appearance.page.tsx",
+      "source_line": 1066,
+      "heuristic_type": "TIMEOUT",
+      "current_expression": "window.clearTimeout(timer)",
+      "risk_level": "HIGH",
+      "resolution_mode": "HARDEN",
+      "target_change": "Harden timeout policy with explicit limits and failure-path assertions.",
+      "tests_required": [
+        "unit-timeout-boundaries",
+        "integration-timeout-failure-path"
+      ],
+      "owner_package": "@codenautic/ui",
+      "status": "TRIAGED",
+      "verification_rule": {
+        "name": "h-code-d423ebde1c31-verification",
+        "description": "Ensure heuristic entry H-CODE-D423EBDE1C31 stays covered by unit/integration assertions.",
+        "testCommand": "bun scripts/heuristics/validate-registry.ts"
+      }
+    },
+    {
+      "id": "H-CODE-C6C6495DF418",
+      "source_file": "packages/ui/src/pages/settings-appearance.page.tsx",
+      "source_line": 1071,
       "heuristic_type": "FALLBACK_DEFAULT",
       "current_expression": "const defaultPreset = presets.at(0)?.id",
       "risk_level": "MEDIUM",
@@ -43622,15 +44146,15 @@
       "owner_package": "@codenautic/ui",
       "status": "TRIAGED",
       "verification_rule": {
-        "name": "h-code-b66fee307256-verification",
-        "description": "Ensure heuristic entry H-CODE-B66FEE307256 stays covered by unit/integration assertions.",
+        "name": "h-code-c6c6495df418-verification",
+        "description": "Ensure heuristic entry H-CODE-C6C6495DF418 stays covered by unit/integration assertions.",
         "testCommand": "bun scripts/heuristics/validate-registry.ts"
       }
     },
     {
-      "id": "H-CODE-D0439F842155",
+      "id": "H-CODE-4D37D2FA30E4",
       "source_file": "packages/ui/src/pages/settings-appearance.page.tsx",
-      "source_line": 792,
+      "source_line": 1073,
       "heuristic_type": "FALLBACK_DEFAULT",
       "current_expression": "if (defaultPreset !== undefined) {",
       "risk_level": "MEDIUM",
@@ -43643,15 +44167,15 @@
       "owner_package": "@codenautic/ui",
       "status": "TRIAGED",
       "verification_rule": {
-        "name": "h-code-d0439f842155-verification",
-        "description": "Ensure heuristic entry H-CODE-D0439F842155 stays covered by unit/integration assertions.",
+        "name": "h-code-4d37d2fa30e4-verification",
+        "description": "Ensure heuristic entry H-CODE-4D37D2FA30E4 stays covered by unit/integration assertions.",
         "testCommand": "bun scripts/heuristics/validate-registry.ts"
       }
     },
     {
-      "id": "H-CODE-5E743BC9D0B0",
+      "id": "H-CODE-4C1B41A8A49C",
       "source_file": "packages/ui/src/pages/settings-appearance.page.tsx",
-      "source_line": 793,
+      "source_line": 1074,
       "heuristic_type": "FALLBACK_DEFAULT",
       "current_expression": "setPreset(defaultPreset as ThemePresetId)",
       "risk_level": "MEDIUM",
@@ -43664,15 +44188,15 @@
       "owner_package": "@codenautic/ui",
       "status": "TRIAGED",
       "verification_rule": {
-        "name": "h-code-5e743bc9d0b0-verification",
-        "description": "Ensure heuristic entry H-CODE-5E743BC9D0B0 stays covered by unit/integration assertions.",
+        "name": "h-code-4c1b41a8a49c-verification",
+        "description": "Ensure heuristic entry H-CODE-4C1B41A8A49C stays covered by unit/integration assertions.",
         "testCommand": "bun scripts/heuristics/validate-registry.ts"
       }
     },
     {
-      "id": "H-CODE-90D405B8B020",
+      "id": "H-CODE-F500CABF764C",
       "source_file": "packages/ui/src/pages/settings-appearance.page.tsx",
-      "source_line": 795,
+      "source_line": 1076,
       "heuristic_type": "FALLBACK_DEFAULT",
       "current_expression": "setAccentColor(DEFAULT_ACCENT_COLOR)",
       "risk_level": "MEDIUM",
@@ -43685,15 +44209,15 @@
       "owner_package": "@codenautic/ui",
       "status": "TRIAGED",
       "verification_rule": {
-        "name": "h-code-90d405b8b020-verification",
-        "description": "Ensure heuristic entry H-CODE-90D405B8B020 stays covered by unit/integration assertions.",
+        "name": "h-code-f500cabf764c-verification",
+        "description": "Ensure heuristic entry H-CODE-F500CABF764C stays covered by unit/integration assertions.",
         "testCommand": "bun scripts/heuristics/validate-registry.ts"
       }
     },
     {
-      "id": "H-CODE-D255E3EC2310",
+      "id": "H-CODE-EB81AF77FF60",
       "source_file": "packages/ui/src/pages/settings-appearance.page.tsx",
-      "source_line": 796,
+      "source_line": 1077,
       "heuristic_type": "FALLBACK_DEFAULT",
       "current_expression": "setAccentIntensity(DEFAULT_ACCENT_INTENSITY)",
       "risk_level": "MEDIUM",
@@ -43706,15 +44230,15 @@
       "owner_package": "@codenautic/ui",
       "status": "TRIAGED",
       "verification_rule": {
-        "name": "h-code-d255e3ec2310-verification",
-        "description": "Ensure heuristic entry H-CODE-D255E3EC2310 stays covered by unit/integration assertions.",
+        "name": "h-code-eb81af77ff60-verification",
+        "description": "Ensure heuristic entry H-CODE-EB81AF77FF60 stays covered by unit/integration assertions.",
         "testCommand": "bun scripts/heuristics/validate-registry.ts"
       }
     },
     {
-      "id": "H-CODE-80D0538BAEB2",
+      "id": "H-CODE-93D78B549A72",
       "source_file": "packages/ui/src/pages/settings-appearance.page.tsx",
-      "source_line": 797,
+      "source_line": 1078,
       "heuristic_type": "FALLBACK_DEFAULT",
       "current_expression": "setBasePaletteId(DEFAULT_BASE_PALETTE)",
       "risk_level": "MEDIUM",
@@ -43727,15 +44251,15 @@
       "owner_package": "@codenautic/ui",
       "status": "TRIAGED",
       "verification_rule": {
-        "name": "h-code-80d0538baeb2-verification",
-        "description": "Ensure heuristic entry H-CODE-80D0538BAEB2 stays covered by unit/integration assertions.",
+        "name": "h-code-93d78b549a72-verification",
+        "description": "Ensure heuristic entry H-CODE-93D78B549A72 stays covered by unit/integration assertions.",
         "testCommand": "bun scripts/heuristics/validate-registry.ts"
       }
     },
     {
-      "id": "H-CODE-910A1C8B57FF",
+      "id": "H-CODE-E15294E6D113",
       "source_file": "packages/ui/src/pages/settings-appearance.page.tsx",
-      "source_line": 798,
+      "source_line": 1079,
       "heuristic_type": "FALLBACK_DEFAULT",
       "current_expression": "setGlobalRadius(DEFAULT_GLOBAL_RADIUS)",
       "risk_level": "MEDIUM",
@@ -43748,15 +44272,15 @@
       "owner_package": "@codenautic/ui",
       "status": "TRIAGED",
       "verification_rule": {
-        "name": "h-code-910a1c8b57ff-verification",
-        "description": "Ensure heuristic entry H-CODE-910A1C8B57FF stays covered by unit/integration assertions.",
+        "name": "h-code-e15294e6d113-verification",
+        "description": "Ensure heuristic entry H-CODE-E15294E6D113 stays covered by unit/integration assertions.",
         "testCommand": "bun scripts/heuristics/validate-registry.ts"
       }
     },
     {
-      "id": "H-CODE-89ECFD0EE098",
+      "id": "H-CODE-B22657AE8F23",
       "source_file": "packages/ui/src/pages/settings-appearance.page.tsx",
-      "source_line": 799,
+      "source_line": 1080,
       "heuristic_type": "FALLBACK_DEFAULT",
       "current_expression": "setFormRadius(DEFAULT_FORM_RADIUS)",
       "risk_level": "MEDIUM",
@@ -43769,15 +44293,15 @@
       "owner_package": "@codenautic/ui",
       "status": "TRIAGED",
       "verification_rule": {
-        "name": "h-code-89ecfd0ee098-verification",
-        "description": "Ensure heuristic entry H-CODE-89ECFD0EE098 stays covered by unit/integration assertions.",
+        "name": "h-code-b22657ae8f23-verification",
+        "description": "Ensure heuristic entry H-CODE-B22657AE8F23 stays covered by unit/integration assertions.",
         "testCommand": "bun scripts/heuristics/validate-registry.ts"
       }
     },
     {
-      "id": "H-CODE-A4FE9962CA5C",
+      "id": "H-CODE-D438B0BFBB40",
       "source_file": "packages/ui/src/pages/settings-appearance.page.tsx",
-      "source_line": 804,
+      "source_line": 1094,
       "heuristic_type": "FALLBACK_DEFAULT",
       "current_expression": "showToastSuccess(\"Theme reset to defaults.\")",
       "risk_level": "MEDIUM",
@@ -43790,15 +44314,15 @@
       "owner_package": "@codenautic/ui",
       "status": "TRIAGED",
       "verification_rule": {
-        "name": "h-code-a4fe9962ca5c-verification",
-        "description": "Ensure heuristic entry H-CODE-A4FE9962CA5C stays covered by unit/integration assertions.",
+        "name": "h-code-d438b0bfbb40-verification",
+        "description": "Ensure heuristic entry H-CODE-D438B0BFBB40 stays covered by unit/integration assertions.",
         "testCommand": "bun scripts/heuristics/validate-registry.ts"
       }
     },
     {
-      "id": "H-CODE-9083F39DB55C",
+      "id": "H-CODE-19446B07BC4A",
       "source_file": "packages/ui/src/pages/settings-appearance.page.tsx",
-      "source_line": 824,
+      "source_line": 1114,
       "heuristic_type": "FALLBACK_DEFAULT",
       "current_expression": "Reset to default",
       "risk_level": "MEDIUM",
@@ -43811,8 +44335,29 @@
       "owner_package": "@codenautic/ui",
       "status": "TRIAGED",
       "verification_rule": {
-        "name": "h-code-9083f39db55c-verification",
-        "description": "Ensure heuristic entry H-CODE-9083F39DB55C stays covered by unit/integration assertions.",
+        "name": "h-code-19446b07bc4a-verification",
+        "description": "Ensure heuristic entry H-CODE-19446B07BC4A stays covered by unit/integration assertions.",
+        "testCommand": "bun scripts/heuristics/validate-registry.ts"
+      }
+    },
+    {
+      "id": "H-CODE-3B545D2A4F1A",
+      "source_file": "packages/ui/src/pages/settings-appearance.page.tsx",
+      "source_line": 1356,
+      "heuristic_type": "FALLBACK_DEFAULT",
+      "current_expression": ": \"default\"",
+      "risk_level": "MEDIUM",
+      "resolution_mode": "KEEP_CODE_FIRST",
+      "target_change": "Harden fallback/default policy and validate environment-specific behavior.",
+      "tests_required": [
+        "unit-env-matrix",
+        "integration-default-behavior"
+      ],
+      "owner_package": "@codenautic/ui",
+      "status": "TRIAGED",
+      "verification_rule": {
+        "name": "h-code-3b545d2a4f1a-verification",
+        "description": "Ensure heuristic entry H-CODE-3B545D2A4F1A stays covered by unit/integration assertions.",
         "testCommand": "bun scripts/heuristics/validate-registry.ts"
       }
     },
@@ -44297,6 +44842,167 @@
       }
     },
     {
+      "id": "H-CODE-3D4AF47857A2",
+      "source_file": "packages/ui/src/pages/settings-notifications.page.tsx",
+      "source_line": 6,
+      "heuristic_type": "DRIFT_SIGNAL",
+      "current_expression": "type TNotificationEventType = \"drift.alert\" | \"prediction.alert\" | \"review.completed\"",
+      "risk_level": "HIGH",
+      "resolution_mode": "HARDEN",
+      "target_change": "Keep drift/hotspot signals explicit and validate signal provenance.",
+      "tests_required": [
+        "integration-drift-signal"
+      ],
+      "owner_package": "@codenautic/ui",
+      "status": "TRIAGED",
+      "verification_rule": {
+        "name": "h-code-3d4af47857a2-verification",
+        "description": "Ensure heuristic entry H-CODE-3D4AF47857A2 stays covered by unit/integration assertions.",
+        "testCommand": "bun scripts/heuristics/validate-registry.ts"
+      }
+    },
+    {
+      "id": "H-CODE-3C0814D0B732",
+      "source_file": "packages/ui/src/pages/settings-notifications.page.tsx",
+      "source_line": 60,
+      "heuristic_type": "DRIFT_SIGNAL",
+      "current_expression": "title: \"Architecture drift alert\",",
+      "risk_level": "HIGH",
+      "resolution_mode": "HARDEN",
+      "target_change": "Keep drift/hotspot signals explicit and validate signal provenance.",
+      "tests_required": [
+        "integration-drift-signal"
+      ],
+      "owner_package": "@codenautic/ui",
+      "status": "TRIAGED",
+      "verification_rule": {
+        "name": "h-code-3c0814d0b732-verification",
+        "description": "Ensure heuristic entry H-CODE-3C0814D0B732 stays covered by unit/integration assertions.",
+        "testCommand": "bun scripts/heuristics/validate-registry.ts"
+      }
+    },
+    {
+      "id": "H-CODE-47AF33B2972F",
+      "source_file": "packages/ui/src/pages/settings-notifications.page.tsx",
+      "source_line": 61,
+      "heuristic_type": "DRIFT_SIGNAL",
+      "current_expression": "type: \"drift.alert\",",
+      "risk_level": "HIGH",
+      "resolution_mode": "HARDEN",
+      "target_change": "Keep drift/hotspot signals explicit and validate signal provenance.",
+      "tests_required": [
+        "integration-drift-signal"
+      ],
+      "owner_package": "@codenautic/ui",
+      "status": "TRIAGED",
+      "verification_rule": {
+        "name": "h-code-47af33b2972f-verification",
+        "description": "Ensure heuristic entry H-CODE-47AF33B2972F stays covered by unit/integration assertions.",
+        "testCommand": "bun scripts/heuristics/validate-registry.ts"
+      }
+    },
+    {
+      "id": "H-CODE-6C48076F2F13",
+      "source_file": "packages/ui/src/pages/settings-notifications.page.tsx",
+      "source_line": 66,
+      "heuristic_type": "PREDICTION_CONFIDENCE",
+      "current_expression": "message: \"Predicted hotspot confidence increased for src/scan-worker.ts.\",",
+      "risk_level": "HIGH",
+      "resolution_mode": "HARDEN",
+      "target_change": "Harden confidence logic with calibration checks and dataset constraints.",
+      "tests_required": [
+        "unit-confidence-calibration",
+        "regression-confidence-trend"
+      ],
+      "owner_package": "@codenautic/ui",
+      "status": "TRIAGED",
+      "verification_rule": {
+        "name": "h-code-6c48076f2f13-verification",
+        "description": "Ensure heuristic entry H-CODE-6C48076F2F13 stays covered by unit/integration assertions.",
+        "testCommand": "bun scripts/heuristics/validate-registry.ts"
+      }
+    },
+    {
+      "id": "H-CODE-8D42F7990343",
+      "source_file": "packages/ui/src/pages/settings-notifications.page.tsx",
+      "source_line": 91,
+      "heuristic_type": "DRIFT_SIGNAL",
+      "current_expression": "\"drift.alert\": \"Drift alert\",",
+      "risk_level": "HIGH",
+      "resolution_mode": "HARDEN",
+      "target_change": "Keep drift/hotspot signals explicit and validate signal provenance.",
+      "tests_required": [
+        "integration-drift-signal"
+      ],
+      "owner_package": "@codenautic/ui",
+      "status": "TRIAGED",
+      "verification_rule": {
+        "name": "h-code-8d42f7990343-verification",
+        "description": "Ensure heuristic entry H-CODE-8D42F7990343 stays covered by unit/integration assertions.",
+        "testCommand": "bun scripts/heuristics/validate-registry.ts"
+      }
+    },
+    {
+      "id": "H-CODE-0A55CE60AF76",
+      "source_file": "packages/ui/src/pages/settings-notifications.page.tsx",
+      "source_line": 224,
+      "heuristic_type": "DRIFT_SIGNAL",
+      "current_expression": "Unified inbox for review, drift and prediction events with channel-level delivery",
+      "risk_level": "HIGH",
+      "resolution_mode": "HARDEN",
+      "target_change": "Keep drift/hotspot signals explicit and validate signal provenance.",
+      "tests_required": [
+        "integration-drift-signal"
+      ],
+      "owner_package": "@codenautic/ui",
+      "status": "TRIAGED",
+      "verification_rule": {
+        "name": "h-code-0a55ce60af76-verification",
+        "description": "Ensure heuristic entry H-CODE-0A55CE60AF76 stays covered by unit/integration assertions.",
+        "testCommand": "bun scripts/heuristics/validate-registry.ts"
+      }
+    },
+    {
+      "id": "H-CODE-2A05CCEBC215",
+      "source_file": "packages/ui/src/pages/settings-notifications.page.tsx",
+      "source_line": 269,
+      "heuristic_type": "DRIFT_SIGNAL",
+      "current_expression": "|| value === \"drift.alert\"",
+      "risk_level": "HIGH",
+      "resolution_mode": "HARDEN",
+      "target_change": "Keep drift/hotspot signals explicit and validate signal provenance.",
+      "tests_required": [
+        "integration-drift-signal"
+      ],
+      "owner_package": "@codenautic/ui",
+      "status": "TRIAGED",
+      "verification_rule": {
+        "name": "h-code-2a05ccebc215-verification",
+        "description": "Ensure heuristic entry H-CODE-2A05CCEBC215 stays covered by unit/integration assertions.",
+        "testCommand": "bun scripts/heuristics/validate-registry.ts"
+      }
+    },
+    {
+      "id": "H-CODE-3841EE100A55",
+      "source_file": "packages/ui/src/pages/settings-notifications.page.tsx",
+      "source_line": 278,
+      "heuristic_type": "DRIFT_SIGNAL",
+      "current_expression": "<option value=\"drift.alert\">Drift alert</option>",
+      "risk_level": "HIGH",
+      "resolution_mode": "HARDEN",
+      "target_change": "Keep drift/hotspot signals explicit and validate signal provenance.",
+      "tests_required": [
+        "integration-drift-signal"
+      ],
+      "owner_package": "@codenautic/ui",
+      "status": "TRIAGED",
+      "verification_rule": {
+        "name": "h-code-3841ee100a55-verification",
+        "description": "Ensure heuristic entry H-CODE-3841EE100A55 stays covered by unit/integration assertions.",
+        "testCommand": "bun scripts/heuristics/validate-registry.ts"
+      }
+    },
+    {
       "id": "H-CODE-A5894B3149E5",
       "source_file": "packages/ui/src/pages/settings-organization.page.tsx",
       "source_line": 15,
@@ -44738,9 +45444,9 @@
       }
     },
     {
-      "id": "H-CODE-F882A2F1FA2B",
+      "id": "H-CODE-9D14C2C94F3C",
       "source_file": "packages/ui/src/pages/settings-team.page.tsx",
-      "source_line": 99,
+      "source_line": 100,
       "heuristic_type": "FALLBACK_DEFAULT",
       "current_expression": "): \"default\" | \"primary\" | \"success\" | \"warning\" {",
       "risk_level": "MEDIUM",
@@ -44753,15 +45459,15 @@
       "owner_package": "@codenautic/ui",
       "status": "TRIAGED",
       "verification_rule": {
-        "name": "h-code-f882a2f1fa2b-verification",
-        "description": "Ensure heuristic entry H-CODE-F882A2F1FA2B stays covered by unit/integration assertions.",
+        "name": "h-code-9d14c2c94f3c-verification",
+        "description": "Ensure heuristic entry H-CODE-9D14C2C94F3C stays covered by unit/integration assertions.",
         "testCommand": "bun scripts/heuristics/validate-registry.ts"
       }
     },
     {
-      "id": "H-CODE-08077819B204",
+      "id": "H-CODE-770508586AAF",
       "source_file": "packages/ui/src/pages/settings-team.page.tsx",
-      "source_line": 109,
+      "source_line": 110,
       "heuristic_type": "FALLBACK_DEFAULT",
       "current_expression": "return \"default\"",
       "risk_level": "MEDIUM",
@@ -44774,8 +45480,8 @@
       "owner_package": "@codenautic/ui",
       "status": "TRIAGED",
       "verification_rule": {
-        "name": "h-code-08077819b204-verification",
-        "description": "Ensure heuristic entry H-CODE-08077819B204 stays covered by unit/integration assertions.",
+        "name": "h-code-770508586aaf-verification",
+        "description": "Ensure heuristic entry H-CODE-770508586AAF stays covered by unit/integration assertions.",
         "testCommand": "bun scripts/heuristics/validate-registry.ts"
       }
     },
@@ -47086,6 +47792,132 @@
       "verification_rule": {
         "name": "h-code-d022719241cd-verification",
         "description": "Ensure heuristic entry H-CODE-D022719241CD stays covered by unit/integration assertions.",
+        "testCommand": "bun scripts/heuristics/validate-registry.ts"
+      }
+    },
+    {
+      "id": "H-CODE-07E212F1F567",
+      "source_file": "packages/ui/src/routes/settings-notifications.tsx",
+      "source_line": 3,
+      "heuristic_type": "FALLBACK_DEFAULT",
+      "current_expression": "import { RouteErrorFallback } from \"@/app/error-fallback\"",
+      "risk_level": "MEDIUM",
+      "resolution_mode": "KEEP_CODE_FIRST",
+      "target_change": "Harden fallback/default policy and validate environment-specific behavior.",
+      "tests_required": [
+        "unit-env-matrix",
+        "integration-default-behavior"
+      ],
+      "owner_package": "@codenautic/ui",
+      "status": "TRIAGED",
+      "verification_rule": {
+        "name": "h-code-07e212f1f567-verification",
+        "description": "Ensure heuristic entry H-CODE-07E212F1F567 stays covered by unit/integration assertions.",
+        "testCommand": "bun scripts/heuristics/validate-registry.ts"
+      }
+    },
+    {
+      "id": "H-CODE-792CE0003C43",
+      "source_file": "packages/ui/src/routes/settings-notifications.tsx",
+      "source_line": 4,
+      "heuristic_type": "FALLBACK_DEFAULT",
+      "current_expression": "import { RouteSuspenseFallback } from \"@/app/route-suspense-fallback\"",
+      "risk_level": "MEDIUM",
+      "resolution_mode": "KEEP_CODE_FIRST",
+      "target_change": "Harden fallback/default policy and validate environment-specific behavior.",
+      "tests_required": [
+        "unit-env-matrix",
+        "integration-default-behavior"
+      ],
+      "owner_package": "@codenautic/ui",
+      "status": "TRIAGED",
+      "verification_rule": {
+        "name": "h-code-792ce0003c43-verification",
+        "description": "Ensure heuristic entry H-CODE-792CE0003C43 stays covered by unit/integration assertions.",
+        "testCommand": "bun scripts/heuristics/validate-registry.ts"
+      }
+    },
+    {
+      "id": "H-CODE-5B77E2BB3202",
+      "source_file": "packages/ui/src/routes/settings-notifications.tsx",
+      "source_line": 9,
+      "heuristic_type": "FALLBACK_DEFAULT",
+      "current_expression": "const LazySettingsNotificationsPage = lazy(async (): Promise<{ default: () => ReactElement }> => {",
+      "risk_level": "MEDIUM",
+      "resolution_mode": "KEEP_CODE_FIRST",
+      "target_change": "Harden fallback/default policy and validate environment-specific behavior.",
+      "tests_required": [
+        "unit-env-matrix",
+        "integration-default-behavior"
+      ],
+      "owner_package": "@codenautic/ui",
+      "status": "TRIAGED",
+      "verification_rule": {
+        "name": "h-code-5b77e2bb3202-verification",
+        "description": "Ensure heuristic entry H-CODE-5B77E2BB3202 stays covered by unit/integration assertions.",
+        "testCommand": "bun scripts/heuristics/validate-registry.ts"
+      }
+    },
+    {
+      "id": "H-CODE-D50CD6A505F8",
+      "source_file": "packages/ui/src/routes/settings-notifications.tsx",
+      "source_line": 12,
+      "heuristic_type": "FALLBACK_DEFAULT",
+      "current_expression": "default: pageModule.SettingsNotificationsPage,",
+      "risk_level": "MEDIUM",
+      "resolution_mode": "KEEP_CODE_FIRST",
+      "target_change": "Harden fallback/default policy and validate environment-specific behavior.",
+      "tests_required": [
+        "unit-env-matrix",
+        "integration-default-behavior"
+      ],
+      "owner_package": "@codenautic/ui",
+      "status": "TRIAGED",
+      "verification_rule": {
+        "name": "h-code-d50cd6a505f8-verification",
+        "description": "Ensure heuristic entry H-CODE-D50CD6A505F8 stays covered by unit/integration assertions.",
+        "testCommand": "bun scripts/heuristics/validate-registry.ts"
+      }
+    },
+    {
+      "id": "H-CODE-9EB41FF9484D",
+      "source_file": "packages/ui/src/routes/settings-notifications.tsx",
+      "source_line": 27,
+      "heuristic_type": "FALLBACK_DEFAULT",
+      "current_expression": "<Suspense fallback={<RouteSuspenseFallback />}>",
+      "risk_level": "MEDIUM",
+      "resolution_mode": "KEEP_CODE_FIRST",
+      "target_change": "Harden fallback/default policy and validate environment-specific behavior.",
+      "tests_required": [
+        "unit-env-matrix",
+        "integration-default-behavior"
+      ],
+      "owner_package": "@codenautic/ui",
+      "status": "TRIAGED",
+      "verification_rule": {
+        "name": "h-code-9eb41ff9484d-verification",
+        "description": "Ensure heuristic entry H-CODE-9EB41FF9484D stays covered by unit/integration assertions.",
+        "testCommand": "bun scripts/heuristics/validate-registry.ts"
+      }
+    },
+    {
+      "id": "H-CODE-3650CB5BC878",
+      "source_file": "packages/ui/src/routes/settings-notifications.tsx",
+      "source_line": 39,
+      "heuristic_type": "FALLBACK_DEFAULT",
+      "current_expression": "errorComponent: RouteErrorFallback,",
+      "risk_level": "MEDIUM",
+      "resolution_mode": "KEEP_CODE_FIRST",
+      "target_change": "Harden fallback/default policy and validate environment-specific behavior.",
+      "tests_required": [
+        "unit-env-matrix",
+        "integration-default-behavior"
+      ],
+      "owner_package": "@codenautic/ui",
+      "status": "TRIAGED",
+      "verification_rule": {
+        "name": "h-code-3650cb5bc878-verification",
+        "description": "Ensure heuristic entry H-CODE-3650CB5BC878 stays covered by unit/integration assertions.",
         "testCommand": "bun scripts/heuristics/validate-registry.ts"
       }
     },
@@ -53635,11 +54467,11 @@
       }
     },
     {
-      "id": "H-PLAN-70E0BB405EC1",
+      "id": "H-PLAN-4794963C275D",
       "source_file": "packages/core/todo/m05-config-defaults-admin-expert-panel.md",
       "source_line": 239,
       "heuristic_type": "FALLBACK_DEFAULT",
-      "current_expression": "| CORE-217 | Реализовать CCR summary промпты → prompt_templates config defaults | TODO | Не начато | Реализация: 2 default шаблона в settings-service `/configs/prompts`: `ccr-summary-default-system`, `ccr-summary-complement-system`. PROM...",
+      "current_expression": "| CORE-217 | Реализовать CCR summary промпты → prompt_templates config defaults | DONE | Реализовано | Реализация: 2 default шаблона в settings-service `/configs/prompts`: `ccr-summary-default-system`, `ccr-summary-complement-system`. Ge...",
       "risk_level": "MEDIUM",
       "resolution_mode": "KEEP_CODE_FIRST",
       "target_change": "Harden fallback/default policy and validate environment-specific behavior.",
@@ -53650,8 +54482,8 @@
       "owner_package": "@codenautic/core",
       "status": "TRIAGED",
       "verification_rule": {
-        "name": "h-plan-70e0bb405ec1-verification",
-        "description": "Ensure heuristic entry H-PLAN-70E0BB405EC1 stays covered by unit/integration assertions.",
+        "name": "h-plan-4794963c275d-verification",
+        "description": "Ensure heuristic entry H-PLAN-4794963C275D stays covered by unit/integration assertions.",
         "testCommand": "bun scripts/heuristics/validate-registry.ts"
       }
     },
@@ -53843,11 +54675,11 @@
       }
     },
     {
-      "id": "H-PLAN-529B6116B018",
+      "id": "H-PLAN-27B29530E4A6",
       "source_file": "packages/core/todo/m05-config-defaults-admin-expert-panel.md",
       "source_line": 291,
       "heuristic_type": "FALLBACK_DEFAULT",
-      "current_expression": "| MIG-001 | Реализовать default config JSON файлы | TODO | Не начато | Реализация: Config defaults живут в `runtime/src/config/defaults/` и используются settings-service. JSON формат: prompts.json, rules.json, categories.json, settings.j...",
+      "current_expression": "| MIG-001 | Реализовать default config JSON файлы | DONE | Реализовано | Реализация: Config defaults живут в `runtime/src/config/defaults/` и используются settings-service. JSON формат: prompts.json, rules.json, categories.json, settings...",
       "risk_level": "MEDIUM",
       "resolution_mode": "KEEP_CODE_FIRST",
       "target_change": "Harden fallback/default policy and validate environment-specific behavior.",
@@ -53858,8 +54690,8 @@
       "owner_package": "@codenautic/core",
       "status": "TRIAGED",
       "verification_rule": {
-        "name": "h-plan-529b6116b018-verification",
-        "description": "Ensure heuristic entry H-PLAN-529B6116B018 stays covered by unit/integration assertions.",
+        "name": "h-plan-27b29530e4a6-verification",
+        "description": "Ensure heuristic entry H-PLAN-27B29530E4A6 stays covered by unit/integration assertions.",
         "testCommand": "bun scripts/heuristics/validate-registry.ts"
       }
     },
@@ -53885,11 +54717,11 @@
       }
     },
     {
-      "id": "H-PLAN-1DE6152E493B",
+      "id": "H-PLAN-889ED70F2249",
       "source_file": "packages/core/todo/m05-config-defaults-admin-expert-panel.md",
       "source_line": 293,
       "heuristic_type": "FALLBACK_DEFAULT",
-      "current_expression": "| MIG-003 | Удалить legacy data из core | TODO | Не начато | Реализация: Удалить `core/infrastructure/data/seed/`. Очистить barrel exports. Тесты core проходят без legacy data. Config defaults живут только в `runtime/src/config/defaults`...",
+      "current_expression": "| MIG-003 | Удалить legacy data из core | DONE | Реализовано | Реализация: Удалён `core/infrastructure/data/seed/` и тесты seed, очищены exports. Config defaults живут только в `runtime/src/config/defaults` и выдаются settings-service. Г...",
       "risk_level": "MEDIUM",
       "resolution_mode": "KEEP_CODE_FIRST",
       "target_change": "Harden fallback/default policy and validate environment-specific behavior.",
@@ -53900,8 +54732,8 @@
       "owner_package": "@codenautic/core",
       "status": "TRIAGED",
       "verification_rule": {
-        "name": "h-plan-1de6152e493b-verification",
-        "description": "Ensure heuristic entry H-PLAN-1DE6152E493B stays covered by unit/integration assertions.",
+        "name": "h-plan-889ed70f2249-verification",
+        "description": "Ensure heuristic entry H-PLAN-889ED70F2249 stays covered by unit/integration assertions.",
         "testCommand": "bun scripts/heuristics/validate-registry.ts"
       }
     },
@@ -53948,11 +54780,11 @@
       }
     },
     {
-      "id": "H-PLAN-ECA5ADB541FB",
+      "id": "H-PLAN-A49A1F073697",
       "source_file": "packages/core/todo/m05-config-defaults-admin-expert-panel.md",
       "source_line": 318,
       "heuristic_type": "FALLBACK_DEFAULT",
-      "current_expression": "| CORE-229 | Удалить fallback промпты из GenerateCCRSummaryUseCase | TODO | Не начато | Реализация: Удалить `FALLBACK_DEFAULT_SYSTEM_PROMPT` и `FALLBACK_COMPLEMENT_SYSTEM_PROMPT` из `generate-ccr-summary.use-case.ts`. Шаблоны `ccr-summar...",
+      "current_expression": "| CORE-229 | Удалить fallback промпты из GenerateCCRSummaryUseCase | DONE | Реализовано | Реализация: GenerateCCRSummaryUseCase не содержит hardcoded системных промптов, использует templates `ccr-summary-default-system` и `ccr-summary-co...",
       "risk_level": "MEDIUM",
       "resolution_mode": "KEEP_CODE_FIRST",
       "target_change": "Harden fallback/default policy and validate environment-specific behavior.",
@@ -53963,17 +54795,17 @@
       "owner_package": "@codenautic/core",
       "status": "TRIAGED",
       "verification_rule": {
-        "name": "h-plan-eca5adb541fb-verification",
-        "description": "Ensure heuristic entry H-PLAN-ECA5ADB541FB stays covered by unit/integration assertions.",
+        "name": "h-plan-a49a1f073697-verification",
+        "description": "Ensure heuristic entry H-PLAN-A49A1F073697 stays covered by unit/integration assertions.",
         "testCommand": "bun scripts/heuristics/validate-registry.ts"
       }
     },
     {
-      "id": "H-PLAN-BAF5988AD21F",
+      "id": "H-PLAN-241F27A95164",
       "source_file": "packages/core/todo/m05-config-defaults-admin-expert-panel.md",
       "source_line": 319,
       "heuristic_type": "FALLBACK_DEFAULT",
-      "current_expression": "| CORE-230 | Реализовать дедупликация mention-команд → system settings defaults | TODO | Не начато | Реализация: Вынести `[\"review\", \"explain\", \"fix\", \"summary\", \"help\", \"config\"]` в `runtime/src/config/defaults/settings.json` под ключ `...",
+      "current_expression": "| CORE-230 | Реализовать дедупликация mention-команд → system settings defaults | DONE | Реализовано | Реализация: Вынести `[\"review\", \"explain\", \"fix\", \"summary\", \"help\", \"config\", \"chat\"]` в `runtime/src/config/defaults/settings.json` ...",
       "risk_level": "MEDIUM",
       "resolution_mode": "KEEP_CODE_FIRST",
       "target_change": "Harden fallback/default policy and validate environment-specific behavior.",
@@ -53984,8 +54816,8 @@
       "owner_package": "@codenautic/core",
       "status": "TRIAGED",
       "verification_rule": {
-        "name": "h-plan-baf5988ad21f-verification",
-        "description": "Ensure heuristic entry H-PLAN-BAF5988AD21F stays covered by unit/integration assertions.",
+        "name": "h-plan-241f27a95164-verification",
+        "description": "Ensure heuristic entry H-PLAN-241F27A95164 stays covered by unit/integration assertions.",
         "testCommand": "bun scripts/heuristics/validate-registry.ts"
       }
     },
@@ -61250,11 +62082,32 @@
       }
     },
     {
-      "id": "H-PLAN-2A05DFA88DDD",
+      "id": "H-PLAN-1E692E685B7B",
+      "source_file": "packages/ui/todo/m14-all-providers-pages.md",
+      "source_line": 41,
+      "heuristic_type": "FALLBACK_DEFAULT",
+      "current_expression": "| WEB-THEME-004 | Реализовать user theme library | DONE | В `SettingsAppearancePage` реализована user theme library: create/rename/duplicate/delete пользовательских тем, экспорт/импорт JSON с schema validation и детерминированным разреше...",
+      "risk_level": "MEDIUM",
+      "resolution_mode": "KEEP_CODE_FIRST",
+      "target_change": "Harden fallback/default policy and validate environment-specific behavior.",
+      "tests_required": [
+        "unit-env-matrix",
+        "integration-default-behavior"
+      ],
+      "owner_package": "@codenautic/ui",
+      "status": "TRIAGED",
+      "verification_rule": {
+        "name": "h-plan-1e692e685b7b-verification",
+        "description": "Ensure heuristic entry H-PLAN-1E692E685B7B stays covered by unit/integration assertions.",
+        "testCommand": "bun scripts/heuristics/validate-registry.ts"
+      }
+    },
+    {
+      "id": "H-PLAN-A80F435781BB",
       "source_file": "packages/ui/todo/m14-all-providers-pages.md",
       "source_line": 42,
       "heuristic_type": "DRIFT_SIGNAL",
-      "current_expression": "| WEB-NOTIF-001 | Реализовать notifications inbox & delivery preferences | TODO | Не начато | Реализация: Единый Notification Center в UI: inbox лента, типы событий (review completed, drift alert, prediction alert), mark as read/unread, ...",
+      "current_expression": "| WEB-NOTIF-001 | Реализовать notifications inbox & delivery preferences | DONE | Добавлены `SettingsNotificationsPage` и route `/settings-notifications`: единый inbox с типами событий (review completed/drift alert/prediction alert), mar...",
       "risk_level": "HIGH",
       "resolution_mode": "HARDEN",
       "target_change": "Keep drift/hotspot signals explicit and validate signal provenance.",
@@ -61264,8 +62117,29 @@
       "owner_package": "@codenautic/ui",
       "status": "TRIAGED",
       "verification_rule": {
-        "name": "h-plan-2a05dfa88ddd-verification",
-        "description": "Ensure heuristic entry H-PLAN-2A05DFA88DDD stays covered by unit/integration assertions.",
+        "name": "h-plan-a80f435781bb-verification",
+        "description": "Ensure heuristic entry H-PLAN-A80F435781BB stays covered by unit/integration assertions.",
+        "testCommand": "bun scripts/heuristics/validate-registry.ts"
+      }
+    },
+    {
+      "id": "H-PLAN-DE40A00A9D59",
+      "source_file": "packages/ui/todo/m14-all-providers-pages.md",
+      "source_line": 45,
+      "heuristic_type": "FALLBACK_DEFAULT",
+      "current_expression": "| WEB-TEN-001 | Реализовать organization switcher & tenancy guard UX | DONE | В `Header` добавлен глобальный organization/workspace switcher с явным текущим контекстом, в `DashboardLayout` добавлены подтверждение при переключении tenant,...",
+      "risk_level": "MEDIUM",
+      "resolution_mode": "KEEP_CODE_FIRST",
+      "target_change": "Harden fallback/default policy and validate environment-specific behavior.",
+      "tests_required": [
+        "unit-env-matrix",
+        "integration-default-behavior"
+      ],
+      "owner_package": "@codenautic/ui",
+      "status": "TRIAGED",
+      "verification_rule": {
+        "name": "h-plan-de40a00a9d59-verification",
+        "description": "Ensure heuristic entry H-PLAN-DE40A00A9D59 stays covered by unit/integration assertions.",
         "testCommand": "bun scripts/heuristics/validate-registry.ts"
       }
     },

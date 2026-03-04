@@ -106,7 +106,8 @@
         "fix",
         "summary",
         "help",
-        "config"
+        "config",
+        "chat"
       ]
     },
     {
