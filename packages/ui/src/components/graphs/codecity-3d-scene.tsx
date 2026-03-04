@@ -14,6 +14,21 @@ interface ICodeCity3DSceneFileDescriptor {
 }
 
 /**
+ * Тип воздействия файла в CCR impact-наборах.
+ */
+export type TCodeCityImpactType = "changed" | "impacted" | "ripple"
+
+/**
+ * Дескриптор файла с impact-контекстом для 3D подсветки.
+ */
+export interface ICodeCity3DSceneImpactedFileDescriptor {
+    /** Идентификатор файла (совпадает с id в files). */
+    readonly fileId: string
+    /** Тип воздействия для визуализации. */
+    readonly impactType: TCodeCityImpactType
+}
+
+/**
  * Пресеты позиции камеры для 3D CodeCity.
  */
 export type TCodeCityCameraPreset = "bird-eye" | "street-level" | "focus-on-building"
@@ -26,6 +41,8 @@ export interface ICodeCity3DSceneProps {
     readonly title: string
     /** Набор файлов для генерации зданий. */
     readonly files: ReadonlyArray<ICodeCity3DSceneFileDescriptor>
+    /** Набор impact-файлов для подсветки зданий. */
+    readonly impactedFiles?: ReadonlyArray<ICodeCity3DSceneImpactedFileDescriptor>
     /** Высота canvas-контейнера. */
     readonly height?: number
 }
@@ -35,6 +52,7 @@ const LazyCodeCity3DSceneRenderer = lazy(
         default: (props: {
             readonly cameraPreset: TCodeCityCameraPreset
             readonly files: ReadonlyArray<ICodeCity3DSceneFileDescriptor>
+            readonly impactedFiles: ReadonlyArray<ICodeCity3DSceneImpactedFileDescriptor>
         }) => ReactElement
     }> => {
         const module = await import("./codecity-3d-scene-renderer")
@@ -125,7 +143,11 @@ export function CodeCity3DScene(props: ICodeCity3DSceneProps): ReactElement {
                     </div>
                 }
             >
-                <LazyCodeCity3DSceneRenderer cameraPreset={cameraPreset} files={props.files} />
+                <LazyCodeCity3DSceneRenderer
+                    cameraPreset={cameraPreset}
+                    files={props.files}
+                    impactedFiles={props.impactedFiles ?? []}
+                />
             </Suspense>
         </section>
     )

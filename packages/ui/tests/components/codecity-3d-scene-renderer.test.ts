@@ -1,11 +1,16 @@
 import { describe, expect, it } from "vitest"
 
 import {
+    createCodeCityBuildingImpactMap,
     createCodeCityBuildingMeshes,
     createCodeCityDistrictMeshes,
+    resolveCodeCityBuildingImpactProfile,
     resolveCodeCityBuildingColor,
 } from "@/components/graphs/codecity-3d-scene-renderer"
-import type { ICodeCity3DSceneFileDescriptor } from "@/components/graphs/codecity-3d-scene"
+import type {
+    ICodeCity3DSceneFileDescriptor,
+    ICodeCity3DSceneImpactedFileDescriptor,
+} from "@/components/graphs/codecity-3d-scene"
 
 describe("CodeCity3DSceneRenderer building generation", (): void => {
     it("строит здания из файлов по правилам height=LOC, width=complexity, color=coverage", (): void => {
@@ -131,5 +136,79 @@ describe("CodeCity3DSceneRenderer building generation", (): void => {
         expect(buildingDistrictIds).toContain("api")
         expect(buildingDistrictIds).toContain("ui")
         expect(buildingDistrictIds).toContain("worker")
+    })
+
+    it("строит impact карту с glow для affected зданий и ripple для соседей", (): void => {
+        const files: ReadonlyArray<ICodeCity3DSceneFileDescriptor> = [
+            {
+                complexity: 20,
+                coverage: 83,
+                id: "src/core/auth.ts",
+                loc: 120,
+                path: "src/core/auth.ts",
+            },
+            {
+                complexity: 14,
+                coverage: 72,
+                id: "src/core/cache.ts",
+                loc: 88,
+                path: "src/core/cache.ts",
+            },
+            {
+                complexity: 8,
+                coverage: 66,
+                id: "src/core/queue.ts",
+                loc: 64,
+                path: "src/core/queue.ts",
+            },
+            {
+                complexity: 16,
+                coverage: 90,
+                id: "src/api/router.ts",
+                loc: 108,
+                path: "src/api/router.ts",
+            },
+        ]
+        const impactedFiles: ReadonlyArray<ICodeCity3DSceneImpactedFileDescriptor> = [
+            {
+                fileId: "src/core/auth.ts",
+                impactType: "changed",
+            },
+            {
+                fileId: "src/api/router.ts",
+                impactType: "impacted",
+            },
+        ]
+
+        const buildings = createCodeCityBuildingMeshes(files)
+        const impactMap = createCodeCityBuildingImpactMap(buildings, impactedFiles)
+
+        expect(impactMap.get("src/core/auth.ts")).toBe("changed")
+        expect(impactMap.get("src/api/router.ts")).toBe("impacted")
+
+        const coreRippleIds = ["src/core/cache.ts", "src/core/queue.ts"].filter(
+            (fileId): boolean => impactMap.get(fileId) === "ripple",
+        )
+        expect(coreRippleIds.length).toBeGreaterThan(0)
+    })
+
+    it("возвращает профиль glow/pulse/ripple для impact состояний", (): void => {
+        expect(resolveCodeCityBuildingImpactProfile("none")).toMatchObject({
+            baseIntensity: 0,
+            pulseAmplitude: 0,
+            rippleLift: 0,
+        })
+        expect(resolveCodeCityBuildingImpactProfile("changed")).toMatchObject({
+            baseIntensity: 0.3,
+            emissive: "#fb7185",
+        })
+        expect(resolveCodeCityBuildingImpactProfile("impacted")).toMatchObject({
+            baseIntensity: 0.25,
+            emissive: "#22d3ee",
+        })
+        expect(resolveCodeCityBuildingImpactProfile("ripple")).toMatchObject({
+            emissive: "#38bdf8",
+            rippleLift: 0.16,
+        })
     })
 })

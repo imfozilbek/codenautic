@@ -66,12 +66,14 @@ const { mockCodeCity3DScene } = vi.hoisted(() => ({
         (props: {
             readonly title: string
             readonly files: ReadonlyArray<unknown>
+            readonly impactedFiles: ReadonlyArray<unknown>
             readonly height?: number
         }): React.JSX.Element => {
             return (
                 <div>
                     <p>{props.title}</p>
                     <p>3d-files:{props.files.length}</p>
+                    <p>3d-impacted:{props.impactedFiles.length}</p>
                 </div>
             )
         },
@@ -171,6 +173,7 @@ describe("CodeCityDashboardPage", (): void => {
         expect(first3DCall).not.toBeUndefined()
         expect(first3DCall?.title).toBe("platform-team/api-gateway 3D scene")
         expect(first3DCall?.files.length).toBeGreaterThan(0)
+        expect(first3DCall?.impactedFiles.length).toBeGreaterThan(0)
         const first3DFile = first3DCall?.files.at(0) as
             | {
                 readonly complexity?: number
@@ -185,6 +188,13 @@ describe("CodeCityDashboardPage", (): void => {
         expect(first3DFile?.loc).toBeGreaterThan(0)
         expect(first3DFile?.complexity).toBeGreaterThan(0)
         expect(first3DFile?.coverage).toBeGreaterThan(0)
+        const first3DImpactedFile = first3DCall?.impactedFiles.at(0) as
+            | {
+                readonly fileId: string
+                readonly impactType: "changed" | "impacted" | "ripple"
+            }
+            | undefined
+        expect(first3DImpactedFile?.fileId.length).toBeGreaterThan(0)
 
         const firstScatterCall = mockChurnComplexityScatter.mock.calls.at(0)?.[0]
         expect(firstScatterCall).not.toBeUndefined()
@@ -221,6 +231,7 @@ describe("CodeCityDashboardPage", (): void => {
         const current3DCall = mockCodeCity3DScene.mock.calls.at(-1)?.[0]
         expect(current3DCall).not.toBeUndefined()
         expect(current3DCall?.title).toBe("frontend-team/ui-dashboard 3D scene")
+        expect(current3DCall?.impactedFiles.length).toBeGreaterThan(0)
 
         await user.click(screen.getByRole("button", { name: "select scatter file" }))
 

@@ -5,6 +5,7 @@ import { describe, expect, it, vi } from "vitest"
 import {
     CodeCity3DScene,
     type TCodeCityCameraPreset,
+    type ICodeCity3DSceneImpactedFileDescriptor,
     type ICodeCity3DSceneFileDescriptor,
 } from "@/components/graphs/codecity-3d-scene"
 import { renderWithProviders } from "../utils/render"
@@ -14,10 +15,12 @@ vi.mock("@/components/graphs/codecity-3d-scene-renderer", () => {
         CodeCity3DSceneRenderer: (props: {
             readonly cameraPreset: TCodeCityCameraPreset
             readonly files: ReadonlyArray<ICodeCity3DSceneFileDescriptor>
+            readonly impactedFiles: ReadonlyArray<ICodeCity3DSceneImpactedFileDescriptor>
         }): React.JSX.Element => {
             return (
                 <div>
-                    renderer-files:{props.files.length};preset:{props.cameraPreset}
+                    renderer-files:{props.files.length};impacts:{props.impactedFiles.length};preset:
+                    {props.cameraPreset}
                 </div>
             )
         },
@@ -31,6 +34,12 @@ const TEST_FILES: ReadonlyArray<ICodeCity3DSceneFileDescriptor> = [
         id: "src/api/repository.ts",
         loc: 126,
         path: "src/api/repository.ts",
+    },
+]
+const TEST_IMPACTED_FILES: ReadonlyArray<ICodeCity3DSceneImpactedFileDescriptor> = [
+    {
+        fileId: "src/api/repository.ts",
+        impactType: "changed",
     },
 ]
 
@@ -53,7 +62,7 @@ describe("CodeCity3DScene", (): void => {
 
         renderWithProviders(<CodeCity3DScene files={TEST_FILES} title="3D loaded scene" />)
         await waitFor((): void => {
-            expect(screen.getByText("renderer-files:1;preset:bird-eye")).not.toBeNull()
+            expect(screen.getByText("renderer-files:1;impacts:0;preset:bird-eye")).not.toBeNull()
         })
         getContextSpy.mockRestore()
     })
@@ -65,19 +74,27 @@ describe("CodeCity3DScene", (): void => {
             .spyOn(HTMLCanvasElement.prototype, "getContext")
             .mockImplementation((): GPUCanvasContext => fakeContext)
 
-        renderWithProviders(<CodeCity3DScene files={TEST_FILES} title="3D preset scene" />)
+        renderWithProviders(
+            <CodeCity3DScene
+                files={TEST_FILES}
+                impactedFiles={TEST_IMPACTED_FILES}
+                title="3D preset scene"
+            />,
+        )
         await waitFor((): void => {
-            expect(screen.getByText("renderer-files:1;preset:bird-eye")).not.toBeNull()
+            expect(screen.getByText("renderer-files:1;impacts:1;preset:bird-eye")).not.toBeNull()
         })
 
         await user.click(screen.getByRole("button", { name: "Camera preset Street level" }))
         await waitFor((): void => {
-            expect(screen.getByText("renderer-files:1;preset:street-level")).not.toBeNull()
+            expect(screen.getByText("renderer-files:1;impacts:1;preset:street-level")).not.toBeNull()
         })
 
         await user.click(screen.getByRole("button", { name: "Camera preset Focus building" }))
         await waitFor((): void => {
-            expect(screen.getByText("renderer-files:1;preset:focus-on-building")).not.toBeNull()
+            expect(
+                screen.getByText("renderer-files:1;impacts:1;preset:focus-on-building"),
+            ).not.toBeNull()
         })
 
         getContextSpy.mockRestore()

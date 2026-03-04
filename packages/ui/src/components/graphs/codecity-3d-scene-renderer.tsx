@@ -1,16 +1,19 @@
 import { useMemo, useRef, type ReactElement } from "react"
 import { OrbitControls, Text } from "@react-three/drei"
 import { Canvas, useFrame, useThree } from "@react-three/fiber"
-import { Vector3 } from "three"
+import { Mesh, MeshStandardMaterial, Vector3 } from "three"
 
 import type {
+    ICodeCity3DSceneImpactedFileDescriptor,
     ICodeCity3DSceneFileDescriptor,
     TCodeCityCameraPreset,
+    TCodeCityImpactType,
 } from "./codecity-3d-scene"
 
 interface ICodeCity3DSceneRendererProps {
     readonly cameraPreset: TCodeCityCameraPreset
     readonly files: ReadonlyArray<ICodeCity3DSceneFileDescriptor>
+    readonly impactedFiles: ReadonlyArray<ICodeCity3DSceneImpactedFileDescriptor>
 }
 
 /**
@@ -74,12 +77,22 @@ const DISTRICT_PADDING = 1.1
 const BUILDING_FILL_RATIO = 0.72
 const MIN_DISTRICT_SPAN = 24
 const CAMERA_LERP_FACTOR = 0.12
+const IMPACT_NEIGHBOR_COUNT = 2
 
 type TVec3 = readonly [number, number, number]
+type TCodeCityBuildingImpactState = TCodeCityImpactType | "none"
 
 interface ICameraPresetTarget {
     readonly position: TVec3
     readonly focus: TVec3
+}
+
+interface ICodeCityBuildingImpactProfile {
+    readonly emissive: string
+    readonly baseIntensity: number
+    readonly pulseAmplitude: number
+    readonly pulseSpeed: number
+    readonly rippleLift: number
 }
 
 const BASE_CAMERA_PRESETS: Readonly<Record<TCodeCityCameraPreset, ICameraPresetTarget>> = {
@@ -431,6 +444,114 @@ export function createCodeCityBuildingMeshes(
 }
 
 /**
+ * Строит карту impact-состояний зданий: прямой impact + ripple на соседей.
+ *
+ * @param buildings Сгенерированные здания CodeCity.
+ * @param impactedFiles Явные impact-файлы из CCR контекста.
+ * @returns Карта fileId -> impact type.
+ */
+export function createCodeCityBuildingImpactMap(
+    buildings: ReadonlyArray<ICodeCityBuildingMesh>,
+    impactedFiles: ReadonlyArray<ICodeCity3DSceneImpactedFileDescriptor>,
+): ReadonlyMap<string, TCodeCityImpactType> {
+    const impactByFileId = new Map<string, TCodeCityImpactType>()
+    for (const impactedFile of impactedFiles) {
+        impactByFileId.set(impactedFile.fileId, impactedFile.impactType)
+    }
+
+    const candidateNeighborsByDistrict = new Map<string, Array<ICodeCityBuildingMesh>>()
+    for (const building of buildings) {
+        if (impactByFileId.has(building.id)) {
+            continue
+        }
+
+        const districtNeighbors = candidateNeighborsByDistrict.get(building.districtId)
+        if (districtNeighbors !== undefined) {
+            districtNeighbors.push(building)
+            continue
+        }
+        candidateNeighborsByDistrict.set(building.districtId, [building])
+    }
+
+    const impactOrigins = buildings.filter((building): boolean => {
+        const impactType = impactByFileId.get(building.id)
+        return impactType === "changed" || impactType === "impacted"
+    })
+
+    for (const origin of impactOrigins) {
+        const districtNeighbors = candidateNeighborsByDistrict.get(origin.districtId) ?? []
+        const nearestNeighbors = districtNeighbors
+            .map((candidate): { readonly building: ICodeCityBuildingMesh; readonly distance: number } => {
+                return {
+                    building: candidate,
+                    distance: Math.hypot(candidate.x - origin.x, candidate.z - origin.z),
+                }
+            })
+            .sort((leftCandidate, rightCandidate): number => {
+                return leftCandidate.distance - rightCandidate.distance
+            })
+            .slice(0, IMPACT_NEIGHBOR_COUNT)
+
+        for (const neighbor of nearestNeighbors) {
+            if (impactByFileId.has(neighbor.building.id)) {
+                continue
+            }
+            impactByFileId.set(neighbor.building.id, "ripple")
+        }
+    }
+
+    return impactByFileId
+}
+
+/**
+ * Возвращает visual-профиль здания по impact-состоянию.
+ *
+ * @param impactState Текущее состояние impact-подсветки.
+ * @returns Параметры emissive/pulse/ripple анимации.
+ */
+export function resolveCodeCityBuildingImpactProfile(
+    impactState: TCodeCityBuildingImpactState,
+): ICodeCityBuildingImpactProfile {
+    if (impactState === "changed") {
+        return {
+            baseIntensity: 0.3,
+            emissive: "#fb7185",
+            pulseAmplitude: 0.52,
+            pulseSpeed: 3.8,
+            rippleLift: 0,
+        }
+    }
+
+    if (impactState === "impacted") {
+        return {
+            baseIntensity: 0.25,
+            emissive: "#22d3ee",
+            pulseAmplitude: 0.38,
+            pulseSpeed: 3.1,
+            rippleLift: 0,
+        }
+    }
+
+    if (impactState === "ripple") {
+        return {
+            baseIntensity: 0.12,
+            emissive: "#38bdf8",
+            pulseAmplitude: 0.22,
+            pulseSpeed: 2.4,
+            rippleLift: 0.16,
+        }
+    }
+
+    return {
+        baseIntensity: 0,
+        emissive: "#0f172a",
+        pulseAmplitude: 0,
+        pulseSpeed: 0,
+        rippleLift: 0,
+    }
+}
+
+/**
  * Рассчитывает целевое положение камеры для выбранного пресета.
  *
  * @param preset Выбранный пресет камеры.
@@ -489,6 +610,69 @@ function CameraPresetController(props: ICameraPresetControllerProps): null {
     return null
 }
 
+interface IImpactBuildingMeshProps {
+    readonly building: ICodeCityBuildingMesh
+    readonly impactState: TCodeCityBuildingImpactState
+    readonly phaseSeed: number
+}
+
+/**
+ * Рендерит здание CodeCity с impact-анимацией glow/pulse/ripple.
+ *
+ * @param props Конфигурация здания и impact-состояния.
+ * @returns Меш здания.
+ */
+function ImpactBuildingMesh(props: IImpactBuildingMeshProps): ReactElement {
+    const meshRef = useRef<Mesh | null>(null)
+    const materialRef = useRef<MeshStandardMaterial | null>(null)
+    const impactProfile = useMemo(
+        (): ICodeCityBuildingImpactProfile => {
+            return resolveCodeCityBuildingImpactProfile(props.impactState)
+        },
+        [props.impactState],
+    )
+    const baseY = props.building.height / 2
+
+    useFrame((state): void => {
+        const animationPhase = state.clock.getElapsedTime() * impactProfile.pulseSpeed + props.phaseSeed
+        const material = materialRef.current
+        if (material !== null) {
+            const pulseOffset =
+                impactProfile.pulseAmplitude > 0
+                    ? Math.sin(animationPhase) * impactProfile.pulseAmplitude
+                    : 0
+            material.emissiveIntensity = Math.max(0, impactProfile.baseIntensity + pulseOffset)
+        }
+
+        const mesh = meshRef.current
+        if (mesh === null) {
+            return
+        }
+
+        if (impactProfile.rippleLift <= 0) {
+            mesh.position.y = baseY
+            return
+        }
+
+        const rippleWave = Math.sin(animationPhase) * impactProfile.rippleLift
+        mesh.position.y = baseY + Math.max(0, rippleWave)
+    })
+
+    return (
+        <mesh key={props.building.id} position={[props.building.x, baseY, props.building.z]} ref={meshRef}>
+            <boxGeometry args={[props.building.width, props.building.height, props.building.depth]} />
+            <meshStandardMaterial
+                color={props.building.color}
+                emissive={impactProfile.emissive}
+                emissiveIntensity={impactProfile.baseIntensity}
+                metalness={0.1}
+                ref={materialRef}
+                roughness={0.6}
+            />
+        </mesh>
+    )
+}
+
 /**
  * 3D renderer для CodeCity: базовая сцена + здания файлов.
  *
@@ -505,6 +689,9 @@ export function CodeCity3DSceneRenderer(props: ICodeCity3DSceneRendererProps): R
         (): ReadonlyArray<ICodeCityBuildingMesh> => createCodeCityBuildingMeshes(props.files),
         [props.files],
     )
+    const impactMap = useMemo((): ReadonlyMap<string, TCodeCityImpactType> => {
+        return createCodeCityBuildingImpactMap(buildings, props.impactedFiles)
+    }, [buildings, props.impactedFiles])
     const cameraPresetTarget = useMemo((): ICameraPresetTarget => {
         return resolveCameraPresetTarget(props.cameraPreset, buildings.at(0))
     }, [buildings, props.cameraPreset])
@@ -534,14 +721,13 @@ export function CodeCity3DSceneRenderer(props: ICodeCity3DSceneRendererProps): R
                     </Text>
                 </group>
             ))}
-            {buildings.map((building): ReactElement => (
-                <mesh
+            {buildings.map((building, index): ReactElement => (
+                <ImpactBuildingMesh
+                    building={building}
+                    impactState={impactMap.get(building.id) ?? "none"}
                     key={building.id}
-                    position={[building.x, building.height / 2, building.z]}
-                >
-                    <boxGeometry args={[building.width, building.height, building.depth]} />
-                    <meshStandardMaterial color={building.color} metalness={0.1} roughness={0.6} />
-                </mesh>
+                    phaseSeed={index * 0.45}
+                />
             ))}
             <OrbitControls
                 enablePan={true}

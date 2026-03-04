@@ -607,6 +607,7 @@ export function CodeCityDashboardPage(
                 <CardBody>
                     <CodeCity3DScene
                         files={currentProfile.files}
+                        impactedFiles={currentProfile.impactedFiles}
                         title={`${currentProfile.label} 3D scene`}
                     />
                 </CardBody>
