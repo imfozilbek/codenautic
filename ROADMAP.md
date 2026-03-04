@@ -53,7 +53,7 @@ M01 → M02 → M03 → M04 → M05 (core)
 | M09 | Workers & Notifications | adapters, runtime | 33 | 7 процессов, Slack, метрики, cron |
 | M10 | UI Foundation & Dashboard | runtime, ui | 84 | Dashboard в браузере с реальными данными |
 | M11 | Agent Worker & Chat | core, runtime, ui | 55 | @mention → AI ответ, чат панель |
-| M12 | AST, Scan, Onboarding | core, adapters, runtime, ui | 71 | Все 9 PM2 процессов, onboarding |
+| M12 | AST, Scan, Onboarding | core, adapters, runtime, ui | 71 | Все 10 PM2 процессов, onboarding |
 | M13 | CodeCity & Review UI | adapters, runtime, ui | 32 | CodeCity 2D treemap, diff viewer |
 | M14 | All Providers & Pages | adapters, runtime, ui | 34 | GitLab, Anthropic, Discord — все провайдеры |
 | M15 | Advanced Core Features | core | 92 | Causal analysis, drift, predictions, reports |

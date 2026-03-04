@@ -99,7 +99,7 @@ flowchart TD
         LLM_EXT["LLM APIs\nOpenAI, Anthropic, Google, Groq"]
     end
 
-    subgraph cs["CodeNautic — 9 PM2-процессов"]
+    subgraph cs["CodeNautic — 10 PM2-процессов"]
         subgraph http_clients["HTTP-клиенты"]
             WEB_UI["UI :3002\nVite, React, Tailwind, CodeCity"]
             MCP_M["MCP\nModel Context Protocol"]
@@ -107,6 +107,7 @@ flowchart TD
 
         subgraph roots["Composition Roots"]
             API["API :3000\nNestJS DI"]
+            SS["Settings Service :3040\nNestJS DI"]
             WH["Webhooks :3001\nContainer"]
         end
 
@@ -183,7 +184,7 @@ flowchart TD
     subgraph packages["packages/ — 4 пакета"]
         CORE["core\nДомен + Application + Порты\n0 внешних зависимостей"]
         INFRA["adapters\ngit · llm · context · notifications\nast · messaging · worker · database"]
-        SERVER["runtime — 9 PM2-процессов\napi · webhooks · review-worker · scan-worker\nagent-worker · notification-worker\nanalytics-worker · scheduler · mcp"]
+        SERVER["runtime — 10 PM2-процессов\napi · settings-service · webhooks · review-worker\nscan-worker · agent-worker · notification-worker\nanalytics-worker · scheduler · mcp"]
         WEB["ui\nVite 7, React 19, TanStack Router"]
     end
 
@@ -204,7 +205,7 @@ flowchart TD
 flowchart LR
     P1["Фаза 1\ncore"]
     P2["Фаза 2\nadapters"]
-    P3["Фаза 3\nruntime (9 процессов)"]
+    P3["Фаза 3\nruntime (10 процессов)"]
     P4["Фаза 4\nui"]
 
     P1 -->|"блокирует"| P2
@@ -217,8 +218,8 @@ flowchart LR
     style P4 fill:#c4841d,stroke:#96651a,color:#fff
 ```
 
-> 9 PM2-процессов находятся в одном пакете `runtime`; внутренняя структура файлов может меняться. `adapters` объединяет все провайдеры и библиотеки.
-> 9 процессов, 4 пакета.
+> 10 PM2-процессов находятся в одном пакете `runtime`; внутренняя структура файлов может меняться. `adapters` объединяет все провайдеры и библиотеки.
+> 10 процессов, 4 пакета.
 
 ---
 

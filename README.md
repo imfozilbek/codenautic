@@ -105,7 +105,7 @@ flowchart TD
 
         INFRA["adapters\ngit, llm, context, notifications\nast, messaging, worker, database"]
 
-        SERVER["runtime — 9 PM2 processes\napi (NestJS) · webhooks\nreview-worker · scan-worker · agent-worker\nnotification-worker · analytics-worker\nscheduler · mcp"]
+        SERVER["runtime — 10 PM2 processes\napi (NestJS) · settings-service · webhooks\nreview-worker · scan-worker · agent-worker\nnotification-worker · analytics-worker\nscheduler · mcp"]
 
         WEB["ui\nVite 7, React 19\nTanStack Router"]
     end
@@ -123,7 +123,7 @@ flowchart TD
 
 **Dependency rule:** Infrastructure -> Application -> Domain. Never the other way around.
 
-### System Overview — 9 PM2 Processes
+### System Overview — 10 PM2 Processes
 
 ```mermaid
 flowchart TD
@@ -134,8 +134,9 @@ flowchart TD
         IDE_EXT["IDE\nVS Code / WebStorm / Cursor"]
     end
 
-    subgraph SERVER["@codenautic/runtime — 9 processes"]
+    subgraph SERVER["@codenautic/runtime — 10 processes"]
         API["api :3000\nNestJS 11"]
+        SS["settings-service :3040\nNestJS 11"]
         WH["webhooks :3001\nverify + route"]
         RW["review-worker\nversioned pipeline execution"]
         SW["scan-worker\nAST + Code Graph"]
@@ -187,7 +188,7 @@ flowchart TD
 flowchart TD
     core["core\n0 dependencies"]:::phase1
     adapters["adapters\ngit · llm · context · notifications\nast · messaging · worker · database"]:::phase2
-    runtime["runtime\n9 PM2 processes"]:::phase3
+    runtime["runtime\n10 PM2 processes"]:::phase3
     ui["ui\nHTTP client"]:::phase4
 
     core --> adapters
@@ -200,7 +201,7 @@ flowchart TD
     classDef phase4 fill:#c4841d,stroke:#96651a,color:#fff
 ```
 
-> Phase 1 (core) -> Phase 2 (adapters) -> Phase 3 (runtime — 9 PM2 processes) -> Phase 4 (ui)
+> Phase 1 (core) -> Phase 2 (adapters) -> Phase 3 (runtime — 10 PM2 processes) -> Phase 4 (ui)
 
 For more on the architecture, see [PRODUCT.md](./PRODUCT.md).
 
@@ -288,7 +289,7 @@ flowchart TD
         subgraph packages["packages/ — 4 packages"]
             CORE_S["core\nDomain, use cases, ports\n0 external dependencies"]
             INFRA_S["adapters\ngit · llm · context · notifications\nast · messaging · worker · database"]
-            SERVER_S["runtime — 9 PM2 processes\napi · webhooks · review-worker\nscan-worker · agent-worker\nnotification-worker · analytics-worker\nscheduler · mcp"]
+            SERVER_S["runtime — 10 PM2 processes\napi · settings-service · webhooks\nreview-worker · scan-worker · agent-worker\nnotification-worker · analytics-worker\nscheduler · mcp"]
             WEB_S["ui\nVite 7, React 19, TanStack Router"]
         end
 

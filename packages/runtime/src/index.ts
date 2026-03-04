@@ -37,6 +37,28 @@ export {
     type IMongoConnector,
 } from "./api/database/mongo-connection"
 export {
+    type ISettingsServiceRuntime,
+    type IStartSettingsServiceOptions,
+    startSettingsService,
+} from "./settings-service/bootstrap"
+export {
+    SettingsServiceConfigModule,
+    SettingsServiceConfigurationValidationError,
+    loadSettingsServiceConfig,
+    type ILoadSettingsServiceConfigOptions,
+    type ISettingsServiceConfig,
+    type ISettingsServiceConfigOverrides,
+    type ISettingsServiceDataConfig,
+    type ISettingsServiceRuntimeConfig,
+    type ISettingsServiceServerConfig,
+} from "./settings-service/config/settings-config.module"
+export {
+    SETTINGS_SERVICE_NODE_ENV,
+    SettingsServiceEnvironmentValidationError,
+    parseSettingsServiceEnvironment,
+    type ISettingsServiceEnvironment,
+} from "./settings-service/config/settings-env"
+export {
     InMemoryRuntimeDomainEventBus,
 } from "./review-worker/adapters/in-memory-runtime-domain-event-bus"
 export {

@@ -1,7 +1,7 @@
 {
   "name": "@codenautic/runtime",
   "version": "0.0.0",
-  "description": "Server — API (NestJS), Webhooks, Workers (Review, Scan, Agent, Notification, Analytics), Scheduler, MCP",
+  "description": "Server — API (NestJS), Settings Service, Webhooks, Workers (Review, Scan, Agent, Notification, Analytics), Scheduler, MCP",
   "type": "module",
   "private": true,
   "scripts": {
@@ -9,7 +9,9 @@
     "clean": "rm -rf dist",
     "dev:api": "bun --watch src/api/main.ts",
     "dev:webhooks": "bun --watch src/webhooks/main.ts",
+    "dev:settings-service": "bun --watch src/settings-service/main.ts",
     "start:api": "bun src/api/main.ts",
+    "start:settings-service": "bun src/settings-service/main.ts",
     "start:webhooks": "bun src/webhooks/main.ts",
     "start:review-worker": "bun src/review-worker/main.ts",
     "start:scan-worker": "bun src/scan-worker/main.ts",

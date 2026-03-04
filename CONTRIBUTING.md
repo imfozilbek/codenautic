@@ -129,7 +129,7 @@ flowchart TD
     subgraph packages["packages/ — 4 packages"]
         CORE["core\nDomain + Application + Ports\n0 external dependencies"]
         INFRA["adapters\ngit · llm · context · notifications\nast · messaging · worker · database"]
-        SERVER["runtime — 9 PM2 processes\napi · webhooks · review-worker · scan-worker\nagent-worker · notification-worker\nanalytics-worker · scheduler · mcp"]
+        SERVER["runtime — 10 PM2 processes\napi · settings-service · webhooks · review-worker\nscan-worker · agent-worker · notification-worker\nanalytics-worker · scheduler · mcp"]
         WEB["ui\nVite 7, React 19, TanStack Router"]
     end
 
