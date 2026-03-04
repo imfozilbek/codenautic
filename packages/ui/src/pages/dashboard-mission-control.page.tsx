@@ -3,6 +3,7 @@ import { type ReactElement, Suspense, lazy, useMemo, useState } from "react"
 import { Card, CardBody, CardHeader, Alert } from "@/components/ui"
 import { ActivationChecklist } from "@/components/onboarding/activation-checklist"
 import { DataFreshnessPanel, type IProvenanceContext } from "@/components/infrastructure/data-freshness-panel"
+import { ExplainabilityPanel } from "@/components/infrastructure/explainability-panel"
 import {
     DashboardDateRangeFilter,
     type TDashboardDateRange,
@@ -369,6 +370,32 @@ export function DashboardMissionControlPage(): ReactElement {
         }),
         [opsBanner.isDegraded, range],
     )
+    const explainabilityFactors = useMemo(
+        (): ReadonlyArray<{
+            readonly impact: "high" | "low" | "medium"
+            readonly label: string
+            readonly value: string
+        }> => [
+            {
+                impact: "high",
+                label: "Open CCR backlog",
+                value: range === "1d" ? "19 open CCRs in current window." : "41 open CCRs in trend window.",
+            },
+            {
+                impact: "medium",
+                label: "Provider degradation",
+                value: opsBanner.isDegraded
+                    ? "Latency spike and fallback usage increased weighted risk."
+                    : "Provider health is stable in current window.",
+            },
+            {
+                impact: "low",
+                label: "Review throughput",
+                value: "Throughput improved by +5%, partially reducing release risk score.",
+            },
+        ],
+        [opsBanner.isDegraded, range],
+    )
 
     const handleRefresh = (): void => {
         setIsRefreshing(true)
@@ -472,6 +499,19 @@ export function DashboardMissionControlPage(): ReactElement {
                     {freshnessActionMessage}
                 </Alert>
             ) : null}
+            <ExplainabilityPanel
+                confidence="0.82"
+                dataWindow={`mission-control:${range}`}
+                factors={explainabilityFactors}
+                limitations={[
+                    "Score does not include code content, only metadata and workflow signals.",
+                    "Cross-repository dependencies may lag by one scan cycle.",
+                ]}
+                signalLabel="Release risk"
+                signalValue={opsBanner.isDegraded ? "elevated" : "moderate"}
+                threshold=">= 0.70"
+                title="Explainability for release risk"
+            />
 
             <ActivationChecklist role={checklistRole} />
             <MetricsGrid metrics={metrics} />

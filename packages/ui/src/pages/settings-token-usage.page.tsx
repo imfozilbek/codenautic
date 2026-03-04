@@ -1,6 +1,7 @@
 import { type ReactElement, useMemo, useState } from "react"
 
 import { DataFreshnessPanel, type IProvenanceContext } from "@/components/infrastructure/data-freshness-panel"
+import { ExplainabilityPanel } from "@/components/infrastructure/explainability-panel"
 import { DashboardDateRangeFilter, type TDashboardDateRange } from "@/components/dashboard/dashboard-date-range-filter"
 import { type IMetricGridMetric, MetricsGrid } from "@/components/dashboard/metrics-grid"
 import { Alert, Card, CardBody, CardHeader, Tab, Table, TableBody, TableCell, TableColumn, TableHeader, TableRow, Tabs } from "@/components/ui"
@@ -332,6 +333,45 @@ export function SettingsTokenUsagePage(): ReactElement {
         (): ReadonlyArray<IMetricGridMetric> => buildKpiMetrics(scaledRecords),
         [scaledRecords],
     )
+    const explainabilityFactors = useMemo(
+        (): ReadonlyArray<{
+            readonly impact: "high" | "low" | "medium"
+            readonly label: string
+            readonly value: string
+        }> => {
+            const topModel = byModel[0]
+            const topDeveloper = byDeveloper[0]
+            const topCcr = byCcr[0]
+
+            return [
+                {
+                    impact: "high",
+                    label: "Top model contribution",
+                    value:
+                        topModel === undefined
+                            ? "No model data for current range."
+                            : `${topModel.key} consumed ${formatTokens(topModel.totalTokens)} tokens.`,
+                },
+                {
+                    impact: "medium",
+                    label: "Developer concentration",
+                    value:
+                        topDeveloper === undefined
+                            ? "No developer data for current range."
+                            : `${topDeveloper.key} drives largest usage share in this window.`,
+                },
+                {
+                    impact: "low",
+                    label: "CCR distribution",
+                    value:
+                        topCcr === undefined
+                            ? "No CCR data for current range."
+                            : `Top CCR ${topCcr.key} contributes ${formatCostUsd(topCcr.estimatedCostUsd)}.`,
+                },
+            ]
+        },
+        [byCcr, byDeveloper, byModel],
+    )
     const provenance = useMemo(
         (): IProvenanceContext => ({
             branch: "main",
@@ -395,6 +435,19 @@ export function SettingsTokenUsagePage(): ReactElement {
                     {freshnessActionMessage}
                 </Alert>
             ) : null}
+            <ExplainabilityPanel
+                confidence="0.88"
+                dataWindow={`token-usage:${range}`}
+                factors={explainabilityFactors}
+                limitations={[
+                    "Estimated cost is based on static pricing table snapshot.",
+                    "Completion and prompt mix can shift after delayed event ingestion.",
+                ]}
+                signalLabel="Cost concentration risk"
+                signalValue={range === "90d" ? "elevated" : "moderate"}
+                threshold=">= 0.65"
+                title="Explainability for token cost signal"
+            />
 
             <MetricsGrid metrics={metrics} />
 

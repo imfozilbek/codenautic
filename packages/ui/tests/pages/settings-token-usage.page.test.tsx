@@ -12,6 +12,7 @@ describe("SettingsTokenUsagePage", (): void => {
 
         expect(screen.getByText("Token Usage")).not.toBeNull()
         expect(screen.getByText("Usage freshness")).not.toBeNull()
+        expect(screen.getByText("Explainability for token cost signal")).not.toBeNull()
 
         await user.click(screen.getByRole("button", { name: "Open provenance" }))
         expect(screen.getByText("Source data provenance")).not.toBeNull()
@@ -19,6 +20,11 @@ describe("SettingsTokenUsagePage", (): void => {
 
         await user.click(screen.getByRole("button", { name: "30d" }))
         expect(screen.getByText("token-usage-range:30d (Last 30 days)")).not.toBeNull()
+
+        await user.click(screen.getByRole("button", { name: "Why this score?" }))
+        expect(screen.getByText("Explainability")).not.toBeNull()
+        await user.click(screen.getByRole("button", { name: "Export explanation snippet" }))
+        expect(screen.getByLabelText("Explainability export snippet")).not.toBeNull()
     })
 
     it("показывает статус действий refresh/rescan", async (): Promise<void> => {

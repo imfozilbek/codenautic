@@ -16,10 +16,16 @@ describe("DashboardMissionControlPage", (): void => {
 
         expect(screen.getByText("Dashboard Mission Control")).not.toBeNull()
         expect(screen.getByText("Dashboard data freshness")).not.toBeNull()
+        expect(screen.getByText("Explainability for release risk")).not.toBeNull()
 
         await user.click(screen.getByRole("button", { name: "Open provenance" }))
         expect(screen.getByText("Source data provenance")).not.toBeNull()
         expect(screen.getByText("job-ccr-2026-03-04-7d")).not.toBeNull()
+
+        await user.click(screen.getByRole("button", { name: "Why this score?" }))
+        expect(screen.getByText("Explainability")).not.toBeNull()
+        await user.click(screen.getByRole("button", { name: "Export explanation snippet" }))
+        expect(screen.getByLabelText("Explainability export snippet")).not.toBeNull()
     })
 
     it("выполняет refresh/rescan действия из панели freshness", async (): Promise<void> => {
