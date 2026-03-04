@@ -3,6 +3,11 @@ import { type ChangeEvent, type FormEvent, type ReactElement, useEffect, useStat
 import { Button } from "@/components/ui"
 import { CodeReviewForm } from "@/components/settings/code-review-form"
 import { ConfigurationEditor } from "@/components/settings/configuration-editor"
+import {
+    DryRunResultViewer,
+    type IDryRunResultViewerData,
+    type IDryRunResultViewerIssue,
+} from "@/components/settings/dry-run-result-viewer"
 import { IgnorePatternEditor } from "@/components/settings/ignore-pattern-editor"
 import { RuleEditor } from "@/components/settings/rule-editor"
 import type { ICodeReviewFormValues } from "@/components/settings/settings-form-schemas"
@@ -16,19 +21,6 @@ import { showToastInfo, showToastSuccess } from "@/lib/notifications/toast"
 const DEFAULT_IGNORED_PATHS: ReadonlyArray<string> = ["/dist", "/node_modules", "/coverage"] as const
 const DEFAULT_REPOSITORY_ID = "repo-1"
 const DEFAULT_REPOSITORY_CONFIG = "version: 1\nreview:\n  mode: MANUAL\n"
-
-interface IDryRunIssue {
-    readonly filePath: string
-    readonly severity: "low" | "medium" | "high"
-    readonly title: string
-}
-
-interface IDryRunResult {
-    readonly mode: TRepoReviewMode
-    readonly reviewedFiles: number
-    readonly suggestions: number
-    readonly issues: ReadonlyArray<IDryRunIssue>
-}
 
 interface IReviewCadenceOption {
     readonly description: string
@@ -57,9 +49,9 @@ const REVIEW_CADENCE_OPTIONS: ReadonlyArray<IReviewCadenceOption> = [
 function createDryRunResultSnapshot(params: {
     readonly ignorePatterns: ReadonlyArray<string>
     readonly reviewMode: TRepoReviewMode
-}): IDryRunResult {
+}): IDryRunResultViewerData {
     const reviewedFiles = Math.max(12 - params.ignorePatterns.length * 2, 1)
-    const issues: ReadonlyArray<IDryRunIssue> = [
+    const issues: ReadonlyArray<IDryRunResultViewerIssue> = [
         {
             filePath: "src/review/pipeline-runner.ts",
             severity: "high",
@@ -122,7 +114,7 @@ export function SettingsCodeReviewPage(): ReactElement {
     const [repositoryId, setRepositoryId] = useState<string>(DEFAULT_REPOSITORY_ID)
     const [configYaml, setConfigYaml] = useState<string>(DEFAULT_REPOSITORY_CONFIG)
     const [reviewMode, setReviewMode] = useState<TRepoReviewMode>(REPO_REVIEW_MODE.manual)
-    const [dryRunResult, setDryRunResult] = useState<IDryRunResult | undefined>(undefined)
+    const [dryRunResult, setDryRunResult] = useState<IDryRunResultViewerData | undefined>(undefined)
     const normalizedRepositoryId = repositoryId.trim()
     const repoConfig = useRepoConfig({
         repositoryId: normalizedRepositoryId,
@@ -312,33 +304,7 @@ export function SettingsCodeReviewPage(): ReactElement {
                     Apply cadence mode
                 </Button>
             </section>
-            <section className="space-y-3 rounded-xl border border-slate-200 bg-white p-4">
-                <h2 className="text-base font-semibold text-slate-900">Dry-run results</h2>
-                <p className="text-sm text-slate-600">
-                    Preview review findings before switching cadence or running full automation.
-                </p>
-                <Button type="button" variant="solid" onPress={handleRunDryRun}>
-                    Run dry-run
-                </Button>
-                {dryRunResult === undefined ? (
-                    <p className="text-xs text-slate-500" data-testid="dry-run-empty">
-                        Run dry-run to preview current review output.
-                    </p>
-                ) : (
-                    <div className="space-y-2">
-                        <p className="text-sm text-slate-700" data-testid="dry-run-summary">
-                            {`Mode: ${dryRunResult.mode} · Reviewed files: ${dryRunResult.reviewedFiles} · Suggestions: ${dryRunResult.suggestions}`}
-                        </p>
-                        <ul className="space-y-1 text-xs text-slate-600">
-                            {dryRunResult.issues.map((issue): ReactElement => (
-                                <li key={`${issue.filePath}-${issue.title}`} data-testid="dry-run-issue-row">
-                                    {`${issue.filePath} · ${issue.severity.toUpperCase()} · ${issue.title}`}
-                                </li>
-                            ))}
-                        </ul>
-                    </div>
-                )}
-            </section>
+            <DryRunResultViewer result={dryRunResult} onRunDryRun={handleRunDryRun} />
             <CodeReviewForm initialValues={formValues} onSubmit={saveReviewForm} />
             <IgnorePatternEditor
                 helperText="Ignore patterns filter scan scope and CCR output."
