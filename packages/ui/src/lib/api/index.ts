@@ -7,6 +7,7 @@ import { PermissionsApi } from "./endpoints/permissions.endpoint"
 import { FeatureFlagsApi } from "./endpoints/feature-flags.endpoint"
 import { SystemApi } from "./endpoints/system.endpoint"
 import { RepoConfigApi } from "./endpoints/repo-config.endpoint"
+import { DryRunApi } from "./endpoints/dry-run.endpoint"
 import { FetchHttpClient } from "./http-client"
 
 /**
@@ -23,6 +24,7 @@ export function createApiContracts(): {
     readonly featureFlags: FeatureFlagsApi
     readonly permissions: PermissionsApi
     readonly repoConfig: RepoConfigApi
+    readonly dryRun: DryRunApi
 } {
     const config = createApiConfig({})
     const httpClient = new FetchHttpClient(config)
@@ -36,6 +38,7 @@ export function createApiContracts(): {
         permissions: new PermissionsApi(httpClient),
         featureFlags: new FeatureFlagsApi(httpClient),
         repoConfig: new RepoConfigApi(httpClient),
+        dryRun: new DryRunApi(httpClient),
     }
 }
 
@@ -56,6 +59,7 @@ export type { ICodeReviewApi } from "./endpoints/code-review.endpoint"
 export type { ICustomRulesApi } from "./endpoints/custom-rules.endpoint"
 export type { IExternalContextApi } from "./endpoints/external-context.endpoint"
 export type { IRepoConfigApi } from "./endpoints/repo-config.endpoint"
+export type { IDryRunApi } from "./endpoints/dry-run.endpoint"
 export type {
     IDelayFunction,
     IFetchHttpClientDependencies,

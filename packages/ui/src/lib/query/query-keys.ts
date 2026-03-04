@@ -59,6 +59,14 @@ export const queryKeys = {
             return ["repo-config", "by-repository", repositoryId] as const
         },
     },
+    dryRun: {
+        all: (): readonly ["dry-run"] => ["dry-run"] as const,
+        byRepository: (
+            repositoryId: string,
+        ): readonly ["dry-run", "by-repository", string] => {
+            return ["dry-run", "by-repository", repositoryId] as const
+        },
+    },
     codeReview: {
         all: (): readonly ["code-review"] => ["code-review"] as const,
         byId: (reviewId: string): readonly ["code-review", "by-id", string] => {

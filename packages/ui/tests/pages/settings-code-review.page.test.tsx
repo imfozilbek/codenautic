@@ -167,6 +167,22 @@ describe("settings code review page", (): void => {
                     },
                 })
             }),
+            http.post("http://localhost:3000/api/v1/repositories/repo-1/dry-run", () => {
+                return HttpResponse.json({
+                    result: {
+                        mode: "MANUAL",
+                        reviewedFiles: 6,
+                        suggestions: 3,
+                        issues: [
+                            {
+                                filePath: "src/review/pipeline.ts",
+                                severity: "high",
+                                title: "Missing fallback",
+                            },
+                        ],
+                    },
+                })
+            }),
         )
 
         renderWithProviders(<SettingsCodeReviewPage />)

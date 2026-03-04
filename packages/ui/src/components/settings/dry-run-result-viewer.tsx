@@ -17,6 +17,7 @@ export interface IDryRunResultViewerData {
 }
 
 interface IDryRunResultViewerProps {
+    readonly isRunning?: boolean
     readonly onRunDryRun: () => void
     readonly result?: IDryRunResultViewerData
 }
@@ -34,8 +35,13 @@ export function DryRunResultViewer(props: IDryRunResultViewerProps): ReactElemen
             <p className="text-sm text-slate-600">
                 Preview review findings before switching cadence or running full automation.
             </p>
-            <Button type="button" variant="solid" onPress={props.onRunDryRun}>
-                Run dry-run
+            <Button
+                isDisabled={props.isRunning === true}
+                type="button"
+                variant="solid"
+                onPress={props.onRunDryRun}
+            >
+                {props.isRunning === true ? "Running dry-run..." : "Run dry-run"}
             </Button>
             {props.result === undefined ? (
                 <p className="text-xs text-slate-500" data-testid="dry-run-empty">

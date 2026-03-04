@@ -6,7 +6,6 @@ import { ConfigurationEditor } from "@/components/settings/configuration-editor"
 import {
     DryRunResultViewer,
     type IDryRunResultViewerData,
-    type IDryRunResultViewerIssue,
 } from "@/components/settings/dry-run-result-viewer"
 import { IgnorePatternEditor } from "@/components/settings/ignore-pattern-editor"
 import { ReviewCadenceSelector } from "@/components/settings/review-cadence-selector"
@@ -16,43 +15,12 @@ import {
     REPO_REVIEW_MODE,
     type TRepoReviewMode,
 } from "@/lib/api/endpoints/repo-config.endpoint"
-import { useRepoConfig } from "@/lib/hooks/queries"
+import { useDryRun, useRepoConfig } from "@/lib/hooks/queries"
 import { showToastInfo, showToastSuccess } from "@/lib/notifications/toast"
 
 const DEFAULT_IGNORED_PATHS: ReadonlyArray<string> = ["/dist", "/node_modules", "/coverage"] as const
 const DEFAULT_REPOSITORY_ID = "repo-1"
 const DEFAULT_REPOSITORY_CONFIG = "version: 1\nreview:\n  mode: MANUAL\n"
-
-function createDryRunResultSnapshot(params: {
-    readonly ignorePatterns: ReadonlyArray<string>
-    readonly reviewMode: TRepoReviewMode
-}): IDryRunResultViewerData {
-    const reviewedFiles = Math.max(12 - params.ignorePatterns.length * 2, 1)
-    const issues: ReadonlyArray<IDryRunResultViewerIssue> = [
-        {
-            filePath: "src/review/pipeline-runner.ts",
-            severity: "high",
-            title: "Large diff chunk without guard",
-        },
-        {
-            filePath: "src/agents/context-loader.ts",
-            severity: "medium",
-            title: "Missing timeout fallback branch",
-        },
-        {
-            filePath: "src/domain/events/review-completed.ts",
-            severity: "low",
-            title: "Event payload can be narrowed",
-        },
-    ]
-
-    return {
-        mode: params.reviewMode,
-        reviewedFiles,
-        suggestions: issues.length * 2,
-        issues,
-    }
-}
 
 function isRepoReviewMode(value: string): value is TRepoReviewMode {
     return (
@@ -87,6 +55,7 @@ export function SettingsCodeReviewPage(): ReactElement {
         repositoryId: normalizedRepositoryId,
         enabled: normalizedRepositoryId.length > 0,
     })
+    const dryRun = useDryRun()
     const loadedConfig = repoConfig.repoConfigQuery.data?.config
 
     useEffect((): void => {
@@ -183,12 +152,24 @@ export function SettingsCodeReviewPage(): ReactElement {
     }
 
     const handleRunDryRun = (): void => {
-        const result = createDryRunResultSnapshot({
-            ignorePatterns: ignoredPaths,
-            reviewMode,
-        })
-        setDryRunResult(result)
-        showToastSuccess("Dry-run completed.")
+        if (normalizedRepositoryId.length === 0) {
+            showToastInfo("Repository ID is required.")
+            return
+        }
+
+        void dryRun.runDryRun
+            .mutateAsync({
+                repositoryId: normalizedRepositoryId,
+                reviewMode,
+                ignorePatterns: ignoredPaths,
+            })
+            .then((response): void => {
+                setDryRunResult(response.result)
+                showToastSuccess("Dry-run completed.")
+            })
+            .catch((): void => {
+                showToastInfo("Unable to run dry-run.")
+            })
     }
 
     const handleCadenceSave = (): void => {
@@ -237,7 +218,11 @@ export function SettingsCodeReviewPage(): ReactElement {
                 onApply={handleCadenceSave}
                 onModeChange={handleCadenceModeChange}
             />
-            <DryRunResultViewer result={dryRunResult} onRunDryRun={handleRunDryRun} />
+            <DryRunResultViewer
+                isRunning={dryRun.runDryRun.isPending}
+                result={dryRunResult}
+                onRunDryRun={handleRunDryRun}
+            />
             <CodeReviewForm initialValues={formValues} onSubmit={saveReviewForm} />
             <IgnorePatternEditor
                 helperText="Ignore patterns filter scan scope and CCR output."
