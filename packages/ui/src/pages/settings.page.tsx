@@ -42,6 +42,14 @@ export function SettingsPage(): ReactElement {
                         <li>
                             <Link
                                 className="underline underline-offset-4"
+                                to="/settings-notifications"
+                            >
+                                Notification center
+                            </Link>
+                        </li>
+                        <li>
+                            <Link
+                                className="underline underline-offset-4"
                                 to="/settings-llm-providers"
                             >
                                 LLM providers
@@ -85,6 +93,14 @@ export function SettingsPage(): ReactElement {
                                 to="/settings-organization"
                             >
                                 Organization settings
+                            </Link>
+                        </li>
+                        <li>
+                            <Link
+                                className="underline underline-offset-4"
+                                to="/settings-billing"
+                            >
+                                Billing lifecycle
                             </Link>
                         </li>
                         <li>

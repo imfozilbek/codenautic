@@ -1,9 +1,11 @@
 import { Outlet } from "@tanstack/react-router"
 import type { ReactElement, ReactNode } from "react"
 import {
+    BellRing,
     Bot,
     Building2,
     Coins,
+    CreditCard,
     FileClock,
     GitBranch,
     GitPullRequest,
@@ -42,6 +44,11 @@ const SETTINGS_NAV = [
         to: "/settings-appearance",
     },
     {
+        icon: <BellRing aria-hidden="true" size={16} />,
+        label: "Notifications",
+        to: "/settings-notifications",
+    },
+    {
         icon: <GitPullRequest aria-hidden="true" size={16} />,
         label: "Code Review",
         to: "/settings-code-review",
@@ -75,6 +82,11 @@ const SETTINGS_NAV = [
         icon: <FileClock aria-hidden="true" size={16} />,
         label: "Audit Logs",
         to: "/settings-audit-logs",
+    },
+    {
+        icon: <CreditCard aria-hidden="true" size={16} />,
+        label: "Billing",
+        to: "/settings-billing",
     },
     {
         icon: <Coins aria-hidden="true" size={16} />,
