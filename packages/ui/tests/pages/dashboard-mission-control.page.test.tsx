@@ -17,6 +17,8 @@ describe("DashboardMissionControlPage", (): void => {
         expect(screen.getByText("Dashboard Mission Control")).not.toBeNull()
         expect(screen.getByText("Dashboard data freshness")).not.toBeNull()
         expect(screen.getByText("Explainability for release risk")).not.toBeNull()
+        expect(screen.getByText("Flow metrics")).not.toBeNull()
+        expect(screen.getByText("Track flow efficiency and delivery capacity dynamics across recent windows.")).not.toBeNull()
         expect(screen.getByText("Team activity")).not.toBeNull()
         expect(screen.getByText("CCRs merged by developer in selected date range.")).not.toBeNull()
 

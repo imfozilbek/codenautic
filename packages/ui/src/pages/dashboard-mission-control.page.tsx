@@ -4,6 +4,7 @@ import { Card, CardBody, CardHeader, Alert } from "@/components/ui"
 import { ActivationChecklist } from "@/components/onboarding/activation-checklist"
 import { DataFreshnessPanel, type IProvenanceContext } from "@/components/infrastructure/data-freshness-panel"
 import { ExplainabilityPanel } from "@/components/infrastructure/explainability-panel"
+import { FlowMetricsWidget, type IFlowMetricsPoint } from "@/components/dashboard/flow-metrics-widget"
 import { TeamActivityWidget, type ITeamActivityPoint } from "@/components/dashboard/team-activity-widget"
 import {
     DashboardDateRangeFilter,
@@ -368,6 +369,45 @@ function getTeamActivity(range: TDashboardDateRange): ReadonlyArray<ITeamActivit
     ]
 }
 
+function getFlowMetrics(range: TDashboardDateRange): ReadonlyArray<IFlowMetricsPoint> {
+    if (range === "1d") {
+        return [
+            { deliveryCapacity: 18, flowEfficiency: 62, window: "08:00" },
+            { deliveryCapacity: 21, flowEfficiency: 65, window: "10:00" },
+            { deliveryCapacity: 19, flowEfficiency: 63, window: "12:00" },
+            { deliveryCapacity: 23, flowEfficiency: 67, window: "14:00" },
+            { deliveryCapacity: 24, flowEfficiency: 68, window: "16:00" },
+        ]
+    }
+
+    if (range === "30d") {
+        return [
+            { deliveryCapacity: 72, flowEfficiency: 58, window: "W1" },
+            { deliveryCapacity: 81, flowEfficiency: 61, window: "W2" },
+            { deliveryCapacity: 85, flowEfficiency: 63, window: "W3" },
+            { deliveryCapacity: 89, flowEfficiency: 66, window: "W4" },
+        ]
+    }
+
+    if (range === "90d") {
+        return [
+            { deliveryCapacity: 248, flowEfficiency: 54, window: "M1" },
+            { deliveryCapacity: 263, flowEfficiency: 57, window: "M2" },
+            { deliveryCapacity: 277, flowEfficiency: 60, window: "M3" },
+        ]
+    }
+
+    return [
+        { deliveryCapacity: 44, flowEfficiency: 59, window: "D1" },
+        { deliveryCapacity: 47, flowEfficiency: 61, window: "D2" },
+        { deliveryCapacity: 51, flowEfficiency: 63, window: "D3" },
+        { deliveryCapacity: 52, flowEfficiency: 64, window: "D4" },
+        { deliveryCapacity: 54, flowEfficiency: 66, window: "D5" },
+        { deliveryCapacity: 55, flowEfficiency: 67, window: "D6" },
+        { deliveryCapacity: 57, flowEfficiency: 68, window: "D7" },
+    ]
+}
+
 /**
  * Рендерит список сигналов для dashboard content компонента.
  *
@@ -509,6 +549,7 @@ export function DashboardMissionControlPage(): ReactElement {
         return getTimelinePayload(dashboardPayload)
     }, [dashboardPayload])
     const teamActivity = useMemo((): ReadonlyArray<ITeamActivityPoint> => getTeamActivity(range), [range])
+    const flowMetrics = useMemo((): ReadonlyArray<IFlowMetricsPoint> => getFlowMetrics(range), [range])
     const provenance = useMemo(
         (): IProvenanceContext => ({
             branch: "main",
@@ -780,6 +821,11 @@ export function DashboardMissionControlPage(): ReactElement {
 
             <ActivationChecklist role={checklistRole} />
             <MetricsGrid metrics={metrics} />
+            <FlowMetricsWidget
+                capacityTrendLabel="+6%"
+                flowTrendLabel="+4%"
+                points={flowMetrics}
+            />
             <TeamActivityWidget points={teamActivity} />
             <div className="grid gap-4 md:grid-cols-2">
                 {renderExploreCard()}
