@@ -60,7 +60,7 @@ describe("package dependency graph", (): void => {
             { id: "pkg-a", layer: "api", name: "pkg-a" },
             { id: "pkg-b", layer: "core", name: "pkg-b" },
             { id: "pkg-c", layer: "infra", name: "pkg-c" },
-        ]
+        ] as const
         const relations = [
             {
                 relationType: "runtime",

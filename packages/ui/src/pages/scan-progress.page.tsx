@@ -110,35 +110,41 @@ function parseProgressPayload(data: string): IScanProgressEvent | undefined {
         return undefined
     }
 
-    if (
-        typeof parsed !== "object" ||
-        parsed === null ||
-        typeof parsed.phase !== "string" ||
-        isValidScanPhase(parsed.phase) === false
-    ) {
+    if (typeof parsed !== "object" || parsed === null) {
         return undefined
     }
 
+    const payload = parsed as Record<string, unknown>
+    const phase = payload.phase
+    const percent = payload.percent
+    const etaSeconds = payload.etaSeconds
+    const message = payload.message
+    const phaseCompleted = payload.phaseCompleted
+    const timestamp = payload.timestamp
+    const log = payload.log
+
     if (
-        typeof parsed.percent !== "number" ||
-        Number.isNaN(parsed.percent) === true ||
-        typeof parsed.etaSeconds !== "number" ||
-        Number.isNaN(parsed.etaSeconds) === true ||
-        typeof parsed.message !== "string" ||
-        typeof parsed.phaseCompleted !== "boolean" ||
-        typeof parsed.timestamp !== "string"
+        typeof phase !== "string" ||
+        isValidScanPhase(phase) === false ||
+        typeof percent !== "number" ||
+        Number.isNaN(percent) === true ||
+        typeof etaSeconds !== "number" ||
+        Number.isNaN(etaSeconds) === true ||
+        typeof message !== "string" ||
+        typeof phaseCompleted !== "boolean" ||
+        typeof timestamp !== "string"
     ) {
         return undefined
     }
 
     return {
-        phase: parsed.phase,
-        percent: clampPercent(parsed.percent),
-        etaSeconds: parsed.etaSeconds,
-        message: parsed.message,
-        phaseCompleted: parsed.phaseCompleted,
-        log: typeof parsed.log === "string" ? parsed.log : undefined,
-        timestamp: parsed.timestamp,
+        phase,
+        percent: clampPercent(percent),
+        etaSeconds,
+        message,
+        phaseCompleted,
+        log: typeof log === "string" ? log : undefined,
+        timestamp,
     }
 }
 
@@ -242,7 +248,7 @@ function createEventSource(
     }
 
     const source = new EventSource(eventSourceUrl)
-    source.onmessage = (event): void => {
+    source.onmessage = (event: MessageEvent<string>): void => {
         const nextEvent = parseProgressPayload(event.data)
         if (nextEvent === undefined) {
             return

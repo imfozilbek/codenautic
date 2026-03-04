@@ -17,6 +17,8 @@ import type {
     IUpdateCustomRuleRequest,
     TCustomRuleScope,
     TCustomRuleStatus,
+} from "@/lib/api/endpoints/custom-rules.endpoint"
+import {
     CUSTOM_RULE_SCOPE,
     CUSTOM_RULE_STATUS,
 } from "@/lib/api/endpoints/custom-rules.endpoint"
@@ -72,7 +74,7 @@ export interface IUseCustomRulesResult {
 }
 
 function normalizeRuleQuery<TValue extends string>(
-    value: TValue | undefined,
+    value: string | undefined,
     allowed: readonly TValue[],
 ): TValue | undefined {
     const normalized = value?.trim().toUpperCase()
@@ -80,11 +82,7 @@ function normalizeRuleQuery<TValue extends string>(
         return undefined
     }
 
-    if (allowed.includes(normalized) === false) {
-        return undefined
-    }
-
-    return normalized
+    return allowed.find((allowedValue): boolean => allowedValue === normalized)
 }
 
 function upsertOptimisticRule(

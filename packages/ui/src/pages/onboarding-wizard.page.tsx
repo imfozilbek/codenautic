@@ -11,7 +11,7 @@ import {
     type IFormSelectOption,
 } from "@/components/forms"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { useForm } from "react-hook-form"
+import { useForm, type Resolver } from "react-hook-form"
 import { z } from "zod"
 
 import { showToastSuccess } from "@/lib/notifications/toast"
@@ -788,7 +788,11 @@ export function OnboardingWizardPage(props: IOnboardingWizardPageProps): ReactEl
 
     const form = useForm<IOnboardingFormValues, unknown, IOnboardingFormValues>({
         defaultValues: DEFAULT_ONBOARDING_VALUES,
-        resolver: zodResolver(ONBOARDING_FORM_SCHEMA),
+        resolver: zodResolver(ONBOARDING_FORM_SCHEMA) as Resolver<
+            IOnboardingFormValues,
+            unknown,
+            IOnboardingFormValues
+        >,
         mode: "onSubmit",
     })
 
@@ -1229,7 +1233,13 @@ export function OnboardingWizardPage(props: IOnboardingWizardPageProps): ReactEl
                     </div>
                 </CardHeader>
                 <CardBody>
-                    <form className="space-y-4" onSubmit={form.handleSubmit(handleSubmit)}>
+                    <form
+                        className="space-y-4"
+                        onSubmit={(event): void => {
+                            event.preventDefault()
+                            void form.handleSubmit(handleSubmit)(event)
+                        }}
+                    >
                         {activeStep === 0 ? (
                             <section className="space-y-3">
                                 <FormSelectField<IOnboardingFormValues, "provider">
@@ -1270,7 +1280,6 @@ export function OnboardingWizardPage(props: IOnboardingWizardPageProps): ReactEl
                                 <FormRadioGroupField<IOnboardingFormValues, "onboardingMode">
                                     control={form.control}
                                     helperText="Выберите формат запуска."
-                                    id="onboarding-mode"
                                     label="Режим onboarding"
                                     name="onboardingMode"
                                     options={ONBOARDING_MODE_SELECT_OPTIONS}
@@ -1527,7 +1536,6 @@ https://github.com/owner/repo-b`,
                                         min: 1,
                                         max: 32,
                                         placeholder: "4",
-                                        size: "md",
                                     }}
                                     label="Количество воркеров"
                                     name="scanThreads"

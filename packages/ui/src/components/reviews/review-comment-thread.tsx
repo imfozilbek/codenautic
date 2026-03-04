@@ -2,7 +2,7 @@ import { useMemo, useState, useRef, type ReactElement } from "react"
 
 import type {
     IReviewCommentThread,
-    type TReviewCommentFeedback,
+    TReviewCommentFeedback,
 } from "@/pages/ccr-data"
 
 interface IReviewCommentThreadProps {

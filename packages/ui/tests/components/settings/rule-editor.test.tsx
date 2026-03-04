@@ -24,7 +24,9 @@ describe("RuleEditor", (): void => {
         const user = userEvent.setup()
         renderWithProviders(<ControlledRuleEditor initialValue="# Intro" />)
 
-        const textarea = screen.getByRole("textbox", { name: "Rule editor" })
+        const textarea = screen.getByRole("textbox", {
+            name: "Rule editor",
+        })
         await user.type(textarea, " text")
 
         expect(
@@ -36,7 +38,9 @@ describe("RuleEditor", (): void => {
         const user = userEvent.setup()
         renderWithProviders(<ControlledRuleEditor initialValue="rule" />)
 
-        const textarea = screen.getByRole("textbox", { name: "Rule editor" }) as HTMLTextAreaElement
+        const textarea = screen.getByRole<HTMLTextAreaElement>("textbox", {
+            name: "Rule editor",
+        })
         textarea.setSelectionRange(0, 4)
         const boldButton = screen.getByRole("button", { name: "Bold" })
         await user.click(boldButton)
@@ -48,7 +52,9 @@ describe("RuleEditor", (): void => {
         const user = userEvent.setup()
         renderWithProviders(<ControlledRuleEditor initialValue="snippet" />)
 
-        const textarea = screen.getByRole("textbox", { name: "Rule editor" }) as HTMLTextAreaElement
+        const textarea = screen.getByRole<HTMLTextAreaElement>("textbox", {
+            name: "Rule editor",
+        })
         await user.click(textarea)
         textarea.setSelectionRange(0, 7)
         const codeButton = screen.getByRole("button", { name: "Code block" })

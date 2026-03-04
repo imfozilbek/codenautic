@@ -1,4 +1,4 @@
-import type { ChangeEvent, ReactElement, ReactNode } from "react"
+import { useId, type ChangeEvent, type ReactElement, type ReactNode } from "react"
 import {
     TextArea as HeroUITextarea,
     type TextAreaProps as HeroUITextareaProps,
@@ -19,6 +19,12 @@ export interface ITextareaProps extends Omit<HeroUITextareaProps, "onChange"> {
     readonly endContent?: ReactNode
     /** Legacy флаг ошибки валидации. */
     readonly isInvalid?: boolean
+    /** Legacy алиас для disabled. */
+    readonly isDisabled?: boolean
+    /** Legacy алиас для readOnly. */
+    readonly isReadOnly?: boolean
+    /** Legacy алиас для rows. */
+    readonly minRows?: number
 }
 
 /**
@@ -35,12 +41,18 @@ export type TextareaProps = ITextareaProps
 export function Textarea(props: TextareaProps): ReactElement {
     const {
         className,
+        disabled,
         endContent,
+        isDisabled,
         label,
         onChange,
         onValueChange,
         onBlur,
         isInvalid,
+        isReadOnly,
+        minRows,
+        readOnly,
+        rows,
         startContent,
         ...textareaProps
     } = props
@@ -50,6 +62,8 @@ export function Textarea(props: TextareaProps): ReactElement {
         startContent !== undefined,
         endContent !== undefined,
     )
+    const fallbackId = useId()
+    const textareaId = typeof textareaProps.id === "string" ? textareaProps.id : fallbackId
 
     const handleChange = (event: ChangeEvent<HTMLTextAreaElement>): void => {
         if (onChange !== undefined) {
@@ -61,13 +75,21 @@ export function Textarea(props: TextareaProps): ReactElement {
         }
     }
 
+    const mappedDisabled = isDisabled ?? disabled
+    const mappedReadOnly = isReadOnly ?? readOnly
+    const mappedRows = rows ?? minRows
+
     const textarea = (
         <HeroUITextarea
             {...textareaProps}
+            id={textareaId}
             className={textareaClassName}
             data-invalid={isInvalid === true ? "true" : undefined}
+            disabled={mappedDisabled}
             onBlur={onBlur}
             onChange={handleChange}
+            readOnly={mappedReadOnly}
+            rows={mappedRows}
         />
     )
 
@@ -77,7 +99,11 @@ export function Textarea(props: TextareaProps): ReactElement {
 
     return (
         <div className="flex flex-col gap-1">
-            {label === undefined ? null : <label className="text-sm font-medium">{label}</label>}
+            {label === undefined ? null : (
+                <label className="text-sm font-medium" htmlFor={textareaId}>
+                    {label}
+                </label>
+            )}
             <div className="relative">
                 {startContent === undefined ? null : (
                     <span className="pointer-events-none absolute left-2 top-3 inline-flex text-slate-500">
@@ -115,6 +141,7 @@ function buildTextareaClassName(
         return suffixClassName.length > 0 ? suffixClassName : undefined
     }
 
+    return undefined
 }
 
 function buildSpacingClassName(hasStartContent: boolean, hasEndContent: boolean): string {

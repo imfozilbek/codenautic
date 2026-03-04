@@ -8,12 +8,12 @@ import { createFileRoute } from "@tanstack/react-router"
 
 const LazyCodeCityDashboardPage = lazy(
     async (): Promise<{
-        default: (props: unknown) => ReactElement
+        default: () => ReactElement
     }> => {
         const pageModule = await import("@/pages/code-city-dashboard.page")
 
         return {
-            default: pageModule.CodeCityDashboardPage,
+            default: (): ReactElement => <pageModule.CodeCityDashboardPage />,
         }
     },
 )

@@ -9,18 +9,101 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as SettingsWebhooksRouteImport } from './routes/settings-webhooks'
+import { Route as SettingsTokenUsageRouteImport } from './routes/settings-token-usage'
+import { Route as SettingsTeamRouteImport } from './routes/settings-team'
+import { Route as SettingsSsoRouteImport } from './routes/settings-sso'
+import { Route as SettingsRulesLibraryRouteImport } from './routes/settings-rules-library'
+import { Route as SettingsProviderDegradationRouteImport } from './routes/settings-provider-degradation'
+import { Route as SettingsPrivacyRedactionRouteImport } from './routes/settings-privacy-redaction'
+import { Route as SettingsOrganizationRouteImport } from './routes/settings-organization'
+import { Route as SettingsNotificationsRouteImport } from './routes/settings-notifications'
 import { Route as SettingsLlmProvidersRouteImport } from './routes/settings-llm-providers'
+import { Route as SettingsJobsRouteImport } from './routes/settings-jobs'
+import { Route as SettingsIntegrationsRouteImport } from './routes/settings-integrations'
 import { Route as SettingsGitProvidersRouteImport } from './routes/settings-git-providers'
+import { Route as SettingsContractValidationRouteImport } from './routes/settings-contract-validation'
+import { Route as SettingsConcurrencyRouteImport } from './routes/settings-concurrency'
 import { Route as SettingsCodeReviewRouteImport } from './routes/settings-code-review'
+import { Route as SettingsByokRouteImport } from './routes/settings-byok'
+import { Route as SettingsBillingRouteImport } from './routes/settings-billing'
+import { Route as SettingsAuditLogsRouteImport } from './routes/settings-audit-logs'
+import { Route as SettingsAppearanceRouteImport } from './routes/settings-appearance'
+import { Route as SettingsAdoptionAnalyticsRouteImport } from './routes/settings-adoption-analytics'
 import { Route as SettingsRouteImport } from './routes/settings'
+import { Route as ScanProgressRouteImport } from './routes/scan-progress'
 import { Route as ReviewsRouteImport } from './routes/reviews'
-import { Route as ReviewsReviewRouteImport } from './routes/reviews.$reviewId'
+import { Route as RepositoriesRouteImport } from './routes/repositories'
+import { Route as OnboardingRouteImport } from './routes/onboarding'
+import { Route as MyWorkRouteImport } from './routes/my-work'
 import { Route as LoginRouteImport } from './routes/login'
+import { Route as IssuesRouteImport } from './routes/issues'
+import { Route as HelpDiagnosticsRouteImport } from './routes/help-diagnostics'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ReviewsReviewIdRouteImport } from './routes/reviews.$reviewId'
+import { Route as RepositoriesRepositoryIdRouteImport } from './routes/repositories.$repositoryId'
+import { Route as DashboardCodeCityRouteImport } from './routes/dashboard.code-city'
 
+const SettingsWebhooksRoute = SettingsWebhooksRouteImport.update({
+  id: '/settings-webhooks',
+  path: '/settings-webhooks',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SettingsTokenUsageRoute = SettingsTokenUsageRouteImport.update({
+  id: '/settings-token-usage',
+  path: '/settings-token-usage',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SettingsTeamRoute = SettingsTeamRouteImport.update({
+  id: '/settings-team',
+  path: '/settings-team',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SettingsSsoRoute = SettingsSsoRouteImport.update({
+  id: '/settings-sso',
+  path: '/settings-sso',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SettingsRulesLibraryRoute = SettingsRulesLibraryRouteImport.update({
+  id: '/settings-rules-library',
+  path: '/settings-rules-library',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SettingsProviderDegradationRoute =
+  SettingsProviderDegradationRouteImport.update({
+    id: '/settings-provider-degradation',
+    path: '/settings-provider-degradation',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const SettingsPrivacyRedactionRoute =
+  SettingsPrivacyRedactionRouteImport.update({
+    id: '/settings-privacy-redaction',
+    path: '/settings-privacy-redaction',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const SettingsOrganizationRoute = SettingsOrganizationRouteImport.update({
+  id: '/settings-organization',
+  path: '/settings-organization',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SettingsNotificationsRoute = SettingsNotificationsRouteImport.update({
+  id: '/settings-notifications',
+  path: '/settings-notifications',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SettingsLlmProvidersRoute = SettingsLlmProvidersRouteImport.update({
   id: '/settings-llm-providers',
   path: '/settings-llm-providers',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SettingsJobsRoute = SettingsJobsRouteImport.update({
+  id: '/settings-jobs',
+  path: '/settings-jobs',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SettingsIntegrationsRoute = SettingsIntegrationsRouteImport.update({
+  id: '/settings-integrations',
+  path: '/settings-integrations',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SettingsGitProvidersRoute = SettingsGitProvidersRouteImport.update({
@@ -28,14 +111,56 @@ const SettingsGitProvidersRoute = SettingsGitProvidersRouteImport.update({
   path: '/settings-git-providers',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SettingsContractValidationRoute =
+  SettingsContractValidationRouteImport.update({
+    id: '/settings-contract-validation',
+    path: '/settings-contract-validation',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const SettingsConcurrencyRoute = SettingsConcurrencyRouteImport.update({
+  id: '/settings-concurrency',
+  path: '/settings-concurrency',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SettingsCodeReviewRoute = SettingsCodeReviewRouteImport.update({
   id: '/settings-code-review',
   path: '/settings-code-review',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SettingsByokRoute = SettingsByokRouteImport.update({
+  id: '/settings-byok',
+  path: '/settings-byok',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SettingsBillingRoute = SettingsBillingRouteImport.update({
+  id: '/settings-billing',
+  path: '/settings-billing',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SettingsAuditLogsRoute = SettingsAuditLogsRouteImport.update({
+  id: '/settings-audit-logs',
+  path: '/settings-audit-logs',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SettingsAppearanceRoute = SettingsAppearanceRouteImport.update({
+  id: '/settings-appearance',
+  path: '/settings-appearance',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SettingsAdoptionAnalyticsRoute =
+  SettingsAdoptionAnalyticsRouteImport.update({
+    id: '/settings-adoption-analytics',
+    path: '/settings-adoption-analytics',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const SettingsRoute = SettingsRouteImport.update({
   id: '/settings',
   path: '/settings',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ScanProgressRoute = ScanProgressRouteImport.update({
+  id: '/scan-progress',
+  path: '/scan-progress',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ReviewsRoute = ReviewsRouteImport.update({
@@ -43,9 +168,19 @@ const ReviewsRoute = ReviewsRouteImport.update({
   path: '/reviews',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ReviewsReviewRoute = ReviewsReviewRouteImport.update({
-  id: '/reviews/$reviewId',
-  path: '/reviews/$reviewId',
+const RepositoriesRoute = RepositoriesRouteImport.update({
+  id: '/repositories',
+  path: '/repositories',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OnboardingRoute = OnboardingRouteImport.update({
+  id: '/onboarding',
+  path: '/onboarding',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MyWorkRoute = MyWorkRouteImport.update({
+  id: '/my-work',
+  path: '/my-work',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LoginRoute = LoginRouteImport.update({
@@ -53,94 +188,377 @@ const LoginRoute = LoginRouteImport.update({
   path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
+const IssuesRoute = IssuesRouteImport.update({
+  id: '/issues',
+  path: '/issues',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HelpDiagnosticsRoute = HelpDiagnosticsRouteImport.update({
+  id: '/help-diagnostics',
+  path: '/help-diagnostics',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ReviewsReviewIdRoute = ReviewsReviewIdRouteImport.update({
+  id: '/$reviewId',
+  path: '/$reviewId',
+  getParentRoute: () => ReviewsRoute,
+} as any)
+const RepositoriesRepositoryIdRoute =
+  RepositoriesRepositoryIdRouteImport.update({
+    id: '/$repositoryId',
+    path: '/$repositoryId',
+    getParentRoute: () => RepositoriesRoute,
+  } as any)
+const DashboardCodeCityRoute = DashboardCodeCityRouteImport.update({
+  id: '/dashboard/code-city',
+  path: '/dashboard/code-city',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/help-diagnostics': typeof HelpDiagnosticsRoute
+  '/issues': typeof IssuesRoute
   '/login': typeof LoginRoute
-  '/reviews': typeof ReviewsRoute
-  '/reviews/$reviewId': typeof ReviewsReviewRoute
+  '/my-work': typeof MyWorkRoute
+  '/onboarding': typeof OnboardingRoute
+  '/repositories': typeof RepositoriesRouteWithChildren
+  '/reviews': typeof ReviewsRouteWithChildren
+  '/scan-progress': typeof ScanProgressRoute
   '/settings': typeof SettingsRoute
+  '/settings-adoption-analytics': typeof SettingsAdoptionAnalyticsRoute
+  '/settings-appearance': typeof SettingsAppearanceRoute
+  '/settings-audit-logs': typeof SettingsAuditLogsRoute
+  '/settings-billing': typeof SettingsBillingRoute
+  '/settings-byok': typeof SettingsByokRoute
   '/settings-code-review': typeof SettingsCodeReviewRoute
+  '/settings-concurrency': typeof SettingsConcurrencyRoute
+  '/settings-contract-validation': typeof SettingsContractValidationRoute
   '/settings-git-providers': typeof SettingsGitProvidersRoute
+  '/settings-integrations': typeof SettingsIntegrationsRoute
+  '/settings-jobs': typeof SettingsJobsRoute
   '/settings-llm-providers': typeof SettingsLlmProvidersRoute
+  '/settings-notifications': typeof SettingsNotificationsRoute
+  '/settings-organization': typeof SettingsOrganizationRoute
+  '/settings-privacy-redaction': typeof SettingsPrivacyRedactionRoute
+  '/settings-provider-degradation': typeof SettingsProviderDegradationRoute
+  '/settings-rules-library': typeof SettingsRulesLibraryRoute
+  '/settings-sso': typeof SettingsSsoRoute
+  '/settings-team': typeof SettingsTeamRoute
+  '/settings-token-usage': typeof SettingsTokenUsageRoute
+  '/settings-webhooks': typeof SettingsWebhooksRoute
+  '/dashboard/code-city': typeof DashboardCodeCityRoute
+  '/repositories/$repositoryId': typeof RepositoriesRepositoryIdRoute
+  '/reviews/$reviewId': typeof ReviewsReviewIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/help-diagnostics': typeof HelpDiagnosticsRoute
+  '/issues': typeof IssuesRoute
   '/login': typeof LoginRoute
-  '/reviews': typeof ReviewsRoute
-  '/reviews/$reviewId': typeof ReviewsReviewRoute
+  '/my-work': typeof MyWorkRoute
+  '/onboarding': typeof OnboardingRoute
+  '/repositories': typeof RepositoriesRouteWithChildren
+  '/reviews': typeof ReviewsRouteWithChildren
+  '/scan-progress': typeof ScanProgressRoute
   '/settings': typeof SettingsRoute
+  '/settings-adoption-analytics': typeof SettingsAdoptionAnalyticsRoute
+  '/settings-appearance': typeof SettingsAppearanceRoute
+  '/settings-audit-logs': typeof SettingsAuditLogsRoute
+  '/settings-billing': typeof SettingsBillingRoute
+  '/settings-byok': typeof SettingsByokRoute
   '/settings-code-review': typeof SettingsCodeReviewRoute
+  '/settings-concurrency': typeof SettingsConcurrencyRoute
+  '/settings-contract-validation': typeof SettingsContractValidationRoute
   '/settings-git-providers': typeof SettingsGitProvidersRoute
+  '/settings-integrations': typeof SettingsIntegrationsRoute
+  '/settings-jobs': typeof SettingsJobsRoute
   '/settings-llm-providers': typeof SettingsLlmProvidersRoute
+  '/settings-notifications': typeof SettingsNotificationsRoute
+  '/settings-organization': typeof SettingsOrganizationRoute
+  '/settings-privacy-redaction': typeof SettingsPrivacyRedactionRoute
+  '/settings-provider-degradation': typeof SettingsProviderDegradationRoute
+  '/settings-rules-library': typeof SettingsRulesLibraryRoute
+  '/settings-sso': typeof SettingsSsoRoute
+  '/settings-team': typeof SettingsTeamRoute
+  '/settings-token-usage': typeof SettingsTokenUsageRoute
+  '/settings-webhooks': typeof SettingsWebhooksRoute
+  '/dashboard/code-city': typeof DashboardCodeCityRoute
+  '/repositories/$repositoryId': typeof RepositoriesRepositoryIdRoute
+  '/reviews/$reviewId': typeof ReviewsReviewIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/help-diagnostics': typeof HelpDiagnosticsRoute
+  '/issues': typeof IssuesRoute
   '/login': typeof LoginRoute
-  '/reviews': typeof ReviewsRoute
-  '/reviews/$reviewId': typeof ReviewsReviewRoute
+  '/my-work': typeof MyWorkRoute
+  '/onboarding': typeof OnboardingRoute
+  '/repositories': typeof RepositoriesRouteWithChildren
+  '/reviews': typeof ReviewsRouteWithChildren
+  '/scan-progress': typeof ScanProgressRoute
   '/settings': typeof SettingsRoute
+  '/settings-adoption-analytics': typeof SettingsAdoptionAnalyticsRoute
+  '/settings-appearance': typeof SettingsAppearanceRoute
+  '/settings-audit-logs': typeof SettingsAuditLogsRoute
+  '/settings-billing': typeof SettingsBillingRoute
+  '/settings-byok': typeof SettingsByokRoute
   '/settings-code-review': typeof SettingsCodeReviewRoute
+  '/settings-concurrency': typeof SettingsConcurrencyRoute
+  '/settings-contract-validation': typeof SettingsContractValidationRoute
   '/settings-git-providers': typeof SettingsGitProvidersRoute
+  '/settings-integrations': typeof SettingsIntegrationsRoute
+  '/settings-jobs': typeof SettingsJobsRoute
   '/settings-llm-providers': typeof SettingsLlmProvidersRoute
+  '/settings-notifications': typeof SettingsNotificationsRoute
+  '/settings-organization': typeof SettingsOrganizationRoute
+  '/settings-privacy-redaction': typeof SettingsPrivacyRedactionRoute
+  '/settings-provider-degradation': typeof SettingsProviderDegradationRoute
+  '/settings-rules-library': typeof SettingsRulesLibraryRoute
+  '/settings-sso': typeof SettingsSsoRoute
+  '/settings-team': typeof SettingsTeamRoute
+  '/settings-token-usage': typeof SettingsTokenUsageRoute
+  '/settings-webhooks': typeof SettingsWebhooksRoute
+  '/dashboard/code-city': typeof DashboardCodeCityRoute
+  '/repositories/$repositoryId': typeof RepositoriesRepositoryIdRoute
+  '/reviews/$reviewId': typeof ReviewsReviewIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/help-diagnostics'
+    | '/issues'
     | '/login'
+    | '/my-work'
+    | '/onboarding'
+    | '/repositories'
     | '/reviews'
-    | '/reviews/$reviewId'
+    | '/scan-progress'
     | '/settings'
+    | '/settings-adoption-analytics'
+    | '/settings-appearance'
+    | '/settings-audit-logs'
+    | '/settings-billing'
+    | '/settings-byok'
     | '/settings-code-review'
+    | '/settings-concurrency'
+    | '/settings-contract-validation'
     | '/settings-git-providers'
+    | '/settings-integrations'
+    | '/settings-jobs'
     | '/settings-llm-providers'
+    | '/settings-notifications'
+    | '/settings-organization'
+    | '/settings-privacy-redaction'
+    | '/settings-provider-degradation'
+    | '/settings-rules-library'
+    | '/settings-sso'
+    | '/settings-team'
+    | '/settings-token-usage'
+    | '/settings-webhooks'
+    | '/dashboard/code-city'
+    | '/repositories/$repositoryId'
+    | '/reviews/$reviewId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/help-diagnostics'
+    | '/issues'
     | '/login'
+    | '/my-work'
+    | '/onboarding'
+    | '/repositories'
     | '/reviews'
-    | '/reviews/$reviewId'
+    | '/scan-progress'
     | '/settings'
+    | '/settings-adoption-analytics'
+    | '/settings-appearance'
+    | '/settings-audit-logs'
+    | '/settings-billing'
+    | '/settings-byok'
     | '/settings-code-review'
+    | '/settings-concurrency'
+    | '/settings-contract-validation'
     | '/settings-git-providers'
+    | '/settings-integrations'
+    | '/settings-jobs'
     | '/settings-llm-providers'
+    | '/settings-notifications'
+    | '/settings-organization'
+    | '/settings-privacy-redaction'
+    | '/settings-provider-degradation'
+    | '/settings-rules-library'
+    | '/settings-sso'
+    | '/settings-team'
+    | '/settings-token-usage'
+    | '/settings-webhooks'
+    | '/dashboard/code-city'
+    | '/repositories/$repositoryId'
+    | '/reviews/$reviewId'
   id:
     | '__root__'
     | '/'
+    | '/help-diagnostics'
+    | '/issues'
     | '/login'
+    | '/my-work'
+    | '/onboarding'
+    | '/repositories'
     | '/reviews'
-    | '/reviews/$reviewId'
+    | '/scan-progress'
     | '/settings'
+    | '/settings-adoption-analytics'
+    | '/settings-appearance'
+    | '/settings-audit-logs'
+    | '/settings-billing'
+    | '/settings-byok'
     | '/settings-code-review'
+    | '/settings-concurrency'
+    | '/settings-contract-validation'
     | '/settings-git-providers'
+    | '/settings-integrations'
+    | '/settings-jobs'
     | '/settings-llm-providers'
+    | '/settings-notifications'
+    | '/settings-organization'
+    | '/settings-privacy-redaction'
+    | '/settings-provider-degradation'
+    | '/settings-rules-library'
+    | '/settings-sso'
+    | '/settings-team'
+    | '/settings-token-usage'
+    | '/settings-webhooks'
+    | '/dashboard/code-city'
+    | '/repositories/$repositoryId'
+    | '/reviews/$reviewId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  HelpDiagnosticsRoute: typeof HelpDiagnosticsRoute
+  IssuesRoute: typeof IssuesRoute
   LoginRoute: typeof LoginRoute
-  ReviewsRoute: typeof ReviewsRoute
-  ReviewsReviewRoute: typeof ReviewsReviewRoute
+  MyWorkRoute: typeof MyWorkRoute
+  OnboardingRoute: typeof OnboardingRoute
+  RepositoriesRoute: typeof RepositoriesRouteWithChildren
+  ReviewsRoute: typeof ReviewsRouteWithChildren
+  ScanProgressRoute: typeof ScanProgressRoute
   SettingsRoute: typeof SettingsRoute
+  SettingsAdoptionAnalyticsRoute: typeof SettingsAdoptionAnalyticsRoute
+  SettingsAppearanceRoute: typeof SettingsAppearanceRoute
+  SettingsAuditLogsRoute: typeof SettingsAuditLogsRoute
+  SettingsBillingRoute: typeof SettingsBillingRoute
+  SettingsByokRoute: typeof SettingsByokRoute
   SettingsCodeReviewRoute: typeof SettingsCodeReviewRoute
+  SettingsConcurrencyRoute: typeof SettingsConcurrencyRoute
+  SettingsContractValidationRoute: typeof SettingsContractValidationRoute
   SettingsGitProvidersRoute: typeof SettingsGitProvidersRoute
+  SettingsIntegrationsRoute: typeof SettingsIntegrationsRoute
+  SettingsJobsRoute: typeof SettingsJobsRoute
   SettingsLlmProvidersRoute: typeof SettingsLlmProvidersRoute
+  SettingsNotificationsRoute: typeof SettingsNotificationsRoute
+  SettingsOrganizationRoute: typeof SettingsOrganizationRoute
+  SettingsPrivacyRedactionRoute: typeof SettingsPrivacyRedactionRoute
+  SettingsProviderDegradationRoute: typeof SettingsProviderDegradationRoute
+  SettingsRulesLibraryRoute: typeof SettingsRulesLibraryRoute
+  SettingsSsoRoute: typeof SettingsSsoRoute
+  SettingsTeamRoute: typeof SettingsTeamRoute
+  SettingsTokenUsageRoute: typeof SettingsTokenUsageRoute
+  SettingsWebhooksRoute: typeof SettingsWebhooksRoute
+  DashboardCodeCityRoute: typeof DashboardCodeCityRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/settings-webhooks': {
+      id: '/settings-webhooks'
+      path: '/settings-webhooks'
+      fullPath: '/settings-webhooks'
+      preLoaderRoute: typeof SettingsWebhooksRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/settings-token-usage': {
+      id: '/settings-token-usage'
+      path: '/settings-token-usage'
+      fullPath: '/settings-token-usage'
+      preLoaderRoute: typeof SettingsTokenUsageRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/settings-team': {
+      id: '/settings-team'
+      path: '/settings-team'
+      fullPath: '/settings-team'
+      preLoaderRoute: typeof SettingsTeamRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/settings-sso': {
+      id: '/settings-sso'
+      path: '/settings-sso'
+      fullPath: '/settings-sso'
+      preLoaderRoute: typeof SettingsSsoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/settings-rules-library': {
+      id: '/settings-rules-library'
+      path: '/settings-rules-library'
+      fullPath: '/settings-rules-library'
+      preLoaderRoute: typeof SettingsRulesLibraryRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/settings-provider-degradation': {
+      id: '/settings-provider-degradation'
+      path: '/settings-provider-degradation'
+      fullPath: '/settings-provider-degradation'
+      preLoaderRoute: typeof SettingsProviderDegradationRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/settings-privacy-redaction': {
+      id: '/settings-privacy-redaction'
+      path: '/settings-privacy-redaction'
+      fullPath: '/settings-privacy-redaction'
+      preLoaderRoute: typeof SettingsPrivacyRedactionRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/settings-organization': {
+      id: '/settings-organization'
+      path: '/settings-organization'
+      fullPath: '/settings-organization'
+      preLoaderRoute: typeof SettingsOrganizationRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/settings-notifications': {
+      id: '/settings-notifications'
+      path: '/settings-notifications'
+      fullPath: '/settings-notifications'
+      preLoaderRoute: typeof SettingsNotificationsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/settings-llm-providers': {
       id: '/settings-llm-providers'
       path: '/settings-llm-providers'
       fullPath: '/settings-llm-providers'
       preLoaderRoute: typeof SettingsLlmProvidersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/settings-jobs': {
+      id: '/settings-jobs'
+      path: '/settings-jobs'
+      fullPath: '/settings-jobs'
+      preLoaderRoute: typeof SettingsJobsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/settings-integrations': {
+      id: '/settings-integrations'
+      path: '/settings-integrations'
+      fullPath: '/settings-integrations'
+      preLoaderRoute: typeof SettingsIntegrationsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/settings-git-providers': {
@@ -150,11 +568,60 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SettingsGitProvidersRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/settings-contract-validation': {
+      id: '/settings-contract-validation'
+      path: '/settings-contract-validation'
+      fullPath: '/settings-contract-validation'
+      preLoaderRoute: typeof SettingsContractValidationRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/settings-concurrency': {
+      id: '/settings-concurrency'
+      path: '/settings-concurrency'
+      fullPath: '/settings-concurrency'
+      preLoaderRoute: typeof SettingsConcurrencyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/settings-code-review': {
       id: '/settings-code-review'
       path: '/settings-code-review'
       fullPath: '/settings-code-review'
       preLoaderRoute: typeof SettingsCodeReviewRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/settings-byok': {
+      id: '/settings-byok'
+      path: '/settings-byok'
+      fullPath: '/settings-byok'
+      preLoaderRoute: typeof SettingsByokRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/settings-billing': {
+      id: '/settings-billing'
+      path: '/settings-billing'
+      fullPath: '/settings-billing'
+      preLoaderRoute: typeof SettingsBillingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/settings-audit-logs': {
+      id: '/settings-audit-logs'
+      path: '/settings-audit-logs'
+      fullPath: '/settings-audit-logs'
+      preLoaderRoute: typeof SettingsAuditLogsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/settings-appearance': {
+      id: '/settings-appearance'
+      path: '/settings-appearance'
+      fullPath: '/settings-appearance'
+      preLoaderRoute: typeof SettingsAppearanceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/settings-adoption-analytics': {
+      id: '/settings-adoption-analytics'
+      path: '/settings-adoption-analytics'
+      fullPath: '/settings-adoption-analytics'
+      preLoaderRoute: typeof SettingsAdoptionAnalyticsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/settings': {
@@ -164,6 +631,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SettingsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/scan-progress': {
+      id: '/scan-progress'
+      path: '/scan-progress'
+      fullPath: '/scan-progress'
+      preLoaderRoute: typeof ScanProgressRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/reviews': {
       id: '/reviews'
       path: '/reviews'
@@ -171,11 +645,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ReviewsRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/reviews/$reviewId': {
-      id: '/reviews/$reviewId'
-      path: '/reviews/$reviewId'
-      fullPath: '/reviews/$reviewId'
-      preLoaderRoute: typeof ReviewsReviewRouteImport
+    '/repositories': {
+      id: '/repositories'
+      path: '/repositories'
+      fullPath: '/repositories'
+      preLoaderRoute: typeof RepositoriesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/onboarding': {
+      id: '/onboarding'
+      path: '/onboarding'
+      fullPath: '/onboarding'
+      preLoaderRoute: typeof OnboardingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/my-work': {
+      id: '/my-work'
+      path: '/my-work'
+      fullPath: '/my-work'
+      preLoaderRoute: typeof MyWorkRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/login': {
@@ -185,6 +673,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LoginRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/issues': {
+      id: '/issues'
+      path: '/issues'
+      fullPath: '/issues'
+      preLoaderRoute: typeof IssuesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/help-diagnostics': {
+      id: '/help-diagnostics'
+      path: '/help-diagnostics'
+      fullPath: '/help-diagnostics'
+      preLoaderRoute: typeof HelpDiagnosticsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -192,18 +694,86 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/reviews/$reviewId': {
+      id: '/reviews/$reviewId'
+      path: '/$reviewId'
+      fullPath: '/reviews/$reviewId'
+      preLoaderRoute: typeof ReviewsReviewIdRouteImport
+      parentRoute: typeof ReviewsRoute
+    }
+    '/repositories/$repositoryId': {
+      id: '/repositories/$repositoryId'
+      path: '/$repositoryId'
+      fullPath: '/repositories/$repositoryId'
+      preLoaderRoute: typeof RepositoriesRepositoryIdRouteImport
+      parentRoute: typeof RepositoriesRoute
+    }
+    '/dashboard/code-city': {
+      id: '/dashboard/code-city'
+      path: '/dashboard/code-city'
+      fullPath: '/dashboard/code-city'
+      preLoaderRoute: typeof DashboardCodeCityRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
+interface RepositoriesRouteChildren {
+  RepositoriesRepositoryIdRoute: typeof RepositoriesRepositoryIdRoute
+}
+
+const RepositoriesRouteChildren: RepositoriesRouteChildren = {
+  RepositoriesRepositoryIdRoute: RepositoriesRepositoryIdRoute,
+}
+
+const RepositoriesRouteWithChildren = RepositoriesRoute._addFileChildren(
+  RepositoriesRouteChildren,
+)
+
+interface ReviewsRouteChildren {
+  ReviewsReviewIdRoute: typeof ReviewsReviewIdRoute
+}
+
+const ReviewsRouteChildren: ReviewsRouteChildren = {
+  ReviewsReviewIdRoute: ReviewsReviewIdRoute,
+}
+
+const ReviewsRouteWithChildren =
+  ReviewsRoute._addFileChildren(ReviewsRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  HelpDiagnosticsRoute: HelpDiagnosticsRoute,
+  IssuesRoute: IssuesRoute,
   LoginRoute: LoginRoute,
-  ReviewsRoute: ReviewsRoute,
-  ReviewsReviewRoute: ReviewsReviewRoute,
+  MyWorkRoute: MyWorkRoute,
+  OnboardingRoute: OnboardingRoute,
+  RepositoriesRoute: RepositoriesRouteWithChildren,
+  ReviewsRoute: ReviewsRouteWithChildren,
+  ScanProgressRoute: ScanProgressRoute,
   SettingsRoute: SettingsRoute,
+  SettingsAdoptionAnalyticsRoute: SettingsAdoptionAnalyticsRoute,
+  SettingsAppearanceRoute: SettingsAppearanceRoute,
+  SettingsAuditLogsRoute: SettingsAuditLogsRoute,
+  SettingsBillingRoute: SettingsBillingRoute,
+  SettingsByokRoute: SettingsByokRoute,
   SettingsCodeReviewRoute: SettingsCodeReviewRoute,
+  SettingsConcurrencyRoute: SettingsConcurrencyRoute,
+  SettingsContractValidationRoute: SettingsContractValidationRoute,
   SettingsGitProvidersRoute: SettingsGitProvidersRoute,
+  SettingsIntegrationsRoute: SettingsIntegrationsRoute,
+  SettingsJobsRoute: SettingsJobsRoute,
   SettingsLlmProvidersRoute: SettingsLlmProvidersRoute,
+  SettingsNotificationsRoute: SettingsNotificationsRoute,
+  SettingsOrganizationRoute: SettingsOrganizationRoute,
+  SettingsPrivacyRedactionRoute: SettingsPrivacyRedactionRoute,
+  SettingsProviderDegradationRoute: SettingsProviderDegradationRoute,
+  SettingsRulesLibraryRoute: SettingsRulesLibraryRoute,
+  SettingsSsoRoute: SettingsSsoRoute,
+  SettingsTeamRoute: SettingsTeamRoute,
+  SettingsTokenUsageRoute: SettingsTokenUsageRoute,
+  SettingsWebhooksRoute: SettingsWebhooksRoute,
+  DashboardCodeCityRoute: DashboardCodeCityRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

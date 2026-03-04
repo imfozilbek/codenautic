@@ -6,7 +6,7 @@ import { DashboardMissionControlPage } from "@/pages/dashboard-mission-control.p
 import { renderWithProviders } from "../utils/render"
 
 vi.mock("@/components/dashboard/dashboard-content", () => ({
-    DashboardContent: (): JSX.Element => <div>dashboard-content</div>,
+    DashboardContent: (): React.JSX.Element => <div>dashboard-content</div>,
 }))
 
 describe("DashboardMissionControlPage", (): void => {

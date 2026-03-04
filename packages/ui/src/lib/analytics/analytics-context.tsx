@@ -298,15 +298,18 @@ function createSdkRuntime(args: {
     const queueStorageKey = args.options?.queueStorageKey ?? DEFAULT_QUEUE_STORAGE_KEY
     const sessionStorageKey = args.options?.sessionStorageKey ?? DEFAULT_SESSION_STORAGE_KEY
 
-    const options: IAnalyticsSdkRuntimeOptions = {
+    const optionsBase: IAnalyticsSdkRuntimeOptions = {
         ...args.options,
         queueStorageKey,
         sessionStorageKey,
     }
-
-    if (args.options?.endpoint === undefined) {
-        options.endpoint = DEFAULT_ANALYTICS_ENDPOINT
-    }
+    const options: IAnalyticsSdkRuntimeOptions =
+        args.options?.endpoint === undefined
+            ? {
+                ...optionsBase,
+                endpoint: DEFAULT_ANALYTICS_ENDPOINT,
+            }
+            : optionsBase
 
     return {
         sendRequest:
@@ -324,8 +327,8 @@ function createSdkRuntime(args: {
     }
 }
 
-function sanitizePayload<TPayload extends Record<string, unknown>>(payload: TPayload): TPayload {
-    return sanitizeAnalyticsPayload(payload) as TPayload
+function sanitizePayload<TPayload extends object>(payload: TPayload): TPayload {
+    return sanitizeAnalyticsPayload(payload as Record<string, unknown>) as unknown as TPayload
 }
 
 export { type TAnalyticsHookState as IAnalyticsContextState }

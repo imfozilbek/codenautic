@@ -2,7 +2,8 @@ import { type ReactElement, type ReactNode, useMemo } from "react"
 
 import { Alert, Button, Card, CardBody, CardHeader } from "@/components/ui"
 
-type TChartPoint = Record<string, unknown>
+type TChartPoint = object
+type TChartKey<TPoint extends TChartPoint> = Extract<keyof TPoint, string>
 
 type TRechartsScaleAggregator = "sum" | "mean"
 
@@ -18,7 +19,7 @@ interface IRechartsChartScalePolicy<TPoint extends TChartPoint> {
     /** Максимум точек после агрегации. */
     readonly maxPoints?: number
     /** Какие поля учитывать при агрегации. */
-    readonly aggregatorKeys?: ReadonlyArray<keyof TPoint>
+    readonly aggregatorKeys?: ReadonlyArray<TChartKey<TPoint>>
     /** Метод агрегирования. */
     readonly aggregator?: TRechartsScaleAggregator
 }
@@ -48,7 +49,7 @@ interface IRechartsChartScaleResult<TPoint extends TChartPoint> {
  *
  * @template TPoint тип точки графика.
  */
-export interface IRechartsChartWrapperProps<TPoint extends TChartPoint = Record<string, unknown>> {
+export interface IRechartsChartWrapperProps<TPoint extends TChartPoint = object> {
     /** Заголовок виджета. */
     readonly title: string
     /** Исходные точки для графика. */
@@ -62,7 +63,7 @@ export interface IRechartsChartWrapperProps<TPoint extends TChartPoint = Record<
     /** Название CSV-файла при скачивании raw данных. */
     readonly csvFileName?: string
     /** Поля для формирования CSV. */
-    readonly csvColumns?: ReadonlyArray<keyof TPoint>
+    readonly csvColumns?: ReadonlyArray<TChartKey<TPoint>>
     /** Кастомный экспорт raw данных. */
     readonly onExportRawData?: (rawData: ReadonlyArray<TPoint>) => void
     /** Текст кнопки экспорта. */
@@ -77,9 +78,10 @@ function isValidNumeric(value: unknown): value is number {
     return typeof value === "number" && Number.isFinite(value)
 }
 
-function detectNumericKeys<TPoint extends TChartPoint>(point: TPoint): ReadonlyArray<keyof TPoint> {
-    return Object.keys(point).filter((rawKey): rawKey is keyof TPoint => {
-        const value = point[rawKey]
+function detectNumericKeys<TPoint extends TChartPoint>(point: TPoint): ReadonlyArray<TChartKey<TPoint>> {
+    return Object.keys(point).filter((rawKey): rawKey is TChartKey<TPoint> => {
+        const pointRecord = point as Record<string, unknown>
+        const value = pointRecord[rawKey]
         return isValidNumeric(value)
     })
 }
@@ -112,7 +114,7 @@ function scaleChartData<TPoint extends TChartPoint>(
 
     const firstPoint = data[0]
     const defaultAggregatorKeys = firstPoint === undefined ? [] : detectNumericKeys(firstPoint)
-    const aggregatorKeys = (policy.aggregatorKeys ?? defaultAggregatorKeys) as ReadonlyArray<keyof TPoint>
+    const aggregatorKeys = policy.aggregatorKeys ?? defaultAggregatorKeys
     const aggregator = policy.aggregator ?? "sum"
 
     const scaledData: TPoint[] = []
@@ -127,7 +129,7 @@ function scaleChartData<TPoint extends TChartPoint>(
                 let numericCount = 0
 
                 for (const point of segment) {
-                    const value = point[key]
+                    const value = readPointValue(point, key)
                     if (isValidNumeric(value)) {
                         total += value
                         numericCount += 1
@@ -135,8 +137,11 @@ function scaleChartData<TPoint extends TChartPoint>(
                 }
 
                 if (numericCount > 0) {
-                    aggregated[key] =
-                        (aggregator === "mean" ? total / segmentLength : total) as TPoint[keyof TPoint]
+                    writePointValue(
+                        aggregated,
+                        key,
+                        aggregator === "mean" ? total / segmentLength : total,
+                    )
                 }
             }
         }
@@ -173,17 +178,24 @@ function convertToCsvCell(value: unknown): string {
 
 function convertToCsv<TPoint extends TChartPoint>(
     rawData: ReadonlyArray<TPoint>,
-    csvColumns: ReadonlyArray<keyof TPoint> | undefined,
+    csvColumns: ReadonlyArray<TChartKey<TPoint>> | undefined,
 ): string {
     if (rawData.length === 0) {
         return ""
     }
 
-    const columns = csvColumns ?? (Object.keys(rawData[0]) as ReadonlyArray<keyof TPoint>)
+    const firstPoint = rawData[0]
+    if (firstPoint === undefined) {
+        return ""
+    }
+
+    const columns =
+        csvColumns ??
+        (Object.keys(firstPoint) as unknown as ReadonlyArray<TChartKey<TPoint>>)
     const header = columns.map((column): string => String(column)).join(",")
     const rows = rawData.map((point) =>
         columns
-            .map((column): string => convertToCsvCell(point[column]))
+            .map((column): string => convertToCsvCell(readPointValue(point, column)))
             .join(","),
     )
 
@@ -192,7 +204,7 @@ function convertToCsv<TPoint extends TChartPoint>(
 
 function downloadCsv<TPoint extends TChartPoint>(
     rawData: ReadonlyArray<TPoint>,
-    csvColumns: ReadonlyArray<keyof TPoint> | undefined,
+    csvColumns: ReadonlyArray<TChartKey<TPoint>> | undefined,
     csvFileName: string | undefined,
 ): void {
     const payload = convertToCsv(rawData, csvColumns)
@@ -316,4 +328,21 @@ export function RechartsChartWrapper<TPoint extends TChartPoint>(
             </CardBody>
         </Card>
     )
+}
+
+function readPointValue<TPoint extends TChartPoint>(
+    point: TPoint,
+    key: TChartKey<TPoint>,
+): unknown {
+    const pointRecord = point as Record<string, unknown>
+    return pointRecord[key]
+}
+
+function writePointValue<TPoint extends TChartPoint>(
+    point: TPoint,
+    key: TChartKey<TPoint>,
+    value: number,
+): void {
+    const pointRecord = point as Record<string, unknown>
+    pointRecord[key] = value
 }

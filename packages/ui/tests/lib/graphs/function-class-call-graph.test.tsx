@@ -60,19 +60,19 @@ describe("function/class call graph", (): void => {
             {
                 file: "src/auth.ts",
                 id: "authController.login",
-                kind: "function",
+                kind: "function" as const,
                 name: "authController.login",
             },
             {
                 file: "src/session.ts",
                 id: "sessionService.createSession",
-                kind: "function",
+                kind: "function" as const,
                 name: "sessionService.createSession",
             },
             {
                 file: "src/repo.ts",
                 id: "repoService.fetchRepository",
-                kind: "function",
+                kind: "function" as const,
                 name: "repoService.fetchRepository",
             },
         ]

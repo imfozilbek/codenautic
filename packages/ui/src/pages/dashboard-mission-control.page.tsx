@@ -1,6 +1,6 @@
 import { type ReactElement, Suspense, lazy, useMemo, useState } from "react"
 
-import { Card, CardBody, CardHeader, Alert } from "@/components/ui"
+import { Alert, Button, Card, CardBody, CardHeader } from "@/components/ui"
 import { ActivationChecklist } from "@/components/onboarding/activation-checklist"
 import { DataFreshnessPanel, type IProvenanceContext } from "@/components/infrastructure/data-freshness-panel"
 import { ExplainabilityPanel } from "@/components/infrastructure/explainability-panel"
@@ -142,13 +142,13 @@ const DASHBOARD_PAYLOAD: IWorkQueuePayload = {
     workQueue: WORK_QUEUE_ENTRIES,
 }
 
-const ORG_SCOPE_OPTIONS = ["all-orgs", "platform-team", "frontend-team", "runtime-team"] as const
-const REPOSITORY_SCOPE_OPTIONS = ["all-repos", "repo-core", "repo-ui", "repo-api"] as const
-const TEAM_SCOPE_OPTIONS = ["all-teams", "runtime", "frontend", "backend", "data"] as const
+const _ORG_SCOPE_OPTIONS = ["all-orgs", "platform-team", "frontend-team", "runtime-team"] as const
+const _REPOSITORY_SCOPE_OPTIONS = ["all-repos", "repo-core", "repo-ui", "repo-api"] as const
+const _TEAM_SCOPE_OPTIONS = ["all-teams", "runtime", "frontend", "backend", "data"] as const
 
-type TOrgScope = (typeof ORG_SCOPE_OPTIONS)[number]
-type TRepositoryScope = (typeof REPOSITORY_SCOPE_OPTIONS)[number]
-type TTeamScope = (typeof TEAM_SCOPE_OPTIONS)[number]
+type TOrgScope = (typeof _ORG_SCOPE_OPTIONS)[number]
+type TRepositoryScope = (typeof _REPOSITORY_SCOPE_OPTIONS)[number]
+type TTeamScope = (typeof _TEAM_SCOPE_OPTIONS)[number]
 type TWorkspaceLayoutPreset = "balanced" | "focus" | "ops"
 
 interface IWorkspacePersonalization {

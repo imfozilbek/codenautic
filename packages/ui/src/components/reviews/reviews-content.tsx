@@ -96,7 +96,8 @@ export function ReviewsContent(props: IReviewsContentProps): ReactElement {
                         cell: (row): ReactElement => (
                             <Link
                                 className="text-sm font-semibold text-slate-900 underline underline-offset-4"
-                                to={`/reviews/${row.id}`}
+                                params={{ reviewId: row.id }}
+                                to="/reviews/$reviewId"
                             >
                                 {row.id}
                             </Link>
@@ -155,7 +156,9 @@ export function ReviewsContent(props: IReviewsContentProps): ReactElement {
                         isDisabled={props.isLoadingMore}
                         size="sm"
                         variant="flat"
-                        onPress={props.onLoadMore}
+                        onPress={(): void => {
+                            void props.onLoadMore()
+                        }}
                     >
                         {props.isLoadingMore ? "Loading..." : "Load more CCR"}
                     </Button>

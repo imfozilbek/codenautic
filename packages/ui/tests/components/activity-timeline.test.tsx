@@ -50,9 +50,11 @@ describe("activity timeline", (): void => {
         const user: UserEvent = userEvent.setup()
         renderWithProviders(<TimelineHarness />)
 
-        const detailSummary = screen.getByRole("button", { name: "View details" })
-        expect(screen.queryByText("3 files updated, 0 blockers.")).toBeNull()
-        await user.click(detailSummary)
+        const detailSummary = screen.getAllByText("View details").at(0)
+        expect(detailSummary).not.toBeUndefined()
+        if (detailSummary !== undefined) {
+            await user.click(detailSummary)
+        }
         expect(screen.queryByText("3 files updated, 0 blockers.")).not.toBeNull()
     })
 })

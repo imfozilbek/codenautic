@@ -75,7 +75,16 @@ const ORGANIZATION_OPTIONS: ReadonlyArray<IHeaderOrganizationOption> = [
     },
 ]
 
-const DEFAULT_ORGANIZATION_ID = ORGANIZATION_OPTIONS[0].id as TTenantId
+const DEFAULT_ORGANIZATION_ID = resolveDefaultOrganizationId()
+
+function resolveDefaultOrganizationId(): TTenantId {
+    const firstOrganization = ORGANIZATION_OPTIONS[0]
+    if (firstOrganization === undefined) {
+        return "platform-team"
+    }
+
+    return firstOrganization.id as TTenantId
+}
 
 const ROLE_OPTIONS: ReadonlyArray<IHeaderRoleOption> = [
     {
@@ -255,14 +264,13 @@ export function DashboardLayout(props: IDashboardLayoutProps): ReactElement {
 
         const handleInputAutosave = (event: Event): void => {
             const target = event.target
-            if (
-                (target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement)
-                !== true
-            ) {
+            const isInputElement = target instanceof HTMLInputElement
+            const isTextAreaElement = target instanceof HTMLTextAreaElement
+            if (isInputElement !== true && isTextAreaElement !== true) {
                 return
             }
 
-            if (target instanceof HTMLInputElement) {
+            if (isInputElement) {
                 const isTextInput =
                     target.type === "text"
                     || target.type === "email"

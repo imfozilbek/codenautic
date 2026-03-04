@@ -4,9 +4,9 @@ import type { ReactElement } from "react"
 import { useVirtualizedList } from "@/lib/hooks/use-virtualized-list"
 import type {
     ICcrDiffFile,
-    type ICcrDiffLine,
-    type ICcrDiffLineType,
-    type ICcrDiffComment,
+    ICcrDiffLine,
+    TCcrDiffLineType,
+    ICcrDiffComment,
 } from "@/pages/ccr-data"
 
 const DIFF_TOKEN_PATTERN =
@@ -44,7 +44,7 @@ interface ICodeDiffViewerProps {
 interface ICodeLineProps {
     readonly side: "left" | "right"
     readonly line: ICcrDiffLine
-    readonly diffType: ICcrDiffLineType
+    readonly diffType: TCcrDiffLineType
 }
 
 function getTokenClass(token: string): string {
@@ -98,7 +98,7 @@ function renderHighlightedCode(code: string): ReactElement {
     )
 }
 
-function getLineStyleByType(type: ICcrDiffLineType): string {
+function getLineStyleByType(type: TCcrDiffLineType): string {
     if (type === "removed") {
         return "bg-rose-50 border-l-4 border-rose-300"
     }
@@ -141,7 +141,7 @@ function CodeDiffLine(props: ICodeLineProps): ReactElement {
     )
 }
 
-function CodeDiffFilePanel(props: ICodeDiffFile): ReactElement {
+function CodeDiffFilePanel(props: ICcrDiffFile): ReactElement {
     const fileData = props
     const lineCounts = useMemo((): { added: number; removed: number } => {
         let added = 0
@@ -182,8 +182,12 @@ function CodeDiffFilePanel(props: ICodeDiffFile): ReactElement {
                     ref={virtualizer.parentRef}
                 >
                     <div style={{ height: `${virtualizer.totalSize}px` }} className="relative w-max">
-                        {virtualizer.virtualItems.map((virtualItem): ReactElement => {
+                        {virtualizer.virtualItems.map((virtualItem): ReactElement | null => {
                             const line = fileData.lines[virtualItem.index]
+                            if (line === undefined) {
+                                return null
+                            }
+
                             const lineStyle = getLineStyleByType(line.type)
                             const hasComments = (line.comments ?? []).length > 0
 

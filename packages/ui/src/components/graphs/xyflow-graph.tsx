@@ -26,6 +26,8 @@ export interface IXYFlowGraphProps {
     readonly height?: string
     /** Текстовые fallback-лейблы при lazy загрузке. */
     readonly loadingLabel?: string
+    /** Название графа для экспорта файлов. */
+    readonly graphTitle?: string
     /** aria-label для контейнера графа. */
     readonly ariaLabel?: string
     /** Обработчик выбора узла по клику. */
@@ -58,6 +60,7 @@ export function XyFlowGraph(props: IXYFlowGraphProps): ReactElement {
                 height={graphHeight}
                 layoutOptions={props.layoutOptions}
                 nodes={props.nodes}
+                graphTitle={props.graphTitle}
                 nodesDraggable={props.nodesDraggable}
                 onNodeSelect={props.onNodeSelect}
                 selectedNodeId={props.selectedNodeId}

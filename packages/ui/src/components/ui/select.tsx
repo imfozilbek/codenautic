@@ -1,4 +1,4 @@
-import { type ReactElement, type ReactNode } from "react"
+import { type ComponentProps, type ReactElement, type ReactNode } from "react"
 import {
     ListBox,
     ListBoxItem,
@@ -6,9 +6,10 @@ import {
     Select as HeroUISelect,
 } from "@heroui/react"
 
-type THeroUISelectProps = React.ComponentProps<typeof HeroUISelect>
+type THeroUISelectProps = ComponentProps<typeof HeroUISelect>
 type TSelection = Set<string> | "all"
 type TSelectionChangeHandler = (keys: TSelection) => void
+type TSelectSize = "sm" | "md" | "lg"
 
 /**
  * Свойства совместимого select с поддержкой старого API (`selectedKeys`).
@@ -20,6 +21,8 @@ export interface ISelectProps extends Omit<THeroUISelectProps, "selectedKey" | "
     readonly defaultSelectedKeys?: ReadonlySet<string> | "all"
     /** Legacy API-обратный callback в формате `Set` для совместимости. */
     readonly onSelectionChange?: TSelectionChangeHandler
+    /** Legacy размер селекта. */
+    readonly size?: TSelectSize
 }
 
 export type SelectProps = ISelectProps
@@ -52,18 +55,23 @@ export type SelectSectionProps = ISelectSectionProps
 export function Select(props: SelectProps): ReactElement {
     const {
         children,
+        className,
         defaultSelectedKeys,
         onSelectionChange,
         selectedKeys,
+        size,
         ...selectProps
     } = props
 
     const selectedKey = getSelectedKey(selectedKeys)
     const defaultSelectedKey = getSelectedKey(defaultSelectedKeys)
 
+    const mergedClassName = mergeSelectClassName(className, size)
+
     return (
         <HeroUISelect
             {...selectProps}
+            className={mergedClassName}
             defaultSelectedKey={defaultSelectedKey}
             selectedKey={selectedKey}
             onSelectionChange={(keys): void => {
@@ -137,4 +145,44 @@ function resolveSelectionKey(value: unknown): string | undefined {
     }
 
     return undefined
+}
+
+function mergeSelectClassName(
+    className: THeroUISelectProps["className"],
+    size: TSelectSize | undefined,
+): THeroUISelectProps["className"] {
+    if (size === undefined) {
+        return className
+    }
+
+    const sizeClassName = getSelectSizeClassName(size)
+    if (sizeClassName.length === 0) {
+        return className
+    }
+
+    if (typeof className === "function") {
+        return className
+    }
+
+    if (typeof className === "string") {
+        if (className.length === 0) {
+            return sizeClassName
+        }
+
+        return `${className} ${sizeClassName}`
+    }
+
+    return sizeClassName
+}
+
+function getSelectSizeClassName(size: TSelectSize): string {
+    if (size === "sm") {
+        return "h-8"
+    }
+
+    if (size === "lg") {
+        return "h-12"
+    }
+
+    return "h-10"
 }

@@ -54,7 +54,8 @@ export function ReviewsTable(props: IReviewsTableProps): ReactElement {
                             <TableCell>
                                 <Link
                                     className="text-sm font-semibold text-slate-900 underline underline-offset-4"
-                                    to={`/reviews/${row.id}`}
+                                    params={{ reviewId: row.id }}
+                                    to="/reviews/$reviewId"
                                 >
                                     {row.id}
                                 </Link>

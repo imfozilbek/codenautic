@@ -60,7 +60,7 @@ describe("schema-validation", (): void => {
     })
 
     it("очищает строку через sanitize-схему", (): void => {
-        const schema = createSanitizedStringSchema() as z.ZodType<string>
+        const schema = createSanitizedStringSchema()
         const sanitizedSafe = parseSchemaOrError<string>(schema, "  <b>safe</b>  ")
         const scriptSafe = parseSchemaOrError<string>(schema, "  <script>alert(1)</script>test  ")
 

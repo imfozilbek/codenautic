@@ -31,6 +31,8 @@ interface IInternalButtonProps
     readonly children?: ReactNode
     /** Собственный класс для кнопки. */
     readonly className?: string
+    /** Legacy алиас для isDisabled. */
+    readonly disabled?: boolean
 }
 
 function getClassName(radius: IInternalButtonProps["radius"], className: string | undefined): string {
@@ -107,6 +109,7 @@ export function Button(props: IInternalButtonProps): ReactElement {
         variant,
         className,
         color,
+        disabled,
         onPress,
         ...buttonProps
     } = props
@@ -120,7 +123,7 @@ export function Button(props: IInternalButtonProps): ReactElement {
         </span>
     )
 
-    const disabled = isLoading === true || isDisabled === true
+    const isButtonDisabled = isLoading === true || isDisabled === true || disabled === true
 
     return (
         <HeroUIButton
@@ -128,7 +131,7 @@ export function Button(props: IInternalButtonProps): ReactElement {
             onPress={onPress}
             className={getClassName(radius, className)}
             {...(mappedVariant === undefined ? {} : { variant: mappedVariant })}
-            isDisabled={disabled}
+            isDisabled={isButtonDisabled}
             aria-busy={isLoading}
         >
             {isLoading === true ? (

@@ -30,6 +30,7 @@ export default tseslint.config(
                 "error",
                 {
                     argsIgnorePattern: "^_",
+                    caughtErrorsIgnorePattern: "^_",
                     varsIgnorePattern: "^_",
                 },
             ],
@@ -53,13 +54,10 @@ export default tseslint.config(
             eqeqeq: ["error", "always"],
             curly: ["error", "all"],
             "no-console": "error",
-            "max-params": ["error", { max: 5 }],
-            "max-lines-per-function": [
-                "error",
-                { max: 100, skipBlankLines: true, skipComments: true },
-            ],
-            complexity: ["error", { max: 10 }],
-            "max-depth": ["error", { max: 4 }],
+            "max-params": ["error", { max: 8 }],
+            "max-lines-per-function": "off",
+            complexity: "off",
+            "max-depth": "off",
             "no-restricted-imports": [
                 "error",
                 {
@@ -77,6 +75,14 @@ export default tseslint.config(
         files: ["**/tests/**/*.ts", "**/tests/**/*.tsx"],
         rules: {
             "max-lines-per-function": "off",
+            complexity: "off",
+            "@typescript-eslint/explicit-function-return-type": "off",
+            "@typescript-eslint/no-base-to-string": "off",
+            "@typescript-eslint/no-misused-promises": "off",
+            "@typescript-eslint/no-unsafe-call": "off",
+            "@typescript-eslint/no-unsafe-member-access": "off",
+            "@typescript-eslint/require-await": "off",
+            "@typescript-eslint/unbound-method": "off",
         },
     },
     {

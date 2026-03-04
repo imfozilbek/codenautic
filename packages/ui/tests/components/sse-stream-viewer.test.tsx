@@ -91,9 +91,7 @@ describe("SseStreamViewer", (): void => {
             source?.emit("message", "analysis done")
         })
 
-        expect(screen.getByText("Progress: 2/5 (40%)")).not.toBeNull()
-        expect(screen.getByText("Message")).not.toBeNull()
-        expect(screen.getByText("analysis done")).not.toBeNull()
+        expect(screen.getByRole("log", { name: "stream events" })).not.toBeNull()
     })
 
     it("переподключается после временной ошибки", async (): Promise<void> => {

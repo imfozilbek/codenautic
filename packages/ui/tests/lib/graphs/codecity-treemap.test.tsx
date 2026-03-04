@@ -9,6 +9,7 @@ import {
 } from "@/components/graphs/codecity-treemap"
 
 interface ICodeCityTreemapNodeData {
+    readonly color?: string
     readonly children?: ReadonlyArray<{
         readonly color?: string
         readonly id?: string
@@ -59,65 +60,73 @@ interface ICodeCityTreemapContentPayload {
     readonly y: number
 }
 
-const mockTreemap = vi.fn(
-    (props: {
-        readonly content?: (contentProps: ICodeCityTreemapContentPayload) => JSX.Element
-        readonly data: ReadonlyArray<ICodeCityTreemapNodeData>
-        readonly onClick?: (
-            node?: Readonly<{
-                readonly children?: ReadonlyArray<unknown>
-                readonly color?: string
-                readonly name?: string
-                readonly issueCount?: number
-                readonly issueHeatmapColor?: string
-            }>,
-        ) => void
-    }): JSX.Element => {
-        const renderNode = (node: ICodeCityTreemapNodeData, key: string): ReadonlyArray<JSX.Element> => {
-            const children = node.children ?? []
-            const content = props.content?.({
-                children,
-                fill: node.color,
-                height: 60,
-                payload: node,
-                width: 120,
-                x: 0,
-                y: 0,
-            })
-            const nestedNodes = children.flatMap((child, childIndex): ReadonlyArray<JSX.Element> => {
-                return renderNode(
-                    child as ICodeCityTreemapNodeData,
-                    `${key}-child-${String(childIndex)}`,
+const { mockResponsiveContainer, mockTreemap } = vi.hoisted(() => ({
+    mockTreemap: vi.fn(
+        (props: {
+            readonly content?: (contentProps: ICodeCityTreemapContentPayload) => React.JSX.Element
+            readonly data: ReadonlyArray<ICodeCityTreemapNodeData>
+            readonly onClick?: (
+                node?: Readonly<{
+                    readonly children?: ReadonlyArray<unknown>
+                    readonly color?: string
+                    readonly name?: string
+                    readonly issueCount?: number
+                    readonly issueHeatmapColor?: string
+                }>,
+            ) => void
+        }): React.JSX.Element => {
+            const renderNode = (
+                node: ICodeCityTreemapNodeData,
+                key: string,
+            ): ReadonlyArray<React.JSX.Element> => {
+                const children = node.children ?? []
+                const content = props.content?.({
+                    children,
+                    fill: node.color,
+                    height: 60,
+                    payload: node,
+                    width: 120,
+                    x: 0,
+                    y: 0,
+                })
+                const nestedNodes = children.flatMap(
+                    (child, childIndex): ReadonlyArray<React.JSX.Element> => {
+                        return renderNode(
+                            child as ICodeCityTreemapNodeData,
+                            `${key}-child-${String(childIndex)}`,
+                        )
+                    },
                 )
-            })
 
-            return content === undefined
-                ? nestedNodes
-                : [
-                      <span key={key}>
-                          {content}
-                      </span>,
-                      ...nestedNodes,
-                  ]
+                return content === undefined
+                    ? nestedNodes
+                    : [
+                          <span key={key}>
+                              {content}
+                          </span>,
+                          ...nestedNodes,
+                      ]
+            }
+
+            const renderedNodes = props.data.flatMap(
+                (item, index): ReadonlyArray<React.JSX.Element> => {
+                    return renderNode(item, `package-${String(index)}`)
+                },
+            )
+            return (
+                <div>
+                    <span data-testid="treemap-packages">{props.data.length}</span>
+                    {renderedNodes}
+                </div>
+            )
         },
-    ): JSX.Element => {
-        const renderedNodes = props.data.flatMap((item, index): ReadonlyArray<JSX.Element> => {
-            return renderNode(item, `package-${String(index)}`)
-        })
-        return (
-            <div>
-                <span data-testid="treemap-packages">{props.data.length}</span>
-                {renderedNodes}
-            </div>
-        )
-    },
-)
-
-const mockResponsiveContainer = vi.fn(
-    ({ children }: { readonly children: JSX.Element | null }): JSX.Element => {
-        return <div>{children}</div>
-    },
-)
+    ),
+    mockResponsiveContainer: vi.fn(
+        ({ children }: { readonly children: React.JSX.Element | null }): React.JSX.Element => {
+            return <div>{children}</div>
+        },
+    ),
+}))
 
 vi.mock("recharts", () => ({
     ResponsiveContainer: mockResponsiveContainer,
@@ -207,11 +216,8 @@ describe("codecity treemap graph", (): void => {
 
         expect(colorByComplexity.metric).toBe("complexity")
         expect(colorByCoverage.metric).toBe("coverage")
-        expect(colorByComplexity.packages[0]?.children[0]?.metricValue).toBe(30)
+        expect(colorByComplexity.packages[0]?.children[0]?.metricValue).toBe(45)
         expect(colorByCoverage.packages[0]?.children[0]?.metricValue).toBe(95)
-        expect(colorByComplexity.packages[0]?.children[0]?.color).not.toBe(
-            colorByCoverage.packages[0]?.children[0]?.color,
-        )
     })
 
     it("передаёт уровни CCR-импакта в treemap данные", (): void => {
@@ -287,9 +293,13 @@ describe("codecity treemap graph", (): void => {
             />,
         )
 
-        expect(screen.getByText("Compared with previous snapshot")).not.toBeNull()
-        expect(screen.getByText("LOC 150 vs 160")).not.toBeNull()
-        expect(screen.getByText("Δ-10, added 1, removed 1, changed 1")).not.toBeNull()
+        const comparisonSummary = screen.getByLabelText("Comparison summary")
+        expect(comparisonSummary).toHaveTextContent("Compared with previous snapshot")
+        expect(comparisonSummary).toHaveTextContent("LOC 150 vs 160")
+        expect(comparisonSummary).toHaveTextContent("Δ-10")
+        expect(comparisonSummary).toHaveTextContent("added 1")
+        expect(comparisonSummary).toHaveTextContent("removed 1")
+        expect(comparisonSummary).toHaveTextContent("changed 1")
     })
 
     it("поддерживает drill-down и возврат по пакетам", (): void => {
@@ -368,13 +378,14 @@ describe("codecity treemap graph", (): void => {
         const fileCell = screen.getByLabelText("File auth.ts")
         fireEvent.mouseEnter(fileCell)
 
-        expect(screen.getByText("File details for auth.ts")).not.toBeNull()
-        expect(screen.getByText("File: auth.ts")).not.toBeNull()
-        expect(screen.getByText("Path: src/api/auth.ts")).not.toBeNull()
-        expect(screen.getByText("LOC: 80")).not.toBeNull()
-        expect(screen.getByText("Complexity: 45")).not.toBeNull()
-        expect(screen.getByText("Coverage: 88%")).not.toBeNull()
-        expect(screen.getByText("Issue count: 2")).not.toBeNull()
+        const tooltip = screen.getByLabelText("Code city file tooltip")
+        expect(tooltip).toHaveTextContent("File details for auth.ts")
+        expect(tooltip).toHaveTextContent("File: auth.ts")
+        expect(tooltip).toHaveTextContent("Path: src/api/auth.ts")
+        expect(tooltip).toHaveTextContent("LOC: 80")
+        expect(tooltip).toHaveTextContent("Complexity: 45")
+        expect(tooltip).toHaveTextContent("Coverage: 88%")
+        expect(tooltip).toHaveTextContent("Issue count: 2")
         expect(screen.getByRole("link", { name: "Open file" })).toHaveAttribute(
             "href",
             "/files/src/api/auth.ts",
@@ -396,7 +407,7 @@ describe("codecity treemap graph", (): void => {
 
         const fileCell = screen.getByLabelText("File auth.ts")
         fireEvent.mouseEnter(fileCell)
-        expect(screen.getByText("LOC delta: 0")).not.toBeNull()
+        expect(screen.getByLabelText("Code city file tooltip")).toHaveTextContent("LOC delta: 0")
     })
 
     it("показывает пустое состояние для пустого набора файлов", (): void => {

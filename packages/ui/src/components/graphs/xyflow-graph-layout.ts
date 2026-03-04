@@ -13,6 +13,8 @@ export interface IGraphNode {
     readonly width?: number
     /** Высота узла для расчёта лэйаута. */
     readonly height?: number
+    /** Произвольные данные ноды для интеграции с рендерером. */
+    readonly [key: string]: unknown
 }
 
 /** Базовое ребро графа для визуализации. */
@@ -25,6 +27,8 @@ export interface IGraphEdge {
     readonly target: string
     /** Опциональная метка ребра. */
     readonly label?: string
+    /** Произвольные данные ребра для интеграции с рендерером. */
+    readonly [key: string]: unknown
 }
 
 /** Узел после автолэйаута с координатами в React Flow пространстве. */

@@ -1577,9 +1577,12 @@ function createRescanScheduleFromCron(
         }
     }
 
-    const minute = parseCronNumber(values[0], 0, 59, 0)
-    const hour = parseCronNumber(values[1], 0, 23, 0)
-    const weekDay = parseCronNumber(values[4], 0, 6, 0)
+    const minuteToken = values[0] ?? "0"
+    const hourToken = values[1] ?? "0"
+    const weekDayToken = values[4] ?? "0"
+    const minute = parseCronNumber(minuteToken, 0, 59, 0)
+    const hour = parseCronNumber(hourToken, 0, 23, 0)
+    const weekDay = parseCronNumber(weekDayToken, 0, 6, 0)
     const isHourPattern =
         values[1] === "*" && values[2] === "*" && values[3] === "*" && values[4] === "*"
 
@@ -2170,14 +2173,14 @@ export function RepositoryOverviewPage(props: IRepositoryOverviewProps): ReactEl
                 showMiniMap
                 title="Function/Class call graph"
             />
-            <PackageDependencyGraph
-                height="420px"
-                nodes={packageDependencyGraph.nodes}
-                packageRelations={packageDependencyGraph.packageRelations}
-                showControls
-                showMiniMap
-                title="Package dependency graph"
-            />
+                <PackageDependencyGraph
+                    height="420px"
+                    nodes={packageDependencyGraph.nodes}
+                    relations={packageDependencyGraph.packageRelations}
+                    showControls
+                    showMiniMap
+                    title="Package dependency graph"
+                />
             <CodeCityTreemap
                 files={resolveCodeCityTreemapFiles(fileDependencyGraph.files)}
                 height="440px"

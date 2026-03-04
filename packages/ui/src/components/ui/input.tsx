@@ -1,4 +1,4 @@
-import type { ChangeEvent, ReactElement, ReactNode } from "react"
+import { useId, type ChangeEvent, type ReactElement, type ReactNode } from "react"
 import {
     Input as HeroUIInput,
     type InputProps as HeroUIInputProps,
@@ -19,6 +19,8 @@ export interface IInputProps extends Omit<HeroUIInputProps, "onChange"> {
     readonly endContent?: ReactNode
     /** Legacy флаг ошибки валидации. */
     readonly isInvalid?: boolean
+    /** Legacy алиас для disabled. */
+    readonly isDisabled?: boolean
 }
 
 /**
@@ -37,6 +39,7 @@ export function Input(props: InputProps): ReactElement {
         className,
         endContent,
         disabled,
+        isDisabled,
         label,
         onChange,
         onValueChange,
@@ -51,6 +54,8 @@ export function Input(props: InputProps): ReactElement {
         startContent !== undefined,
         endContent !== undefined,
     )
+    const fallbackId = useId()
+    const inputId = typeof inputProps.id === "string" ? inputProps.id : fallbackId
 
     const handleChange = (event: ChangeEvent<HTMLInputElement>): void => {
         if (onChange !== undefined) {
@@ -63,13 +68,14 @@ export function Input(props: InputProps): ReactElement {
         }
     }
 
-    const isDisabled = disabled
+    const mappedDisabled = isDisabled ?? disabled
 
     const input = (
         <HeroUIInput
             {...inputProps}
-            disabled={isDisabled}
-        className={inputClassName}
+            id={inputId}
+            disabled={mappedDisabled}
+            className={inputClassName}
             data-invalid={isInvalid === true ? "true" : undefined}
             onBlur={onBlur}
             onChange={handleChange}
@@ -82,7 +88,11 @@ export function Input(props: InputProps): ReactElement {
 
     return (
         <div className="flex flex-col gap-1">
-            {label === undefined ? null : <label className="text-sm font-medium">{label}</label>}
+            {label === undefined ? null : (
+                <label className="text-sm font-medium" htmlFor={inputId}>
+                    {label}
+                </label>
+            )}
             <div className="relative">
                 {startContent === undefined ? null : (
                     <span className="pointer-events-none absolute left-2 top-1/2 inline-flex -translate-y-1/2 text-slate-500">
@@ -120,6 +130,7 @@ function buildInputClassName(
         return suffixClassName.length > 0 ? suffixClassName : undefined
     }
 
+    return undefined
 }
 
 function buildSpacingClassName(hasStartContent: boolean, hasEndContent: boolean): string {

@@ -205,7 +205,16 @@ function readStoredBasePalette(storageKey: string, fallback: TBasePaletteId): TB
 
 function getPaletteDefinition(basePaletteId: TBasePaletteId): IBasePaletteConfig {
     const matchingPalette = BASE_PALETTES.find((palette): boolean => palette.id === basePaletteId)
-    return matchingPalette ?? BASE_PALETTES[0]
+    if (matchingPalette !== undefined) {
+        return matchingPalette
+    }
+
+    const fallbackPalette = BASE_PALETTES[0]
+    if (fallbackPalette === undefined) {
+        throw new Error("BASE_PALETTES must contain at least one palette")
+    }
+
+    return fallbackPalette
 }
 
 function getRgbComponents(hex: string): { readonly b: number; readonly g: number; readonly r: number } {
@@ -563,7 +572,7 @@ function triggerJsonDownload(fileName: string, jsonPayload: string): void {
 export function SettingsAppearancePage(): ReactElement {
     const { mode, preset, presets, resolvedMode, setMode, setPreset } = useThemeMode()
     const availablePresetIds = useMemo(
-        (): ReadonlyArray<ThemePresetId> => presets.map((themePreset): ThemePresetId => themePreset.id as ThemePresetId),
+        (): ReadonlyArray<ThemePresetId> => presets.map((themePreset): ThemePresetId => themePreset.id),
         [presets],
     )
     const [accentColor, setAccentColor] = useState<string>(() =>
@@ -639,7 +648,7 @@ export function SettingsAppearancePage(): ReactElement {
 
                 return primaryContrast >= 3 && accentContrast >= 2.6
             })
-            .map((themePreset): ThemePresetId => themePreset.id as ThemePresetId)
+            .map((themePreset): ThemePresetId => themePreset.id)
     }, [presets, resolvedMode])
 
     const quickPresetOptions = useMemo((): ReadonlyArray<typeof presets[number]> => {
@@ -707,7 +716,7 @@ export function SettingsAppearancePage(): ReactElement {
     }, [favoritePresetId, presets])
 
     const selectRandomPresetPreview = useCallback((): void => {
-        const currentPresetId = preset as ThemePresetId
+        const currentPresetId = preset
         const candidateIds = accessiblePresetIds.filter(
             (presetId): boolean =>
                 presetId !== currentPresetId && presetId !== pendingRandomPresetId,
@@ -731,7 +740,7 @@ export function SettingsAppearancePage(): ReactElement {
             return
         }
 
-        const currentPresetId = preset as ThemePresetId
+        const currentPresetId = preset
         setLastRandomUndoPresetId(currentPresetId)
         setLastAppliedRandomPresetId(pendingRandomPresetId)
         setPreset(pendingRandomPresetId)
@@ -759,7 +768,7 @@ export function SettingsAppearancePage(): ReactElement {
             id: createThemeLibraryId(nextName),
             mode,
             name: nextName,
-            presetId: preset as ThemePresetId,
+            presetId: preset,
         }
     }
 
@@ -891,7 +900,7 @@ export function SettingsAppearancePage(): ReactElement {
     }
 
     const handlePinCurrentPreset = (): void => {
-        const currentPresetId = preset as ThemePresetId
+        const currentPresetId = preset
         setFavoritePresetId(currentPresetId)
         showToastSuccess("Favorite preset pinned.")
     }
@@ -1071,7 +1080,7 @@ export function SettingsAppearancePage(): ReactElement {
         const defaultPreset = presets.at(0)?.id
         setMode("system")
         if (defaultPreset !== undefined) {
-            setPreset(defaultPreset as ThemePresetId)
+            setPreset(defaultPreset)
         }
         setAccentColor(DEFAULT_ACCENT_COLOR)
         setAccentIntensity(DEFAULT_ACCENT_INTENSITY)
@@ -1145,7 +1154,7 @@ export function SettingsAppearancePage(): ReactElement {
                                     size="sm"
                                     variant={themePreset.id === preset ? "solid" : "flat"}
                                     onPress={(): void => {
-                                        setPreset(themePreset.id as ThemePresetId)
+                                        setPreset(themePreset.id)
                                     }}
                                 >
                                     {themePreset.label}

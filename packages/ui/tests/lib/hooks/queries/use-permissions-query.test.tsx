@@ -12,7 +12,7 @@ import {
 } from "@/lib/hooks/queries/use-permissions-query"
 import { PERMISSION_KEYS } from "@/lib/permissions/permissions"
 
-function PermissionsProbe({ roles }: { readonly roles: ReadonlyArray<string> }): JSX.Element {
+function PermissionsProbe({ roles }: { readonly roles: ReadonlyArray<string> }): React.JSX.Element {
     const query = usePermissionsQuery({
         roles,
     })

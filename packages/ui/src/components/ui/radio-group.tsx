@@ -9,7 +9,7 @@ import {
 /**
  * Свойства группы радиокнопок.
  */
-export interface RadioGroupProps extends Omit<HeroUIRadioGroupProps, "onChange"> {
+export interface IRadioGroupProps extends Omit<HeroUIRadioGroupProps, "onChange"> {
     /** Legacy callback для совместимости со старым API (`onValueChange`). */
     readonly onValueChange?: (value: string) => void
     /** Современный callback для совместимости. */
@@ -20,6 +20,7 @@ export interface RadioGroupProps extends Omit<HeroUIRadioGroupProps, "onChange">
  * Свойства радиокнопки.
  */
 export type RadioProps = HeroUIRadioProps
+export type RadioGroupProps = IRadioGroupProps
 
 /**
  * Обертка RadioGroup для совместимости onValueChange.
@@ -27,7 +28,7 @@ export type RadioProps = HeroUIRadioProps
  * @param props Свойства группы.
  * @returns HeroUI RadioGroup.
  */
-export function RadioGroup(props: RadioGroupProps): ReactElement {
+export function RadioGroup(props: IRadioGroupProps): ReactElement {
     const { isInvalid, onValueChange, onChange, ...radioGroupProps } = props
     type TRadioValueChangeHandler = (value: string) => void
     const safeOnValueChange = (onChange ?? onValueChange) as

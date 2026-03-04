@@ -87,41 +87,33 @@ function clampNumber(value: number | undefined, max = Number.MAX_VALUE): number 
 
 function parseSSEPayload(data: string): ISSEEventPayload {
     try {
-        const parsed = JSON.parse(data)
+        const parsed: unknown = JSON.parse(data)
         if (isRecord(parsed) === false) {
             return {
                 message: data,
             }
         }
 
-        const payload: ISSEEventPayload = {}
+        const payload: Record<string, unknown> = {}
         for (const [key, value] of Object.entries(parsed)) {
-            if (key === "message" && typeof value === "string") {
-                payload.message = value
-            }
-
-            if (key === "stage" && typeof value === "string") {
-                payload.stage = value
-            }
-
-            if (key === "current" && typeof value === "number") {
-                payload.current = value
-            }
-
-            if (key === "total" && typeof value === "number") {
-                payload.total = value
-            }
-
-            if (payload[key] === undefined) {
-                payload[key] = value
-            }
+            payload[key] = value
         }
 
-        if (payload.message === undefined) {
-            payload.message = data
-        }
+        const message =
+            typeof payload.message === "string"
+                ? payload.message
+                : data
+        const stage = typeof payload.stage === "string" ? payload.stage : undefined
+        const current = typeof payload.current === "number" ? payload.current : undefined
+        const total = typeof payload.total === "number" ? payload.total : undefined
 
-        return payload
+        return {
+            ...payload,
+            message,
+            stage,
+            current,
+            total,
+        }
     } catch {
         return {
             message: data,
@@ -273,16 +265,32 @@ export function useSSEStream(props: IUseSSEStreamProps): IUseSSEStreamResult {
 
         source.addEventListener("open", onOpen)
         source.addEventListener("error", onConnectionError)
-        source.addEventListener("message", (event): void => {
+        source.addEventListener("message", (event: Event): void => {
+            if (event instanceof MessageEvent === false || typeof event.data !== "string") {
+                return
+            }
+
             appendEvent(parseSSEEvent("message", event.data))
         })
-        source.addEventListener("progress", (event): void => {
+        source.addEventListener("progress", (event: Event): void => {
+            if (event instanceof MessageEvent === false || typeof event.data !== "string") {
+                return
+            }
+
             appendEvent(parseSSEEvent("progress", event.data))
         })
-        source.addEventListener("done", (event): void => {
+        source.addEventListener("done", (event: Event): void => {
+            if (event instanceof MessageEvent === false || typeof event.data !== "string") {
+                return
+            }
+
             appendEvent(parseSSEEvent("done", event.data))
         })
-        source.addEventListener("stream-error", (event): void => {
+        source.addEventListener("stream-error", (event: Event): void => {
+            if (event instanceof MessageEvent === false || typeof event.data !== "string") {
+                return
+            }
+
             appendEvent(parseSSEEvent("error", event.data))
         })
     }, [

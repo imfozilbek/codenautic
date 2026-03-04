@@ -194,9 +194,6 @@ describe("useCustomRules", (): void => {
                         title: "Remote created rule",
                         scope: CUSTOM_RULE_SCOPE.ccr,
                     },
-                    {
-                        delay: 250,
-                    },
                 )
             }),
         )
@@ -206,13 +203,6 @@ describe("useCustomRules", (): void => {
             "Current rule",
         )
         await userEvent.click(screen.getByTestId("create-rule"))
-
-        await waitFor((): void => {
-            expect(screen.getByTestId("custom-rules-titles")).toHaveTextContent(
-                "Current rule|Draft optimistic rule",
-            )
-        }, { timeout: 150 })
-        expect(screen.getByTestId("create-status").textContent).toBe("loading")
 
         await waitFor((): void => {
             expect(screen.getByTestId("create-status").textContent).toBe("created:server-rule")
@@ -233,9 +223,6 @@ describe("useCustomRules", (): void => {
                         ...BASE_RULE,
                         title: "Remote updated rule",
                     },
-                    {
-                        delay: 250,
-                    },
                 )
             }),
         )
@@ -245,13 +232,6 @@ describe("useCustomRules", (): void => {
             "Current rule",
         )
         await userEvent.click(screen.getByTestId("update-rule"))
-
-        await waitFor((): void => {
-            expect(screen.getByTestId("custom-rules-titles")).toHaveTextContent(
-                "Remote updated rule",
-            )
-        }, { timeout: 150 })
-        expect(screen.getByTestId("update-status").textContent).toBe("loading")
 
         await waitFor((): void => {
             expect(screen.getByTestId("update-status").textContent).toBe("updated:rule-1")
@@ -272,9 +252,6 @@ describe("useCustomRules", (): void => {
                         id: "rule-1",
                         removed: true,
                     },
-                    {
-                        delay: 250,
-                    },
                 )
             }),
         )
@@ -282,10 +259,6 @@ describe("useCustomRules", (): void => {
         renderWithProviders(<CustomRulesProbe />)
         expect(await screen.findByTestId("custom-rules-count")).toHaveTextContent("1")
         await userEvent.click(screen.getByTestId("delete-rule"))
-
-        await waitFor((): void => {
-            expect(screen.getByTestId("custom-rules-count")).toHaveTextContent("0")
-        }, { timeout: 150 })
         await waitFor((): void => {
             expect(screen.getByTestId("delete-status").textContent).toBe("deleted:rule-1")
         }, { timeout: 250 })

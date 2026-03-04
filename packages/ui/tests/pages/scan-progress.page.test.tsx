@@ -63,7 +63,7 @@ describe("ScanProgressPage", (): void => {
         expect(screen.getByText("queue")).not.toBeNull()
         expect(screen.getByText("clone")).not.toBeNull()
         expect(screen.getByText("Подготовка seed-данных")).not.toBeNull()
-        expect(screen.getByText("Считывание репозитория")).not.toBeNull()
+        expect(screen.getAllByText("Считывание репозитория").length).toBeGreaterThan(0)
         expect(screen.getByText("Прогресс: 34%")).not.toBeNull()
     })
 
@@ -126,7 +126,7 @@ describe("ScanProgressPage", (): void => {
             )
         })
 
-        expect(screen.getByText("Сборка отчёта")).not.toBeNull()
+        expect(screen.getAllByText("Сборка отчёта").length).toBeGreaterThan(0)
         expect(screen.getByText("Отчёт получен")).not.toBeNull()
         expect(screen.getByText("Прогресс: 56%")).not.toBeNull()
     })

@@ -69,10 +69,14 @@ function parseCodeReference(value: string): IChatCodeReference | undefined {
         const parsedHashEnd = parseLineNumber(hashLineEnd ?? "")
 
         return {
-            filePath,
+            filePath: filePath ?? "",
             lineStart: parsedLineStart ?? parsedHashStart,
             lineEnd: parsedLineEnd ?? parsedHashEnd,
         }
+    }
+
+    if (fileOnlyMatch === null) {
+        return undefined
     }
 
     return { filePath: fileOnlyMatch[1] ?? "" }
@@ -222,8 +226,8 @@ function parseMessageCodeBlock(
         className,
     ].join(" ")
 
-    const copyCode = async (): Promise<void> => {
-        await onCopy(source)
+    const copyCode = (): void => {
+        onCopy(source)
     }
 
     return (
@@ -237,7 +241,7 @@ function parseMessageCodeBlock(
                         aria-label={`Copy code block ${keyPrefix}`}
                         isIconOnly
                         onPress={(): void => {
-                            void copyCode()
+                            copyCode()
                         }}
                         radius="sm"
                         size="sm"
@@ -332,7 +336,9 @@ export function ChatMessageBubble(props: IChatMessageBubbleProps): ReactElement 
             <ul className="list-disc space-y-1 pl-6">{children}</ul>
         ),
         code: (markdownCodeProps): ReactElement => {
-            const isInline = markdownCodeProps.inline === true
+            const sourceValue = readNodeText(markdownCodeProps.children)
+            const isInline =
+                markdownCodeProps.className === undefined && sourceValue.includes("\n") === false
             if (isInline === true) {
                 return (
                     <code className="rounded bg-[var(--surface-muted)] px-1 py-0.5 font-mono text-sm">
@@ -341,7 +347,7 @@ export function ChatMessageBubble(props: IChatMessageBubbleProps): ReactElement 
                 )
             }
 
-            const source = readNodeText(markdownCodeProps.children)
+            const source = sourceValue
                 .replace(/^\n+/, "")
                 .replace(/\n+$/, "")
             const language = parseCodeBlockLanguage(markdownCodeProps.className)

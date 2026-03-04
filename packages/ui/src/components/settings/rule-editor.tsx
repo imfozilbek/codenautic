@@ -65,23 +65,22 @@ function insertCodeBlock(text: string, start: number, end: number): string {
 }
 
 async function canLoadTipTapCoreModules(): Promise<boolean> {
-    const dynamicImport = new Function(
-        "moduleName",
-        "return import(moduleName)",
-    ) as (moduleName: string) => Promise<unknown>
-
     try {
-        const [reactAdapter, starterKit, codeBlockExtension] = await Promise.all([
-            dynamicImport("@tiptap/react"),
-            dynamicImport("@tiptap/starter-kit"),
-            dynamicImport("@tiptap/extension-code-block"),
+        const importChecks = await Promise.all([
+            canImportModule("@tiptap/react"),
+            canImportModule("@tiptap/starter-kit"),
+            canImportModule("@tiptap/extension-code-block"),
         ])
+        return importChecks.every((isImported): boolean => isImported)
+    } catch (_error: unknown) {
+        return false
+    }
+}
 
-        return (
-            reactAdapter !== undefined
-            && starterKit !== undefined
-            && codeBlockExtension !== undefined
-        )
+async function canImportModule(moduleName: string): Promise<boolean> {
+    try {
+        await import(moduleName)
+        return true
     } catch (_error: unknown) {
         return false
     }
@@ -107,7 +106,7 @@ export function RuleEditor(props: IRuleEditorProps): ReactElement {
     const characterCountId = `${editorId}-character-count`
     const maxLengthId = `${editorId}-max-length`
 
-    useEffect((): void => {
+    useEffect(() => {
         let isMounted = true
 
         void canLoadTipTapCoreModules().then((isAvailable): void => {

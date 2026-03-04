@@ -8,11 +8,11 @@ import { createFileRoute } from "@tanstack/react-router"
 
 const LazyRepositoriesListPage = lazy(
     async (): Promise<{
-        default: (props: unknown) => ReactElement
+        default: () => ReactElement
     }> => {
         const pageModule = await import("@/pages/repositories-list.page")
         return {
-            default: pageModule.RepositoriesListPage,
+            default: (): ReactElement => <pageModule.RepositoriesListPage />,
         }
     },
 )

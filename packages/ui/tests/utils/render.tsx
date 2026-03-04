@@ -1,8 +1,10 @@
-import type { ReactElement } from "react"
+import type { ReactElement, ReactNode } from "react"
 import { render, type RenderResult } from "@testing-library/react"
+import { RouterContextProvider, createMemoryHistory, createRouter } from "@tanstack/react-router"
 import { QueryClientProvider, type QueryClient } from "@tanstack/react-query"
 
 import { createQueryClient } from "@/lib/query/query-client"
+import { routeTree } from "@/routeTree.gen"
 import { ThemeProvider, type ThemeMode } from "@/lib/theme/theme-provider"
 
 /**
@@ -33,18 +35,35 @@ export function renderWithProviders(
     options: IRenderWithProvidersOptions = {},
 ): IRenderWithProvidersResult {
     const queryClient = options.queryClient ?? createQueryClient()
+    const router = createRouter({
+        routeTree,
+        history: createMemoryHistory({
+            initialEntries: [window.location.pathname],
+        }),
+        defaultPreload: "intent",
+        defaultPreloadStaleTime: 0,
+    })
+
     if (typeof window !== "undefined" && options.themeMode !== undefined) {
         window.localStorage.setItem("codenautic:ui:theme-mode", options.themeMode)
     }
 
-    const renderResult = render(
-        <ThemeProvider defaultMode={options.defaultThemeMode}>
-            <QueryClientProvider client={queryClient}>{element}</QueryClientProvider>
-        </ThemeProvider>,
+    const wrapWithProviders = (content: ReactElement): ReactElement => (
+        <RouterContextProvider router={router}>
+            <ThemeProvider defaultMode={options.defaultThemeMode}>
+                <QueryClientProvider client={queryClient}>{content}</QueryClientProvider>
+            </ThemeProvider>
+        </RouterContextProvider>
     )
+
+    const renderResult = render(wrapWithProviders(element))
+    const rerenderWithProviders = (nextElement: ReactNode): void => {
+        renderResult.rerender(wrapWithProviders(<>{nextElement}</>))
+    }
 
     return {
         ...renderResult,
+        rerender: rerenderWithProviders,
         queryClient,
     }
 }

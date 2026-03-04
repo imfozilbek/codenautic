@@ -224,7 +224,7 @@ export class AnalyticsSdk {
     ): IAnalyticsEvent {
         this.sequence += 1
         const occurredAt = this.options.now()
-        const redactedPayload = sanitizeAnalyticsPayload(payload)
+        const redactedPayload = sanitizeAnalyticsPayload(payload as object)
 
         return {
             id: createEventId({
@@ -243,7 +243,7 @@ export class AnalyticsSdk {
                 sessionId: this.sessionId,
                 correlationId: this.createCorrelationId(redactedPayload),
             },
-            payload: redactedPayload as IAnalyticsEventPayload,
+            payload: redactedPayload as unknown as IAnalyticsEventPayload,
         }
     }
 
@@ -417,6 +417,10 @@ export class AnalyticsSdk {
 
         for (let index = this.pendingEvents.length - 1; index >= 0; index -= 1) {
             const event = this.pendingEvents[index]
+            if (event === undefined) {
+                continue
+            }
+
             if (toDelete.has(event.id)) {
                 this.pendingEvents.splice(index, 1)
             }
@@ -430,10 +434,10 @@ export class AnalyticsSdk {
  * @param payload Исходный payload.
  * @returns Очищенный payload.
  */
-export function sanitizeAnalyticsPayload<TPayload extends Record<string, unknown>>(
+export function sanitizeAnalyticsPayload<TPayload extends object>(
     payload: TPayload,
 ): Readonly<Record<string, unknown>> {
-    return sanitizeValue(payload) as Record<string, unknown>
+    return sanitizeValue(payload as Record<string, unknown>) as Record<string, unknown>
 }
 
 /**
@@ -693,13 +697,10 @@ export function createAnalyticsSdk(overrides: IAnalyticsDefaultOptions & {
         maxBatchSize,
         flushIntervalMs,
         samplingRate,
+        endpoint: options?.endpoint ?? defaultOptions.endpoint,
         consent: defaultOptions.consent,
         queueStorageKey: options?.queueStorageKey ?? defaultOptions.queueStorageKey,
         sessionStorageKey: options?.sessionStorageKey ?? defaultOptions.sessionStorageKey,
-    }
-
-    if (options?.endpoint !== undefined) {
-        analyticsOptions.endpoint = options.endpoint
     }
 
     return new AnalyticsSdk(analyticsOptions)

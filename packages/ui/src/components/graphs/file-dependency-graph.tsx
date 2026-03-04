@@ -355,6 +355,7 @@ export function FileDependencyGraph(props: IFileDependencyGraphProps): ReactElem
                     <p>{emptyStateLabel}</p>
                 ) : (
                     <XyFlowGraph
+                        graphTitle={title}
                         ariaLabel="File dependencies graph"
                         nodes={state.query.length > 0 ? visibleGraphData.nodes : layoutedNodes}
                         edges={visibleGraphData.edges}

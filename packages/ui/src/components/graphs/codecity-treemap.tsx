@@ -56,9 +56,9 @@ export interface ICodeCityTreemapImpactedFileDescriptor {
 }
 
 interface ICodeCityTreemapImpactSummary {
-    readonly changed: number
-    readonly impacted: number
-    readonly ripple: number
+    changed: number
+    impacted: number
+    ripple: number
 }
 
 interface ICodeCityTreemapIssueSummary {
@@ -94,7 +94,7 @@ interface ICodeCityTreemapFileTooltip {
     readonly path: string
 }
 
-interface ICodeCityTreemapFileLinkResolver {
+export interface ICodeCityTreemapFileLinkResolver {
     /** Идентификатор файла. */
     readonly fileId: string
     /** Отображаемое имя файла. */
@@ -1026,8 +1026,8 @@ export function CodeCityTreemap(props: ICodeCityTreemapProps): ReactElement {
         )
     }
 
-    const handleTreemapNodeClick = (node?: ICodeCityTreemapTreemapNodePayload): void => {
-        if (node?.name === undefined || node.name.length === 0) {
+    const handleTreemapNodeClick = (node: ICodeCityTreemapTreemapNodePayload): void => {
+        if (node.name === undefined || node.name.length === 0) {
             return
         }
         if ((node.children?.length ?? 0) === 0) {
@@ -1135,7 +1135,7 @@ export function CodeCityTreemap(props: ICodeCityTreemapProps): ReactElement {
                 <div aria-label="Code city treemap" style={{ height, width: "100%" }}>
                     <ResponsiveContainer height="100%" width="100%">
                         <Treemap
-                            data={visiblePackages}
+                            data={visiblePackages as unknown as ReadonlyArray<Record<string, unknown>>}
                             dataKey="value"
                             nameKey="name"
                             stroke="hsl(var(--nextui-colors-defaultBorder))"
@@ -1148,7 +1148,11 @@ export function CodeCityTreemap(props: ICodeCityTreemapProps): ReactElement {
                                     fileLink: props.fileLink,
                                 })
                             }}
-                            onClick={handleTreemapNodeClick}
+                            onClick={(node): void => {
+                                handleTreemapNodeClick(
+                                    node as unknown as ICodeCityTreemapTreemapNodePayload,
+                                )
+                            }}
                         />
                     </ResponsiveContainer>
                 </div>

@@ -153,6 +153,9 @@ const EXTRA_ISSUES: ReadonlyArray<IIssueTrackingIssue> = Array.from(Array(26)).m
         const selectedRepo = repoOptions[index % repoOptions.length]
         const selectedSeverity = severityOptions[index % severityOptions.length]
         const selectedStatus = statusOptions[index % statusOptions.length]
+        const repository = selectedRepo ?? repoOptions[0] ?? "platform-team/api-gateway"
+        const severity = selectedSeverity ?? severityOptions[0] ?? "medium"
+        const status = selectedStatus ?? statusOptions[0] ?? "open"
 
         return {
             detectedAt: `2026-01-${String(19 + index).padStart(2, "0")}T11:00:00Z`,
@@ -160,9 +163,9 @@ const EXTRA_ISSUES: ReadonlyArray<IIssueTrackingIssue> = Array.from(Array(26)).m
             id,
             message: `Auto-discovered pattern in module ${String(index)}`,
             owner: `Owner ${String(index % 6)}`,
-            repository: selectedRepo,
-            severity: selectedSeverity,
-            status: selectedStatus,
+            repository,
+            severity,
+            status,
             title: `Generated issue ${String(index)}`,
         }
     },

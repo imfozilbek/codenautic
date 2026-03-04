@@ -1,10 +1,9 @@
-import { type ReactElement, useMemo } from "react"
+import { type ReactElement, useMemo, useState } from "react"
 import {
     Background,
     Controls,
     MiniMap,
     Panel,
-    Position,
     type Edge,
     ReactFlow,
     type Node,
@@ -19,6 +18,7 @@ import {
     type IGraphLayoutOptions,
     type IGraphNode,
 } from "./xyflow-graph-layout"
+import { exportGraphAsPng, exportGraphAsSvg } from "./graph-export"
 
 /** Параметры визуального рендера XYFlow. */
 interface IXYFlowGraphRendererProps {
@@ -48,6 +48,8 @@ interface IXYFlowGraphRendererProps {
     readonly highlightedNodeIds?: ReadonlyArray<string>
     /** Массив id рёбер, которые входят в impact path. */
     readonly highlightedEdgeIds?: ReadonlyArray<string>
+    /** Название графа для экспорта. */
+    readonly graphTitle?: string
 }
 
 const VIEWPORT_ZOOM_STEP = 0.25
@@ -59,7 +61,7 @@ function XYFlowViewportControls(): ReactElement {
 
     const moveViewport = (deltaX: number, deltaY: number): void => {
         const viewport = flowInstance.getViewport()
-        flowInstance.setViewport(
+        void flowInstance.setViewport(
             {
                 x: viewport.x + deltaX,
                 y: viewport.y + deltaY,
@@ -72,7 +74,7 @@ function XYFlowViewportControls(): ReactElement {
     return (
         <Panel
             className="flex flex-col gap-2 rounded border bg-white/95 p-2"
-            position={Position.TopRight}
+            position="top-right"
         >
             <div className="flex gap-1">
                 <button
@@ -157,6 +159,56 @@ function XYFlowViewportControls(): ReactElement {
     )
 }
 
+/** Панель экспорта графа как SVG/PNG. */
+function XYFlowExportControls(props: {
+    readonly graphTitle: string
+    readonly nodes: ReadonlyArray<IGraphNode>
+    readonly edges: ReadonlyArray<IGraphEdge>
+}): ReactElement {
+    const [isExportingPng, setIsExportingPng] = useState<boolean>(false)
+    const canExport = props.nodes.length > 0
+    const exportTitle = props.graphTitle.trim().length > 0 ? props.graphTitle : "graph"
+
+    return (
+        <Panel
+            className="flex flex-col gap-2 rounded border bg-white/95 p-2"
+            position="top-right"
+        >
+            <button
+                aria-label="Export graph as SVG"
+                className="rounded border border-slate-300 px-2 py-1 text-xs"
+                disabled={canExport !== true}
+                onClick={(): void => {
+                    if (canExport !== true) {
+                        return
+                    }
+                    exportGraphAsSvg(exportTitle, props.nodes, props.edges)
+                }}
+                type="button"
+            >
+                Export SVG
+            </button>
+            <button
+                aria-label="Export graph as PNG"
+                className="rounded border border-slate-300 px-2 py-1 text-xs disabled:opacity-50"
+                disabled={canExport !== true || isExportingPng === true}
+                onClick={(): void => {
+                    if (canExport !== true || isExportingPng === true) {
+                        return
+                    }
+                    setIsExportingPng(true)
+                    void exportGraphAsPng(exportTitle, props.nodes, props.edges).finally(() => {
+                        setIsExportingPng(false)
+                    })
+                }}
+                type="button"
+            >
+                {isExportingPng === true ? "Exporting..." : "Export PNG"}
+            </button>
+        </Panel>
+    )
+}
+
 /** Реальный рендерер графа на базе `@xyflow/react`. */
 export function XYFlowGraphRenderer(props: IXYFlowGraphRendererProps): ReactElement {
     const {
@@ -170,6 +222,9 @@ export function XYFlowGraphRenderer(props: IXYFlowGraphRendererProps): ReactElem
         () => calculateGraphLayout(props.nodes, props.edges, props.layoutOptions),
         [props.edges, props.layoutOptions, props.nodes],
     )
+    const normalizedExportTitle = (props.graphTitle ?? "").trim()
+    const exportTitle =
+        normalizedExportTitle.length === 0 ? "Graph" : normalizedExportTitle
 
     const reactFlowNodes = useMemo((): Array<Node<IGraphNode>> => {
         const highlightedNodeIds = new Set<string>(props.highlightedNodeIds ?? [])
@@ -258,6 +313,11 @@ export function XYFlowGraphRenderer(props: IXYFlowGraphRendererProps): ReactElem
                     <>
                         <Controls />
                         <XYFlowViewportControls />
+                        <XYFlowExportControls
+                            edges={props.edges}
+                            graphTitle={exportTitle}
+                            nodes={layoutedNodes}
+                        />
                     </>
                 ) : null}
                 {showMiniMap === true ? <MiniMap pannable /> : null}

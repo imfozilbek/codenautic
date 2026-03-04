@@ -310,9 +310,7 @@ export function SettingsIntegrationsPage(): ReactElement {
         showToastInfo(`${provider} connection state updated.`)
     }
 
-    const handleTestConnection = async (
-        provider: TIntegrationProvider,
-    ): Promise<boolean> => {
+    const handleTestConnection = (provider: TIntegrationProvider): boolean => {
         const integration = integrations.find(
             (item): boolean => item.provider === provider,
         )
@@ -437,8 +435,10 @@ export function SettingsIntegrationsPage(): ReactElement {
 
                             <div className="flex flex-wrap items-center gap-2">
                                 <TestConnectionButton
-                                    onTest={async (): Promise<boolean> =>
-                                        handleTestConnection(integration.provider)}
+                                    onTest={(): Promise<boolean> =>
+                                        Promise.resolve(
+                                            handleTestConnection(integration.provider),
+                                        )}
                                     providerLabel={integration.provider}
                                 />
                                 <Button

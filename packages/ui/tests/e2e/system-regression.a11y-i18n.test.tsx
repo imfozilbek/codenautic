@@ -1,4 +1,4 @@
-import { screen } from "@testing-library/react"
+import { fireEvent, screen } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { describe, expect, it } from "vitest"
 
@@ -18,7 +18,9 @@ describe("system e2e regression suite: a11y + i18n", (): void => {
         const user = userEvent.setup()
 
         renderWithProviders(<DashboardMissionControlPage />)
-        expect(screen.getByRole("heading", { level: 1, name: "Mission Control" })).not.toBeNull()
+        expect(
+            screen.getByRole("heading", { level: 1, name: "Dashboard Mission Control" }),
+        ).not.toBeNull()
         await user.tab()
         expect(document.activeElement).not.toBe(document.body)
 
@@ -52,7 +54,9 @@ describe("system e2e regression suite: a11y + i18n", (): void => {
             '{"schema":"codenautic.contract.v1","version":2,"type":"rules-library","payload":{"title":"long"}}',
         )
         await user.clear(contractTextbox)
-        await user.type(contractTextbox, longPseudoLocalePayload)
+        fireEvent.change(contractTextbox, {
+            target: { value: longPseudoLocalePayload },
+        })
 
         const validateButton = screen.getByRole("button", { name: "Validate contract" })
         expect(validateButton).not.toBeNull()

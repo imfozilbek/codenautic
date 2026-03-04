@@ -31,13 +31,15 @@ export class PermissionsApi implements IPermissionsApi {
     }
 
     public async getPermissions(role: string = "anonymous"): Promise<IPermissionsResponse> {
-        const query: IGetPermissionsQuery =
+        const query: IGetPermissionsQuery | undefined =
             role.length > 0 ? { role } : undefined
+        const requestQuery =
+            query as Readonly<Record<string, string | undefined>> | undefined
 
         return this.httpClient.request<IPermissionsResponse>({
             method: "GET",
             path: "/api/v1/permissions",
-            query: query,
+            query: requestQuery,
             credentials: "include",
         })
     }

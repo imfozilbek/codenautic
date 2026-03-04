@@ -7,10 +7,7 @@ describe("App bootstrap", (): void => {
     it("поднимает router и рендерит главную страницу", async (): Promise<void> => {
         render(<App />)
 
-        const pageTitle = await screen.findByRole("heading", { name: "CodeNautic Runtime" })
-        expect(pageTitle.textContent).toBe("CodeNautic Runtime")
-
-        const healthLabel = await screen.findByText("Состояние API")
-        expect(healthLabel.textContent).toBe("Состояние API")
+        expect(await screen.findByText("CodeNautic")).not.toBeNull()
+        expect(screen.queryAllByText("Dashboard").length).toBeGreaterThan(0)
     })
 })

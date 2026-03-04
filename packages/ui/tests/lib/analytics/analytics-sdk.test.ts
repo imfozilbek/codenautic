@@ -38,7 +38,7 @@ describe("AnalyticsSdk", (): void => {
     })
 
     it("отправляет redacted payload и correlation metadata", async (): Promise<void> => {
-        const sendRequest = vi.fn(async () => {
+        const sendRequest = vi.fn(async (_url: string, _init: RequestInit): Promise<Response> => {
             return new Response(null, {
                 status: 200,
                 statusText: "ok",
@@ -76,9 +76,15 @@ describe("AnalyticsSdk", (): void => {
 
         expect(sendRequest).toHaveBeenCalledTimes(1)
         const request = sendRequest.mock.calls[0]
-        expect(request).toBeDefined()
+        if (request === undefined) {
+            throw new Error("Expected at least one analytics request call")
+        }
+        const requestInit = request[1]
+        if (requestInit === undefined || requestInit.body === undefined) {
+            throw new Error("Expected analytics request body")
+        }
 
-        const body = JSON.parse(String(request[1]?.body)) as {
+        const body = JSON.parse(String(requestInit.body)) as {
             readonly events: readonly [
                 {
                     readonly payload: {
@@ -107,7 +113,7 @@ describe("AnalyticsSdk", (): void => {
 
     it("держит очередь offline и отправляет после появления online", async (): Promise<void> => {
         let online = false
-        const sendRequest = vi.fn(async () => {
+        const sendRequest = vi.fn(async (_url: string, _init: RequestInit): Promise<Response> => {
             return new Response(null, {
                 status: 200,
                 statusText: "ok",

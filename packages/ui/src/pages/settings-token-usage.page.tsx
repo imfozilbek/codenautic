@@ -5,7 +5,7 @@ import { EnterpriseDataTable } from "@/components/infrastructure/enterprise-data
 import { ExplainabilityPanel } from "@/components/infrastructure/explainability-panel"
 import { DashboardDateRangeFilter, type TDashboardDateRange } from "@/components/dashboard/dashboard-date-range-filter"
 import { type IMetricGridMetric, MetricsGrid } from "@/components/dashboard/metrics-grid"
-import { Alert, Card, CardBody, CardHeader, Tab, Tabs } from "@/components/ui"
+import { Alert, Button, Card, CardBody, CardHeader } from "@/components/ui"
 
 type TUsageTab = "by-ccr" | "by-developer" | "by-model"
 type TModelName = "claude-3-7-sonnet" | "gpt-4.1-mini" | "gpt-4o-mini" | "mistral-small-latest"
@@ -470,25 +470,51 @@ export function SettingsTokenUsagePage(): ReactElement {
 
             <MetricsGrid metrics={metrics} />
 
-            <Tabs
-                aria-label="Token usage group selector"
-                selectedKey={selectedTab}
-                onSelectionChange={(key): void => {
-                    if (key === "by-model" || key === "by-developer" || key === "by-ccr") {
-                        setSelectedTab(key)
-                    }
-                }}
-            >
-                <Tab key="by-model" title="By model">
+            <div className="space-y-3">
+                <div
+                    aria-label="Token usage group selector"
+                    className="flex flex-wrap gap-2"
+                    role="tablist"
+                >
+                    <Button
+                        aria-pressed={selectedTab === "by-model"}
+                        onPress={(): void => {
+                            setSelectedTab("by-model")
+                        }}
+                        size="sm"
+                        variant={selectedTab === "by-model" ? "solid" : "secondary"}
+                    >
+                        By model
+                    </Button>
+                    <Button
+                        aria-pressed={selectedTab === "by-developer"}
+                        onPress={(): void => {
+                            setSelectedTab("by-developer")
+                        }}
+                        size="sm"
+                        variant={selectedTab === "by-developer" ? "solid" : "secondary"}
+                    >
+                        By developer
+                    </Button>
+                    <Button
+                        aria-pressed={selectedTab === "by-ccr"}
+                        onPress={(): void => {
+                            setSelectedTab("by-ccr")
+                        }}
+                        size="sm"
+                        variant={selectedTab === "by-ccr" ? "solid" : "secondary"}
+                    >
+                        By CCR
+                    </Button>
+                </div>
+                {selectedTab === "by-model" ? (
                     <UsageTable rows={byModel} title="Usage by model" />
-                </Tab>
-                <Tab key="by-developer" title="By developer">
+                ) : null}
+                {selectedTab === "by-developer" ? (
                     <UsageTable rows={byDeveloper} title="Usage by developer" />
-                </Tab>
-                <Tab key="by-ccr" title="By CCR">
-                    <UsageTable rows={byCcr} title="Usage by CCR" />
-                </Tab>
-            </Tabs>
+                ) : null}
+                {selectedTab === "by-ccr" ? <UsageTable rows={byCcr} title="Usage by CCR" /> : null}
+            </div>
         </section>
     )
 }

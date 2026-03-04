@@ -27,8 +27,11 @@ export default function RuleEditorMarkdownPreview(
     props: IRuleEditorMarkdownPreviewProps,
 ): ReactElement {
     const components: Components = {
-        code({ inline, children }) {
-            return inline === true ? <code>{children}</code> : <CodeBlock children={children} />
+        code({ className, children }): ReactElement {
+            const rawContent = typeof children === "string" ? children : ""
+            const isInline = className === undefined && rawContent.includes("\n") === false
+
+            return isInline ? <code>{children}</code> : <CodeBlock children={children} />
         },
     }
 

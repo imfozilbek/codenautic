@@ -5,64 +5,73 @@ import { beforeEach, describe, expect, it, vi } from "vitest"
 import { RepositoryOverviewPage } from "@/pages/repository-overview.page"
 import { renderWithProviders } from "../utils/render"
 
-const mockFileDependencyGraph = vi.fn(
-    (props: {
-        readonly dependencies: ReadonlyArray<unknown>
-        readonly files: ReadonlyArray<unknown>
-        readonly title?: string
-    }): JSX.Element => {
-        return (
-            <div>
-                <p>{props.title}</p>
-                <p>{String(props.files.length)}</p>
-                <p>{String(props.dependencies.length)}</p>
-            </div>
-        )
-    },
-)
-
-const mockFunctionClassCallGraph = vi.fn(
-    (props: {
-        readonly callRelations: ReadonlyArray<unknown>
-        readonly nodes: ReadonlyArray<unknown>
-        readonly title?: string
-    }): JSX.Element => {
-        return (
-            <div>
-                <p>{props.title}</p>
-                <p>{String(props.nodes.length)}</p>
-                <p>{String(props.callRelations.length)}</p>
-            </div>
-        )
-    },
-)
-
-const mockPackageDependencyGraph = vi.fn(
-    (props: {
-        readonly nodes: ReadonlyArray<unknown>
-        readonly packageRelations: ReadonlyArray<unknown>
-        readonly title?: string
-    }): JSX.Element => {
-        return (
-            <div>
-                <p>{props.title}</p>
-                <p>{String(props.nodes.length)}</p>
-                <p>{String(props.packageRelations.length)}</p>
-            </div>
-        )
-    },
-)
-
-const mockCodeCityTreemap = vi.fn(
-    (props: { readonly files: ReadonlyArray<unknown>; readonly title?: string }): JSX.Element => {
-        return (
-            <div>
-                <p>{props.title}</p>
-                <p>{String(props.files.length)}</p>
-            </div>
-        )
-    },
-)
+const {
+    mockCodeCityTreemap,
+    mockFileDependencyGraph,
+    mockFunctionClassCallGraph,
+    mockPackageDependencyGraph,
+} = vi.hoisted(() => ({
+    mockFileDependencyGraph: vi.fn(
+        (props: {
+            readonly dependencies: ReadonlyArray<unknown>
+            readonly files: ReadonlyArray<unknown>
+            readonly title?: string
+        }): React.JSX.Element => {
+            return (
+                <div>
+                    <p>{props.title}</p>
+                    <p>{String(props.files.length)}</p>
+                    <p>{String(props.dependencies.length)}</p>
+                </div>
+            )
+        },
+    ),
+    mockFunctionClassCallGraph: vi.fn(
+        (props: {
+            readonly callRelations: ReadonlyArray<unknown>
+            readonly nodes: ReadonlyArray<unknown>
+            readonly title?: string
+        }): React.JSX.Element => {
+            return (
+                <div>
+                    <p>{props.title}</p>
+                    <p>{String(props.nodes.length)}</p>
+                    <p>{String(props.callRelations.length)}</p>
+                </div>
+            )
+        },
+    ),
+    mockPackageDependencyGraph: vi.fn(
+        (props: {
+            readonly nodes: ReadonlyArray<unknown>
+            readonly packageRelations?: ReadonlyArray<unknown>
+            readonly relations?: ReadonlyArray<unknown>
+            readonly title?: string
+        }): React.JSX.Element => {
+            const relationRows = props.relations ?? props.packageRelations ?? []
+            return (
+                <div>
+                    <p>{props.title}</p>
+                    <p>{String(props.nodes.length)}</p>
+                    <p>{String(relationRows.length)}</p>
+                </div>
+            )
+        },
+    ),
+    mockCodeCityTreemap: vi.fn(
+        (props: {
+            readonly files: ReadonlyArray<unknown>
+            readonly title?: string
+        }): React.JSX.Element => {
+            return (
+                <div>
+                    <p>{props.title}</p>
+                    <p>{String(props.files.length)}</p>
+                </div>
+            )
+        },
+    ),
+}))
 
 vi.mock("@/components/graphs/file-dependency-graph", () => ({
     FileDependencyGraph: mockFileDependencyGraph,

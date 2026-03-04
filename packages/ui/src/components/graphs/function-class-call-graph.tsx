@@ -356,6 +356,7 @@ export function FunctionClassCallGraph(props: IFunctionCallGraphProps): ReactEle
             </CardHeader>
             <CardBody className="gap-4">
                 <XyFlowGraph
+                    graphTitle={title}
                     ariaLabel={`${title} canvas`}
                     edges={visibleGraphData.edges}
                     height={props.height}

@@ -35,13 +35,13 @@ describe("EnterpriseDataTable", (): void => {
         )
 
         expect(screen.getByRole("table", { name: "Sample table" })).not.toBeNull()
-        await user.click(screen.getByLabelText("Select A1"))
-        expect(screen.getByText("1 selected")).not.toBeNull()
+        await user.click(screen.getByRole("checkbox", { name: "Sample table select all" }))
+        expect(screen.getByText("2 selected")).not.toBeNull()
 
         await user.clear(screen.getByRole("textbox", { name: "Sample table search" }))
         await user.type(screen.getByRole("textbox", { name: "Sample table search" }), "beta")
-        expect(screen.queryByText("alpha")).toBeNull()
-        expect(screen.getByText("beta")).not.toBeNull()
+        expect(screen.queryAllByText("alpha").length).toBe(0)
+        expect(screen.queryAllByText("beta").length).toBeGreaterThan(0)
 
         await user.click(screen.getByRole("button", { name: "Compact" }))
     })

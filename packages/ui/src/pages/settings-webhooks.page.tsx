@@ -3,6 +3,7 @@ import { type ReactElement, useMemo, useRef, useState } from "react"
 import { useVirtualizer } from "@tanstack/react-virtual"
 
 import { Alert, Button, Card, CardBody, CardHeader, Chip, Input, Switch } from "@/components/ui"
+import { TestConnectionButton } from "@/components/settings/test-connection-button"
 import {
     showToastError,
     showToastInfo,
@@ -10,7 +11,7 @@ import {
     showToastWarning,
 } from "@/lib/notifications/toast"
 
-type TWebhookDeliveryStatus = "failed" | "retrying" | "success"
+type TWebhookDeliveryStatus = "disconnected" | "failed" | "retrying" | "success"
 
 interface IWebhookEndpoint {
     /** Идентификатор endpoint. */
@@ -126,6 +127,10 @@ function parseEventTypes(value: string): ReadonlyArray<string> {
 function mapWebhookStatusColor(
     status: TWebhookDeliveryStatus,
 ): "danger" | "primary" | "success" | "warning" | "default" {
+    if (status === "disconnected") {
+        return "default"
+    }
+
     if (status === "success") {
         return "success"
     }
@@ -138,6 +143,10 @@ function mapWebhookStatusColor(
 }
 
 function mapWebhookStatusText(status: TWebhookDeliveryStatus): string {
+    if (status === "disconnected") {
+        return "Disconnected"
+    }
+
     if (status === "success") {
         return "Success"
     }
@@ -306,7 +315,7 @@ export function SettingsWebhooksPage(): ReactElement {
         )
     }
 
-    const handleTestDelivery = async (endpointId: string): Promise<boolean> => {
+    const handleTestDelivery = (endpointId: string): boolean => {
         const webhook = webhooks.find((item): boolean => item.id === endpointId)
         const isHealthy =
             webhook !== undefined && webhook.isEnabled === true && webhook.url.length > 0
@@ -508,8 +517,10 @@ export function SettingsWebhooksPage(): ReactElement {
                                                     Rotate secret
                                                 </Button>
                                                 <TestConnectionButton
-                                                    onTest={async (): Promise<boolean> =>
-                                                        handleTestDelivery(webhook.id)}
+                                                    onTest={(): Promise<boolean> =>
+                                                        Promise.resolve(
+                                                            handleTestDelivery(webhook.id),
+                                                        )}
                                                     providerLabel="Webhook"
                                                 />
                                                 <Button

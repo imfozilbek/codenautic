@@ -167,10 +167,12 @@ export class CustomRulesApi implements ICustomRulesApi {
     public async listCustomRules(
         query: IListCustomRulesQuery = {},
     ): Promise<ICustomRulesListResponse> {
+        const requestQuery = query as Readonly<Record<string, string | undefined>>
+
         return this.httpClient.request<ICustomRulesListResponse>({
             method: "GET",
             path: "/api/v1/rules",
-            query,
+            query: requestQuery,
             credentials: "include",
         })
     }

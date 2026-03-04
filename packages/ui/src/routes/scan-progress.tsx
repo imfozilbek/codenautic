@@ -6,13 +6,24 @@ import { AuthBoundary } from "@/lib/auth/auth-boundary"
 import { DashboardLayout } from "@/components/layout"
 import { createFileRoute, useNavigate } from "@tanstack/react-router"
 
+interface IScanProgressPageModuleProps {
+    readonly jobId?: string
+    readonly eventSourceUrl?: string
+    readonly repositoryId?: string
+    readonly onRetry?: () => void
+    readonly onCancel?: () => void
+    readonly onOpenRepositoryOverview?: () => void
+}
+
 const LazyScanProgressPage = lazy(
     async (): Promise<{
-        default: (props: unknown) => ReactElement
+        default: (props: IScanProgressPageModuleProps) => ReactElement
     }> => {
         const pageModule = await import("@/pages/scan-progress.page")
         return {
-            default: pageModule.ScanProgressPage,
+            default: (props: IScanProgressPageModuleProps): ReactElement => (
+                <pageModule.ScanProgressPage {...props} />
+            ),
         }
     },
 )

@@ -13,9 +13,9 @@ describe("settings code review page", (): void => {
         const heading = screen.getByRole("heading", { name: "Code Review Configuration" })
         expect(heading).not.toBeNull()
 
-        const ruleEditorInput = screen.getByRole("textbox", {
+        const ruleEditorInput = screen.getByRole<HTMLTextAreaElement>("textbox", {
             name: "Review rules",
-        }) as HTMLTextAreaElement
+        })
         expect(ruleEditorInput).not.toBeNull()
 
         await user.type(ruleEditorInput, " additional rule")
