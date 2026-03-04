@@ -1,6 +1,7 @@
 export {type IDirectoryConfig} from "./directory-config.dto"
 export {type IPromptConfigurationConfigData} from "./prompt-configuration-config.dto"
 export {
+    type IConfigRuleCategoryItem,
     type IRuleCategoryConfigData,
     parseRuleCategoryConfigList,
 } from "./rule-category-config.dto"

@@ -15,6 +15,11 @@ export {
     RuleFactory,
 } from "./rule.factory"
 export {
+    type ICreateRuleCategoryProps,
+    type IReconstituteRuleCategoryProps,
+    RuleCategoryFactory,
+} from "./rule-category.factory"
+export {
     type ICreateOrganizationProps,
     type IReconstituteOrganizationProps,
     OrganizationFactory,

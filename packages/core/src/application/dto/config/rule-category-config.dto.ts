@@ -8,6 +8,11 @@ export interface IRuleCategoryConfigData {
 }
 
 /**
+ * Rule category config item alias for import payloads.
+ */
+export type IConfigRuleCategoryItem = IRuleCategoryConfigData
+
+/**
  * Parses rule category config payload.
  *
  * @param value Raw payload.

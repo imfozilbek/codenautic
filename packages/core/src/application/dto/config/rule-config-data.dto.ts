@@ -284,7 +284,7 @@ function normalizeScope(value: unknown): string | undefined {
         return undefined
     }
 
-    const normalizedToken = normalized.replace(/[\\s-]+/g, "_").toUpperCase()
+    const normalizedToken = normalized.replace(/[\s-]+/g, "_").toUpperCase()
     if (normalizedToken === "FILE") {
         return "FILE"
     }
