@@ -3,7 +3,7 @@ import { type ChangeEvent, type FormEvent, type ReactElement, useEffect, useStat
 import { Button } from "@/components/ui"
 import { CodeReviewForm } from "@/components/settings/code-review-form"
 import { ConfigurationEditor } from "@/components/settings/configuration-editor"
-import { IgnorePathsEditor } from "@/components/settings/ignore-paths-editor"
+import { IgnorePatternEditor } from "@/components/settings/ignore-pattern-editor"
 import { RuleEditor } from "@/components/settings/rule-editor"
 import type { ICodeReviewFormValues } from "@/components/settings/settings-form-schemas"
 import {
@@ -167,9 +167,9 @@ export function SettingsCodeReviewPage(): ReactElement {
                 onSave={handleRepositoryConfigSave}
             />
             <CodeReviewForm initialValues={formValues} onSubmit={saveReviewForm} />
-            <IgnorePathsEditor
-                helperText="Игнорируемые пути используются как фильтр для сканирования и выдачи CCR."
-                ignoredPaths={ignoredPaths}
+            <IgnorePatternEditor
+                helperText="Ignore patterns filter scan scope and CCR output."
+                ignoredPatterns={ignoredPaths}
                 onChange={handlePathsChange}
             />
             <RuleEditor

@@ -139,13 +139,15 @@ describe("settings code review page", (): void => {
 
         renderWithProviders(<SettingsCodeReviewPage />)
 
-        const ignorePathsInput = await screen.findByLabelText<HTMLTextAreaElement>("Ignore paths")
+        const ignorePathsInput = await screen.findByLabelText<HTMLTextAreaElement>(
+            "Ignore patterns",
+        )
         expect(ignorePathsInput.value).toContain("/node_modules")
 
         await user.click(ignorePathsInput)
         await user.keyboard("{Control>}a{/Control}{Backspace}")
         await user.type(ignorePathsInput, "/vendor\n**/*.snap\n")
-        await user.click(screen.getByRole("button", { name: "Сохранить ignore paths" }))
+        await user.click(screen.getByRole("button", { name: "Save ignore patterns" }))
 
         await waitFor((): void => {
             expect(repositoryConfig.ignorePatterns).toEqual(["/vendor", "**/*.snap"])
