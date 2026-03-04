@@ -71,7 +71,7 @@ interface IPackageDependencyGraphState {
     /** Режим уровня детализации (LOD). */
     readonly lodMode: "overview" | "details"
     /** Список раскрытых layer-кластеров. */
-    readonly expandedLayerIds: ReadonlyArray<string>
+    readonly expandedLayerIds: ReadonlyArray<IPackageDependencyNode["layer"]>
     /** Показывать только focus path для выбранного узла. */
     readonly focusPathOnly: boolean
     /** Идёт ли отложенная подгрузка cluster-details. */
@@ -121,11 +121,22 @@ interface IHugeGraphFallbackData {
 interface ILayerLayoutSnapshot {
     readonly viewMode: "detailed" | "clustered"
     readonly lodMode: "overview" | "details"
-    readonly expandedLayerIds: ReadonlyArray<string>
+    readonly expandedLayerIds: ReadonlyArray<IPackageDependencyNode["layer"]>
 }
 
 function createClusterNodeId(layer: IPackageDependencyNode["layer"]): string {
     return `${CLUSTER_NODE_PREFIX}${layer}`
+}
+
+function isPackageLayer(value: string): value is IPackageDependencyNode["layer"] {
+    return (
+        value === "core" ||
+        value === "api" ||
+        value === "ui" ||
+        value === "worker" ||
+        value === "db" ||
+        value === "infra"
+    )
 }
 
 function parseClusterLayer(nodeId: string): IPackageDependencyNode["layer"] | undefined {
@@ -134,14 +145,7 @@ function parseClusterLayer(nodeId: string): IPackageDependencyNode["layer"] | un
     }
 
     const layerId = nodeId.slice(CLUSTER_NODE_PREFIX.length)
-    if (
-        layerId === "core" ||
-        layerId === "api" ||
-        layerId === "ui" ||
-        layerId === "worker" ||
-        layerId === "db" ||
-        layerId === "infra"
-    ) {
+    if (isPackageLayer(layerId)) {
         return layerId
     }
 
@@ -175,7 +179,9 @@ function readLayoutSnapshot(): ILayerLayoutSnapshot | undefined {
                 expandedLayerIds: parsed.expandedLayerIds
                     .filter((item): item is string => typeof item === "string")
                     .map((item): string => item.trim())
-                    .filter((item): boolean => item.length > 0),
+                    .filter((item): item is IPackageDependencyNode["layer"] =>
+                        item.length > 0 && isPackageLayer(item),
+                    ),
             }
         }
     } catch {
@@ -611,16 +617,7 @@ export function PackageDependencyGraph(props: IPackageDependencyGraphProps): Rea
         lodMode: initialLayoutSnapshot?.lodMode ?? "overview",
         expandedLayerIds:
             (initialLayoutSnapshot?.expandedLayerIds ?? [])
-                .filter((item): item is IPackageDependencyNode["layer"] => {
-                    return (
-                        item === "core" ||
-                        item === "api" ||
-                        item === "ui" ||
-                        item === "worker" ||
-                        item === "db" ||
-                        item === "infra"
-                    )
-                }),
+                .filter((item): item is IPackageDependencyNode["layer"] => isPackageLayer(item)),
         focusPathOnly: false,
         isClusterDetailLoading: false,
         forceGraphRenderInHugeMode: false,

@@ -3,6 +3,7 @@ import userEvent from "@testing-library/user-event"
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 
 import {
+    type IPackageDependencyNode,
     PackageDependencyGraph,
     buildPackageDependencyGraphData,
 } from "@/components/graphs/package-dependency-graph"
@@ -278,8 +279,7 @@ describe("package dependency graph", (): void => {
     })
 
     it("переключает clustered view и LOD details для крупных графов", async (): Promise<void> => {
-        vi.useFakeTimers()
-        const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime })
+        const user = userEvent.setup()
         render(
             <PackageDependencyGraph
                 nodes={[
@@ -320,9 +320,7 @@ describe("package dependency graph", (): void => {
 
         await user.click(screen.getByRole("button", { name: "LOD: overview" }))
         expect(screen.getByText("Loading cluster details...")).not.toBeNull()
-        vi.runAllTimers()
-
-        expect(screen.getByRole("button", { name: "LOD: details" })).not.toBeNull()
+        expect(await screen.findByRole("button", { name: "LOD: details" })).not.toBeNull()
     })
 
     it("применяет focus path режим к выбранному узлу", async (): Promise<void> => {
@@ -365,14 +363,14 @@ describe("package dependency graph", (): void => {
 
     it("показывает huge graph fallback и экспортирует aggregated json", async (): Promise<void> => {
         const user = userEvent.setup()
-        const nodes = Array.from({ length: 270 }, (_item, index) => ({
+        const nodes: ReadonlyArray<IPackageDependencyNode> = Array.from(
+            { length: 270 },
+            (_item, index): IPackageDependencyNode => ({
             id: `pkg-${index}`,
-            layer: (index % 3 === 0 ? "core" : index % 3 === 1 ? "api" : "ui") as
-                | "core"
-                | "api"
-                | "ui",
+            layer: (index % 3 === 0 ? "core" : index % 3 === 1 ? "api" : "ui"),
             name: `pkg-${index}`,
-        }))
+            }),
+        )
         const relations = Array.from({ length: 269 }, (_item, index) => ({
             relationType: "runtime",
             source: `pkg-${index}`,

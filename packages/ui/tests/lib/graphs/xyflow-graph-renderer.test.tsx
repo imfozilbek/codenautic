@@ -12,23 +12,31 @@ vi.mock("@/components/graphs/graph-export", () => ({
     exportGraphAsSvg: vi.fn(() => {}),
 }))
 
-const mockUseReactFlow = vi.fn(() => {
-    const getViewport = vi.fn((): { x: number; y: number; zoom: number } => ({ x: 0, y: 0, zoom: 1 }))
+const { mockUseReactFlow } = vi.hoisted(() => ({
+    mockUseReactFlow: vi.fn(() => {
+        const getViewport = vi.fn(
+            (): { x: number; y: number; zoom: number } => ({ x: 0, y: 0, zoom: 1 }),
+        )
 
-    return {
-        fitView: vi.fn(async (): Promise<void> => {}),
-        getViewport,
-        moveViewport: vi.fn(),
-        setViewport: vi.fn(async (): Promise<void> => {}),
-        zoomIn: vi.fn(),
-        zoomOut: vi.fn(),
-    }
-})
+        return {
+            fitView: vi.fn(async (): Promise<void> => {}),
+            getViewport,
+            moveViewport: vi.fn(),
+            setViewport: vi.fn(async (): Promise<void> => {}),
+            zoomIn: vi.fn(),
+            zoomOut: vi.fn(),
+        }
+    }),
+}))
 
 vi.mock("@xyflow/react", () => ({
     Background: (): ReactNode => <div aria-label="background" />,
     Controls: (): ReactNode => <div />,
     MiniMap: (): ReactNode => <div />,
+    Position: {
+        Left: "left",
+        Right: "right",
+    },
     Panel: ({
         children,
     }: {

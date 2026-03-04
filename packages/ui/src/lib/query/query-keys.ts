@@ -51,6 +51,14 @@ export const queryKeys = {
             return ["external-context", "preview", sourceId] as const
         },
     },
+    repoConfig: {
+        all: (): readonly ["repo-config"] => ["repo-config"] as const,
+        byRepository: (
+            repositoryId: string,
+        ): readonly ["repo-config", "by-repository", string] => {
+            return ["repo-config", "by-repository", repositoryId] as const
+        },
+    },
     codeReview: {
         all: (): readonly ["code-review"] => ["code-review"] as const,
         byId: (reviewId: string): readonly ["code-review", "by-id", string] => {

@@ -4,6 +4,7 @@ import {
     Controls,
     MiniMap,
     Panel,
+    Position,
     type Edge,
     ReactFlow,
     type Node,
@@ -15,6 +16,7 @@ import "@xyflow/react/dist/style.css"
 import {
     calculateGraphLayout,
     type IGraphEdge,
+    type IGraphLayoutNode,
     type IGraphLayoutOptions,
     type IGraphNode,
 } from "./xyflow-graph-layout"
@@ -52,7 +54,6 @@ interface IXYFlowGraphRendererProps {
     readonly graphTitle?: string
 }
 
-const VIEWPORT_ZOOM_STEP = 0.25
 const VIEWPORT_PAN_STEP = 160
 
 /** Панель ручных контролов для управления видом графа. */
@@ -81,7 +82,7 @@ function XYFlowViewportControls(): ReactElement {
                     aria-label="Zoom in"
                     className="rounded border border-slate-300 px-2 py-1 text-sm"
                     onClick={(): void => {
-                        flowInstance.zoomIn({ duration: 180, amount: VIEWPORT_ZOOM_STEP })
+                        void flowInstance.zoomIn({ duration: 180 })
                     }}
                     type="button"
                 >
@@ -91,7 +92,7 @@ function XYFlowViewportControls(): ReactElement {
                     aria-label="Zoom out"
                     className="rounded border border-slate-300 px-2 py-1 text-sm"
                     onClick={(): void => {
-                        flowInstance.zoomOut({ duration: 180, amount: VIEWPORT_ZOOM_STEP })
+                        void flowInstance.zoomOut({ duration: 180 })
                     }}
                     type="button"
                 >
@@ -162,7 +163,7 @@ function XYFlowViewportControls(): ReactElement {
 /** Панель экспорта графа как SVG/PNG. */
 function XYFlowExportControls(props: {
     readonly graphTitle: string
-    readonly nodes: ReadonlyArray<IGraphNode>
+    readonly nodes: ReadonlyArray<IGraphLayoutNode>
     readonly edges: ReadonlyArray<IGraphEdge>
 }): ReactElement {
     const [isExportingPng, setIsExportingPng] = useState<boolean>(false)
@@ -257,8 +258,8 @@ export function XYFlowGraphRenderer(props: IXYFlowGraphRendererProps): ReactElem
                         : undefined,
                 },
                 type: "default",
-                sourcePosition: "right",
-                targetPosition: "left",
+                sourcePosition: Position.Right,
+                targetPosition: Position.Left,
             }
         })
     }, [layoutedNodes, nodesDraggable, props.highlightedNodeIds, props.selectedNodeId])

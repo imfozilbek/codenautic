@@ -6,6 +6,7 @@ import { ExternalContextApi } from "./endpoints/external-context.endpoint"
 import { PermissionsApi } from "./endpoints/permissions.endpoint"
 import { FeatureFlagsApi } from "./endpoints/feature-flags.endpoint"
 import { SystemApi } from "./endpoints/system.endpoint"
+import { RepoConfigApi } from "./endpoints/repo-config.endpoint"
 import { FetchHttpClient } from "./http-client"
 
 /**
@@ -21,6 +22,7 @@ export function createApiContracts(): {
     readonly externalContext: ExternalContextApi
     readonly featureFlags: FeatureFlagsApi
     readonly permissions: PermissionsApi
+    readonly repoConfig: RepoConfigApi
 } {
     const config = createApiConfig({})
     const httpClient = new FetchHttpClient(config)
@@ -33,6 +35,7 @@ export function createApiContracts(): {
         externalContext: new ExternalContextApi(httpClient),
         permissions: new PermissionsApi(httpClient),
         featureFlags: new FeatureFlagsApi(httpClient),
+        repoConfig: new RepoConfigApi(httpClient),
     }
 }
 
@@ -52,6 +55,7 @@ export type { IPermissionsApi } from "./endpoints/permissions.endpoint"
 export type { ICodeReviewApi } from "./endpoints/code-review.endpoint"
 export type { ICustomRulesApi } from "./endpoints/custom-rules.endpoint"
 export type { IExternalContextApi } from "./endpoints/external-context.endpoint"
+export type { IRepoConfigApi } from "./endpoints/repo-config.endpoint"
 export type {
     IDelayFunction,
     IFetchHttpClientDependencies,

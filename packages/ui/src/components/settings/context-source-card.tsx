@@ -63,12 +63,22 @@ export function ContextSourceCard(props: IContextSourceCardProps): ReactElement 
                     ? "border-2 border-primary-300"
                     : "border border-default-200"
             }
-            isPressable={props.onSelect !== undefined}
-            onPress={(): void => {
+            role={props.onSelect !== undefined ? "button" : undefined}
+            tabIndex={props.onSelect !== undefined ? 0 : undefined}
+            onClick={(): void => {
                 if (props.onSelect === undefined) {
                     return
                 }
                 props.onSelect(source.id)
+            }}
+            onKeyDown={(event): void => {
+                if (props.onSelect === undefined) {
+                    return
+                }
+                if (event.key === "Enter" || event.key === " ") {
+                    event.preventDefault()
+                    props.onSelect(source.id)
+                }
             }}
         >
             <CardHeader className="flex items-center justify-between gap-2">

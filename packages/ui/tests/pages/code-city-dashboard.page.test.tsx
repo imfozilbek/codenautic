@@ -50,8 +50,8 @@ const { mockPackageDependencyGraph } = vi.hoisted(() => ({
                     <p>{props.title}</p>
                     <p>nodes:{props.nodes.length}</p>
                     <p>edges:{props.relations.length}</p>
-                    <p>show-controls:{props.showControls ? "true" : "false"}</p>
-                    <p>show-minimap:{props.showMiniMap ? "true" : "false"}</p>
+                    <p>show-controls:{props.showControls === true ? "true" : "false"}</p>
+                    <p>show-minimap:{props.showMiniMap === true ? "true" : "false"}</p>
                 </div>
             )
         },

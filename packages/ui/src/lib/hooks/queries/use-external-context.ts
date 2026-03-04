@@ -134,6 +134,7 @@ export function useExternalContext(
             if (request.enabled === undefined) {
                 return { previousSources }
             }
+            const nextEnabled = request.enabled
 
             queryClient.setQueryData<IExternalContextSourcesResponse>(sourcesQueryKey, {
                 total: previousSources.total,
@@ -143,7 +144,7 @@ export function useExternalContext(
                     }
                     return {
                         ...item,
-                        enabled: request.enabled,
+                        enabled: nextEnabled,
                     }
                 }),
             })

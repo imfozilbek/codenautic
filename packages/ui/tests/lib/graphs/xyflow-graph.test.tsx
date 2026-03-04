@@ -67,13 +67,12 @@ describe("XyFlowGraph", (): void => {
             expect(mockRenderer).toHaveBeenCalled()
         })
 
-        expect(screen.getByTestId("renderer-nodes")).toHaveTextContent("3")
-        expect(screen.getByTestId("renderer-edges")).toHaveTextContent("2")
+        expect(await screen.findByTestId("renderer-nodes")).toHaveTextContent("3")
+        expect(await screen.findByTestId("renderer-edges")).toHaveTextContent("2")
         expect(screen.queryByText("Rendering graph with scale budget...")).toBeNull()
     })
 
     it("показывает progressive rendering индикатор для крупного графа", async (): Promise<void> => {
-        vi.useFakeTimers()
         render(
             <XyFlowGraph
                 ariaLabel="progressive graph"
@@ -91,11 +90,10 @@ describe("XyFlowGraph", (): void => {
         expect(screen.getByText("Rendering graph with scale budget...")).not.toBeNull()
         expect(mockRenderer).toHaveBeenCalledTimes(0)
 
-        vi.runAllTimers()
-
         await waitFor((): void => {
             expect(mockRenderer).toHaveBeenCalledTimes(1)
         })
+        expect(screen.queryByText("Rendering graph with scale budget...")).toBeNull()
     })
 
     it("применяет graph scale budget и показывает too large подсказку", async (): Promise<void> => {
