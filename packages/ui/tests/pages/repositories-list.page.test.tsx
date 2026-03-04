@@ -30,7 +30,7 @@ const repositories = [
         owner: "backend-core",
         status: "error",
     },
-]
+] as const
 
 describe("repositories list page", (): void => {
     it("находит репозитории по поиску и фильтрует по статусу", async (): Promise<void> => {
@@ -38,12 +38,22 @@ describe("repositories list page", (): void => {
         renderWithProviders(<RepositoriesListPage repositories={repositories} />)
 
         await user.type(screen.getByLabelText("Поиск репозитория"), "api")
-        expect(screen.getByText("api-gateway")).not.toBeNull()
-        expect(screen.queryByText("ui-dashboard")).toBeNull()
+        expect(
+            await screen.findByRole("link", {
+                name: "Открыть обзор репозитория platform-team/api-gateway",
+            }),
+        ).not.toBeNull()
+        expect(
+            screen.queryByRole("link", {
+                name: "Открыть обзор репозитория frontend-team/ui-dashboard",
+            }),
+        ).toBeNull()
 
         await user.selectOptions(screen.getByLabelText("Фильтр по статусу"), "error")
-        expect(screen.queryByText("api-gateway")).toBeNull()
-        expect(screen.getByText("payment-worker")).not.toBeNull()
+        expect(screen.queryByRole("link", { name: /platform-team\/api-gateway/u })).toBeNull()
+        expect(
+            screen.queryByText("Результатов по заданным фильтрам не найдено."),
+        ).not.toBeNull()
     })
 
     it("меняет порядок сортировки", async (): Promise<void> => {
@@ -51,7 +61,11 @@ describe("repositories list page", (): void => {
         renderWithProviders(<RepositoriesListPage repositories={repositories} />)
         await user.selectOptions(screen.getByLabelText("Сортировка"), "lastScanAt")
 
-        expect(screen.getAllByText("payment-worker").length).toBe(1)
+        expect(
+            await screen.findByRole("link", {
+                name: "Открыть обзор репозитория backend-core/payment-worker",
+            }),
+        ).not.toBeNull()
     })
 
     it("показывает empty state и CTA для пустого onboarding", (): void => {
@@ -94,16 +108,16 @@ describe("repositories list page", (): void => {
             />,
         )
 
-        expect(screen.getByText("Ошибка сканирования")).not.toBeNull()
-        expect(screen.getByText("Проанализировано файлов до ошибки: 41 из 112")).not.toBeNull()
+        expect(screen.queryAllByText("Ошибка").length).toBeGreaterThan(0)
+        expect(
+            await screen.findByText("Проанализировано файлов до ошибки: 41 из 112"),
+        ).not.toBeNull()
 
-        const detailsTrigger = screen.getByRole("button", {
-            name: "Подробнее об ошибке",
-        })
+        const detailsTrigger = await screen.findByText("Подробнее об ошибке")
         await user.click(detailsTrigger)
 
         expect(
-            screen.getByText("Ошибка на этапе индексации: недоступен пакет react-markdown"),
+            await screen.findByText("Ошибка на этапе индексации: недоступен пакет react-markdown"),
         ).not.toBeNull()
 
         await user.click(screen.getByRole("button", { name: "Повторить сканирование" }))

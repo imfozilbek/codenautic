@@ -71,6 +71,12 @@ interface IEnterpriseTableSavedView {
     readonly globalFilter: string
 }
 
+interface IRenderedRowOffset {
+    readonly index: number
+    readonly key: number | string
+    readonly start: number
+}
+
 function getStorageKey(tableId: string): string {
     return `ui.enterprise-table.${tableId}`
 }
@@ -103,7 +109,7 @@ function readSavedView(tableId: string): IEnterpriseTableSavedView {
             columnOrder: Array.isArray(parsed.columnOrder) ? parsed.columnOrder : [],
             columnVisibility:
                 typeof parsed.columnVisibility === "object" && parsed.columnVisibility !== null
-                    ? (parsed.columnVisibility as VisibilityState)
+                    ? (parsed.columnVisibility)
                     : {},
             density,
             globalFilter: typeof parsed.globalFilter === "string" ? parsed.globalFilter : "",
@@ -231,7 +237,7 @@ export function EnterpriseDataTable<TRow>(props: IEnterpriseDataTableProps<TRow>
 
     const table = useReactTable({
         columnResizeMode: "onChange",
-        columns: columnDefs,
+        columns: columnDefs as ColumnDef<TRow, unknown>[],
         data,
         enableColumnResizing: true,
         enableRowSelection: true,
@@ -276,6 +282,22 @@ export function EnterpriseDataTable<TRow>(props: IEnterpriseDataTableProps<TRow>
         getScrollElement: (): HTMLDivElement | null => parentRef.current,
         overscan: 8,
     })
+    const fallbackRowHeight = density === "compact" ? 42 : 56
+    const virtualItems = rowVirtualizer.getVirtualItems()
+    const renderedRowOffsets: ReadonlyArray<IRenderedRowOffset> = virtualItems.length > 0
+        ? virtualItems.map((item): IRenderedRowOffset => ({
+            index: item.index,
+            key: item.key,
+            start: item.start,
+        }))
+        : rowModel.map((_, index): IRenderedRowOffset => ({
+            index,
+            key: `fallback-row-${props.id}-${String(index)}`,
+            start: index * fallbackRowHeight,
+        }))
+    const totalRowsHeight = virtualItems.length > 0
+        ? rowVirtualizer.getTotalSize()
+        : rowModel.length * fallbackRowHeight
 
     const selectedRows = table.getSelectedRowModel().rows
 
@@ -344,7 +366,10 @@ export function EnterpriseDataTable<TRow>(props: IEnterpriseDataTableProps<TRow>
         if (column === undefined) {
             return
         }
-        column.setSize(next)
+        table.setColumnSizing((previous): ColumnSizingState => ({
+            ...previous,
+            [columnId]: next,
+        }))
     }
 
     return (
@@ -464,7 +489,7 @@ export function EnterpriseDataTable<TRow>(props: IEnterpriseDataTableProps<TRow>
                                     value={
                                         column.getIsPinned() === false
                                             ? "none"
-                                            : column.getIsPinned()
+                                            : String(column.getIsPinned())
                                     }
                                     onChange={(event): void => {
                                         const value = event.currentTarget.value
@@ -546,7 +571,7 @@ export function EnterpriseDataTable<TRow>(props: IEnterpriseDataTableProps<TRow>
                                     type="button"
                                     onClick={column.getToggleSortingHandler()}
                                 >
-                                    {flexRender(column.columnDef.header, column.getContext())}
+                                    {String(column.columnDef.header)}
                                     {column.getIsSorted() === "asc" ? " ↑" : null}
                                     {column.getIsSorted() === "desc" ? " ↓" : null}
                                 </button>
@@ -561,34 +586,34 @@ export function EnterpriseDataTable<TRow>(props: IEnterpriseDataTableProps<TRow>
                     <div ref={parentRef} className="max-h-[520px] overflow-auto" role="rowgroup">
                         <div
                             className="relative"
-                            style={{ height: `${rowVirtualizer.getTotalSize()}px` }}
+                            style={{ height: `${String(totalRowsHeight)}px` }}
                         >
-                            {rowVirtualizer.getVirtualItems().map((virtualRow): ReactElement | null => {
-                                const row = rowModel[virtualRow.index]
+                            {renderedRowOffsets.map((rowOffset): ReactElement | null => {
+                                const row = rowModel[rowOffset.index]
                                 if (row === undefined) {
                                     return null
                                 }
 
-                                const isFocused = focusedRowIndex === virtualRow.index
+                                const isFocused = focusedRowIndex === rowOffset.index
                                 const rowPadding =
                                     density === "compact" ? "py-1 text-xs" : "py-2 text-sm"
 
                                 return (
                                     <div
                                         className={`absolute left-0 top-0 grid items-center gap-2 border-b border-[var(--border)] bg-[var(--surface)] px-2 ${rowPadding}`}
-                                        key={row.id}
+                                        key={rowOffset.key}
                                         role="row"
                                         style={{
                                             gridTemplateColumns,
                                             minWidth: `${String(totalTableWidth)}px`,
-                                            transform: `translateY(${virtualRow.start}px)`,
+                                            transform: `translateY(${String(rowOffset.start)}px)`,
                                         }}
                                         tabIndex={isFocused ? 0 : -1}
                                         onFocus={(): void => {
-                                            setFocusedRowIndex(virtualRow.index)
+                                            setFocusedRowIndex(rowOffset.index)
                                         }}
                                         onKeyDown={(event): void => {
-                                            handleRowKeyDown(event, virtualRow.index)
+                                            handleRowKeyDown(event, rowOffset.index)
                                         }}
                                     >
                                         <div role="cell">
