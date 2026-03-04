@@ -5,6 +5,7 @@ export { useExternalContext } from "./use-external-context"
 export { useHealthQuery } from "./use-health-query"
 export { useDryRun } from "./use-dry-run"
 export { useRepoConfig } from "./use-repo-config"
+export { useReviewCadence } from "./use-review-cadence"
 export {
     DEFAULT_ADMIN_PERMISSIONS,
     isPermissionEnabled,

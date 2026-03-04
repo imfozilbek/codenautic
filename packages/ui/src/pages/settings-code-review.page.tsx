@@ -15,7 +15,7 @@ import {
     REPO_REVIEW_MODE,
     type TRepoReviewMode,
 } from "@/lib/api/endpoints/repo-config.endpoint"
-import { useDryRun, useRepoConfig } from "@/lib/hooks/queries"
+import { useDryRun, useRepoConfig, useReviewCadence } from "@/lib/hooks/queries"
 import { showToastInfo, showToastSuccess } from "@/lib/notifications/toast"
 
 const DEFAULT_IGNORED_PATHS: ReadonlyArray<string> = ["/dist", "/node_modules", "/coverage"] as const
@@ -56,6 +56,7 @@ export function SettingsCodeReviewPage(): ReactElement {
         enabled: normalizedRepositoryId.length > 0,
     })
     const dryRun = useDryRun()
+    const reviewCadence = useReviewCadence()
     const loadedConfig = repoConfig.repoConfigQuery.data?.config
 
     useEffect((): void => {
@@ -173,12 +174,23 @@ export function SettingsCodeReviewPage(): ReactElement {
     }
 
     const handleCadenceSave = (): void => {
-        persistRepositoryConfig({
-            configYaml,
-            ignorePatterns: ignoredPaths,
-            reviewMode,
-            successMessage: "Review cadence saved.",
-        })
+        if (normalizedRepositoryId.length === 0) {
+            showToastInfo("Repository ID is required.")
+            return
+        }
+
+        void reviewCadence.updateCadence
+            .mutateAsync({
+                repositoryId: normalizedRepositoryId,
+                reviewMode,
+            })
+            .then((response): void => {
+                setReviewMode(response.config.reviewMode)
+                showToastSuccess("Review cadence saved.")
+            })
+            .catch((): void => {
+                showToastInfo("Unable to save review cadence.")
+            })
     }
 
     const handleCadenceModeChange = (mode: TRepoReviewMode): void => {
@@ -212,7 +224,7 @@ export function SettingsCodeReviewPage(): ReactElement {
             <ReviewCadenceSelector
                 isApplyDisabled={
                     normalizedRepositoryId.length === 0 ||
-                    repoConfig.saveRepoConfig.isPending === true
+                    reviewCadence.updateCadence.isPending === true
                 }
                 mode={reviewMode}
                 onApply={handleCadenceSave}
