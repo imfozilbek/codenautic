@@ -1,6 +1,9 @@
 # CodeNautic
 
-![CodeCity 3D workspace](media/codecity_3d_workspace.png)
+<picture>
+  <source type="image/webp" srcset="media/codecity_3d_workspace.webp">
+  <img alt="CodeCity 3D workspace" src="media/codecity_3d_workspace.png">
+</picture>
 
 **AI-powered code intelligence platform** — automated code review, architecture analysis, codebase visualization, and
 problem zone prediction.
