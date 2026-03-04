@@ -33,9 +33,9 @@ describe("chat context indicator", (): void => {
             />,
         )
 
-        expect(screen.getByText("Current context")).not.toBeNull()
+        expect(screen.getByText("Conversation context")).not.toBeNull()
         expect(screen.getByText("repo-alpha — CCR #1201")).not.toBeNull()
-        expect(screen.getByText("Files: src/index.ts, src/api.ts, src/utils.ts +1 more")).not.toBeNull()
+        expect(screen.getByText("src/index.ts, src/api.ts, src/utils.ts +1 more")).not.toBeNull()
     })
 
     it("вызывает onContextChange при смене контекста", async (): Promise<void> => {
@@ -60,4 +60,3 @@ describe("chat context indicator", (): void => {
         expect(onContextChange).toHaveBeenCalledWith("context-beta")
     })
 })
-

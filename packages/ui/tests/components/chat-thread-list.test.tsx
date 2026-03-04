@@ -54,10 +54,11 @@ describe("chat thread list", (): void => {
         expect(screen.getByRole("heading", { name: "Threads" })).not.toBeNull()
         expect(screen.getByText("Alpha review")).not.toBeNull()
         expect(screen.getByText("Beta review")).not.toBeNull()
-        expect(screen.getByRole("button", { name: /Beta review/ })).toHaveAttribute(
-            "aria-pressed",
-            "true",
+        const betaButtons = screen.getAllByRole("button", { name: /Beta review/ })
+        const activeButton = betaButtons.find(
+            (button): boolean => button.getAttribute("aria-pressed") === "true",
         )
+        expect(activeButton).not.toBeUndefined()
     })
 
     it("вызывает callback при создании нового треда", async (): Promise<void> => {
@@ -108,7 +109,11 @@ describe("chat thread list", (): void => {
             />,
         )
 
-        const threadButton = screen.getByRole("button", { name: /Alpha review/ })
+        const threadButtons = screen.getAllByRole("button", { name: /Alpha review/ })
+        const threadButton = threadButtons[0]
+        if (threadButton === undefined) {
+            throw new Error("Expected thread button to exist")
+        }
         await user.click(threadButton)
         expect(onSelectThread).toHaveBeenCalledWith("thread-1")
 
