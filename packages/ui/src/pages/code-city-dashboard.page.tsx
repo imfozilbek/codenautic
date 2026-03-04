@@ -16,6 +16,10 @@ import {
 import { CodeCity3DScene } from "@/components/graphs/codecity-3d-scene"
 import { ChurnComplexityScatter } from "@/components/graphs/churn-complexity-scatter"
 import { HealthTrendChart, type IHealthTrendPoint } from "@/components/graphs/health-trend-chart"
+import {
+    RootCauseChainViewer,
+    type IRootCauseIssueDescriptor,
+} from "@/components/graphs/root-cause-chain-viewer"
 import { Card, CardBody, CardHeader } from "@/components/ui"
 
 type TCodeCityDashboardMetric = "complexity" | "coverage" | "churn"
@@ -65,6 +69,69 @@ const CODE_CITY_DASHBOARD_METRICS: ReadonlyArray<ICodeCityDashboardMetricOption>
         value: "churn",
     },
 ] as const
+
+/**
+ * Формирует root-cause issues для causal viewer из текущего file-среза.
+ *
+ * @param files Файлы активного профиля.
+ * @returns Набор issue-цепочек.
+ */
+function buildRootCauseIssues(
+    files: ReadonlyArray<ICodeCityTreemapFileDescriptor>,
+): ReadonlyArray<IRootCauseIssueDescriptor> {
+    const primaryFile = files[0]
+    const secondaryFile = files[1] ?? files[0]
+    if (primaryFile === undefined || secondaryFile === undefined) {
+        return []
+    }
+
+    return [
+        {
+            chain: [
+                {
+                    description: `${primaryFile.path} shows rising issue density after recent CCR.`,
+                    id: `${primaryFile.id}-event`,
+                    label: "Issue spike detected",
+                    type: "event",
+                },
+                {
+                    description: `${secondaryFile.path} is temporally coupled and amplifies blast radius.`,
+                    id: `${secondaryFile.id}-module`,
+                    label: "Coupled dependency node",
+                    type: "module",
+                },
+                {
+                    description: "Health trend indicates persistent degradation in this district.",
+                    id: `${primaryFile.id}-metric`,
+                    label: "Health degradation signal",
+                    type: "metric",
+                },
+            ],
+            id: `issue-${primaryFile.id}`,
+            severity: "high",
+            title: `Root cause: ${primaryFile.path}`,
+        },
+        {
+            chain: [
+                {
+                    description: `${secondaryFile.path} has increased churn and contributes to instability.`,
+                    id: `${secondaryFile.id}-event`,
+                    label: "Churn volatility",
+                    type: "event",
+                },
+                {
+                    description: `Coverage gaps near ${secondaryFile.path} increase regression likelihood.`,
+                    id: `${secondaryFile.id}-metric`,
+                    label: "Coverage regression pressure",
+                    type: "metric",
+                },
+            ],
+            id: `issue-${secondaryFile.id}`,
+            severity: "medium",
+            title: `Root cause: ${secondaryFile.path}`,
+        },
+    ]
+}
 
 const CODE_CITY_DASHBOARD_REPOSITORIES: ReadonlyArray<ICodeCityDashboardRepositoryProfile> = [
     {
@@ -512,6 +579,7 @@ export function CodeCityDashboardPage(
     const [highlightedFileId, setHighlightedFileId] = useState<string | undefined>()
 
     const currentProfile = resolveDashboardProfile(repositoryId)
+    const rootCauseIssues = buildRootCauseIssues(currentProfile.files)
     const fileLink = createRepositoryFilesLink(currentProfile.id)
 
     const handleRepositoryChange = (event: ChangeEvent<HTMLSelectElement>): void => {
@@ -634,6 +702,15 @@ export function CodeCityDashboardPage(
                 </CardHeader>
                 <CardBody>
                     <HealthTrendChart points={currentProfile.healthTrend} />
+                </CardBody>
+            </Card>
+
+            <Card>
+                <CardHeader>
+                    <p className="text-sm font-semibold text-slate-900">Root cause chain viewer</p>
+                </CardHeader>
+                <CardBody>
+                    <RootCauseChainViewer issues={rootCauseIssues} />
                 </CardBody>
             </Card>
 

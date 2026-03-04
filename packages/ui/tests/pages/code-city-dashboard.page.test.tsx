@@ -112,6 +112,13 @@ const { mockHealthTrendChart } = vi.hoisted(() => ({
         },
     ),
 }))
+const { mockRootCauseChainViewer } = vi.hoisted(() => ({
+    mockRootCauseChainViewer: vi.fn(
+        (props: { readonly issues: ReadonlyArray<unknown> }): React.JSX.Element => {
+            return <p>root-cause-issues:{props.issues.length}</p>
+        },
+    ),
+}))
 
 vi.mock("@/components/graphs/codecity-treemap", () => ({
     CodeCityTreemap: mockCodeCityTreemap,
@@ -128,6 +135,9 @@ vi.mock("@/components/graphs/churn-complexity-scatter", () => ({
 vi.mock("@/components/graphs/health-trend-chart", () => ({
     HealthTrendChart: mockHealthTrendChart,
 }))
+vi.mock("@/components/graphs/root-cause-chain-viewer", () => ({
+    RootCauseChainViewer: mockRootCauseChainViewer,
+}))
 
 beforeEach((): void => {
     mockCodeCityTreemap.mockClear()
@@ -135,6 +145,7 @@ beforeEach((): void => {
     mockCodeCity3DScene.mockClear()
     mockChurnComplexityScatter.mockClear()
     mockHealthTrendChart.mockClear()
+    mockRootCauseChainViewer.mockClear()
 })
 
 describe("CodeCityDashboardPage", (): void => {
@@ -203,6 +214,10 @@ describe("CodeCityDashboardPage", (): void => {
         const firstHealthTrendCall = mockHealthTrendChart.mock.calls.at(0)?.[0]
         expect(firstHealthTrendCall).not.toBeUndefined()
         expect(firstHealthTrendCall?.points.length).toBeGreaterThan(0)
+
+        const firstRootCauseCall = mockRootCauseChainViewer.mock.calls.at(0)?.[0]
+        expect(firstRootCauseCall).not.toBeUndefined()
+        expect(firstRootCauseCall?.issues.length).toBeGreaterThan(0)
     })
 
     it("обновляет treemap при смене репозитория и метрики", async (): Promise<void> => {
