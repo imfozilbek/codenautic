@@ -33,6 +33,185 @@ export interface IHeaderSearchRouteOption {
     readonly path: string
 }
 
+const COMMAND_PALETTE_RECENT_STORAGE_KEY = "codenautic:ui:command-palette:recent:v1"
+const COMMAND_PALETTE_PINNED_STORAGE_KEY = "codenautic:ui:command-palette:pinned:v1"
+const MAX_RECENT_COMMANDS = 8
+
+type TCommandPaletteGroup = "CCRs" | "Issues" | "Repos" | "Settings" | "Actions" | "General"
+
+interface ICommandPaletteItem {
+    readonly group: TCommandPaletteGroup
+    readonly id: string
+    readonly keywords: string
+    readonly label: string
+    readonly path: string
+}
+
+interface ICommandPaletteGroupSection {
+    readonly group: TCommandPaletteGroup
+    readonly items: ReadonlyArray<ICommandPaletteItem>
+}
+
+interface IStaticCommandDefinition {
+    readonly group: TCommandPaletteGroup
+    readonly id: string
+    readonly keywords: string
+    readonly label: string
+    readonly path: string
+}
+
+const STATIC_COMMAND_DEFINITIONS: ReadonlyArray<IStaticCommandDefinition> = [
+    {
+        group: "Actions",
+        id: "action-open-reviews",
+        keywords: "review ccr management triage",
+        label: "Open CCR Management",
+        path: "/reviews",
+    },
+    {
+        group: "Actions",
+        id: "action-open-diagnostics",
+        keywords: "diagnostics degradation help support",
+        label: "Open Diagnostics Center",
+        path: "/settings-provider-degradation",
+    },
+    {
+        group: "Actions",
+        id: "action-open-repositories",
+        keywords: "repositories onboarding scan",
+        label: "Open Repositories",
+        path: "/repositories",
+    },
+]
+
+function inferCommandPaletteGroup(path: string): TCommandPaletteGroup {
+    if (path.startsWith("/reviews")) {
+        return "CCRs"
+    }
+    if (path.startsWith("/issues")) {
+        return "Issues"
+    }
+    if (path.startsWith("/repositories")) {
+        return "Repos"
+    }
+    if (path.startsWith("/settings")) {
+        return "Settings"
+    }
+    return "General"
+}
+
+function readStringArrayFromStorage(storageKey: string): ReadonlyArray<string> {
+    if (typeof window === "undefined") {
+        return []
+    }
+
+    try {
+        const raw = window.localStorage.getItem(storageKey)
+        if (raw === null) {
+            return []
+        }
+
+        const parsed = JSON.parse(raw) as unknown
+        if (Array.isArray(parsed) === false) {
+            return []
+        }
+
+        return parsed.filter((item): item is string => typeof item === "string")
+    } catch (_error: unknown) {
+        return []
+    }
+}
+
+function writeStringArrayToStorage(storageKey: string, value: ReadonlyArray<string>): void {
+    if (typeof window === "undefined") {
+        return
+    }
+
+    try {
+        window.localStorage.setItem(storageKey, JSON.stringify(value))
+    } catch (_error: unknown) {
+        return
+    }
+}
+
+function createCommandPaletteItems(
+    routes: ReadonlyArray<IHeaderSearchRouteOption>,
+): ReadonlyArray<ICommandPaletteItem> {
+    const routeItems = routes.map((route): ICommandPaletteItem => {
+        return {
+            group: inferCommandPaletteGroup(route.path),
+            id: `route-${route.path}`,
+            keywords: `${route.label} ${route.path}`.toLowerCase(),
+            label: route.label,
+            path: route.path,
+        }
+    })
+    const routePaths = new Set(routes.map((route): string => route.path))
+    const actionItems = STATIC_COMMAND_DEFINITIONS.filter((definition): boolean => {
+        return routePaths.has(definition.path)
+    }).map((definition): ICommandPaletteItem => {
+        return {
+            group: definition.group,
+            id: definition.id,
+            keywords: definition.keywords,
+            label: definition.label,
+            path: definition.path,
+        }
+    })
+
+    return [ ...actionItems, ...routeItems ]
+}
+
+function sortByReferenceOrder<TValue extends { readonly path: string }>(
+    items: ReadonlyArray<TValue>,
+    orderedPaths: ReadonlyArray<string>,
+): ReadonlyArray<TValue> {
+    const positions = new Map<string, number>()
+    orderedPaths.forEach((path, index): void => {
+        positions.set(path, index)
+    })
+
+    return [ ...items ].sort((left, right): number => {
+        const leftPosition = positions.get(left.path)
+        const rightPosition = positions.get(right.path)
+        if (leftPosition === undefined && rightPosition === undefined) {
+            return left.path.localeCompare(right.path)
+        }
+        if (leftPosition === undefined) {
+            return 1
+        }
+        if (rightPosition === undefined) {
+            return -1
+        }
+        return leftPosition - rightPosition
+    })
+}
+
+function groupCommandPaletteItems(
+    items: ReadonlyArray<ICommandPaletteItem>,
+): ReadonlyArray<ICommandPaletteGroupSection> {
+    const order: TCommandPaletteGroup[] = []
+    const map = new Map<TCommandPaletteGroup, ICommandPaletteItem[]>()
+
+    items.forEach((item): void => {
+        const existing = map.get(item.group)
+        if (existing === undefined) {
+            order.push(item.group)
+            map.set(item.group, [item])
+            return
+        }
+
+        existing.push(item)
+    })
+
+    return order.map((group): ICommandPaletteGroupSection => {
+        return {
+            group,
+            items: map.get(group) ?? [],
+        }
+    })
+}
+
 /**
  * Параметры для layout header.
  */
@@ -77,7 +256,17 @@ export interface IHeaderProps {
  */
 export function Header(props: IHeaderProps): ReactElement {
     const [searchQuery, setSearchQuery] = useState("")
+    const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false)
+    const [commandPaletteQuery, setCommandPaletteQuery] = useState("")
+    const [activeCommandIndex, setActiveCommandIndex] = useState(0)
+    const [recentCommands, setRecentCommands] = useState<ReadonlyArray<string>>(() => {
+        return readStringArrayFromStorage(COMMAND_PALETTE_RECENT_STORAGE_KEY)
+    })
+    const [pinnedCommands, setPinnedCommands] = useState<ReadonlyArray<string>>(() => {
+        return readStringArrayFromStorage(COMMAND_PALETTE_PINNED_STORAGE_KEY)
+    })
     const searchInputRef = useRef<HTMLInputElement | null>(null)
+    const commandPaletteInputRef = useRef<HTMLInputElement | null>(null)
     const hasNotifications = props.notificationCount !== undefined && props.notificationCount > 0
     const activeOrganization = props.organizations?.find((organization): boolean => {
         return organization.id === props.activeOrganizationId
@@ -99,6 +288,79 @@ export function Header(props: IHeaderProps): ReactElement {
             return `${route.label} ${route.path}`.toLowerCase().includes(normalizedQuery)
         })
     }, [props.searchRoutes, searchQuery])
+    const commandPaletteItems = useMemo((): ReadonlyArray<ICommandPaletteItem> => {
+        if (props.searchRoutes === undefined) {
+            return []
+        }
+        return createCommandPaletteItems(props.searchRoutes)
+    }, [props.searchRoutes])
+    const filteredCommandPaletteItems = useMemo((): ReadonlyArray<ICommandPaletteItem> => {
+        const normalizedQuery = commandPaletteQuery.trim().toLowerCase()
+        const searchedItems =
+            normalizedQuery.length === 0
+                ? commandPaletteItems
+                : commandPaletteItems.filter((item): boolean => {
+                      const searchable = `${item.label} ${item.path} ${item.keywords}`.toLowerCase()
+                      return searchable.includes(normalizedQuery)
+                  })
+        const pinned = sortByReferenceOrder(
+            searchedItems.filter((item): boolean => pinnedCommands.includes(item.path)),
+            pinnedCommands,
+        )
+        const recent = sortByReferenceOrder(
+            searchedItems.filter((item): boolean => {
+                return recentCommands.includes(item.path) && pinnedCommands.includes(item.path) === false
+            }),
+            recentCommands,
+        )
+        const baseline = searchedItems.filter((item): boolean => {
+            return (
+                pinnedCommands.includes(item.path) === false
+                && recentCommands.includes(item.path) === false
+            )
+        })
+        const sortedBaseline = [ ...baseline ].sort((left, right): number => {
+            return left.label.localeCompare(right.label)
+        })
+
+        return [ ...pinned, ...recent, ...sortedBaseline ]
+    }, [commandPaletteItems, commandPaletteQuery, pinnedCommands, recentCommands])
+    const groupedCommandPaletteItems = useMemo((): ReadonlyArray<ICommandPaletteGroupSection> => {
+        return groupCommandPaletteItems(filteredCommandPaletteItems)
+    }, [filteredCommandPaletteItems])
+
+    const closeCommandPalette = (): void => {
+        setIsCommandPaletteOpen(false)
+        setCommandPaletteQuery("")
+        setActiveCommandIndex(0)
+    }
+
+    const openCommandPalette = (): void => {
+        setIsCommandPaletteOpen(true)
+    }
+
+    const registerRecentCommand = (path: string): void => {
+        const nextRecent = [path, ...recentCommands.filter((item): boolean => item !== path)].slice(
+            0,
+            MAX_RECENT_COMMANDS,
+        )
+        setRecentCommands(nextRecent)
+        writeStringArrayToStorage(COMMAND_PALETTE_RECENT_STORAGE_KEY, nextRecent)
+    }
+
+    const handleCommandSelection = (item: ICommandPaletteItem): void => {
+        props.onSearchRouteNavigate?.(item.path)
+        registerRecentCommand(item.path)
+        closeCommandPalette()
+    }
+
+    const togglePinnedCommand = (path: string): void => {
+        const nextPinned = pinnedCommands.includes(path)
+            ? pinnedCommands.filter((item): boolean => item !== path)
+            : [path, ...pinnedCommands]
+        setPinnedCommands(nextPinned)
+        writeStringArrayToStorage(COMMAND_PALETTE_PINNED_STORAGE_KEY, nextPinned)
+    }
 
     useEffect((): (() => void) | void => {
         if (typeof window === "undefined") {
@@ -111,8 +373,7 @@ export function Header(props: IHeaderProps): ReactElement {
             }
 
             event.preventDefault()
-            searchInputRef.current?.focus()
-            searchInputRef.current?.select()
+            openCommandPalette()
         }
 
         window.addEventListener("keydown", handleKeyboardShortcut)
@@ -121,6 +382,22 @@ export function Header(props: IHeaderProps): ReactElement {
             window.removeEventListener("keydown", handleKeyboardShortcut)
         }
     }, [])
+
+    useEffect((): void => {
+        if (isCommandPaletteOpen !== true) {
+            return
+        }
+
+        commandPaletteInputRef.current?.focus()
+    }, [isCommandPaletteOpen])
+
+    useEffect((): void => {
+        if (activeCommandIndex < filteredCommandPaletteItems.length) {
+            return
+        }
+
+        setActiveCommandIndex(0)
+    }, [activeCommandIndex, filteredCommandPaletteItems.length])
 
     return (
         <div className="border-b border-[var(--border)] bg-[color:color-mix(in_oklab,var(--surface)_88%,transparent)] backdrop-blur">
@@ -173,6 +450,7 @@ export function Header(props: IHeaderProps): ReactElement {
                                 }
 
                                 props.onSearchRouteNavigate?.(targetRoute.path)
+                                registerRecentCommand(targetRoute.path)
                                 setSearchQuery("")
                             }}
                         />
@@ -275,6 +553,147 @@ export function Header(props: IHeaderProps): ReactElement {
                     <p className="text-sm text-[var(--foreground)]/80">{props.title}</p>
                 </div>
             )}
+            {isCommandPaletteOpen === true ? (
+                <div
+                    aria-label="Global command palette"
+                    aria-modal="true"
+                    className="fixed inset-0 z-50 flex items-start justify-center bg-black/50 p-4 pt-16"
+                    role="dialog"
+                >
+                    <button
+                        aria-label="Close command palette"
+                        className="absolute inset-0 h-full w-full cursor-default"
+                        type="button"
+                        onClick={closeCommandPalette}
+                    />
+                    <div className="relative z-10 w-full max-w-2xl rounded-xl border border-[var(--border)] bg-[var(--surface)] p-3 shadow-2xl">
+                        <input
+                            aria-label="Command palette search"
+                            className="w-full rounded-lg border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-sm text-[var(--foreground)]"
+                            placeholder="Search commands, routes and actions..."
+                            ref={commandPaletteInputRef}
+                            type="text"
+                            value={commandPaletteQuery}
+                            onChange={(event): void => {
+                                setCommandPaletteQuery(event.currentTarget.value)
+                                setActiveCommandIndex(0)
+                            }}
+                            onKeyDown={(event): void => {
+                                if (event.key === "ArrowDown") {
+                                    event.preventDefault()
+                                    if (filteredCommandPaletteItems.length === 0) {
+                                        return
+                                    }
+                                    setActiveCommandIndex((previousIndex): number => {
+                                        return (previousIndex + 1) % filteredCommandPaletteItems.length
+                                    })
+                                    return
+                                }
+                                if (event.key === "ArrowUp") {
+                                    event.preventDefault()
+                                    if (filteredCommandPaletteItems.length === 0) {
+                                        return
+                                    }
+                                    setActiveCommandIndex((previousIndex): number => {
+                                        const nextIndex = previousIndex - 1
+                                        if (nextIndex >= 0) {
+                                            return nextIndex
+                                        }
+                                        return filteredCommandPaletteItems.length - 1
+                                    })
+                                    return
+                                }
+                                if (event.key === "Escape") {
+                                    event.preventDefault()
+                                    closeCommandPalette()
+                                    return
+                                }
+                                if (event.key !== "Enter") {
+                                    return
+                                }
+
+                                event.preventDefault()
+                                const targetCommand = filteredCommandPaletteItems[activeCommandIndex]
+                                if (targetCommand === undefined) {
+                                    return
+                                }
+
+                                handleCommandSelection(targetCommand)
+                            }}
+                        />
+                        <div
+                            aria-label="Command palette results"
+                            className="mt-3 max-h-[60vh] overflow-y-auto rounded-lg border border-[var(--border)]"
+                            role="listbox"
+                        >
+                            {filteredCommandPaletteItems.length === 0 ? (
+                                <p className="px-3 py-4 text-sm text-[var(--foreground)]/60">
+                                    No results found for current query.
+                                </p>
+                            ) : (
+                                groupedCommandPaletteItems.map(
+                                    (section): ReactElement => (
+                                        <div key={section.group} className="border-b border-[var(--border)] last:border-b-0">
+                                            <p className="px-3 py-2 text-xs font-semibold uppercase tracking-[0.08em] text-[var(--foreground)]/60">
+                                                {section.group}
+                                            </p>
+                                            {section.items.map((item): ReactElement => {
+                                                const itemIndex = filteredCommandPaletteItems.findIndex(
+                                                    (candidate): boolean => candidate.id === item.id,
+                                                )
+                                                const isActive = itemIndex === activeCommandIndex
+                                                const isPinned = pinnedCommands.includes(item.path)
+
+                                                return (
+                                                    <div
+                                                        key={item.id}
+                                                        aria-selected={isActive}
+                                                        className={`grid grid-cols-[1fr_auto] items-center gap-2 px-3 py-2 text-sm ${
+                                                            isActive
+                                                                ? "bg-[color:color-mix(in_oklab,var(--primary)_12%,var(--surface))]"
+                                                                : "bg-transparent"
+                                                        }`}
+                                                        role="option"
+                                                    >
+                                                        <button
+                                                            className="text-left text-[var(--foreground)]"
+                                                            type="button"
+                                                            onClick={(): void => {
+                                                                handleCommandSelection(item)
+                                                            }}
+                                                            onMouseEnter={(): void => {
+                                                                setActiveCommandIndex(itemIndex)
+                                                            }}
+                                                        >
+                                                            <span className="font-medium">{item.label}</span>
+                                                            <span className="ml-2 text-[11px] text-[var(--foreground)]/60">
+                                                                {item.path}
+                                                            </span>
+                                                        </button>
+                                                        <button
+                                                            aria-label={`${isPinned ? "Unpin" : "Pin"} ${item.label}`}
+                                                            className="rounded border border-[var(--border)] px-2 py-1 text-[11px] text-[var(--foreground)]/70"
+                                                            type="button"
+                                                            onClick={(): void => {
+                                                                togglePinnedCommand(item.path)
+                                                            }}
+                                                        >
+                                                            {isPinned ? "Pinned" : "Pin"}
+                                                        </button>
+                                                    </div>
+                                                )
+                                            })}
+                                        </div>
+                                    ),
+                                )
+                            )}
+                        </div>
+                        <p className="mt-2 text-[11px] text-[var(--foreground)]/60">
+                            Use Arrow keys, Enter to open, and Esc to close.
+                        </p>
+                    </div>
+                </div>
+            ) : null}
         </div>
     )
 }

@@ -144,6 +144,40 @@ describe("layout components", (): void => {
         expect(onSearchRouteNavigate).toHaveBeenCalledWith("/settings")
     })
 
+    it("открывает command palette через Ctrl+K и выполняет действие клавиатурой", async (): Promise<void> => {
+        const user = userEvent.setup()
+        const onSearchRouteNavigate = vi.fn()
+
+        renderWithProviders(
+            <Header
+                onSearchRouteNavigate={onSearchRouteNavigate}
+                searchRoutes={[
+                    {
+                        label: "Dashboard",
+                        path: "/",
+                    },
+                    {
+                        label: "CCR Management",
+                        path: "/reviews",
+                    },
+                    {
+                        label: "Provider Degradation",
+                        path: "/settings-provider-degradation",
+                    },
+                ]}
+            />,
+        )
+
+        await user.keyboard("{Control>}k{/Control}")
+
+        expect(screen.getByRole("dialog", { name: "Global command palette" })).not.toBeNull()
+        const paletteSearch = screen.getByRole("textbox", { name: "Command palette search" })
+        await user.type(paletteSearch, "diagnostics")
+        await user.keyboard("{Enter}")
+
+        expect(onSearchRouteNavigate).toHaveBeenCalledWith("/settings-provider-degradation")
+    })
+
     it("обрабатывает callback для collapse sidebar", async (): Promise<void> => {
         const user: UserEvent = userEvent.setup()
         const onNavigate = vi.fn()
