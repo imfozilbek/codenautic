@@ -19,6 +19,10 @@ describe("HelpDiagnosticsPage", (): void => {
         expect(
             screen.getAllByRole("link", { name: "Open article / diagnostics" }).length,
         ).toBe(1)
+
+        await user.clear(screen.getByRole("textbox", { name: "Help search" }))
+        await user.type(screen.getByRole("textbox", { name: "Help search" }), "no-match-query")
+        expect(screen.getByText("No matching help content")).not.toBeNull()
     })
 
     it("запускает diagnostics checks и генерирует redacted support bundle", async (): Promise<void> => {

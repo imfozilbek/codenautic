@@ -1,6 +1,7 @@
 import { type ReactElement, useEffect, useMemo, useState } from "react"
 
 import { Alert, Button, Card, CardBody, CardHeader, Chip } from "@/components/ui"
+import { SystemStateCard } from "@/components/infrastructure/system-state-card"
 import { showToastInfo, showToastSuccess } from "@/lib/notifications/toast"
 
 type TTriageCategory =
@@ -577,142 +578,154 @@ export function MyWorkPage(): ReactElement {
                     <p className="text-base font-semibold text-[var(--foreground)]">Unified triage list</p>
                 </CardHeader>
                 <CardBody className="space-y-2">
-                    <ul aria-label="My work triage list" className="space-y-2">
-                        {filteredItems.map((item): ReactElement => {
-                            const slaState = getSlaState(item, nowTimestamp)
-                            return (
-                                <li
-                                    className="rounded-lg border border-[var(--border)] bg-[var(--surface)] p-3"
-                                    key={item.id}
-                                >
-                                    <div className="flex flex-wrap items-center gap-2">
-                                        <p className="text-sm font-semibold text-[var(--foreground)]">
-                                            {item.title}
+                    {filteredItems.length === 0 ? (
+                        <SystemStateCard
+                            ctaLabel="Switch scope"
+                            description="No triage items match current filters. Change scope or run refresh."
+                            title="No triage items in this view"
+                            variant="empty"
+                            onCtaPress={(): void => {
+                                setScope("team")
+                            }}
+                        />
+                    ) : (
+                        <ul aria-label="My work triage list" className="space-y-2">
+                            {filteredItems.map((item): ReactElement => {
+                                const slaState = getSlaState(item, nowTimestamp)
+                                return (
+                                    <li
+                                        className="rounded-lg border border-[var(--border)] bg-[var(--surface)] p-3"
+                                        key={item.id}
+                                    >
+                                        <div className="flex flex-wrap items-center gap-2">
+                                            <p className="text-sm font-semibold text-[var(--foreground)]">
+                                                {item.title}
+                                            </p>
+                                            <Chip size="sm" variant="flat">
+                                                {item.category}
+                                            </Chip>
+                                            <Chip
+                                                color={item.severity === "critical" ? "danger" : "warning"}
+                                                size="sm"
+                                                variant="flat"
+                                            >
+                                                {item.severity}
+                                            </Chip>
+                                            <Chip size="sm" variant="flat">
+                                                owner: {item.owner}
+                                            </Chip>
+                                            <Chip color={getStatusColor(item.status)} size="sm" variant="flat">
+                                                status: {item.status}
+                                            </Chip>
+                                            <Chip
+                                                color={getEscalationColor(item.escalationLevel)}
+                                                size="sm"
+                                                title={`Escalation: ${item.escalationLevel}`}
+                                                variant="flat"
+                                            >
+                                                escalation: {item.escalationLevel}
+                                            </Chip>
+                                            <Chip
+                                                color={getSlaColor(slaState)}
+                                                size="sm"
+                                                title={`Due at ${formatTimestamp(item.dueAt)}`}
+                                                variant="flat"
+                                            >
+                                                {getSlaLabel(slaState)}
+                                            </Chip>
+                                        </div>
+                                        <p className="mt-1 text-xs text-[var(--foreground)]/70">
+                                            {item.repository} · created {formatTimestamp(item.timestamp)} · due{" "}
+                                            {formatTimestamp(item.dueAt)} · sla {item.slaMinutes}m
                                         </p>
-                                        <Chip size="sm" variant="flat">
-                                            {item.category}
-                                        </Chip>
-                                        <Chip
-                                            color={item.severity === "critical" ? "danger" : "warning"}
-                                            size="sm"
-                                            variant="flat"
-                                        >
-                                            {item.severity}
-                                        </Chip>
-                                        <Chip size="sm" variant="flat">
-                                            owner: {item.owner}
-                                        </Chip>
-                                        <Chip color={getStatusColor(item.status)} size="sm" variant="flat">
-                                            status: {item.status}
-                                        </Chip>
-                                        <Chip
-                                            color={getEscalationColor(item.escalationLevel)}
-                                            size="sm"
-                                            title={`Escalation: ${item.escalationLevel}`}
-                                            variant="flat"
-                                        >
-                                            escalation: {item.escalationLevel}
-                                        </Chip>
-                                        <Chip
-                                            color={getSlaColor(slaState)}
-                                            size="sm"
-                                            title={`Due at ${formatTimestamp(item.dueAt)}`}
-                                            variant="flat"
-                                        >
-                                            {getSlaLabel(slaState)}
-                                        </Chip>
-                                    </div>
-                                    <p className="mt-1 text-xs text-[var(--foreground)]/70">
-                                        {item.repository} · created {formatTimestamp(item.timestamp)} · due{" "}
-                                        {formatTimestamp(item.dueAt)} · sla {item.slaMinutes}m
-                                    </p>
-                                    <div className="mt-2 flex flex-wrap gap-2">
-                                        <Button
-                                            size="sm"
-                                            variant="flat"
-                                            onPress={(): void => {
-                                                handleMarkRead(item.id)
-                                            }}
-                                        >
-                                            Mark read
-                                        </Button>
-                                        <Button
-                                            isDisabled={
-                                                isRoleAllowed(reviewerRole, ASSIGNABLE_ROLES) !== true
-                                            }
-                                            size="sm"
-                                            variant="flat"
-                                            onPress={(): void => {
-                                                handleAssignToMe(item.id)
-                                            }}
-                                        >
-                                            Assign to me
-                                        </Button>
-                                        <Button
-                                            isDisabled={
-                                                isRoleAllowed(reviewerRole, ASSIGNABLE_ROLES) !== true
-                                            }
-                                            size="sm"
-                                            variant="flat"
-                                            onPress={(): void => {
-                                                handleStartWork(item.id)
-                                            }}
-                                        >
-                                            Start work
-                                        </Button>
-                                        <Button
-                                            isDisabled={
-                                                isRoleAllowed(reviewerRole, ASSIGNABLE_ROLES) !== true
-                                            }
-                                            size="sm"
-                                            variant="flat"
-                                            onPress={(): void => {
-                                                handleMarkDone(item.id)
-                                            }}
-                                        >
-                                            Mark done
-                                        </Button>
-                                        <Button
-                                            isDisabled={
-                                                isRoleAllowed(reviewerRole, ESCALATION_ROLES) !== true
-                                            }
-                                            size="sm"
-                                            variant="flat"
-                                            onPress={(): void => {
-                                                handleEscalate(item.id)
-                                            }}
-                                        >
-                                            Escalate
-                                        </Button>
-                                        <Button
-                                            size="sm"
-                                            variant="flat"
-                                            onPress={(): void => {
-                                                handleSnooze(item.id)
-                                            }}
-                                        >
-                                            Snooze
-                                        </Button>
-                                        <Button
-                                            size="sm"
-                                            variant="flat"
-                                            onPress={(): void => {
-                                                handleOpenReview(item.id)
-                                            }}
-                                        >
-                                            Open review
-                                        </Button>
-                                        <a
-                                            className="inline-flex items-center rounded-full border border-[var(--border)] px-3 py-1 text-xs text-[var(--foreground)]/80"
-                                            href={item.deepLink}
-                                        >
-                                            Deep-link
-                                        </a>
-                                    </div>
-                                </li>
-                            )
-                        })}
-                    </ul>
+                                        <div className="mt-2 flex flex-wrap gap-2">
+                                            <Button
+                                                size="sm"
+                                                variant="flat"
+                                                onPress={(): void => {
+                                                    handleMarkRead(item.id)
+                                                }}
+                                            >
+                                                Mark read
+                                            </Button>
+                                            <Button
+                                                isDisabled={
+                                                    isRoleAllowed(reviewerRole, ASSIGNABLE_ROLES) !== true
+                                                }
+                                                size="sm"
+                                                variant="flat"
+                                                onPress={(): void => {
+                                                    handleAssignToMe(item.id)
+                                                }}
+                                            >
+                                                Assign to me
+                                            </Button>
+                                            <Button
+                                                isDisabled={
+                                                    isRoleAllowed(reviewerRole, ASSIGNABLE_ROLES) !== true
+                                                }
+                                                size="sm"
+                                                variant="flat"
+                                                onPress={(): void => {
+                                                    handleStartWork(item.id)
+                                                }}
+                                            >
+                                                Start work
+                                            </Button>
+                                            <Button
+                                                isDisabled={
+                                                    isRoleAllowed(reviewerRole, ASSIGNABLE_ROLES) !== true
+                                                }
+                                                size="sm"
+                                                variant="flat"
+                                                onPress={(): void => {
+                                                    handleMarkDone(item.id)
+                                                }}
+                                            >
+                                                Mark done
+                                            </Button>
+                                            <Button
+                                                isDisabled={
+                                                    isRoleAllowed(reviewerRole, ESCALATION_ROLES) !== true
+                                                }
+                                                size="sm"
+                                                variant="flat"
+                                                onPress={(): void => {
+                                                    handleEscalate(item.id)
+                                                }}
+                                            >
+                                                Escalate
+                                            </Button>
+                                            <Button
+                                                size="sm"
+                                                variant="flat"
+                                                onPress={(): void => {
+                                                    handleSnooze(item.id)
+                                                }}
+                                            >
+                                                Snooze
+                                            </Button>
+                                            <Button
+                                                size="sm"
+                                                variant="flat"
+                                                onPress={(): void => {
+                                                    handleOpenReview(item.id)
+                                                }}
+                                            >
+                                                Open review
+                                            </Button>
+                                            <a
+                                                className="inline-flex items-center rounded-full border border-[var(--border)] px-3 py-1 text-xs text-[var(--foreground)]/80"
+                                                href={item.deepLink}
+                                            >
+                                                Deep-link
+                                            </a>
+                                        </div>
+                                    </li>
+                                )
+                            })}
+                        </ul>
+                    )}
                 </CardBody>
             </Card>
 

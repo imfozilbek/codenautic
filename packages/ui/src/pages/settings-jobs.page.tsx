@@ -1,6 +1,7 @@
 import { type ReactElement, useMemo, useState } from "react"
 
 import { Alert, Button, Card, CardBody, CardHeader, Chip } from "@/components/ui"
+import { SystemStateCard } from "@/components/infrastructure/system-state-card"
 import { showToastInfo, showToastSuccess } from "@/lib/notifications/toast"
 
 type TJobKind = "analytics" | "review" | "scan"
@@ -796,9 +797,11 @@ export function SettingsJobsPage(): ReactElement {
                         </CardHeader>
                         <CardBody className="space-y-2">
                             {activeJob === undefined ? (
-                                <Alert color="warning" title="No job selected" variant="flat">
-                                    Select a job to inspect diagnostics.
-                                </Alert>
+                                <SystemStateCard
+                                    description="Select a job to inspect diagnostics and open runbook links."
+                                    title="No job selected"
+                                    variant="empty"
+                                />
                             ) : (
                                 <>
                                     <p className="text-sm text-[var(--foreground)]">

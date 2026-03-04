@@ -1,6 +1,7 @@
 import { type ReactElement, useMemo, useState } from "react"
 
 import { Alert, Button, Card, CardBody, CardHeader, Chip, Textarea } from "@/components/ui"
+import { SystemStateCard } from "@/components/infrastructure/system-state-card"
 
 type TArticleCategory = "auth" | "incidents" | "network" | "providers" | "rendering"
 type TDiagnosticStatus = "error" | "ok" | "pending" | "warning"
@@ -298,27 +299,40 @@ export function HelpDiagnosticsPage(): ReactElement {
                             </select>
                         </label>
                     </div>
-                    <ul aria-label="Help articles list" className="space-y-2">
-                        {filteredArticles.map((article): ReactElement => (
-                            <li
-                                className="rounded-lg border border-[var(--border)] bg-[var(--surface)] px-3 py-2"
-                                key={article.id}
-                            >
-                                <p className="text-sm font-semibold text-[var(--foreground)]">
-                                    {article.title}
-                                </p>
-                                <p className="text-xs text-[var(--foreground)]/70">
-                                    {article.summary}
-                                </p>
-                                <a
-                                    className="mt-1 inline-flex text-xs underline underline-offset-4"
-                                    href={article.href}
+                    {filteredArticles.length === 0 ? (
+                        <SystemStateCard
+                            ctaLabel="Reset filters"
+                            description="No help articles match current query. Reset filters or open diagnostics checks."
+                            title="No matching help content"
+                            variant="empty"
+                            onCtaPress={(): void => {
+                                setCategory("all")
+                                setSearch("")
+                            }}
+                        />
+                    ) : (
+                        <ul aria-label="Help articles list" className="space-y-2">
+                            {filteredArticles.map((article): ReactElement => (
+                                <li
+                                    className="rounded-lg border border-[var(--border)] bg-[var(--surface)] px-3 py-2"
+                                    key={article.id}
                                 >
-                                    Open article / diagnostics
-                                </a>
-                            </li>
-                        ))}
-                    </ul>
+                                    <p className="text-sm font-semibold text-[var(--foreground)]">
+                                        {article.title}
+                                    </p>
+                                    <p className="text-xs text-[var(--foreground)]/70">
+                                        {article.summary}
+                                    </p>
+                                    <a
+                                        className="mt-1 inline-flex text-xs underline underline-offset-4"
+                                        href={article.href}
+                                    >
+                                        Open article / diagnostics
+                                    </a>
+                                </li>
+                            ))}
+                        </ul>
+                    )}
                 </CardBody>
             </Card>
 
