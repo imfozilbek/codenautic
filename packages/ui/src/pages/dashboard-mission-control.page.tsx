@@ -7,6 +7,11 @@ import { ExplainabilityPanel } from "@/components/infrastructure/explainability-
 import { FlowMetricsWidget, type IFlowMetricsPoint } from "@/components/dashboard/flow-metrics-widget"
 import { TeamActivityWidget, type ITeamActivityPoint } from "@/components/dashboard/team-activity-widget"
 import {
+    TokenUsageDashboardWidget,
+    type ITokenUsageModelPoint,
+    type ITokenUsageTrendPoint,
+} from "@/components/dashboard/token-usage-dashboard-widget"
+import {
     DashboardDateRangeFilter,
     type TDashboardDateRange,
 } from "@/components/dashboard/dashboard-date-range-filter"
@@ -408,6 +413,79 @@ function getFlowMetrics(range: TDashboardDateRange): ReadonlyArray<IFlowMetricsP
     ]
 }
 
+function getTokenUsageByModel(range: TDashboardDateRange): ReadonlyArray<ITokenUsageModelPoint> {
+    if (range === "1d") {
+        return [
+            { model: "gpt-4o-mini", tokens: 145_000 },
+            { model: "claude-3-7-sonnet", tokens: 98_000 },
+            { model: "gpt-4.1-mini", tokens: 73_000 },
+        ]
+    }
+
+    if (range === "30d") {
+        return [
+            { model: "gpt-4o-mini", tokens: 2_380_000 },
+            { model: "claude-3-7-sonnet", tokens: 1_920_000 },
+            { model: "gpt-4.1-mini", tokens: 1_540_000 },
+            { model: "mistral-small-latest", tokens: 760_000 },
+        ]
+    }
+
+    if (range === "90d") {
+        return [
+            { model: "gpt-4o-mini", tokens: 6_910_000 },
+            { model: "claude-3-7-sonnet", tokens: 5_220_000 },
+            { model: "gpt-4.1-mini", tokens: 4_160_000 },
+            { model: "mistral-small-latest", tokens: 2_010_000 },
+        ]
+    }
+
+    return [
+        { model: "gpt-4o-mini", tokens: 620_000 },
+        { model: "claude-3-7-sonnet", tokens: 430_000 },
+        { model: "gpt-4.1-mini", tokens: 370_000 },
+    ]
+}
+
+function getTokenUsageTrend(range: TDashboardDateRange): ReadonlyArray<ITokenUsageTrendPoint> {
+    if (range === "1d") {
+        return [
+            { costUsd: 26, period: "08:00" },
+            { costUsd: 31, period: "10:00" },
+            { costUsd: 34, period: "12:00" },
+            { costUsd: 33, period: "14:00" },
+            { costUsd: 37, period: "16:00" },
+        ]
+    }
+
+    if (range === "30d") {
+        return [
+            { costUsd: 410, period: "W1" },
+            { costUsd: 452, period: "W2" },
+            { costUsd: 467, period: "W3" },
+            { costUsd: 493, period: "W4" },
+        ]
+    }
+
+    if (range === "90d") {
+        return [
+            { costUsd: 1_150, period: "M1" },
+            { costUsd: 1_289, period: "M2" },
+            { costUsd: 1_362, period: "M3" },
+        ]
+    }
+
+    return [
+        { costUsd: 97, period: "D1" },
+        { costUsd: 102, period: "D2" },
+        { costUsd: 108, period: "D3" },
+        { costUsd: 114, period: "D4" },
+        { costUsd: 119, period: "D5" },
+        { costUsd: 121, period: "D6" },
+        { costUsd: 126, period: "D7" },
+    ]
+}
+
 /**
  * Рендерит список сигналов для dashboard content компонента.
  *
@@ -550,6 +628,12 @@ export function DashboardMissionControlPage(): ReactElement {
     }, [dashboardPayload])
     const teamActivity = useMemo((): ReadonlyArray<ITeamActivityPoint> => getTeamActivity(range), [range])
     const flowMetrics = useMemo((): ReadonlyArray<IFlowMetricsPoint> => getFlowMetrics(range), [range])
+    const tokenUsageByModel = useMemo((): ReadonlyArray<ITokenUsageModelPoint> => {
+        return getTokenUsageByModel(range)
+    }, [range])
+    const tokenUsageTrend = useMemo((): ReadonlyArray<ITokenUsageTrendPoint> => {
+        return getTokenUsageTrend(range)
+    }, [range])
     const provenance = useMemo(
         (): IProvenanceContext => ({
             branch: "main",
@@ -827,6 +911,7 @@ export function DashboardMissionControlPage(): ReactElement {
                 points={flowMetrics}
             />
             <TeamActivityWidget points={teamActivity} />
+            <TokenUsageDashboardWidget byModel={tokenUsageByModel} costTrend={tokenUsageTrend} />
             <div className="grid gap-4 md:grid-cols-2">
                 {renderExploreCard()}
                 {renderSignalsCard()}
