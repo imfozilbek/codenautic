@@ -13,6 +13,15 @@ import {
     type IProviderDegradationEventDetail,
 } from "@/lib/providers/degradation-mode"
 import {
+    MULTI_TAB_SYNC_CHANNEL,
+    TENANT_STORAGE_KEY,
+    THEME_MODE_STORAGE_KEY,
+    THEME_PRESET_STORAGE_KEY,
+    UI_ROLE_STORAGE_KEY,
+    isMultiTabSyncMessage,
+    type TMultiTabSyncMessage,
+} from "@/lib/sync/multi-tab-consistency"
+import {
     buildDraftFieldKey,
     clearSessionPendingIntent,
     readSessionDraftSnapshot,
@@ -130,6 +139,7 @@ export function DashboardLayout(props: IDashboardLayoutProps): ReactElement {
     const [policyDriftNotice, setPolicyDriftNotice] = useState<string | undefined>(undefined)
     const [providerDegradation, setProviderDegradation] =
         useState<IProviderDegradationEventDetail | undefined>(undefined)
+    const [multiTabNotice, setMultiTabNotice] = useState<string | undefined>(undefined)
     const navigate = useNavigate()
     const location = useLocation()
     const queryClient = useQueryClient()
@@ -189,6 +199,15 @@ export function DashboardLayout(props: IDashboardLayoutProps): ReactElement {
 
         clearTenantScopedStorage(activeOrganizationId, organizationId)
         setActiveOrganizationId(organizationId)
+        window.localStorage.setItem(TENANT_STORAGE_KEY, organizationId)
+        if (typeof window.BroadcastChannel === "function") {
+            const channel = new window.BroadcastChannel(MULTI_TAB_SYNC_CHANNEL)
+            channel.postMessage({
+                tenantId: organizationId,
+                type: "tenant",
+            } satisfies TMultiTabSyncMessage)
+            channel.close()
+        }
     }
 
     const handleRoleChange = (roleId: string): void => {
@@ -198,6 +217,14 @@ export function DashboardLayout(props: IDashboardLayoutProps): ReactElement {
 
         setActiveRoleId(roleId)
         writeUiRoleToStorage(roleId)
+        if (typeof window.BroadcastChannel === "function") {
+            const channel = new window.BroadcastChannel(MULTI_TAB_SYNC_CHANNEL)
+            channel.postMessage({
+                role: roleId,
+                type: "permissions",
+            } satisfies TMultiTabSyncMessage)
+            channel.close()
+        }
     }
 
     useEffect((): void => {
@@ -333,6 +360,93 @@ export function DashboardLayout(props: IDashboardLayoutProps): ReactElement {
         }
     }, [])
 
+    useEffect((): (() => void) | void => {
+        if (typeof window === "undefined" || typeof window.BroadcastChannel !== "function") {
+            return
+        }
+
+        const channel = new window.BroadcastChannel(MULTI_TAB_SYNC_CHANNEL)
+        const handleMessage = (event: MessageEvent<unknown>): void => {
+            const data = event.data
+            if (isMultiTabSyncMessage(data) !== true) {
+                return
+            }
+
+            if (data.type === "tenant" && data.tenantId !== activeOrganizationId) {
+                setActiveOrganizationId(data.tenantId)
+                setMultiTabNotice(`Tenant switched in another tab: ${data.tenantId}.`)
+                return
+            }
+
+            if (data.type === "permissions" && data.role !== activeRoleId) {
+                setActiveRoleId(data.role)
+                writeUiRoleToStorage(data.role)
+                setMultiTabNotice(`Permissions updated in another tab: ${data.role}.`)
+                void queryClient.invalidateQueries({ queryKey: queryKeys.permissions.all() })
+                return
+            }
+
+            if (data.type === "theme") {
+                setMultiTabNotice("Theme updated in another tab and synchronized.")
+            }
+        }
+
+        channel.addEventListener("message", handleMessage)
+
+        return (): void => {
+            channel.removeEventListener("message", handleMessage)
+            channel.close()
+        }
+    }, [activeOrganizationId, activeRoleId, queryClient])
+
+    useEffect((): (() => void) | void => {
+        if (typeof window === "undefined") {
+            return
+        }
+
+        const handleStorageSync = (event: StorageEvent): void => {
+            if (event.key === TENANT_STORAGE_KEY && event.newValue !== null) {
+                if (
+                    (event.newValue === "platform-team"
+                        || event.newValue === "frontend-team"
+                        || event.newValue === "runtime-team")
+                    && event.newValue !== activeOrganizationId
+                ) {
+                    setActiveOrganizationId(event.newValue)
+                    setMultiTabNotice(`Tenant synchronized from another tab: ${event.newValue}.`)
+                }
+                return
+            }
+
+            if (event.key === UI_ROLE_STORAGE_KEY && event.newValue !== null) {
+                if (
+                    (event.newValue === "viewer"
+                        || event.newValue === "developer"
+                        || event.newValue === "lead"
+                        || event.newValue === "admin")
+                    && event.newValue !== activeRoleId
+                ) {
+                    setActiveRoleId(event.newValue)
+                    setMultiTabNotice(`Permissions synchronized from another tab: ${event.newValue}.`)
+                    void queryClient.invalidateQueries({ queryKey: queryKeys.permissions.all() })
+                }
+                return
+            }
+
+            if (
+                event.key === THEME_MODE_STORAGE_KEY
+                || event.key === THEME_PRESET_STORAGE_KEY
+            ) {
+                setMultiTabNotice("Theme synchronized from another tab.")
+            }
+        }
+
+        window.addEventListener("storage", handleStorageSync)
+        return (): void => {
+            window.removeEventListener("storage", handleStorageSync)
+        }
+    }, [activeOrganizationId, activeRoleId, queryClient])
+
     const handleSearchRouteNavigate = (to: string): void => {
         void navigate({
             to,
@@ -401,6 +515,11 @@ export function DashboardLayout(props: IDashboardLayoutProps): ReactElement {
                     />
                 </div>
                 <div className="min-h-0 flex-1 rounded-lg border border-[var(--border)] bg-[color:color-mix(in_oklab,var(--surface)_88%,transparent)] p-4 shadow-sm">
+                    {multiTabNotice === undefined ? null : (
+                        <Alert color="primary" title="Multi-tab sync applied" variant="flat">
+                            {multiTabNotice}
+                        </Alert>
+                    )}
                     {providerDegradation === undefined ? null : (
                         <Alert color="danger" title="Provider degradation mode" variant="flat">
                             {providerDegradation.provider} degraded. Affected:{" "}

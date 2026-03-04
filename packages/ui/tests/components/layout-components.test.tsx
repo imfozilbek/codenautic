@@ -400,6 +400,47 @@ describe("layout components", (): void => {
         expect(screen.getByRole("link", { name: "Open runbook" })).not.toBeNull()
     })
 
+    it("синхронизирует tenant/theme из другой вкладки и показывает non-blocking уведомление", async (): Promise<void> => {
+        mockNavigate.mockClear()
+        currentRoute = "/settings-team"
+
+        renderWithProviders(
+            <DashboardLayoutHarness>
+                <p>Cross-tab content</p>
+            </DashboardLayoutHarness>,
+            {
+                defaultThemeMode: "light" as ThemeMode,
+            },
+        )
+
+        window.dispatchEvent(
+            new StorageEvent("storage", {
+                key: "codenautic:tenant:active",
+                newValue: "frontend-team",
+            }),
+        )
+
+        await waitFor(() => {
+            expect(screen.getByText("Multi-tab sync applied")).not.toBeNull()
+        })
+        expect(screen.getByText(/Tenant synchronized from another tab/)).not.toBeNull()
+        await waitFor(() => {
+            expect(mockNavigate).toHaveBeenCalledWith({
+                to: "/settings",
+            })
+        })
+
+        window.dispatchEvent(
+            new StorageEvent("storage", {
+                key: "codenautic:ui:theme-mode",
+                newValue: "dark",
+            }),
+        )
+        await waitFor(() => {
+            expect(screen.getByText(/Theme synchronized from another tab/)).not.toBeNull()
+        })
+    })
+
     it("рендерит секции настроек", (): void => {
         renderWithProviders(<SettingsNav />)
 
