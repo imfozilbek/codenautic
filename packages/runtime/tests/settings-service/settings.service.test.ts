@@ -8,7 +8,7 @@ import {SettingsService} from "../../src/settings-service/settings.service"
 
 const SETTINGS_SERVICE_NODE_ENV = "test"
 
-function createConfig(filePath: string): ISettingsServiceConfig {
+function createConfig(defaultsDir: string, settingsFilePath: string): ISettingsServiceConfig {
     return {
         runtime: {
             nodeEnv: SETTINGS_SERVICE_NODE_ENV,
@@ -20,7 +20,8 @@ function createConfig(filePath: string): ISettingsServiceConfig {
             healthcheckEnabled: true,
         },
         data: {
-            filePath,
+            defaultsDir,
+            settingsFilePath,
         },
     }
 }
@@ -51,7 +52,7 @@ describe("SettingsService", () => {
 
         await writeFile(filePath, JSON.stringify(payload), "utf8")
 
-        const service = new SettingsService(createConfig(filePath))
+        const service = new SettingsService(createConfig(tempDir, filePath))
         const snapshot = await service.getAll()
 
         expect(snapshot.items).toHaveLength(1)
@@ -74,7 +75,7 @@ describe("SettingsService", () => {
 
         await writeFile(filePath, JSON.stringify(payload), "utf8")
 
-        const service = new SettingsService(createConfig(filePath))
+        const service = new SettingsService(createConfig(tempDir, filePath))
         const item = await service.getByKey("review.overrides")
 
         expect(item?.value).toEqual({
@@ -87,8 +88,35 @@ describe("SettingsService", () => {
         const filePath = join(tempDir, "settings.json")
         await writeFile(filePath, JSON.stringify({}), "utf8")
 
-        const service = new SettingsService(createConfig(filePath))
+        const service = new SettingsService(createConfig(tempDir, filePath))
 
         return expect(service.getAll()).rejects.toThrow("Settings payload must contain items array")
+    })
+
+    test("returns config payload for resource", async () => {
+        tempDir = await mkdtemp(join(tmpdir(), "settings-service-"))
+        const filePath = join(tempDir, "settings.json")
+        const promptsPath = join(tempDir, "prompts.json")
+        const payload = {
+            items: [
+                {
+                    key: "review.overrides",
+                    value: {
+                        name: "default-review-overrides",
+                    },
+                },
+            ],
+        }
+
+        await writeFile(filePath, JSON.stringify(payload), "utf8")
+        await writeFile(promptsPath, JSON.stringify([{name: "code-review-system"}]), "utf8")
+
+        const service = new SettingsService(createConfig(tempDir, filePath))
+        const resources = service.getConfigResources()
+
+        expect(resources).toContain("prompts")
+
+        const promptPayload = await service.getConfigResource("prompts")
+        expect(promptPayload).toEqual([{name: "code-review-system"}])
     })
 })

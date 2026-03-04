@@ -26,7 +26,8 @@ export interface ISettingsServiceServerConfig {
  * Data source configuration for settings-service.
  */
 export interface ISettingsServiceDataConfig {
-    filePath: string
+    defaultsDir: string
+    settingsFilePath: string
 }
 
 /**
@@ -157,6 +158,7 @@ export class SettingsServiceConfigModule {
  * @returns Base config.
  */
 function createConfigFromEnvironment(env: ISettingsServiceEnvironment): ISettingsServiceConfig {
+    const defaultsDir = resolveDefaultsDir(env.defaultsDir)
     return {
         runtime: {
             nodeEnv: env.nodeEnv,
@@ -168,23 +170,39 @@ function createConfigFromEnvironment(env: ISettingsServiceEnvironment): ISetting
             healthcheckEnabled: env.healthcheckEnabled,
         },
         data: {
-            filePath: resolveSettingsFilePath(env.filePath),
+            defaultsDir,
+            settingsFilePath: resolveSettingsFilePath(defaultsDir, env.filePath),
         },
     }
 }
 
 /**
- * Resolves settings file path from environment or defaults.
+ * Resolves defaults directory path.
  *
  * @param value Optional override path.
- * @returns Absolute path to settings.json.
+ * @returns Absolute path to defaults directory.
  */
-function resolveSettingsFilePath(value: string | undefined): string {
+function resolveDefaultsDir(value: string | undefined): string {
     if (value !== undefined) {
         return value
     }
 
-    return resolve(import.meta.dir, "../../api/migrations/defaults/settings.json")
+    return resolve(import.meta.dir, "../../config/defaults")
+}
+
+/**
+ * Resolves settings file path from environment or defaults directory.
+ *
+ * @param defaultsDir Defaults directory path.
+ * @param value Optional override path.
+ * @returns Absolute path to settings.json.
+ */
+function resolveSettingsFilePath(defaultsDir: string, value: string | undefined): string {
+    if (value !== undefined) {
+        return value
+    }
+
+    return resolve(defaultsDir, "settings.json")
 }
 
 /**
@@ -243,9 +261,15 @@ function validateConfig(config: ISettingsServiceConfig): ISettingsServiceConfig 
         )
     }
 
-    if (config.data.filePath.trim().length === 0) {
+    if (config.data.defaultsDir.trim().length === 0) {
         throw new SettingsServiceConfigurationValidationError(
-            "Settings-service filePath must be non-empty",
+            "Settings-service defaultsDir must be non-empty",
+        )
+    }
+
+    if (config.data.settingsFilePath.trim().length === 0) {
+        throw new SettingsServiceConfigurationValidationError(
+            "Settings-service settingsFilePath must be non-empty",
         )
     }
 

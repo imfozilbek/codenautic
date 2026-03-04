@@ -105,7 +105,7 @@ flowchart TD
 
         INFRA["adapters\ngit, llm, context, notifications\nast, messaging, worker, database"]
 
-        SERVER["runtime — 10 PM2 processes\napi (NestJS) · settings-service · webhooks\nreview-worker · scan-worker · agent-worker\nnotification-worker · analytics-worker\nscheduler · mcp"]
+        SERVER["runtime — 10 PM2 processes\napi (NestJS) · settings-service (config registry) · webhooks\nreview-worker · scan-worker · agent-worker\nnotification-worker · analytics-worker\nscheduler · mcp"]
 
         WEB["ui\nVite 7, React 19\nTanStack Router"]
     end
@@ -136,7 +136,7 @@ flowchart TD
 
     subgraph SERVER["@codenautic/runtime — 10 processes"]
         API["api :3000\nNestJS 11"]
-        SS["settings-service :3040\nNestJS 11"]
+        SS["settings-service :3040\nNestJS 11\nconfig registry"]
         WH["webhooks :3001\nverify + route"]
         RW["review-worker\nversioned pipeline execution"]
         SW["scan-worker\nAST + Code Graph"]
@@ -289,7 +289,7 @@ flowchart TD
         subgraph packages["packages/ — 4 packages"]
             CORE_S["core\nDomain, use cases, ports\n0 external dependencies"]
             INFRA_S["adapters\ngit · llm · context · notifications\nast · messaging · worker · database"]
-            SERVER_S["runtime — 10 PM2 processes\napi · settings-service · webhooks\nreview-worker · scan-worker · agent-worker\nnotification-worker · analytics-worker\nscheduler · mcp"]
+            SERVER_S["runtime — 10 PM2 processes\napi · settings-service (config registry) · webhooks\nreview-worker · scan-worker · agent-worker\nnotification-worker · analytics-worker\nscheduler · mcp"]
             WEB_S["ui\nVite 7, React 19, TanStack Router"]
         end
 

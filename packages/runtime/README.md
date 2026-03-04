@@ -9,7 +9,7 @@ Server layer for CodeNautic — API, Webhooks, Workers, Scheduler, MCP.
 | # | Process | Run Script | Description |
 |---|---------|------------|-------------|
 | 0 | **api** | `bun run start:api` | HTTP API, NestJS, composition root |
-| 1 | **settings-service** | `bun run start:settings-service` | Settings lookup API (file → DB later) |
+| 1 | **settings-service** | `bun run start:settings-service` | Config registry API (file → DB later) |
 | 2 | **webhooks** | `bun run start:webhooks` | Webhook receiver, verify signature, publish to queue |
 | 3 | **review-worker** | `bun run start:review-worker` | 20-stage pipeline, SafeGuard, Expert Panel |
 | 4 | **scan-worker** | `bun run start:scan-worker` | Repository indexing, AST, Code Graph, CodeCity |
@@ -43,6 +43,12 @@ cd packages/runtime && bun test
 cd packages/runtime && bun run format
 cd packages/runtime && bun run typecheck
 ```
+
+## Settings-service
+
+- `GET /configs/settings` and `GET /configs/settings/:key` — settings payload.
+- `GET /configs` and `GET /configs/:resource` — config resources (`settings`, `prompts`, `rules`, `categories`, `expert-panels`).
+- Source data lives in `src/config/defaults` (override with `SETTINGS_SERVICE_DEFAULTS_DIR` and `SETTINGS_SERVICE_FILE_PATH`).
 
 ## Task Tracking
 

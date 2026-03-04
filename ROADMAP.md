@@ -46,7 +46,7 @@ M01 → M02 → M03 → M04 → M05 (core)
 | M02 | Review Domain & Versioned Pipeline | core | 35 | Review aggregate, orchestrator + pipeline definition с mock stages |
 | M03 | 20-Stage (v1) Pipeline & SafeGuard | core | 26 | Полный definition-driven pipeline + SafeGuard с моками |
 | M04 | Business Domain | core | 63 | Org, Project, Rules, Feedback, Prompts, Analytics, Graph, Notifications, CCR Summary |
-| M05 | Seeds, Admin, Expert Panel | core | 95 | Admin CRUD, seed data, stage-prompt wiring, Expert Panel |
+| M05 | Config Defaults, Admin, Expert Panel | core | 95 | Admin CRUD, config defaults, stage-prompt wiring, Expert Panel |
 | M06 | Adapters Foundation | adapters | 25 | DB, messaging, worker infra |
 | M07 | Git + LLM + API Start | adapters, runtime | 18 | `bun run dev:api` стартует, health, admin CRUD |
 | M08 | Webhooks & Review E2E | runtime | 32 | GitHub webhook → queue → pipeline → комментарии в PR |

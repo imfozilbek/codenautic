@@ -24,13 +24,34 @@ interface ISettingsCache {
     readonly lastModified: number
 }
 
+interface IConfigCache {
+    readonly payload: unknown
+    readonly lastModified: number
+}
+
+const CONFIG_RESOURCES = {
+    settings: "settings.json",
+    prompts: "prompts.json",
+    rules: "rules.json",
+    categories: "categories.json",
+    "expert-panels": "expert-panels.json",
+} as const
+
+export type ConfigResource = keyof typeof CONFIG_RESOURCES
+
+const CONFIG_RESOURCE_LIST = Object.freeze(
+    Object.keys(CONFIG_RESOURCES) as ConfigResource[],
+)
+
 /**
  * Loads settings from file system with caching.
  */
 @Injectable()
 export class SettingsService {
-    private readonly filePath: string
-    private cache: ISettingsCache | undefined
+    private readonly settingsFilePath: string
+    private readonly resourcePaths: ReadonlyMap<ConfigResource, string>
+    private settingsCache: ISettingsCache | undefined
+    private readonly configCache = new Map<ConfigResource, IConfigCache>()
 
     /**
      * Creates settings service.
@@ -41,7 +62,8 @@ export class SettingsService {
         @Inject(SETTINGS_SERVICE_CONFIG_TOKEN)
         config: ISettingsServiceConfig,
     ) {
-        this.filePath = config.data.filePath
+        this.settingsFilePath = config.data.settingsFilePath
+        this.resourcePaths = buildResourcePaths(config.data.defaultsDir, config.data.settingsFilePath)
     }
 
     /**
@@ -50,7 +72,7 @@ export class SettingsService {
      * @returns Settings snapshot.
      */
     public async getAll(): Promise<ISettingsSnapshot> {
-        const cache = await this.loadCache()
+        const cache = await this.loadSettingsCache()
         return cache.snapshot
     }
 
@@ -61,21 +83,55 @@ export class SettingsService {
      * @returns Setting item when found.
      */
     public async getByKey(key: string): Promise<ISettingItem | undefined> {
-        const cache = await this.loadCache()
+        const cache = await this.loadSettingsCache()
         return cache.lookup.get(key)
     }
 
-    private async loadCache(): Promise<ISettingsCache> {
-        const file = Bun.file(this.filePath)
+    /**
+     * Returns all supported config resources.
+     *
+     * @returns Resource list.
+     */
+    public getConfigResources(): readonly ConfigResource[] {
+        return CONFIG_RESOURCE_LIST
+    }
+
+    /**
+     * Checks whether config resource is supported.
+     *
+     * @param resource Resource key.
+     * @returns True when resource is supported.
+     */
+    public isConfigResource(resource: string): resource is ConfigResource {
+        return CONFIG_RESOURCE_LIST.includes(resource as ConfigResource)
+    }
+
+    /**
+     * Returns config payload by resource key.
+     *
+     * @param resource Resource key.
+     * @returns Config payload.
+     */
+    public async getConfigResource(resource: ConfigResource): Promise<unknown> {
+        if (resource === "settings") {
+            return this.getAll()
+        }
+
+        const cache = await this.loadConfigCache(resource)
+        return cache.payload
+    }
+
+    private async loadSettingsCache(): Promise<ISettingsCache> {
+        const file = Bun.file(this.settingsFilePath)
         const exists = await file.exists()
         if (!exists) {
-            throw new Error(`Settings file not found: ${this.filePath}`)
+            throw new Error(`Settings file not found: ${this.settingsFilePath}`)
         }
 
         const lastModified = file.lastModified
 
-        if (this.cache !== undefined && this.cache.lastModified === lastModified) {
-            return this.cache
+        if (this.settingsCache !== undefined && this.settingsCache.lastModified === lastModified) {
+            return this.settingsCache
         }
 
         const payload: unknown = await file.json()
@@ -92,9 +148,64 @@ export class SettingsService {
             lastModified,
         }
 
-        this.cache = cache
+        this.settingsCache = cache
         return cache
     }
+
+    private async loadConfigCache(resource: ConfigResource): Promise<IConfigCache> {
+        const filePath = this.resourcePaths.get(resource)
+        if (filePath === undefined) {
+            throw new Error(`Unknown config resource: ${resource}`)
+        }
+
+        const file = Bun.file(filePath)
+        const exists = await file.exists()
+        if (!exists) {
+            throw new Error(`Config resource file not found: ${filePath}`)
+        }
+
+        const lastModified = file.lastModified
+        const existing = this.configCache.get(resource)
+
+        if (existing !== undefined && existing.lastModified === lastModified) {
+            return existing
+        }
+
+        const payload: unknown = await file.json()
+        const cache: IConfigCache = {
+            payload,
+            lastModified,
+        }
+
+        this.configCache.set(resource, cache)
+        return cache
+    }
+}
+
+/**
+ * Builds resource file path map from defaults directory.
+ *
+ * @param defaultsDir Defaults directory.
+ * @param settingsFilePath Settings file path.
+ * @returns Resource path map.
+ */
+function buildResourcePaths(
+    defaultsDir: string,
+    settingsFilePath: string,
+): ReadonlyMap<ConfigResource, string> {
+    const paths = new Map<ConfigResource, string>()
+
+    for (const resource of CONFIG_RESOURCE_LIST) {
+        if (resource === "settings") {
+            paths.set(resource, settingsFilePath)
+            continue
+        }
+
+        const fileName = CONFIG_RESOURCES[resource]
+        paths.set(resource, `${defaultsDir}/${fileName}`)
+    }
+
+    return paths
 }
 
 /**

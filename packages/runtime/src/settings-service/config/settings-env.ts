@@ -17,6 +17,7 @@ export interface ISettingsServiceEnvironment {
     host: string
     port: number
     healthcheckEnabled: boolean
+    defaultsDir?: string
     filePath?: string
 }
 
@@ -41,6 +42,7 @@ const settingsServiceEnvironmentSchema = z.object({
     SETTINGS_SERVICE_HOST: z.string().min(1).optional().default("0.0.0.0"),
     SETTINGS_SERVICE_PORT: portSchema.optional().default(3040),
     SETTINGS_SERVICE_HEALTHCHECK_ENABLED: booleanFromStringSchema.optional().default(true),
+    SETTINGS_SERVICE_DEFAULTS_DIR: z.string().min(1).optional(),
     SETTINGS_SERVICE_FILE_PATH: z.string().min(1).optional(),
 })
 
@@ -92,6 +94,7 @@ export function parseSettingsServiceEnvironment(
         host: parsed.data.SETTINGS_SERVICE_HOST,
         port: parsed.data.SETTINGS_SERVICE_PORT,
         healthcheckEnabled: parsed.data.SETTINGS_SERVICE_HEALTHCHECK_ENABLED,
+        defaultsDir: parsed.data.SETTINGS_SERVICE_DEFAULTS_DIR,
         filePath: parsed.data.SETTINGS_SERVICE_FILE_PATH,
     }
 }

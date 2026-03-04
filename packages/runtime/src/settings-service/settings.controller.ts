@@ -9,10 +9,19 @@ import {
 
 import type {ISettingsServiceConfig} from "./config/settings-config.module"
 import {SETTINGS_SERVICE_CONFIG_TOKEN} from "./settings.tokens"
-import {SettingsService, type ISettingItem, type ISettingsSnapshot} from "./settings.service"
+import {
+    SettingsService,
+    type ISettingItem,
+    type ISettingsSnapshot,
+    type ConfigResource,
+} from "./settings.service"
 
 interface IHealthStatus {
     status: string
+}
+
+interface IConfigResourcesResponse {
+    readonly resources: readonly ConfigResource[]
 }
 
 /**
@@ -55,22 +64,22 @@ export class SettingsController {
     }
 
     /**
-     * Returns all settings.
+     * Returns all config settings.
      *
      * @returns Settings snapshot.
      */
-    @Get("/settings")
+    @Get("/configs/settings")
     public async getSettings(): Promise<ISettingsSnapshot> {
         return this.settingsService.getAll()
     }
 
     /**
-     * Returns setting by key.
+     * Returns config setting by key.
      *
      * @param key Setting key.
      * @returns Setting item.
      */
-    @Get("/settings/:key")
+    @Get("/configs/settings/:key")
     public async getSetting(@Param("key") key: string): Promise<ISettingItem> {
         const normalizedKey = key.trim()
         if (normalizedKey.length === 0) {
@@ -83,5 +92,39 @@ export class SettingsController {
         }
 
         return item
+    }
+
+    /**
+     * Returns available config resources.
+     *
+     * @returns Resource list.
+     */
+    @Get("/configs")
+    public getConfigResources(): IConfigResourcesResponse {
+        return {
+            resources: this.settingsService.getConfigResources(),
+        }
+    }
+
+    /**
+     * Returns config payload by resource name.
+     *
+     * @param resource Resource name.
+     * @returns Resource payload.
+     */
+    @Get("/configs/:resource")
+    public async getConfigResource(
+        @Param("resource") resource: string,
+    ): Promise<unknown> {
+        const normalizedResource = resource.trim()
+        if (normalizedResource.length === 0) {
+            throw new BadRequestException("Resource name cannot be empty")
+        }
+
+        if (!this.settingsService.isConfigResource(normalizedResource)) {
+            throw new NotFoundException("Resource not found")
+        }
+
+        return this.settingsService.getConfigResource(normalizedResource)
     }
 }

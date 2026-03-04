@@ -107,7 +107,7 @@ flowchart TD
 
         subgraph roots["Composition Roots"]
             API["API :3000\nNestJS DI"]
-            SS["Settings Service :3040\nNestJS DI"]
+            SS["Settings Service :3040\nNestJS DI\nconfig registry"]
             WH["Webhooks :3001\nContainer"]
         end
 
@@ -184,7 +184,7 @@ flowchart TD
     subgraph packages["packages/ — 4 пакета"]
         CORE["core\nДомен + Application + Порты\n0 внешних зависимостей"]
         INFRA["adapters\ngit · llm · context · notifications\nast · messaging · worker · database"]
-        SERVER["runtime — 10 PM2-процессов\napi · settings-service · webhooks · review-worker\nscan-worker · agent-worker · notification-worker\nanalytics-worker · scheduler · mcp"]
+        SERVER["runtime — 10 PM2-процессов\napi · settings-service (config registry) · webhooks · review-worker\nscan-worker · agent-worker · notification-worker\nanalytics-worker · scheduler · mcp"]
         WEB["ui\nVite 7, React 19, TanStack Router"]
     end
 
