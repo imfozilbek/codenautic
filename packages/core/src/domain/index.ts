@@ -131,6 +131,11 @@ export {RuleEffectivenessService} from "./services/rule-effectiveness.service"
 export {PromptEngineService} from "./services/prompt-engine.service"
 export {RuleValidationService} from "./services/rule-validation.service"
 export {
+    type IRuleContextExample,
+    type IRuleContextItem,
+    RuleContextFormatterService,
+} from "./services/rule-context-formatter.service"
+export {
     IssueFeedback,
     type IIssueFeedbackProps,
     type IssueFeedbackType,

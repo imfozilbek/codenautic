@@ -680,6 +680,11 @@ export {
 export {RuleStatusPolicyService} from "./domain/services/rule-status-policy.service"
 export {RuleEffectivenessService} from "./domain/services/rule-effectiveness.service"
 export {
+    type IRuleContextExample,
+    type IRuleContextItem,
+    RuleContextFormatterService,
+} from "./domain/services/rule-context-formatter.service"
+export {
     DependencyGraphService,
     type IDependencyGraphService,
 } from "./domain/services/dependency-graph.service"
