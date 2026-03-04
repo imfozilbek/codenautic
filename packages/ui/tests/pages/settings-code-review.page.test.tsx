@@ -175,4 +175,55 @@ describe("settings code review page", (): void => {
         expect(screen.getByTestId("dry-run-summary")).toHaveTextContent("Mode: MANUAL")
         expect(screen.getAllByTestId("dry-run-issue-row").length > 0).toBe(true)
     })
+
+    it("сохраняет режим review cadence auto-pause", async (): Promise<void> => {
+        const user = userEvent.setup()
+        let repositoryConfig: {
+            repositoryId: string
+            configYaml: string
+            ignorePatterns: ReadonlyArray<string>
+            reviewMode: "MANUAL" | "AUTO" | "AUTO_PAUSE"
+        } = {
+            repositoryId: "repo-1",
+            configYaml: "version: 1\nreview:\n  mode: MANUAL\n",
+            ignorePatterns: ["/dist", "/node_modules"],
+            reviewMode: "MANUAL",
+        }
+
+        server.use(
+            http.get("http://localhost:3000/api/v1/repositories/repo-1/config", () => {
+                return HttpResponse.json({
+                    config: repositoryConfig,
+                })
+            }),
+            http.put("http://localhost:3000/api/v1/repositories/repo-1/config", async ({ request }) => {
+                const payload = (await request.json()) as {
+                    readonly configYaml?: string
+                    readonly ignorePatterns?: ReadonlyArray<string>
+                    readonly reviewMode?: "MANUAL" | "AUTO" | "AUTO_PAUSE"
+                }
+
+                repositoryConfig = {
+                    ...repositoryConfig,
+                    configYaml: payload.configYaml ?? repositoryConfig.configYaml,
+                    ignorePatterns: payload.ignorePatterns ?? repositoryConfig.ignorePatterns,
+                    reviewMode: payload.reviewMode ?? repositoryConfig.reviewMode,
+                }
+
+                return HttpResponse.json({
+                    config: repositoryConfig,
+                })
+            }),
+        )
+
+        renderWithProviders(<SettingsCodeReviewPage />)
+
+        await user.click(screen.getByRole("radio", { name: /auto-pause/i }))
+        await user.click(screen.getByRole("button", { name: "Apply cadence mode" }))
+
+        await waitFor((): void => {
+            expect(repositoryConfig.reviewMode).toBe("AUTO_PAUSE")
+        })
+        expect(screen.getByTestId("review-cadence-current")).toHaveTextContent("AUTO_PAUSE")
+    })
 })
