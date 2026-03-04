@@ -8,6 +8,7 @@ import {
 
 describe("route guard map", (): void => {
     it("строит breadcrumbs для известных маршрутов", (): void => {
+        expect(getBreadcrumbs("/my-work")).toEqual(["Dashboard", "My Work"])
         expect(getBreadcrumbs("/settings-team")).toEqual(["Settings", "Team"])
         expect(getBreadcrumbs("/reviews/ccr-101")).toEqual(["Dashboard", "Reviews"])
     })
@@ -34,4 +35,3 @@ describe("route guard map", (): void => {
         expect(routes.some((route): boolean => route.path === "/settings-team")).toBe(false)
     })
 })
-

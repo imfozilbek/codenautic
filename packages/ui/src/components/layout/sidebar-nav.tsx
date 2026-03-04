@@ -7,6 +7,7 @@ import {
     FolderKanban,
     GitPullRequest,
     House,
+    Inbox,
     Rocket,
     Settings,
 } from "lucide-react"
@@ -46,6 +47,11 @@ const DEFAULT_SIDEBAR_ITEMS: readonly ISidebarItem[] = [
         icon: <Building2 aria-hidden="true" size={16} />,
         label: "CodeCity",
         to: "/dashboard/code-city",
+    },
+    {
+        icon: <Inbox aria-hidden="true" size={16} />,
+        label: "My Work",
+        to: "/my-work",
     },
     {
         icon: <GitPullRequest aria-hidden="true" size={16} />,
