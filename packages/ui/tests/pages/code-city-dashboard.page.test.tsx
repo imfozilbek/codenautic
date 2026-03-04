@@ -25,6 +25,7 @@ const { mockCodeCityTreemap } = vi.hoisted(() => ({
                     <p>{props.defaultMetric}</p>
                     <p>comparison-label:{props.comparisonLabel}</p>
                     <p>temporal-couplings:{props.temporalCouplings.length}</p>
+                    <p>impacted-files:{props.impactedFiles.length}</p>
                     <p>highlighted-file:{props.highlightedFileId ?? "none"}</p>
                 </div>
             )
@@ -161,12 +162,14 @@ describe("CodeCityDashboardPage", (): void => {
             .not.toBeNull()
         expect(screen.getByRole("option", { name: "backend-core/payment-worker" }))
             .not.toBeNull()
+        expect(screen.getByText("Active overlay: Impact map")).not.toBeNull()
 
         const firstTreemapCall = mockCodeCityTreemap.mock.calls.at(0)?.[0]
         expect(firstTreemapCall).not.toBeUndefined()
         expect(firstTreemapCall?.defaultMetric).toBe("complexity")
         expect(firstTreemapCall?.title).toBe("platform-team/api-gateway treemap")
-        expect(firstTreemapCall?.temporalCouplings.length).toBeGreaterThan(0)
+        expect(firstTreemapCall?.temporalCouplings.length).toBe(0)
+        expect(firstTreemapCall?.impactedFiles.length).toBeGreaterThan(0)
         const firstTreemapFile = firstTreemapCall?.files.at(0) as
             | {
                 readonly bugIntroductions?: Readonly<Record<string, number>>
@@ -217,7 +220,7 @@ describe("CodeCityDashboardPage", (): void => {
 
         const firstRootCauseCall = mockRootCauseChainViewer.mock.calls.at(0)?.[0]
         expect(firstRootCauseCall).not.toBeUndefined()
-        expect(firstRootCauseCall?.issues.length).toBeGreaterThan(0)
+        expect(firstRootCauseCall?.issues.length).toBe(0)
     })
 
     it("обновляет treemap при смене репозитория и метрики", async (): Promise<void> => {
@@ -235,7 +238,8 @@ describe("CodeCityDashboardPage", (): void => {
         expect(currentTreemapCall?.title).toBe("frontend-team/ui-dashboard treemap")
         expect(currentTreemapCall?.defaultMetric).toBe("coverage")
         expect(currentTreemapCall?.compareFiles.length).toBeGreaterThan(0)
-        expect(currentTreemapCall?.temporalCouplings.length).toBeGreaterThan(0)
+        expect(currentTreemapCall?.temporalCouplings.length).toBe(0)
+        expect(currentTreemapCall?.impactedFiles.length).toBeGreaterThan(0)
         const currentTreemapFile = currentTreemapCall?.files.at(0) as
             | {
                 readonly bugIntroductions?: Readonly<Record<string, number>>
@@ -247,6 +251,29 @@ describe("CodeCityDashboardPage", (): void => {
         expect(current3DCall).not.toBeUndefined()
         expect(current3DCall?.title).toBe("frontend-team/ui-dashboard 3D scene")
         expect(current3DCall?.impactedFiles.length).toBeGreaterThan(0)
+
+        const overlaySelect = screen.getByRole("combobox", { name: "Causal overlay" })
+        await user.selectOptions(overlaySelect, "root-cause")
+
+        const rootCauseOverlayCall = mockRootCauseChainViewer.mock.calls.at(-1)?.[0]
+        expect(rootCauseOverlayCall).not.toBeUndefined()
+        expect(rootCauseOverlayCall?.issues.length).toBeGreaterThan(0)
+
+        const rootCauseTreemapCall = mockCodeCityTreemap.mock.calls.at(-1)?.[0]
+        expect(rootCauseTreemapCall).not.toBeUndefined()
+        expect(rootCauseTreemapCall?.impactedFiles.length).toBe(0)
+        expect(rootCauseTreemapCall?.temporalCouplings.length).toBe(0)
+
+        await user.selectOptions(overlaySelect, "temporal-coupling")
+
+        const temporalOverlayCall = mockCodeCityTreemap.mock.calls.at(-1)?.[0]
+        expect(temporalOverlayCall).not.toBeUndefined()
+        expect(temporalOverlayCall?.impactedFiles.length).toBe(0)
+        expect(temporalOverlayCall?.temporalCouplings.length).toBeGreaterThan(0)
+
+        const temporalRootCauseCall = mockRootCauseChainViewer.mock.calls.at(-1)?.[0]
+        expect(temporalRootCauseCall).not.toBeUndefined()
+        expect(temporalRootCauseCall?.issues.length).toBe(0)
 
         await user.click(screen.getByRole("button", { name: "select scatter file" }))
 

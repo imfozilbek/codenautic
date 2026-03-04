@@ -14,6 +14,10 @@ import {
     type ICodeCityTreemapTemporalCouplingDescriptor,
 } from "@/components/graphs/codecity-treemap"
 import { CodeCity3DScene } from "@/components/graphs/codecity-3d-scene"
+import {
+    CausalOverlaySelector,
+    type TCausalOverlayMode,
+} from "@/components/graphs/causal-overlay-selector"
 import { ChurnComplexityScatter } from "@/components/graphs/churn-complexity-scatter"
 import { HealthTrendChart, type IHealthTrendPoint } from "@/components/graphs/health-trend-chart"
 import {
@@ -576,11 +580,17 @@ export function CodeCityDashboardPage(
 
     const [repositoryId, setRepositoryId] = useState<string>(initialRepositoryId)
     const [metric, setMetric] = useState<TCodeCityDashboardMetric>("complexity")
+    const [overlayMode, setOverlayMode] = useState<TCausalOverlayMode>("impact")
     const [highlightedFileId, setHighlightedFileId] = useState<string | undefined>()
 
     const currentProfile = resolveDashboardProfile(repositoryId)
     const rootCauseIssues = buildRootCauseIssues(currentProfile.files)
     const fileLink = createRepositoryFilesLink(currentProfile.id)
+    const overlayImpactedFiles =
+        overlayMode === "impact" ? currentProfile.impactedFiles : []
+    const overlayTemporalCouplings =
+        overlayMode === "temporal-coupling" ? currentProfile.temporalCouplings : []
+    const overlayRootCauseIssues = overlayMode === "root-cause" ? rootCauseIssues : []
 
     const handleRepositoryChange = (event: ChangeEvent<HTMLSelectElement>): void => {
         const nextRepositoryId = event.currentTarget.value
@@ -647,6 +657,7 @@ export function CodeCityDashboardPage(
                             </select>
                         </label>
                     </div>
+                    <CausalOverlaySelector value={overlayMode} onChange={setOverlayMode} />
                 </CardBody>
             </Card>
 
@@ -675,7 +686,7 @@ export function CodeCityDashboardPage(
                 <CardBody>
                     <CodeCity3DScene
                         files={currentProfile.files}
-                        impactedFiles={currentProfile.impactedFiles}
+                        impactedFiles={overlayImpactedFiles}
                         title={`${currentProfile.label} 3D scene`}
                     />
                 </CardBody>
@@ -710,7 +721,7 @@ export function CodeCityDashboardPage(
                     <p className="text-sm font-semibold text-slate-900">Root cause chain viewer</p>
                 </CardHeader>
                 <CardBody>
-                    <RootCauseChainViewer issues={rootCauseIssues} />
+                    <RootCauseChainViewer issues={overlayRootCauseIssues} />
                 </CardBody>
             </Card>
 
@@ -724,8 +735,8 @@ export function CodeCityDashboardPage(
                         fileLink={fileLink}
                         files={currentProfile.files}
                         highlightedFileId={highlightedFileId}
-                        impactedFiles={currentProfile.impactedFiles}
-                        temporalCouplings={currentProfile.temporalCouplings}
+                        impactedFiles={overlayImpactedFiles}
+                        temporalCouplings={overlayTemporalCouplings}
                         title={`${currentProfile.label} treemap`}
                     />
                 </CardBody>
