@@ -4,6 +4,7 @@ export { useCustomRules } from "./use-custom-rules"
 export { useExternalContext } from "./use-external-context"
 export { useHealthQuery } from "./use-health-query"
 export { useDryRun } from "./use-dry-run"
+export { useCCRSummary } from "./use-ccr-summary"
 export { useRepoConfig } from "./use-repo-config"
 export { useReviewCadence } from "./use-review-cadence"
 export {

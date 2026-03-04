@@ -286,6 +286,45 @@ describe("settings code review page", (): void => {
         ).toBe(true)
     })
 
+    it("генерирует CCR summary preview через API", async (): Promise<void> => {
+        const user = userEvent.setup()
+        server.use(
+            http.get("http://localhost:3000/api/v1/repositories/repo-1/config", () => {
+                return HttpResponse.json({
+                    config: {
+                        repositoryId: "repo-1",
+                        configYaml: "version: 1\nreview:\n  mode: MANUAL\n",
+                        ignorePatterns: ["/dist", "/node_modules"],
+                        reviewMode: "MANUAL",
+                    },
+                })
+            }),
+            http.post("http://localhost:3000/api/v1/repositories/repo-1/ccr-summary/generate", () => {
+                return HttpResponse.json({
+                    result: {
+                        mode: "MANUAL",
+                        generatedAt: "2026-03-05T09:00:00.000Z",
+                        summary: "Main blocker is provider degradation noise in review queue.",
+                        highlights: [
+                            "Degradation fallback activates too often",
+                            "Retry budget exhausted in peak windows",
+                        ],
+                    },
+                })
+            }),
+        )
+
+        renderWithProviders(<SettingsCodeReviewPage />)
+        await user.click(screen.getByRole("button", { name: "Generate CCR summary preview" }))
+
+        await waitFor((): void => {
+            expect(screen.getByTestId("ccr-summary-output")).toHaveTextContent(
+                "Main blocker is provider degradation noise in review queue.",
+            )
+        })
+        expect(screen.getByTestId("ccr-summary-state")).toHaveTextContent("CCR summary generated.")
+    })
+
     it("конфигурирует и сохраняет IDE sync settings", async (): Promise<void> => {
         const user = userEvent.setup()
         server.use(

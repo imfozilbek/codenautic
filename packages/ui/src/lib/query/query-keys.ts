@@ -67,6 +67,14 @@ export const queryKeys = {
             return ["dry-run", "by-repository", repositoryId] as const
         },
     },
+    ccrSummary: {
+        all: (): readonly ["ccr-summary"] => ["ccr-summary"] as const,
+        byRepository: (
+            repositoryId: string,
+        ): readonly ["ccr-summary", "by-repository", string] => {
+            return ["ccr-summary", "by-repository", repositoryId] as const
+        },
+    },
     codeReview: {
         all: (): readonly ["code-review"] => ["code-review"] as const,
         byId: (reviewId: string): readonly ["code-review", "by-id", string] => {

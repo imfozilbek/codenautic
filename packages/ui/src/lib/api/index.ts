@@ -1,5 +1,6 @@
 import { createApiConfig } from "./config"
 import { AuthApi } from "./endpoints/auth.endpoint"
+import { CCRSummaryApi } from "./endpoints/ccr-summary.endpoint"
 import { CodeReviewApi } from "./endpoints/code-review.endpoint"
 import { CustomRulesApi } from "./endpoints/custom-rules.endpoint"
 import { ExternalContextApi } from "./endpoints/external-context.endpoint"
@@ -19,6 +20,7 @@ export function createApiContracts(): {
     readonly system: SystemApi
     readonly auth: AuthApi
     readonly codeReview: CodeReviewApi
+    readonly ccrSummary: CCRSummaryApi
     readonly customRules: CustomRulesApi
     readonly externalContext: ExternalContextApi
     readonly featureFlags: FeatureFlagsApi
@@ -33,6 +35,7 @@ export function createApiContracts(): {
         system: new SystemApi(httpClient),
         auth: new AuthApi(httpClient),
         codeReview: new CodeReviewApi(httpClient),
+        ccrSummary: new CCRSummaryApi(httpClient),
         customRules: new CustomRulesApi(httpClient),
         externalContext: new ExternalContextApi(httpClient),
         permissions: new PermissionsApi(httpClient),
@@ -55,6 +58,7 @@ export {
 export type { IApiConfig, IUiEnv } from "./config"
 export type { IAuthApi } from "./endpoints/auth.endpoint"
 export type { IPermissionsApi } from "./endpoints/permissions.endpoint"
+export type { ICCRSummaryApi } from "./endpoints/ccr-summary.endpoint"
 export type { ICodeReviewApi } from "./endpoints/code-review.endpoint"
 export type { ICustomRulesApi } from "./endpoints/custom-rules.endpoint"
 export type { IExternalContextApi } from "./endpoints/external-context.endpoint"

@@ -19,7 +19,7 @@ import {
     REPO_REVIEW_MODE,
     type TRepoReviewMode,
 } from "@/lib/api/endpoints/repo-config.endpoint"
-import { useDryRun, useRepoConfig, useReviewCadence } from "@/lib/hooks/queries"
+import { useCCRSummary, useDryRun, useRepoConfig, useReviewCadence } from "@/lib/hooks/queries"
 import { showToastInfo, showToastSuccess } from "@/lib/notifications/toast"
 
 const DEFAULT_IGNORED_PATHS: ReadonlyArray<string> = ["/dist", "/node_modules", "/coverage"] as const
@@ -146,6 +146,10 @@ export function SettingsCodeReviewPage(): ReactElement {
         enabled: normalizedRepositoryId.length > 0,
     })
     const dryRun = useDryRun()
+    const ccrSummary = useCCRSummary({
+        repositoryId: normalizedRepositoryId,
+        enabled: normalizedRepositoryId.length > 0,
+    })
     const reviewCadence = useReviewCadence()
     const loadedConfig = repoConfig.repoConfigQuery.data?.config
 
@@ -295,6 +299,33 @@ export function SettingsCodeReviewPage(): ReactElement {
         }, 0)
     }
 
+    const handleGenerateCcrSummary = (): void => {
+        if (normalizedRepositoryId.length === 0) {
+            showToastInfo("Repository ID is required.")
+            return
+        }
+
+        setCcrSummaryState("Generating CCR summary...")
+        void ccrSummary.generateSummary
+            .mutateAsync({
+                repositoryId: normalizedRepositoryId,
+                reviewMode,
+                detailLevel: ccrSummarySettings.detailLevel,
+                includeRiskOverview: ccrSummarySettings.includeRiskOverview,
+                includeTimeline: ccrSummarySettings.includeTimeline,
+                maxSuggestions: ccrSummarySettings.maxSuggestions,
+                promptOverride,
+            })
+            .then((): void => {
+                setCcrSummaryState("CCR summary generated.")
+                showToastSuccess("CCR summary generated.")
+            })
+            .catch((): void => {
+                setCcrSummaryState("Unable to generate CCR summary.")
+                showToastInfo("Unable to generate CCR summary.")
+            })
+    }
+
     const handleIdeSyncSave = (): void => {
         setIdeSyncState("Saving IDE sync settings...")
         setTimeout((): void => {
@@ -414,6 +445,14 @@ export function SettingsCodeReviewPage(): ReactElement {
                 <Button type="button" variant="solid" onPress={handleSummarySettingsSave}>
                     Save CCR summary settings
                 </Button>
+                <Button
+                    isDisabled={ccrSummary.generateSummary.isPending || normalizedRepositoryId.length === 0}
+                    type="button"
+                    variant="flat"
+                    onPress={handleGenerateCcrSummary}
+                >
+                    Generate CCR summary preview
+                </Button>
                 <CCRSummaryPreview settings={ccrSummarySettings} />
                 <PromptOverrideEditor
                     value={promptOverride}
@@ -422,6 +461,35 @@ export function SettingsCodeReviewPage(): ReactElement {
                         setPromptOverride(DEFAULT_CCR_PROMPT_OVERRIDE)
                     }}
                 />
+                {ccrSummary.summaryQuery.data === undefined || ccrSummary.summaryQuery.data === null ? (
+                    <p className="text-xs text-slate-500" data-testid="ccr-summary-output-empty">
+                        Generate summary preview to inspect current output.
+                    </p>
+                ) : (
+                    (() => {
+                        const generatedSummary = ccrSummary.summaryQuery.data
+                        return (
+                            <article
+                                className="space-y-2 rounded-md border border-slate-200 bg-slate-50 p-3"
+                                data-testid="ccr-summary-output"
+                            >
+                                <p className="text-xs text-slate-500">
+                                    {`Generated at: ${generatedSummary.result.generatedAt}`}
+                                </p>
+                                <p className="text-sm text-slate-700">
+                                    {generatedSummary.result.summary}
+                                </p>
+                                <ul className="list-disc space-y-1 pl-5 text-xs text-slate-600">
+                                    {generatedSummary.result.highlights.map(
+                                        (highlight): ReactElement => (
+                                            <li key={highlight}>{highlight}</li>
+                                        ),
+                                    )}
+                                </ul>
+                            </article>
+                        )
+                    })()
+                )}
             </section>
             <section className="space-y-3 rounded-xl border border-slate-200 bg-white p-4">
                 <h2 className="text-base font-semibold text-slate-900">IDE sync settings</h2>
