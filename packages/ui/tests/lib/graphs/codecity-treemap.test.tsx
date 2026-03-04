@@ -353,6 +353,18 @@ describe("codecity treemap graph", (): void => {
         ).not.toBeNull()
     })
 
+    it("подсвечивает файл на treemap после выбора из side panel", (): void => {
+        render(
+            <CodeCityTreemap
+                files={sampleFiles}
+                highlightedFileId="src/api/auth.ts"
+                title="CodeCity treemap"
+            />,
+        )
+
+        expect(screen.getAllByTestId("highlighted-treemap-file")).toHaveLength(1)
+    })
+
     it("показывает comparison summary в header при переданном baseline", (): void => {
         render(
             <CodeCityTreemap

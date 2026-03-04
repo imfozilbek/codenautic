@@ -14,6 +14,7 @@ import {
     type ICodeCityTreemapTemporalCouplingDescriptor,
 } from "@/components/graphs/codecity-treemap"
 import { CodeCity3DScene } from "@/components/graphs/codecity-3d-scene"
+import { ChurnComplexityScatter } from "@/components/graphs/churn-complexity-scatter"
 import { Card, CardBody, CardHeader } from "@/components/ui"
 
 type TCodeCityDashboardMetric = "complexity" | "coverage" | "churn"
@@ -432,6 +433,7 @@ export function CodeCityDashboardPage(
 
     const [repositoryId, setRepositoryId] = useState<string>(initialRepositoryId)
     const [metric, setMetric] = useState<TCodeCityDashboardMetric>("complexity")
+    const [highlightedFileId, setHighlightedFileId] = useState<string | undefined>()
 
     const currentProfile = resolveDashboardProfile(repositoryId)
     const fileLink = createRepositoryFilesLink(currentProfile.id)
@@ -443,6 +445,7 @@ export function CodeCityDashboardPage(
         }
 
         setRepositoryId(nextRepositoryId)
+        setHighlightedFileId(undefined)
     }
 
     const handleMetricChange = (event: ChangeEvent<HTMLSelectElement>): void => {
@@ -534,6 +537,21 @@ export function CodeCityDashboardPage(
             </Card>
 
             <Card>
+                <CardHeader>
+                    <p className="text-sm font-semibold text-slate-900">
+                        Churn vs complexity side panel
+                    </p>
+                </CardHeader>
+                <CardBody>
+                    <ChurnComplexityScatter
+                        files={currentProfile.files}
+                        onFileSelect={setHighlightedFileId}
+                        selectedFileId={highlightedFileId}
+                    />
+                </CardBody>
+            </Card>
+
+            <Card>
                 <CardBody>
                     <CodeCityTreemap
                         key={`${currentProfile.id}-${metric}`}
@@ -542,6 +560,7 @@ export function CodeCityDashboardPage(
                         defaultMetric={metric}
                         fileLink={fileLink}
                         files={currentProfile.files}
+                        highlightedFileId={highlightedFileId}
                         impactedFiles={currentProfile.impactedFiles}
                         temporalCouplings={currentProfile.temporalCouplings}
                         title={`${currentProfile.label} treemap`}

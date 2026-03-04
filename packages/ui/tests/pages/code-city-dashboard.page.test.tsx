@@ -13,6 +13,7 @@ const { mockCodeCityTreemap } = vi.hoisted(() => ({
             readonly defaultMetric: "complexity" | "coverage" | "churn"
             readonly fileLink: (file: { readonly fileId: string; readonly path: string }) => string
             readonly files: ReadonlyArray<unknown>
+            readonly highlightedFileId?: string
             readonly impactedFiles: ReadonlyArray<unknown>
             readonly temporalCouplings: ReadonlyArray<unknown>
             readonly title: string
@@ -24,6 +25,7 @@ const { mockCodeCityTreemap } = vi.hoisted(() => ({
                     <p>{props.defaultMetric}</p>
                     <p>comparison-label:{props.comparisonLabel}</p>
                     <p>temporal-couplings:{props.temporalCouplings.length}</p>
+                    <p>highlighted-file:{props.highlightedFileId ?? "none"}</p>
                 </div>
             )
         },
@@ -75,6 +77,32 @@ const { mockCodeCity3DScene } = vi.hoisted(() => ({
         },
     ),
 }))
+const { mockChurnComplexityScatter } = vi.hoisted(() => ({
+    mockChurnComplexityScatter: vi.fn(
+        (props: {
+            readonly files: ReadonlyArray<{ readonly id: string }>
+            readonly selectedFileId?: string
+            readonly onFileSelect?: (fileId: string) => void
+        }): React.JSX.Element => {
+            return (
+                <div>
+                    <button
+                        onClick={(): void => {
+                            const firstFile = props.files.at(0)
+                            if (firstFile !== undefined) {
+                                props.onFileSelect?.(firstFile.id)
+                            }
+                        }}
+                        type="button"
+                    >
+                        select scatter file
+                    </button>
+                    <p>scatter-selected:{props.selectedFileId ?? "none"}</p>
+                </div>
+            )
+        },
+    ),
+}))
 
 vi.mock("@/components/graphs/codecity-treemap", () => ({
     CodeCityTreemap: mockCodeCityTreemap,
@@ -85,11 +113,15 @@ vi.mock("@/components/graphs/package-dependency-graph", () => ({
 vi.mock("@/components/graphs/codecity-3d-scene", () => ({
     CodeCity3DScene: mockCodeCity3DScene,
 }))
+vi.mock("@/components/graphs/churn-complexity-scatter", () => ({
+    ChurnComplexityScatter: mockChurnComplexityScatter,
+}))
 
 beforeEach((): void => {
     mockCodeCityTreemap.mockClear()
     mockPackageDependencyGraph.mockClear()
     mockCodeCity3DScene.mockClear()
+    mockChurnComplexityScatter.mockClear()
 })
 
 describe("CodeCityDashboardPage", (): void => {
@@ -128,6 +160,10 @@ describe("CodeCityDashboardPage", (): void => {
         expect(first3DCall).not.toBeUndefined()
         expect(first3DCall?.title).toBe("platform-team/api-gateway 3D scene")
         expect(first3DCall?.files.length).toBeGreaterThan(0)
+
+        const firstScatterCall = mockChurnComplexityScatter.mock.calls.at(0)?.[0]
+        expect(firstScatterCall).not.toBeUndefined()
+        expect(firstScatterCall?.selectedFileId).toBeUndefined()
     })
 
     it("обновляет treemap при смене репозитория и метрики", async (): Promise<void> => {
@@ -156,5 +192,13 @@ describe("CodeCityDashboardPage", (): void => {
         const current3DCall = mockCodeCity3DScene.mock.calls.at(-1)?.[0]
         expect(current3DCall).not.toBeUndefined()
         expect(current3DCall?.title).toBe("frontend-team/ui-dashboard 3D scene")
+
+        await user.click(screen.getByRole("button", { name: "select scatter file" }))
+
+        const highlightedTreemapCall = mockCodeCityTreemap.mock.calls.at(-1)?.[0]
+        expect(highlightedTreemapCall).not.toBeUndefined()
+        expect(highlightedTreemapCall?.highlightedFileId).toBe(
+            "src/pages/ccr-management.page.tsx",
+        )
     })
 })

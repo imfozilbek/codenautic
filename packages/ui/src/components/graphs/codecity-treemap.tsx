@@ -171,6 +171,7 @@ interface ICodeCityTreemapTreemapNodePayload {
 interface ICodeCityTreemapTreemapContentProps {
     readonly onFileHover?: (payload?: ICodeCityTreemapFileTooltip) => void
     readonly fileLink?: (file: ICodeCityTreemapFileLinkResolver) => string
+    readonly highlightedFileId?: string
     readonly fill?: string
     readonly onPackageSelect?: (packageName: string) => void
     readonly payload?: ICodeCityTreemapTreemapNodePayload
@@ -693,6 +694,7 @@ function renderTreemapCell(props: ICodeCityTreemapTreemapContentProps): ReactEle
     const isLeaf = (node?.children?.length ?? 0) === 0
     const fileId = typeof node?.id === "string" && node.id.length > 0 ? node.id : nodeName
     const filePath = typeof node?.path === "string" && node.path.length > 0 ? node.path : nodeName
+    const isHighlightedFile = isLeaf && props.highlightedFileId === fileId
 
     const handlePackageSelect = (): void => {
         if (isPackage === false || props.onPackageSelect === undefined || nodeName.length === 0) {
@@ -778,6 +780,18 @@ function renderTreemapCell(props: ICodeCityTreemapTreemapContentProps): ReactEle
                 <rect
                     fill={bugHeatColor}
                     height={height}
+                    width={width}
+                    x={x}
+                    y={y}
+                />
+            ) : null}
+            {isHighlightedFile ? (
+                <rect
+                    data-testid="highlighted-treemap-file"
+                    fill="none"
+                    height={height}
+                    stroke="hsl(217, 91%, 60%)"
+                    strokeWidth={3}
                     width={width}
                     x={x}
                     y={y}
@@ -917,6 +931,8 @@ export interface ICodeCityTreemapProps {
     readonly fileLink?: (file: ICodeCityTreemapFileLinkResolver) => string
     /** Temporal coupling связи для отрисовки overlay-линий. */
     readonly temporalCouplings?: ReadonlyArray<ICodeCityTreemapTemporalCouplingDescriptor>
+    /** Идентификатор файла для визуальной подсветки в treemap. */
+    readonly highlightedFileId?: string
 }
 
 function normalizePath(rawPath: string): string {
@@ -1454,6 +1470,7 @@ export function CodeCityTreemap(props: ICodeCityTreemapProps): ReactElement {
                                     onPackageSelect: handlePackageSelect,
                                     onFileHover: handleFileHover,
                                     fileLink: props.fileLink,
+                                    highlightedFileId: props.highlightedFileId,
                                 })
                             }}
                             onClick={(node): void => {
