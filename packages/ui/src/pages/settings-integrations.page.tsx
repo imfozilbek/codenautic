@@ -1,7 +1,10 @@
-import { type ReactElement, useMemo, useState } from "react"
+import { type ReactElement, useEffect, useMemo, useState } from "react"
 
+import { ContextPreview } from "@/components/settings/context-preview"
+import { ContextSourceCard } from "@/components/settings/context-source-card"
 import { TestConnectionButton } from "@/components/settings/test-connection-button"
 import { Button, Card, CardBody, CardHeader, Chip, Input, Switch } from "@/components/ui"
+import { useExternalContext } from "@/lib/hooks/queries/use-external-context"
 import { showToastError, showToastInfo, showToastSuccess } from "@/lib/notifications/toast"
 
 type TIntegrationProvider = "Jira" | "Linear" | "Sentry" | "Slack"
@@ -164,6 +167,13 @@ function updateIntegrationByProvider(
 export function SettingsIntegrationsPage(): ReactElement {
     const [integrations, setIntegrations] =
         useState<ReadonlyArray<IIntegrationState>>(INITIAL_INTEGRATIONS)
+    const [selectedContextSourceId, setSelectedContextSourceId] = useState<string | undefined>(
+        undefined,
+    )
+    const externalContext = useExternalContext({
+        selectedSourceId: selectedContextSourceId,
+        previewEnabled: selectedContextSourceId !== undefined,
+    })
 
     const summary = useMemo(
         (): { readonly connected: number; readonly degraded: number; readonly disconnected: number } => {
@@ -201,6 +211,19 @@ export function SettingsIntegrationsPage(): ReactElement {
         },
         [integrations],
     )
+
+    useEffect((): void => {
+        if (selectedContextSourceId !== undefined) {
+            return
+        }
+
+        const firstSourceId = externalContext.sourcesQuery.data?.sources.at(0)?.id
+        if (firstSourceId === undefined) {
+            return
+        }
+
+        setSelectedContextSourceId(firstSourceId)
+    }, [externalContext.sourcesQuery.data?.sources, selectedContextSourceId])
 
     const setWorkspace = (provider: TIntegrationProvider, workspace: string): void => {
         setIntegrations((previous): ReadonlyArray<IIntegrationState> =>
@@ -347,6 +370,34 @@ export function SettingsIntegrationsPage(): ReactElement {
         return false
     }
 
+    const handleToggleContextSource = async (
+        sourceId: string,
+        nextEnabled: boolean,
+    ): Promise<void> => {
+        try {
+            await externalContext.updateSource.mutateAsync({
+                sourceId,
+                enabled: nextEnabled,
+            })
+            showToastSuccess("Context source updated.")
+        } catch {
+            showToastError("Unable to update context source.")
+        }
+    }
+
+    const handleRefreshContextSource = async (sourceId: string): Promise<void> => {
+        try {
+            await externalContext.refreshSource.mutateAsync(sourceId)
+            showToastInfo("Context source refresh queued.")
+        } catch {
+            showToastError("Unable to queue context source refresh.")
+        }
+    }
+
+    const selectedContextSource = externalContext.sourcesQuery.data?.sources.find(
+        (source): boolean => source.id === selectedContextSourceId,
+    )
+
     return (
         <section className="space-y-4">
             <h1 className="text-2xl font-semibold text-slate-900">Integrations</h1>
@@ -472,6 +523,59 @@ export function SettingsIntegrationsPage(): ReactElement {
                     </Card>
                 ))}
             </div>
+
+            <Card>
+                <CardHeader>
+                    <div>
+                        <p className="text-base font-semibold text-slate-900">
+                            External Context Sources
+                        </p>
+                        <p className="text-sm text-slate-600">
+                            Manage indexed sources and inspect loaded context snippets.
+                        </p>
+                    </div>
+                </CardHeader>
+                <CardBody className="space-y-4">
+                    {externalContext.sourcesQuery.isPending ? (
+                        <p aria-live="polite" className="text-sm text-slate-500">
+                            Loading external context sources...
+                        </p>
+                    ) : externalContext.sourcesQuery.error !== null ? (
+                        <p aria-live="polite" className="text-sm text-red-600">
+                            Failed to load context sources.
+                        </p>
+                    ) : (
+                        <div className="grid gap-3 lg:grid-cols-2">
+                            <div className="space-y-3">
+                                {externalContext.sourcesQuery.data?.sources.map(
+                                    (source): ReactElement => (
+                                        <ContextSourceCard
+                                            key={source.id}
+                                            isLoading={
+                                                externalContext.updateSource.isPending
+                                                || externalContext.refreshSource.isPending
+                                            }
+                                            selected={source.id === selectedContextSourceId}
+                                            source={source}
+                                            onRefresh={handleRefreshContextSource}
+                                            onSelect={(sourceId): void => {
+                                                setSelectedContextSourceId(sourceId)
+                                            }}
+                                            onToggleEnabled={handleToggleContextSource}
+                                        />
+                                    ),
+                                ) ?? []}
+                            </div>
+                            <ContextPreview
+                                isError={externalContext.previewQuery.error !== null}
+                                isLoading={externalContext.previewQuery.isPending}
+                                preview={externalContext.previewQuery.data}
+                                sourceName={selectedContextSource?.name}
+                            />
+                        </div>
+                    )}
+                </CardBody>
+            </Card>
         </section>
     )
 }
