@@ -1,10 +1,17 @@
 import {describe, expect, test} from "bun:test"
 
+import {
+    Result,
+    ReviewPromptAssemblerService,
+    ValidationError,
+} from "../../../../src"
 import type {
     IChatRequestDTO,
     IChatResponseDTO,
+    IGeneratePromptInput,
     ILLMProvider,
     IStreamingChatResponseDTO,
+    IUseCase,
 } from "../../../../src"
 import {ReviewPipelineState} from "../../../../src/application/types/review/review-pipeline-state"
 import {ProcessFilesReviewStageUseCase} from "../../../../src/application/use-cases/review/process-files-review-stage.use-case"
@@ -90,6 +97,63 @@ class InMemoryLLMProvider implements ILLMProvider {
         }
 
         return sliced.slice(0, lineBreakIndex).trim()
+    }
+}
+
+/**
+ * In-memory prompt generator stub for stage tests.
+ */
+class InMemoryGeneratePromptUseCase
+    implements IUseCase<IGeneratePromptInput, string, ValidationError>
+{
+    public readonly calls: IGeneratePromptInput[] = []
+    public nextResult: Result<string, ValidationError>
+
+    /**
+     * Creates prompt use case stub with failure default.
+     */
+    public constructor() {
+        this.nextResult = Result.fail(
+            new ValidationError("Generate prompt failed", [{
+                field: "name",
+                message: "template missing",
+            }]),
+        )
+    }
+
+    public execute(
+        input: IGeneratePromptInput,
+    ): Promise<Result<string, ValidationError>> {
+        this.calls.push(input)
+        return Promise.resolve(this.nextResult)
+    }
+}
+
+interface IUseCaseBundle {
+    readonly useCase: ProcessFilesReviewStageUseCase
+    readonly generatePromptUseCase: InMemoryGeneratePromptUseCase
+}
+
+/**
+ * Creates process-files-review use case with prompt generator stub.
+ *
+ * @param llmProvider LLM provider stub.
+ * @param promptUseCase Optional prompt use case override.
+ * @returns Use case bundle with prompt stub for customization.
+ */
+function createUseCaseBundle(
+    llmProvider: ILLMProvider,
+    promptUseCase?: InMemoryGeneratePromptUseCase,
+): IUseCaseBundle {
+    const generatePromptUseCase = promptUseCase ?? new InMemoryGeneratePromptUseCase()
+
+    return {
+        useCase: new ProcessFilesReviewStageUseCase({
+            llmProvider,
+            generatePromptUseCase,
+            reviewPromptAssemblerService: new ReviewPromptAssemblerService(),
+        }),
+        generatePromptUseCase,
     }
 }
 
@@ -185,9 +249,7 @@ describe("ProcessFilesReviewStageUseCase", () => {
             },
         )
 
-        const useCase = new ProcessFilesReviewStageUseCase({
-            llmProvider,
-        })
+        const {useCase} = createUseCaseBundle(llmProvider)
         const state = createState(
             [{path: "src/a.ts", patch: "@@"}, {path: "src/b.ts", patch: "@@"}],
             {},
@@ -227,9 +289,7 @@ describe("ProcessFilesReviewStageUseCase", () => {
             },
         )
 
-        const useCase = new ProcessFilesReviewStageUseCase({
-            llmProvider,
-        })
+        const {useCase} = createUseCaseBundle(llmProvider)
         const state = createState(
             [{path: "src/slow.ts", patch: "@@"}, {path: "src/fast.ts", patch: "@@"}],
             {
@@ -261,9 +321,7 @@ describe("ProcessFilesReviewStageUseCase", () => {
             },
         )
 
-        const useCase = new ProcessFilesReviewStageUseCase({
-            llmProvider,
-        })
+        const {useCase} = createUseCaseBundle(llmProvider)
         const state = createState(
             [{path: "src/fail.ts", patch: "@@"}],
             {},
@@ -292,9 +350,7 @@ describe("ProcessFilesReviewStageUseCase", () => {
                 content: "",
             },
         )
-        const useCase = new ProcessFilesReviewStageUseCase({
-            llmProvider,
-        })
+        const {useCase} = createUseCaseBundle(llmProvider)
         const state = createState(
             [{path: "src/good.ts", patch: "@@"}, {wrong: "x"}],
             {},
@@ -326,9 +382,7 @@ describe("ProcessFilesReviewStageUseCase", () => {
             },
         )
 
-        const useCase = new ProcessFilesReviewStageUseCase({
-            llmProvider,
-        })
+        const {useCase} = createUseCaseBundle(llmProvider)
         const state = createState(
             [
                 {
@@ -379,9 +433,7 @@ describe("ProcessFilesReviewStageUseCase", () => {
             },
         )
 
-        const useCase = new ProcessFilesReviewStageUseCase({
-            llmProvider,
-        })
+        const {useCase} = createUseCaseBundle(llmProvider)
         const state = createState(
             [
                 {
@@ -409,6 +461,52 @@ describe("ProcessFilesReviewStageUseCase", () => {
         expect(userMessage).toContain("export const value = 1")
     })
 
+    test("prefers prompt template output over prompt overrides when template is available", async () => {
+        const llmProvider = new InMemoryLLMProvider()
+        llmProvider.replies.set(
+            "src/template.ts",
+            {
+                content: JSON.stringify({
+                    message: "Template issue",
+                }),
+            },
+        )
+
+        const {useCase, generatePromptUseCase} = createUseCaseBundle(llmProvider)
+        generatePromptUseCase.nextResult = Result.ok("TEMPLATE_SYSTEM")
+
+        const state = createState(
+            [
+                {
+                    path: "src/template.ts",
+                    patch: "@@ -1,1 +1,1 @@\n+import a from \"x\"\n",
+                    status: "modified",
+                },
+            ],
+            {
+                promptOverrides: {
+                    categories: {
+                        descriptions: {
+                            bug: "OVERRIDE_BUG",
+                        },
+                    },
+                },
+            },
+            null,
+        )
+
+        const result = await useCase.execute({
+            state,
+        })
+
+        expect(result.isOk).toBe(true)
+        expect(generatePromptUseCase.calls).toHaveLength(1)
+        expect(generatePromptUseCase.calls[0]?.name).toBe("code-review-system")
+        const systemPrompt = llmProvider.requests.at(0)?.messages.at(0)?.content ?? ""
+        expect(systemPrompt).toBe("TEMPLATE_SYSTEM")
+        expect(systemPrompt).not.toContain("OVERRIDE_BUG")
+    })
+
     test("applies matching directory overrides for heavy strategy and system prompt", async () => {
         const llmProvider = new InMemoryLLMProvider()
         llmProvider.replies.set(
@@ -420,9 +518,7 @@ describe("ProcessFilesReviewStageUseCase", () => {
             },
         )
 
-        const useCase = new ProcessFilesReviewStageUseCase({
-            llmProvider,
-        })
+        const {useCase} = createUseCaseBundle(llmProvider)
         const state = createState(
             [
                 {
@@ -440,8 +536,17 @@ describe("ProcessFilesReviewStageUseCase", () => {
             {
                 reviewDepthStrategy: "always-light",
                 promptOverrides: {
-                    systemPrompt: "GLOBAL_SYSTEM",
-                    reviewerPrompt: "GLOBAL_REVIEWER",
+                    categories: {
+                        descriptions: {
+                            bug: "GLOBAL_BUG",
+                            performance: "GLOBAL_PERF",
+                        },
+                    },
+                    severity: {
+                        flags: {
+                            high: "GLOBAL_HIGH",
+                        },
+                    },
                 },
                 directories: [
                     {
@@ -449,7 +554,14 @@ describe("ProcessFilesReviewStageUseCase", () => {
                         config: {
                             reviewDepthStrategy: "always-heavy",
                             promptOverrides: {
-                                systemPrompt: "CORE_SYSTEM",
+                                categories: {
+                                    descriptions: {
+                                        performance: "CORE_PERF",
+                                    },
+                                },
+                                generation: {
+                                    main: "CORE_GEN",
+                                },
                             },
                         },
                     },
@@ -466,9 +578,20 @@ describe("ProcessFilesReviewStageUseCase", () => {
         const coreRequest = llmProvider.requests.at(0)
         const requestMessages = coreRequest?.messages
 
-        expect(requestMessages?.at(0)?.content).toContain("CORE_SYSTEM")
-        expect(requestMessages?.at(1)?.content).toContain("FULL_FILE:")
-        expect(requestMessages?.at(1)?.content).toContain("GLOBAL_REVIEWER")
+        const systemPrompt = requestMessages?.at(0)?.content ?? ""
+        const userPrompt = requestMessages?.at(1)?.content ?? ""
+        expect(systemPrompt).toContain("## Categories")
+        expect(systemPrompt).toContain("### Bug")
+        expect(systemPrompt).toContain("GLOBAL_BUG")
+        expect(systemPrompt).toContain("### Performance")
+        expect(systemPrompt).toContain("CORE_PERF")
+        expect(systemPrompt).toContain("## Severity")
+        expect(systemPrompt).toContain("### High")
+        expect(systemPrompt).toContain("GLOBAL_HIGH")
+        expect(systemPrompt).toContain("## Generation")
+        expect(systemPrompt).toContain("CORE_GEN")
+        expect(userPrompt).toContain("FULL_FILE:")
+        expect(userPrompt).toContain("Review this file patch")
     })
 
     test("keeps global prompts and light strategy for non-matching file", async () => {
@@ -482,9 +605,7 @@ describe("ProcessFilesReviewStageUseCase", () => {
             },
         )
 
-        const useCase = new ProcessFilesReviewStageUseCase({
-            llmProvider,
-        })
+        const {useCase} = createUseCaseBundle(llmProvider)
         const state = createState(
             [
                 {
@@ -496,8 +617,14 @@ describe("ProcessFilesReviewStageUseCase", () => {
             {
                 reviewDepthStrategy: "always-light",
                 promptOverrides: {
-                    systemPrompt: "GLOBAL_SYSTEM",
-                    reviewerPrompt: "GLOBAL_REVIEWER",
+                    categories: {
+                        descriptions: {
+                            bug: "GLOBAL_BUG",
+                        },
+                    },
+                    generation: {
+                        main: "GLOBAL_GEN",
+                    },
                 },
                 directories: [
                     {
@@ -505,7 +632,14 @@ describe("ProcessFilesReviewStageUseCase", () => {
                         config: {
                             reviewDepthStrategy: "always-heavy",
                             promptOverrides: {
-                                systemPrompt: "CORE_SYSTEM",
+                                categories: {
+                                    descriptions: {
+                                        bug: "CORE_BUG",
+                                    },
+                                },
+                                generation: {
+                                    main: "CORE_GEN",
+                                },
                             },
                         },
                     },
@@ -522,9 +656,13 @@ describe("ProcessFilesReviewStageUseCase", () => {
         const appRequest = llmProvider.requests.at(0)
         const requestMessages = appRequest?.messages
 
-        expect(requestMessages?.at(0)?.content).toContain("GLOBAL_SYSTEM")
-        expect(requestMessages?.at(1)?.content).toContain("GLOBAL_REVIEWER")
-        expect(requestMessages?.at(1)?.content).not.toContain("FULL_FILE:")
+        const systemPrompt = requestMessages?.at(0)?.content ?? ""
+        const userPrompt = requestMessages?.at(1)?.content ?? ""
+        expect(systemPrompt).toContain("GLOBAL_BUG")
+        expect(systemPrompt).toContain("GLOBAL_GEN")
+        expect(systemPrompt).not.toContain("CORE_GEN")
+        expect(userPrompt).toContain("Review this file patch")
+        expect(userPrompt).not.toContain("FULL_FILE:")
 
         const stats = result.value.state.externalContext?.["fileReviewStats"] as
             | Readonly<Record<string, unknown>>
@@ -548,9 +686,7 @@ describe("ProcessFilesReviewStageUseCase", () => {
             },
         )
 
-        const useCase = new ProcessFilesReviewStageUseCase({
-            llmProvider,
-        })
+        const {useCase} = createUseCaseBundle(llmProvider)
         const state = createState(
             [
                 {
@@ -568,7 +704,11 @@ describe("ProcessFilesReviewStageUseCase", () => {
                         config: {
                             reviewDepthStrategy: "always-light",
                             promptOverrides: {
-                                systemPrompt: "PARENT_SYSTEM",
+                                categories: {
+                                    descriptions: {
+                                        bug: "PARENT_BUG",
+                                    },
+                                },
                             },
                         },
                     },
@@ -577,7 +717,11 @@ describe("ProcessFilesReviewStageUseCase", () => {
                         config: {
                             reviewDepthStrategy: "always-heavy",
                             promptOverrides: {
-                                systemPrompt: "CHILD_SYSTEM",
+                                categories: {
+                                    descriptions: {
+                                        bug: "CHILD_BUG",
+                                    },
+                                },
                             },
                         },
                     },
@@ -600,7 +744,9 @@ describe("ProcessFilesReviewStageUseCase", () => {
                 heavy: 1,
             },
         })
-        expect(llmProvider.requests.at(0)?.messages.at(0)?.content).toContain("CHILD_SYSTEM")
+        const systemPrompt = llmProvider.requests.at(0)?.messages.at(0)?.content ?? ""
+        expect(systemPrompt).toContain("CHILD_BUG")
+        expect(systemPrompt).not.toContain("PARENT_BUG")
     })
 
     test("supports glob pattern override and keeps light mode for non-matching files", async () => {
@@ -630,9 +776,7 @@ describe("ProcessFilesReviewStageUseCase", () => {
             },
         )
 
-        const useCase = new ProcessFilesReviewStageUseCase({
-            llmProvider,
-        })
+        const {useCase} = createUseCaseBundle(llmProvider)
         const state = createState(
             [
                 {
@@ -661,7 +805,9 @@ describe("ProcessFilesReviewStageUseCase", () => {
                         config: {
                             reviewDepthStrategy: "always-heavy",
                             promptOverrides: {
-                                systemPrompt: "GLOB_SYSTEM",
+                                generation: {
+                                    main: "GLOB_GEN",
+                                },
                             },
                         },
                     },
@@ -690,7 +836,7 @@ describe("ProcessFilesReviewStageUseCase", () => {
         expect(nestedRequest).toBeDefined()
 
         const hasGlobalSystem = (messages: string[] | undefined): boolean => {
-            return messages?.at(0)?.includes("GLOB_SYSTEM") ?? false
+            return messages?.at(0)?.includes("GLOB_GEN") ?? false
         }
         const hasFullFile = (messages: string[] | undefined): boolean => {
             return messages?.at(1)?.includes("FULL_FILE:") ?? false
@@ -708,15 +854,14 @@ describe("ProcessFilesReviewStageUseCase", () => {
 
     test("returns recoverable stage error when unexpected internal failure escapes analyzer", async () => {
         const llmProvider = new InMemoryLLMProvider()
-        const useCase = new ProcessFilesReviewStageUseCase({
-            llmProvider,
-        })
+        const {useCase} = createUseCaseBundle(llmProvider)
         const internals = useCase as unknown as {
             analyzeSingleFile: (
                 file: Readonly<Record<string, unknown>>,
                 config: Readonly<Record<string, unknown>>,
                 timeoutMs: number,
                 reviewDepthStrategy: string,
+                templateSystemPrompt: string | undefined,
             ) => Promise<unknown>
         }
         internals.analyzeSingleFile = (): Promise<unknown> => {

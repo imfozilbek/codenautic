@@ -15,8 +15,11 @@ import {
     REVIEW_DEPTH_STRATEGY,
     type ReviewDepthStrategy,
 } from "../../dto/review/review-config.dto"
+import {REVIEW_OVERRIDE_PROMPT_NAMES} from "../../dto/config/review-overrides-config.dto"
 import type {IDirectoryConfig} from "../../dto/config/directory-config.dto"
 import type {IReviewConfigDTO} from "../../dto/review/review-config.dto"
+import type {IGeneratePromptInput} from "../generate-prompt.use-case"
+import type {IUseCase} from "../../ports/inbound/use-case.port"
 import type {ILLMProvider} from "../../ports/outbound/llm/llm-provider.port"
 import type {
     PipelineCollectionItem,
@@ -27,7 +30,12 @@ import type {
     IStageCommand,
     IStageTransition,
 } from "../../types/review/pipeline-stage.contract"
+import type {ValidationError} from "../../../domain/errors/validation.error"
 import {StageError} from "../../../domain/errors/stage.error"
+import {
+    ReviewPromptAssemblerService,
+    type IReviewPromptSections,
+} from "../../../domain/services/review-prompt-assembler.service"
 import {deduplicate} from "../../../shared/utils/deduplicate"
 import {hash} from "../../../shared/utils/hash"
 import {Result} from "../../../shared/result"
@@ -35,6 +43,7 @@ import {
     INITIAL_STAGE_ATTEMPT,
     mergeExternalContext,
     readObjectField,
+    readStringField,
 } from "./pipeline-stage-state.utils"
 
 const DEFAULT_FILE_REVIEW_MODEL = "gpt-4o-mini"
@@ -42,6 +51,9 @@ const DEFAULT_FILE_REVIEW_TIMEOUT_MS = 60000
 const DEFAULT_FILE_REVIEW_MAX_TOKENS = 1000
 const DEFAULT_REVIEW_DEPTH_STRATEGY = REVIEW_DEPTH_STRATEGY.AUTO
 const FILE_CONTENT_LIMIT = 5000
+const DEFAULT_SYSTEM_PROMPT_NAME = REVIEW_OVERRIDE_PROMPT_NAMES.CODE_REVIEW_SYSTEM
+const DEFAULT_SYSTEM_PROMPT = "You are a precise code reviewer. Return JSON suggestions array."
+const DEFAULT_REVIEWER_PROMPT = "Review this file patch and suggest actionable issues."
 
 type ParsedJsonPayload = unknown[] | Readonly<Record<string, unknown>>
 
@@ -50,6 +62,8 @@ type ParsedJsonPayload = unknown[] | Readonly<Record<string, unknown>>
  */
 export interface IProcessFilesReviewStageDependencies {
     llmProvider: ILLMProvider
+    generatePromptUseCase: IUseCase<IGeneratePromptInput, string, ValidationError>
+    reviewPromptAssemblerService: ReviewPromptAssemblerService
     model?: string
 }
 
@@ -80,6 +94,15 @@ interface IFileReviewModeLog {
     readonly definitionVersion: string
 }
 
+interface IFileChatRequestInput {
+    readonly filePath: string
+    readonly patch: string
+    readonly config: Readonly<Record<string, unknown>>
+    readonly mode: ReviewDepthMode
+    readonly fullFileContent: string | undefined
+    readonly templateSystemPrompt: string | undefined
+}
+
 /**
  * Stage 11 use case. Runs per-file LLM analysis using context batches with timeout isolation.
  */
@@ -88,6 +111,8 @@ export class ProcessFilesReviewStageUseCase implements IPipelineStageUseCase {
     public readonly stageName: string
 
     private readonly llmProvider: ILLMProvider
+    private readonly generatePromptUseCase: IUseCase<IGeneratePromptInput, string, ValidationError>
+    private readonly reviewPromptAssemblerService: ReviewPromptAssemblerService
     private readonly model: string
 
     /**
@@ -99,6 +124,8 @@ export class ProcessFilesReviewStageUseCase implements IPipelineStageUseCase {
         this.stageId = "process-files-review"
         this.stageName = "Process Files Review"
         this.llmProvider = dependencies.llmProvider
+        this.generatePromptUseCase = dependencies.generatePromptUseCase
+        this.reviewPromptAssemblerService = dependencies.reviewPromptAssemblerService
         this.model = dependencies.model ?? DEFAULT_FILE_REVIEW_MODEL
     }
 
@@ -112,6 +139,7 @@ export class ProcessFilesReviewStageUseCase implements IPipelineStageUseCase {
         const timeoutMs = this.resolveTimeoutMs(input.state.config)
         const reviewDepthStrategy = this.resolveReviewDepthStrategy(input.state.config)
         const batches = this.resolveBatches(input.state)
+        const templateSystemPrompt = await this.resolveTemplateSystemPrompt(input.state.mergeRequest)
 
         try {
             const analysisResults = await this.analyzeFiles(
@@ -119,6 +147,7 @@ export class ProcessFilesReviewStageUseCase implements IPipelineStageUseCase {
                 input.state.config,
                 timeoutMs,
                 reviewDepthStrategy,
+                templateSystemPrompt,
             )
             const fileReviewModeLogs = this.buildFileReviewModeLogs(
                 analysisResults,
@@ -183,6 +212,7 @@ export class ProcessFilesReviewStageUseCase implements IPipelineStageUseCase {
      * @param config Review config.
      * @param timeoutMs Timeout in milliseconds.
      * @param reviewDepthStrategy Depth strategy.
+     * @param templateSystemPrompt Template system prompt for review.
      * @returns File analysis results.
      */
     private async analyzeFiles(
@@ -190,13 +220,20 @@ export class ProcessFilesReviewStageUseCase implements IPipelineStageUseCase {
         config: Readonly<Record<string, unknown>>,
         timeoutMs: number,
         reviewDepthStrategy: ReviewDepthStrategy,
+        templateSystemPrompt: string | undefined,
     ): Promise<readonly IFileAnalysisResult[]> {
         const results: IFileAnalysisResult[] = []
 
         for (const batch of batches) {
             const batchResults = await Promise.all(
                 batch.map(async (file): Promise<IFileAnalysisResult> => {
-                    return this.analyzeSingleFile(file, config, timeoutMs, reviewDepthStrategy)
+                    return this.analyzeSingleFile(
+                        file,
+                        config,
+                        timeoutMs,
+                        reviewDepthStrategy,
+                        templateSystemPrompt,
+                    )
                 }),
             )
             results.push(...batchResults)
@@ -510,6 +547,7 @@ export class ProcessFilesReviewStageUseCase implements IPipelineStageUseCase {
      * @param config Config payload.
      * @param timeoutMs Timeout in milliseconds.
      * @param reviewDepthStrategy Review strategy override.
+     * @param templateSystemPrompt Template system prompt for review.
      * @returns File analysis result.
      */
     private async analyzeSingleFile(
@@ -517,6 +555,7 @@ export class ProcessFilesReviewStageUseCase implements IPipelineStageUseCase {
         config: Readonly<Record<string, unknown>>,
         timeoutMs: number,
         reviewDepthStrategy: ReviewDepthStrategy,
+        templateSystemPrompt: string | undefined,
     ): Promise<IFileAnalysisResult> {
         const filePathValue = this.resolveString(file["path"])
         if (filePathValue === undefined) {
@@ -550,13 +589,14 @@ export class ProcessFilesReviewStageUseCase implements IPipelineStageUseCase {
         const effectiveMode =
             fallbackToLight ? REVIEW_DEPTH_MODE.LIGHT : requestedMode
 
-        const request = this.buildFileChatRequest(
-            filePathValue,
+        const request = this.buildFileChatRequest({
+            filePath: filePathValue,
             patch,
-            fileReviewConfig,
-            effectiveMode,
+            config: fileReviewConfig,
+            mode: effectiveMode,
             fullFileContent,
-        )
+            templateSystemPrompt,
+        })
 
         try {
             const response = await this.runWithTimeout(this.llmProvider.chat(request), timeoutMs)
@@ -882,10 +922,45 @@ export class ProcessFilesReviewStageUseCase implements IPipelineStageUseCase {
             return base
         }
 
-        return {
+        return this.mergePromptOverrideRecords(base, directory)
+    }
+
+    /**
+     * Performs deep merge for prompt override records.
+     *
+     * @param base Base prompt overrides.
+     * @param override Override prompt overrides.
+     * @returns Deep-merged prompt overrides.
+     */
+    private mergePromptOverrideRecords(
+        base: Readonly<Record<string, unknown>>,
+        override: Readonly<Record<string, unknown>>,
+    ): Readonly<Record<string, unknown>> {
+        const merged: Record<string, unknown> = {
             ...base,
-            ...directory,
         }
+
+        for (const [key, value] of Object.entries(override)) {
+            const existing = merged[key]
+            if (this.isPlainRecord(existing) && this.isPlainRecord(value)) {
+                merged[key] = this.mergePromptOverrideRecords(existing, value)
+                continue
+            }
+
+            merged[key] = value
+        }
+
+        return merged
+    }
+
+    /**
+     * Checks whether value is a plain record.
+     *
+     * @param value Candidate value.
+     * @returns True when value is a plain object.
+     */
+    private isPlainRecord(value: unknown): value is Readonly<Record<string, unknown>> {
+        return value !== null && typeof value === "object" && Array.isArray(value) === false
     }
 
     /**
@@ -1009,33 +1084,205 @@ export class ProcessFilesReviewStageUseCase implements IPipelineStageUseCase {
     }
 
     /**
+     * Resolves template-based system prompt for review stage.
+     *
+     * @param mergeRequest Merge request payload.
+     * @returns Rendered system prompt or undefined when unavailable.
+     */
+    private async resolveTemplateSystemPrompt(
+        mergeRequest: Readonly<Record<string, unknown>>,
+    ): Promise<string | undefined> {
+        const organizationId = readStringField(mergeRequest, "organizationId")
+
+        try {
+            const result = await this.generatePromptUseCase.execute({
+                name: DEFAULT_SYSTEM_PROMPT_NAME,
+                organizationId: organizationId ?? null,
+                runtimeVariables: {},
+            })
+            if (result.isFail) {
+                return undefined
+            }
+
+            const normalized = result.value.trim()
+            if (normalized.length === 0) {
+                return undefined
+            }
+
+            return normalized
+        } catch {
+            return undefined
+        }
+    }
+
+    /**
+     * Resolves effective system prompt with fallback chain.
+     *
+     * @param templatePrompt Template-generated system prompt.
+     * @param config Review config payload.
+     * @returns System prompt text.
+     */
+    private resolveSystemPrompt(
+        templatePrompt: string | undefined,
+        config: Readonly<Record<string, unknown>>,
+    ): string {
+        if (templatePrompt !== undefined) {
+            return templatePrompt
+        }
+
+        const overrideSections = this.resolvePromptOverrideSections(config)
+        const overridesPrompt = this.reviewPromptAssemblerService
+            .assembleSections(overrideSections, undefined)
+            .trim()
+        if (overridesPrompt.length > 0) {
+            return overridesPrompt
+        }
+
+        return DEFAULT_SYSTEM_PROMPT
+    }
+
+    /**
+     * Maps prompt overrides to structured sections for assembly.
+     *
+     * @param config Review config payload.
+     * @returns Prompt sections or undefined when empty.
+     */
+    private resolvePromptOverrideSections(
+        config: Readonly<Record<string, unknown>>,
+    ): IReviewPromptSections | undefined {
+        const promptOverrides = readObjectField(config, "promptOverrides")
+        if (promptOverrides === undefined) {
+            return undefined
+        }
+
+        const categories = this.resolvePromptOverrideCategories(promptOverrides)
+        const severity = this.resolvePromptOverrideSeverity(promptOverrides)
+        const generation = this.resolvePromptOverrideGeneration(promptOverrides)
+
+        if (categories === undefined && severity === undefined && generation === undefined) {
+            return undefined
+        }
+
+        return {
+            ...(categories === undefined ? {} : {categories}),
+            ...(severity === undefined ? {} : {severity}),
+            ...(generation === undefined ? {} : {generation}),
+        }
+    }
+
+    /**
+     * Resolves category overrides section.
+     *
+     * @param promptOverrides Prompt overrides payload.
+     * @returns Category section or undefined.
+     */
+    private resolvePromptOverrideCategories(
+        promptOverrides: Readonly<Record<string, unknown>>,
+    ): IReviewPromptSections["categories"] | undefined {
+        const categoriesRecord = readObjectField(promptOverrides, "categories")
+        if (categoriesRecord === undefined) {
+            return undefined
+        }
+
+        const descriptionsRecord = readObjectField(categoriesRecord, "descriptions")
+        if (descriptionsRecord === undefined) {
+            return undefined
+        }
+
+        return this.collectSectionValues({
+            bug: this.resolveString(descriptionsRecord["bug"]),
+            performance: this.resolveString(descriptionsRecord["performance"]),
+            security: this.resolveString(descriptionsRecord["security"]),
+        })
+    }
+
+    /**
+     * Resolves severity overrides section.
+     *
+     * @param promptOverrides Prompt overrides payload.
+     * @returns Severity section or undefined.
+     */
+    private resolvePromptOverrideSeverity(
+        promptOverrides: Readonly<Record<string, unknown>>,
+    ): IReviewPromptSections["severity"] | undefined {
+        const severityRecord = readObjectField(promptOverrides, "severity")
+        if (severityRecord === undefined) {
+            return undefined
+        }
+
+        const flagsRecord = readObjectField(severityRecord, "flags")
+        if (flagsRecord === undefined) {
+            return undefined
+        }
+
+        return this.collectSectionValues({
+            critical: this.resolveString(flagsRecord["critical"]),
+            high: this.resolveString(flagsRecord["high"]),
+            medium: this.resolveString(flagsRecord["medium"]),
+            low: this.resolveString(flagsRecord["low"]),
+        })
+    }
+
+    /**
+     * Resolves generation overrides section.
+     *
+     * @param promptOverrides Prompt overrides payload.
+     * @returns Generation section or undefined.
+     */
+    private resolvePromptOverrideGeneration(
+        promptOverrides: Readonly<Record<string, unknown>>,
+    ): IReviewPromptSections["generation"] | undefined {
+        const generationRecord = readObjectField(promptOverrides, "generation")
+        if (generationRecord === undefined) {
+            return undefined
+        }
+
+        const generationMain = this.resolveString(generationRecord["main"])
+        if (generationMain === undefined) {
+            return undefined
+        }
+
+        return {main: generationMain}
+    }
+
+    /**
+     * Collects defined section values into a record.
+     *
+     * @param values Candidate values.
+     * @returns Record with defined values or undefined when empty.
+     */
+    private collectSectionValues<T extends Record<string, string | undefined>>(
+        values: T,
+    ): T | undefined {
+        const result: Record<string, string> = {}
+
+        for (const [key, value] of Object.entries(values)) {
+            if (value !== undefined) {
+                result[key] = value
+            }
+        }
+
+        if (Object.keys(result).length === 0) {
+            return undefined
+        }
+
+        return result as T
+    }
+
+    /**
      * Builds per-file LLM chat request.
      *
-     * @param filePath File path.
-     * @param patch File patch.
-     * @param config Config payload.
-     * @param mode Resolved review mode.
-     * @param fullFileContent Optional full file content.
+     * @param params Request input.
      * @returns Chat request payload.
      */
     private buildFileChatRequest(
-        filePath: string,
-        patch: string,
-        config: Readonly<Record<string, unknown>>,
-        mode: ReviewDepthMode,
-        fullFileContent: string | undefined,
+        params: IFileChatRequestInput,
     ): IChatRequestDTO {
-        const promptOverrides = readObjectField(config, "promptOverrides")
-        const systemPromptRaw = promptOverrides?.["systemPrompt"]
-        const reviewerPromptRaw = promptOverrides?.["reviewerPrompt"]
-        const systemPrompt =
-            typeof systemPromptRaw === "string" && systemPromptRaw.trim().length > 0
-                ? systemPromptRaw.trim()
-                : "You are a precise code reviewer. Return JSON suggestions array."
-        const reviewerPrompt =
-            typeof reviewerPromptRaw === "string" && reviewerPromptRaw.trim().length > 0
-                ? reviewerPromptRaw.trim()
-                : "Review this file patch and suggest actionable issues."
+        const systemPrompt = this.resolveSystemPrompt(
+            params.templateSystemPrompt,
+            params.config,
+        )
+        const reviewerPrompt = DEFAULT_REVIEWER_PROMPT
 
         return {
             model: this.model,
@@ -1047,7 +1294,13 @@ export class ProcessFilesReviewStageUseCase implements IPipelineStageUseCase {
                 },
                 {
                     role: "user",
-                    content: this.buildFileUserPrompt(filePath, patch, reviewerPrompt, mode, fullFileContent),
+                    content: this.buildFileUserPrompt(
+                        params.filePath,
+                        params.patch,
+                        reviewerPrompt,
+                        params.mode,
+                        params.fullFileContent,
+                    ),
                 },
             ],
         }
