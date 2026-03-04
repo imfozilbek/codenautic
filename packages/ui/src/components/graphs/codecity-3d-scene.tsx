@@ -99,6 +99,17 @@ interface ICodeCity3DSnapshot {
 
 const TIMELINE_SNAPSHOT_RATIOS: ReadonlyArray<number> = [0.35, 0.55, 0.75, 0.9, 1]
 const TIMELINE_PLAYBACK_INTERVAL_MS = 1200
+const GPU_MEMORY_BUDGET_MB = 220
+const ESTIMATED_GPU_COST_PER_BUILDING_MB = 1.1
+const WEAK_DEVICE_MAX_CORES = 4
+const WEAK_DEVICE_MAX_MEMORY_GB = 4
+const WEAK_DEVICE_MIN_TEXTURE_SIZE = 4096
+
+interface ICodeCity3DRenderCapability {
+    readonly isWebGlSupported: boolean
+    readonly shouldUse2DFallback: boolean
+    readonly reason: string
+}
 
 /**
  * Создаёт pre-computed snapshots для time-lapse проигрывания роста города.
@@ -152,6 +163,77 @@ function createCodeCityTimelineSnapshots(
 }
 
 /**
+ * Оценивает capability устройства и выбирает режим рендера 3D или 2D fallback.
+ *
+ * @param files Набор файлов в текущем snapshot.
+ * @returns Решение по режиму рендера + причина.
+ */
+function resolveCodeCityRenderCapability(
+    files: ReadonlyArray<ICodeCity3DSceneFileDescriptor>,
+): ICodeCity3DRenderCapability {
+    if (typeof document === "undefined") {
+        return {
+            isWebGlSupported: false,
+            reason: "WebGL unavailable on this device. Switched to 2D treemap mode.",
+            shouldUse2DFallback: true,
+        }
+    }
+
+    const canvas = document.createElement("canvas")
+    const webGlContext = canvas.getContext("webgl")
+    const webGl2Context = canvas.getContext("webgl2")
+    if (webGlContext === null && webGl2Context === null) {
+        return {
+            isWebGlSupported: false,
+            reason: "WebGL unavailable on this device. Switched to 2D treemap mode.",
+            shouldUse2DFallback: true,
+        }
+    }
+
+    const contextWithMetrics = (webGl2Context ?? webGlContext) as
+        | {
+            readonly MAX_TEXTURE_SIZE?: number
+            getParameter?: (parameter: number) => unknown
+        }
+        | null
+    const maxTextureSize =
+        contextWithMetrics !== null &&
+        contextWithMetrics.MAX_TEXTURE_SIZE !== undefined &&
+        typeof contextWithMetrics.getParameter === "function"
+            ? Number(contextWithMetrics.getParameter(contextWithMetrics.MAX_TEXTURE_SIZE))
+            : 8192
+    const navigatorWithMemory = navigator as Navigator & { readonly deviceMemory?: number }
+    const hardwareCores = navigator.hardwareConcurrency ?? 8
+    const deviceMemory = navigatorWithMemory.deviceMemory ?? 8
+    const weakDevice =
+        hardwareCores <= WEAK_DEVICE_MAX_CORES ||
+        deviceMemory <= WEAK_DEVICE_MAX_MEMORY_GB ||
+        maxTextureSize < WEAK_DEVICE_MIN_TEXTURE_SIZE
+    if (weakDevice) {
+        return {
+            isWebGlSupported: true,
+            reason: "Weak GPU/CPU profile detected. Switched to 2D treemap mode.",
+            shouldUse2DFallback: true,
+        }
+    }
+
+    const estimatedGpuUsageMb = files.length * ESTIMATED_GPU_COST_PER_BUILDING_MB
+    if (estimatedGpuUsageMb > GPU_MEMORY_BUDGET_MB) {
+        return {
+            isWebGlSupported: true,
+            reason: "GPU memory budget exceeded. Switched to 2D treemap mode.",
+            shouldUse2DFallback: true,
+        }
+    }
+
+    return {
+        isWebGlSupported: true,
+        reason: "3D renderer available.",
+        shouldUse2DFallback: false,
+    }
+}
+
+/**
  * Обёртка 3D сцены: проверяет WebGL и лениво подгружает renderer.
  *
  * @param props Конфигурация 3D preview.
@@ -163,16 +245,6 @@ export function CodeCity3DScene(props: ICodeCity3DSceneProps): ReactElement {
     const [isTimelinePlaying, setIsTimelinePlaying] = useState<boolean>(false)
     const [selectedFileId, setSelectedFileId] = useState<string | undefined>(undefined)
     const [timelineIndex, setTimelineIndex] = useState<number>(0)
-    const isWebGlSupported = useMemo((): boolean => {
-        if (typeof document === "undefined") {
-            return false
-        }
-
-        const canvas = document.createElement("canvas")
-        const webGlContext = canvas.getContext("webgl")
-        const webGl2Context = canvas.getContext("webgl2")
-        return webGlContext !== null || webGl2Context !== null
-    }, [])
     const snapshots = useMemo((): ReadonlyArray<ICodeCity3DSnapshot> => {
         return createCodeCityTimelineSnapshots(props.files)
     }, [props.files])
@@ -184,6 +256,9 @@ export function CodeCity3DScene(props: ICodeCity3DSceneProps): ReactElement {
             id: "snapshot-fallback",
             label: "Commit #1",
         }
+    const renderCapability = useMemo((): ICodeCity3DRenderCapability => {
+        return resolveCodeCityRenderCapability(currentSnapshot.files)
+    }, [currentSnapshot.files])
 
     useEffect((): void => {
         setTimelineIndex((currentIndex): number => {
@@ -217,14 +292,47 @@ export function CodeCity3DScene(props: ICodeCity3DSceneProps): ReactElement {
     const hoveredFile = hoveredFileId !== undefined ? fileById.get(hoveredFileId) : undefined
     const selectedFile = selectedFileId !== undefined ? fileById.get(selectedFileId) : undefined
 
-    if (isWebGlSupported === false) {
+    if (renderCapability.shouldUse2DFallback) {
+        const fallbackFiles = currentSnapshot.files.slice(0, 24)
+
         return (
-            <div
-                className="rounded-lg border border-amber-300 bg-amber-50 px-3 py-2 text-sm text-amber-700"
-                role="status"
-            >
-                WebGL unavailable on this device. Switch to 2D treemap mode.
-            </div>
+            <section className="w-full rounded-lg border border-slate-200 bg-slate-50 p-3">
+                <div
+                    className="rounded-lg border border-amber-300 bg-amber-50 px-3 py-2 text-sm text-amber-700"
+                    role="status"
+                >
+                    {renderCapability.reason}
+                </div>
+                <div className="mt-3">
+                    <p className="text-sm font-semibold text-slate-900">2D treemap fallback</p>
+                    <div className="mt-2 grid auto-rows-[64px] grid-cols-6 gap-2">
+                        {fallbackFiles.map((file): ReactElement => {
+                            const columnSpan = Math.max(
+                                1,
+                                Math.min(3, Math.ceil((file.complexity ?? 1) / 10)),
+                            )
+                            const rowSpan = Math.max(1, Math.min(2, Math.ceil((file.loc ?? 20) / 120)))
+
+                            return (
+                                <article
+                                    className="rounded border border-slate-300 bg-white px-2 py-1 text-[11px] text-slate-700"
+                                    key={file.id}
+                                    style={{
+                                        gridColumn: `span ${String(columnSpan)} / span ${String(columnSpan)}`,
+                                        gridRow: `span ${String(rowSpan)} / span ${String(rowSpan)}`,
+                                    }}
+                                >
+                                    <p className="truncate font-medium text-slate-900">{file.path}</p>
+                                    <p className="mt-1 text-slate-500">LOC {String(file.loc ?? 0)}</p>
+                                    <p className="text-slate-500">
+                                        Complexity {String(file.complexity ?? 0)}
+                                    </p>
+                                </article>
+                            )
+                        })}
+                    </div>
+                </div>
+            </section>
         )
     }
 

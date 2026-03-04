@@ -92,6 +92,35 @@ const TEST_TIMELINE_FILES: ReadonlyArray<ICodeCity3DSceneFileDescriptor> = [
         path: "src/worker/index.ts",
     },
 ]
+const LARGE_GPU_BUDGET_FILES: ReadonlyArray<ICodeCity3DSceneFileDescriptor> = Array.from(
+    { length: 720 },
+    (_value, index): ICodeCity3DSceneFileDescriptor => {
+        return {
+            complexity: 12 + (index % 7),
+            coverage: 70,
+            id: `src/big/file-${String(index)}.ts`,
+            loc: 100 + (index % 40),
+            path: `src/big/file-${String(index)}.ts`,
+        }
+    },
+)
+
+function overrideNavigatorProperty(propertyName: string, value: unknown): () => void {
+    const target = navigator as Navigator & Record<string, unknown>
+    const previousDescriptor = Object.getOwnPropertyDescriptor(target, propertyName)
+    Object.defineProperty(target, propertyName, {
+        configurable: true,
+        value,
+    })
+
+    return (): void => {
+        if (previousDescriptor !== undefined) {
+            Object.defineProperty(target, propertyName, previousDescriptor)
+            return
+        }
+        delete target[propertyName]
+    }
+}
 
 describe("CodeCity3DScene", (): void => {
     it("показывает fallback при отсутствии WebGL", (): void => {
@@ -206,5 +235,47 @@ describe("CodeCity3DScene", (): void => {
         expect(screen.getByText("Files: 4 / 4")).not.toBeNull()
 
         getContextSpy.mockRestore()
+    })
+
+    it("переключается в 2D fallback на слабом устройстве даже при доступном WebGL", (): void => {
+        const fakeContext = {
+            MAX_TEXTURE_SIZE: 1,
+            getParameter: (): number => 1024,
+        } as unknown as GPUCanvasContext
+        const restoreCores = overrideNavigatorProperty("hardwareConcurrency", 2)
+        const restoreMemory = overrideNavigatorProperty("deviceMemory", 2)
+        const getContextSpy = vi
+            .spyOn(HTMLCanvasElement.prototype, "getContext")
+            .mockImplementation((): GPUCanvasContext => fakeContext)
+
+        renderWithProviders(<CodeCity3DScene files={TEST_FILES} title="weak device fallback scene" />)
+        expect(screen.getByRole("status")).toHaveTextContent("Weak GPU/CPU profile detected")
+        expect(screen.getByText("2D treemap fallback")).not.toBeNull()
+
+        getContextSpy.mockRestore()
+        restoreCores()
+        restoreMemory()
+    })
+
+    it("переключается в 2D fallback при превышении GPU budget", (): void => {
+        const fakeContext = {
+            MAX_TEXTURE_SIZE: 1,
+            getParameter: (): number => 8192,
+        } as unknown as GPUCanvasContext
+        const restoreCores = overrideNavigatorProperty("hardwareConcurrency", 12)
+        const restoreMemory = overrideNavigatorProperty("deviceMemory", 16)
+        const getContextSpy = vi
+            .spyOn(HTMLCanvasElement.prototype, "getContext")
+            .mockImplementation((): GPUCanvasContext => fakeContext)
+
+        renderWithProviders(
+            <CodeCity3DScene files={LARGE_GPU_BUDGET_FILES} title="gpu budget fallback scene" />,
+        )
+        expect(screen.getByRole("status")).toHaveTextContent("GPU memory budget exceeded")
+        expect(screen.getByText("2D treemap fallback")).not.toBeNull()
+
+        getContextSpy.mockRestore()
+        restoreCores()
+        restoreMemory()
     })
 })
