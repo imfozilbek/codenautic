@@ -178,6 +178,28 @@ describe("layout components", (): void => {
         expect(onSearchRouteNavigate).toHaveBeenCalledWith("/settings-provider-degradation")
     })
 
+    it("открывает shortcuts overlay по ? и позволяет фильтровать список", async (): Promise<void> => {
+        const user = userEvent.setup()
+        currentRoute = "/reviews"
+
+        renderWithProviders(
+            <DashboardLayoutHarness>
+                <p>Shortcut help content</p>
+            </DashboardLayoutHarness>,
+            {
+                defaultThemeMode: "light" as ThemeMode,
+            },
+        )
+
+        await user.keyboard("?")
+
+        expect(screen.getByText("Keyboard shortcuts")).not.toBeNull()
+        const searchInput = screen.getByRole("textbox", { name: "Search shortcuts" })
+        await user.type(searchInput, "dashboard")
+        expect(screen.getByRole("list", { name: "Shortcuts list" })).not.toBeNull()
+        expect(screen.getByText("Go to dashboard")).not.toBeNull()
+    })
+
     it("обрабатывает callback для collapse sidebar", async (): Promise<void> => {
         const user: UserEvent = userEvent.setup()
         const onNavigate = vi.fn()

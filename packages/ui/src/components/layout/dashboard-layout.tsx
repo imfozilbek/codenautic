@@ -156,6 +156,8 @@ export function DashboardLayout(props: IDashboardLayoutProps): ReactElement {
     const [providerDegradation, setProviderDegradation] =
         useState<IProviderDegradationEventDetail | undefined>(undefined)
     const [multiTabNotice, setMultiTabNotice] = useState<string | undefined>(undefined)
+    const [isShortcutsHelpOpen, setIsShortcutsHelpOpen] = useState(false)
+    const [shortcutsHelpQuery, setShortcutsHelpQuery] = useState("")
     const navigate = useNavigate()
     const location = useLocation()
     const queryClient = useQueryClient()
@@ -237,12 +239,33 @@ export function DashboardLayout(props: IDashboardLayoutProps): ReactElement {
                 routePredicate: (routePath: string): boolean => routePath === "/reviews",
                 scope: "page",
             },
+            {
+                handler: (): void => {
+                    setIsShortcutsHelpOpen(true)
+                },
+                id: "open-shortcuts-help",
+                keys: "question",
+                label: "Open shortcuts help",
+                scope: "global",
+            },
         ]
     }, [navigate])
     const keyboardShortcuts = useKeyboardShortcuts({
         routePath: location.pathname,
         shortcuts: shortcutDefinitions,
     })
+    const filteredShortcuts = useMemo(() => {
+        const normalizedQuery = shortcutsHelpQuery.trim().toLowerCase()
+        if (normalizedQuery.length === 0) {
+            return keyboardShortcuts.shortcuts
+        }
+
+        return keyboardShortcuts.shortcuts.filter((shortcut): boolean => {
+            return `${shortcut.label} ${shortcut.keys} ${shortcut.scope}`
+                .toLowerCase()
+                .includes(normalizedQuery)
+        })
+    }, [keyboardShortcuts.shortcuts, shortcutsHelpQuery])
 
     const handleSignOut = (): void => {
         if (props.onSignOut === undefined) {
@@ -597,6 +620,9 @@ export function DashboardLayout(props: IDashboardLayoutProps): ReactElement {
                     />
                 </div>
                 <div className="min-h-0 flex-1 rounded-lg border border-[var(--border)] bg-[color:color-mix(in_oklab,var(--surface)_88%,transparent)] p-4 shadow-sm">
+                    <p className="mb-2 text-xs text-[var(--foreground)]/60">
+                        Press ? for keyboard shortcuts.
+                    </p>
                     {keyboardShortcuts.conflicts.length === 0 ? null : (
                         <Alert color="warning" title="Keyboard shortcut conflicts detected" variant="flat">
                             {keyboardShortcuts.conflicts
@@ -639,6 +665,50 @@ export function DashboardLayout(props: IDashboardLayoutProps): ReactElement {
                     {props.children}
                 </div>
             </div>
+            <Modal
+                isOpen={isShortcutsHelpOpen}
+                onOpenChange={(nextOpenState): void => {
+                    setIsShortcutsHelpOpen(nextOpenState)
+                    if (nextOpenState !== true) {
+                        setShortcutsHelpQuery("")
+                    }
+                }}
+            >
+                <ModalContent>
+                    <ModalHeader>Keyboard shortcuts</ModalHeader>
+                    <ModalBody>
+                        <input
+                            aria-label="Search shortcuts"
+                            className="w-full rounded-md border border-[var(--border)] bg-[var(--surface)] px-2 py-1 text-sm text-[var(--foreground)]"
+                            placeholder="Search by key or action"
+                            type="text"
+                            value={shortcutsHelpQuery}
+                            onChange={(event): void => {
+                                setShortcutsHelpQuery(event.currentTarget.value)
+                            }}
+                        />
+                        <p className="text-xs text-[var(--foreground)]/60">Press ? for help.</p>
+                        <ul aria-label="Shortcuts list" className="max-h-72 space-y-2 overflow-y-auto">
+                            {filteredShortcuts.map((shortcut): ReactElement => (
+                                <li
+                                    key={shortcut.id}
+                                    className="flex items-center justify-between rounded-md border border-[var(--border)] px-2 py-1"
+                                >
+                                    <span className="text-sm text-[var(--foreground)]">{shortcut.label}</span>
+                                    <span className="flex items-center gap-2 text-xs text-[var(--foreground)]/70">
+                                        <span className="rounded border border-[var(--border)] px-2 py-0.5">
+                                            {shortcut.scope}
+                                        </span>
+                                        <span className="rounded border border-[var(--border)] px-2 py-0.5">
+                                            {shortcut.keys}
+                                        </span>
+                                    </span>
+                                </li>
+                            ))}
+                        </ul>
+                    </ModalBody>
+                </ModalContent>
+            </Modal>
             <Modal isOpen={isSessionRecoveryOpen} onOpenChange={setIsSessionRecoveryOpen}>
                 <ModalContent>
                     <ModalHeader>Session expired</ModalHeader>
