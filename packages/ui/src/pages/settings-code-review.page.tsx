@@ -11,6 +11,7 @@ import {
 import { IgnorePatternEditor } from "@/components/settings/ignore-pattern-editor"
 import { ReviewCadenceSelector } from "@/components/settings/review-cadence-selector"
 import { RuleEditor } from "@/components/settings/rule-editor"
+import { SuggestionLimitConfig } from "@/components/settings/suggestion-limit-config"
 import type { ICodeReviewFormValues } from "@/components/settings/settings-form-schemas"
 import {
     REPO_REVIEW_MODE,
@@ -398,28 +399,15 @@ export function SettingsCodeReviewPage(): ReactElement {
                         <option value={CCR_SUMMARY_DETAIL_LEVEL.deep}>Deep</option>
                     </select>
                 </label>
-                <label className="space-y-1 text-sm text-slate-700" htmlFor="ccr-summary-max-suggestions">
-                    <span className="block font-medium text-slate-900">Max suggestions in summary</span>
-                    <input
-                        id="ccr-summary-max-suggestions"
-                        className="w-full rounded-md border border-slate-300 px-3 py-2"
-                        max={20}
-                        min={1}
-                        type="number"
-                        value={ccrSummarySettings.maxSuggestions}
-                        onChange={(event): void => {
-                            const parsedValue = Number(event.currentTarget.value)
-                            if (Number.isNaN(parsedValue) === true) {
-                                return
-                            }
-                            const normalizedValue = Math.min(20, Math.max(1, parsedValue))
-                            setCcrSummarySettings((prev): ICcrSummarySettings => ({
-                                ...prev,
-                                maxSuggestions: normalizedValue,
-                            }))
-                        }}
-                    />
-                </label>
+                <SuggestionLimitConfig
+                    value={ccrSummarySettings.maxSuggestions}
+                    onChange={(nextValue): void => {
+                        setCcrSummarySettings((prev): ICcrSummarySettings => ({
+                            ...prev,
+                            maxSuggestions: nextValue,
+                        }))
+                    }}
+                />
                 <p className="text-xs text-slate-500" data-testid="ccr-summary-state">
                     {ccrSummaryState}
                 </p>
