@@ -59,6 +59,30 @@ export {
     type ISettingsServiceEnvironment,
 } from "./settings-service/config/settings-env"
 export {
+    SettingsServiceClientConfigModule,
+    SettingsServiceClientConfigurationValidationError,
+    loadSettingsServiceClientConfig,
+    type ILoadSettingsServiceClientConfigOptions,
+    type ISettingsServiceClientConfig,
+    type ISettingsServiceClientConfigOverrides,
+} from "./settings-client/config/settings-client-config.module"
+export {
+    SettingsServiceClientEnvironmentValidationError,
+    parseSettingsServiceClientEnvironment,
+    type ISettingsServiceClientEnvironment,
+} from "./settings-client/config/settings-client-env"
+export {
+    SettingsServiceClient,
+    SettingsServiceClientError,
+    type ISettingItem,
+    type ISettingsSnapshot,
+} from "./settings-client/settings-service.client"
+export {
+    SettingsDefaultsLoader,
+    SettingsDefaultsValidationError,
+} from "./settings-client/settings-defaults.loader"
+export {SettingsServiceSystemSettingsProvider} from "./settings-client/system-settings-provider"
+export {
     InMemoryRuntimeDomainEventBus,
 } from "./review-worker/adapters/in-memory-runtime-domain-event-bus"
 export {

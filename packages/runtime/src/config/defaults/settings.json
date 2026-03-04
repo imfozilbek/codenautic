@@ -111,6 +111,163 @@
       ]
     },
     {
+      "key": "review.file_defaults",
+      "value": {
+        "model": "gpt-4o-mini",
+        "maxTokens": 1000,
+        "timeoutMs": 60000,
+        "reviewDepthStrategy": "auto",
+        "systemPromptName": "code-review-system",
+        "reviewerPrompt": "Review this file patch and suggest actionable issues."
+      }
+    },
+    {
+      "key": "review.ccr_defaults",
+      "value": {
+        "model": "gpt-4o-mini",
+        "maxTokens": 1200,
+        "promptName": "ccr-level-review"
+      }
+    },
+    {
+      "key": "review.summary_defaults",
+      "value": {
+        "model": "gpt-4o-mini",
+        "maxTokens": 700,
+        "systemPrompt": "You are a senior reviewer assistant. Produce concise markdown summary.",
+        "userPrompt": "Summarize key review findings, risk, and next actions."
+      }
+    },
+    {
+      "key": "review.ccr_summary_defaults",
+      "value": {
+        "model": "gpt-4o-mini",
+        "maxTokens": 700,
+        "defaultSystemPromptName": "ccr-summary-default-system",
+        "complementSystemPromptName": "ccr-summary-complement-system"
+      }
+    },
+    {
+      "key": "review.file_context_gate_defaults",
+      "value": {
+        "batchSize": 30
+      }
+    },
+    {
+      "key": "review.external_context_defaults",
+      "value": {
+        "limit": 20
+      }
+    },
+    {
+      "key": "review.safeguards_defaults",
+      "value": {
+        "severity": {
+          "threshold": "MEDIUM"
+        },
+        "priority": {
+          "limit": 9007199254740991
+        },
+        "hallucination": {
+          "model": "gpt-4o-mini",
+          "maxTokens": 300
+        }
+      }
+    },
+    {
+      "key": "review.cadence_defaults",
+      "value": {
+        "autoPauseThreshold": 20
+      }
+    },
+    {
+      "key": "review.throttle_defaults",
+      "value": {
+        "windowSeconds": 3600,
+        "maxReviewsPerWindow": 10
+      }
+    },
+    {
+      "key": "review.initial_comment_defaults",
+      "value": {
+        "body": "CodeNautic review started. Preparing analysis..."
+      }
+    },
+    {
+      "key": "review.check_run_defaults",
+      "value": {
+        "checkRunName": "CodeNautic Review"
+      }
+    },
+    {
+      "key": "review.augment_context_defaults",
+      "value": {
+        "relatedFilesLimit": 20
+      }
+    },
+    {
+      "key": "review.dry_run_defaults",
+      "value": {
+        "startAttempt": 1,
+        "mutatingStageIds": [
+          "create-check"
+        ]
+      }
+    },
+    {
+      "key": "messaging.chat_defaults",
+      "value": {
+        "model": "gpt-4o-mini",
+        "maxTokens": 1200
+      }
+    },
+    {
+      "key": "messaging.outbox_relay_defaults",
+      "value": {
+        "batchSize": 10
+      }
+    },
+    {
+      "key": "rules.apply_defaults",
+      "value": {
+        "promptModel": "gpt-4o-mini",
+        "promptMaxTokens": 1200,
+        "promptRankScore": 60,
+        "regexRankScore": 55,
+        "ruleSeverity": "MEDIUM"
+      }
+    },
+    {
+      "key": "rules.list_defaults",
+      "value": {
+        "page": 1,
+        "limit": 20
+      }
+    },
+    {
+      "key": "analytics.learn_team_patterns_defaults",
+      "value": {
+        "minSampleSize": 5,
+        "minConfidence": 0.35,
+        "minWeightDelta": 0.1,
+        "maxAdjustments": 20
+      }
+    },
+    {
+      "key": "analytics.suggestion_clustering_defaults",
+      "value": {
+        "mode": "MINIMAL",
+        "similarityThreshold": 0.75,
+        "embeddingModel": "default-embedding-model"
+      }
+    },
+    {
+      "key": "mcp.defaults",
+      "value": {
+        "protocolVersion": "2025-01-01"
+      }
+    },
+    {
       "key": "review.overrides",
       "value": {
         "name": "default-review-overrides",
