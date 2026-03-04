@@ -2,6 +2,10 @@ import { type ReactElement, useEffect, useMemo, useRef, useState } from "react"
 import { Bell, Menu } from "lucide-react"
 
 import { Button } from "@/components/ui"
+import {
+    FOCUS_GLOBAL_SEARCH_EVENT,
+    OPEN_COMMAND_PALETTE_EVENT,
+} from "@/lib/keyboard/shortcut-registry"
 
 import { ThemeToggle } from "./theme-toggle"
 import { UserMenu } from "./user-menu"
@@ -382,6 +386,34 @@ export function Header(props: IHeaderProps): ReactElement {
             window.removeEventListener("keydown", handleKeyboardShortcut)
         }
     }, [])
+
+    useEffect((): (() => void) | void => {
+        if (typeof window === "undefined") {
+            return
+        }
+
+        const handleOpenCommandPalette = (): void => {
+            openCommandPalette()
+        }
+        const handleFocusGlobalSearch = (): void => {
+            searchInputRef.current?.focus()
+            searchInputRef.current?.select()
+        }
+
+        window.addEventListener(OPEN_COMMAND_PALETTE_EVENT, handleOpenCommandPalette as EventListener)
+        window.addEventListener(FOCUS_GLOBAL_SEARCH_EVENT, handleFocusGlobalSearch as EventListener)
+
+        return (): void => {
+            window.removeEventListener(
+                OPEN_COMMAND_PALETTE_EVENT,
+                handleOpenCommandPalette as EventListener,
+            )
+            window.removeEventListener(
+                FOCUS_GLOBAL_SEARCH_EVENT,
+                handleFocusGlobalSearch as EventListener,
+            )
+        }
+    }, [openCommandPalette])
 
     useEffect((): void => {
         if (isCommandPaletteOpen !== true) {

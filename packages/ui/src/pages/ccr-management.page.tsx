@@ -1,5 +1,6 @@
 import { type ChangeEvent, type ReactElement, useEffect, useMemo, useState } from "react"
 
+import { FOCUS_REVIEWS_FILTERS_EVENT } from "@/lib/keyboard/shortcut-registry"
 import { ReviewsContent, type IReviewRow } from "@/components/reviews/reviews-content"
 import { MOCK_CCR_ROWS, type ICcrRowData } from "@/pages/ccr-data"
 
@@ -530,6 +531,28 @@ export function CcrManagementPage(props: ICcrManagementPageProps): ReactElement 
         })
         setVisibleItems(PAGE_SIZE)
     }, [props.repository, props.search, props.status, props.team])
+
+    useEffect((): (() => void) | void => {
+        if (typeof window === "undefined") {
+            return
+        }
+
+        const handleFocusFilters = (): void => {
+            const input = window.document.querySelector<HTMLInputElement>(
+                'input[name="search"][placeholder="Search title / id / repo / assignee"]',
+            )
+            input?.focus()
+            input?.select()
+        }
+
+        window.addEventListener(FOCUS_REVIEWS_FILTERS_EVENT, handleFocusFilters as EventListener)
+        return (): void => {
+            window.removeEventListener(
+                FOCUS_REVIEWS_FILTERS_EVENT,
+                handleFocusFilters as EventListener,
+            )
+        }
+    }, [])
 
     const { filterOptions } = useCcrFilters()
     const filteredRows = useMemo((): ReadonlyArray<ICcrRow> => {

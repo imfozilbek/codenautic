@@ -36,6 +36,13 @@ import {
     searchAccessibleRoutes,
     type TTenantId,
 } from "@/lib/navigation/route-guard-map"
+import { useKeyboardShortcuts } from "@/lib/hooks/use-keyboard-shortcuts"
+import {
+    FOCUS_GLOBAL_SEARCH_EVENT,
+    FOCUS_REVIEWS_FILTERS_EVENT,
+    OPEN_COMMAND_PALETTE_EVENT,
+    type IShortcutDefinition,
+} from "@/lib/keyboard/shortcut-registry"
 import { Alert, Button, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader } from "@/components/ui"
 
 import { Header } from "./header"
@@ -169,6 +176,73 @@ export function DashboardLayout(props: IDashboardLayoutProps): ReactElement {
             path: route.path,
         }))
     }, [routeGuardContext])
+    const shortcutDefinitions = useMemo((): ReadonlyArray<IShortcutDefinition> => {
+        return [
+            {
+                handler: (): void => {
+                    window.dispatchEvent(new CustomEvent(OPEN_COMMAND_PALETTE_EVENT))
+                },
+                id: "open-command-palette-meta",
+                keys: "meta+k",
+                label: "Open command palette",
+                scope: "global",
+            },
+            {
+                handler: (): void => {
+                    window.dispatchEvent(new CustomEvent(OPEN_COMMAND_PALETTE_EVENT))
+                },
+                id: "open-command-palette-ctrl",
+                keys: "ctrl+k",
+                label: "Open command palette",
+                scope: "global",
+            },
+            {
+                handler: (): void => {
+                    window.dispatchEvent(new CustomEvent(FOCUS_GLOBAL_SEARCH_EVENT))
+                },
+                id: "focus-global-search",
+                keys: "slash",
+                label: "Focus global search",
+                scope: "global",
+            },
+            {
+                handler: (): void => {
+                    void navigate({
+                        to: "/",
+                    })
+                },
+                id: "goto-dashboard",
+                keys: "g d",
+                label: "Go to dashboard",
+                scope: "global",
+            },
+            {
+                handler: (): void => {
+                    void navigate({
+                        to: "/reviews",
+                    })
+                },
+                id: "goto-reviews",
+                keys: "g r",
+                label: "Go to ccr management",
+                scope: "global",
+            },
+            {
+                handler: (): void => {
+                    window.dispatchEvent(new CustomEvent(FOCUS_REVIEWS_FILTERS_EVENT))
+                },
+                id: "focus-reviews-filters",
+                keys: "f",
+                label: "Focus reviews filters",
+                routePredicate: (routePath: string): boolean => routePath === "/reviews",
+                scope: "page",
+            },
+        ]
+    }, [navigate])
+    const keyboardShortcuts = useKeyboardShortcuts({
+        routePath: location.pathname,
+        shortcuts: shortcutDefinitions,
+    })
 
     const handleSignOut = (): void => {
         if (props.onSignOut === undefined) {
@@ -523,6 +597,15 @@ export function DashboardLayout(props: IDashboardLayoutProps): ReactElement {
                     />
                 </div>
                 <div className="min-h-0 flex-1 rounded-lg border border-[var(--border)] bg-[color:color-mix(in_oklab,var(--surface)_88%,transparent)] p-4 shadow-sm">
+                    {keyboardShortcuts.conflicts.length === 0 ? null : (
+                        <Alert color="warning" title="Keyboard shortcut conflicts detected" variant="flat">
+                            {keyboardShortcuts.conflicts
+                                .map((conflict): string => {
+                                    return `${conflict.signature}: ${conflict.ids.join(", ")}`
+                                })
+                                .join(" | ")}
+                        </Alert>
+                    )}
                     {multiTabNotice === undefined ? null : (
                         <Alert color="primary" title="Multi-tab sync applied" variant="flat">
                             {multiTabNotice}
