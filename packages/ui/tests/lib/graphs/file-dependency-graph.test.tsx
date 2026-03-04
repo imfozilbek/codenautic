@@ -12,12 +12,16 @@ vi.mock("@/components/graphs/xyflow-graph", () => ({
         ariaLabel,
         edges,
         nodes,
+        highlightedEdgeIds,
+        highlightedNodeIds,
         onNodeSelect,
         selectedNodeId,
     }: {
         readonly ariaLabel?: string
         readonly edges: ReadonlyArray<unknown>
         readonly nodes: ReadonlyArray<unknown>
+        readonly highlightedNodeIds?: ReadonlyArray<string>
+        readonly highlightedEdgeIds?: ReadonlyArray<string>
         readonly onNodeSelect?: (nodeId: string) => void
         readonly selectedNodeId?: string
     }): React.JSX.Element => {
@@ -26,6 +30,8 @@ vi.mock("@/components/graphs/xyflow-graph", () => ({
                 <span data-testid="xyflow-node-count">{nodes.length}</span>
                 <span data-testid="xyflow-edge-count">{edges.length}</span>
                 <span data-testid="selected-node-id">{selectedNodeId ?? ""}</span>
+                <span data-testid="highlighted-node-count">{highlightedNodeIds?.length ?? 0}</span>
+                <span data-testid="highlighted-edge-count">{highlightedEdgeIds?.length ?? 0}</span>
                 {nodes.map((node, index): React.JSX.Element => {
                     const nodeRecord = node as { readonly id?: unknown }
                     const nodeId = typeof nodeRecord.id === "string" ? nodeRecord.id : `node-${index}`
@@ -151,5 +157,36 @@ describe("file dependency graph", (): void => {
         expect(screen.getByText("Churn: 3")).not.toBeNull()
         expect(screen.getByText("Incoming deps: 1")).not.toBeNull()
         expect(screen.getByText("Outgoing deps: 1")).not.toBeNull()
+    })
+
+    it("включает highlight impact paths для выбранного узла", async (): Promise<void> => {
+        const user = userEvent.setup()
+        render(
+            <FileDependencyGraph
+                dependencies={[
+                    {
+                        relationType: "import",
+                        source: "src/index.ts",
+                        target: "src/api.ts",
+                    },
+                    {
+                        relationType: "import",
+                        source: "src/api.ts",
+                        target: "src/util.ts",
+                    },
+                ]}
+                files={[
+                    { id: "src/index.ts", path: "src/index.ts" },
+                    { id: "src/api.ts", path: "src/api.ts" },
+                    { id: "src/util.ts", path: "src/util.ts" },
+                ]}
+            />,
+        )
+
+        await user.click(screen.getByRole("button", { name: "select-src/api.ts" }))
+        await user.click(screen.getByRole("button", { name: "Highlight impact paths" }))
+
+        expect(screen.getByTestId("highlighted-node-count")).toHaveTextContent("3")
+        expect(screen.getByTestId("highlighted-edge-count")).toHaveTextContent("2")
     })
 })

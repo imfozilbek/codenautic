@@ -63,11 +63,18 @@ interface IFunctionCallGraphState {
     readonly query: string
     /** id выбранного узла. */
     readonly selectedNodeId?: string
+    /** Включён ли highlight impact paths. */
+    readonly showImpactPaths: boolean
 }
 
 interface ICallRelationStats {
     readonly incoming: number
     readonly outgoing: number
+}
+
+interface IImpactPathHighlight {
+    readonly edgeIds: ReadonlyArray<string>
+    readonly nodeIds: ReadonlyArray<string>
 }
 
 /** Лимит длины label, чтобы не ломать layout. */
@@ -181,6 +188,50 @@ function calculateCallStats(
     return { incoming, outgoing }
 }
 
+/** Строит highlight для impact path по выбранному node id. */
+function calculateImpactPathHighlight(
+    graphData: IFunctionCallGraphData,
+    nodeId: string,
+): IImpactPathHighlight {
+    const knownNodeIds = new Set<string>(graphData.nodes.map((node): string => node.id))
+    if (knownNodeIds.has(nodeId) !== true) {
+        return { edgeIds: [], nodeIds: [] }
+    }
+
+    const queue: string[] = [nodeId]
+    const visitedNodeIds = new Set<string>([nodeId])
+    const visitedEdgeIds = new Set<string>()
+
+    while (queue.length > 0) {
+        const currentNodeId = queue.shift()
+        if (currentNodeId === undefined) {
+            continue
+        }
+
+        for (const edge of graphData.edges) {
+            const edgeId = edge.id ?? `${edge.source}-${edge.target}`
+            if (edge.source !== currentNodeId && edge.target !== currentNodeId) {
+                continue
+            }
+
+            visitedEdgeIds.add(edgeId)
+            if (visitedNodeIds.has(edge.source) !== true) {
+                visitedNodeIds.add(edge.source)
+                queue.push(edge.source)
+            }
+            if (visitedNodeIds.has(edge.target) !== true) {
+                visitedNodeIds.add(edge.target)
+                queue.push(edge.target)
+            }
+        }
+    }
+
+    return {
+        edgeIds: Array.from(visitedEdgeIds),
+        nodeIds: Array.from(visitedNodeIds),
+    }
+}
+
 /**
  * Рендерит function/class call graph для одного репозитория.
  *
@@ -190,6 +241,7 @@ export function FunctionClassCallGraph(props: IFunctionCallGraphProps): ReactEle
     const [state, setState] = useState<IFunctionCallGraphState>({
         query: "",
         selectedNodeId: undefined,
+        showImpactPaths: false,
     })
     const title = props.title ?? "Function/Class call graph"
     const emptyStateLabel = props.emptyStateLabel ?? "No function or class call relationships yet."
@@ -236,6 +288,12 @@ export function FunctionClassCallGraph(props: IFunctionCallGraphProps): ReactEle
         }
         return calculateCallStats(props.callRelations, state.selectedNodeId)
     }, [props.callRelations, state.selectedNodeId])
+    const impactPathHighlight = useMemo((): IImpactPathHighlight => {
+        if (state.showImpactPaths !== true || state.selectedNodeId === undefined) {
+            return { edgeIds: [], nodeIds: [] }
+        }
+        return calculateImpactPathHighlight(visibleGraphData, state.selectedNodeId)
+    }, [state.selectedNodeId, state.showImpactPaths, visibleGraphData])
 
     if (layoutedNodes.length === 0 || isEmptyState === true) {
         return (
@@ -281,6 +339,19 @@ export function FunctionClassCallGraph(props: IFunctionCallGraphProps): ReactEle
                             Reset
                         </Button>
                     ) : null}
+                    <Button
+                        color={state.showImpactPaths ? "success" : "default"}
+                        isDisabled={state.selectedNodeId === undefined}
+                        variant={state.showImpactPaths ? "flat" : "bordered"}
+                        onPress={(): void => {
+                            setState((previousState) => ({
+                                ...previousState,
+                                showImpactPaths: !previousState.showImpactPaths,
+                            }))
+                        }}
+                    >
+                        Highlight impact paths
+                    </Button>
                 </div>
             </CardHeader>
             <CardBody className="gap-4">
@@ -292,10 +363,16 @@ export function FunctionClassCallGraph(props: IFunctionCallGraphProps): ReactEle
                     onNodeSelect={(nodeId): void => {
                         setState((previousState) => ({
                             ...previousState,
+                            showImpactPaths:
+                                previousState.selectedNodeId === nodeId
+                                    ? false
+                                    : previousState.showImpactPaths,
                             selectedNodeId:
                                 previousState.selectedNodeId === nodeId ? undefined : nodeId,
                         }))
                     }}
+                    highlightedEdgeIds={impactPathHighlight.edgeIds}
+                    highlightedNodeIds={impactPathHighlight.nodeIds}
                     selectedNodeId={state.selectedNodeId}
                     showControls={props.showControls}
                     showMiniMap={props.showMiniMap}
@@ -317,6 +394,8 @@ export function FunctionClassCallGraph(props: IFunctionCallGraphProps): ReactEle
                             <p>{`Complexity: ${selectedNode.complexity ?? "n/a"}`}</p>
                             <p>{`Incoming calls: ${selectedCallStats.incoming}`}</p>
                             <p>{`Outgoing calls: ${selectedCallStats.outgoing}`}</p>
+                            <p>{`Impact path nodes: ${impactPathHighlight.nodeIds.length}`}</p>
+                            <p>{`Impact path edges: ${impactPathHighlight.edgeIds.length}`}</p>
                         </div>
                     )}
                 </section>

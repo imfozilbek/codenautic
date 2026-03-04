@@ -44,6 +44,10 @@ interface IXYFlowGraphRendererProps {
     readonly onNodeSelect?: (nodeId: string) => void
     /** id выбранного узла для визуального выделения. */
     readonly selectedNodeId?: string
+    /** Массив id узлов, которые входят в impact path. */
+    readonly highlightedNodeIds?: ReadonlyArray<string>
+    /** Массив id рёбер, которые входят в impact path. */
+    readonly highlightedEdgeIds?: ReadonlyArray<string>
 }
 
 const VIEWPORT_ZOOM_STEP = 0.25
@@ -168,8 +172,10 @@ export function XYFlowGraphRenderer(props: IXYFlowGraphRendererProps): ReactElem
     )
 
     const reactFlowNodes = useMemo((): Array<Node<IGraphNode>> => {
+        const highlightedNodeIds = new Set<string>(props.highlightedNodeIds ?? [])
         return layoutedNodes.map((node): Node<IGraphNode> => {
             const isSelected = props.selectedNodeId === node.id
+            const isHighlighted = highlightedNodeIds.has(node.id)
             return {
                 id: node.id,
                 data: node,
@@ -182,11 +188,17 @@ export function XYFlowGraphRenderer(props: IXYFlowGraphRendererProps): ReactElem
                     borderRadius: 12,
                     border: isSelected
                         ? "2px solid hsl(var(--nextui-colors-primary))"
+                        : isHighlighted
+                          ? "2px solid hsl(var(--nextui-colors-success))"
                         : "1px solid hsl(var(--nextui-colors-defaultBorder))",
-                    backgroundColor: "hsl(var(--nextui-colors-content1))",
+                    backgroundColor: isHighlighted
+                        ? "color-mix(in srgb, hsl(var(--nextui-colors-success)) 8%, hsl(var(--nextui-colors-content1)))"
+                        : "hsl(var(--nextui-colors-content1))",
                     color: "hsl(var(--nextui-colors-foreground))",
                     boxShadow: isSelected
                         ? "0 0 0 3px color-mix(in srgb, hsl(var(--nextui-colors-primary)) 20%, transparent)"
+                        : isHighlighted
+                          ? "0 0 0 2px color-mix(in srgb, hsl(var(--nextui-colors-success)) 16%, transparent)"
                         : undefined,
                 },
                 type: "default",
@@ -194,26 +206,30 @@ export function XYFlowGraphRenderer(props: IXYFlowGraphRendererProps): ReactElem
                 targetPosition: "left",
             }
         })
-    }, [layoutedNodes, nodesDraggable, props.selectedNodeId])
+    }, [layoutedNodes, nodesDraggable, props.highlightedNodeIds, props.selectedNodeId])
 
     const reactFlowEdges = useMemo((): Array<Edge<IGraphEdge>> => {
+        const highlightedEdgeIds = new Set<string>(props.highlightedEdgeIds ?? [])
         return props.edges.map((edge): Edge<IGraphEdge> => {
             const id = edge.id ?? `${edge.source}-${edge.target}`
+            const isHighlighted = highlightedEdgeIds.has(id)
             return {
                 id,
                 source: edge.source,
                 target: edge.target,
                 label: edge.label,
                 type: "smoothstep",
-                animated: false,
+                animated: isHighlighted,
                 data: edge,
                 style: {
-                    strokeWidth: 2,
-                    stroke: "hsl(var(--nextui-colors-primary))",
+                    strokeWidth: isHighlighted ? 3 : 2,
+                    stroke: isHighlighted
+                        ? "hsl(var(--nextui-colors-success))"
+                        : "hsl(var(--nextui-colors-primary))",
                 },
             }
         })
-    }, [props.edges])
+    }, [props.edges, props.highlightedEdgeIds])
 
     return (
         <section aria-label={props.ariaLabel} style={{ width: "100%", height: props.height }}>

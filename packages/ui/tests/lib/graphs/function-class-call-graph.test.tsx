@@ -12,12 +12,16 @@ vi.mock("@/components/graphs/xyflow-graph", () => ({
         ariaLabel,
         edges,
         nodes,
+        highlightedEdgeIds,
+        highlightedNodeIds,
         onNodeSelect,
         selectedNodeId,
     }: {
         readonly ariaLabel?: string
         readonly edges: ReadonlyArray<unknown>
         readonly nodes: ReadonlyArray<unknown>
+        readonly highlightedNodeIds?: ReadonlyArray<string>
+        readonly highlightedEdgeIds?: ReadonlyArray<string>
         readonly onNodeSelect?: (nodeId: string) => void
         readonly selectedNodeId?: string
     }): React.JSX.Element => {
@@ -26,6 +30,8 @@ vi.mock("@/components/graphs/xyflow-graph", () => ({
                 <span data-testid="xyflow-node-count">{nodes.length}</span>
                 <span data-testid="xyflow-edge-count">{edges.length}</span>
                 <span data-testid="selected-node-id">{selectedNodeId ?? ""}</span>
+                <span data-testid="highlighted-node-count">{highlightedNodeIds?.length ?? 0}</span>
+                <span data-testid="highlighted-edge-count">{highlightedEdgeIds?.length ?? 0}</span>
                 {nodes.map((node, index): React.JSX.Element => {
                     const nodeRecord = node as { readonly id?: unknown }
                     const nodeId = typeof nodeRecord.id === "string" ? nodeRecord.id : `node-${index}`
@@ -185,5 +191,36 @@ describe("function/class call graph", (): void => {
         expect(screen.getByText("Complexity: 4")).not.toBeNull()
         expect(screen.getByText("Incoming calls: 1")).not.toBeNull()
         expect(screen.getByText("Outgoing calls: 1")).not.toBeNull()
+    })
+
+    it("включает highlight impact paths для call graph", async (): Promise<void> => {
+        const user = userEvent.setup()
+        render(
+            <FunctionClassCallGraph
+                callRelations={[
+                    {
+                        relationType: "calls",
+                        source: "a",
+                        target: "b",
+                    },
+                    {
+                        relationType: "calls",
+                        source: "b",
+                        target: "c",
+                    },
+                ]}
+                nodes={[
+                    { id: "a", kind: "function", name: "a" },
+                    { id: "b", kind: "function", name: "b" },
+                    { id: "c", kind: "function", name: "c" },
+                ]}
+            />,
+        )
+
+        await user.click(screen.getByRole("button", { name: "select-b" }))
+        await user.click(screen.getByRole("button", { name: "Highlight impact paths" }))
+
+        expect(screen.getByTestId("highlighted-node-count")).toHaveTextContent("3")
+        expect(screen.getByTestId("highlighted-edge-count")).toHaveTextContent("2")
     })
 })

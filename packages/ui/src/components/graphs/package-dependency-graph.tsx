@@ -63,11 +63,18 @@ interface IPackageDependencyGraphState {
     readonly selectedRelationTypes: ReadonlyArray<string>
     /** id выбранного узла. */
     readonly selectedNodeId?: string
+    /** Включён ли highlight impact paths. */
+    readonly showImpactPaths: boolean
 }
 
 interface IPackageRelationStats {
     readonly incoming: number
     readonly outgoing: number
+}
+
+interface IImpactPathHighlight {
+    readonly edgeIds: ReadonlyArray<string>
+    readonly nodeIds: ReadonlyArray<string>
 }
 
 const MAX_LABEL_LENGTH = 40
@@ -230,6 +237,50 @@ function calculatePackageRelationStats(
     return { incoming, outgoing }
 }
 
+/** Формирует highlight-данные impact path для выбранного package node. */
+function calculateImpactPathHighlight(
+    graphData: IPackageDependencyGraphData,
+    nodeId: string,
+): IImpactPathHighlight {
+    const knownNodeIds = new Set<string>(graphData.nodes.map((node): string => node.id))
+    if (knownNodeIds.has(nodeId) !== true) {
+        return { edgeIds: [], nodeIds: [] }
+    }
+
+    const queue: string[] = [nodeId]
+    const visitedNodeIds = new Set<string>([nodeId])
+    const visitedEdgeIds = new Set<string>()
+
+    while (queue.length > 0) {
+        const currentNodeId = queue.shift()
+        if (currentNodeId === undefined) {
+            continue
+        }
+
+        for (const edge of graphData.edges) {
+            const edgeId = edge.id ?? `${edge.source}-${edge.target}`
+            if (edge.source !== currentNodeId && edge.target !== currentNodeId) {
+                continue
+            }
+
+            visitedEdgeIds.add(edgeId)
+            if (visitedNodeIds.has(edge.source) !== true) {
+                visitedNodeIds.add(edge.source)
+                queue.push(edge.source)
+            }
+            if (visitedNodeIds.has(edge.target) !== true) {
+                visitedNodeIds.add(edge.target)
+                queue.push(edge.target)
+            }
+        }
+    }
+
+    return {
+        edgeIds: Array.from(visitedEdgeIds),
+        nodeIds: Array.from(visitedNodeIds),
+    }
+}
+
 /**
  * Рендерит module/package dependency graph.
  *
@@ -240,6 +291,7 @@ export function PackageDependencyGraph(props: IPackageDependencyGraphProps): Rea
         query: "",
         selectedRelationTypes: [],
         selectedNodeId: undefined,
+        showImpactPaths: false,
     })
     const title = props.title ?? "Package dependency graph"
     const emptyStateLabel = props.emptyStateLabel ?? "No package dependencies yet."
@@ -286,6 +338,12 @@ export function PackageDependencyGraph(props: IPackageDependencyGraphProps): Rea
         }
         return calculatePackageRelationStats(props.relations, state.selectedNodeId)
     }, [props.relations, state.selectedNodeId])
+    const impactPathHighlight = useMemo((): IImpactPathHighlight => {
+        if (state.showImpactPaths !== true || state.selectedNodeId === undefined) {
+            return { edgeIds: [], nodeIds: [] }
+        }
+        return calculateImpactPathHighlight(visibleGraphData, state.selectedNodeId)
+    }, [state.selectedNodeId, state.showImpactPaths, visibleGraphData])
 
     if (layoutedNodes.length === 0) {
         return (
@@ -345,6 +403,19 @@ export function PackageDependencyGraph(props: IPackageDependencyGraphProps): Rea
                             Reset
                         </Button>
                     ) : null}
+                    <Button
+                        color={state.showImpactPaths ? "success" : "default"}
+                        isDisabled={state.selectedNodeId === undefined}
+                        onPress={(): void => {
+                            setState((previousState): IPackageDependencyGraphState => ({
+                                ...previousState,
+                                showImpactPaths: !previousState.showImpactPaths,
+                            }))
+                        }}
+                        variant={state.showImpactPaths ? "flat" : "bordered"}
+                    >
+                        Highlight impact paths
+                    </Button>
                 </div>
                 {relationTypes.length > 0 ? (
                     <div className="mt-3 flex flex-wrap gap-2">
@@ -383,10 +454,16 @@ export function PackageDependencyGraph(props: IPackageDependencyGraphProps): Rea
                     onNodeSelect={(nodeId): void => {
                         setState((previousState): IPackageDependencyGraphState => ({
                             ...previousState,
+                            showImpactPaths:
+                                previousState.selectedNodeId === nodeId
+                                    ? false
+                                    : previousState.showImpactPaths,
                             selectedNodeId:
                                 previousState.selectedNodeId === nodeId ? undefined : nodeId,
                         }))
                     }}
+                    highlightedEdgeIds={impactPathHighlight.edgeIds}
+                    highlightedNodeIds={impactPathHighlight.nodeIds}
                     selectedNodeId={state.selectedNodeId}
                     showControls={props.showControls}
                     showMiniMap={props.showMiniMap}
@@ -407,6 +484,8 @@ export function PackageDependencyGraph(props: IPackageDependencyGraphProps): Rea
                             <p>{`Size: ${selectedNode.size ?? "n/a"}`}</p>
                             <p>{`Incoming relations: ${selectedRelationStats.incoming}`}</p>
                             <p>{`Outgoing relations: ${selectedRelationStats.outgoing}`}</p>
+                            <p>{`Impact path nodes: ${impactPathHighlight.nodeIds.length}`}</p>
+                            <p>{`Impact path edges: ${impactPathHighlight.edgeIds.length}`}</p>
                         </div>
                     )}
                 </section>

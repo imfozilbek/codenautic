@@ -59,11 +59,17 @@ export interface IFileDependencyGraphProps {
 interface IFileDependencyGraphState {
     readonly query: string
     readonly selectedNodeId?: string
+    readonly showImpactPaths: boolean
 }
 
 interface INodeDependencyStats {
     readonly incoming: number
     readonly outgoing: number
+}
+
+interface IImpactPathHighlight {
+    readonly edgeIds: ReadonlyArray<string>
+    readonly nodeIds: ReadonlyArray<string>
 }
 
 /** Лимитируем длину label, чтобы избежать расширения верстки. */
@@ -180,6 +186,50 @@ function calculateDependencyStats(
     return { incoming, outgoing }
 }
 
+/** Строит highlight данные impact path для выбранного узла. */
+function calculateImpactPathHighlight(
+    graphData: IFileDependencyGraphData,
+    nodeId: string,
+): IImpactPathHighlight {
+    const knownNodeIds = new Set<string>(graphData.nodes.map((node): string => node.id))
+    if (knownNodeIds.has(nodeId) !== true) {
+        return { edgeIds: [], nodeIds: [] }
+    }
+
+    const queue: string[] = [nodeId]
+    const visitedNodeIds = new Set<string>([nodeId])
+    const visitedEdgeIds = new Set<string>()
+
+    while (queue.length > 0) {
+        const currentNodeId = queue.shift()
+        if (currentNodeId === undefined) {
+            continue
+        }
+
+        for (const edge of graphData.edges) {
+            const edgeId = edge.id ?? `${edge.source}-${edge.target}`
+            if (edge.source !== currentNodeId && edge.target !== currentNodeId) {
+                continue
+            }
+
+            visitedEdgeIds.add(edgeId)
+            if (visitedNodeIds.has(edge.source) !== true) {
+                visitedNodeIds.add(edge.source)
+                queue.push(edge.source)
+            }
+            if (visitedNodeIds.has(edge.target) !== true) {
+                visitedNodeIds.add(edge.target)
+                queue.push(edge.target)
+            }
+        }
+    }
+
+    return {
+        edgeIds: Array.from(visitedEdgeIds),
+        nodeIds: Array.from(visitedNodeIds),
+    }
+}
+
 /**
  * Рендерит file-level dependency graph для одного репозитория.
  *
@@ -189,6 +239,7 @@ export function FileDependencyGraph(props: IFileDependencyGraphProps): ReactElem
     const [state, setState] = useState<IFileDependencyGraphState>({
         query: "",
         selectedNodeId: undefined,
+        showImpactPaths: false,
     })
     const title = props.title ?? "File dependency graph"
     const emptyStateLabel = props.emptyStateLabel ?? "No file dependencies yet."
@@ -233,6 +284,12 @@ export function FileDependencyGraph(props: IFileDependencyGraphProps): ReactElem
         }
         return calculateDependencyStats(props.dependencies, state.selectedNodeId)
     }, [props.dependencies, state.selectedNodeId])
+    const impactPathHighlight = useMemo((): IImpactPathHighlight => {
+        if (state.showImpactPaths !== true || state.selectedNodeId === undefined) {
+            return { edgeIds: [], nodeIds: [] }
+        }
+        return calculateImpactPathHighlight(visibleGraphData, state.selectedNodeId)
+    }, [state.selectedNodeId, state.showImpactPaths, visibleGraphData])
 
     if (layoutedNodes.length === 0) {
         return (
@@ -278,6 +335,19 @@ export function FileDependencyGraph(props: IFileDependencyGraphProps): ReactElem
                             Reset
                         </Button>
                     ) : null}
+                    <Button
+                        color={state.showImpactPaths ? "success" : "default"}
+                        isDisabled={state.selectedNodeId === undefined}
+                        variant={state.showImpactPaths ? "flat" : "bordered"}
+                        onPress={(): void => {
+                            setState((previousState) => ({
+                                ...previousState,
+                                showImpactPaths: !previousState.showImpactPaths,
+                            }))
+                        }}
+                    >
+                        Highlight impact paths
+                    </Button>
                 </div>
             </CardHeader>
             <CardBody className="gap-4">
@@ -292,10 +362,16 @@ export function FileDependencyGraph(props: IFileDependencyGraphProps): ReactElem
                         onNodeSelect={(nodeId): void => {
                             setState((previousState) => ({
                                 ...previousState,
+                                showImpactPaths:
+                                    previousState.selectedNodeId === nodeId
+                                        ? false
+                                        : previousState.showImpactPaths,
                                 selectedNodeId:
                                     previousState.selectedNodeId === nodeId ? undefined : nodeId,
                             }))
                         }}
+                        highlightedEdgeIds={impactPathHighlight.edgeIds}
+                        highlightedNodeIds={impactPathHighlight.nodeIds}
                         selectedNodeId={state.selectedNodeId}
                         showControls={props.showControls}
                         showMiniMap={props.showMiniMap}
@@ -325,6 +401,8 @@ export function FileDependencyGraph(props: IFileDependencyGraphProps): ReactElem
                             <p>{`Churn: ${selectedFile.churn ?? "n/a"}`}</p>
                             <p>{`Incoming deps: ${selectedDependencyStats.incoming}`}</p>
                             <p>{`Outgoing deps: ${selectedDependencyStats.outgoing}`}</p>
+                            <p>{`Impact path nodes: ${impactPathHighlight.nodeIds.length}`}</p>
+                            <p>{`Impact path edges: ${impactPathHighlight.edgeIds.length}`}</p>
                         </div>
                     )}
                 </section>

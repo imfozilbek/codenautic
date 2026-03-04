@@ -32,6 +32,10 @@ export interface IXYFlowGraphProps {
     readonly onNodeSelect?: (nodeId: string) => void
     /** id выбранного узла для визуального выделения. */
     readonly selectedNodeId?: string
+    /** Массив id узлов, которые входят в impact path. */
+    readonly highlightedNodeIds?: ReadonlyArray<string>
+    /** Массив id рёбер, которые входят в impact path. */
+    readonly highlightedEdgeIds?: ReadonlyArray<string>
 }
 
 const DEFAULT_GRAPH_HEIGHT = "420px"
@@ -57,6 +61,8 @@ export function XyFlowGraph(props: IXYFlowGraphProps): ReactElement {
                 nodesDraggable={props.nodesDraggable}
                 onNodeSelect={props.onNodeSelect}
                 selectedNodeId={props.selectedNodeId}
+                highlightedNodeIds={props.highlightedNodeIds}
+                highlightedEdgeIds={props.highlightedEdgeIds}
                 showControls={props.showControls}
                 showMiniMap={props.showMiniMap}
             />
