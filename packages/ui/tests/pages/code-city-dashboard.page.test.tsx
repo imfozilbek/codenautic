@@ -207,6 +207,26 @@ const { mockHotAreaHighlights } = vi.hoisted(() => ({
         },
     ),
 }))
+const { mockOnboardingProgressTracker } = vi.hoisted(() => ({
+    mockOnboardingProgressTracker: vi.fn(
+        (props: {
+            readonly modules: ReadonlyArray<{
+                readonly id: string
+                readonly title: string
+                readonly description: string
+                readonly isComplete: boolean
+            }>
+        }): React.JSX.Element => {
+            const completedCount = props.modules.filter((module): boolean => module.isComplete).length
+            return (
+                <div>
+                    <p>onboarding-modules:{props.modules.length}</p>
+                    <p>onboarding-completed:{completedCount}</p>
+                </div>
+            )
+        },
+    ),
+}))
 const { mockRootCauseChainViewer } = vi.hoisted(() => ({
     mockRootCauseChainViewer: vi.fn(
         (props: {
@@ -269,6 +289,9 @@ vi.mock("@/components/graphs/explore-mode-sidebar", () => ({
 vi.mock("@/components/graphs/hot-area-highlights", () => ({
     HotAreaHighlights: mockHotAreaHighlights,
 }))
+vi.mock("@/components/graphs/onboarding-progress-tracker", () => ({
+    OnboardingProgressTracker: mockOnboardingProgressTracker,
+}))
 vi.mock("@/components/graphs/root-cause-chain-viewer", () => ({
     RootCauseChainViewer: mockRootCauseChainViewer,
 }))
@@ -282,6 +305,7 @@ beforeEach((): void => {
     mockProjectOverviewPanel.mockClear()
     mockExploreModeSidebar.mockClear()
     mockHotAreaHighlights.mockClear()
+    mockOnboardingProgressTracker.mockClear()
     mockRootCauseChainViewer.mockClear()
 })
 
@@ -372,6 +396,14 @@ describe("CodeCityDashboardPage", (): void => {
         const firstHotAreaCall = mockHotAreaHighlights.mock.calls.at(0)?.[0]
         expect(firstHotAreaCall).not.toBeUndefined()
         expect(firstHotAreaCall?.highlights.length).toBeGreaterThan(0)
+
+        const firstOnboardingCall = mockOnboardingProgressTracker.mock.calls.at(0)?.[0]
+        expect(firstOnboardingCall).not.toBeUndefined()
+        expect(firstOnboardingCall?.modules.length).toBeGreaterThan(0)
+        const initialCompletedModules = firstOnboardingCall?.modules.filter(
+            (module: { readonly isComplete: boolean }): boolean => module.isComplete,
+        ).length
+        expect(initialCompletedModules).toBe(1)
 
         const firstRootCauseCall = mockRootCauseChainViewer.mock.calls.at(0)?.[0]
         expect(firstRootCauseCall).not.toBeUndefined()
@@ -484,5 +516,12 @@ describe("CodeCityDashboardPage", (): void => {
         expect(highlightedTreemapCall?.highlightedFileId).toBe(
             "src/pages/ccr-management.page.tsx",
         )
+
+        const progressedOnboardingCall = mockOnboardingProgressTracker.mock.calls.at(-1)?.[0]
+        expect(progressedOnboardingCall).not.toBeUndefined()
+        const completedModulesAfterFlow = progressedOnboardingCall?.modules.filter(
+            (module: { readonly isComplete: boolean }): boolean => module.isComplete,
+        ).length
+        expect(completedModulesAfterFlow).toBeGreaterThanOrEqual(3)
     })
 })

@@ -34,6 +34,10 @@ import {
     HotAreaHighlights,
     type IHotAreaHighlightDescriptor,
 } from "@/components/graphs/hot-area-highlights"
+import {
+    OnboardingProgressTracker,
+    type IOnboardingProgressModuleDescriptor,
+} from "@/components/graphs/onboarding-progress-tracker"
 import { ProjectOverviewPanel } from "@/components/graphs/project-overview-panel"
 import { ChurnComplexityScatter } from "@/components/graphs/churn-complexity-scatter"
 import { HealthTrendChart, type IHealthTrendPoint } from "@/components/graphs/health-trend-chart"
@@ -640,6 +644,78 @@ interface IExploreNavigationFocusState {
     readonly activeFileId?: string
 }
 
+type TDashboardOnboardingAreaId =
+    | "controls"
+    | "explore"
+    | "hot-areas"
+    | "root-cause"
+    | "city-3d"
+
+interface ICodeCityDashboardOnboardingAreaDescriptor {
+    readonly id: TDashboardOnboardingAreaId
+    readonly title: string
+    readonly description: string
+}
+
+const CODE_CITY_DASHBOARD_ONBOARDING_AREAS:
+    ReadonlyArray<ICodeCityDashboardOnboardingAreaDescriptor> = [
+        {
+            description: "Repository, metric and overlay filters were adjusted for current analysis.",
+            id: "controls",
+            title: "Dashboard controls",
+        },
+        {
+            description: "Role-aware exploration paths were executed from sidebar recommendations.",
+            id: "explore",
+            title: "Explore mode paths",
+        },
+        {
+            description: "Critical hotspots were opened and focused inside the city context.",
+            id: "hot-areas",
+            title: "Hot area diagnostics",
+        },
+        {
+            description: "Root-cause chains were reviewed for propagation details.",
+            id: "root-cause",
+            title: "Root cause analysis",
+        },
+        {
+            description: "3D camera navigation was used to inspect selected file neighborhoods.",
+            id: "city-3d",
+            title: "3D city navigation",
+        },
+    ] as const
+
+function buildOnboardingProgressModules(
+    exploredAreaIds: ReadonlyArray<string>,
+): ReadonlyArray<IOnboardingProgressModuleDescriptor> {
+    return CODE_CITY_DASHBOARD_ONBOARDING_AREAS.map(
+        (area): IOnboardingProgressModuleDescriptor => {
+            return {
+                description: area.description,
+                id: area.id,
+                isComplete: exploredAreaIds.includes(area.id),
+                title: area.title,
+            }
+        },
+    )
+}
+
+function resolveOnboardingAreaFromTourStep(
+    tourStepId: string,
+): TDashboardOnboardingAreaId | undefined {
+    if (tourStepId === "controls") {
+        return "controls"
+    }
+    if (tourStepId === "city-3d") {
+        return "city-3d"
+    }
+    if (tourStepId === "root-cause") {
+        return "root-cause"
+    }
+    return undefined
+}
+
 /**
  * Формирует role-aware набор exploration paths на базе scan-файлов.
  *
@@ -742,6 +818,7 @@ export function CodeCityDashboardPage(
         },
     )
     const [highlightedFileId, setHighlightedFileId] = useState<string | undefined>()
+    const [exploredAreaIds, setExploredAreaIds] = useState<ReadonlyArray<string>>(["controls"])
     const [guidedTourStepIndex, setGuidedTourStepIndex] = useState<number>(0)
     const [isGuidedTourActive, setIsGuidedTourActive] = useState<boolean>(true)
     const [rootCauseChainFocus, setRootCauseChainFocus] = useState<IRootCauseChainFocusPayload>({
@@ -759,6 +836,7 @@ export function CodeCityDashboardPage(
     const causalCouplings = buildCausalCouplings(currentProfile.temporalCouplings)
     const exploreModePaths = buildExploreModePaths(currentProfile.files)
     const hotAreaHighlights = buildHotAreaHighlights(currentProfile.files)
+    const onboardingProgressModules = buildOnboardingProgressModules(exploredAreaIds)
     const fileLink = createRepositoryFilesLink(currentProfile.id)
     const overlayImpactedFiles =
         overlayMode === "impact" ? currentProfile.impactedFiles : []
@@ -767,6 +845,15 @@ export function CodeCityDashboardPage(
     const overlayRootCauseIssues = overlayMode === "root-cause" ? rootCauseIssues : []
     const overlayCausalCouplings =
         overlayMode === "temporal-coupling" ? causalCouplings : []
+
+    const markAreaExplored = (areaId: TDashboardOnboardingAreaId): void => {
+        setExploredAreaIds((currentAreaIds): ReadonlyArray<string> => {
+            if (currentAreaIds.includes(areaId)) {
+                return currentAreaIds
+            }
+            return [...currentAreaIds, areaId]
+        })
+    }
 
     const handleRepositoryChange = (event: ChangeEvent<HTMLSelectElement>): void => {
         const nextRepositoryId = event.currentTarget.value
@@ -785,6 +872,7 @@ export function CodeCityDashboardPage(
             chainFileIds: [],
             title: "",
         })
+        setExploredAreaIds(["controls"])
     }
 
     const handleMetricChange = (event: ChangeEvent<HTMLSelectElement>): void => {
@@ -794,6 +882,21 @@ export function CodeCityDashboardPage(
         }
 
         setMetric(nextMetric)
+        markAreaExplored("controls")
+    }
+
+    const handleOverlayModeChange = (nextMode: TCausalOverlayMode): void => {
+        setOverlayMode(nextMode)
+        markAreaExplored("controls")
+        if (nextMode === "root-cause") {
+            markAreaExplored("root-cause")
+        }
+    }
+
+    const handleRootCauseChainFocusChange = (payload: IRootCauseChainFocusPayload): void => {
+        setRootCauseChainFocus(payload)
+        markAreaExplored("root-cause")
+        markAreaExplored("city-3d")
     }
 
     const resolveTourCardClassName = (stepId: string): string | undefined => {
@@ -810,6 +913,13 @@ export function CodeCityDashboardPage(
                 currentStepIndex={guidedTourStepIndex}
                 isActive={isGuidedTourActive}
                 onNext={(): void => {
+                    const activeTourStepId = activeGuidedTourStep?.id
+                    if (activeTourStepId !== undefined) {
+                        const mappedAreaId = resolveOnboardingAreaFromTourStep(activeTourStepId)
+                        if (mappedAreaId !== undefined) {
+                            markAreaExplored(mappedAreaId)
+                        }
+                    }
                     setGuidedTourStepIndex((currentStepIndex): number => {
                         const lastStepIndex = CODE_CITY_GUIDED_TOUR_STEPS.length - 1
                         if (currentStepIndex >= lastStepIndex) {
@@ -873,7 +983,7 @@ export function CodeCityDashboardPage(
                             </select>
                         </label>
                     </div>
-                    <CausalOverlaySelector value={overlayMode} onChange={setOverlayMode} />
+                    <CausalOverlaySelector value={overlayMode} onChange={handleOverlayModeChange} />
                 </CardBody>
             </Card>
 
@@ -897,6 +1007,8 @@ export function CodeCityDashboardPage(
                 <CardBody>
                     <ExploreModeSidebar
                         onNavigatePath={(path): void => {
+                            markAreaExplored("explore")
+                            markAreaExplored("city-3d")
                             setExploreNavigationFocus({
                                 activeFileId: path.fileChainIds.at(0),
                                 chainFileIds: path.fileChainIds,
@@ -916,6 +1028,8 @@ export function CodeCityDashboardPage(
                     <HotAreaHighlights
                         highlights={hotAreaHighlights}
                         onFocusHotArea={(highlight): void => {
+                            markAreaExplored("hot-areas")
+                            markAreaExplored("city-3d")
                             setHighlightedFileId(highlight.fileId)
                             setExploreNavigationFocus({
                                 activeFileId: highlight.fileId,
@@ -924,6 +1038,17 @@ export function CodeCityDashboardPage(
                             })
                         }}
                     />
+                </CardBody>
+            </Card>
+
+            <Card>
+                <CardHeader>
+                    <p className="text-sm font-semibold text-slate-900">
+                        Onboarding progress tracker
+                    </p>
+                </CardHeader>
+                <CardBody>
+                    <OnboardingProgressTracker modules={onboardingProgressModules} />
                 </CardBody>
             </Card>
 
@@ -1005,7 +1130,7 @@ export function CodeCityDashboardPage(
                 <CardBody>
                     <RootCauseChainViewer
                         issues={overlayRootCauseIssues}
-                        onChainFocusChange={setRootCauseChainFocus}
+                        onChainFocusChange={handleRootCauseChainFocusChange}
                     />
                 </CardBody>
             </Card>
