@@ -57,6 +57,22 @@ const { mockPackageDependencyGraph } = vi.hoisted(() => ({
         },
     ),
 }))
+const { mockCodeCity3DScene } = vi.hoisted(() => ({
+    mockCodeCity3DScene: vi.fn(
+        (props: {
+            readonly title: string
+            readonly files: ReadonlyArray<unknown>
+            readonly height?: number
+        }): React.JSX.Element => {
+            return (
+                <div>
+                    <p>{props.title}</p>
+                    <p>3d-files:{props.files.length}</p>
+                </div>
+            )
+        },
+    ),
+}))
 
 vi.mock("@/components/graphs/codecity-treemap", () => ({
     CodeCityTreemap: mockCodeCityTreemap,
@@ -64,10 +80,14 @@ vi.mock("@/components/graphs/codecity-treemap", () => ({
 vi.mock("@/components/graphs/package-dependency-graph", () => ({
     PackageDependencyGraph: mockPackageDependencyGraph,
 }))
+vi.mock("@/components/graphs/codecity-3d-scene", () => ({
+    CodeCity3DScene: mockCodeCity3DScene,
+}))
 
 beforeEach((): void => {
     mockCodeCityTreemap.mockClear()
     mockPackageDependencyGraph.mockClear()
+    mockCodeCity3DScene.mockClear()
 })
 
 describe("CodeCityDashboardPage", (): void => {
@@ -94,6 +114,11 @@ describe("CodeCityDashboardPage", (): void => {
         expect(firstGraphCall?.title).toBe("Cross-repository package dependencies")
         expect(firstGraphCall?.nodes.length).toBe(3)
         expect(firstGraphCall?.relations.length).toBe(4)
+
+        const first3DCall = mockCodeCity3DScene.mock.calls.at(0)?.[0]
+        expect(first3DCall).not.toBeUndefined()
+        expect(first3DCall?.title).toBe("platform-team/api-gateway 3D scene")
+        expect(first3DCall?.files.length).toBeGreaterThan(0)
     })
 
     it("обновляет treemap при смене репозитория и метрики", async (): Promise<void> => {
@@ -111,5 +136,9 @@ describe("CodeCityDashboardPage", (): void => {
         expect(currentTreemapCall?.title).toBe("frontend-team/ui-dashboard treemap")
         expect(currentTreemapCall?.defaultMetric).toBe("coverage")
         expect(currentTreemapCall?.compareFiles.length).toBeGreaterThan(0)
+
+        const current3DCall = mockCodeCity3DScene.mock.calls.at(-1)?.[0]
+        expect(current3DCall).not.toBeUndefined()
+        expect(current3DCall?.title).toBe("frontend-team/ui-dashboard 3D scene")
     })
 })

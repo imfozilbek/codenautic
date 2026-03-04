@@ -12,6 +12,7 @@ import {
     type ICodeCityTreemapFileLinkResolver,
     type ICodeCityTreemapImpactedFileDescriptor,
 } from "@/components/graphs/codecity-treemap"
+import { CodeCity3DScene } from "@/components/graphs/codecity-3d-scene"
 import { Card, CardBody, CardHeader } from "@/components/ui"
 
 type TCodeCityDashboardMetric = "complexity" | "coverage" | "churn"
@@ -467,6 +468,18 @@ export function CodeCityDashboardPage(
                         showControls={true}
                         showMiniMap={true}
                         title="Cross-repository package dependencies"
+                    />
+                </CardBody>
+            </Card>
+
+            <Card>
+                <CardHeader>
+                    <p className="text-sm font-semibold text-slate-900">CodeCity 3D preview</p>
+                </CardHeader>
+                <CardBody>
+                    <CodeCity3DScene
+                        files={currentProfile.files}
+                        title={`${currentProfile.label} 3D scene`}
                     />
                 </CardBody>
             </Card>
