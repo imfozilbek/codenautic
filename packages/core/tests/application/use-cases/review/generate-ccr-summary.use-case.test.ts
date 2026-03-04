@@ -23,6 +23,12 @@ const DEFAULT_TOKEN_USAGE = {
     output: 0,
     total: 0,
 }
+const baseCcrSummaryDefaults = {
+    model: "gpt-4o-mini",
+    maxTokens: 700,
+    defaultSystemPromptName: "ccr-summary-default-system",
+    complementSystemPromptName: "ccr-summary-complement-system",
+}
 
 class TestLLMProvider implements ILLMProvider {
     private readonly responses: IChatResponseDTO[]
@@ -90,8 +96,11 @@ describe("GenerateCCRSummaryUseCase", () => {
         const promptUseCase = new TestPromptUseCase("CCR summary system prompt")
         const useCase = new GenerateCCRSummaryUseCase({
             llmProvider: provider,
-            model: "gpt-4.1",
-            maxTokens: 600,
+            defaults: {
+                ...baseCcrSummaryDefaults,
+                model: "gpt-4.1",
+                maxTokens: 600,
+            },
             generatePromptUseCase: promptUseCase,
         } as IGenerateCCRSummaryUseCaseDependencies)
 
@@ -125,6 +134,7 @@ describe("GenerateCCRSummaryUseCase", () => {
         const promptUseCase = new TestPromptUseCase("CCR summary system prompt")
         const useCase = new GenerateCCRSummaryUseCase({
             llmProvider: provider,
+            defaults: baseCcrSummaryDefaults,
             generatePromptUseCase: promptUseCase,
         })
 
@@ -147,6 +157,7 @@ describe("GenerateCCRSummaryUseCase", () => {
         const promptUseCase = new TestPromptUseCase("CCR summary system prompt")
         const useCase = new GenerateCCRSummaryUseCase({
             llmProvider: provider,
+            defaults: baseCcrSummaryDefaults,
             generatePromptUseCase: promptUseCase,
         })
 
@@ -172,6 +183,7 @@ describe("GenerateCCRSummaryUseCase", () => {
         const promptUseCase = new TestPromptUseCase("CCR summary system prompt")
         const useCase = new GenerateCCRSummaryUseCase({
             llmProvider: provider,
+            defaults: baseCcrSummaryDefaults,
             generatePromptUseCase: promptUseCase,
         })
 
@@ -202,6 +214,7 @@ describe("GenerateCCRSummaryUseCase", () => {
         const promptUseCase = new TestPromptUseCase("CCR summary system prompt")
         const useCase = new GenerateCCRSummaryUseCase({
             llmProvider: provider,
+            defaults: baseCcrSummaryDefaults,
             generatePromptUseCase: promptUseCase,
         })
 
@@ -224,6 +237,7 @@ describe("GenerateCCRSummaryUseCase", () => {
         const promptUseCase = new TestPromptUseCase("CCR summary system prompt")
         const useCase = new GenerateCCRSummaryUseCase({
             llmProvider: provider,
+            defaults: baseCcrSummaryDefaults,
             generatePromptUseCase: promptUseCase,
         })
 

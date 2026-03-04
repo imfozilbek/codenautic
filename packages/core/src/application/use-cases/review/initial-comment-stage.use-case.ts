@@ -12,14 +12,14 @@ import {
     mergeExternalContext,
     readStringField,
 } from "./pipeline-stage-state.utils"
-
-const DEFAULT_INITIAL_COMMENT_BODY = "CodeNautic review started. Preparing analysis..."
+import type {IReviewInitialCommentDefaults} from "../../dto/config/system-defaults.dto"
 
 /**
  * Dependencies for initial-comment stage use case.
  */
 export interface IInitialCommentStageDependencies {
     gitProvider: IGitProvider
+    defaults: IReviewInitialCommentDefaults
 }
 
 /**
@@ -30,6 +30,7 @@ export class InitialCommentStageUseCase implements IPipelineStageUseCase {
     public readonly stageName: string
 
     private readonly gitProvider: IGitProvider
+    private readonly defaults: IReviewInitialCommentDefaults
 
     /**
      * Creates initial-comment stage use case.
@@ -40,6 +41,7 @@ export class InitialCommentStageUseCase implements IPipelineStageUseCase {
         this.stageId = "initial-comment"
         this.stageName = "Initial Comment"
         this.gitProvider = dependencies.gitProvider
+        this.defaults = dependencies.defaults
     }
 
     /**
@@ -63,7 +65,7 @@ export class InitialCommentStageUseCase implements IPipelineStageUseCase {
         }
 
         const configuredComment = readStringField(input.state.config, "initialCommentBody")
-        const commentBody = configuredComment ?? DEFAULT_INITIAL_COMMENT_BODY
+        const commentBody = configuredComment ?? this.defaults.body
 
         try {
             const createdComment = await this.gitProvider.postComment(

@@ -5,10 +5,17 @@ import {
     ClusterSuggestionsUseCase,
     type IClusterSuggestionsInput,
 } from "../../../src/application/use-cases/cluster-suggestions.use-case"
+import type {IClusteringDefaults} from "../../../src/application/dto/config/system-defaults.dto"
+
+const clusteringDefaults: IClusteringDefaults = {
+    mode: "MINIMAL",
+    similarityThreshold: 0.75,
+    embeddingModel: "default-embedding-model",
+}
 
 describe("ClusterSuggestionsUseCase", () => {
     test("returns individual parent clusters in MINIMAL mode", async () => {
-        const useCase = new ClusterSuggestionsUseCase()
+        const useCase = new ClusterSuggestionsUseCase({defaults: clusteringDefaults})
         const result = await useCase.execute({
             mode: "MINIMAL",
             suggestions: [
@@ -46,7 +53,7 @@ describe("ClusterSuggestionsUseCase", () => {
     })
 
     test("clusters by similarity in SMART mode", async () => {
-        const useCase = new ClusterSuggestionsUseCase()
+        const useCase = new ClusterSuggestionsUseCase({defaults: clusteringDefaults})
         const result = await useCase.execute({
             mode: "SMART",
             similarityThreshold: 0.9,
@@ -102,7 +109,7 @@ describe("ClusterSuggestionsUseCase", () => {
     })
 
     test("returns parent and related clusters in FULL mode", async () => {
-        const useCase = new ClusterSuggestionsUseCase()
+        const useCase = new ClusterSuggestionsUseCase({defaults: clusteringDefaults})
         const result = await useCase.execute({
             mode: "FULL",
             similarityThreshold: 0.9,
@@ -165,7 +172,7 @@ describe("ClusterSuggestionsUseCase", () => {
     })
 
     test("returns validation error for invalid mode", async () => {
-        const useCase = new ClusterSuggestionsUseCase()
+        const useCase = new ClusterSuggestionsUseCase({defaults: clusteringDefaults})
         const result = await useCase.execute({
             mode: "BROKEN" as unknown as IClusterSuggestionsInput["mode"],
             suggestions: [
@@ -195,7 +202,7 @@ describe("ClusterSuggestionsUseCase", () => {
     })
 
     test("requires embeddings for SMART mode", async () => {
-        const useCase = new ClusterSuggestionsUseCase()
+        const useCase = new ClusterSuggestionsUseCase({defaults: clusteringDefaults})
         const result = await useCase.execute({
             mode: "SMART",
             suggestions: [
@@ -229,7 +236,7 @@ describe("ClusterSuggestionsUseCase", () => {
     })
 
     test("returns empty clusters for empty input", async () => {
-        const useCase = new ClusterSuggestionsUseCase()
+        const useCase = new ClusterSuggestionsUseCase({defaults: clusteringDefaults})
         const result = await useCase.execute({
             suggestions: [],
         })

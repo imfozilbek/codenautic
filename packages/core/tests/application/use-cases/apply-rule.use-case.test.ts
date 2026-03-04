@@ -19,6 +19,14 @@ import {ApplyRuleUseCase} from "../../../src/application/use-cases/apply-rule.us
 import type {ISafeGuardFilter} from "../../../src/application/types/review/safeguard-filter.contract"
 import {ReviewPipelineState} from "../../../src/application/types/review/review-pipeline-state"
 
+const applyRuleDefaults = {
+    promptModel: "gpt-4o-mini",
+    promptMaxTokens: 1200,
+    promptRankScore: 60,
+    regexRankScore: 55,
+    ruleSeverity: "MEDIUM" as const,
+}
+
 class InMemoryLLMProvider implements ILLMProvider {
     public lastRequest: IChatRequestDTO | null = null
     public readonly replies = new Map<string, string>()
@@ -155,7 +163,7 @@ function createState(): ReviewPipelineState {
 describe("ApplyRuleUseCase", () => {
     test("applies regex rules to file diff patches", async () => {
         const llmProvider = new InMemoryLLMProvider()
-        const useCase = new ApplyRuleUseCase({llmProvider})
+        const useCase = new ApplyRuleUseCase({llmProvider, defaults: applyRuleDefaults})
         const input = {
             rules: [
                 createActiveRule({
@@ -196,7 +204,7 @@ describe("ApplyRuleUseCase", () => {
 
     test("rejects invalid regex rule pattern", async () => {
         const llmProvider = new InMemoryLLMProvider()
-        const useCase = new ApplyRuleUseCase({llmProvider})
+        const useCase = new ApplyRuleUseCase({llmProvider, defaults: applyRuleDefaults})
         const input = {
             rules: [
                 createActiveRule({
@@ -244,7 +252,7 @@ describe("ApplyRuleUseCase", () => {
                 },
             ]),
         )
-        const useCase = new ApplyRuleUseCase({llmProvider})
+        const useCase = new ApplyRuleUseCase({llmProvider, defaults: applyRuleDefaults})
 
         const result = await useCase.execute({
             rules: [
@@ -282,6 +290,7 @@ describe("ApplyRuleUseCase", () => {
         const useCase = new ApplyRuleUseCase({
             llmProvider,
             filters: [new StaticFilter("drop")],
+            defaults: applyRuleDefaults,
         })
 
         const result = await useCase.execute({
@@ -318,6 +327,7 @@ describe("ApplyRuleUseCase", () => {
         const useCase = new ApplyRuleUseCase({
             llmProvider,
             filters: [new StaticFilter("drop")],
+            defaults: applyRuleDefaults,
         })
 
         const result = await useCase.execute({
@@ -357,6 +367,7 @@ describe("ApplyRuleUseCase", () => {
         const useCase = new ApplyRuleUseCase({
             llmProvider,
             filters: [new StaticFilter("pass")],
+            defaults: applyRuleDefaults,
         })
         const result = await useCase.execute({
             rules: [
@@ -404,6 +415,7 @@ describe("ApplyRuleUseCase", () => {
 
         const useCase = new ApplyRuleUseCase({
             llmProvider,
+            defaults: applyRuleDefaults,
         })
 
         const result = await useCase.execute({
@@ -447,6 +459,7 @@ describe("ApplyRuleUseCase", () => {
                     rankScore: 88,
                 },
             ]),
+            defaults: applyRuleDefaults,
         })
 
         const result = await useCase.execute({
@@ -481,7 +494,7 @@ describe("ApplyRuleUseCase", () => {
 
     test("fails AST rule when evaluator is missing", async () => {
         const llmProvider = new InMemoryLLMProvider()
-        const useCase = new ApplyRuleUseCase({llmProvider})
+        const useCase = new ApplyRuleUseCase({llmProvider, defaults: applyRuleDefaults})
 
         const result = await useCase.execute({
             rules: [
@@ -514,6 +527,7 @@ describe("ApplyRuleUseCase", () => {
         const useCase = new ApplyRuleUseCase({
             llmProvider,
             astEvaluator: new StaticAstEvaluator([]),
+            defaults: applyRuleDefaults,
         })
 
         const result = await useCase.execute({

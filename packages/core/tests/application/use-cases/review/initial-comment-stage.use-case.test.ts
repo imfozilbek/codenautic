@@ -14,6 +14,10 @@ import type {
 import {InitialCommentStageUseCase} from "../../../../src/application/use-cases/review/initial-comment-stage.use-case"
 import {ReviewPipelineState} from "../../../../src/application/types/review/review-pipeline-state"
 
+const initialCommentDefaults = {
+    body: "CodeNautic review started. Preparing analysis...",
+}
+
 class InMemoryGitProvider implements IGitProvider {
     public shouldThrowOnComment = false
     public lastCommentBody: string | null = null
@@ -106,6 +110,7 @@ describe("InitialCommentStageUseCase", () => {
         const gitProvider = new InMemoryGitProvider()
         const useCase = new InitialCommentStageUseCase({
             gitProvider,
+            defaults: initialCommentDefaults,
         })
         const state = createState(
             {
@@ -130,6 +135,7 @@ describe("InitialCommentStageUseCase", () => {
     test("returns fail result when merge request id is missing", async () => {
         const useCase = new InitialCommentStageUseCase({
             gitProvider: new InMemoryGitProvider(),
+            defaults: initialCommentDefaults,
         })
         const state = createState({}, {})
 
@@ -148,6 +154,7 @@ describe("InitialCommentStageUseCase", () => {
 
         const useCase = new InitialCommentStageUseCase({
             gitProvider,
+            defaults: initialCommentDefaults,
         })
         const state = createState(
             {

@@ -15,7 +15,6 @@ import {
     REVIEW_DEPTH_STRATEGY,
     type ReviewDepthStrategy,
 } from "../../dto/review/review-config.dto"
-import {REVIEW_OVERRIDE_PROMPT_NAMES} from "../../dto/config/review-overrides-config.dto"
 import type {IDirectoryConfig} from "../../dto/config/directory-config.dto"
 import type {IReviewConfigDTO} from "../../dto/review/review-config.dto"
 import type {IGeneratePromptInput} from "../generate-prompt.use-case"
@@ -41,14 +40,9 @@ import {
     readObjectField,
     readStringField,
 } from "./pipeline-stage-state.utils"
+import type {IReviewFileDefaults} from "../../dto/config/system-defaults.dto"
 
-const DEFAULT_FILE_REVIEW_MODEL = "gpt-4o-mini"
-const DEFAULT_FILE_REVIEW_TIMEOUT_MS = 60000
-const DEFAULT_FILE_REVIEW_MAX_TOKENS = 1000
-const DEFAULT_REVIEW_DEPTH_STRATEGY = REVIEW_DEPTH_STRATEGY.AUTO
 const FILE_CONTENT_LIMIT = 5000
-const DEFAULT_SYSTEM_PROMPT_NAME = REVIEW_OVERRIDE_PROMPT_NAMES.CODE_REVIEW_SYSTEM
-const DEFAULT_REVIEWER_PROMPT = "Review this file patch and suggest actionable issues."
 
 type ParsedJsonPayload = unknown[] | Readonly<Record<string, unknown>>
 
@@ -58,7 +52,7 @@ type ParsedJsonPayload = unknown[] | Readonly<Record<string, unknown>>
 export interface IProcessFilesReviewStageDependencies {
     llmProvider: ILLMProvider
     generatePromptUseCase: IUseCase<IGeneratePromptInput, string, ValidationError>
-    model?: string
+    defaults: IReviewFileDefaults
 }
 
 /**
@@ -106,6 +100,7 @@ export class ProcessFilesReviewStageUseCase implements IPipelineStageUseCase {
     private readonly llmProvider: ILLMProvider
     private readonly generatePromptUseCase: IUseCase<IGeneratePromptInput, string, ValidationError>
     private readonly model: string
+    private readonly defaults: IReviewFileDefaults
 
     /**
      * Creates process-files-review stage use case.
@@ -117,7 +112,8 @@ export class ProcessFilesReviewStageUseCase implements IPipelineStageUseCase {
         this.stageName = "Process Files Review"
         this.llmProvider = dependencies.llmProvider
         this.generatePromptUseCase = dependencies.generatePromptUseCase
-        this.model = dependencies.model ?? DEFAULT_FILE_REVIEW_MODEL
+        this.defaults = dependencies.defaults
+        this.model = dependencies.defaults.model
     }
 
     /**
@@ -438,7 +434,7 @@ export class ProcessFilesReviewStageUseCase implements IPipelineStageUseCase {
     private resolveTimeoutMs(config: Readonly<Record<string, unknown>>): number {
         const rawTimeout = config["fileReviewTimeoutMs"]
         if (typeof rawTimeout !== "number" || Number.isInteger(rawTimeout) === false || rawTimeout < 1) {
-            return DEFAULT_FILE_REVIEW_TIMEOUT_MS
+            return this.defaults.timeoutMs
         }
 
         return rawTimeout
@@ -453,7 +449,7 @@ export class ProcessFilesReviewStageUseCase implements IPipelineStageUseCase {
     private resolveReviewDepthStrategy(config: Readonly<Record<string, unknown>>): ReviewDepthStrategy {
         const rawStrategy = config["reviewDepthStrategy"]
         if (typeof rawStrategy !== "string") {
-            return DEFAULT_REVIEW_DEPTH_STRATEGY
+            return this.defaults.reviewDepthStrategy
         }
 
         const normalizedStrategy = rawStrategy.trim()
@@ -465,7 +461,7 @@ export class ProcessFilesReviewStageUseCase implements IPipelineStageUseCase {
             return normalizedStrategy as ReviewDepthStrategy
         }
 
-        return DEFAULT_REVIEW_DEPTH_STRATEGY
+        return this.defaults.reviewDepthStrategy
     }
 
     /**
@@ -1013,7 +1009,7 @@ export class ProcessFilesReviewStageUseCase implements IPipelineStageUseCase {
 
         try {
             const result = await this.generatePromptUseCase.execute({
-                name: DEFAULT_SYSTEM_PROMPT_NAME,
+                name: this.defaults.systemPromptName,
                 organizationId: organizationId ?? null,
                 runtimeVariables: {},
             })
@@ -1022,7 +1018,7 @@ export class ProcessFilesReviewStageUseCase implements IPipelineStageUseCase {
                     this.createStageError(
                         runId,
                         definitionVersion,
-                        `Missing prompt template '${DEFAULT_SYSTEM_PROMPT_NAME}' for file review stage`,
+                        `Missing prompt template '${this.defaults.systemPromptName}' for file review stage`,
                         false,
                         result.error,
                     ),
@@ -1035,7 +1031,7 @@ export class ProcessFilesReviewStageUseCase implements IPipelineStageUseCase {
                     this.createStageError(
                         runId,
                         definitionVersion,
-                        `Empty prompt template '${DEFAULT_SYSTEM_PROMPT_NAME}' for file review stage`,
+                        `Empty prompt template '${this.defaults.systemPromptName}' for file review stage`,
                         false,
                     ),
                 )
@@ -1065,11 +1061,11 @@ export class ProcessFilesReviewStageUseCase implements IPipelineStageUseCase {
         params: IFileChatRequestInput,
     ): IChatRequestDTO {
         const systemPrompt = params.templateSystemPrompt
-        const reviewerPrompt = DEFAULT_REVIEWER_PROMPT
+        const reviewerPrompt = this.defaults.reviewerPrompt
 
         return {
             model: this.model,
-            maxTokens: DEFAULT_FILE_REVIEW_MAX_TOKENS,
+            maxTokens: this.defaults.maxTokens,
             messages: [
                 {
                     role: "system",

@@ -17,6 +17,13 @@ import {CHECK_RUN_CONCLUSION, CHECK_RUN_STATUS} from "../../../../src"
 import {ReviewPipelineState} from "../../../../src/application/types/review/review-pipeline-state"
 import {GenerateSummaryStageUseCase} from "../../../../src/application/use-cases/review/generate-summary-stage.use-case"
 
+const summaryDefaults = {
+    model: "gpt-4o-mini",
+    maxTokens: 700,
+    systemPrompt: "You are a senior reviewer assistant. Produce concise markdown summary.",
+    userPrompt: "Summarize key review findings, risk, and next actions.",
+}
+
 class InMemoryLLMProvider implements ILLMProvider {
     public shouldThrow = false
     public responseText = ""
@@ -175,6 +182,7 @@ describe("GenerateSummaryStageUseCase", () => {
         const useCase = new GenerateSummaryStageUseCase({
             llmProvider,
             gitProvider,
+            defaults: summaryDefaults,
         })
         const state = createState({
             id: "mr-61",
@@ -201,6 +209,7 @@ describe("GenerateSummaryStageUseCase", () => {
         const useCase = new GenerateSummaryStageUseCase({
             llmProvider,
             gitProvider,
+            defaults: summaryDefaults,
         })
         const state = createState({})
 
@@ -220,6 +229,7 @@ describe("GenerateSummaryStageUseCase", () => {
         const useCase = new GenerateSummaryStageUseCase({
             llmProvider,
             gitProvider,
+            defaults: summaryDefaults,
         })
         const state = createState({
             id: "mr-61",

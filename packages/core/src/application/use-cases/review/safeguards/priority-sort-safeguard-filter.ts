@@ -3,9 +3,9 @@ import type {ReviewPipelineState} from "../../../types/review/review-pipeline-st
 import type {ISafeGuardFilter} from "../../../types/review/safeguard-filter.contract"
 import type {IDiscardedSuggestionDTO} from "../../../dto/review/discarded-suggestion.dto"
 import {createDiscardedSuggestion, resolveCategoryWeight, resolveSeverityWeight} from "./safeguard-filter.utils"
+import type {IPrioritySafeguardDefaults} from "../../../dto/config/system-defaults.dto"
 
 const FILTER_NAME = "priority-sort"
-const DEFAULT_LIMIT = Infinity
 
 interface ISuggestionWithScore {
     readonly suggestion: ISuggestionDTO
@@ -18,6 +18,16 @@ interface ISuggestionWithScore {
  */
 export class PrioritySortSafeguardFilter implements ISafeGuardFilter {
     public readonly name = FILTER_NAME
+    private readonly defaults: IPrioritySafeguardDefaults
+
+    /**
+     * Creates priority safeguard filter.
+     *
+     * @param defaults Defaults resolved from config-service.
+     */
+    public constructor(defaults: IPrioritySafeguardDefaults) {
+        this.defaults = defaults
+    }
 
     /**
      * Sorts by rank score and truncates to config maxSuggestionsPerCCR.
@@ -80,7 +90,7 @@ export class PrioritySortSafeguardFilter implements ISafeGuardFilter {
             Number.isInteger(rawLimit) === false ||
             rawLimit < 1
         ) {
-            return DEFAULT_LIMIT
+            return this.defaults.limit
         }
 
         return rawLimit

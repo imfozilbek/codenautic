@@ -14,6 +14,7 @@ import {
 } from "../../dto/review/ccr-summary.dto"
 import {ValidationError, type IValidationErrorField} from "../../../domain/errors/validation.error"
 import {Result} from "../../../shared/result"
+import type {ICcrSummaryDefaults} from "../../dto/config/system-defaults.dto"
 
 /**
  * Dependencies required by CCR summary generation use case.
@@ -25,14 +26,9 @@ export interface IGenerateCCRSummaryUseCaseDependencies {
     llmProvider: ILLMProvider
 
     /**
-     * Optional default model override.
+     * Defaults resolved from config-service.
      */
-    model?: string
-
-    /**
-     * Optional default max tokens override.
-     */
-    maxTokens?: number
+    defaults: ICcrSummaryDefaults
 
     /**
      * Prompt generator use case.
@@ -49,11 +45,6 @@ interface INormalizedGenerateCCRSummaryInput {
     readonly maxTokens: number
 }
 
-const DEFAULT_MODEL = "gpt-4o-mini"
-const DEFAULT_MAX_TOKENS = 700
-const DEFAULT_SYSTEM_PROMPT_NAME = "ccr-summary-default-system"
-const COMPLEMENT_SYSTEM_PROMPT_NAME = "ccr-summary-complement-system"
-
 /**
  * Use case to generate CCR summary with mode-based composition rules.
  */
@@ -65,6 +56,7 @@ export class GenerateCCRSummaryUseCase
     private readonly model: string
     private readonly maxTokens: number
     private readonly generatePromptUseCase: IUseCase<IGeneratePromptInput, string, ValidationError>
+    private readonly defaults: ICcrSummaryDefaults
 
     /**
      * Creates use case for CCR summary generation.
@@ -73,8 +65,9 @@ export class GenerateCCRSummaryUseCase
      */
     public constructor(dependencies: IGenerateCCRSummaryUseCaseDependencies) {
         this.llmProvider = dependencies.llmProvider
-        this.model = dependencies.model ?? DEFAULT_MODEL
-        this.maxTokens = dependencies.maxTokens ?? DEFAULT_MAX_TOKENS
+        this.defaults = dependencies.defaults
+        this.model = dependencies.defaults.model
+        this.maxTokens = dependencies.defaults.maxTokens
         this.generatePromptUseCase = dependencies.generatePromptUseCase
     }
 
@@ -406,8 +399,8 @@ export class GenerateCCRSummaryUseCase
     ): Promise<Result<string, ValidationError>> {
         const promptName =
             existingDescriptionMode === "COMPLEMENT"
-                ? COMPLEMENT_SYSTEM_PROMPT_NAME
-                : DEFAULT_SYSTEM_PROMPT_NAME
+                ? this.defaults.complementSystemPromptName
+                : this.defaults.defaultSystemPromptName
 
         return this.generatePromptUseCase.execute({
             name: promptName,

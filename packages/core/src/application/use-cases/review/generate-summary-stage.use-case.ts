@@ -17,9 +17,7 @@ import {
     readObjectField,
     readStringField,
 } from "./pipeline-stage-state.utils"
-
-const DEFAULT_SUMMARY_MODEL = "gpt-4o-mini"
-const DEFAULT_SUMMARY_MAX_TOKENS = 700
+import type {IReviewSummaryDefaults} from "../../dto/config/system-defaults.dto"
 
 interface ISuggestionStringFields {
     readonly id: string
@@ -42,7 +40,7 @@ interface ISuggestionMetaFields {
 export interface IGenerateSummaryStageDependencies {
     llmProvider: ILLMProvider
     gitProvider: IGitProvider
-    model?: string
+    defaults: IReviewSummaryDefaults
 }
 
 /**
@@ -55,6 +53,7 @@ export class GenerateSummaryStageUseCase implements IPipelineStageUseCase {
     private readonly llmProvider: ILLMProvider
     private readonly gitProvider: IGitProvider
     private readonly model: string
+    private readonly defaults: IReviewSummaryDefaults
 
     /**
      * Creates generate-summary stage use case.
@@ -66,7 +65,8 @@ export class GenerateSummaryStageUseCase implements IPipelineStageUseCase {
         this.stageName = "Generate Summary"
         this.llmProvider = dependencies.llmProvider
         this.gitProvider = dependencies.gitProvider
-        this.model = dependencies.model ?? DEFAULT_SUMMARY_MODEL
+        this.defaults = dependencies.defaults
+        this.model = dependencies.defaults.model
     }
 
     /**
@@ -139,10 +139,10 @@ export class GenerateSummaryStageUseCase implements IPipelineStageUseCase {
         const promptOverrides = readObjectField(input.state.config, "promptOverrides")
         const systemPrompt =
             this.readPromptOverride(promptOverrides, "summarySystemPrompt") ??
-            "You are a senior reviewer assistant. Produce concise markdown summary."
+            this.defaults.systemPrompt
         const userPrompt =
             this.readPromptOverride(promptOverrides, "summaryUserPrompt") ??
-            "Summarize key review findings, risk, and next actions."
+            this.defaults.userPrompt
         const suggestions = this.normalizeSuggestions(input.state.suggestions)
         const metrics = input.state.metrics ?? {}
         const context = [
@@ -154,7 +154,7 @@ export class GenerateSummaryStageUseCase implements IPipelineStageUseCase {
 
         return {
             model: this.model,
-            maxTokens: DEFAULT_SUMMARY_MAX_TOKENS,
+            maxTokens: this.defaults.maxTokens,
             messages: [
                 {
                     role: "system",

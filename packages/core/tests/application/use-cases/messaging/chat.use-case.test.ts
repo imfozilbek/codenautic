@@ -114,6 +114,10 @@ function createUseCase(
         conversationThreadRepository: options.repository,
         conversationThreadFactory: options.factory ?? new ConversationThreadFactory(),
         llmProvider: options.provider,
+        defaults: {
+            model: "gpt-4o-mini",
+            maxTokens: 1200,
+        },
     })
 }
 

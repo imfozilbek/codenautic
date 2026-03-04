@@ -13,12 +13,7 @@ import {ValidationError, type IValidationErrorField} from "../../../domain/error
 import {Result} from "../../../shared/result"
 import {type IMessageDTO} from "../../dto/llm/message.dto"
 import {MESSAGE_ROLE} from "../../dto/llm/message.dto"
-
-/** Default model for chat completion. */
-const DEFAULT_CHAT_MODEL = "gpt-4o-mini"
-
-/** Default max tokens for single assistant response. */
-const DEFAULT_CHAT_MAX_TOKENS = 1200
+import type {IMessagingChatDefaults} from "../../dto/config/system-defaults.dto"
 
 /** Limit for optional file context injection into request. */
 const MAX_FILE_CONTEXT_LENGTH = 5000
@@ -96,14 +91,9 @@ export interface IChatUseCaseDependencies {
     readonly llmProvider: ILLMProvider
 
     /**
-     * Optional LLM model override.
+     * Defaults resolved from config-service.
      */
-    readonly model?: string
-
-    /**
-     * Optional max token override.
-     */
-    readonly maxTokens?: number
+    readonly defaults: IMessagingChatDefaults
 }
 
 /**
@@ -125,8 +115,8 @@ export class ChatUseCase implements IUseCase<IChatInput, IChatOutput, Validation
         this.conversationThreadRepository = dependencies.conversationThreadRepository
         this.conversationThreadFactory = dependencies.conversationThreadFactory
         this.llmProvider = dependencies.llmProvider
-        this.model = dependencies.model ?? DEFAULT_CHAT_MODEL
-        this.maxTokens = dependencies.maxTokens ?? DEFAULT_CHAT_MAX_TOKENS
+        this.model = dependencies.defaults.model
+        this.maxTokens = dependencies.defaults.maxTokens
     }
 
     /**

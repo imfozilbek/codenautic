@@ -4,6 +4,7 @@ import {FEEDBACK_TYPE} from "../../domain/events/feedback-received"
 import {ValidationError, type IValidationErrorField} from "../../domain/errors/validation.error"
 import type {IFeedbackRecord} from "../ports/outbound/feedback-repository.port"
 import {Result} from "../../shared/result"
+import type {ILearnTeamPatternsDefaults} from "../dto/config/system-defaults.dto"
 
 interface ITeamPatternConfig {
     readonly minSampleSize: number
@@ -109,20 +110,20 @@ export interface ILearnTeamPatternsOutput {
 export class LearnTeamPatternsUseCase
     implements IUseCase<ILearnTeamPatternsInput, ILearnTeamPatternsOutput, ValidationError>
 {
-    private static readonly DEFAULT_MIN_SAMPLE_SIZE = 5
-    private static readonly DEFAULT_MIN_CONFIDENCE = 0.35
-    private static readonly DEFAULT_MIN_WEIGHT_DELTA = 0.1
-    private static readonly DEFAULT_MAX_ADJUSTMENTS = 20
-
     private readonly feedbackRepository: IFeedbackRepository
+    private readonly defaults: ILearnTeamPatternsDefaults
 
     /**
      * Creates use case.
      *
-     * @param feedbackRepository Feedback source.
+     * @param dependencies Use case dependencies.
      */
-    public constructor(feedbackRepository: IFeedbackRepository) {
-        this.feedbackRepository = feedbackRepository
+    public constructor(dependencies: {
+        readonly feedbackRepository: IFeedbackRepository
+        readonly defaults: ILearnTeamPatternsDefaults
+    }) {
+        this.feedbackRepository = dependencies.feedbackRepository
+        this.defaults = dependencies.defaults
     }
 
     /**
@@ -225,25 +226,25 @@ export class LearnTeamPatternsUseCase
         const teamId = this.normalizeTeamId(input.teamId, fields)
         const minSampleSize = this.normalizePositiveInt(
             input.minSampleSize,
-            LearnTeamPatternsUseCase.DEFAULT_MIN_SAMPLE_SIZE,
+            this.defaults.minSampleSize,
             fields,
             "minSampleSize",
         )
         const minConfidence = this.normalizeRate(
             input.minConfidence,
-            LearnTeamPatternsUseCase.DEFAULT_MIN_CONFIDENCE,
+            this.defaults.minConfidence,
             fields,
             "minConfidence",
         )
         const minWeightDelta = this.normalizeRate(
             input.minWeightDelta,
-            LearnTeamPatternsUseCase.DEFAULT_MIN_WEIGHT_DELTA,
+            this.defaults.minWeightDelta,
             fields,
             "minWeightDelta",
         )
         const maxAdjustments = this.normalizePositiveInt(
             input.maxAdjustments,
-            LearnTeamPatternsUseCase.DEFAULT_MAX_ADJUSTMENTS,
+            this.defaults.maxAdjustments,
             fields,
             "maxAdjustments",
         )

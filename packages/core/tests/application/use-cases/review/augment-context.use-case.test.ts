@@ -8,6 +8,10 @@ import type {
 import {ReviewPipelineState} from "../../../../src/application/types/review/review-pipeline-state"
 import {AugmentContextUseCase} from "../../../../src/application/use-cases/review/augment-context.use-case"
 
+const augmentContextDefaults = {
+    relatedFilesLimit: 20,
+}
+
 class InMemoryVectorRepository implements IVectorRepository {
     public searchCalls = 0
     public lastQuery: readonly number[] | null = null
@@ -59,6 +63,7 @@ describe("AugmentContextUseCase", () => {
         const vectorRepository = new InMemoryVectorRepository()
         const useCase = new AugmentContextUseCase({
             vectorRepository,
+            defaults: augmentContextDefaults,
         })
         const state = createState({
             repositoryId: "repo-1",
@@ -116,6 +121,7 @@ describe("AugmentContextUseCase", () => {
         ]
         const useCase = new AugmentContextUseCase({
             vectorRepository,
+            defaults: augmentContextDefaults,
         })
         const state = createState({
             repository: {
@@ -163,6 +169,7 @@ describe("AugmentContextUseCase", () => {
         const vectorRepository = new InMemoryVectorRepository()
         const useCase = new AugmentContextUseCase({
             vectorRepository,
+            defaults: augmentContextDefaults,
         })
         vectorRepository.searchResults = [
             {
@@ -195,6 +202,7 @@ describe("AugmentContextUseCase", () => {
         vectorRepository.shouldThrow = true
         const useCase = new AugmentContextUseCase({
             vectorRepository,
+            defaults: augmentContextDefaults,
         })
         const state = createState({
             projectId: "repo-4",

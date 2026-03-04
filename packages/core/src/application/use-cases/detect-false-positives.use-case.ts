@@ -3,6 +3,7 @@ import type {IFeedbackRepository} from "../ports/outbound/feedback-repository.po
 import {RuleEffectivenessService} from "../../domain/services/rule-effectiveness.service"
 import {ValidationError, type IValidationErrorField} from "../../domain/errors/validation.error"
 import {Result} from "../../shared/result"
+import type {IFalsePositiveDetectionDefaults} from "../dto/config/system-defaults.dto"
 
 /**
  * Heuristic output recommendation.
@@ -72,20 +73,20 @@ export interface IDetectFalsePositivesOutput {
 export class DetectFalsePositivesUseCase
     implements IUseCase<IDetectFalsePositivesInput, readonly IDetectFalsePositivesOutput[], ValidationError>
 {
-    private static readonly DEFAULT_THRESHOLD = 0.5
-    private static readonly DEFAULT_DEACTIVATE_THRESHOLD = 0.7
-    private static readonly DEFAULT_MIN_SAMPLE_SIZE = 5
-    private static readonly DEFAULT_MIN_DEACTIVATE_SAMPLE_SIZE = 10
-
     private readonly feedbackRepository: IFeedbackRepository
+    private readonly defaults: IFalsePositiveDetectionDefaults
 
     /**
      * Creates use case.
      *
-     * @param feedbackRepository Feedback source.
+     * @param dependencies Use case dependencies.
      */
-    public constructor(feedbackRepository: IFeedbackRepository) {
-        this.feedbackRepository = feedbackRepository
+    public constructor(dependencies: {
+        readonly feedbackRepository: IFeedbackRepository
+        readonly defaults: IFalsePositiveDetectionDefaults
+    }) {
+        this.feedbackRepository = dependencies.feedbackRepository
+        this.defaults = dependencies.defaults
     }
 
     /**
@@ -195,18 +196,18 @@ export class DetectFalsePositivesUseCase
         readonly ruleIds?: readonly string[]
     }} {
         const fields: IValidationErrorField[] = []
-        const threshold = this.normalizeRate(input.threshold, DetectFalsePositivesUseCase.DEFAULT_THRESHOLD)
+        const threshold = this.normalizeRate(input.threshold, this.defaults.threshold)
         const deactivateThreshold = this.normalizeRate(
             input.deactivateThreshold,
-            DetectFalsePositivesUseCase.DEFAULT_DEACTIVATE_THRESHOLD,
+            this.defaults.deactivateThreshold,
         )
         const minSampleSize = this.normalizeSampleSize(
             input.minSampleSize,
-            DetectFalsePositivesUseCase.DEFAULT_MIN_SAMPLE_SIZE,
+            this.defaults.minSampleSize,
         )
         const minDeactivateSampleSize = this.normalizeSampleSize(
             input.minDeactivateSampleSize,
-            DetectFalsePositivesUseCase.DEFAULT_MIN_DEACTIVATE_SAMPLE_SIZE,
+            this.defaults.minDeactivateSampleSize,
         )
         const ruleIds = this.normalizeRuleIds(input.ruleIds, fields)
 

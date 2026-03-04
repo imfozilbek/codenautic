@@ -2,7 +2,7 @@
 /**
  * All supported @codenautic command types.
  */
-export const DEFAULT_COMMAND_TYPES = [
+export const SUPPORTED_COMMAND_TYPES = [
     "review",
     "explain",
     "fix",
@@ -30,7 +30,7 @@ export interface ICommandResult {
 /**
  * Supported @codenautic command type.
  */
-export type CommandType = (typeof DEFAULT_COMMAND_TYPES)[number]
+export type CommandType = (typeof SUPPORTED_COMMAND_TYPES)[number]
 
 /**
  * Parsed mention command.

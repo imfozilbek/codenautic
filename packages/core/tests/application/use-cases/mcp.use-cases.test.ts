@@ -15,10 +15,15 @@ import {
     type IValidateMCPToolInputInput,
 } from "../../../src/application/use-cases/validate-mcp-tool-input.use-case"
 import {ValidationError} from "../../../src/domain/errors/validation.error"
+import type {IMcpDefaults} from "../../../src/application/dto/config/system-defaults.dto"
+
+const MCP_DEFAULTS: IMcpDefaults = {
+    protocolVersion: "2025-01-01",
+}
 
 describe("MCP use cases", () => {
     test("registers MCP tool through use case", async () => {
-        const server = new MCPServer()
+        const server = new MCPServer(MCP_DEFAULTS)
         const useCase = new RegisterMCPToolUseCase()
         const input: IRegisterMCPToolInput = {
             server,
@@ -51,7 +56,7 @@ describe("MCP use cases", () => {
     })
 
     test("discovers tools through use case", async () => {
-        const server = new MCPServer()
+        const server = new MCPServer(MCP_DEFAULTS)
         server.registerTool(
             {
                 name: "echo",

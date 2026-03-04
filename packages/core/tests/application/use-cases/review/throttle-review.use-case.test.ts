@@ -6,6 +6,12 @@ import {ValidationError} from "../../../../src/domain/errors/validation.error"
 import {ProjectFactory} from "../../../../src/domain/factories/project.factory"
 import {InMemoryProjectRepository} from "../project/project-repository.test-helper"
 import {ThrottleReviewUseCase} from "../../../../src/application/use-cases/review/throttle-review.use-case"
+import type {IReviewThrottleDefaults} from "../../../../src/application/dto/config/system-defaults.dto"
+
+const throttleDefaults: IReviewThrottleDefaults = {
+    windowSeconds: 3_600,
+    maxReviewsPerWindow: 10,
+}
 
 /**
  * In-memory cache for throttle tests.
@@ -77,6 +83,7 @@ async function createUseCaseContext(
             projectRepository: repository,
             cache,
             now,
+            defaults: throttleDefaults,
         }),
         cache,
     }
@@ -145,6 +152,7 @@ describe("ThrottleReviewUseCase", () => {
             projectRepository: repository,
             cache,
             now: () => new Date("2026-03-03T10:00:05.000Z"),
+            defaults: throttleDefaults,
         })
         const first = await firstWindowUseCase.execute({
             repoId: "gh:repo-core",
@@ -157,6 +165,7 @@ describe("ThrottleReviewUseCase", () => {
             projectRepository: repository,
             cache,
             now: () => new Date("2026-03-03T10:00:16.000Z"),
+            defaults: throttleDefaults,
         })
         const second = await secondWindowUseCase.execute({
             repoId: "gh:repo-core",
@@ -214,6 +223,7 @@ describe("ThrottleReviewUseCase", () => {
         const useCase = new ThrottleReviewUseCase({
             projectRepository: project,
             cache,
+            defaults: throttleDefaults,
         })
 
         const result = await useCase.execute({

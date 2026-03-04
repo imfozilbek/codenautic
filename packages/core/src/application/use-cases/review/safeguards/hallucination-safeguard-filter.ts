@@ -5,10 +5,9 @@ import type {ReviewPipelineState} from "../../../types/review/review-pipeline-st
 import type {ISafeGuardFilter} from "../../../types/review/safeguard-filter.contract"
 import type {ILLMProvider} from "../../../ports/outbound/llm/llm-provider.port"
 import {createDiscardedSuggestion, isCodeBlockInFile} from "./safeguard-filter.utils"
+import type {IHallucinationSafeguardDefaults} from "../../../dto/config/system-defaults.dto"
 
 const FILTER_NAME = "hallucination"
-const DEFAULT_MODEL = "gpt-4o-mini"
-const DEFAULT_TOKENS = 300
 const DISCARD_REASON = "hallucination"
 const LLM_VALIDATION_CACHE_PREFIX = "hallucination-validation"
 
@@ -26,7 +25,7 @@ interface IHallucinationPromptContext {
  */
 export interface IHallucinationSafeguardFilterDependencies {
     readonly llmProvider: ILLMProvider
-    readonly model?: string
+    readonly defaults: IHallucinationSafeguardDefaults
 }
 
 /**
@@ -37,6 +36,7 @@ export class HallucinationSafeguardFilter implements ISafeGuardFilter {
 
     private readonly llmProvider: ILLMProvider
     private readonly model: string
+    private readonly defaults: IHallucinationSafeguardDefaults
     private readonly cache = new Map<string, boolean>()
 
     /**
@@ -46,7 +46,8 @@ export class HallucinationSafeguardFilter implements ISafeGuardFilter {
      */
     public constructor(dependencies: IHallucinationSafeguardFilterDependencies) {
         this.llmProvider = dependencies.llmProvider
-        this.model = dependencies.model ?? DEFAULT_MODEL
+        this.defaults = dependencies.defaults
+        this.model = dependencies.defaults.model
     }
 
     /**
@@ -156,7 +157,7 @@ export class HallucinationSafeguardFilter implements ISafeGuardFilter {
 
         return {
             model: this.model,
-            maxTokens: DEFAULT_TOKENS,
+            maxTokens: this.defaults.maxTokens,
             messages: [
                 {
                     role: "system",

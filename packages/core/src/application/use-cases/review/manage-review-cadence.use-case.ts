@@ -17,6 +17,7 @@ import {
     REVIEW_CADENCE_EVENT_TYPE,
     type ReviewCadenceEventType,
 } from "../../dto/review/manage-review-cadence.dto"
+import type {IReviewCadenceDefaults} from "../../dto/config/system-defaults.dto"
 
 interface IManageReviewCadenceUseCaseDependencies {
     /**
@@ -28,6 +29,11 @@ interface IManageReviewCadenceUseCaseDependencies {
      * Cache for auto-pause counters.
      */
     readonly cache: ICache
+
+    /**
+     * Defaults resolved from config-service.
+     */
+    readonly defaults: IReviewCadenceDefaults
 }
 
 interface IAutoPauseState {
@@ -42,10 +48,6 @@ interface IAutoPauseState {
     readonly suggestionCount: number
 }
 
-/**
- * Domain-safe defaults for auto-pause behavior.
- */
-const DEFAULT_AUTO_PAUSE_THRESHOLD = 20
 const AUTO_PAUSE_CACHE_PREFIX = "core.review.auto-pause"
 
 /**
@@ -56,6 +58,7 @@ export class ManageReviewCadenceUseCase
 {
     private readonly projectRepository: IProjectRepository
     private readonly cache: ICache
+    private readonly defaults: IReviewCadenceDefaults
 
     /**
      * Creates use case instance.
@@ -65,6 +68,7 @@ export class ManageReviewCadenceUseCase
     public constructor(dependencies: IManageReviewCadenceUseCaseDependencies) {
         this.projectRepository = dependencies.projectRepository
         this.cache = dependencies.cache
+        this.defaults = dependencies.defaults
     }
 
     /**
@@ -304,7 +308,7 @@ export class ManageReviewCadenceUseCase
     private readAutoPauseThreshold(limits: Record<string, number>): number {
         const rawValue = limits[PROJECT_SETTINGS_LIMIT.AUTO_PAUSE_THRESHOLD]
         if (!this.isPositiveInteger(rawValue)) {
-            return DEFAULT_AUTO_PAUSE_THRESHOLD
+            return this.defaults.autoPauseThreshold
         }
 
         return rawValue

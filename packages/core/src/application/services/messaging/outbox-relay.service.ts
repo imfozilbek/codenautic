@@ -2,16 +2,7 @@ import {toMessageBrokerEnvelope} from "../../ports/outbound/messaging/message-br
 import type {IOutboxRepository} from "../../ports/outbound/messaging/outbox-repository.port"
 import type {IMessageBroker} from "../../ports/outbound/messaging/message-broker.port"
 import {OUTBOX_MESSAGE_STATUS} from "../../../domain/entities/outbox-message.entity"
-
-/**
- * Options for batch relay.
- */
-export interface IOutboxRelayOptions {
-    /**
-     * Max messages processed per call.
-     */
-    readonly batchSize?: number
-}
+import type {IOutboxRelayDefaults} from "../../dto/config/system-defaults.dto"
 
 /**
  * Relay execution result.
@@ -59,8 +50,6 @@ export interface IOutboxRelayService {
  * Domain service for publishing outbox batch and managing retry state.
  */
 export class OutboxRelayService implements IOutboxRelayService {
-    public static readonly DEFAULT_BATCH_SIZE = 100
-
     private readonly outboxRepository: IOutboxRepository
     private readonly messageBroker: IMessageBroker
     private readonly batchSize: number
@@ -70,16 +59,16 @@ export class OutboxRelayService implements IOutboxRelayService {
      *
      * @param outboxRepository Outbox persistence.
      * @param messageBroker Broker transport.
-     * @param options Execution options.
+     * @param defaults Defaults resolved from config-service.
      */
     public constructor(
         outboxRepository: IOutboxRepository,
         messageBroker: IMessageBroker,
-        options: IOutboxRelayOptions = {},
+        defaults: IOutboxRelayDefaults,
     ) {
         this.outboxRepository = outboxRepository
         this.messageBroker = messageBroker
-        this.batchSize = normalizeBatchSize(options.batchSize)
+        this.batchSize = defaults.batchSize
     }
 
     /**
@@ -135,27 +124,4 @@ export class OutboxRelayService implements IOutboxRelayService {
     public getBatchSize(): number {
         return this.batchSize
     }
-}
-
-/**
- * Normalizes batch size.
- *
- * @param value Raw value.
- * @returns Normalized batch.
- */
-function normalizeBatchSize(value: number | undefined): number {
-    if (value === undefined) {
-        return OutboxRelayService.DEFAULT_BATCH_SIZE
-    }
-
-    if (Number.isFinite(value) === false || Number.isNaN(value)) {
-        return OutboxRelayService.DEFAULT_BATCH_SIZE
-    }
-
-    const normalized = Math.trunc(value)
-    if (normalized <= 0) {
-        return OutboxRelayService.DEFAULT_BATCH_SIZE
-    }
-
-    return normalized
 }

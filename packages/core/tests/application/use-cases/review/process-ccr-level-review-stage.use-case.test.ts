@@ -16,6 +16,12 @@ import type {
 import {ReviewPipelineState} from "../../../../src/application/types/review/review-pipeline-state"
 import {ProcessCcrLevelReviewStageUseCase} from "../../../../src/application/use-cases/review/process-ccr-level-review-stage.use-case"
 
+const ccrReviewDefaults = {
+    model: "gpt-4o-mini",
+    maxTokens: 1200,
+    promptName: "ccr-level-review",
+}
+
 class InMemoryLLMProvider implements ILLMProvider {
     public shouldThrow = false
     public responseContent = ""
@@ -138,6 +144,7 @@ function createUseCaseBundle(
             llmProvider,
             generatePromptUseCase,
             ruleContextFormatterService: new RuleContextFormatterService(),
+            defaults: ccrReviewDefaults,
         }),
         generatePromptUseCase,
     }

@@ -83,6 +83,12 @@ class InMemoryFeedbackRepository implements IFeedbackRepository {
 
 const userId = UniqueId.create("user-1")
 const baseTime = new Date("2025-02-10T00:00:00.000Z")
+const falsePositiveDefaults = {
+    threshold: 0.5,
+    deactivateThreshold: 0.7,
+    minSampleSize: 5,
+    minDeactivateSampleSize: 10,
+}
 
 const feedback: IFeedbackRecord[] = [
     ...Array.from({length: 12}, () => ({
@@ -142,7 +148,10 @@ const feedback: IFeedbackRecord[] = [
 
 describe("DetectFalsePositivesUseCase", () => {
     test("detects high false-positive rules and resolves recommendations", async () => {
-        const useCase = new DetectFalsePositivesUseCase(new InMemoryFeedbackRepository(feedback))
+        const useCase = new DetectFalsePositivesUseCase({
+            feedbackRepository: new InMemoryFeedbackRepository(feedback),
+            defaults: falsePositiveDefaults,
+        })
         const result = await useCase.execute({})
 
         if (result.isFail) {
@@ -169,7 +178,10 @@ describe("DetectFalsePositivesUseCase", () => {
     })
 
     test("applies rule filter and custom thresholds", async () => {
-        const useCase = new DetectFalsePositivesUseCase(new InMemoryFeedbackRepository(feedback))
+        const useCase = new DetectFalsePositivesUseCase({
+            feedbackRepository: new InMemoryFeedbackRepository(feedback),
+            defaults: falsePositiveDefaults,
+        })
         const result = await useCase.execute({
             ruleIds: ["rule-a"],
             threshold: 0.2,
@@ -196,7 +208,10 @@ describe("DetectFalsePositivesUseCase", () => {
     })
 
     test("returns validation error for invalid numeric config", async () => {
-        const useCase = new DetectFalsePositivesUseCase(new InMemoryFeedbackRepository(feedback))
+        const useCase = new DetectFalsePositivesUseCase({
+            feedbackRepository: new InMemoryFeedbackRepository(feedback),
+            defaults: falsePositiveDefaults,
+        })
         const result = await useCase.execute({
             threshold: 1.5,
         })
@@ -215,7 +230,10 @@ describe("DetectFalsePositivesUseCase", () => {
     })
 
     test("returns validation error for invalid ruleIds", async () => {
-        const useCase = new DetectFalsePositivesUseCase(new InMemoryFeedbackRepository(feedback))
+        const useCase = new DetectFalsePositivesUseCase({
+            feedbackRepository: new InMemoryFeedbackRepository(feedback),
+            defaults: falsePositiveDefaults,
+        })
         const result = await useCase.execute({
             ruleIds: ["rule-a", ""],
             threshold: 0.1,
@@ -235,7 +253,10 @@ describe("DetectFalsePositivesUseCase", () => {
     })
 
     test("returns validation error for invalid sample constraints", async () => {
-        const useCase = new DetectFalsePositivesUseCase(new InMemoryFeedbackRepository(feedback))
+        const useCase = new DetectFalsePositivesUseCase({
+            feedbackRepository: new InMemoryFeedbackRepository(feedback),
+            defaults: falsePositiveDefaults,
+        })
         const result = await useCase.execute({
             minSampleSize: 0,
             minDeactivateSampleSize: 2,
@@ -255,7 +276,10 @@ describe("DetectFalsePositivesUseCase", () => {
     })
 
     test("returns empty result when there is not enough evidence", async () => {
-        const useCase = new DetectFalsePositivesUseCase(new InMemoryFeedbackRepository(feedback))
+        const useCase = new DetectFalsePositivesUseCase({
+            feedbackRepository: new InMemoryFeedbackRepository(feedback),
+            defaults: falsePositiveDefaults,
+        })
         const result = await useCase.execute({
             threshold: 0.1,
             minSampleSize: 20,

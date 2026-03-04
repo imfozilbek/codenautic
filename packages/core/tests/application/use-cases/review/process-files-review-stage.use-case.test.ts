@@ -11,6 +11,16 @@ import type {
 } from "../../../../src"
 import {ReviewPipelineState} from "../../../../src/application/types/review/review-pipeline-state"
 import {ProcessFilesReviewStageUseCase} from "../../../../src/application/use-cases/review/process-files-review-stage.use-case"
+import type {IReviewFileDefaults} from "../../../../src/application/dto/config/system-defaults.dto"
+
+const fileReviewDefaults: IReviewFileDefaults = {
+    model: "gpt-4o-mini",
+    maxTokens: 1000,
+    timeoutMs: 60_000,
+    reviewDepthStrategy: "auto",
+    systemPromptName: "code-review-system",
+    reviewerPrompt: "Review this file patch and suggest actionable issues.",
+}
 
 interface IFileReply {
     readonly content: string
@@ -142,6 +152,7 @@ function createUseCaseBundle(
         useCase: new ProcessFilesReviewStageUseCase({
             llmProvider,
             generatePromptUseCase,
+            defaults: fileReviewDefaults,
         }),
         generatePromptUseCase,
     }
@@ -793,10 +804,10 @@ describe("ProcessFilesReviewStageUseCase", () => {
         expect(hasGlobalSystem(indexRequest)).toBe(true)
         expect(hasFullFile(indexRequest)).toBe(true)
 
-        expect(hasGlobalSystem(helperRequest)).toBe(false)
+        expect(hasGlobalSystem(helperRequest)).toBe(true)
         expect(hasFullFile(helperRequest)).toBe(false)
 
-        expect(hasGlobalSystem(nestedRequest)).toBe(false)
+        expect(hasGlobalSystem(nestedRequest)).toBe(true)
         expect(hasFullFile(nestedRequest)).toBe(false)
     })
 

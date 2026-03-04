@@ -12,6 +12,7 @@ import type {
     IThrottleReviewInput,
     IThrottleReviewOutput,
 } from "../../dto/review/throttle-review.dto"
+import type {IReviewThrottleDefaults} from "../../dto/config/system-defaults.dto"
 
 interface IThrottleReviewUseCaseDependencies {
     /**
@@ -23,6 +24,11 @@ interface IThrottleReviewUseCaseDependencies {
      * Cache for per-repo throttle buckets.
      */
     readonly cache: ICache
+
+    /**
+     * Defaults resolved from config-service.
+     */
+    readonly defaults: IReviewThrottleDefaults
 
     /**
      * Optional deterministic clock for tests.
@@ -42,11 +48,6 @@ interface IThrottleState {
     readonly reviewCount: number
 }
 
-/**
- * Conservative fallback values for review throttling.
- */
-const DEFAULT_THROTTLE_WINDOW_SECONDS = 3_600
-const DEFAULT_MAX_REVIEWS_PER_WINDOW = 10
 const THROTTLE_CACHE_PREFIX = "core.review.throttle"
 
 /**
@@ -56,6 +57,7 @@ export class ThrottleReviewUseCase implements IUseCase<IThrottleReviewInput, ITh
     private readonly projectRepository: IProjectRepository
     private readonly cache: ICache
     private readonly nowProvider: () => Date
+    private readonly defaults: IReviewThrottleDefaults
 
     /**
      * Creates throttle use case instance.
@@ -65,6 +67,7 @@ export class ThrottleReviewUseCase implements IUseCase<IThrottleReviewInput, ITh
     public constructor(dependencies: IThrottleReviewUseCaseDependencies) {
         this.projectRepository = dependencies.projectRepository
         this.cache = dependencies.cache
+        this.defaults = dependencies.defaults
         this.nowProvider = dependencies.now ?? (() => new Date())
     }
 
@@ -114,12 +117,12 @@ export class ThrottleReviewUseCase implements IUseCase<IThrottleReviewInput, ITh
         const maxReviews = this.readNumericLimit(
             project.settings.limits,
             PROJECT_SETTINGS_LIMIT.MAX_REVIEWS_PER_WINDOW,
-            DEFAULT_MAX_REVIEWS_PER_WINDOW,
+            this.defaults.maxReviewsPerWindow,
         )
         const windowSeconds = this.readNumericLimit(
             project.settings.limits,
             PROJECT_SETTINGS_LIMIT.THROTTLE_WINDOW_SECONDS,
-            DEFAULT_THROTTLE_WINDOW_SECONDS,
+            this.defaults.windowSeconds,
         )
 
         const nowInSeconds = this.secondsFromNow()

@@ -4,9 +4,9 @@ import type {ReviewPipelineState} from "../../../types/review/review-pipeline-st
 import type {ISafeGuardFilter} from "../../../types/review/safeguard-filter.contract"
 import {Severity, SEVERITY_LEVEL} from "../../../../domain/value-objects/severity.value-object"
 import {createDiscardedSuggestion, resolveSeverityLevel} from "./safeguard-filter.utils"
+import type {ISeveritySafeguardDefaults} from "../../../dto/config/system-defaults.dto"
 
 const FILTER_NAME = "severity-threshold"
-const DEFAULT_THRESHOLD = SEVERITY_LEVEL.MEDIUM
 const BELOW_THRESHOLD_DISCARD_REASON = "below_threshold"
 
 interface ISeverityLimits {
@@ -18,6 +18,16 @@ interface ISeverityLimits {
  */
 export class SeverityThresholdSafeguardFilter implements ISafeGuardFilter {
     public readonly name = FILTER_NAME
+    private readonly defaults: ISeveritySafeguardDefaults
+
+    /**
+     * Creates severity safeguard filter.
+     *
+     * @param defaults Defaults resolved from config-service.
+     */
+    public constructor(defaults: ISeveritySafeguardDefaults) {
+        this.defaults = defaults
+    }
 
     /**
      * Filters suggestions with low severity or violating per-severity budget.
@@ -90,7 +100,7 @@ export class SeverityThresholdSafeguardFilter implements ISafeGuardFilter {
             }
         }
 
-        return DEFAULT_THRESHOLD
+        return this.defaults.threshold
     }
 
     /**

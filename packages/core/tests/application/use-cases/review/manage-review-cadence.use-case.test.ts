@@ -12,6 +12,11 @@ import {
 import {ManageReviewCadenceUseCase} from "../../../../src/application/use-cases/review/manage-review-cadence.use-case"
 import {InMemoryProjectRepository} from "../project/project-repository.test-helper"
 import {PROJECT_CADENCE} from "../../../../src/domain/value-objects/project-settings.value-object"
+import type {IReviewCadenceDefaults} from "../../../../src/application/dto/config/system-defaults.dto"
+
+const cadenceDefaults: IReviewCadenceDefaults = {
+    autoPauseThreshold: 20,
+}
 
 /**
  * In-memory cache for cadence state tests.
@@ -83,6 +88,7 @@ async function createUseCaseContext(
         useCase: new ManageReviewCadenceUseCase({
             projectRepository: repository,
             cache,
+            defaults: cadenceDefaults,
         }),
         cache,
     }
@@ -233,6 +239,7 @@ describe("ManageReviewCadenceUseCase", () => {
         const useCase = new ManageReviewCadenceUseCase({
             projectRepository: repository,
             cache,
+            defaults: cadenceDefaults,
         })
 
         const result = await useCase.execute({

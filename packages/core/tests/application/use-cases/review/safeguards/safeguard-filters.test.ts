@@ -12,6 +12,19 @@ import {ImplementationCheckSafeguardFilter} from "../../../../../src/application
 import {PrioritySortSafeguardFilter} from "../../../../../src/application/use-cases/review/safeguards/priority-sort-safeguard-filter"
 import {SeverityThresholdSafeguardFilter} from "../../../../../src/application/use-cases/review/safeguards/severity-threshold-safeguard-filter"
 
+const priorityDefaults = {
+    limit: Number.MAX_SAFE_INTEGER,
+}
+
+const severityDefaults = {
+    threshold: "MEDIUM",
+}
+
+const hallucinationDefaults = {
+    model: "gpt-4o-mini",
+    maxTokens: 300,
+}
+
 interface ILLMResponseQueueItem {
     readonly content: string
 }
@@ -131,7 +144,7 @@ describe("Safeguard filters", () => {
     })
 
     test("sorts by deterministic priority score and keeps stable order for ties", async () => {
-        const filter = new PrioritySortSafeguardFilter()
+        const filter = new PrioritySortSafeguardFilter(priorityDefaults)
         const state = createState({maxSuggestionsPerCCR: 2})
         const source = [
             createSuggestion({
@@ -171,7 +184,7 @@ describe("Safeguard filters", () => {
     })
 
     test("drops below severity threshold and respects per-severity quota", async () => {
-        const filter = new SeverityThresholdSafeguardFilter()
+        const filter = new SeverityThresholdSafeguardFilter(severityDefaults)
         const state = createState({
             severityThreshold: "HIGH",
             maxSuggestionsPerSeverity: {
@@ -207,7 +220,7 @@ describe("Safeguard filters", () => {
 
     test("passes through when file payload is missing", async () => {
         const provider = new InMemoryLLMProvider()
-        const filter = new HallucinationSafeguardFilter({llmProvider: provider})
+        const filter = new HallucinationSafeguardFilter({llmProvider: provider, defaults: hallucinationDefaults})
         const state = createState({
             maxSuggestionsPerSeverity: {},
         })
@@ -225,7 +238,7 @@ describe("Safeguard filters", () => {
 
     test("validates suggestion against file context before fallback to LLM", async () => {
         const provider = new InMemoryLLMProvider()
-        const filter = new HallucinationSafeguardFilter({llmProvider: provider})
+        const filter = new HallucinationSafeguardFilter({llmProvider: provider, defaults: hallucinationDefaults})
         const state = createStateWithFiles({}, [
             {
                 path: "src/app.ts",
@@ -247,7 +260,7 @@ describe("Safeguard filters", () => {
     test("uses LLM result when block is not in patch and discards when unsupported", async () => {
         const provider = new InMemoryLLMProvider()
         provider.responses.push({content: '{"isSupported": false}'})
-        const filter = new HallucinationSafeguardFilter({llmProvider: provider})
+        const filter = new HallucinationSafeguardFilter({llmProvider: provider, defaults: hallucinationDefaults})
         const state = createStateWithFiles({}, [
             {
                 path: "src/app.ts",

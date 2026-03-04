@@ -92,6 +92,12 @@ class InMemoryFeedbackRepository implements IFeedbackRepository {
 const reviewerId = UniqueId.create("reviewer-1")
 const teamAlpha = "team-alpha"
 const teamBeta = "team-beta"
+const learnTeamDefaults = {
+    minSampleSize: 5,
+    minConfidence: 0.35,
+    minWeightDelta: 0.1,
+    maxAdjustments: 20,
+}
 
 const baseTime = new Date("2025-02-10T00:00:00.000Z")
 
@@ -145,7 +151,10 @@ const feedback: IFeedbackRecord[] = [
 
 describe("LearnTeamPatternsUseCase", () => {
     test("learns team patterns and emits suggestion adjustments", async () => {
-        const useCase = new LearnTeamPatternsUseCase(new InMemoryFeedbackRepository(feedback))
+        const useCase = new LearnTeamPatternsUseCase({
+            feedbackRepository: new InMemoryFeedbackRepository(feedback),
+            defaults: learnTeamDefaults,
+        })
         const result = await useCase.execute({
             teamId: teamAlpha,
             minSampleSize: 5,
@@ -185,7 +194,10 @@ describe("LearnTeamPatternsUseCase", () => {
     })
 
     test("filters by rule ids", async () => {
-        const useCase = new LearnTeamPatternsUseCase(new InMemoryFeedbackRepository(feedback))
+        const useCase = new LearnTeamPatternsUseCase({
+            feedbackRepository: new InMemoryFeedbackRepository(feedback),
+            defaults: learnTeamDefaults,
+        })
         const result = await useCase.execute({
             teamId: teamAlpha,
             ruleIds: ["rule-b"],
@@ -200,7 +212,10 @@ describe("LearnTeamPatternsUseCase", () => {
     })
 
     test("returns empty when team has weak evidence", async () => {
-        const useCase = new LearnTeamPatternsUseCase(new InMemoryFeedbackRepository(feedback))
+        const useCase = new LearnTeamPatternsUseCase({
+            feedbackRepository: new InMemoryFeedbackRepository(feedback),
+            defaults: learnTeamDefaults,
+        })
         const result = await useCase.execute({
             teamId: teamAlpha,
             minSampleSize: 20,
@@ -214,7 +229,10 @@ describe("LearnTeamPatternsUseCase", () => {
     })
 
     test("returns validation error for missing teamId", async () => {
-        const useCase = new LearnTeamPatternsUseCase(new InMemoryFeedbackRepository(feedback))
+        const useCase = new LearnTeamPatternsUseCase({
+            feedbackRepository: new InMemoryFeedbackRepository(feedback),
+            defaults: learnTeamDefaults,
+        })
         const result = await useCase.execute({
             teamId: "",
         } as ILearnTeamPatternsInput)
@@ -233,7 +251,10 @@ describe("LearnTeamPatternsUseCase", () => {
     })
 
     test("returns validation error for invalid thresholds", async () => {
-        const useCase = new LearnTeamPatternsUseCase(new InMemoryFeedbackRepository(feedback))
+        const useCase = new LearnTeamPatternsUseCase({
+            feedbackRepository: new InMemoryFeedbackRepository(feedback),
+            defaults: learnTeamDefaults,
+        })
         const result = await useCase.execute({
             teamId: teamAlpha,
             minWeightDelta: 2,

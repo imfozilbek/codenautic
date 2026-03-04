@@ -32,6 +32,7 @@ import {Result} from "../../shared/result"
 import {deduplicate} from "../../shared/utils/deduplicate"
 import {hash} from "../../shared/utils/hash"
 import {readBooleanField} from "./review/pipeline-stage-state.utils"
+import type {IApplyRuleDefaults} from "../dto/config/system-defaults.dto"
 
 type RuleTarget = {
     readonly filePath: string
@@ -58,11 +59,6 @@ interface ISuggestionNumericFields {
 
 const CUSTOM_RULE_CATEGORY = "custom_rule"
 const APPLY_FILTERS_FLAG = "applyFiltersToCustomRules"
-const DEFAULT_PROMPT_MODEL = "gpt-4o-mini"
-const DEFAULT_PROMPT_MAX_TOKENS = 1200
-const DEFAULT_PROMPT_RANK_SCORE = 60
-const DEFAULT_REGEX_RANK_SCORE = 55
-const DEFAULT_RULE_SEVERITY: SeverityLevel = "MEDIUM"
 const GLOBAL_FILE_PATH = "GLOBAL"
 
 /**
@@ -138,6 +134,11 @@ export interface IApplyRuleUseCaseDependencies {
      * Optional validation service override.
      */
     readonly ruleValidationService?: RuleValidationService
+
+    /**
+     * Defaults resolved from config-service.
+     */
+    readonly defaults: IApplyRuleDefaults
 }
 
 /**
@@ -150,6 +151,7 @@ export class ApplyRuleUseCase implements
     private readonly filters: readonly ISafeGuardFilter[]
     private readonly astEvaluator: ICustomRuleAstEvaluator | undefined
     private readonly ruleValidationService: RuleValidationService
+    private readonly defaults: IApplyRuleDefaults
 
     /**
      * Creates apply rule use case.
@@ -161,6 +163,7 @@ export class ApplyRuleUseCase implements
         this.filters = dependencies.filters ?? []
         this.astEvaluator = dependencies.astEvaluator
         this.ruleValidationService = dependencies.ruleValidationService ?? new RuleValidationService()
+        this.defaults = dependencies.defaults
     }
 
     /**
@@ -604,7 +607,7 @@ export class ApplyRuleUseCase implements
                 message: `${rule.title}: ${rule.rule}`,
                 codeBlock: this.normalizeCodeBlock(matchedText),
                 committable: true,
-                rankScore: DEFAULT_REGEX_RANK_SCORE + rule.severity.weight,
+                rankScore: this.defaults.regexRankScore + rule.severity.weight,
             })
 
             match = regex.exec(target.content)
@@ -639,8 +642,8 @@ export class ApplyRuleUseCase implements
         ]
 
         return {
-            model: DEFAULT_PROMPT_MODEL,
-            maxTokens: DEFAULT_PROMPT_MAX_TOKENS,
+            model: this.defaults.promptModel,
+            maxTokens: this.defaults.promptMaxTokens,
             messages,
         }
     }
@@ -815,14 +818,14 @@ export class ApplyRuleUseCase implements
         const severity = this.readFallbackString(
             source,
             "severity",
-            DEFAULT_RULE_SEVERITY,
+            this.defaults.ruleSeverity,
         )
         const category = this.readFallbackString(source, "category", CUSTOM_RULE_CATEGORY)
         const committable = this.readFallbackBoolean(source, "committable", false)
         const rankScore = this.readFallbackPositiveInteger(
             source,
             "rankScore",
-            DEFAULT_PROMPT_RANK_SCORE,
+            this.defaults.promptRankScore,
         )
         const identitySeed = this.readFallbackString(
             source,
@@ -974,9 +977,9 @@ export class ApplyRuleUseCase implements
 
         const lineStart = this.readPositiveInteger(source["lineStart"]) ?? 1
         const lineEnd = this.readPositiveInteger(source["lineEnd"]) ?? lineStart
-        const severity = this.readNonEmptyString(source["severity"]) ?? DEFAULT_RULE_SEVERITY
+        const severity = this.readNonEmptyString(source["severity"]) ?? this.defaults.ruleSeverity
         const category = this.readNonEmptyString(source["category"]) ?? CUSTOM_RULE_CATEGORY
-        const rankScore = this.readPositiveInteger(source["rankScore"]) ?? DEFAULT_PROMPT_RANK_SCORE
+        const rankScore = this.readPositiveInteger(source["rankScore"]) ?? this.defaults.promptRankScore
         const committable = this.readBoolean(source["committable"]) ?? true
         const filePath = this.readNonEmptyString(source["filePath"]) ?? fallbackPath
         const codeBlock = this.readNonEmptyString(source["codeBlock"]) ?? ""
@@ -1011,12 +1014,12 @@ export class ApplyRuleUseCase implements
         const message = this.readNonEmptyString(source.message) ?? `${rule.title}: AST suggestion`
         const lineStart = this.readPositiveInteger(source.lineStart) ?? 1
         const lineEnd = this.readPositiveInteger(source.lineEnd) ?? lineStart
-        const severity = this.readNonEmptyString(source.severity) ?? DEFAULT_RULE_SEVERITY
+        const severity = this.readNonEmptyString(source.severity) ?? this.defaults.ruleSeverity
         const category = this.readNonEmptyString(source.category) ?? CUSTOM_RULE_CATEGORY
         const filePath = this.readNonEmptyString(source.filePath) ?? fallbackPath
         const committable = this.readBoolean(source.committable) ?? true
         const rankScore = this.readPositiveInteger(source.rankScore) ??
-            DEFAULT_PROMPT_RANK_SCORE + rule.severity.weight
+            this.defaults.promptRankScore + rule.severity.weight
 
         return {
             id: `${rule.id.value}:ast:${hash(`${filePath}|${lineStart}|${lineEnd}|${message}`)}`,
@@ -1379,6 +1382,6 @@ export class ApplyRuleUseCase implements
             return normalized as SeverityLevel
         }
 
-        return DEFAULT_RULE_SEVERITY
+        return this.defaults.ruleSeverity
     }
 }

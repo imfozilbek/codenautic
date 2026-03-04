@@ -9,6 +9,11 @@ import {StageError} from "../../../../src/domain/errors/stage.error"
 import {Result} from "../../../../src/shared/result"
 import type {IPipelineStageUseCase} from "../../../../src/application/types/review/pipeline-stage.contract"
 
+const dryRunDefaults = {
+    startAttempt: 1,
+    mutatingStageIds: ["create-check"],
+}
+
 class StaticStageUseCase implements IPipelineStageUseCase {
     public readonly stageId: string
     public readonly stageName: string
@@ -99,6 +104,7 @@ describe("DryRunReviewUseCase", () => {
                 "stage-a": writeStage,
                 "stage-b": readStage,
             },
+            defaults: dryRunDefaults,
             now: () => new Date("2026-03-03T08:00:00.000Z"),
         })
 
@@ -141,7 +147,7 @@ describe("DryRunReviewUseCase", () => {
                 "create-check": mutatingStage,
                 "stage-b": regularStage,
             },
-            mutatingStageIds: ["create-check"],
+            defaults: dryRunDefaults,
             now: () => new Date("2026-03-03T08:00:00.000Z"),
         })
         const definitionWithMutating: IPipelineDefinition = {
@@ -188,6 +194,7 @@ describe("DryRunReviewUseCase", () => {
                     })
                 }),
             },
+            defaults: dryRunDefaults,
         })
 
         const result = await useCase.execute({
@@ -220,6 +227,7 @@ describe("DryRunReviewUseCase", () => {
                 "stage-a": stageA,
                 "stage-b": stageB,
             },
+            defaults: dryRunDefaults,
         })
         const state = createState("run-4", "v1").with({
             currentStageId: "stage-a",
@@ -258,6 +266,7 @@ describe("DryRunReviewUseCase", () => {
                     })
                 }),
             },
+            defaults: dryRunDefaults,
         })
 
         const result = await useCase.execute({
@@ -286,6 +295,7 @@ describe("DryRunReviewUseCase", () => {
                     })
                 }),
             },
+            defaults: dryRunDefaults,
         })
         const state = createState("run-6", "v1").with({
             currentStageId: "stage-a",
@@ -337,6 +347,7 @@ describe("DryRunReviewUseCase", () => {
                 "stage-b": stageB,
                 "stage-c": stageC,
             },
+            defaults: dryRunDefaults,
         })
 
         const result = await useCase.execute({

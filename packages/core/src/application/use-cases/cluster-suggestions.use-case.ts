@@ -4,11 +4,8 @@ import {ValidationError} from "../../domain/errors/validation.error"
 import type {IUseCase} from "../ports/inbound/use-case.port"
 import type {ISuggestionClusterDTO} from "../dto/review/suggestion-cluster.dto"
 import {Result} from "../../shared/result"
-
-/**
- * Supported clustering modes.
- */
-export type SuggestionClusteringMode = "MINIMAL" | "SMART" | "FULL"
+import type {SuggestionClusteringMode} from "../dto/analytics/suggestion-clustering.dto"
+import type {IClusteringDefaults} from "../dto/config/system-defaults.dto"
 
 /**
  * Embedding contract for clustering.
@@ -81,6 +78,13 @@ export interface IClusterSuggestionsInput {
 export type IClusterSuggestionsOutput = readonly ISuggestionClusterDTO[]
 
 /**
+ * Dependencies for clustering use case.
+ */
+export interface IClusterSuggestionsDependencies {
+    readonly defaults: IClusteringDefaults
+}
+
+/**
  * Internal normalized suggestion item for processing.
  */
 interface INormalizedSuggestion {
@@ -132,10 +136,18 @@ interface IClusterExecutionBase {
 export class ClusterSuggestionsUseCase
     implements IUseCase<IClusterSuggestionsInput, IClusterSuggestionsOutput, ValidationError>
 {
-    private static readonly DEFAULT_MODE: SuggestionClusteringMode = "MINIMAL"
-    private static readonly DEFAULT_SIMILARITY_THRESHOLD = 0.75
     private static readonly MIN_SIMILARITY_THRESHOLD = 0
     private static readonly MAX_SIMILARITY_THRESHOLD = 1
+    private readonly defaults: IClusteringDefaults
+
+    /**
+     * Creates clustering use case.
+     *
+     * @param dependencies Defaults resolved from config-service.
+     */
+    public constructor(dependencies: IClusterSuggestionsDependencies) {
+        this.defaults = dependencies.defaults
+    }
 
     /**
      * Clusters input suggestions according to selected mode.
@@ -255,9 +267,8 @@ export class ClusterSuggestionsUseCase
             }
         }
 
-        const resolvedMode = mode.value ?? ClusterSuggestionsUseCase.DEFAULT_MODE
-        const resolvedThreshold =
-            threshold.value ?? ClusterSuggestionsUseCase.DEFAULT_SIMILARITY_THRESHOLD
+        const resolvedMode = mode.value ?? this.defaults.mode
+        const resolvedThreshold = threshold.value ?? this.defaults.similarityThreshold
 
         return {
             result: Result.ok<IClusterExecutionBase, ValidationError>({
@@ -390,7 +401,7 @@ export class ClusterSuggestionsUseCase
         readonly result: Result<SuggestionClusteringMode, ValidationError>
         readonly value?: SuggestionClusteringMode
     } {
-        const normalizedMode = mode ?? ClusterSuggestionsUseCase.DEFAULT_MODE
+        const normalizedMode = mode ?? this.defaults.mode
         const fields: IValidationErrorField[] = []
 
         if (
@@ -430,8 +441,8 @@ export class ClusterSuggestionsUseCase
         const fields: IValidationErrorField[] = []
         if (rawThreshold === undefined) {
             return {
-                result: Result.ok<number, ValidationError>(ClusterSuggestionsUseCase.DEFAULT_SIMILARITY_THRESHOLD),
-                value: ClusterSuggestionsUseCase.DEFAULT_SIMILARITY_THRESHOLD,
+                result: Result.ok<number, ValidationError>(this.defaults.similarityThreshold),
+                value: this.defaults.similarityThreshold,
             }
         }
 
@@ -856,7 +867,7 @@ export class ClusterSuggestionsUseCase
         }
 
         const dimensionsRaw = embedding.dimensions === undefined ? vector.length : embedding.dimensions
-        const modelRaw = this.readNonEmptyString(embedding.model) ?? "default-embedding-model"
+        const modelRaw = this.readNonEmptyString(embedding.model) ?? this.defaults.embeddingModel
         return {
             vector,
             dimensions: dimensionsRaw,

@@ -102,6 +102,7 @@ export {
     type IRuleCategoryConfigData,
     type IRuleConfigData,
     type IRuleConfigExampleData,
+    type IApplicationDefaultsDTO,
     REVIEW_OVERRIDE_PROMPT_NAMES,
     type IReviewOverrideCategoryConfig,
     type IReviewOverrideCategoryDescriptions,
@@ -301,7 +302,6 @@ export {
     type IClusterSuggestionsInput,
     type IClusterSuggestionsOutput,
     type ISuggestionEmbeddingDTO,
-    type SuggestionClusteringMode,
 } from "./application/use-cases/cluster-suggestions.use-case"
 export {
     CheckCommittabilityUseCase,
@@ -707,7 +707,6 @@ export {
     InboxDeduplicationService,
 } from "./application/services/messaging/inbox-deduplication.service"
 export {
-    type IOutboxRelayOptions,
     type IOutboxRelayResult,
     type IOutboxRelayService,
     OutboxRelayService,

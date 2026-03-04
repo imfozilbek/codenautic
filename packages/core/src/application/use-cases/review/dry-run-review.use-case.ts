@@ -16,19 +16,10 @@ import {
 } from "../../types/review/pipeline-result.type"
 import {StageError} from "../../../domain/errors/stage.error"
 import {Result} from "../../../shared/result"
+import type {IReviewDryRunDefaults} from "../../dto/config/system-defaults.dto"
 
 const PIPELINE_RUNTIME_STAGE_ID = "pipeline-runtime"
 const PIPELINE_DEFINITION_STAGE_ID = "pipeline-definition"
-const DEFAULT_START_ATTEMPT = 1
-const DEFAULT_DRY_RUN_MUTATING_STAGE_IDS = [
-    "create-check",
-    "create-file-comments",
-    "create-ccr-level-comments",
-    "request-changes-or-approve",
-    "initial-comment",
-    "finalize-check",
-    "emit-events",
-]
 
 interface IStageRunOutput {
     state: ReviewPipelineState
@@ -57,7 +48,7 @@ export interface IDryRunReviewCommand {
 export interface IDryRunReviewDependencies {
     readonly stages: Readonly<Record<string, IPipelineStageUseCase>>
     readonly now?: () => Date
-    readonly mutatingStageIds?: readonly string[]
+    readonly defaults: IReviewDryRunDefaults
 }
 
 /**
@@ -67,6 +58,7 @@ export class DryRunReviewUseCase implements IUseCase<IDryRunReviewCommand, IPipe
     private readonly stages: Readonly<Record<string, IPipelineStageUseCase>>
     private readonly nowProvider: () => Date
     private readonly mutatingStageIds: ReadonlySet<string>
+    private readonly defaults: IReviewDryRunDefaults
 
     /**
      * Creates dry-run review use case.
@@ -75,10 +67,9 @@ export class DryRunReviewUseCase implements IUseCase<IDryRunReviewCommand, IPipe
      */
     public constructor(dependencies: IDryRunReviewDependencies) {
         this.stages = dependencies.stages
+        this.defaults = dependencies.defaults
         this.nowProvider = dependencies.now ?? (() => new Date())
-        this.mutatingStageIds = new Set(
-            dependencies.mutatingStageIds ?? DEFAULT_DRY_RUN_MUTATING_STAGE_IDS,
-        )
+        this.mutatingStageIds = new Set(this.defaults.mutatingStageIds)
     }
 
     /**
@@ -662,7 +653,7 @@ export class DryRunReviewUseCase implements IUseCase<IDryRunReviewCommand, IPipe
             runId: state.runId,
             definitionVersion,
             stageId,
-            attempt: DEFAULT_START_ATTEMPT,
+            attempt: this.defaults.startAttempt,
             recoverable: false,
             message,
         })

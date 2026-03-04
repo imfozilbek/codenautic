@@ -14,6 +14,7 @@ import type {
     IVectorRepository,
     IVectorSearchResultDTO,
 } from "../../ports/outbound/vector/vector-repository.port"
+import type {IReviewAugmentContextDefaults} from "../../dto/config/system-defaults.dto"
 
 interface IRelatedContext {
     readonly path: string
@@ -32,15 +33,15 @@ interface IAugmentContextPatch {
     }
 }
 
-const DEFAULT_AUGMENT_CONTEXT_STAGE_ID = "augment-context"
+const AUGMENT_CONTEXT_STAGE_ID = "augment-context"
 const AUGMENT_CONTEXT_STAGE_NAME = "Augment Context"
-const DEFAULT_RELATED_FILES_LIMIT = 20
 
 /**
  * Dependencies for augment-context stage use case.
  */
 export interface IAugmentContextDependencies {
     readonly vectorRepository: IVectorRepository
+    readonly defaults: IReviewAugmentContextDefaults
 }
 
 /**
@@ -53,6 +54,7 @@ export class AugmentContextUseCase
     public readonly stageName: string
 
     private readonly vectorRepository: IVectorRepository
+    private readonly defaults: IReviewAugmentContextDefaults
 
     /**
      * Creates augment-context stage use case.
@@ -61,7 +63,8 @@ export class AugmentContextUseCase
      */
     public constructor(dependencies: IAugmentContextDependencies) {
         this.vectorRepository = dependencies.vectorRepository
-        this.stageId = DEFAULT_AUGMENT_CONTEXT_STAGE_ID
+        this.defaults = dependencies.defaults
+        this.stageId = AUGMENT_CONTEXT_STAGE_ID
         this.stageName = AUGMENT_CONTEXT_STAGE_NAME
     }
 
@@ -143,7 +146,7 @@ export class AugmentContextUseCase
         const rawExternalContext = readObjectField(state.mergeRequest, "externalContext")
         const rawLimit = rawExternalContext?.["limit"]
         if (typeof rawLimit !== "number" || Number.isInteger(rawLimit) === false || rawLimit < 1) {
-            return DEFAULT_RELATED_FILES_LIMIT
+            return this.defaults.relatedFilesLimit
         }
 
         return rawLimit

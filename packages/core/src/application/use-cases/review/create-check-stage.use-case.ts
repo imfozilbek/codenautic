@@ -12,15 +12,14 @@ import {
     mergeExternalContext,
     readStringField,
 } from "./pipeline-stage-state.utils"
-
-const DEFAULT_CHECK_RUN_NAME = "CodeNautic Review"
+import type {IReviewCheckRunDefaults} from "../../dto/config/system-defaults.dto"
 
 /**
  * Dependencies for create-check stage use case.
  */
 export interface ICreateCheckStageDependencies {
     gitProvider: IGitProvider
-    checkRunName?: string
+    defaults: IReviewCheckRunDefaults
 }
 
 /**
@@ -42,7 +41,7 @@ export class CreateCheckStageUseCase implements IPipelineStageUseCase {
         this.stageId = "create-check"
         this.stageName = "Create Check"
         this.gitProvider = dependencies.gitProvider
-        this.checkRunName = dependencies.checkRunName ?? DEFAULT_CHECK_RUN_NAME
+        this.checkRunName = dependencies.defaults.checkRunName
     }
 
     /**

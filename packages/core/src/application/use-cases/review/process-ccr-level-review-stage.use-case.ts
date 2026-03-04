@@ -18,10 +18,7 @@ import {
     mergeExternalContext,
     readStringField,
 } from "./pipeline-stage-state.utils"
-
-const DEFAULT_CCR_MODEL = "gpt-4o-mini"
-const DEFAULT_CCR_MAX_TOKENS = 1200
-const DEFAULT_CCR_PROMPT_NAME = "ccr-level-review"
+import type {IReviewCcrDefaults} from "../../dto/config/system-defaults.dto"
 
 type ParsedJsonPayload = unknown[] | Readonly<Record<string, unknown>>
 
@@ -32,7 +29,7 @@ export interface IProcessCcrLevelReviewStageDependencies {
     llmProvider: ILLMProvider
     generatePromptUseCase: IUseCase<IGeneratePromptInput, string, ValidationError>
     ruleContextFormatterService: RuleContextFormatterService
-    model?: string
+    defaults: IReviewCcrDefaults
 }
 
 /**
@@ -46,6 +43,7 @@ export class ProcessCcrLevelReviewStageUseCase implements IPipelineStageUseCase 
     private readonly generatePromptUseCase: IUseCase<IGeneratePromptInput, string, ValidationError>
     private readonly ruleContextFormatterService: RuleContextFormatterService
     private readonly model: string
+    private readonly defaults: IReviewCcrDefaults
 
     /**
      * Creates process-ccr-level-review stage use case.
@@ -58,7 +56,8 @@ export class ProcessCcrLevelReviewStageUseCase implements IPipelineStageUseCase 
         this.llmProvider = dependencies.llmProvider
         this.generatePromptUseCase = dependencies.generatePromptUseCase
         this.ruleContextFormatterService = dependencies.ruleContextFormatterService
-        this.model = dependencies.model ?? DEFAULT_CCR_MODEL
+        this.defaults = dependencies.defaults
+        this.model = dependencies.defaults.model
     }
 
     /**
@@ -126,7 +125,7 @@ export class ProcessCcrLevelReviewStageUseCase implements IPipelineStageUseCase 
     ): IChatRequestDTO {
         return {
             model: this.model,
-            maxTokens: DEFAULT_CCR_MAX_TOKENS,
+            maxTokens: this.defaults.maxTokens,
             messages: [
                 {
                     role: "system",
@@ -160,7 +159,7 @@ export class ProcessCcrLevelReviewStageUseCase implements IPipelineStageUseCase 
 
         try {
             const result = await this.generatePromptUseCase.execute({
-                name: DEFAULT_CCR_PROMPT_NAME,
+                name: this.defaults.promptName,
                 organizationId: organizationId ?? null,
                 runtimeVariables: {
                     files: fileSummaries,
@@ -172,7 +171,7 @@ export class ProcessCcrLevelReviewStageUseCase implements IPipelineStageUseCase 
                     this.createStageError(
                         runId,
                         definitionVersion,
-                        `Missing prompt template '${DEFAULT_CCR_PROMPT_NAME}' for CCR review stage`,
+                        `Missing prompt template '${this.defaults.promptName}' for CCR review stage`,
                         false,
                         result.error,
                     ),
@@ -185,7 +184,7 @@ export class ProcessCcrLevelReviewStageUseCase implements IPipelineStageUseCase 
                     this.createStageError(
                         runId,
                         definitionVersion,
-                        `Empty prompt template '${DEFAULT_CCR_PROMPT_NAME}' for CCR review stage`,
+                        `Empty prompt template '${this.defaults.promptName}' for CCR review stage`,
                         false,
                     ),
                 )

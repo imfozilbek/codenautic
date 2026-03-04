@@ -11,10 +11,15 @@ import {
     type IMCPToolResult,
     type IMCPToolsListResponse,
 } from "../../../src/application/dto/mcp"
+import type {IMcpDefaults} from "../../../src/application/dto/config/system-defaults.dto"
+
+const MCP_DEFAULTS: IMcpDefaults = {
+    protocolVersion: "2025-01-01",
+}
 
 describe("MCPServer", () => {
     test("returns initialize capabilities", async () => {
-        const server = new MCPServer()
+        const server = new MCPServer(MCP_DEFAULTS)
 
         const response = await server.handleRequest({
             id: "init-1",
@@ -31,7 +36,7 @@ describe("MCPServer", () => {
     })
 
     test("lists registered tools", async () => {
-        const server = new MCPServer()
+        const server = new MCPServer(MCP_DEFAULTS)
         const tool: IMCPTool = {
             name: "echo",
             description: "Echo args",
@@ -59,7 +64,7 @@ describe("MCPServer", () => {
     })
 
     test("calls tool and validates result output", async () => {
-        const server = new MCPServer()
+        const server = new MCPServer(MCP_DEFAULTS)
         server.registerTool(
             {
                 name: "echo",
@@ -97,7 +102,7 @@ describe("MCPServer", () => {
     })
 
     test("returns list of resources", async () => {
-        const server = new MCPServer()
+        const server = new MCPServer(MCP_DEFAULTS)
         server.registerResource(
             {
                 uri: "mcp://system/info",
@@ -124,7 +129,7 @@ describe("MCPServer", () => {
     })
 
     test("returns method not found for unknown method", async () => {
-        const server = new MCPServer()
+        const server = new MCPServer(MCP_DEFAULTS)
 
         const response = await server.handleRequest({
             id: "bad",
@@ -136,7 +141,7 @@ describe("MCPServer", () => {
     })
 
     test("returns invalid params for malformed tool call", async () => {
-        const server = new MCPServer()
+        const server = new MCPServer(MCP_DEFAULTS)
         server.registerTool(
             {
                 name: "echo",

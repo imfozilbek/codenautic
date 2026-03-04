@@ -1,11 +1,7 @@
 import type {IUseCase} from "../ports/inbound/use-case.port"
 import type {ISuggestionClusterDTO} from "../dto/review/suggestion-cluster.dto"
-import type {
-    IClusterSuggestionsInput,
-    ISuggestionForClustering,
-    SuggestionClusteringMode,
-} from "../use-cases/cluster-suggestions.use-case"
-import {ClusterSuggestionsUseCase} from "../use-cases/cluster-suggestions.use-case"
+import type {IClusterSuggestionsInput, ISuggestionForClustering} from "../use-cases/cluster-suggestions.use-case"
+import type {SuggestionClusteringMode} from "../dto/analytics/suggestion-clustering.dto"
 import {ValidationError} from "../../domain/errors/validation.error"
 
 /**
@@ -15,7 +11,7 @@ interface ISuggestionClusteringServiceDependencies {
     /**
      * Use case used for actual clustering algorithm.
      */
-    readonly clusteringUseCase?: IUseCase<
+    readonly clusteringUseCase: IUseCase<
         IClusterSuggestionsInput,
         readonly ISuggestionClusterDTO[],
         ValidationError
@@ -52,8 +48,8 @@ export class SuggestionClusteringService implements ISuggestionClusteringService
         ValidationError
     >
 
-    public constructor(dependencies: ISuggestionClusteringServiceDependencies = {}) {
-        this.useCase = dependencies.clusteringUseCase ?? new ClusterSuggestionsUseCase()
+    public constructor(dependencies: ISuggestionClusteringServiceDependencies) {
+        this.useCase = dependencies.clusteringUseCase
     }
 
     /**

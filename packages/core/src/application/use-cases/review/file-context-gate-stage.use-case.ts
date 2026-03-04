@@ -10,8 +10,7 @@ import {
     mergeExternalContext,
     readObjectField,
 } from "./pipeline-stage-state.utils"
-
-const DEFAULT_BATCH_SIZE = 30
+import type {IFileContextGateDefaults} from "../../dto/config/system-defaults.dto"
 
 /**
  * Stage 8 use case. Filters files by context availability and creates processing batches.
@@ -19,13 +18,15 @@ const DEFAULT_BATCH_SIZE = 30
 export class FileContextGateStageUseCase implements IPipelineStageUseCase {
     public readonly stageId: string
     public readonly stageName: string
+    private readonly defaults: IFileContextGateDefaults
 
     /**
      * Creates file-context-gate stage use case.
      */
-    public constructor() {
+    public constructor(defaults: IFileContextGateDefaults) {
         this.stageId = "file-context-gate"
         this.stageName = "File Context Gate"
+        this.defaults = defaults
     }
 
     /**
@@ -90,7 +91,7 @@ export class FileContextGateStageUseCase implements IPipelineStageUseCase {
             !Number.isInteger(rawBatchSize) ||
             rawBatchSize < 1
         ) {
-            return DEFAULT_BATCH_SIZE
+            return this.defaults.batchSize
         }
 
         return rawBatchSize

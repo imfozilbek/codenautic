@@ -5,11 +5,11 @@ import {
     type IMentionCommand,
     type IRawMentionCommandInput,
     type CommandType,
-    DEFAULT_COMMAND_TYPES,
+    SUPPORTED_COMMAND_TYPES,
 } from "./mention-command.types"
 import {ValidationError, type IValidationErrorField} from "../../../domain/errors/validation.error"
 import {Result} from "../../../shared/result"
-import type {ISystemSettingsProvider} from "../../ports/outbound/common/system-settings-provider.port"
+import type {IMentionCommandDefaults} from "../../dto/config/system-defaults.dto"
 
 /** Mention prefix used for detection and parsing. */
 const MENTION_PREFIX = "@codenautic"
@@ -39,8 +39,8 @@ interface IParsedMentionCommand {
 export interface IExecuteMentionCommandUseCaseDependencies {
     /** Available command handlers by command type. */
     readonly handlers: readonly ICommandHandler[]
-    /** Optional system settings provider for command allowlist. */
-    readonly systemSettingsProvider?: ISystemSettingsProvider
+    /** Defaults resolved from config-service. */
+    readonly defaults: IMentionCommandDefaults
 }
 
 /**
@@ -50,7 +50,7 @@ export class ExecuteMentionCommandUseCase
     implements IUseCase<IRawMentionCommandInput, ICommandResult, ValidationError>
 {
     private readonly handlers: ReadonlyMap<CommandType, ICommandHandler>
-    private readonly systemSettingsProvider?: ISystemSettingsProvider
+    private readonly allowedCommands: readonly CommandType[]
 
     /**
      * Creates execute mention command use case.
@@ -59,7 +59,7 @@ export class ExecuteMentionCommandUseCase
      */
     public constructor(dependencies: IExecuteMentionCommandUseCaseDependencies) {
         this.handlers = this.createHandlerIndex(dependencies.handlers)
-        this.systemSettingsProvider = dependencies.systemSettingsProvider
+        this.allowedCommands = this.normalizeAllowedCommands(dependencies.defaults.allowedCommands)
     }
 
     /**
@@ -76,7 +76,7 @@ export class ExecuteMentionCommandUseCase
             )
         }
 
-        const allowedCommands = await this.resolveAllowedCommands()
+        const allowedCommands = this.allowedCommands
         const parsed = this.parseCommand(input.sourceComment, allowedCommands)
         if (parsed === undefined) {
             return Result.fail<ICommandResult, ValidationError>(
@@ -287,29 +287,22 @@ export class ExecuteMentionCommandUseCase
         return allowedCommands.includes(commandType as CommandType)
     }
 
-    private async resolveAllowedCommands(): Promise<readonly CommandType[]> {
-        const defaults = DEFAULT_COMMAND_TYPES
-        if (this.systemSettingsProvider === undefined) {
-            return defaults
+    private normalizeAllowedCommands(commands: readonly string[]): readonly CommandType[] {
+        const normalized = commands
+            .map((value) => value.trim().toLowerCase())
+            .filter((value) => value.length > 0)
+
+        if (normalized.length === 0) {
+            throw new Error("Mention command allowlist is empty")
         }
 
-        try {
-            const configured = await this.systemSettingsProvider.get<readonly string[]>(
-                "mention.available_commands",
-            )
-            if (configured === undefined || configured.length === 0) {
-                return defaults
+        for (const value of normalized) {
+            if (SUPPORTED_COMMAND_TYPES.includes(value as CommandType) === false) {
+                throw new Error(`Unsupported mention command '${value}'`)
             }
-
-            const normalized = configured
-                .map((value) => value.trim().toLowerCase())
-                .filter((value) => value.length > 0)
-                .filter((value): value is CommandType => defaults.includes(value as CommandType))
-
-            return normalized.length > 0 ? normalized : defaults
-        } catch {
-            return defaults
         }
+
+        return normalized as readonly CommandType[]
     }
 
     /**

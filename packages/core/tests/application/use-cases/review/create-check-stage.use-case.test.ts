@@ -14,6 +14,10 @@ import type {
 import {CreateCheckStageUseCase} from "../../../../src/application/use-cases/review/create-check-stage.use-case"
 import {ReviewPipelineState} from "../../../../src/application/types/review/review-pipeline-state"
 
+const checkRunDefaults = {
+    checkRunName: "CodeNautic Review",
+}
+
 class InMemoryGitProvider implements IGitProvider {
     public lastMergeRequestId: string | null = null
     public lastCheckName: string | null = null
@@ -102,6 +106,7 @@ describe("CreateCheckStageUseCase", () => {
         const gitProvider = new InMemoryGitProvider()
         const useCase = new CreateCheckStageUseCase({
             gitProvider,
+            defaults: checkRunDefaults,
         })
         const state = createState({
             id: "mr-10",
@@ -121,6 +126,7 @@ describe("CreateCheckStageUseCase", () => {
     test("returns fail result when merge request id is missing", async () => {
         const useCase = new CreateCheckStageUseCase({
             gitProvider: new InMemoryGitProvider(),
+            defaults: checkRunDefaults,
         })
         const state = createState({})
 
@@ -139,7 +145,9 @@ describe("CreateCheckStageUseCase", () => {
 
         const useCase = new CreateCheckStageUseCase({
             gitProvider,
-            checkRunName: "Custom Check Name",
+            defaults: {
+                checkRunName: "Custom Check Name",
+            },
         })
         const state = createState({
             id: "mr-10",

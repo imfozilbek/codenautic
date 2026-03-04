@@ -16,6 +16,7 @@ import {
     type IMCPToolsListResponse,
     MCP_METHOD,
 } from "../dto/mcp"
+import type {IMcpDefaults} from "../dto/config/system-defaults.dto"
 
 /**
  * Contract for MCP server implementation.
@@ -54,12 +55,21 @@ export class MCPServer implements IMCPServer {
     private readonly resources = new Map<string, IMCPResource>()
     private readonly handlers = new Map<string, IMCPToolHandler>()
     private readonly resourceProviders = new Map<string, IMCPResourceProvider>()
+    private readonly protocolVersion: IMcpDefaults["protocolVersion"]
 
     private static readonly JSONRPC_VERSION = "2.0"
-    private static readonly DEFAULT_PROTOCOL_VERSION = "2025-01-01"
     private static readonly INVALID_REQUEST = -32600
     private static readonly METHOD_NOT_FOUND = -32601
     private static readonly INVALID_PARAMS = -32602
+
+    /**
+     * Creates MCP server instance.
+     *
+     * @param defaults Defaults resolved from config-service.
+     */
+    public constructor(defaults: IMcpDefaults) {
+        this.protocolVersion = defaults.protocolVersion
+    }
 
     /**
      * {@inheritDoc}
@@ -124,7 +134,7 @@ export class MCPServer implements IMCPServer {
      */
     private createInitializeResponse(id: IMCPRequestId | undefined): IMCPToolResult {
         const payload: IMCPInitializeResponse = {
-            protocolVersion: MCPServer.DEFAULT_PROTOCOL_VERSION,
+            protocolVersion: this.protocolVersion,
             capabilities: {
                 tools: {
                     listChanged: false,

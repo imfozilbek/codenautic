@@ -10,9 +10,8 @@ import {type ILibraryRuleFilters} from "../../ports/outbound/rule/library-rule-r
 import type {ILibraryRuleRepository} from "../../ports/outbound/rule/library-rule-repository.port"
 import type {IListRulesInput, IListRulesOutput} from "../../dto/rules/list-rules.dto"
 import {Result} from "../../../shared/result"
+import type {IListRulesDefaults} from "../../dto/config/system-defaults.dto"
 
-const DEFAULT_PAGE = 1
-const DEFAULT_LIMIT = 20
 const MAX_LIMIT = 100
 
 interface INormalizedListRulesInput {
@@ -31,14 +30,19 @@ export class ListRulesUseCase implements
     IUseCase<IListRulesInput, IListRulesOutput, ValidationError>
 {
     private readonly ruleRepository: ILibraryRuleRepository
+    private readonly defaults: IListRulesDefaults
 
     /**
      * Creates use case instance.
      *
-     * @param ruleRepository Library-rule persistence contract.
+     * @param dependencies Use case dependencies.
      */
-    public constructor(ruleRepository: ILibraryRuleRepository) {
-        this.ruleRepository = ruleRepository
+    public constructor(dependencies: {
+        readonly ruleRepository: ILibraryRuleRepository
+        readonly defaults: IListRulesDefaults
+    }) {
+        this.ruleRepository = dependencies.ruleRepository
+        this.defaults = dependencies.defaults
     }
 
     /**
@@ -83,8 +87,8 @@ export class ListRulesUseCase implements
         const language = this.normalizeLanguage(input.language)
         const severity = this.normalizeSeverity(input.severity)
         const scope = this.normalizeScope(input.scope)
-        const page = this.normalizePositiveInteger(input.page, DEFAULT_PAGE, "page")
-        const limit = this.normalizePositiveInteger(input.limit, DEFAULT_LIMIT, "limit")
+        const page = this.normalizePositiveInteger(input.page, this.defaults.page, "page")
+        const limit = this.normalizePositiveInteger(input.limit, this.defaults.limit, "limit")
 
         this.collectError(fields, category.error, "category")
         this.collectError(fields, language.error, "language")

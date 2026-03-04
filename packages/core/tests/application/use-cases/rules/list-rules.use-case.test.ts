@@ -12,6 +12,11 @@ import type {ILibraryRuleFilters} from "../../../../src/application/ports/outbou
 import type {ILibraryRuleRepository} from "../../../../src/application/ports/outbound/rule/library-rule-repository.port"
 import {ListRulesUseCase} from "../../../../src/application/use-cases/rules/list-rules.use-case"
 
+const listRulesDefaults = {
+    page: 1,
+    limit: 20,
+}
+
 class InMemoryLibraryRuleRepository implements ILibraryRuleRepository {
     private readonly storage: Map<string, LibraryRule>
 
@@ -133,7 +138,7 @@ describe("ListRulesUseCase", () => {
             }),
         ])
 
-        const useCase = new ListRulesUseCase(repository)
+        const useCase = new ListRulesUseCase({ruleRepository: repository, defaults: listRulesDefaults})
         const result = await useCase.execute({page: 1, limit: 2})
 
         expect(result.isOk).toBe(true)
@@ -180,7 +185,7 @@ describe("ListRulesUseCase", () => {
             }),
         ])
 
-        const useCase = new ListRulesUseCase(repository)
+        const useCase = new ListRulesUseCase({ruleRepository: repository, defaults: listRulesDefaults})
         const result = await useCase.execute({
             language: "ts",
             category: "QUALITY",
@@ -197,7 +202,10 @@ describe("ListRulesUseCase", () => {
     })
 
     test("валидация собирает все ошибки для неверных параметров", async () => {
-        const useCase = new ListRulesUseCase(new InMemoryLibraryRuleRepository())
+        const useCase = new ListRulesUseCase({
+            ruleRepository: new InMemoryLibraryRuleRepository(),
+            defaults: listRulesDefaults,
+        })
         const result = await useCase.execute({
             language: 10 as unknown as string,
             severity: "weird",
@@ -269,7 +277,7 @@ describe("ListRulesUseCase", () => {
             }),
         ])
 
-        const useCase = new ListRulesUseCase(repository)
+        const useCase = new ListRulesUseCase({ruleRepository: repository, defaults: listRulesDefaults})
         const result = await useCase.execute({
             page: 2,
             limit: 2,
@@ -308,7 +316,7 @@ describe("ListRulesUseCase", () => {
             }),
         ])
 
-        const useCase = new ListRulesUseCase(repository)
+        const useCase = new ListRulesUseCase({ruleRepository: repository, defaults: listRulesDefaults})
         const result = await useCase.execute({
             language: "*",
         })

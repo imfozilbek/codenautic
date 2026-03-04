@@ -8,6 +8,10 @@ import type {
 import {ReviewPipelineState} from "../../../../src/application/types/review/review-pipeline-state"
 import {LoadExternalContextStageUseCase} from "../../../../src/application/use-cases/review/load-external-context-stage.use-case"
 
+const externalContextDefaults = {
+    limit: 20,
+}
+
 class InMemoryVectorRepository implements IVectorRepository {
     public shouldThrow = false
     public searchResults: readonly IVectorSearchResultDTO[] = []
@@ -59,6 +63,7 @@ describe("LoadExternalContextStageUseCase", () => {
         const vectorRepository = new InMemoryVectorRepository()
         const useCase = new LoadExternalContextStageUseCase({
             vectorRepository,
+            defaults: externalContextDefaults,
         })
         const state = createState({
             repositoryId: "repo-1",
@@ -87,6 +92,7 @@ describe("LoadExternalContextStageUseCase", () => {
 
         const useCase = new LoadExternalContextStageUseCase({
             vectorRepository,
+            defaults: externalContextDefaults,
         })
         const state = createState({
             repositoryId: "repo-1",
@@ -116,6 +122,7 @@ describe("LoadExternalContextStageUseCase", () => {
 
         const useCase = new LoadExternalContextStageUseCase({
             vectorRepository,
+            defaults: externalContextDefaults,
         })
         const state = createState({
             projectId: "repo-2",
@@ -137,6 +144,7 @@ describe("LoadExternalContextStageUseCase", () => {
         const vectorRepository = new InMemoryVectorRepository()
         const useCase = new LoadExternalContextStageUseCase({
             vectorRepository,
+            defaults: externalContextDefaults,
         })
         const state = createState({
             contextEmbedding: [0.1, "0.2"],

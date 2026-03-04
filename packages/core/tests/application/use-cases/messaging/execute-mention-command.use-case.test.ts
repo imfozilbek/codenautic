@@ -7,7 +7,6 @@ import type {
     CommandType,
     IRawMentionCommandInput,
 } from "../../../../src/application/use-cases/messaging/mention-command.types"
-import type {ISystemSettingsProvider} from "../../../../src/application/ports/outbound/common/system-settings-provider.port"
 import {
     ExecuteMentionCommandUseCase,
     type IExecuteMentionCommandUseCaseDependencies,
@@ -67,17 +66,15 @@ function createInput(overrides: Partial<IRawMentionCommandInput> = {}): IRawMent
 }
 
 describe("ExecuteMentionCommandUseCase", () => {
-    const buildSettingsProvider = (
-        value?: readonly string[],
-    ): ISystemSettingsProvider => ({
-        get: <T>(key: string): Promise<T | undefined> => {
-            if (key !== "mention.available_commands") {
-                return Promise.resolve(undefined)
-            }
-            return Promise.resolve(value as T | undefined)
-        },
-        getMany: <T>(): Promise<ReadonlyMap<string, T>> => Promise.resolve(new Map()),
-    })
+    const allowedCommands = [
+        "review",
+        "explain",
+        "fix",
+        "summary",
+        "help",
+        "config",
+        "chat",
+    ]
     test("маршрутизирует известную команду к handler и прокидывает контекст", async () => {
         const handler = new FakeCommandHandler(
             () => Promise.resolve({
@@ -87,6 +84,9 @@ describe("ExecuteMentionCommandUseCase", () => {
         )
         const useCase = new ExecuteMentionCommandUseCase({
             handlers: [handler],
+            defaults: {
+                allowedCommands,
+            },
         } satisfies IExecuteMentionCommandUseCaseDependencies)
 
         const result = await useCase.execute(createInput())
@@ -111,6 +111,9 @@ describe("ExecuteMentionCommandUseCase", () => {
     test("возвращает help для команды help", async () => {
         const useCase = new ExecuteMentionCommandUseCase({
             handlers: [],
+            defaults: {
+                allowedCommands,
+            },
         } satisfies IExecuteMentionCommandUseCaseDependencies)
 
         const result = await useCase.execute(createInput({
@@ -127,6 +130,9 @@ describe("ExecuteMentionCommandUseCase", () => {
     test("возвращает help для неизвестной команды с указанием имени", async () => {
         const useCase = new ExecuteMentionCommandUseCase({
             handlers: [],
+            defaults: {
+                allowedCommands,
+            },
         } satisfies IExecuteMentionCommandUseCaseDependencies)
 
         const result = await useCase.execute(createInput({
@@ -143,6 +149,9 @@ describe("ExecuteMentionCommandUseCase", () => {
     test("возвращает подсказку, если handler для команды отсутствует", async () => {
         const useCase = new ExecuteMentionCommandUseCase({
             handlers: [],
+            defaults: {
+                allowedCommands,
+            },
         } satisfies IExecuteMentionCommandUseCaseDependencies)
 
         const result = await useCase.execute(createInput({
@@ -160,6 +169,9 @@ describe("ExecuteMentionCommandUseCase", () => {
     test("валидацирует пустые обязательные поля", async () => {
         const useCase = new ExecuteMentionCommandUseCase({
             handlers: [],
+            defaults: {
+                allowedCommands,
+            },
         } satisfies IExecuteMentionCommandUseCaseDependencies)
 
         const result = await useCase.execute(createInput({
@@ -189,6 +201,9 @@ describe("ExecuteMentionCommandUseCase", () => {
     test("валидацирует некорректный формат упоминания", async () => {
         const useCase = new ExecuteMentionCommandUseCase({
             handlers: [],
+            defaults: {
+                allowedCommands,
+            },
         } satisfies IExecuteMentionCommandUseCaseDependencies)
 
         const result = await useCase.execute(createInput({
@@ -216,6 +231,9 @@ describe("ExecuteMentionCommandUseCase", () => {
 
         const useCase = new ExecuteMentionCommandUseCase({
             handlers: [handler],
+            defaults: {
+                allowedCommands,
+            },
         } satisfies IExecuteMentionCommandUseCaseDependencies)
 
         const result = await useCase.execute(createInput())
@@ -237,6 +255,9 @@ describe("ExecuteMentionCommandUseCase", () => {
         }))
         const useCase = new ExecuteMentionCommandUseCase({
             handlers: [handler],
+            defaults: {
+                allowedCommands,
+            },
         } satisfies IExecuteMentionCommandUseCaseDependencies)
 
         const result = await useCase.execute(createInput())
@@ -251,7 +272,9 @@ describe("ExecuteMentionCommandUseCase", () => {
     test("возвращает help для команды вне allowlist", async () => {
         const useCase = new ExecuteMentionCommandUseCase({
             handlers: [],
-            systemSettingsProvider: buildSettingsProvider(["review", "help"]),
+            defaults: {
+                allowedCommands: ["review", "help"],
+            },
         } satisfies IExecuteMentionCommandUseCaseDependencies)
 
         const result = await useCase.execute(createInput({
@@ -265,23 +288,14 @@ describe("ExecuteMentionCommandUseCase", () => {
         })
     })
 
-    test("использует дефолтные команды при ошибке провайдера", async () => {
-        const provider: ISystemSettingsProvider = {
-            get: <T>(): Promise<T | undefined> =>
-                Promise.reject<T | undefined>(new Error("boom")),
-            getMany: <T>(): Promise<ReadonlyMap<string, T>> =>
-                Promise.resolve(new Map<string, T>()),
-        }
-
-        const useCase = new ExecuteMentionCommandUseCase({
-            handlers: [],
-            systemSettingsProvider: provider,
-        } satisfies IExecuteMentionCommandUseCaseDependencies)
-
-        const result = await useCase.execute(createInput({
-            sourceComment: "@codenautic chat Привет",
-        }))
-
-        expect(result.isOk).toBe(true)
+    test("бросает ошибку при пустом allowlist", () => {
+        expect(() => {
+            return new ExecuteMentionCommandUseCase({
+                handlers: [],
+                defaults: {
+                    allowedCommands: [],
+                },
+            } satisfies IExecuteMentionCommandUseCaseDependencies)
+        }).toThrow("Mention command allowlist is empty")
     })
 })

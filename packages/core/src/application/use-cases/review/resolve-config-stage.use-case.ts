@@ -1,5 +1,4 @@
 import {ConfigurationMergerUseCase} from "../configuration-merger.use-case"
-import type {IReviewConfigDTO} from "../../dto/review/review-config.dto"
 import type {IRepositoryConfigLoader} from "../../ports/outbound/review/repository-config-loader.port"
 import type {
     IPipelineStageUseCase,
@@ -10,17 +9,6 @@ import {StageError} from "../../../domain/errors/stage.error"
 import {NotFoundError} from "../../../domain/errors/not-found.error"
 import {Result} from "../../../shared/result"
 import {INITIAL_STAGE_ATTEMPT, readStringField} from "./pipeline-stage-state.utils"
-
-const DEFAULT_REVIEW_CONFIG: IReviewConfigDTO = {
-    severityThreshold: "MEDIUM",
-    ignorePaths: [],
-    maxSuggestionsPerFile: 5,
-    maxSuggestionsPerCCR: 30,
-    cadence: "standard",
-    reviewDepthStrategy: "auto",
-    customRuleIds: [],
-    directories: [],
-}
 
 interface IConfigResolutionContext {
     readonly repositoryId: string
@@ -113,32 +101,24 @@ export class ResolveConfigStageUseCase implements IPipelineStageUseCase {
     ): Promise<Result<IStageTransition, StageError>> {
         try {
             const defaultLayer = await this.loadDefaultLayer()
+            if (defaultLayer === null) {
+                return Result.fail<IStageTransition, StageError>(
+                    this.createStageError(
+                        state.runId,
+                        state.definitionVersion,
+                        "Default review configuration layer is missing",
+                        false,
+                    ),
+                )
+            }
             const organizationLayer = await this.loadOrganizationLayer(
                 context.organizationId,
                 context.teamId,
             )
             const repositoryLayer = await this.loadRepositoryLayer(context.repositoryId)
 
-            const defaultMergedResult = await this.configMerger.execute({
-                default: DEFAULT_REVIEW_CONFIG as unknown as Readonly<Record<string, unknown>>,
-                org: defaultLayer ?? undefined,
-                repo: undefined,
-            })
-
-            if (defaultMergedResult.isFail) {
-                return Result.fail<IStageTransition, StageError>(
-                    this.createStageError(
-                        state.runId,
-                        state.definitionVersion,
-                        "Failed to resolve repository configuration layers",
-                        true,
-                        defaultMergedResult.error,
-                    ),
-                )
-            }
-
             const mergedConfigResult = await this.configMerger.execute({
-                default: defaultMergedResult.value,
+                default: defaultLayer,
                 org: organizationLayer ?? undefined,
                 repo: repositoryLayer ?? undefined,
             })

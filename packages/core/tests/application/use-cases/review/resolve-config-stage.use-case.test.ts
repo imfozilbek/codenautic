@@ -5,6 +5,13 @@ import type {IRepositoryConfigLoader} from "../../../../src/application/ports/ou
 import {ReviewPipelineState} from "../../../../src/application/types/review/review-pipeline-state"
 import {ResolveConfigStageUseCase} from "../../../../src/application/use-cases/review/resolve-config-stage.use-case"
 
+const baseDefaultLayer: Partial<IReviewConfigDTO> = {
+    severityThreshold: "MEDIUM",
+    ignorePaths: [],
+    maxSuggestionsPerFile: 5,
+    maxSuggestionsPerCCR: 30,
+}
+
 class InMemoryRepositoryConfigLoader implements IRepositoryConfigLoader {
     public defaultLayer: Partial<IReviewConfigDTO> | null = null
     public organizationLayer: Partial<IReviewConfigDTO> | null = null
@@ -67,6 +74,7 @@ describe("ResolveConfigStageUseCase", () => {
     test("merges layered config as default -> organization -> repository", async () => {
         const loader = new InMemoryRepositoryConfigLoader()
         loader.defaultLayer = {
+            ...baseDefaultLayer,
             severityThreshold: "LOW",
             ignorePaths: ["dist/**"],
             maxSuggestionsPerFile: 10,
@@ -130,7 +138,7 @@ describe("ResolveConfigStageUseCase", () => {
         })
     })
 
-    test("keeps built-in defaults when all loader layers are absent", async () => {
+    test("fails when default layer is missing", async () => {
         const loader = new InMemoryRepositoryConfigLoader()
         const useCase = new ResolveConfigStageUseCase(loader)
         const state = createState({
@@ -143,14 +151,13 @@ describe("ResolveConfigStageUseCase", () => {
             state,
         })
 
-        expect(result.isOk).toBe(true)
-        expect(result.value.state.config["severityThreshold"]).toBe("MEDIUM")
-        expect(result.value.state.config["maxSuggestionsPerFile"]).toBe(5)
-        expect(result.value.state.config["maxSuggestionsPerCCR"]).toBe(30)
+        expect(result.isFail).toBe(true)
+        expect(result.error.message).toBe("Default review configuration layer is missing")
     })
 
     test("prefers new loadConfig method when implemented", async () => {
         const loader = new InMemoryRepositoryConfigLoader()
+        loader.defaultLayer = baseDefaultLayer
         const useCase = new ResolveConfigStageUseCase(loader)
         const state = createState({
             repositoryId: "repo-1",
@@ -173,6 +180,7 @@ describe("ResolveConfigStageUseCase", () => {
 
     test("fails with not found error when organization id is missing", async () => {
         const loader = new InMemoryRepositoryConfigLoader()
+        loader.defaultLayer = baseDefaultLayer
         const useCase = new ResolveConfigStageUseCase(loader)
         const state = createState({
             repositoryId: "repo-1",
@@ -190,6 +198,7 @@ describe("ResolveConfigStageUseCase", () => {
     test("returns recoverable stage error when loader throws", async () => {
         const loader = new InMemoryRepositoryConfigLoader()
         loader.shouldThrow = true
+        loader.defaultLayer = baseDefaultLayer
 
         const useCase = new ResolveConfigStageUseCase(loader)
         const state = createState({

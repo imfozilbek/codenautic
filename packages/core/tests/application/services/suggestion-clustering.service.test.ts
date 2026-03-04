@@ -1,7 +1,21 @@
 import {describe, expect, test} from "bun:test"
 
 import type {ISuggestionForClustering} from "../../../src/application/use-cases/cluster-suggestions.use-case"
+import {ClusterSuggestionsUseCase} from "../../../src/application/use-cases/cluster-suggestions.use-case"
 import {SuggestionClusteringService} from "../../../src/application/services/suggestion-clustering.service"
+import type {IClusteringDefaults} from "../../../src/application/dto/config/system-defaults.dto"
+
+const clusteringDefaults: IClusteringDefaults = {
+    mode: "MINIMAL",
+    similarityThreshold: 0.75,
+    embeddingModel: "default-embedding-model",
+}
+
+function createService(): SuggestionClusteringService {
+    return new SuggestionClusteringService({
+        clusteringUseCase: new ClusterSuggestionsUseCase({defaults: clusteringDefaults}),
+    })
+}
 
 function createSuggestion(overrides: Record<string, unknown>): ISuggestionForClustering {
     return {
@@ -14,7 +28,7 @@ function createSuggestion(overrides: Record<string, unknown>): ISuggestionForClu
 
 describe("SuggestionClusteringService", () => {
     test("clusters in MINIMAL mode by default", async () => {
-        const service = new SuggestionClusteringService()
+        const service = createService()
         const suggestions: readonly ISuggestionForClustering[] = [
             createSuggestion({
                 suggestionId: "s-1",
@@ -33,7 +47,7 @@ describe("SuggestionClusteringService", () => {
     })
 
     test("clusters with SMART mode and embeddings", async () => {
-        const service = new SuggestionClusteringService()
+        const service = createService()
         const suggestions: readonly ISuggestionForClustering[] = [
             createSuggestion({
                 suggestionId: "s-1",
@@ -61,7 +75,7 @@ describe("SuggestionClusteringService", () => {
     })
 
     test("throws validation error when clustering input is invalid", () => {
-        const service = new SuggestionClusteringService()
+        const service = createService()
         const invalid = null as unknown as readonly ISuggestionForClustering[]
 
         expect(service.cluster(invalid)).rejects.toMatchObject({

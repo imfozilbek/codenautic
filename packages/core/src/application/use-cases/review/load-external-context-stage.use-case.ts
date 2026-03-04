@@ -11,14 +11,14 @@ import {
     readObjectField,
     readStringField,
 } from "./pipeline-stage-state.utils"
-
-const DEFAULT_CONTEXT_LIMIT = 20
+import type {IExternalContextDefaults} from "../../dto/config/system-defaults.dto"
 
 /**
  * Dependencies for load-external-context stage use case.
  */
 export interface ILoadExternalContextStageDependencies {
     vectorRepository: IVectorRepository
+    defaults: IExternalContextDefaults
 }
 
 /**
@@ -29,6 +29,7 @@ export class LoadExternalContextStageUseCase implements IPipelineStageUseCase {
     public readonly stageName: string
 
     private readonly vectorRepository: IVectorRepository
+    private readonly defaults: IExternalContextDefaults
 
     /**
      * Creates load-external-context stage use case.
@@ -39,6 +40,7 @@ export class LoadExternalContextStageUseCase implements IPipelineStageUseCase {
         this.stageId = "load-external-context"
         this.stageName = "Load External Context"
         this.vectorRepository = dependencies.vectorRepository
+        this.defaults = dependencies.defaults
     }
 
     /**
@@ -140,12 +142,12 @@ export class LoadExternalContextStageUseCase implements IPipelineStageUseCase {
     private resolveContextLimit(mergeRequest: Readonly<Record<string, unknown>>): number {
         const externalContext = readObjectField(mergeRequest, "externalContext")
         if (externalContext === undefined) {
-            return DEFAULT_CONTEXT_LIMIT
+            return this.defaults.limit
         }
 
         const rawLimit = externalContext["limit"]
         if (typeof rawLimit !== "number" || !Number.isInteger(rawLimit) || rawLimit < 1) {
-            return DEFAULT_CONTEXT_LIMIT
+            return this.defaults.limit
         }
 
         return rawLimit
