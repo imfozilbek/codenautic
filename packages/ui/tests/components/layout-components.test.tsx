@@ -369,6 +369,37 @@ describe("layout components", (): void => {
         expect(screen.getByText(/Policy changed to viewer/)).not.toBeNull()
     })
 
+    it("показывает global degraded banner при provider outage событии", async (): Promise<void> => {
+        currentRoute = "/settings"
+
+        renderWithProviders(
+            <DashboardLayoutHarness>
+                <p>Provider status</p>
+            </DashboardLayoutHarness>,
+            {
+                defaultThemeMode: "light" as ThemeMode,
+            },
+        )
+
+        window.dispatchEvent(
+            new CustomEvent("codenautic:provider-degradation", {
+                detail: {
+                    affectedFeatures: ["Review generation", "Chat completion"],
+                    eta: "30m",
+                    level: "degraded",
+                    provider: "llm",
+                    runbookUrl: "https://status.codenautic.local/runbooks/llm",
+                },
+            }),
+        )
+
+        await waitFor(() => {
+            expect(screen.getByText("Provider degradation mode")).not.toBeNull()
+        })
+        expect(screen.getByText(/llm degraded/)).not.toBeNull()
+        expect(screen.getByRole("link", { name: "Open runbook" })).not.toBeNull()
+    })
+
     it("рендерит секции настроек", (): void => {
         renderWithProviders(<SettingsNav />)
 

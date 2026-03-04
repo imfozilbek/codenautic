@@ -1,6 +1,7 @@
 import type { ReactElement } from "react"
 import {
     Activity,
+    AlertTriangle,
     BellRing,
     Bot,
     Building2,
@@ -80,6 +81,11 @@ const DEFAULT_SETTINGS_NAV_ITEMS = [
         icon: <FileClock aria-hidden="true" size={16} />,
         label: "Audit Logs",
         to: "/settings-audit-logs",
+    },
+    {
+        icon: <AlertTriangle aria-hidden="true" size={16} />,
+        label: "Degradation",
+        to: "/settings-provider-degradation",
     },
     {
         icon: <RefreshCcw aria-hidden="true" size={16} />,

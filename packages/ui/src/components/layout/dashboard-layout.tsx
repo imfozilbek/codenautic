@@ -8,6 +8,11 @@ import {
 } from "@/lib/permissions/policy-drift"
 import { queryKeys } from "@/lib/query/query-keys"
 import {
+    PROVIDER_DEGRADATION_EVENT,
+    isProviderDegradationDetail,
+    type IProviderDegradationEventDetail,
+} from "@/lib/providers/degradation-mode"
+import {
     buildDraftFieldKey,
     clearSessionPendingIntent,
     readSessionDraftSnapshot,
@@ -123,6 +128,8 @@ export function DashboardLayout(props: IDashboardLayoutProps): ReactElement {
     const [sessionFailureCode, setSessionFailureCode] = useState<401 | 419>(401)
     const [restoredDraftMessage, setRestoredDraftMessage] = useState<string | undefined>(undefined)
     const [policyDriftNotice, setPolicyDriftNotice] = useState<string | undefined>(undefined)
+    const [providerDegradation, setProviderDegradation] =
+        useState<IProviderDegradationEventDetail | undefined>(undefined)
     const navigate = useNavigate()
     const location = useLocation()
     const queryClient = useQueryClient()
@@ -293,6 +300,39 @@ export function DashboardLayout(props: IDashboardLayoutProps): ReactElement {
         }
     }, [queryClient])
 
+    useEffect((): (() => void) | void => {
+        if (typeof window === "undefined") {
+            return
+        }
+
+        const handleProviderDegradation = (event: Event): void => {
+            const customEvent = event as CustomEvent<unknown>
+            const detail = customEvent.detail
+            if (isProviderDegradationDetail(detail) !== true) {
+                return
+            }
+
+            if (detail.level === "operational") {
+                setProviderDegradation(undefined)
+                return
+            }
+
+            setProviderDegradation(detail)
+        }
+
+        window.addEventListener(
+            PROVIDER_DEGRADATION_EVENT,
+            handleProviderDegradation as EventListener,
+        )
+
+        return (): void => {
+            window.removeEventListener(
+                PROVIDER_DEGRADATION_EVENT,
+                handleProviderDegradation as EventListener,
+            )
+        }
+    }, [])
+
     const handleSearchRouteNavigate = (to: string): void => {
         void navigate({
             to,
@@ -361,6 +401,21 @@ export function DashboardLayout(props: IDashboardLayoutProps): ReactElement {
                     />
                 </div>
                 <div className="min-h-0 flex-1 rounded-lg border border-[var(--border)] bg-[color:color-mix(in_oklab,var(--surface)_88%,transparent)] p-4 shadow-sm">
+                    {providerDegradation === undefined ? null : (
+                        <Alert color="danger" title="Provider degradation mode" variant="flat">
+                            {providerDegradation.provider} degraded. Affected:{" "}
+                            {providerDegradation.affectedFeatures.join(", ")}. ETA:{" "}
+                            {providerDegradation.eta}.{" "}
+                            <a
+                                className="underline underline-offset-4"
+                                href={providerDegradation.runbookUrl}
+                                rel="noreferrer"
+                                target="_blank"
+                            >
+                                Open runbook
+                            </a>
+                        </Alert>
+                    )}
                     {policyDriftNotice === undefined ? null : (
                         <Alert color="warning" title="Runtime policy drift detected" variant="flat">
                             {policyDriftNotice}

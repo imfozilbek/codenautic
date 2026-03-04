@@ -2,6 +2,7 @@ import { Outlet } from "@tanstack/react-router"
 import type { ReactElement, ReactNode } from "react"
 import {
     Activity,
+    AlertTriangle,
     BellRing,
     Bot,
     Building2,
@@ -84,6 +85,11 @@ const SETTINGS_NAV = [
         icon: <FileClock aria-hidden="true" size={16} />,
         label: "Audit Logs",
         to: "/settings-audit-logs",
+    },
+    {
+        icon: <AlertTriangle aria-hidden="true" size={16} />,
+        label: "Degradation",
+        to: "/settings-provider-degradation",
     },
     {
         icon: <RefreshCcw aria-hidden="true" size={16} />,
