@@ -98,6 +98,14 @@ export function SettingsPage(): ReactElement {
                         <li>
                             <Link
                                 className="underline underline-offset-4"
+                                to="/settings-jobs"
+                            >
+                                Operations jobs monitor
+                            </Link>
+                        </li>
+                        <li>
+                            <Link
+                                className="underline underline-offset-4"
                                 to="/settings-billing"
                             >
                                 Billing lifecycle

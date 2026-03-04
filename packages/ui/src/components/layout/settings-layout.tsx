@@ -1,6 +1,7 @@
 import { Outlet } from "@tanstack/react-router"
 import type { ReactElement, ReactNode } from "react"
 import {
+    Activity,
     BellRing,
     Bot,
     Building2,
@@ -82,6 +83,11 @@ const SETTINGS_NAV = [
         icon: <FileClock aria-hidden="true" size={16} />,
         label: "Audit Logs",
         to: "/settings-audit-logs",
+    },
+    {
+        icon: <Activity aria-hidden="true" size={16} />,
+        label: "Jobs Monitor",
+        to: "/settings-jobs",
     },
     {
         icon: <CreditCard aria-hidden="true" size={16} />,
