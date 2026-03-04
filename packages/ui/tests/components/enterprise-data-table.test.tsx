@@ -1,4 +1,4 @@
-import { screen } from "@testing-library/react"
+import { fireEvent, screen } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { describe, expect, it } from "vitest"
 
@@ -110,5 +110,47 @@ describe("EnterpriseDataTable", (): void => {
         })
         expect(renderedRows.length).toBeGreaterThan(0)
         expect(renderedRows.length).toBeLessThan(MANY_ROWS.length)
+    })
+
+    it("поддерживает sticky header для виртуализованной таблицы", (): void => {
+        renderWithProviders(
+            <EnterpriseDataTable
+                ariaLabel="Sticky table"
+                columns={[
+                    { accessor: (row): string => row.id, header: "ID", id: "id", pin: "left" },
+                    { accessor: (row): string => row.name, header: "Name", id: "name" },
+                ]}
+                emptyMessage="No rows"
+                getRowId={(row): string => row.id}
+                id="sticky-table"
+                rows={MANY_ROWS}
+                stickyHeader={{
+                    topOffset: 12,
+                    withShadow: true,
+                }}
+                virtualization={{
+                    maxBodyHeight: 240,
+                    overscan: 4,
+                }}
+            />,
+        )
+
+        const rowGroups = screen.getAllByRole("rowgroup")
+        const headerRowGroup = rowGroups.at(0)
+        const bodyRowGroup = rowGroups.at(1)
+
+        expect(headerRowGroup).not.toBeUndefined()
+        expect(bodyRowGroup).not.toBeUndefined()
+
+        if (headerRowGroup === undefined || bodyRowGroup === undefined) {
+            return
+        }
+
+        expect(headerRowGroup).toHaveAttribute("data-sticky-header", "true")
+        expect(headerRowGroup).toHaveStyle({ top: "12px" })
+        expect(headerRowGroup).toHaveAttribute("data-sticky-shadow", "false")
+
+        fireEvent.scroll(bodyRowGroup, { target: { scrollTop: 120 } })
+        expect(headerRowGroup).toHaveAttribute("data-sticky-shadow", "true")
     })
 })

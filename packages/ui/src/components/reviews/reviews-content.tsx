@@ -149,6 +149,11 @@ export function ReviewsContent(props: IReviewsContentProps): ReactElement {
                 getRowId={(row): string => row.id}
                 id="ccr-management-table"
                 rows={filteredRows}
+                stickyHeader={{
+                    enabled: true,
+                    topOffset: 0,
+                    withShadow: true,
+                }}
                 virtualization={{
                     estimateRowHeight: {
                         comfortable: 58,

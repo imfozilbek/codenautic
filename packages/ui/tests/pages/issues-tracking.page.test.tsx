@@ -149,6 +149,21 @@ describe("IssuesTrackingPage", (): void => {
         expect(renderedRowSelectionCheckboxes.length).toBeLessThan(largeIssues.length)
     })
 
+    it("рендерит sticky header для virtualized issues table", (): void => {
+        renderWithProviders(<IssuesTrackingPage issues={issues} />)
+
+        const rowGroups = screen.getAllByRole("rowgroup")
+        const headerRowGroup = rowGroups.at(0)
+        expect(headerRowGroup).not.toBeUndefined()
+
+        if (headerRowGroup === undefined) {
+            return
+        }
+
+        expect(headerRowGroup).toHaveAttribute("data-sticky-header", "true")
+        expect(headerRowGroup).toHaveStyle({ top: "0px" })
+    })
+
     it("загружает persisted filters из localStorage при инициализации", (): void => {
         localStorage.setItem(
             ISSUE_FILTER_PERSISTENCE_KEY,

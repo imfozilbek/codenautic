@@ -487,6 +487,11 @@ export function IssuesTrackingPage(props: IIssueTrackingPageProps = {}): ReactEl
                         getRowId={(issue): string => issue.id}
                         id="issues-tracking-table"
                         rows={filteredIssues}
+                        stickyHeader={{
+                            enabled: true,
+                            topOffset: 0,
+                            withShadow: true,
+                        }}
                         virtualization={{
                             estimateRowHeight: {
                                 comfortable: 58,

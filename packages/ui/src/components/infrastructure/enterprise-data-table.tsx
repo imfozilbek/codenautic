@@ -2,6 +2,7 @@ import {
     type ChangeEvent,
     type KeyboardEvent,
     type ReactElement,
+    type UIEvent,
     useMemo,
     useRef,
     useState,
@@ -60,6 +61,8 @@ interface IEnterpriseDataTableProps<TRow> {
     readonly emptyMessage: string
     /** Конфигурация виртуализации body таблицы. */
     readonly virtualization?: IEnterpriseDataTableVirtualizationOptions
+    /** Настройки sticky header для virtual table. */
+    readonly stickyHeader?: IEnterpriseDataTableStickyHeaderOptions
 }
 
 interface IEnterpriseDataTableVirtualizationOptions {
@@ -72,6 +75,15 @@ interface IEnterpriseDataTableVirtualizationOptions {
     readonly overscan?: number
     /** Максимальная высота scroll контейнера body. */
     readonly maxBodyHeight?: number
+}
+
+interface IEnterpriseDataTableStickyHeaderOptions {
+    /** Включен ли sticky header. */
+    readonly enabled?: boolean
+    /** Верхний offset sticky header в пикселях. */
+    readonly topOffset?: number
+    /** Показывать ли тень при скролле body. */
+    readonly withShadow?: boolean
 }
 
 interface IEnterpriseTableSavedView {
@@ -243,6 +255,7 @@ export function EnterpriseDataTable<TRow>(props: IEnterpriseDataTableProps<TRow>
     const [columnPinning, setColumnPinning] = useState<ColumnPinningState>(initialColumnPinning)
     const [columnSizing, setColumnSizing] = useState<ColumnSizingState>(initialColumnSizing)
     const [focusedRowIndex, setFocusedRowIndex] = useState<number>(0)
+    const [isBodyScrolled, setIsBodyScrolled] = useState<boolean>(false)
 
     const data = useMemo((): Array<TRow> => [...props.rows], [props.rows])
     const columnDefs = useMemo((): ReadonlyArray<ColumnDef<TRow>> => {
@@ -326,6 +339,9 @@ export function EnterpriseDataTable<TRow>(props: IEnterpriseDataTableProps<TRow>
         : rowModel.length * fallbackRowHeight
 
     const selectedRows = table.getSelectedRowModel().rows
+    const isStickyHeaderEnabled = props.stickyHeader?.enabled !== false
+    const stickyHeaderTopOffset = props.stickyHeader?.topOffset ?? 0
+    const isStickyShadowEnabled = props.stickyHeader?.withShadow !== false
 
     const handleSaveView = (): void => {
         writeSavedView(props.id, {
@@ -396,6 +412,14 @@ export function EnterpriseDataTable<TRow>(props: IEnterpriseDataTableProps<TRow>
             ...previous,
             [columnId]: next,
         }))
+    }
+
+    const handleBodyScroll = (event: UIEvent<HTMLDivElement>): void => {
+        const shouldShowShadow = event.currentTarget.scrollTop > 0
+        if (shouldShowShadow === isBodyScrolled) {
+            return
+        }
+        setIsBodyScrolled(shouldShowShadow)
     }
 
     return (
@@ -574,8 +598,11 @@ export function EnterpriseDataTable<TRow>(props: IEnterpriseDataTableProps<TRow>
                 style={{ minWidth: `${String(totalTableWidth)}px` }}
             >
                 <div
-                    className="sticky top-0 z-10 border-b border-[var(--border)] bg-[var(--surface)]"
+                    className={`${isStickyHeaderEnabled ? "sticky" : ""} top-0 z-10 border-b border-[var(--border)] bg-[var(--surface)] ${isStickyShadowEnabled && isBodyScrolled ? "shadow-sm" : ""}`}
+                    data-sticky-header={isStickyHeaderEnabled ? "true" : "false"}
+                    data-sticky-shadow={isBodyScrolled ? "true" : "false"}
                     role="rowgroup"
+                    style={isStickyHeaderEnabled ? { top: stickyHeaderTopOffset } : undefined}
                 >
                     <div
                         className="grid items-center gap-2 px-2 py-2 text-xs font-semibold uppercase tracking-[0.08em] text-[var(--foreground)]/70"
@@ -617,6 +644,7 @@ export function EnterpriseDataTable<TRow>(props: IEnterpriseDataTableProps<TRow>
                         data-rendered-row-count={renderedRowOffsets.length}
                         role="rowgroup"
                         style={{ maxHeight: `${String(maxBodyHeight)}px` }}
+                        onScroll={handleBodyScroll}
                     >
                         <div
                             className="relative"
