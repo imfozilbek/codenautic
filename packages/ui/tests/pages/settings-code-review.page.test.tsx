@@ -96,4 +96,59 @@ describe("settings code review page", (): void => {
         })
         expect(repositoryConfig.configYaml).toContain("version: 2")
     })
+
+    it("сохраняет ignore patterns в repository config", async (): Promise<void> => {
+        const user = userEvent.setup()
+        let repositoryConfig: {
+            repositoryId: string
+            configYaml: string
+            ignorePatterns: ReadonlyArray<string>
+            reviewMode: "MANUAL" | "AUTO" | "AUTO_PAUSE"
+        } = {
+            repositoryId: "repo-1",
+            configYaml: "version: 1\nreview:\n  mode: MANUAL\n",
+            ignorePatterns: ["/dist", "/node_modules"],
+            reviewMode: "MANUAL",
+        }
+
+        server.use(
+            http.get("http://localhost:3000/api/v1/repositories/repo-1/config", () => {
+                return HttpResponse.json({
+                    config: repositoryConfig,
+                })
+            }),
+            http.put("http://localhost:3000/api/v1/repositories/repo-1/config", async ({ request }) => {
+                const payload = (await request.json()) as {
+                    readonly configYaml?: string
+                    readonly ignorePatterns?: ReadonlyArray<string>
+                    readonly reviewMode?: "MANUAL" | "AUTO" | "AUTO_PAUSE"
+                }
+
+                repositoryConfig = {
+                    ...repositoryConfig,
+                    configYaml: payload.configYaml ?? repositoryConfig.configYaml,
+                    ignorePatterns: payload.ignorePatterns ?? repositoryConfig.ignorePatterns,
+                    reviewMode: payload.reviewMode ?? repositoryConfig.reviewMode,
+                }
+
+                return HttpResponse.json({
+                    config: repositoryConfig,
+                })
+            }),
+        )
+
+        renderWithProviders(<SettingsCodeReviewPage />)
+
+        const ignorePathsInput = await screen.findByLabelText<HTMLTextAreaElement>("Ignore paths")
+        expect(ignorePathsInput.value).toContain("/node_modules")
+
+        await user.click(ignorePathsInput)
+        await user.keyboard("{Control>}a{/Control}{Backspace}")
+        await user.type(ignorePathsInput, "/vendor\n**/*.snap\n")
+        await user.click(screen.getByRole("button", { name: "Сохранить ignore paths" }))
+
+        await waitFor((): void => {
+            expect(repositoryConfig.ignorePatterns).toEqual(["/vendor", "**/*.snap"])
+        })
+    })
 })

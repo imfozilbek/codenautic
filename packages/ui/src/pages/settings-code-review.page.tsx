@@ -176,15 +176,62 @@ export function SettingsCodeReviewPage(): ReactElement {
         showToastSuccess("Code Review settings saved.")
     }
 
+    const persistRepositoryConfig = (params: {
+        readonly configYaml: string
+        readonly ignorePatterns: ReadonlyArray<string>
+        readonly reviewMode: TRepoReviewMode
+        readonly successMessage: string
+    }): void => {
+        if (normalizedRepositoryId.length === 0) {
+            showToastInfo("Repository ID is required.")
+            return
+        }
+
+        void repoConfig.saveRepoConfig
+            .mutateAsync({
+                repositoryId: normalizedRepositoryId,
+                configYaml: params.configYaml,
+                ignorePatterns: params.ignorePatterns,
+                reviewMode: params.reviewMode,
+            })
+            .then((response): void => {
+                setConfigYaml(response.config.configYaml)
+                setReviewMode(response.config.reviewMode)
+                setIgnoredPaths(response.config.ignorePatterns)
+                showToastSuccess(params.successMessage)
+            })
+            .catch((): void => {
+                showToastInfo("Unable to save repository config.")
+            })
+    }
+
     const handlePathsChange = (nextPaths: ReadonlyArray<string>): void => {
-        setIgnoredPaths(nextPaths)
-        showToastSuccess("Ignore paths updated.")
+        const normalizedPaths = Array.from(
+            new Set(
+                nextPaths
+                    .map((item): string => item.trim())
+                    .filter((item): boolean => item.length > 0),
+            ),
+        )
+        setIgnoredPaths(normalizedPaths)
+        persistRepositoryConfig({
+            configYaml,
+            ignorePatterns: normalizedPaths,
+            reviewMode,
+            successMessage: "Ignore paths saved.",
+        })
     }
 
     const handlePathReset = (event: FormEvent): void => {
         event.preventDefault()
-        setIgnoredPaths(DEFAULT_IGNORED_PATHS)
-        showToastInfo("Ignore paths reset to defaults.")
+        const defaultPaths = [...DEFAULT_IGNORED_PATHS]
+        setIgnoredPaths(defaultPaths)
+        persistRepositoryConfig({
+            configYaml,
+            ignorePatterns: defaultPaths,
+            reviewMode,
+            successMessage: "Ignore paths reset to defaults.",
+        })
     }
 
     const handleReviewModeChange = (event: ChangeEvent<HTMLSelectElement>): void => {
@@ -197,27 +244,12 @@ export function SettingsCodeReviewPage(): ReactElement {
 
     const handleRepositoryConfigSave = (event: FormEvent): void => {
         event.preventDefault()
-        if (normalizedRepositoryId.length === 0) {
-            showToastInfo("Repository ID is required.")
-            return
-        }
-
-        void repoConfig.saveRepoConfig
-            .mutateAsync({
-                repositoryId: normalizedRepositoryId,
-                configYaml,
-                ignorePatterns: ignoredPaths,
-                reviewMode,
-            })
-            .then((response): void => {
-                setConfigYaml(response.config.configYaml)
-                setReviewMode(response.config.reviewMode)
-                setIgnoredPaths(response.config.ignorePatterns)
-                showToastSuccess("Repository config saved.")
-            })
-            .catch((): void => {
-                showToastInfo("Unable to save repository config.")
-            })
+        persistRepositoryConfig({
+            configYaml,
+            ignorePatterns: ignoredPaths,
+            reviewMode,
+            successMessage: "Repository config saved.",
+        })
     }
 
     return (
