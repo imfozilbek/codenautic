@@ -1,7 +1,9 @@
 import type {IChatRequestDTO} from "../../dto/llm/chat.dto"
 import type {ISuggestionDTO} from "../../dto/review/suggestion.dto"
+import type {IUseCase} from "../../ports/inbound/use-case.port"
 import type {IGitProvider} from "../../ports/outbound/git/git-provider.port"
 import type {ILLMProvider} from "../../ports/outbound/llm/llm-provider.port"
+import type {IGeneratePromptInput} from "../generate-prompt.use-case"
 import type {
     IPipelineStageUseCase,
     IStageCommand,
@@ -9,15 +11,17 @@ import type {
 } from "../../types/review/pipeline-stage.contract"
 import {NotFoundError} from "../../../domain/errors/not-found.error"
 import {StageError} from "../../../domain/errors/stage.error"
+import {ValidationError} from "../../../domain/errors/validation.error"
 import {Result} from "../../../shared/result"
 import {
     INITIAL_STAGE_ATTEMPT,
     isPipelineCollectionItem,
     mergeExternalContext,
-    readObjectField,
     readStringField,
 } from "./pipeline-stage-state.utils"
 import type {IReviewSummaryDefaults} from "../../dto/config/system-defaults.dto"
+
+const PROMPT_OVERRIDE_KEY = "summary"
 
 interface ISuggestionStringFields {
     readonly id: string
@@ -40,6 +44,7 @@ interface ISuggestionMetaFields {
 export interface IGenerateSummaryStageDependencies {
     llmProvider: ILLMProvider
     gitProvider: IGitProvider
+    generatePromptUseCase: IUseCase<IGeneratePromptInput, string, ValidationError>
     defaults: IReviewSummaryDefaults
 }
 
@@ -52,6 +57,7 @@ export class GenerateSummaryStageUseCase implements IPipelineStageUseCase {
 
     private readonly llmProvider: ILLMProvider
     private readonly gitProvider: IGitProvider
+    private readonly generatePromptUseCase: IUseCase<IGeneratePromptInput, string, ValidationError>
     private readonly model: string
     private readonly defaults: IReviewSummaryDefaults
 
@@ -65,6 +71,7 @@ export class GenerateSummaryStageUseCase implements IPipelineStageUseCase {
         this.stageName = "Generate Summary"
         this.llmProvider = dependencies.llmProvider
         this.gitProvider = dependencies.gitProvider
+        this.generatePromptUseCase = dependencies.generatePromptUseCase
         this.defaults = dependencies.defaults
         this.model = dependencies.defaults.model
     }
@@ -89,7 +96,12 @@ export class GenerateSummaryStageUseCase implements IPipelineStageUseCase {
             )
         }
 
-        const request = this.buildSummaryRequest(input)
+        const systemPrompt = await this.resolveSystemPrompt(
+            input.state.runId,
+            input.state.definitionVersion,
+            input.state.mergeRequest,
+        )
+        const request = this.buildSummaryRequest(input, systemPrompt)
 
         try {
             const response = await this.llmProvider.chat(request)
@@ -135,14 +147,11 @@ export class GenerateSummaryStageUseCase implements IPipelineStageUseCase {
      * @param input Stage command payload.
      * @returns Chat request payload.
      */
-    private buildSummaryRequest(input: IStageCommand): IChatRequestDTO {
-        const promptOverrides = readObjectField(input.state.config, "promptOverrides")
-        const systemPrompt =
-            this.readPromptOverride(promptOverrides, "summarySystemPrompt") ??
-            this.defaults.systemPrompt
-        const userPrompt =
-            this.readPromptOverride(promptOverrides, "summaryUserPrompt") ??
-            this.defaults.userPrompt
+    private buildSummaryRequest(
+        input: IStageCommand,
+        systemPrompt: string,
+    ): IChatRequestDTO {
+        const userPrompt = this.defaults.userPrompt
         const suggestions = this.normalizeSuggestions(input.state.suggestions)
         const metrics = input.state.metrics ?? {}
         const context = [
@@ -168,32 +177,32 @@ export class GenerateSummaryStageUseCase implements IPipelineStageUseCase {
         }
     }
 
-    /**
-     * Reads optional prompt override and returns trimmed value.
-     *
-     * @param promptOverrides Prompt overrides object.
-     * @param key Prompt key.
-     * @returns Prompt string when present.
-     */
-    private readPromptOverride(
-        promptOverrides: Readonly<Record<string, unknown>> | undefined,
-        key: string,
-    ): string | undefined {
-        if (promptOverrides === undefined) {
-            return undefined
-        }
+    private async resolveSystemPrompt(
+        runId: string,
+        definitionVersion: string,
+        mergeRequest: Readonly<Record<string, unknown>>,
+    ): Promise<string> {
+        const organizationId = readStringField(mergeRequest, "organizationId")
 
-        const rawValue = promptOverrides[key]
-        if (typeof rawValue !== "string") {
-            return undefined
-        }
+        try {
+            const result = await this.generatePromptUseCase.execute({
+                name: PROMPT_OVERRIDE_KEY,
+                organizationId: organizationId ?? null,
+                runtimeVariables: {},
+            })
+            if (result.isFail) {
+                return this.defaults.systemPrompt
+            }
 
-        const normalizedValue = rawValue.trim()
-        if (normalizedValue.length === 0) {
-            return undefined
-        }
+            const normalized = result.value.trim()
+            if (normalized.length === 0) {
+                return this.defaults.systemPrompt
+            }
 
-        return normalizedValue
+            return normalized
+        } catch {
+            return this.defaults.systemPrompt
+        }
     }
 
     /**

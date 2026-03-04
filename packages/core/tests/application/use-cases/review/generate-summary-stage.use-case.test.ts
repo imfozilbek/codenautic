@@ -1,10 +1,12 @@
 import {describe, expect, test} from "bun:test"
 
+import {Result, ValidationError} from "../../../../src"
 import type {
     IChatRequestDTO,
     IChatResponseDTO,
     ICheckRunDTO,
     ICommentDTO,
+    IGeneratePromptInput,
     IGitProvider,
     IFileTreeNode,
     IInlineCommentDTO,
@@ -12,6 +14,7 @@ import type {
     IMergeRequestDTO,
     IMergeRequestDiffFileDTO,
     IStreamingChatResponseDTO,
+    IUseCase,
 } from "../../../../src"
 import {CHECK_RUN_CONCLUSION, CHECK_RUN_STATUS} from "../../../../src"
 import {ReviewPipelineState} from "../../../../src/application/types/review/review-pipeline-state"
@@ -27,8 +30,10 @@ const summaryDefaults = {
 class InMemoryLLMProvider implements ILLMProvider {
     public shouldThrow = false
     public responseText = ""
+    public lastRequest: IChatRequestDTO | undefined
 
     public chat(_request: IChatRequestDTO): Promise<IChatResponseDTO> {
+        this.lastRequest = _request
         if (this.shouldThrow) {
             return Promise.reject(new Error("llm unavailable"))
         }
@@ -62,6 +67,28 @@ class InMemoryLLMProvider implements ILLMProvider {
 
     public embed(_texts: readonly string[]): Promise<readonly number[][]> {
         return Promise.resolve([[0.1]])
+    }
+}
+
+/**
+ * In-memory prompt generator stub for stage tests.
+ */
+class InMemoryGeneratePromptUseCase
+    implements IUseCase<IGeneratePromptInput, string, ValidationError>
+{
+    public nextResult: Result<string, ValidationError>
+
+    /**
+     * Creates prompt use case stub with success default.
+     */
+    public constructor() {
+        this.nextResult = Result.ok<string, ValidationError>("SUMMARY_SYSTEM_TEMPLATE")
+    }
+
+    public execute(
+        _input: IGeneratePromptInput,
+    ): Promise<Result<string, ValidationError>> {
+        return Promise.resolve(this.nextResult)
     }
 }
 
@@ -179,9 +206,11 @@ describe("GenerateSummaryStageUseCase", () => {
         const llmProvider = new InMemoryLLMProvider()
         llmProvider.responseText = "Summary: one high issue remains in core module."
         const gitProvider = new InMemoryGitProvider()
+        const generatePromptUseCase = new InMemoryGeneratePromptUseCase()
         const useCase = new GenerateSummaryStageUseCase({
             llmProvider,
             gitProvider,
+            generatePromptUseCase,
             defaults: summaryDefaults,
         })
         const state = createState({
@@ -196,6 +225,7 @@ describe("GenerateSummaryStageUseCase", () => {
         expect(result.value.metadata?.checkpointHint).toBe("summary:generated")
         expect(gitProvider.postedComments).toHaveLength(1)
         expect(gitProvider.postedComments[0]?.includes("source comment: comment-initial-1")).toBe(true)
+        expect(llmProvider.lastRequest?.messages[0]?.content).toBe("SUMMARY_SYSTEM_TEMPLATE")
         const summary = result.value.state.externalContext?.["summary"] as
             | Readonly<Record<string, unknown>>
             | undefined
@@ -206,9 +236,11 @@ describe("GenerateSummaryStageUseCase", () => {
     test("returns fail result when merge request id is missing", async () => {
         const llmProvider = new InMemoryLLMProvider()
         const gitProvider = new InMemoryGitProvider()
+        const generatePromptUseCase = new InMemoryGeneratePromptUseCase()
         const useCase = new GenerateSummaryStageUseCase({
             llmProvider,
             gitProvider,
+            generatePromptUseCase,
             defaults: summaryDefaults,
         })
         const state = createState({})
@@ -226,9 +258,11 @@ describe("GenerateSummaryStageUseCase", () => {
         const llmProvider = new InMemoryLLMProvider()
         llmProvider.shouldThrow = true
         const gitProvider = new InMemoryGitProvider()
+        const generatePromptUseCase = new InMemoryGeneratePromptUseCase()
         const useCase = new GenerateSummaryStageUseCase({
             llmProvider,
             gitProvider,
+            generatePromptUseCase,
             defaults: summaryDefaults,
         })
         const state = createState({
@@ -242,5 +276,34 @@ describe("GenerateSummaryStageUseCase", () => {
         expect(result.isFail).toBe(true)
         expect(result.error.recoverable).toBe(true)
         expect(result.error.message).toContain("generate or publish review summary")
+    })
+
+    test("falls back to defaults when summary template is missing", async () => {
+        const llmProvider = new InMemoryLLMProvider()
+        llmProvider.responseText = "Fallback summary"
+        const gitProvider = new InMemoryGitProvider()
+        const generatePromptUseCase = new InMemoryGeneratePromptUseCase()
+        generatePromptUseCase.nextResult = Result.fail<string, ValidationError>(
+            new ValidationError("Generate prompt failed", [{
+                field: "name",
+                message: "Template not found",
+            }]),
+        )
+        const useCase = new GenerateSummaryStageUseCase({
+            llmProvider,
+            gitProvider,
+            generatePromptUseCase,
+            defaults: summaryDefaults,
+        })
+        const state = createState({
+            id: "mr-61",
+        })
+
+        const result = await useCase.execute({
+            state,
+        })
+
+        expect(result.isOk).toBe(true)
+        expect(llmProvider.lastRequest?.messages[0]?.content).toBe(summaryDefaults.systemPrompt)
     })
 })
