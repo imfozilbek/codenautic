@@ -30,6 +30,10 @@ import {
     ExploreModeSidebar,
     type IExploreModePathDescriptor,
 } from "@/components/graphs/explore-mode-sidebar"
+import {
+    HotAreaHighlights,
+    type IHotAreaHighlightDescriptor,
+} from "@/components/graphs/hot-area-highlights"
 import { ProjectOverviewPanel } from "@/components/graphs/project-overview-panel"
 import { ChurnComplexityScatter } from "@/components/graphs/churn-complexity-scatter"
 import { HealthTrendChart, type IHealthTrendPoint } from "@/components/graphs/health-trend-chart"
@@ -684,6 +688,39 @@ function buildExploreModePaths(
     ]
 }
 
+/**
+ * Формирует hot area highlights для критичных зон в текущем профиле.
+ *
+ * @param files Файлы профиля.
+ * @returns Набор зон для visual highlights.
+ */
+function buildHotAreaHighlights(
+    files: ReadonlyArray<ICodeCityTreemapFileDescriptor>,
+): ReadonlyArray<IHotAreaHighlightDescriptor> {
+    const rankedFiles = [...files]
+        .sort((leftFile, rightFile): number => {
+            const leftRiskScore =
+                (leftFile.complexity ?? 0) + ((leftFile.bugIntroductions?.["30d"] ?? 0) * 2)
+            const rightRiskScore =
+                (rightFile.complexity ?? 0) + ((rightFile.bugIntroductions?.["30d"] ?? 0) * 2)
+            return rightRiskScore - leftRiskScore
+        })
+        .slice(0, 4)
+
+    return rankedFiles.map((file, index): IHotAreaHighlightDescriptor => {
+        const severity: IHotAreaHighlightDescriptor["severity"] =
+            index === 0 ? "critical" : index < 3 ? "high" : "medium"
+        const bugCount = file.bugIntroductions?.["30d"] ?? 0
+
+        return {
+            description: `Complexity ${String(file.complexity ?? 0)} · Bugs (30d) ${String(bugCount)}`,
+            fileId: file.id,
+            label: file.path,
+            severity,
+        }
+    })
+}
+
 export function CodeCityDashboardPage(
     props: ICodeCityDashboardPageProps = {},
 ): ReactElement {
@@ -721,6 +758,7 @@ export function CodeCityDashboardPage(
     const rootCauseIssues = buildRootCauseIssues(currentProfile.files)
     const causalCouplings = buildCausalCouplings(currentProfile.temporalCouplings)
     const exploreModePaths = buildExploreModePaths(currentProfile.files)
+    const hotAreaHighlights = buildHotAreaHighlights(currentProfile.files)
     const fileLink = createRepositoryFilesLink(currentProfile.id)
     const overlayImpactedFiles =
         overlayMode === "impact" ? currentProfile.impactedFiles : []
@@ -866,6 +904,25 @@ export function CodeCityDashboardPage(
                             })
                         }}
                         paths={exploreModePaths}
+                    />
+                </CardBody>
+            </Card>
+
+            <Card>
+                <CardHeader>
+                    <p className="text-sm font-semibold text-slate-900">Hot area highlights</p>
+                </CardHeader>
+                <CardBody>
+                    <HotAreaHighlights
+                        highlights={hotAreaHighlights}
+                        onFocusHotArea={(highlight): void => {
+                            setHighlightedFileId(highlight.fileId)
+                            setExploreNavigationFocus({
+                                activeFileId: highlight.fileId,
+                                chainFileIds: [highlight.fileId],
+                                title: `Hot area: ${highlight.label}`,
+                            })
+                        }}
                     />
                 </CardBody>
             </Card>

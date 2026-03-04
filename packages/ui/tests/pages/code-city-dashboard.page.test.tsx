@@ -175,6 +175,38 @@ const { mockExploreModeSidebar } = vi.hoisted(() => ({
         },
     ),
 }))
+const { mockHotAreaHighlights } = vi.hoisted(() => ({
+    mockHotAreaHighlights: vi.fn(
+        (props: {
+            readonly highlights: ReadonlyArray<unknown>
+            readonly onFocusHotArea?: (highlight: {
+                readonly fileId: string
+                readonly label: string
+                readonly description: string
+                readonly severity: "critical" | "high" | "medium"
+            }) => void
+        }): React.JSX.Element => {
+            return (
+                <div>
+                    <p>hot-areas:{props.highlights.length}</p>
+                    <button
+                        onClick={(): void => {
+                            props.onFocusHotArea?.({
+                                description: "Mock hotspot detail",
+                                fileId: "src/pages/ccr-management.page.tsx",
+                                label: "src/pages/ccr-management.page.tsx",
+                                severity: "critical",
+                            })
+                        }}
+                        type="button"
+                    >
+                        trigger hot area focus
+                    </button>
+                </div>
+            )
+        },
+    ),
+}))
 const { mockRootCauseChainViewer } = vi.hoisted(() => ({
     mockRootCauseChainViewer: vi.fn(
         (props: {
@@ -234,6 +266,9 @@ vi.mock("@/components/graphs/project-overview-panel", () => ({
 vi.mock("@/components/graphs/explore-mode-sidebar", () => ({
     ExploreModeSidebar: mockExploreModeSidebar,
 }))
+vi.mock("@/components/graphs/hot-area-highlights", () => ({
+    HotAreaHighlights: mockHotAreaHighlights,
+}))
 vi.mock("@/components/graphs/root-cause-chain-viewer", () => ({
     RootCauseChainViewer: mockRootCauseChainViewer,
 }))
@@ -246,6 +281,7 @@ beforeEach((): void => {
     mockHealthTrendChart.mockClear()
     mockProjectOverviewPanel.mockClear()
     mockExploreModeSidebar.mockClear()
+    mockHotAreaHighlights.mockClear()
     mockRootCauseChainViewer.mockClear()
 })
 
@@ -333,6 +369,10 @@ describe("CodeCityDashboardPage", (): void => {
         expect(firstExploreCall).not.toBeUndefined()
         expect(firstExploreCall?.paths.length).toBeGreaterThan(0)
 
+        const firstHotAreaCall = mockHotAreaHighlights.mock.calls.at(0)?.[0]
+        expect(firstHotAreaCall).not.toBeUndefined()
+        expect(firstHotAreaCall?.highlights.length).toBeGreaterThan(0)
+
         const firstRootCauseCall = mockRootCauseChainViewer.mock.calls.at(0)?.[0]
         expect(firstRootCauseCall).not.toBeUndefined()
         expect(firstRootCauseCall?.issues.length).toBe(0)
@@ -355,6 +395,14 @@ describe("CodeCityDashboardPage", (): void => {
             "src/pages/ccr-management.page.tsx",
         )
         expect(exploreNavigation3DCall?.navigationLabel).toBe("Mock backend path")
+        await user.click(screen.getByRole("button", { name: "trigger hot area focus" }))
+
+        const hotAreaNavigation3DCall = mockCodeCity3DScene.mock.calls.at(-1)?.[0]
+        expect(hotAreaNavigation3DCall).not.toBeUndefined()
+        expect(hotAreaNavigation3DCall?.navigationActiveFileId).toBe(
+            "src/pages/ccr-management.page.tsx",
+        )
+        expect(hotAreaNavigation3DCall?.navigationLabel).toContain("Hot area:")
 
         const repositorySelect = screen.getByRole("combobox", { name: "Repository" })
         const metricSelect = screen.getByRole("combobox", { name: "Metric" })
