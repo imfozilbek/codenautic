@@ -93,6 +93,7 @@ export {
     type IHeuristicVerificationRule,
 } from "./application/dto/heuristics/heuristic-registry-entry.dto"
 export {
+    type IConfigLibraryRuleItem,
     type IConfigRuleCategoryItem,
     type IDirectoryConfig,
     type IPromptConfigurationConfigData,
@@ -416,6 +417,10 @@ export {
     ImportDefaultRuleCategoriesUseCase,
     type IImportDefaultRuleCategoriesUseCaseDependencies,
 } from "./application/use-cases/rules/import-default-rule-categories.use-case"
+export {
+    ImportDefaultLibraryRulesUseCase,
+    type IImportDefaultLibraryRulesUseCaseDependencies,
+} from "./application/use-cases/rules/import-default-library-rules.use-case"
 export {
     AnalyzeFeedbackUseCase,
     type IAnalyzeFeedbackInput,

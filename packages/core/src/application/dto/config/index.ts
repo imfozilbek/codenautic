@@ -6,6 +6,7 @@ export {
     parseRuleCategoryConfigList,
 } from "./rule-category-config.dto"
 export {
+    type IConfigLibraryRuleItem,
     type IRuleConfigData,
     type IRuleConfigExampleData,
     parseRuleConfigList,

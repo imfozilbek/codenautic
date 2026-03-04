@@ -18,9 +18,14 @@ export interface IRuleConfigData {
     readonly examples: readonly IRuleConfigExampleData[]
     readonly language: string
     readonly buckets: readonly string[]
-    readonly scope: string
+    readonly scope: LibraryRuleScope
     readonly plugAndPlay: boolean
 }
+
+/**
+ * Library rule config item alias for import payloads.
+ */
+export type IConfigLibraryRuleItem = IRuleConfigData
 
 /**
  * Parses rule config payload list.
@@ -229,7 +234,7 @@ function parseRuleTextFields(
  */
 function parseRuleOptions(
     raw: Record<string, unknown>,
-): {readonly language: string; readonly scope: string; readonly plugAndPlay: boolean} | undefined {
+): {readonly language: string; readonly scope: LibraryRuleScope; readonly plugAndPlay: boolean} | undefined {
     const language = normalizeLanguage(raw["language"])
     const scope = normalizeScope(raw["scope"])
     const plugAndPlay = readBoolean(raw["plugAndPlay"])
@@ -274,7 +279,7 @@ function normalizeLanguage(value: unknown): string | undefined {
  * @param value Raw scope value.
  * @returns Normalized scope or undefined.
  */
-function normalizeScope(value: unknown): string | undefined {
+function normalizeScope(value: unknown): LibraryRuleScope | undefined {
     if (typeof value !== "string") {
         return undefined
     }
@@ -342,3 +347,4 @@ function readObject(value: unknown): Record<string, unknown> | undefined {
 
     return value as Record<string, unknown>
 }
+import type {LibraryRuleScope} from "../../../domain/entities/library-rule.entity"
