@@ -1,4 +1,4 @@
-import { type ReactElement, useMemo, useState } from "react"
+import { type ReactElement, useEffect, useMemo, useRef, useState } from "react"
 
 import { Button, Card, CardBody, CardHeader, Input } from "@/components/ui"
 import { XyFlowGraph } from "@/components/graphs/xyflow-graph"
@@ -65,6 +65,16 @@ interface IPackageDependencyGraphState {
     readonly selectedNodeId?: string
     /** Включён ли highlight impact paths. */
     readonly showImpactPaths: boolean
+    /** Флаг режима кластеризации. */
+    readonly viewMode: "detailed" | "clustered"
+    /** Режим уровня детализации (LOD). */
+    readonly lodMode: "overview" | "details"
+    /** Список раскрытых layer-кластеров. */
+    readonly expandedLayerIds: ReadonlyArray<string>
+    /** Показывать только focus path для выбранного узла. */
+    readonly focusPathOnly: boolean
+    /** Идёт ли отложенная подгрузка cluster-details. */
+    readonly isClusterDetailLoading: boolean
 }
 
 interface IPackageRelationStats {
@@ -78,6 +88,241 @@ interface IImpactPathHighlight {
 }
 
 const MAX_LABEL_LENGTH = 40
+const LAYOUT_STATE_STORAGE_KEY = "ui.package-graph.layout.v1"
+const CLUSTER_NODE_PREFIX = "cluster:layer:"
+const CLUSTER_DETAILS_DELAY_MS = 160
+
+interface ILayerLayoutSnapshot {
+    readonly viewMode: "detailed" | "clustered"
+    readonly lodMode: "overview" | "details"
+    readonly expandedLayerIds: ReadonlyArray<string>
+}
+
+function createClusterNodeId(layer: IPackageDependencyNode["layer"]): string {
+    return `${CLUSTER_NODE_PREFIX}${layer}`
+}
+
+function parseClusterLayer(nodeId: string): IPackageDependencyNode["layer"] | undefined {
+    if (nodeId.startsWith(CLUSTER_NODE_PREFIX) !== true) {
+        return undefined
+    }
+
+    const layerId = nodeId.slice(CLUSTER_NODE_PREFIX.length)
+    if (
+        layerId === "core" ||
+        layerId === "api" ||
+        layerId === "ui" ||
+        layerId === "worker" ||
+        layerId === "db" ||
+        layerId === "infra"
+    ) {
+        return layerId
+    }
+
+    return undefined
+}
+
+function canUseStorage(): boolean {
+    return typeof globalThis.localStorage !== "undefined"
+}
+
+function readLayoutSnapshot(): ILayerLayoutSnapshot | undefined {
+    if (canUseStorage() !== true) {
+        return undefined
+    }
+
+    const rawSnapshot = globalThis.localStorage.getItem(LAYOUT_STATE_STORAGE_KEY)
+    if (rawSnapshot === null) {
+        return undefined
+    }
+
+    try {
+        const parsed = JSON.parse(rawSnapshot) as Partial<ILayerLayoutSnapshot>
+        if (
+            (parsed.viewMode === "detailed" || parsed.viewMode === "clustered") &&
+            (parsed.lodMode === "overview" || parsed.lodMode === "details") &&
+            Array.isArray(parsed.expandedLayerIds)
+        ) {
+            return {
+                viewMode: parsed.viewMode,
+                lodMode: parsed.lodMode,
+                expandedLayerIds: parsed.expandedLayerIds
+                    .filter((item): item is string => typeof item === "string")
+                    .map((item): string => item.trim())
+                    .filter((item): boolean => item.length > 0),
+            }
+        }
+    } catch {
+        return undefined
+    }
+
+    return undefined
+}
+
+function writeLayoutSnapshot(snapshot: ILayerLayoutSnapshot): void {
+    if (canUseStorage() !== true) {
+        return
+    }
+
+    globalThis.localStorage.setItem(LAYOUT_STATE_STORAGE_KEY, JSON.stringify(snapshot))
+}
+
+function buildLayerClusterMap(
+    nodes: ReadonlyArray<IPackageDependencyNode>,
+): ReadonlyMap<IPackageDependencyNode["layer"], ReadonlyArray<IPackageDependencyNode>> {
+    const nextMap = new Map<IPackageDependencyNode["layer"], IPackageDependencyNode[]>()
+    for (const node of nodes) {
+        const currentNodes = nextMap.get(node.layer) ?? []
+        currentNodes.push(node)
+        nextMap.set(node.layer, currentNodes)
+    }
+
+    return nextMap
+}
+
+function filterRelationsByType(
+    relations: ReadonlyArray<IPackageDependencyRelation>,
+    selectedRelationTypes: ReadonlyArray<string>,
+): ReadonlyArray<IPackageDependencyRelation> {
+    const normalizedTypes = selectedRelationTypes
+        .map((item): string => item.trim())
+        .filter((item): boolean => item.length > 0)
+    if (normalizedTypes.length === 0) {
+        return relations
+    }
+
+    const selectedTypeSet = new Set<string>(normalizedTypes)
+    return relations.filter((relation): boolean => {
+        const relationType = relation.relationType
+        return relationType !== undefined && selectedTypeSet.has(relationType)
+    })
+}
+
+function createClusterLabel(
+    layer: IPackageDependencyNode["layer"],
+    membersCount: number,
+): string {
+    return `${layer.toUpperCase()} cluster (${membersCount})`
+}
+
+function buildClusteredPackageGraphData(
+    nodes: ReadonlyArray<IPackageDependencyNode>,
+    relations: ReadonlyArray<IPackageDependencyRelation>,
+    expandedLayerIds: ReadonlyArray<IPackageDependencyNode["layer"]>,
+): IPackageDependencyGraphData {
+    const nodesById = new Map<string, IPackageDependencyNode>()
+    for (const node of nodes) {
+        nodesById.set(node.id, node)
+    }
+
+    const expandedLayerIdSet = new Set<IPackageDependencyNode["layer"]>(expandedLayerIds)
+    const layerClusterMap = buildLayerClusterMap(nodes)
+    const graphNodes: IGraphNode[] = []
+
+    const layerEntries = Array.from(layerClusterMap.entries()).sort((left, right): number =>
+        left[0].localeCompare(right[0]),
+    )
+    for (const [layer, members] of layerEntries) {
+        if (expandedLayerIdSet.has(layer) === true) {
+            for (const member of members) {
+                graphNodes.push({
+                    id: member.id,
+                    label: normalizeNodeLabel(member.name),
+                    width: 220 + (member.size ?? 1) * 1.7,
+                    height: 72,
+                })
+            }
+            continue
+        }
+
+        graphNodes.push({
+            id: createClusterNodeId(layer),
+            label: createClusterLabel(layer, members.length),
+            width: 280 + Math.min(members.length, 25) * 2,
+            height: 78,
+        })
+    }
+
+    const edgeCountByKey = new Map<string, number>()
+    for (const relation of relations) {
+        const sourceNode = nodesById.get(relation.source)
+        const targetNode = nodesById.get(relation.target)
+        if (sourceNode === undefined || targetNode === undefined) {
+            continue
+        }
+
+        const sourceId =
+            expandedLayerIdSet.has(sourceNode.layer) === true
+                ? sourceNode.id
+                : createClusterNodeId(sourceNode.layer)
+        const targetId =
+            expandedLayerIdSet.has(targetNode.layer) === true
+                ? targetNode.id
+                : createClusterNodeId(targetNode.layer)
+        if (sourceId === targetId) {
+            continue
+        }
+
+        const relationType = relation.relationType ?? "dependency"
+        const edgeKey = `${sourceId}->${targetId}:${relationType}`
+        edgeCountByKey.set(edgeKey, (edgeCountByKey.get(edgeKey) ?? 0) + 1)
+    }
+
+    const edges: IGraphEdge[] = []
+    for (const [key, count] of edgeCountByKey.entries()) {
+        const keySeparatorIndex = key.indexOf(":")
+        if (keySeparatorIndex <= 0) {
+            continue
+        }
+
+        const pair = key.slice(0, keySeparatorIndex)
+        const relationType = key.slice(keySeparatorIndex + 1)
+        const nodeSeparatorIndex = pair.indexOf("->")
+        if (nodeSeparatorIndex <= 0) {
+            continue
+        }
+
+        const source = pair.slice(0, nodeSeparatorIndex)
+        const target = pair.slice(nodeSeparatorIndex + 2)
+        if (source.length === 0 || target.length === 0) {
+            continue
+        }
+
+        edges.push({
+            id: key,
+            source,
+            target,
+            label: count > 1 ? `${relationType} x${count}` : relationType,
+        })
+    }
+
+    return { nodes: graphNodes, edges }
+}
+
+function applyFocusPathFilter(
+    graphData: IPackageDependencyGraphData,
+    selectedNodeId: string | undefined,
+    focusPathOnly: boolean,
+): IPackageDependencyGraphData {
+    if (focusPathOnly !== true || selectedNodeId === undefined) {
+        return graphData
+    }
+
+    const highlight = calculateImpactPathHighlight(graphData, selectedNodeId)
+    if (highlight.nodeIds.length === 0) {
+        return graphData
+    }
+
+    const visibleNodeIds = new Set<string>(highlight.nodeIds)
+    const visibleEdgeIds = new Set<string>(highlight.edgeIds)
+    return {
+        nodes: graphData.nodes.filter((node): boolean => visibleNodeIds.has(node.id)),
+        edges: graphData.edges.filter((edge): boolean => {
+            const edgeId = edge.id ?? `${edge.source}-${edge.target}`
+            return visibleEdgeIds.has(edgeId)
+        }),
+    }
+}
 
 /** Подготавливает label для отображения. */
 function normalizeNodeLabel(label: string): string {
@@ -173,32 +418,6 @@ function collectRelationTypes(
     return Array.from(relationTypes).sort()
 }
 
-/** Фильтрует рёбра по выбранным типам зависимостей. */
-function filterByRelationTypes(
-    data: IPackageDependencyGraphData,
-    selectedRelationTypes: ReadonlyArray<string>,
-): IPackageDependencyGraphData {
-    const trimSelected = selectedRelationTypes
-        .map((relationType): string => relationType.trim())
-        .filter((relationType): boolean => relationType.length > 0)
-    if (trimSelected.length === 0) {
-        return data
-    }
-
-    const selectedSet = new Set<string>(trimSelected)
-    const edges = data.edges.filter((edge): boolean =>
-        edge.label !== undefined && selectedSet.has(edge.label),
-    )
-    const edgeNodeIds = new Set<string>(
-        edges.flatMap(
-            (edge): ReadonlyArray<string> => [edge.source, edge.target],
-        ),
-    )
-    const nodes = data.nodes.filter((node): boolean => edgeNodeIds.has(node.id))
-
-    return { edges, nodes }
-}
-
 /** Рекомендует next состояния для фильтра relationType по клику на кнопке. */
 function toggleRelationFilter(
     selected: ReadonlyArray<string>,
@@ -210,6 +429,17 @@ function toggleRelationFilter(
     }
 
     return [...selected, relationType]
+}
+
+function toggleExpandedLayer(
+    selected: ReadonlyArray<IPackageDependencyNode["layer"]>,
+    layer: IPackageDependencyNode["layer"],
+): ReadonlyArray<IPackageDependencyNode["layer"]> {
+    if (selected.includes(layer) === true) {
+        return selected.filter((item): boolean => item !== layer)
+    }
+
+    return [...selected, layer]
 }
 
 /** Формирует summary строку. */
@@ -287,26 +517,90 @@ function calculateImpactPathHighlight(
  * @param props Пропсы компонента.
  */
 export function PackageDependencyGraph(props: IPackageDependencyGraphProps): ReactElement {
+    const initialLayoutSnapshot = readLayoutSnapshot()
     const [state, setState] = useState<IPackageDependencyGraphState>({
         query: "",
         selectedRelationTypes: [],
         selectedNodeId: undefined,
         showImpactPaths: false,
+        viewMode: initialLayoutSnapshot?.viewMode ?? "detailed",
+        lodMode: initialLayoutSnapshot?.lodMode ?? "overview",
+        expandedLayerIds:
+            (initialLayoutSnapshot?.expandedLayerIds ?? [])
+                .filter((item): item is IPackageDependencyNode["layer"] => {
+                    return (
+                        item === "core" ||
+                        item === "api" ||
+                        item === "ui" ||
+                        item === "worker" ||
+                        item === "db" ||
+                        item === "infra"
+                    )
+                }),
+        focusPathOnly: false,
+        isClusterDetailLoading: false,
     })
+    const clusterDetailTimerRef = useRef<ReturnType<typeof globalThis.setTimeout> | undefined>(
+        undefined,
+    )
     const title = props.title ?? "Package dependency graph"
     const emptyStateLabel = props.emptyStateLabel ?? "No package dependencies yet."
-    const graphData = useMemo(
-        (): IPackageDependencyGraphData =>
-            buildPackageDependencyGraphData(props.nodes, props.relations),
-        [props.nodes, props.relations],
+    const packageNodesById = useMemo((): ReadonlyMap<string, IPackageDependencyNode> => {
+        const nextMap = new Map<string, IPackageDependencyNode>()
+        for (const node of props.nodes) {
+            nextMap.set(node.id, node)
+        }
+        return nextMap
+    }, [props.nodes])
+    const layerClusterMap = useMemo(() => buildLayerClusterMap(props.nodes), [props.nodes])
+    const allLayerIds = useMemo(
+        (): ReadonlyArray<IPackageDependencyNode["layer"]> => {
+            return Array.from(layerClusterMap.keys()).sort((left, right): number =>
+                left.localeCompare(right),
+            )
+        },
+        [layerClusterMap],
     )
     const relationTypes = useMemo((): ReadonlyArray<string> => {
         return collectRelationTypes(props.relations)
     }, [props.relations])
-    const visibleGraphData = useMemo((): IPackageDependencyGraphData => {
-        const dataByName = filterByPackageName(graphData, props.nodes, state.query)
-        return filterByRelationTypes(dataByName, state.selectedRelationTypes)
-    }, [graphData, props.nodes, state.query, state.selectedRelationTypes])
+    const filteredRelations = useMemo(
+        (): ReadonlyArray<IPackageDependencyRelation> =>
+            filterRelationsByType(props.relations, state.selectedRelationTypes),
+        [props.relations, state.selectedRelationTypes],
+    )
+    const detailedGraphData = useMemo(
+        (): IPackageDependencyGraphData =>
+            filterByPackageName(
+                buildPackageDependencyGraphData(props.nodes, filteredRelations),
+                props.nodes,
+                state.query,
+            ),
+        [filteredRelations, props.nodes, state.query],
+    )
+    const effectiveExpandedLayerIds = useMemo(
+        (): ReadonlyArray<IPackageDependencyNode["layer"]> => {
+            if (state.lodMode === "details") {
+                return allLayerIds
+            }
+
+            return state.expandedLayerIds.filter((item): boolean => allLayerIds.includes(item))
+        },
+        [allLayerIds, state.expandedLayerIds, state.lodMode],
+    )
+    const clusteredGraphData = useMemo(
+        (): IPackageDependencyGraphData =>
+            buildClusteredPackageGraphData(props.nodes, filteredRelations, effectiveExpandedLayerIds),
+        [effectiveExpandedLayerIds, filteredRelations, props.nodes],
+    )
+    const graphViewMode: "detailed" | "clustered" =
+        state.query.trim().length > 0 ? "detailed" : state.viewMode
+    const graphDataByViewMode = graphViewMode === "clustered" ? clusteredGraphData : detailedGraphData
+    const visibleGraphData = useMemo(
+        (): IPackageDependencyGraphData =>
+            applyFocusPathFilter(graphDataByViewMode, state.selectedNodeId, state.focusPathOnly),
+        [graphDataByViewMode, state.focusPathOnly, state.selectedNodeId],
+    )
     const layoutedNodes = useMemo(
         () =>
             calculateGraphLayout(visibleGraphData.nodes, visibleGraphData.edges, {
@@ -319,13 +613,22 @@ export function PackageDependencyGraph(props: IPackageDependencyGraphProps): Rea
     )
 
     const summaryText = createSummaryText(visibleGraphData.nodes.length, visibleGraphData.edges.length)
-    const packageNodesById = useMemo((): ReadonlyMap<string, IPackageDependencyNode> => {
-        const nextMap = new Map<string, IPackageDependencyNode>()
-        for (const node of props.nodes) {
-            nextMap.set(node.id, node)
+    const selectedClusterLayer = useMemo(
+        (): IPackageDependencyNode["layer"] | undefined => {
+            if (state.selectedNodeId === undefined) {
+                return undefined
+            }
+
+            return parseClusterLayer(state.selectedNodeId)
+        },
+        [state.selectedNodeId],
+    )
+    const selectedClusterMembers = useMemo((): ReadonlyArray<IPackageDependencyNode> | undefined => {
+        if (selectedClusterLayer === undefined) {
+            return undefined
         }
-        return nextMap
-    }, [props.nodes])
+        return layerClusterMap.get(selectedClusterLayer)
+    }, [layerClusterMap, selectedClusterLayer])
     const selectedNode = useMemo((): IPackageDependencyNode | undefined => {
         if (state.selectedNodeId === undefined) {
             return undefined
@@ -336,14 +639,30 @@ export function PackageDependencyGraph(props: IPackageDependencyGraphProps): Rea
         if (state.selectedNodeId === undefined) {
             return undefined
         }
-        return calculatePackageRelationStats(props.relations, state.selectedNodeId)
-    }, [props.relations, state.selectedNodeId])
+        return calculatePackageRelationStats(filteredRelations, state.selectedNodeId)
+    }, [filteredRelations, state.selectedNodeId])
     const impactPathHighlight = useMemo((): IImpactPathHighlight => {
         if (state.showImpactPaths !== true || state.selectedNodeId === undefined) {
             return { edgeIds: [], nodeIds: [] }
         }
         return calculateImpactPathHighlight(visibleGraphData, state.selectedNodeId)
     }, [state.selectedNodeId, state.showImpactPaths, visibleGraphData])
+
+    useEffect((): (() => void) => {
+        return (): void => {
+            if (clusterDetailTimerRef.current !== undefined) {
+                globalThis.clearTimeout(clusterDetailTimerRef.current)
+            }
+        }
+    }, [])
+
+    useEffect((): void => {
+        writeLayoutSnapshot({
+            viewMode: state.viewMode,
+            lodMode: state.lodMode,
+            expandedLayerIds: state.expandedLayerIds,
+        })
+    }, [state.expandedLayerIds, state.lodMode, state.viewMode])
 
     if (layoutedNodes.length === 0) {
         return (
@@ -416,6 +735,104 @@ export function PackageDependencyGraph(props: IPackageDependencyGraphProps): Rea
                     >
                         Highlight impact paths
                     </Button>
+                    <Button
+                        color="default"
+                        onPress={(): void => {
+                            setState((previousState): IPackageDependencyGraphState => ({
+                                ...previousState,
+                                viewMode:
+                                    previousState.viewMode === "clustered"
+                                        ? "detailed"
+                                        : "clustered",
+                                lodMode:
+                                    previousState.viewMode === "clustered"
+                                        ? "overview"
+                                        : previousState.lodMode,
+                                expandedLayerIds:
+                                    previousState.viewMode === "clustered"
+                                        ? []
+                                        : previousState.expandedLayerIds,
+                                selectedNodeId: undefined,
+                                focusPathOnly: false,
+                            }))
+                        }}
+                        variant="flat"
+                    >
+                        {state.viewMode === "clustered"
+                            ? "Switch to detailed view"
+                            : "Switch to clustered view"}
+                    </Button>
+                    <Button
+                        color={state.focusPathOnly ? "primary" : "default"}
+                        isDisabled={state.selectedNodeId === undefined}
+                        onPress={(): void => {
+                            setState((previousState): IPackageDependencyGraphState => ({
+                                ...previousState,
+                                focusPathOnly: !previousState.focusPathOnly,
+                            }))
+                        }}
+                        variant={state.focusPathOnly ? "flat" : "bordered"}
+                    >
+                        Focus path
+                    </Button>
+                    <Button
+                        color="default"
+                        isDisabled={state.viewMode !== "clustered" || state.isClusterDetailLoading}
+                        onPress={(): void => {
+                            if (state.viewMode !== "clustered") {
+                                return
+                            }
+
+                            if (clusterDetailTimerRef.current !== undefined) {
+                                globalThis.clearTimeout(clusterDetailTimerRef.current)
+                            }
+
+                            if (state.lodMode === "details") {
+                                setState((previousState): IPackageDependencyGraphState => ({
+                                    ...previousState,
+                                    lodMode: "overview",
+                                    expandedLayerIds: [],
+                                    isClusterDetailLoading: false,
+                                }))
+                                return
+                            }
+
+                            setState((previousState): IPackageDependencyGraphState => ({
+                                ...previousState,
+                                isClusterDetailLoading: true,
+                            }))
+                            clusterDetailTimerRef.current = globalThis.setTimeout((): void => {
+                                setState((previousState): IPackageDependencyGraphState => ({
+                                    ...previousState,
+                                    lodMode: "details",
+                                    expandedLayerIds: allLayerIds,
+                                    isClusterDetailLoading: false,
+                                }))
+                            }, CLUSTER_DETAILS_DELAY_MS)
+                        }}
+                        variant="flat"
+                    >
+                        {state.lodMode === "details" ? "LOD: details" : "LOD: overview"}
+                    </Button>
+                    {state.viewMode === "clustered" && selectedClusterLayer !== undefined ? (
+                        <Button
+                            color="default"
+                            onPress={(): void => {
+                                setState((previousState): IPackageDependencyGraphState => ({
+                                    ...previousState,
+                                    expandedLayerIds: toggleExpandedLayer(
+                                        previousState.expandedLayerIds,
+                                        selectedClusterLayer,
+                                    ),
+                                }))
+                            }}
+                            variant="light"
+                        >
+                            {state.expandedLayerIds.includes(selectedClusterLayer)
+                                ? `Collapse ${selectedClusterLayer}`
+                                : `Expand ${selectedClusterLayer}`}
+                        </Button>
+                    ) : null}
                 </div>
                 {relationTypes.length > 0 ? (
                     <div className="mt-3 flex flex-wrap gap-2">
@@ -427,7 +844,7 @@ export function PackageDependencyGraph(props: IPackageDependencyGraphProps): Rea
                                     color="default"
                                     size="sm"
                                     variant={isActive ? "flat" : "light"}
-                                   onPress={(): void => {
+                                    onPress={(): void => {
                                         const selectedRelationTypes = toggleRelationFilter(
                                             state.selectedRelationTypes,
                                             relationType,
@@ -446,6 +863,17 @@ export function PackageDependencyGraph(props: IPackageDependencyGraphProps): Rea
                 ) : null}
             </CardHeader>
             <CardBody className="gap-4">
+                {state.viewMode === "clustered" ? (
+                    <p className="text-xs text-foreground-500">
+                        Cluster mode groups packages by layer and allows on-demand expansion with
+                        LOD controls.
+                    </p>
+                ) : null}
+                {state.isClusterDetailLoading ? (
+                    <p aria-live="polite" className="text-xs text-foreground-500">
+                        Loading cluster details...
+                    </p>
+                ) : null}
                 <XyFlowGraph
                     graphTitle={title}
                     ariaLabel={`${title} canvas`}
@@ -459,6 +887,10 @@ export function PackageDependencyGraph(props: IPackageDependencyGraphProps): Rea
                                 previousState.selectedNodeId === nodeId
                                     ? false
                                     : previousState.showImpactPaths,
+                            focusPathOnly:
+                                previousState.selectedNodeId === nodeId
+                                    ? false
+                                    : previousState.focusPathOnly,
                             selectedNodeId:
                                 previousState.selectedNodeId === nodeId ? undefined : nodeId,
                         }))
@@ -474,11 +906,7 @@ export function PackageDependencyGraph(props: IPackageDependencyGraphProps): Rea
                     className="rounded-xl border border-default-200 bg-content2 p-4"
                 >
                     <h4 className="text-sm font-semibold text-foreground">Node details</h4>
-                    {selectedNode === undefined || selectedRelationStats === undefined ? (
-                        <p className="mt-2 text-sm text-foreground-500">
-                            Select a node to inspect package relationships.
-                        </p>
-                    ) : (
+                    {selectedNode !== undefined && selectedRelationStats !== undefined ? (
                         <div className="mt-2 space-y-1 text-sm text-foreground-700">
                             <p>{`Name: ${selectedNode.name}`}</p>
                             <p>{`Layer: ${selectedNode.layer}`}</p>
@@ -488,6 +916,18 @@ export function PackageDependencyGraph(props: IPackageDependencyGraphProps): Rea
                             <p>{`Impact path nodes: ${impactPathHighlight.nodeIds.length}`}</p>
                             <p>{`Impact path edges: ${impactPathHighlight.edgeIds.length}`}</p>
                         </div>
+                    ) : selectedClusterLayer !== undefined && selectedClusterMembers !== undefined ? (
+                        <div className="mt-2 space-y-1 text-sm text-foreground-700">
+                            <p>{`Cluster layer: ${selectedClusterLayer}`}</p>
+                            <p>{`Packages in cluster: ${selectedClusterMembers.length}`}</p>
+                            <p>{`Expanded: ${state.expandedLayerIds.includes(selectedClusterLayer) ? "yes" : "no"}`}</p>
+                            <p>{`LOD mode: ${state.lodMode}`}</p>
+                            <p>{`Focus path only: ${state.focusPathOnly ? "yes" : "no"}`}</p>
+                        </div>
+                    ) : (
+                        <p className="mt-2 text-sm text-foreground-500">
+                            Select a node to inspect package relationships.
+                        </p>
                     )}
                 </section>
             </CardBody>

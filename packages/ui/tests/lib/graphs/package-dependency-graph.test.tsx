@@ -1,6 +1,6 @@
 import { render, screen } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
-import { describe, expect, it, vi } from "vitest"
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 
 import {
     PackageDependencyGraph,
@@ -55,6 +55,14 @@ vi.mock("@/components/graphs/xyflow-graph", () => ({
 }))
 
 describe("package dependency graph", (): void => {
+    beforeEach((): void => {
+        globalThis.localStorage.clear()
+    })
+
+    afterEach((): void => {
+        vi.useRealTimers()
+    })
+
     it("builds graph data and deduplicates duplicate package relations", (): void => {
         const nodes = [
             { id: "pkg-a", layer: "api", name: "pkg-a" },
@@ -256,5 +264,91 @@ describe("package dependency graph", (): void => {
 
         expect(screen.getByTestId("highlighted-node-count")).toHaveTextContent("3")
         expect(screen.getByTestId("highlighted-edge-count")).toHaveTextContent("2")
+    })
+
+    it("переключает clustered view и LOD details для крупных графов", async (): Promise<void> => {
+        vi.useFakeTimers()
+        const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime })
+        render(
+            <PackageDependencyGraph
+                nodes={[
+                    {
+                        id: "pkg-ui",
+                        layer: "ui",
+                        name: "pkg-ui",
+                    },
+                    {
+                        id: "pkg-core",
+                        layer: "core",
+                        name: "pkg-core",
+                    },
+                    {
+                        id: "pkg-worker",
+                        layer: "worker",
+                        name: "pkg-worker",
+                    },
+                ]}
+                relations={[
+                    {
+                        relationType: "runtime",
+                        source: "pkg-ui",
+                        target: "pkg-core",
+                    },
+                    {
+                        relationType: "runtime",
+                        source: "pkg-core",
+                        target: "pkg-worker",
+                    },
+                ]}
+            />,
+        )
+
+        expect(screen.getByTestId("xyflow-node-count")).toHaveTextContent("3")
+        await user.click(screen.getByRole("button", { name: "Switch to clustered view" }))
+        expect(screen.getByTestId("xyflow-node-count")).toHaveTextContent("3")
+
+        await user.click(screen.getByRole("button", { name: "LOD: overview" }))
+        expect(screen.getByText("Loading cluster details...")).not.toBeNull()
+        vi.runAllTimers()
+
+        expect(screen.getByRole("button", { name: "LOD: details" })).not.toBeNull()
+    })
+
+    it("применяет focus path режим к выбранному узлу", async (): Promise<void> => {
+        const user = userEvent.setup()
+        render(
+            <PackageDependencyGraph
+                nodes={[
+                    {
+                        id: "pkg-ui",
+                        layer: "ui",
+                        name: "pkg-ui",
+                    },
+                    {
+                        id: "pkg-core",
+                        layer: "core",
+                        name: "pkg-core",
+                    },
+                    {
+                        id: "pkg-db",
+                        layer: "db",
+                        name: "pkg-db",
+                    },
+                ]}
+                relations={[
+                    {
+                        relationType: "runtime",
+                        source: "pkg-ui",
+                        target: "pkg-core",
+                    },
+                ]}
+            />,
+        )
+
+        expect(screen.getByTestId("xyflow-node-count")).toHaveTextContent("3")
+        await user.click(screen.getByRole("button", { name: "select-pkg-ui" }))
+        await user.click(screen.getByRole("button", { name: "Focus path" }))
+
+        expect(screen.getByTestId("xyflow-node-count")).toHaveTextContent("2")
     })
 })
