@@ -7,6 +7,7 @@ import {
     FileClock,
     GitBranch,
     GitPullRequest,
+    KeyRound,
     LibraryBig,
     Link2,
     Settings,
@@ -83,6 +84,11 @@ const SETTINGS_NAV = [
         icon: <ShieldCheck aria-hidden="true" size={16} />,
         label: "SSO",
         to: "/settings-sso",
+    },
+    {
+        icon: <KeyRound aria-hidden="true" size={16} />,
+        label: "BYOK",
+        to: "/settings-byok",
     },
     {
         icon: <Users aria-hidden="true" size={16} />,

@@ -1,0 +1,476 @@
+import { type ReactElement, useMemo, useState } from "react"
+
+import { Alert, Button, Card, CardBody, CardHeader, Chip, Input, Switch } from "@/components/ui"
+import { showToastError, showToastInfo, showToastSuccess } from "@/lib/notifications/toast"
+
+type TByokProvider = "anthropic" | "github" | "gitlab" | "openai"
+
+interface IByokKeyEntry {
+    /** Уникальный идентификатор ключа. */
+    readonly id: string
+    /** Провайдер, к которому относится ключ. */
+    readonly provider: TByokProvider
+    /** Человекочитаемый ярлык ключа. */
+    readonly label: string
+    /** Маскированное значение секрета. */
+    readonly maskedSecret: string
+    /** Признак активности ключа. */
+    readonly isActive: boolean
+    /** Число ротаций ключа. */
+    readonly rotationCount: number
+    /** Количество запросов, выполненных этим ключом. */
+    readonly usageRequests: number
+    /** Количество токенов, потребленных этим ключом. */
+    readonly usageTokens: number
+    /** Время последнего использования. */
+    readonly lastUsedAt: string
+}
+
+interface ICreateKeyFormState {
+    /** Выбранный провайдер. */
+    readonly provider: TByokProvider
+    /** Ярлык ключа. */
+    readonly label: string
+    /** Введенный секрет. */
+    readonly secret: string
+}
+
+const PROVIDER_OPTIONS: ReadonlyArray<TByokProvider> = ["openai", "anthropic", "github", "gitlab"]
+
+const INITIAL_KEYS: ReadonlyArray<IByokKeyEntry> = [
+    {
+        id: "byok-1",
+        isActive: true,
+        label: "openai-prod-main",
+        lastUsedAt: "2026-03-04T11:05:00Z",
+        maskedSecret: "sk-p****001",
+        provider: "openai",
+        rotationCount: 1,
+        usageRequests: 1284,
+        usageTokens: 391820,
+    },
+    {
+        id: "byok-2",
+        isActive: true,
+        label: "anthropic-fallback",
+        lastUsedAt: "2026-03-04T10:47:00Z",
+        maskedSecret: "sk-a****873",
+        provider: "anthropic",
+        rotationCount: 2,
+        usageRequests: 402,
+        usageTokens: 116240,
+    },
+]
+
+function formatProviderLabel(provider: TByokProvider): string {
+    if (provider === "openai") {
+        return "OpenAI"
+    }
+    if (provider === "anthropic") {
+        return "Anthropic"
+    }
+    if (provider === "github") {
+        return "GitHub"
+    }
+    return "GitLab"
+}
+
+function maskSecret(value: string): string {
+    const normalized = value.trim()
+    const prefix = normalized.slice(0, 4)
+    const suffix = normalized.slice(-3)
+    if (normalized.length < 7) {
+        return "****"
+    }
+
+    return `${prefix}****${suffix}`
+}
+
+function buildKeyId(provider: TByokProvider): string {
+    return `${provider}-${Date.now().toString(36)}`
+}
+
+function formatLastUsed(value: string): string {
+    const parsed = new Date(value)
+    if (Number.isNaN(parsed.getTime())) {
+        return "Never"
+    }
+
+    return parsed.toLocaleString([], {
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit",
+        month: "2-digit",
+    })
+}
+
+/**
+ * Страница управления BYOK ключами провайдеров.
+ *
+ * @returns UI для добавления, ротации и мониторинга ключей.
+ */
+export function SettingsByokPage(): ReactElement {
+    const [keys, setKeys] = useState<ReadonlyArray<IByokKeyEntry>>(INITIAL_KEYS)
+    const [form, setForm] = useState<ICreateKeyFormState>({
+        label: "",
+        provider: "openai",
+        secret: "",
+    })
+
+    const stats = useMemo(
+        (): {
+            readonly activeKeys: number
+            readonly totalKeys: number
+            readonly totalRequests: number
+            readonly totalTokens: number
+        } => {
+            return keys.reduce(
+                (accumulator, entry): {
+                    readonly activeKeys: number
+                    readonly totalKeys: number
+                    readonly totalRequests: number
+                    readonly totalTokens: number
+                } => {
+                    return {
+                        activeKeys: accumulator.activeKeys + (entry.isActive ? 1 : 0),
+                        totalKeys: accumulator.totalKeys + 1,
+                        totalRequests: accumulator.totalRequests + entry.usageRequests,
+                        totalTokens: accumulator.totalTokens + entry.usageTokens,
+                    }
+                },
+                {
+                    activeKeys: 0,
+                    totalKeys: 0,
+                    totalRequests: 0,
+                    totalTokens: 0,
+                },
+            )
+        },
+        [keys],
+    )
+
+    const providerUsage = useMemo((): ReadonlyArray<{
+        readonly keys: number
+        readonly provider: TByokProvider
+        readonly requests: number
+        readonly tokens: number
+    }> => {
+        return PROVIDER_OPTIONS.map((provider): {
+            readonly keys: number
+            readonly provider: TByokProvider
+            readonly requests: number
+            readonly tokens: number
+        } => {
+            const matchingKeys = keys.filter((entry): boolean => entry.provider === provider)
+            return {
+                keys: matchingKeys.length,
+                provider,
+                requests: matchingKeys.reduce(
+                    (sum, entry): number => sum + entry.usageRequests,
+                    0,
+                ),
+                tokens: matchingKeys.reduce(
+                    (sum, entry): number => sum + entry.usageTokens,
+                    0,
+                ),
+            }
+        })
+    }, [keys])
+
+    const handleCreateKey = (): void => {
+        const normalizedLabel = form.label.trim()
+        const normalizedSecret = form.secret.trim()
+
+        if (normalizedLabel.length < 3) {
+            showToastError("Key label should be at least 3 characters.")
+            return
+        }
+        if (normalizedSecret.length < 12) {
+            showToastError("API key must be at least 12 characters.")
+            return
+        }
+
+        const nextKey: IByokKeyEntry = {
+            id: buildKeyId(form.provider),
+            isActive: true,
+            label: normalizedLabel,
+            lastUsedAt: new Date().toISOString(),
+            maskedSecret: maskSecret(normalizedSecret),
+            provider: form.provider,
+            rotationCount: 1,
+            usageRequests: 0,
+            usageTokens: 0,
+        }
+
+        setKeys((previous): ReadonlyArray<IByokKeyEntry> => [nextKey, ...previous])
+        setForm({
+            label: "",
+            provider: form.provider,
+            secret: "",
+        })
+        showToastSuccess(`BYOK key "${nextKey.label}" added.`)
+    }
+
+    const handleRotateKey = (keyId: string): void => {
+        setKeys((previous): ReadonlyArray<IByokKeyEntry> =>
+            previous.map((entry): IByokKeyEntry => {
+                if (entry.id !== keyId) {
+                    return entry
+                }
+
+                const syntheticSecret = `${entry.provider}-${Date.now().toString(36)}-rot`
+                return {
+                    ...entry,
+                    lastUsedAt: new Date().toISOString(),
+                    maskedSecret: maskSecret(syntheticSecret),
+                    rotationCount: entry.rotationCount + 1,
+                }
+            }),
+        )
+        showToastInfo("Key rotated successfully.")
+    }
+
+    const handleToggleActive = (keyId: string, isActive: boolean): void => {
+        setKeys((previous): ReadonlyArray<IByokKeyEntry> =>
+            previous.map((entry): IByokKeyEntry => {
+                if (entry.id !== keyId) {
+                    return entry
+                }
+                return {
+                    ...entry,
+                    isActive,
+                }
+            }),
+        )
+    }
+
+    const handleDeleteKey = (keyId: string): void => {
+        setKeys((previous): ReadonlyArray<IByokKeyEntry> =>
+            previous.filter((entry): boolean => entry.id !== keyId),
+        )
+        showToastInfo("BYOK key removed.")
+    }
+
+    return (
+        <section className="space-y-4">
+            <h1 className="text-2xl font-semibold text-[var(--foreground)]">BYOK management</h1>
+            <p className="text-sm text-[var(--foreground)]/70">
+                Add provider keys, keep secrets masked in UI, rotate safely and monitor usage.
+            </p>
+
+            <Card>
+                <CardHeader>
+                    <p className="text-base font-semibold text-[var(--foreground)]">Add API key</p>
+                </CardHeader>
+                <CardBody className="space-y-3">
+                    <div className="grid gap-3 md:grid-cols-[180px_1fr_1fr_auto]">
+                        <div className="flex flex-col gap-1">
+                            <label className="text-sm text-[var(--foreground)]/80" htmlFor="byok-provider">
+                                Provider
+                            </label>
+                            <select
+                                aria-label="Provider"
+                                className="rounded-lg border border-[var(--border)] bg-[var(--surface)] px-3 py-2 text-sm"
+                                id="byok-provider"
+                                value={form.provider}
+                                onChange={(event): void => {
+                                    const nextProvider = event.currentTarget.value
+                                    if (
+                                        nextProvider === "openai"
+                                        || nextProvider === "anthropic"
+                                        || nextProvider === "github"
+                                        || nextProvider === "gitlab"
+                                    ) {
+                                        setForm((previous): ICreateKeyFormState => ({
+                                            ...previous,
+                                            provider: nextProvider,
+                                        }))
+                                    }
+                                }}
+                            >
+                                <option value="openai">OpenAI</option>
+                                <option value="anthropic">Anthropic</option>
+                                <option value="github">GitHub</option>
+                                <option value="gitlab">GitLab</option>
+                            </select>
+                        </div>
+                        <Input
+                            label="Key label"
+                            placeholder="openai-prod-main"
+                            value={form.label}
+                            onValueChange={(value): void => {
+                                setForm((previous): ICreateKeyFormState => ({
+                                    ...previous,
+                                    label: value,
+                                }))
+                            }}
+                        />
+                        <Input
+                            label="API key / secret"
+                            placeholder="sk-..."
+                            type="password"
+                            value={form.secret}
+                            onValueChange={(value): void => {
+                                setForm((previous): ICreateKeyFormState => ({
+                                    ...previous,
+                                    secret: value,
+                                }))
+                            }}
+                        />
+                        <div className="flex items-end">
+                            <Button className="w-full md:w-auto" onPress={handleCreateKey}>
+                                Add key
+                            </Button>
+                        </div>
+                    </div>
+                    <Alert color="primary" title="Secrets are masked" variant="flat">
+                        Raw API keys are never rendered after submit. UI shows only masked values.
+                    </Alert>
+                </CardBody>
+            </Card>
+
+            <div className="grid gap-4 md:grid-cols-4">
+                <Card>
+                    <CardHeader>
+                        <p className="text-sm font-semibold text-[var(--foreground)]">Total keys</p>
+                    </CardHeader>
+                    <CardBody>
+                        <p className="text-2xl font-semibold text-[var(--foreground)]">{stats.totalKeys}</p>
+                    </CardBody>
+                </Card>
+                <Card>
+                    <CardHeader>
+                        <p className="text-sm font-semibold text-[var(--foreground)]">Active keys</p>
+                    </CardHeader>
+                    <CardBody>
+                        <p className="text-2xl font-semibold text-[var(--foreground)]">{stats.activeKeys}</p>
+                    </CardBody>
+                </Card>
+                <Card>
+                    <CardHeader>
+                        <p className="text-sm font-semibold text-[var(--foreground)]">Usage requests</p>
+                    </CardHeader>
+                    <CardBody>
+                        <p className="text-2xl font-semibold text-[var(--foreground)]">
+                            {stats.totalRequests}
+                        </p>
+                    </CardBody>
+                </Card>
+                <Card>
+                    <CardHeader>
+                        <p className="text-sm font-semibold text-[var(--foreground)]">Usage tokens</p>
+                    </CardHeader>
+                    <CardBody>
+                        <p className="text-2xl font-semibold text-[var(--foreground)]">
+                            {stats.totalTokens}
+                        </p>
+                    </CardBody>
+                </Card>
+            </div>
+
+            <Card>
+                <CardHeader>
+                    <p className="text-base font-semibold text-[var(--foreground)]">Provider usage stats</p>
+                </CardHeader>
+                <CardBody className="space-y-2">
+                    {providerUsage.map((entry): ReactElement => (
+                        <div
+                            key={entry.provider}
+                            className="flex items-center justify-between rounded-lg border border-[var(--border)] bg-[var(--surface)] px-3 py-2 text-sm"
+                        >
+                            <p className="font-semibold text-[var(--foreground)]">
+                                {formatProviderLabel(entry.provider)}
+                            </p>
+                            <p className="text-[var(--foreground)]/70">
+                                Keys: {entry.keys} • Requests: {entry.requests} • Tokens: {entry.tokens}
+                            </p>
+                        </div>
+                    ))}
+                </CardBody>
+            </Card>
+
+            <Card>
+                <CardHeader>
+                    <p className="text-base font-semibold text-[var(--foreground)]">Configured keys</p>
+                </CardHeader>
+                <CardBody className="space-y-3">
+                    {keys.length === 0 ? (
+                        <Alert color="warning" title="No BYOK keys configured" variant="flat">
+                            Add your first provider key to activate secure provider calls.
+                        </Alert>
+                    ) : (
+                        keys.map((entry): ReactElement => (
+                            <article
+                                key={entry.id}
+                                className="rounded-lg border border-[var(--border)] bg-[var(--surface)] p-3"
+                            >
+                                <div className="flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
+                                    <div className="space-y-1">
+                                        <p className="text-sm font-semibold text-[var(--foreground)]">
+                                            {entry.label}
+                                        </p>
+                                        <p className="text-xs text-[var(--foreground)]/70">
+                                            Provider: {formatProviderLabel(entry.provider)}
+                                        </p>
+                                        <p className="font-mono text-xs text-[var(--foreground)]/70">
+                                            {entry.maskedSecret}
+                                        </p>
+                                        <p className="text-xs text-[var(--foreground)]/70">
+                                            Rotation: {entry.rotationCount}
+                                        </p>
+                                        <p className="text-xs text-[var(--foreground)]/70">
+                                            Usage: {entry.usageRequests} requests • {entry.usageTokens} tokens
+                                        </p>
+                                        <p className="text-xs text-[var(--foreground)]/70">
+                                            Last used: {formatLastUsed(entry.lastUsedAt)}
+                                        </p>
+                                    </div>
+                                    <div className="flex flex-col items-start gap-2">
+                                        <Chip
+                                            color={entry.isActive ? "success" : "default"}
+                                            size="sm"
+                                            variant="flat"
+                                        >
+                                            {entry.isActive ? "active" : "inactive"}
+                                        </Chip>
+                                        <Switch
+                                            aria-label={`Active key ${entry.label}`}
+                                            isSelected={entry.isActive}
+                                            size="sm"
+                                            onValueChange={(value): void => {
+                                                handleToggleActive(entry.id, value)
+                                            }}
+                                        >
+                                            Active
+                                        </Switch>
+                                        <div className="flex gap-2">
+                                            <Button
+                                                size="sm"
+                                                variant="flat"
+                                                onPress={(): void => {
+                                                    handleRotateKey(entry.id)
+                                                }}
+                                            >
+                                                {`Rotate key ${entry.label}`}
+                                            </Button>
+                                            <Button
+                                                color="danger"
+                                                size="sm"
+                                                variant="ghost"
+                                                onPress={(): void => {
+                                                    handleDeleteKey(entry.id)
+                                                }}
+                                            >
+                                                {`Remove key ${entry.label}`}
+                                            </Button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </article>
+                        ))
+                    )}
+                </CardBody>
+            </Card>
+        </section>
+    )
+}
