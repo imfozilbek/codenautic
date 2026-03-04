@@ -26,9 +26,15 @@ const CCR_SUMMARY_DETAIL_LEVEL = {
     standard: "STANDARD",
     deep: "DEEP",
 } as const
+const IDE_SYNC_PROVIDER = {
+    vscode: "VSCODE",
+    jetbrains: "JETBRAINS",
+    both: "BOTH",
+} as const
 
 type TCcrSummaryDetailLevel =
     (typeof CCR_SUMMARY_DETAIL_LEVEL)[keyof typeof CCR_SUMMARY_DETAIL_LEVEL]
+type TIdeSyncProvider = (typeof IDE_SYNC_PROVIDER)[keyof typeof IDE_SYNC_PROVIDER]
 
 interface ICcrSummarySettings {
     readonly detailLevel: TCcrSummaryDetailLevel
@@ -36,6 +42,13 @@ interface ICcrSummarySettings {
     readonly includeRiskOverview: boolean
     readonly includeTimeline: boolean
     readonly maxSuggestions: number
+}
+
+interface IIdeSyncSettings {
+    readonly autoOpenDiffOnSync: boolean
+    readonly enabled: boolean
+    readonly provider: TIdeSyncProvider
+    readonly syncOnPush: boolean
 }
 
 function isRepoReviewMode(value: string): value is TRepoReviewMode {
@@ -74,6 +87,13 @@ export function SettingsCodeReviewPage(): ReactElement {
         maxSuggestions: 8,
     })
     const [ccrSummaryState, setCcrSummaryState] = useState<string>("Not saved yet.")
+    const [ideSyncSettings, setIdeSyncSettings] = useState<IIdeSyncSettings>({
+        enabled: true,
+        provider: IDE_SYNC_PROVIDER.both,
+        syncOnPush: true,
+        autoOpenDiffOnSync: true,
+    })
+    const [ideSyncState, setIdeSyncState] = useState<string>("Not saved yet.")
     const normalizedRepositoryId = repositoryId.trim()
     const repoConfig = useRepoConfig({
         repositoryId: normalizedRepositoryId,
@@ -229,6 +249,14 @@ export function SettingsCodeReviewPage(): ReactElement {
         }, 0)
     }
 
+    const handleIdeSyncSave = (): void => {
+        setIdeSyncState("Saving IDE sync settings...")
+        setTimeout((): void => {
+            setIdeSyncState("IDE sync settings saved.")
+            showToastSuccess("IDE sync settings saved.")
+        }, 0)
+    }
+
     return (
         <section className="space-y-4">
             <h1 className="text-2xl font-semibold text-slate-900">Code Review Configuration</h1>
@@ -352,6 +380,76 @@ export function SettingsCodeReviewPage(): ReactElement {
                 </p>
                 <Button type="button" variant="solid" onPress={handleSummarySettingsSave}>
                     Save CCR summary settings
+                </Button>
+            </section>
+            <section className="space-y-3 rounded-xl border border-slate-200 bg-white p-4">
+                <h2 className="text-base font-semibold text-slate-900">IDE sync settings</h2>
+                <p className="text-sm text-slate-600">
+                    Configure how CCR decisions and code insights are synced to IDE plugins.
+                </p>
+                <label className="flex items-center gap-2 text-sm text-slate-700">
+                    <input
+                        checked={ideSyncSettings.enabled}
+                        type="checkbox"
+                        onChange={(event): void => {
+                            setIdeSyncSettings((prev): IIdeSyncSettings => ({
+                                ...prev,
+                                enabled: event.currentTarget.checked,
+                            }))
+                        }}
+                    />
+                    Enable IDE plugin sync
+                </label>
+                <label className="space-y-1 text-sm text-slate-700" htmlFor="ide-sync-provider">
+                    <span className="block font-medium text-slate-900">IDE provider scope</span>
+                    <select
+                        id="ide-sync-provider"
+                        className="w-full rounded-md border border-slate-300 px-3 py-2"
+                        value={ideSyncSettings.provider}
+                        onChange={(event): void => {
+                            const nextProvider = event.currentTarget.value as TIdeSyncProvider
+                            setIdeSyncSettings((prev): IIdeSyncSettings => ({
+                                ...prev,
+                                provider: nextProvider,
+                            }))
+                        }}
+                    >
+                        <option value={IDE_SYNC_PROVIDER.vscode}>VS Code</option>
+                        <option value={IDE_SYNC_PROVIDER.jetbrains}>JetBrains</option>
+                        <option value={IDE_SYNC_PROVIDER.both}>Both</option>
+                    </select>
+                </label>
+                <label className="flex items-center gap-2 text-sm text-slate-700">
+                    <input
+                        checked={ideSyncSettings.syncOnPush}
+                        type="checkbox"
+                        onChange={(event): void => {
+                            setIdeSyncSettings((prev): IIdeSyncSettings => ({
+                                ...prev,
+                                syncOnPush: event.currentTarget.checked,
+                            }))
+                        }}
+                    />
+                    Sync decisions on every push
+                </label>
+                <label className="flex items-center gap-2 text-sm text-slate-700">
+                    <input
+                        checked={ideSyncSettings.autoOpenDiffOnSync}
+                        type="checkbox"
+                        onChange={(event): void => {
+                            setIdeSyncSettings((prev): IIdeSyncSettings => ({
+                                ...prev,
+                                autoOpenDiffOnSync: event.currentTarget.checked,
+                            }))
+                        }}
+                    />
+                    Auto-open affected diffs after sync
+                </label>
+                <p className="text-xs text-slate-500" data-testid="ide-sync-state">
+                    {ideSyncState}
+                </p>
+                <Button type="button" variant="solid" onPress={handleIdeSyncSave}>
+                    Save IDE sync settings
                 </Button>
             </section>
             <DryRunResultViewer
