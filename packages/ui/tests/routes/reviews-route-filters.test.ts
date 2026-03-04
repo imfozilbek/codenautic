@@ -73,4 +73,25 @@ describe("reviews route filters", (): void => {
             team: undefined,
         })
     })
+
+    it("синхронизирует фильтры через URL и поддерживает shareable round-trip", (): void => {
+        const originalFilters = {
+            repository: "platform-team/api-gateway",
+            search: "security regression",
+            status: "in_progress",
+            team: "platform",
+        } as const
+
+        const routeSearch = sanitizeForRouter(originalFilters)
+        const restored = buildSearchFromRoute(routeSearch)
+
+        expect(routeSearch).toEqual({
+            q: "security regression",
+            repo: "platform-team/api-gateway",
+            status: "in_progress",
+            team: "platform",
+        })
+
+        expect(restored).toEqual(originalFilters)
+    })
 })
