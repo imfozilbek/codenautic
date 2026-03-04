@@ -94,8 +94,10 @@ export {
 } from "./application/dto/heuristics/heuristic-registry-entry.dto"
 export {
     type IConfigLibraryRuleItem,
+    type IConfigPromptTemplateItem,
     type IConfigRuleCategoryItem,
     type IDirectoryConfig,
+    type IPromptTemplateConfigData,
     type IPromptConfigurationConfigData,
     type IRuleCategoryConfigData,
     type IRuleConfigData,
@@ -109,6 +111,7 @@ export {
     type IReviewOverridesConfigData,
     type ReviewOverridePromptName,
     buildReviewOverridePromptConfigurations,
+    parsePromptTemplateConfigList,
     parseRuleCategoryConfigList,
     parseRuleConfigList,
     parseReviewOverridesConfig,
@@ -421,6 +424,10 @@ export {
     ImportDefaultLibraryRulesUseCase,
     type IImportDefaultLibraryRulesUseCaseDependencies,
 } from "./application/use-cases/rules/import-default-library-rules.use-case"
+export {
+    ImportDefaultPromptTemplatesUseCase,
+    type IImportDefaultPromptTemplatesUseCaseDependencies,
+} from "./application/use-cases/prompt/import-default-prompt-templates.use-case"
 export {
     AnalyzeFeedbackUseCase,
     type IAnalyzeFeedbackInput,

@@ -1,4 +1,9 @@
 export {type IDirectoryConfig} from "./directory-config.dto"
+export {
+    type IConfigPromptTemplateItem,
+    type IPromptTemplateConfigData,
+    parsePromptTemplateConfigList,
+} from "./prompt-template-config.dto"
 export {type IPromptConfigurationConfigData} from "./prompt-configuration-config.dto"
 export {
     type IConfigRuleCategoryItem,
