@@ -43,12 +43,25 @@ function DashboardLayoutHarness(props: ILayoutHarnessProps): ReactElement {
 
 describe("layout components", (): void => {
     it("рендерит Header с брендом и темным режимом переключателя", (): void => {
+        const onOrganizationChange = vi.fn()
         renderWithProviders(
             <Header
+                activeOrganizationId="platform-team"
                 notificationCount={3}
                 onMobileMenuOpen={(): void => {
                     return undefined
                 }}
+                onOrganizationChange={onOrganizationChange}
+                organizations={[
+                    {
+                        id: "platform-team",
+                        label: "Platform Team",
+                    },
+                    {
+                        id: "frontend-team",
+                        label: "Frontend Team",
+                    },
+                ]}
                 title="Reviews"
                 userEmail="reviewer@example.com"
                 userName="Reviewer"
@@ -64,6 +77,11 @@ describe("layout components", (): void => {
         expect(screen.queryByRole("button", { name: "Notifications (3)" })).not.toBeNull()
         expect(screen.queryByRole("radiogroup", { name: "Theme mode" })).not.toBeNull()
         expect(screen.queryAllByText("Reviewer").length).toBeGreaterThan(0)
+        expect(
+            screen.getByRole("combobox", { name: "Organization workspace switcher" }),
+        ).not.toBeNull()
+        expect(screen.getByText("Current: Platform Team")).not.toBeNull()
+        expect(onOrganizationChange).not.toHaveBeenCalled()
     })
 
     it("обрабатывает callback для collapse sidebar", async (): Promise<void> => {
@@ -192,6 +210,34 @@ describe("layout components", (): void => {
         expect(screen.queryAllByText("Dev").length).toBeGreaterThan(0)
         expect(screen.queryByText("Panel content")).not.toBeNull()
         expect(screen.queryAllByText("Техстатус").length).toBeGreaterThan(0)
+    })
+
+    it("переключает организацию и применяет tenant route guard", async (): Promise<void> => {
+        const user = userEvent.setup()
+        const confirmSpy = vi.spyOn(window, "confirm").mockReturnValue(true)
+        mockNavigate.mockClear()
+        currentRoute = "/settings-byok"
+
+        renderWithProviders(
+            <DashboardLayoutHarness>
+                <p>Panel content</p>
+            </DashboardLayoutHarness>,
+            {
+                defaultThemeMode: "light" as ThemeMode,
+            },
+        )
+
+        const switcher = screen.getByRole("combobox", { name: "Organization workspace switcher" })
+        await user.selectOptions(switcher, "frontend-team")
+
+        expect(confirmSpy).toHaveBeenCalledTimes(1)
+        await waitFor(() => {
+            expect(mockNavigate).toHaveBeenCalledWith({
+                to: "/settings",
+            })
+        })
+        expect(window.localStorage.getItem("codenautic:tenant:active")).toBe("frontend-team")
+        confirmSpy.mockRestore()
     })
 
     it("рендерит секции настроек", (): void => {

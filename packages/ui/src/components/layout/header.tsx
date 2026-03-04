@@ -7,6 +7,16 @@ import { ThemeToggle } from "./theme-toggle"
 import { UserMenu } from "./user-menu"
 
 /**
+ * Опция выбора организации в header switcher.
+ */
+export interface IHeaderOrganizationOption {
+    /** Идентификатор организации/tenant. */
+    readonly id: string
+    /** Отображаемое название в selector. */
+    readonly label: string
+}
+
+/**
  * Параметры для layout header.
  */
 export interface IHeaderProps {
@@ -22,6 +32,12 @@ export interface IHeaderProps {
     readonly onSignOut?: () => void
     /** Открыть мобильную панель навигации. */
     readonly onMobileMenuOpen?: () => void
+    /** Список доступных tenant/workspace. */
+    readonly organizations?: ReadonlyArray<IHeaderOrganizationOption>
+    /** Активная организация. */
+    readonly activeOrganizationId?: string
+    /** Смена организации/workspace. */
+    readonly onOrganizationChange?: (organizationId: string) => void
 }
 
 /**
@@ -32,6 +48,9 @@ export interface IHeaderProps {
  */
 export function Header(props: IHeaderProps): ReactElement {
     const hasNotifications = props.notificationCount !== undefined && props.notificationCount > 0
+    const activeOrganization = props.organizations?.find((organization): boolean => {
+        return organization.id === props.activeOrganizationId
+    })
 
     return (
         <div className="border-b border-[var(--border)] bg-[color:color-mix(in_oklab,var(--surface)_88%,transparent)] backdrop-blur">
@@ -53,6 +72,34 @@ export function Header(props: IHeaderProps): ReactElement {
                         <p className="text-sm font-medium text-[var(--foreground)]/80">{props.title}</p>
                     ) : null}
                 </div>
+                {props.organizations === undefined ? null : (
+                    <div className="hidden min-w-[220px] md:flex md:flex-col">
+                        <label
+                            className="text-[11px] uppercase tracking-[0.08em] text-[var(--foreground)]/60"
+                            htmlFor="header-organization-switcher"
+                        >
+                            Workspace
+                        </label>
+                        <select
+                            aria-label="Organization workspace switcher"
+                            className="rounded-md border border-[var(--border)] bg-[var(--surface)] px-2 py-1 text-xs text-[var(--foreground)]"
+                            id="header-organization-switcher"
+                            value={props.activeOrganizationId}
+                            onChange={(event): void => {
+                                props.onOrganizationChange?.(event.currentTarget.value)
+                            }}
+                        >
+                            {props.organizations.map((organization): ReactElement => (
+                                <option key={organization.id} value={organization.id}>
+                                    {organization.label}
+                                </option>
+                            ))}
+                        </select>
+                        <p className="text-[11px] text-[var(--foreground)]/60">
+                            Current: {activeOrganization?.label ?? "Unknown workspace"}
+                        </p>
+                    </div>
+                )}
                 <div className="ml-auto flex items-center gap-2">
                     <Button
                         isIconOnly
