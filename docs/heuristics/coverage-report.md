@@ -1,10 +1,10 @@
 # Heuristics Coverage Report
 
 - Schema version: 1
-- Generated at: 2026-03-02T12:15:07.887Z
-- Total entries: 1938
-- Code entries: 467
-- Plan entries: 677
+- Generated at: 2026-03-04T08:51:26.572Z
+- Total entries: 3845
+- Code entries: 2310
+- Plan entries: 741
 - Rule entries: 794
 - Untriaged entries: 0
 
@@ -12,17 +12,17 @@
 
 | Type | Count |
 |------|------:|
-| OTHER | 770 |
-| RETRY_BACKOFF | 505 |
-| FALLBACK_DEFAULT | 217 |
-| SCORING | 115 |
-| DRIFT_SIGNAL | 98 |
-| TIMEOUT | 72 |
-| WEIGHTING | 71 |
-| RESOURCE_LIMIT | 32 |
-| THRESHOLD | 21 |
-| PREDICTION_CONFIDENCE | 18 |
-| RANKING | 16 |
+| FALLBACK_DEFAULT | 1143 |
+| RETRY_BACKOFF | 803 |
+| OTHER | 745 |
+| SCORING | 311 |
+| THRESHOLD | 179 |
+| WEIGHTING | 166 |
+| DRIFT_SIGNAL | 136 |
+| TIMEOUT | 131 |
+| RANKING | 127 |
+| RESOURCE_LIMIT | 58 |
+| PREDICTION_CONFIDENCE | 43 |
 | RATE_LIMIT | 3 |
 
 ## Notes

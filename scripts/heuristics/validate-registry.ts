@@ -37,7 +37,7 @@ const EXPECTED_SCHEMA_VERSION = 1
 const REGISTRY_JSON_PATH = "docs/heuristics/heuristics-registry.json"
 const REGISTRY_CSV_PATH = "docs/heuristics/heuristics-registry.csv"
 const RULES_REGISTRY_CSV_PATH = "docs/heuristics/rules-794-registry.csv"
-const RULES_FILE_PATH = "packages/runtime/src/api/migrations/defaults/rules.json"
+const RULES_FILE_PATH = "packages/runtime/src/config/defaults/rules.json"
 
 const args = Bun.argv.slice(2)
 const isRulesOnly = args.includes("--rules-only")
