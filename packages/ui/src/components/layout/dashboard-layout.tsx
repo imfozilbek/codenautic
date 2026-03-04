@@ -2,11 +2,21 @@ import { type ReactElement, type ReactNode, useEffect, useMemo, useState } from 
 import { useLocation, useNavigate } from "@tanstack/react-router"
 import { readUiRoleFromStorage, writeUiRoleToStorage, type TUiRole } from "@/lib/permissions/ui-policy"
 import {
+    buildDraftFieldKey,
+    clearSessionPendingIntent,
+    readSessionDraftSnapshot,
+    readSessionPendingIntent,
+    writeSessionDraftSnapshot,
+    writeSessionPendingIntent,
+    type ISessionExpiredEventDetail,
+} from "@/lib/session/session-recovery"
+import {
     getBreadcrumbs,
     isRouteAccessible,
     searchAccessibleRoutes,
     type TTenantId,
 } from "@/lib/navigation/route-guard-map"
+import { Alert, Button, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader } from "@/components/ui"
 
 import { Header } from "./header"
 import type { IHeaderOrganizationOption } from "./header"
@@ -103,6 +113,9 @@ export function DashboardLayout(props: IDashboardLayoutProps): ReactElement {
     const [activeRoleId, setActiveRoleId] = useState<TUiRole>(() => {
         return readUiRoleFromStorage()
     })
+    const [isSessionRecoveryOpen, setIsSessionRecoveryOpen] = useState(false)
+    const [sessionFailureCode, setSessionFailureCode] = useState<401 | 419>(401)
+    const [restoredDraftMessage, setRestoredDraftMessage] = useState<string | undefined>(undefined)
     const navigate = useNavigate()
     const location = useLocation()
     const routeGuardContext = useMemo(
@@ -182,9 +195,95 @@ export function DashboardLayout(props: IDashboardLayoutProps): ReactElement {
         })
     }, [location.pathname, navigate, routeGuardContext])
 
+    useEffect((): (() => void) | void => {
+        if (typeof window === "undefined") {
+            return
+        }
+
+        const handleSessionExpired = (event: Event): void => {
+            const customEvent = event as CustomEvent<ISessionExpiredEventDetail>
+            const detail = customEvent.detail
+            const code = detail?.code === 419 ? 419 : 401
+            const pendingIntent = detail?.pendingIntent ?? location.pathname
+
+            setSessionFailureCode(code)
+            setIsSessionRecoveryOpen(true)
+            writeSessionPendingIntent(pendingIntent)
+        }
+
+        const handleInputAutosave = (event: Event): void => {
+            const target = event.target
+            if (
+                (target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement)
+                !== true
+            ) {
+                return
+            }
+
+            if (target instanceof HTMLInputElement) {
+                const isTextInput =
+                    target.type === "text"
+                    || target.type === "email"
+                    || target.type === "search"
+                    || target.type === "url"
+                    || target.type === "tel"
+                    || target.type === "password"
+                if (isTextInput !== true) {
+                    return
+                }
+            }
+
+            const value = target.value.trim()
+            if (value.length === 0) {
+                return
+            }
+
+            writeSessionDraftSnapshot({
+                fieldKey: buildDraftFieldKey(target),
+                path: location.pathname,
+                updatedAt: new Date().toISOString(),
+                value: target.value,
+            })
+        }
+
+        window.addEventListener("codenautic:session-expired", handleSessionExpired as EventListener)
+        document.addEventListener("input", handleInputAutosave, true)
+
+        return (): void => {
+            window.removeEventListener(
+                "codenautic:session-expired",
+                handleSessionExpired as EventListener,
+            )
+            document.removeEventListener("input", handleInputAutosave, true)
+        }
+    }, [location.pathname])
+
     const handleSearchRouteNavigate = (to: string): void => {
         void navigate({
             to,
+        })
+    }
+
+    const handleReAuthenticate = (): void => {
+        const pendingIntent = readSessionPendingIntent()
+        const draftSnapshot = readSessionDraftSnapshot()
+
+        setIsSessionRecoveryOpen(false)
+
+        if (draftSnapshot !== undefined) {
+            setRestoredDraftMessage(
+                `Recovered draft from ${draftSnapshot.fieldKey} (${draftSnapshot.path}).`,
+            )
+            window.dispatchEvent(
+                new CustomEvent("codenautic:session-draft-restored", {
+                    detail: draftSnapshot,
+                }),
+            )
+        }
+
+        clearSessionPendingIntent()
+        void navigate({
+            to: pendingIntent ?? location.pathname,
         })
     }
 
@@ -227,9 +326,42 @@ export function DashboardLayout(props: IDashboardLayoutProps): ReactElement {
                     />
                 </div>
                 <div className="min-h-0 flex-1 rounded-lg border border-[var(--border)] bg-[color:color-mix(in_oklab,var(--surface)_88%,transparent)] p-4 shadow-sm">
+                    {restoredDraftMessage === undefined ? null : (
+                        <Alert color="success" title="Session recovered" variant="flat">
+                            {restoredDraftMessage}
+                        </Alert>
+                    )}
                     {props.children}
                 </div>
             </div>
+            <Modal isOpen={isSessionRecoveryOpen} onOpenChange={setIsSessionRecoveryOpen}>
+                <ModalContent>
+                    <ModalHeader>Session expired</ModalHeader>
+                    <ModalBody>
+                        <p className="text-sm text-[var(--foreground)]/80">
+                            Authentication failed with {sessionFailureCode}. Re-authentication is
+                            required to continue safely.
+                        </p>
+                        <p className="text-xs text-[var(--foreground)]/70">
+                            Drafts and pending intent were autosaved and will be restored after
+                            successful sign-in.
+                        </p>
+                    </ModalBody>
+                    <ModalFooter>
+                        <Button
+                            variant="flat"
+                            onPress={(): void => {
+                                setIsSessionRecoveryOpen(false)
+                            }}
+                        >
+                            Later
+                        </Button>
+                        <Button color="primary" onPress={handleReAuthenticate}>
+                            Re-authenticate
+                        </Button>
+                    </ModalFooter>
+                </ModalContent>
+            </Modal>
         </div>
     )
 }

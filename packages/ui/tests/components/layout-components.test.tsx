@@ -299,6 +299,45 @@ describe("layout components", (): void => {
         confirmSpy.mockRestore()
     })
 
+    it("показывает forced re-auth modal и восстанавливает pending intent", async (): Promise<void> => {
+        const user = userEvent.setup()
+        mockNavigate.mockClear()
+        currentRoute = "/settings-code-review"
+
+        renderWithProviders(
+            <DashboardLayoutHarness>
+                <input aria-label="Draft field" defaultValue="" />
+            </DashboardLayoutHarness>,
+            {
+                defaultThemeMode: "light" as ThemeMode,
+            },
+        )
+
+        const draftField = screen.getByRole("textbox", { name: "Draft field" })
+        await user.type(draftField, "pending draft comment")
+
+        window.dispatchEvent(
+            new CustomEvent("codenautic:session-expired", {
+                detail: {
+                    code: 401,
+                    pendingIntent: "/reviews",
+                },
+            }),
+        )
+
+        expect(screen.getByText("Session expired")).not.toBeNull()
+        expect(screen.getByText(/Authentication failed with 401/)).not.toBeNull()
+
+        await user.click(screen.getByRole("button", { name: "Re-authenticate" }))
+
+        await waitFor(() => {
+            expect(mockNavigate).toHaveBeenCalledWith({
+                to: "/reviews",
+            })
+        })
+        expect(screen.getByText(/Recovered draft from/)).not.toBeNull()
+    })
+
     it("рендерит секции настроек", (): void => {
         renderWithProviders(<SettingsNav />)
 
