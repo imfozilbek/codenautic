@@ -3,13 +3,22 @@ import type {ISuggestionDTO} from "../../../dto/review/suggestion.dto"
 import type {IDiscardedSuggestionDTO} from "../../../dto/review/discarded-suggestion.dto"
 import type {ReviewPipelineState} from "../../../types/review/review-pipeline-state"
 import type {ISafeGuardFilter} from "../../../types/review/safeguard-filter.contract"
+import type {IUseCase} from "../../../ports/inbound/use-case.port"
 import type {ILLMProvider} from "../../../ports/outbound/llm/llm-provider.port"
 import {createDiscardedSuggestion, isCodeBlockInFile} from "./safeguard-filter.utils"
 import type {IHallucinationSafeguardDefaults} from "../../../dto/config/system-defaults.dto"
+import type {IGeneratePromptInput} from "../../generate-prompt.use-case"
+import {ValidationError} from "../../../../domain/errors/validation.error"
+import {readStringField} from "../pipeline-stage-state.utils"
 
 const FILTER_NAME = "hallucination"
 const DISCARD_REASON = "hallucination"
 const LLM_VALIDATION_CACHE_PREFIX = "hallucination-validation"
+const PROMPT_TEMPLATE_NAME = "hallucination-check"
+const DEFAULT_SYSTEM_PROMPT =
+    "You are a strict static review validator. Return only compact JSON: " +
+    '{"isSupported": true|false}. ' +
+    "isSupported must be true when suggestion is clearly grounded in patch."
 
 interface IHallucinationPromptContext {
     readonly filePath: string
@@ -25,6 +34,7 @@ interface IHallucinationPromptContext {
  */
 export interface IHallucinationSafeguardFilterDependencies {
     readonly llmProvider: ILLMProvider
+    readonly generatePromptUseCase: IUseCase<IGeneratePromptInput, string, ValidationError>
     readonly defaults: IHallucinationSafeguardDefaults
 }
 
@@ -35,6 +45,7 @@ export class HallucinationSafeguardFilter implements ISafeGuardFilter {
     public readonly name = FILTER_NAME
 
     private readonly llmProvider: ILLMProvider
+    private readonly generatePromptUseCase: IUseCase<IGeneratePromptInput, string, ValidationError>
     private readonly model: string
     private readonly defaults: IHallucinationSafeguardDefaults
     private readonly cache = new Map<string, boolean>()
@@ -46,6 +57,7 @@ export class HallucinationSafeguardFilter implements ISafeGuardFilter {
      */
     public constructor(dependencies: IHallucinationSafeguardFilterDependencies) {
         this.llmProvider = dependencies.llmProvider
+        this.generatePromptUseCase = dependencies.generatePromptUseCase
         this.defaults = dependencies.defaults
         this.model = dependencies.defaults.model
     }
@@ -64,11 +76,16 @@ export class HallucinationSafeguardFilter implements ISafeGuardFilter {
         readonly passed: readonly ISuggestionDTO[]
         readonly discarded: readonly IDiscardedSuggestionDTO[]
     }> {
+        const systemPrompt = await this.resolveSystemPrompt(context)
         const accepted: ISuggestionDTO[] = []
         const discarded: IDiscardedSuggestionDTO[] = []
 
         for (const suggestion of suggestions) {
-            const supported = await this.isSuggestionSupported(suggestion, context)
+            const supported = await this.isSuggestionSupported(
+                suggestion,
+                context,
+                systemPrompt,
+            )
             if (supported) {
                 accepted.push(suggestion)
                 continue
@@ -93,6 +110,7 @@ export class HallucinationSafeguardFilter implements ISafeGuardFilter {
     private async isSuggestionSupported(
         suggestion: ISuggestionDTO,
         context: ReviewPipelineState,
+        systemPrompt: string,
     ): Promise<boolean> {
         const filePayload = this.resolveFilePayload(context.files, suggestion.filePath)
         if (filePayload === null) {
@@ -127,7 +145,12 @@ export class HallucinationSafeguardFilter implements ISafeGuardFilter {
             return cached
         }
 
-        const request = this.buildValidationRequest(filePath, suggestion, fileText)
+        const request = this.buildValidationRequest(
+            systemPrompt,
+            filePath,
+            suggestion,
+            fileText,
+        )
         const response = await this.llmProvider.chat(request)
         const result = this.parseValidationResponse(response.content)
 
@@ -146,6 +169,7 @@ export class HallucinationSafeguardFilter implements ISafeGuardFilter {
      * @returns LLM request.
      */
     private buildValidationRequest(
+        systemPrompt: string,
         filePath: string,
         suggestion: ISuggestionDTO,
         fileText: string,
@@ -161,10 +185,7 @@ export class HallucinationSafeguardFilter implements ISafeGuardFilter {
             messages: [
                 {
                     role: "system",
-                    content:
-                        "You are a strict static review validator. Return only compact JSON: " +
-                        '{"isSupported": true|false}. ' +
-                        "isSupported must be true when suggestion is clearly grounded in patch.",
+                    content: systemPrompt,
                 },
                 {
                     role: "user",
@@ -176,6 +197,30 @@ export class HallucinationSafeguardFilter implements ISafeGuardFilter {
                         `Diff preview:\n${diffPreview}`,
                 },
             ],
+        }
+    }
+
+    private async resolveSystemPrompt(context: ReviewPipelineState): Promise<string> {
+        const organizationId = readStringField(context.mergeRequest, "organizationId")
+
+        try {
+            const result = await this.generatePromptUseCase.execute({
+                name: PROMPT_TEMPLATE_NAME,
+                organizationId: organizationId ?? null,
+                runtimeVariables: {},
+            })
+            if (result.isFail) {
+                return DEFAULT_SYSTEM_PROMPT
+            }
+
+            const normalized = result.value.trim()
+            if (normalized.length === 0) {
+                return DEFAULT_SYSTEM_PROMPT
+            }
+
+            return normalized
+        } catch {
+            return DEFAULT_SYSTEM_PROMPT
         }
     }
 

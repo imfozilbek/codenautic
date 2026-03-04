@@ -1,8 +1,11 @@
 import {describe, expect, test} from "bun:test"
 
+import {Result, ValidationError} from "../../../../../src"
 import type {IChatRequestDTO} from "../../../../../src/application/dto/llm/chat.dto"
 import type {IChatResponseDTO} from "../../../../../src/application/dto/llm/chat.dto"
+import type {IGeneratePromptInput} from "../../../../../src/application/use-cases/generate-prompt.use-case"
 import type {ILLMProvider} from "../../../../../src/application/ports/outbound/llm/llm-provider.port"
+import type {IUseCase} from "../../../../../src/application/ports/inbound/use-case.port"
 import type {ISuggestionDTO} from "../../../../../src/application/dto/review/suggestion.dto"
 import {ReviewPipelineState} from "../../../../../src/application/types/review/review-pipeline-state"
 import type {IStreamingChatResponseDTO} from "../../../../../src/application/dto/llm/streaming-chat.dto"
@@ -67,6 +70,28 @@ class InMemoryLLMProvider implements ILLMProvider {
 
     public embed(_texts: readonly string[]): Promise<readonly number[][]> {
         return Promise.resolve([])
+    }
+}
+
+/**
+ * In-memory prompt generator stub for safeguard tests.
+ */
+class InMemoryGeneratePromptUseCase
+    implements IUseCase<IGeneratePromptInput, string, ValidationError>
+{
+    public nextResult: Result<string, ValidationError>
+
+    /**
+     * Creates prompt use case stub with success default.
+     */
+    public constructor() {
+        this.nextResult = Result.ok<string, ValidationError>("HALLUCINATION_TEMPLATE")
+    }
+
+    public execute(
+        _input: IGeneratePromptInput,
+    ): Promise<Result<string, ValidationError>> {
+        return Promise.resolve(this.nextResult)
     }
 }
 
@@ -220,7 +245,12 @@ describe("Safeguard filters", () => {
 
     test("passes through when file payload is missing", async () => {
         const provider = new InMemoryLLMProvider()
-        const filter = new HallucinationSafeguardFilter({llmProvider: provider, defaults: hallucinationDefaults})
+        const generatePromptUseCase = new InMemoryGeneratePromptUseCase()
+        const filter = new HallucinationSafeguardFilter({
+            llmProvider: provider,
+            generatePromptUseCase,
+            defaults: hallucinationDefaults,
+        })
         const state = createState({
             maxSuggestionsPerSeverity: {},
         })
@@ -238,7 +268,12 @@ describe("Safeguard filters", () => {
 
     test("validates suggestion against file context before fallback to LLM", async () => {
         const provider = new InMemoryLLMProvider()
-        const filter = new HallucinationSafeguardFilter({llmProvider: provider, defaults: hallucinationDefaults})
+        const generatePromptUseCase = new InMemoryGeneratePromptUseCase()
+        const filter = new HallucinationSafeguardFilter({
+            llmProvider: provider,
+            generatePromptUseCase,
+            defaults: hallucinationDefaults,
+        })
         const state = createStateWithFiles({}, [
             {
                 path: "src/app.ts",
@@ -260,7 +295,12 @@ describe("Safeguard filters", () => {
     test("uses LLM result when block is not in patch and discards when unsupported", async () => {
         const provider = new InMemoryLLMProvider()
         provider.responses.push({content: '{"isSupported": false}'})
-        const filter = new HallucinationSafeguardFilter({llmProvider: provider, defaults: hallucinationDefaults})
+        const generatePromptUseCase = new InMemoryGeneratePromptUseCase()
+        const filter = new HallucinationSafeguardFilter({
+            llmProvider: provider,
+            generatePromptUseCase,
+            defaults: hallucinationDefaults,
+        })
         const state = createStateWithFiles({}, [
             {
                 path: "src/app.ts",
@@ -278,6 +318,40 @@ describe("Safeguard filters", () => {
         expect(result.discarded).toHaveLength(1)
         expect(result.discarded[0]?.discardReason).toBe("hallucination")
         expect(provider.requests).toHaveLength(1)
+        expect(provider.requests[0]?.messages[0]?.content).toBe("HALLUCINATION_TEMPLATE")
+    })
+
+    test("falls back to default prompt when template resolution fails", async () => {
+        const provider = new InMemoryLLMProvider()
+        provider.responses.push({content: '{"isSupported": true}'})
+        const generatePromptUseCase = new InMemoryGeneratePromptUseCase()
+        generatePromptUseCase.nextResult = Result.fail<string, ValidationError>(
+            new ValidationError("Generate prompt failed", [{
+                field: "name",
+                message: "Template not found",
+            }]),
+        )
+        const filter = new HallucinationSafeguardFilter({
+            llmProvider: provider,
+            generatePromptUseCase,
+            defaults: hallucinationDefaults,
+        })
+        const state = createStateWithFiles({}, [
+            {
+                path: "src/app.ts",
+                patch: "+function y() {}\\n",
+            },
+        ])
+        const suggestion = createSuggestion({
+            id: "fallback",
+            codeBlock: "function x() {}",
+        })
+
+        const result = await filter.filter([suggestion], state)
+
+        expect(result.passed).toHaveLength(1)
+        expect(provider.requests).toHaveLength(1)
+        expect(provider.requests[0]?.messages[0]?.content).toContain("strict static review validator")
     })
 
     test("discards suggestions already implemented in file patch", async () => {
