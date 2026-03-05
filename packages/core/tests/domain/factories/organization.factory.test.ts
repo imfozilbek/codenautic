@@ -72,4 +72,20 @@ describe("OrganizationFactory", () => {
         expect(organization.hasMember(organization.ownerId)).toBe(true)
         expect(organization.hasMember(UniqueId.create("member-1"))).toBe(true)
     })
+
+    test("normalizes members list and adds owner role", () => {
+        const factory = new OrganizationFactory()
+        const organization = factory.create({
+            name: "Team",
+            ownerId: "owner-4",
+            members: [
+                {userId: " member-1 ", role: " ADMIN "},
+                {userId: "   ", role: "VIEWER"},
+            ],
+        })
+
+        expect(organization.memberCount).toBe(2)
+        expect(organization.hasMember(UniqueId.create("member-1"))).toBe(true)
+        expect(organization.hasMember(UniqueId.create("owner-4"))).toBe(true)
+    })
 })

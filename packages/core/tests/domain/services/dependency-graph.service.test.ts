@@ -71,6 +71,34 @@ describe("DependencyGraphService", () => {
         expect(impact.breakingChanges).toHaveLength(0)
     })
 
+    test("supports bare imports and extension resolution", async () => {
+        const service = new DependencyGraphService()
+        const app = createDiffFile(
+            "src/app.ts",
+            "+import \"./side-effect\";\n+import \"./utils\";\n+import \"react\";\n",
+        )
+        const sideEffect = createDiffFile("src/side-effect.ts", "")
+        const utils = createDiffFile("src/utils.tsx", "")
+
+        const graph = await service.buildGraph([app, sideEffect, utils])
+
+        const edgeTargets = graph.edges.map((edge) => edge.target)
+        expect(edgeTargets).toContain("file:src/side-effect.ts")
+        expect(edgeTargets).toContain("file:src/utils.tsx")
+        expect(edgeTargets).not.toContain("file:react")
+    })
+
+    test("resolves explicit extension imports without extra candidates", async () => {
+        const service = new DependencyGraphService()
+        const app = createDiffFile("src/app.ts", "+import \"./utils.ts\";\n")
+        const utils = createDiffFile("src/utils.ts", "")
+
+        const graph = await service.buildGraph([app, utils])
+
+        expect(graph.edges).toHaveLength(1)
+        expect(graph.edges[0]?.target).toBe("file:src/utils.ts")
+    })
+
     test("marks missing changed files as breaking changes", async () => {
         const service = new DependencyGraphService()
         await service.buildGraph([createDiffFile("src/index.ts", "")])
@@ -116,5 +144,21 @@ describe("DependencyGraphService", () => {
             "file:src/b.ts",
             "file:src/a.ts",
         ])
+    })
+
+    test("sorts multiple circular dependencies by node id", async () => {
+        const service = new DependencyGraphService()
+        await service.buildGraph([
+            createDiffFile("src/a.ts", "+import { b } from \"./b\";"),
+            createDiffFile("src/b.ts", "+import { a } from \"./a\";"),
+            createDiffFile("src/c.ts", "+import { d } from \"./d\";"),
+            createDiffFile("src/d.ts", "+import { c } from \"./c\";"),
+        ])
+
+        const cycles = await service.detectCircular()
+
+        expect(cycles).toHaveLength(2)
+        expect(cycles[0]?.nodeA).toBe("file:src/a.ts")
+        expect(cycles[1]?.nodeA).toBe("file:src/c.ts")
     })
 })

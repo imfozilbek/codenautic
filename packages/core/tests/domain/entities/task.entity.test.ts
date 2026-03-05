@@ -3,6 +3,7 @@ import {describe, expect, test} from "bun:test"
 import {
     Task,
     TASK_STATUS,
+    type TaskStatus,
 } from "../../../src/domain/entities/task.entity"
 import {UniqueId} from "../../../src/domain/value-objects/unique-id.value-object"
 
@@ -106,6 +107,80 @@ describe("Task", () => {
                 metadata: {},
             })
         }).toThrow("Task type cannot be empty")
+    })
+
+    test("rejects invalid statuses and transitions", () => {
+        expect(() => {
+            return new Task(UniqueId.create(), {
+                type: "analyze",
+                status: "UNKNOWN" as TaskStatus,
+                progress: 0,
+                metadata: {},
+            })
+        }).toThrow("Unknown task status: UNKNOWN")
+
+        const running = new Task(UniqueId.create(), {
+            type: "analyze",
+            status: TASK_STATUS.RUNNING,
+            progress: 0,
+            metadata: {},
+        })
+
+        expect(() => {
+            running.start()
+        }).toThrow("Cannot start task in status RUNNING")
+
+        const failed = new Task(UniqueId.create(), {
+            type: "analyze",
+            status: TASK_STATUS.FAILED,
+            progress: 100,
+            metadata: {},
+        })
+
+        expect(() => {
+            failed.complete()
+        }).toThrow("Cannot complete task in status FAILED")
+
+        const completed = new Task(UniqueId.create(), {
+            type: "analyze",
+            status: TASK_STATUS.COMPLETED,
+            progress: 100,
+            metadata: {},
+        })
+
+        expect(() => {
+            completed.fail()
+        }).toThrow("Cannot fail task in status COMPLETED")
+    })
+
+    test("валидирует ошибки и финальный прогресс", () => {
+        expect(() => {
+            return new Task(UniqueId.create(), {
+                type: "analyze",
+                status: TASK_STATUS.PENDING,
+                progress: 0,
+                metadata: {},
+                error: {code: "E_GENERIC"},
+            })
+        }).toThrow("Only failed task can contain error")
+
+        expect(() => {
+            return new Task(UniqueId.create(), {
+                type: "analyze",
+                status: TASK_STATUS.FAILED,
+                progress: 80,
+                metadata: {},
+            })
+        }).toThrow("Failed task progress must be 100")
+
+        expect(() => {
+            return new Task(UniqueId.create(), {
+                type: "analyze",
+                status: TASK_STATUS.RUNNING,
+                progress: Number.POSITIVE_INFINITY,
+                metadata: {},
+            })
+        }).toThrow("Task progress must be finite number")
     })
 
     function createRunningTask(): Task {

@@ -67,6 +67,28 @@ describe("Expert", () => {
         }).toThrow("Expert responsibility cannot be empty")
     })
 
+    test("throws when responsibilities is not an array", () => {
+        expect(() => {
+            Expert.create({
+                name: "Trinity",
+                role: "Security Reviewer",
+                responsibilities: "invalid" as unknown as string[],
+                priority: 1,
+            })
+        }).toThrow("Expert responsibilities must be an array")
+    })
+
+    test("throws when responsibility is not a string", () => {
+        expect(() => {
+            Expert.create({
+                name: "Trinity",
+                role: "Security Reviewer",
+                responsibilities: ["Find vulnerabilities", 1 as unknown as string],
+                priority: 1,
+            })
+        }).toThrow("Expert responsibility must be a string")
+    })
+
     test("throws when priority is negative", () => {
         expect(() => {
             Expert.create({

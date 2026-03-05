@@ -29,6 +29,30 @@ describe("PromptConfigurationFactory", () => {
         })
     })
 
+    test("drops empty keys from variable maps", () => {
+        const factory = new PromptConfigurationFactory()
+        const configuration = factory.create({
+            templateId: "template-1",
+            name: "Trim map",
+            defaults: {
+                "  ": "skip",
+                "\n\t": "skip",
+                " valid ": "ok",
+            },
+            overrides: {
+                "": "skip",
+                " mode ": "override",
+            },
+        })
+
+        expect(configuration.defaults).toEqual({
+            valid: "ok",
+        })
+        expect(configuration.overrides).toEqual({
+            mode: "override",
+        })
+    })
+
     test("creates scoped configuration with organizationId", () => {
         const factory = new PromptConfigurationFactory()
         const configuration = factory.create({

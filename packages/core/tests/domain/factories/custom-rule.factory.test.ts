@@ -64,4 +64,32 @@ describe("CustomRuleFactory", () => {
             })
         }).toThrow("Rule title cannot be empty")
     })
+
+    test("throws for unknown rule type", () => {
+        const factory = new CustomRuleFactory()
+
+        expect(() => {
+            factory.create({
+                title: "Invalid",
+                rule: "x",
+                type: "INVALID" as unknown as "REGEX",
+                scope: "FILE",
+                severity: "LOW",
+            })
+        }).toThrow("Unknown custom rule type: INVALID")
+    })
+
+    test("throws for unknown rule scope", () => {
+        const factory = new CustomRuleFactory()
+
+        expect(() => {
+            factory.create({
+                title: "Invalid",
+                rule: "x",
+                type: "REGEX",
+                scope: "BAD_SCOPE" as unknown as "FILE",
+                severity: "LOW",
+            })
+        }).toThrow("Unknown custom rule scope: BAD_SCOPE")
+    })
 })

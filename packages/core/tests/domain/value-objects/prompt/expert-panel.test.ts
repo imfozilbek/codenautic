@@ -117,6 +117,12 @@ describe("ExpertPanel", () => {
         expect(panel.formatForPrompt()).toBe("Experts:\n- none")
     })
 
+    test("throws when experts list is not an array", () => {
+        expect(() => {
+            ExpertPanel.create("invalid" as unknown as Expert[])
+        }).toThrow("ExpertPanel experts must be an array")
+    })
+
     test("throws when experts list contains non-expert value", () => {
         expect(() => {
             ExpertPanel.create([

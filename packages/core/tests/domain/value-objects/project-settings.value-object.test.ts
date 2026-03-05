@@ -68,4 +68,70 @@ describe("ProjectSettings", () => {
             })
         }).toThrow("Project limit maxFiles must be a number")
     })
+
+    test("throws on empty ignorePaths and rule ids", () => {
+        expect(() => {
+            ProjectSettings.create({
+                ignorePaths: ["   "],
+            })
+        }).toThrow("ignorePaths contains empty value")
+
+        expect(() => {
+            ProjectSettings.create({
+                customRuleIds: ["   "],
+            })
+        }).toThrow("Project rule id cannot be empty")
+    })
+
+    test("throws on invalid limits and promptOverrides shape", () => {
+        expect(() => {
+            ProjectSettings.create({
+                limits: null as unknown as Record<string, number>,
+            })
+        }).toThrow("Project limits must be an object")
+
+        expect(() => {
+            ProjectSettings.create({
+                limits: {"  ": 1},
+            })
+        }).toThrow("Project limit key cannot be empty")
+
+        expect(() => {
+            ProjectSettings.create({
+                promptOverrides: "invalid" as unknown as Record<string, unknown>,
+            })
+        }).toThrow("Project promptOverrides must be an object")
+    })
+
+    test("serializes settings to JSON snapshot", () => {
+        const settings = ProjectSettings.create({
+            severity: "HIGH",
+            ignorePaths: ["src/**"],
+            cadence: PROJECT_CADENCE.MANUAL,
+            limits: {
+                maxReviewsPerWindow: 5,
+            },
+            customRuleIds: ["rule-1"],
+            promptOverrides: {
+                severity: {
+                    threshold: "HIGH",
+                },
+            },
+        })
+
+        expect(settings.toJSON()).toEqual({
+            severity: "HIGH",
+            ignorePaths: ["src/**"],
+            cadence: PROJECT_CADENCE.MANUAL,
+            limits: {
+                maxReviewsPerWindow: 5,
+            },
+            customRuleIds: ["rule-1"],
+            promptOverrides: {
+                severity: {
+                    threshold: "HIGH",
+                },
+            },
+        })
+    })
 })

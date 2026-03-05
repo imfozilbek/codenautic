@@ -59,6 +59,30 @@ describe("PromptTemplateFactory", () => {
         expect(template.name).toBe("Replayed Template")
     })
 
+    test("throws for unknown category", () => {
+        const factory = new PromptTemplateFactory()
+        expect(() => {
+            return factory.create({
+                name: "Invalid",
+                category: "not-a-category",
+                type: PROMPT_TEMPLATE_TYPE.SYSTEM,
+                content: "Hello",
+            })
+        }).toThrow("Unknown prompt template category: not-a-category")
+    })
+
+    test("throws for unknown type", () => {
+        const factory = new PromptTemplateFactory()
+        expect(() => {
+            return factory.create({
+                name: "Invalid",
+                category: PROMPT_TEMPLATE_CATEGORY.RULES,
+                type: "not-a-type",
+                content: "Hello",
+            })
+        }).toThrow("Unknown prompt template type: not-a-type")
+    })
+
     test("throws for invalid payload", () => {
         const factory = new PromptTemplateFactory()
         expect(() => {

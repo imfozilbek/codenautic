@@ -99,4 +99,19 @@ describe("AuditLog", () => {
             })
         }).toThrow("Audit log change field cannot be empty")
     })
+
+    test("throws when timestamp is invalid", () => {
+        expect(() => {
+            return new AuditLog(UniqueId.create("audit-6"), {
+                action: "update",
+                actor: UniqueId.create("user-6"),
+                target: {
+                    type: "rule",
+                    id: "rule-6",
+                },
+                changes: [],
+                timestamp: new Date("invalid"),
+            })
+        }).toThrow("Audit log timestamp must be valid date")
+    })
 })

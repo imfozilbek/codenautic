@@ -52,6 +52,32 @@ describe("Organization aggregate", () => {
         expect(organization.settings.get("notifications")).toBe(false)
     })
 
+    test("exposes api keys and member ids as snapshots", () => {
+        const organization = new Organization(UniqueId.create("org-3b"), createOrganizationProps({
+            name: "Keys Org",
+            ownerId: "owner-3b",
+            apiKeys: [
+                APIKeyConfig.create({
+                    provider: "openai",
+                    keyId: "key-1",
+                }),
+            ],
+            members: [
+                {
+                    userId: "member-1",
+                    role: "ADMIN",
+                },
+            ],
+        }))
+
+        const apiKeys = organization.apiKeys
+        const memberIds = organization.memberIds
+
+        expect(apiKeys).toHaveLength(1)
+        expect(apiKeys[0]?.keyId).toBe("key-1")
+        expect([...memberIds].sort()).toEqual(["member-1", "owner-3b"].sort())
+    })
+
     test("throws when adding duplicate member", () => {
         const organization = new Organization(UniqueId.create("org-4"), createOrganizationProps({
             name: "Duplicate Org",

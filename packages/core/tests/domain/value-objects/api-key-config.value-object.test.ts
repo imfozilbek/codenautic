@@ -56,4 +56,27 @@ describe("APIKeyConfig", () => {
             })
         }).toThrow("API key createdAt must be valid date")
     })
+
+    test("поддерживает дату как объект и кастомный id", () => {
+        const createdAt = new Date("2026-03-02T10:00:00.000Z")
+        const keyConfig = APIKeyConfig.create({
+            provider: "openai",
+            keyId: "k-2",
+            createdAt,
+            id: "openai::k-2::custom",
+        })
+
+        expect(keyConfig.createdAt.toISOString()).toBe("2026-03-02T10:00:00.000Z")
+        expect(keyConfig.id).toBe("openai::k-2::custom")
+    })
+
+    test("бросает ошибку для невалидного объекта даты", () => {
+        expect(() => {
+            APIKeyConfig.create({
+                provider: "openai",
+                keyId: "k-3",
+                createdAt: new Date("invalid"),
+            })
+        }).toThrow("API key createdAt must be valid date")
+    })
 })
