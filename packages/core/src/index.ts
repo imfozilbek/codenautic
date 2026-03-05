@@ -690,14 +690,6 @@ export {
     RuleContextFormatterService,
 } from "./domain/services/rule-context-formatter.service"
 export {
-    type IReviewPromptCategoryDescriptions,
-    type IReviewPromptGenerationInstructions,
-    type IReviewPromptRuleContext,
-    type IReviewPromptSections,
-    type IReviewPromptSeverityFlags,
-    ReviewPromptAssemblerService,
-} from "./domain/services/review-prompt-assembler.service"
-export {
     DependencyGraphService,
     type IDependencyGraphService,
 } from "./domain/services/dependency-graph.service"

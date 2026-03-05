@@ -136,14 +136,6 @@ export {
     RuleContextFormatterService,
 } from "./services/rule-context-formatter.service"
 export {
-    type IReviewPromptCategoryDescriptions,
-    type IReviewPromptGenerationInstructions,
-    type IReviewPromptRuleContext,
-    type IReviewPromptSections,
-    type IReviewPromptSeverityFlags,
-    ReviewPromptAssemblerService,
-} from "./services/review-prompt-assembler.service"
-export {
     IssueFeedback,
     type IIssueFeedbackProps,
     type IssueFeedbackType,
