@@ -541,6 +541,41 @@ const { mockImpactAnalysisPanel } = vi.hoisted(() => ({
         },
     ),
 }))
+const { mockCityImpactOverlay } = vi.hoisted(() => ({
+    mockCityImpactOverlay: vi.fn(
+        (props: {
+            readonly entries: ReadonlyArray<{
+                readonly fileId: string
+                readonly label: string
+                readonly intensity: number
+                readonly details: string
+            }>
+            readonly onSelectEntry?: (entry: {
+                readonly fileId: string
+                readonly label: string
+                readonly intensity: number
+                readonly details: string
+            }) => void
+        }): React.JSX.Element => {
+            return (
+                <div>
+                    <p>city-impact-entries:{props.entries.length}</p>
+                    <button
+                        onClick={(): void => {
+                            const firstEntry = props.entries.at(0)
+                            if (firstEntry !== undefined) {
+                                props.onSelectEntry?.(firstEntry)
+                            }
+                        }}
+                        type="button"
+                    >
+                        inspect city impact overlay
+                    </button>
+                </div>
+            )
+        },
+    ),
+}))
 const { mockRootCauseChainViewer } = vi.hoisted(() => ({
     mockRootCauseChainViewer: vi.fn(
         (props: {
@@ -630,6 +665,9 @@ vi.mock("@/components/graphs/refactoring-export-dialog", () => ({
 vi.mock("@/components/graphs/impact-analysis-panel", () => ({
     ImpactAnalysisPanel: mockImpactAnalysisPanel,
 }))
+vi.mock("@/components/graphs/city-impact-overlay", () => ({
+    CityImpactOverlay: mockCityImpactOverlay,
+}))
 vi.mock("@/components/graphs/root-cause-chain-viewer", () => ({
     RootCauseChainViewer: mockRootCauseChainViewer,
 }))
@@ -652,6 +690,7 @@ beforeEach((): void => {
     mockRefactoringTimeline.mockClear()
     mockRefactoringExportDialog.mockClear()
     mockImpactAnalysisPanel.mockClear()
+    mockCityImpactOverlay.mockClear()
     mockRootCauseChainViewer.mockClear()
 })
 
@@ -787,6 +826,10 @@ describe("CodeCityDashboardPage", (): void => {
         const firstImpactCall = mockImpactAnalysisPanel.mock.calls.at(0)?.[0]
         expect(firstImpactCall).not.toBeUndefined()
         expect(firstImpactCall?.seeds.length).toBeGreaterThan(0)
+
+        const firstCityImpactCall = mockCityImpactOverlay.mock.calls.at(0)?.[0]
+        expect(firstCityImpactCall).not.toBeUndefined()
+        expect(firstCityImpactCall?.entries.length).toBeGreaterThan(0)
     })
 
     it("обновляет treemap при смене репозитория и метрики", async (): Promise<void> => {
@@ -854,6 +897,11 @@ describe("CodeCityDashboardPage", (): void => {
         const impactNavigation3DCall = mockCodeCity3DScene.mock.calls.at(-1)?.[0]
         expect(impactNavigation3DCall).not.toBeUndefined()
         expect(impactNavigation3DCall?.navigationLabel).toContain("Impact analysis:")
+
+        await user.click(screen.getByRole("button", { name: "inspect city impact overlay" }))
+        const cityImpactNavigation3DCall = mockCodeCity3DScene.mock.calls.at(-1)?.[0]
+        expect(cityImpactNavigation3DCall).not.toBeUndefined()
+        expect(cityImpactNavigation3DCall?.navigationLabel).toContain("Impact overlay:")
 
         const repositorySelect = screen.getByRole("combobox", { name: "Repository" })
         const metricSelect = screen.getByRole("combobox", { name: "Metric" })

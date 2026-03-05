@@ -23,6 +23,10 @@ import {
     type TCausalOverlayMode,
 } from "@/components/graphs/causal-overlay-selector"
 import {
+    CityImpactOverlay,
+    type ICityImpactOverlayEntry,
+} from "@/components/graphs/city-impact-overlay"
+import {
     CityRefactoringOverlay,
     type ICityRefactoringOverlayEntry,
 } from "@/components/graphs/city-refactoring-overlay"
@@ -941,6 +945,26 @@ function buildImpactAnalysisSeeds(
     })
 }
 
+/**
+ * Формирует ripple overlay entries для CodeCity impact view.
+ *
+ * @param seeds Набор impact seeds.
+ * @returns Overlay дескрипторы с интенсивностью.
+ */
+function buildCityImpactOverlayEntries(
+    seeds: ReadonlyArray<IImpactAnalysisSeed>,
+): ReadonlyArray<ICityImpactOverlayEntry> {
+    return seeds.slice(0, 5).map((seed): ICityImpactOverlayEntry => {
+        return {
+            details:
+                `Affected files ${String(seed.affectedFiles.length)} · Tests ${String(seed.affectedTests.length)} · Consumers ${String(seed.affectedConsumers.length)}`,
+            fileId: seed.fileId,
+            intensity: Math.max(1, Math.min(99, seed.riskScore)),
+            label: seed.label,
+        }
+    })
+}
+
 export function CodeCityDashboardPage(
     props: ICodeCityDashboardPageProps = {},
 ): ReactElement {
@@ -986,6 +1010,7 @@ export function CodeCityDashboardPage(
     const cityRefactoringOverlayEntries = buildCityRefactoringOverlayEntries(refactoringTargets)
     const refactoringTimelineTasks = buildRefactoringTimelineTasks(refactoringTargets)
     const impactAnalysisSeeds = buildImpactAnalysisSeeds(currentProfile.files)
+    const cityImpactOverlayEntries = buildCityImpactOverlayEntries(impactAnalysisSeeds)
     const onboardingProgressModules = buildOnboardingProgressModules(exploredAreaIds)
     const fileLink = createRepositoryFilesLink(currentProfile.id)
     const overlayImpactedFiles =
@@ -1379,6 +1404,26 @@ export function CodeCityDashboardPage(
                             markAreaExplored("city-3d")
                         }}
                         seeds={impactAnalysisSeeds}
+                    />
+                </CardBody>
+            </Card>
+
+            <Card>
+                <CardHeader>
+                    <p className="text-sm font-semibold text-slate-900">City impact overlay</p>
+                </CardHeader>
+                <CardBody>
+                    <CityImpactOverlay
+                        entries={cityImpactOverlayEntries}
+                        onSelectEntry={(entry): void => {
+                            setHighlightedFileId(entry.fileId)
+                            setExploreNavigationFocus({
+                                activeFileId: entry.fileId,
+                                chainFileIds: [entry.fileId],
+                                title: `Impact overlay: ${entry.label}`,
+                            })
+                            markAreaExplored("city-3d")
+                        }}
                     />
                 </CardBody>
             </Card>
