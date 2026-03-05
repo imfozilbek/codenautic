@@ -13,6 +13,7 @@ import {NotFoundError} from "../../../domain/errors/not-found.error"
 import {StageError} from "../../../domain/errors/stage.error"
 import {ValidationError} from "../../../domain/errors/validation.error"
 import {Result} from "../../../shared/result"
+import {resolveSystemPrompt} from "../../shared/prompt-resolution"
 import {
     INITIAL_STAGE_ATTEMPT,
     isPipelineCollectionItem,
@@ -96,11 +97,14 @@ export class GenerateSummaryStageUseCase implements IPipelineStageUseCase {
             )
         }
 
-        const systemPrompt = await this.resolveSystemPrompt(
-            input.state.runId,
-            input.state.definitionVersion,
-            input.state.mergeRequest,
-        )
+        const organizationId = readStringField(input.state.mergeRequest, "organizationId")
+        const promptResult = await resolveSystemPrompt({
+            generatePromptUseCase: this.generatePromptUseCase,
+            promptName: PROMPT_OVERRIDE_KEY,
+            organizationId: organizationId ?? null,
+            runtimeVariables: {},
+        })
+        const systemPrompt = promptResult.isOk ? promptResult.value : this.defaults.systemPrompt
         const request = this.buildSummaryRequest(input, systemPrompt)
 
         try {
@@ -174,34 +178,6 @@ export class GenerateSummaryStageUseCase implements IPipelineStageUseCase {
                     content: `${userPrompt}\n\n${context}`,
                 },
             ],
-        }
-    }
-
-    private async resolveSystemPrompt(
-        runId: string,
-        definitionVersion: string,
-        mergeRequest: Readonly<Record<string, unknown>>,
-    ): Promise<string> {
-        const organizationId = readStringField(mergeRequest, "organizationId")
-
-        try {
-            const result = await this.generatePromptUseCase.execute({
-                name: PROMPT_OVERRIDE_KEY,
-                organizationId: organizationId ?? null,
-                runtimeVariables: {},
-            })
-            if (result.isFail) {
-                return this.defaults.systemPrompt
-            }
-
-            const normalized = result.value.trim()
-            if (normalized.length === 0) {
-                return this.defaults.systemPrompt
-            }
-
-            return normalized
-        } catch {
-            return this.defaults.systemPrompt
         }
     }
 
