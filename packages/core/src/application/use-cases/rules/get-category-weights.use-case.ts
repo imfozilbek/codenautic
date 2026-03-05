@@ -1,5 +1,6 @@
 import type {IUseCase} from "../../ports/inbound/use-case.port"
-import type {ICategoryWeightProvider} from "../../ports/outbound/rule/category-weight-provider.port"
+import type {IRuleCategoryRepository} from "../../ports/outbound/rule/rule-category-repository.port"
+import type {ISystemSettingsProvider} from "../../ports/outbound/common/system-settings-provider.port"
 import type {
     IGetCategoryWeightsInput,
     IGetCategoryWeightsOutput,
@@ -12,9 +13,14 @@ import {Result} from "../../../shared/result"
  */
 export interface IGetCategoryWeightsUseCaseDependencies {
     /**
-     * Поставщик весов категорий.
+     * Репозиторий категорий правил.
      */
-    readonly categoryWeightProvider: ICategoryWeightProvider
+    readonly ruleCategoryRepository: IRuleCategoryRepository
+
+    /**
+     * Поставщик системных настроек.
+     */
+    readonly systemSettingsProvider: ISystemSettingsProvider
 }
 
 /**
@@ -23,7 +29,8 @@ export interface IGetCategoryWeightsUseCaseDependencies {
 export class GetCategoryWeightsUseCase
     implements IUseCase<IGetCategoryWeightsInput, IGetCategoryWeightsOutput, ValidationError>
 {
-    private readonly categoryWeightProvider: ICategoryWeightProvider
+    private readonly ruleCategoryRepository: IRuleCategoryRepository
+    private readonly systemSettingsProvider: ISystemSettingsProvider
 
     /**
      * Создаёт use case.
@@ -31,7 +38,8 @@ export class GetCategoryWeightsUseCase
      * @param dependencies Зависимости use case.
      */
     public constructor(dependencies: IGetCategoryWeightsUseCaseDependencies) {
-        this.categoryWeightProvider = dependencies.categoryWeightProvider
+        this.ruleCategoryRepository = dependencies.ruleCategoryRepository
+        this.systemSettingsProvider = dependencies.systemSettingsProvider
     }
 
     /**
@@ -48,15 +56,20 @@ export class GetCategoryWeightsUseCase
             return Result.fail<IGetCategoryWeightsOutput, ValidationError>(normalizedInput.error)
         }
 
-        const weightsPayload = await this.categoryWeightProvider.getCategoryWeights()
-        const validatedWeights = this.validateWeights(weightsPayload)
-        if (validatedWeights.isFail) {
-            return Result.fail<IGetCategoryWeightsOutput, ValidationError>(validatedWeights.error)
+        const llmWeightsResult = await this.loadLlmWeights()
+        if (llmWeightsResult.isFail) {
+            return Result.fail<IGetCategoryWeightsOutput, ValidationError>(llmWeightsResult.error)
+        }
+
+        const categoryWeightsResult = await this.loadCategoryWeights()
+        if (categoryWeightsResult.isFail) {
+            return Result.fail<IGetCategoryWeightsOutput, ValidationError>(categoryWeightsResult.error)
         }
 
         return Result.ok<IGetCategoryWeightsOutput, ValidationError>({
             weights: Object.freeze({
-                ...validatedWeights.value,
+                ...llmWeightsResult.value,
+                ...categoryWeightsResult.value,
             }),
         })
     }
@@ -131,4 +144,68 @@ export class GetCategoryWeightsUseCase
             payload as Readonly<Record<string, number>>,
         )
     }
+
+    /**
+     * Загружает веса категорий LLM из системных настроек.
+     *
+     * @returns Валидированные веса LLM.
+     */
+    private async loadLlmWeights(): Promise<Result<Readonly<Record<string, number>>, ValidationError>> {
+        try {
+            const payload = await this.systemSettingsProvider.get<unknown>(
+                GetCategoryWeightsUseCase.LLM_CATEGORY_WEIGHTS_KEY,
+            )
+
+            const validated = this.validateWeights(payload ?? {})
+            if (validated.isFail) {
+                return Result.fail<Readonly<Record<string, number>>, ValidationError>(validated.error)
+            }
+
+            return Result.ok<Readonly<Record<string, number>>, ValidationError>(validated.value)
+        } catch (error: unknown) {
+            const message = error instanceof Error ? error.message : "failed to read llm category weights"
+            return Result.fail<Readonly<Record<string, number>>, ValidationError>(
+                new ValidationError("Category weights lookup failed", [{
+                    field: GetCategoryWeightsUseCase.LLM_CATEGORY_WEIGHTS_KEY,
+                    message,
+                }]),
+            )
+        }
+    }
+
+    /**
+     * Загружает веса категорий из репозитория.
+     *
+     * @returns Валидированные веса категорий.
+     */
+    private async loadCategoryWeights(): Promise<Result<Readonly<Record<string, number>>, ValidationError>> {
+        try {
+            const weights = await this.ruleCategoryRepository.findAllWithWeights()
+            const normalized: Record<string, number> = {}
+
+            for (const item of weights) {
+                normalized[item.slug.trim()] = item.weight
+            }
+
+            const validated = this.validateWeights(normalized)
+            if (validated.isFail) {
+                return Result.fail<Readonly<Record<string, number>>, ValidationError>(validated.error)
+            }
+
+            return Result.ok<Readonly<Record<string, number>>, ValidationError>(validated.value)
+        } catch (error: unknown) {
+            const message = error instanceof Error ? error.message : "failed to read category weights"
+            return Result.fail<Readonly<Record<string, number>>, ValidationError>(
+                new ValidationError("Category weights lookup failed", [{
+                    field: "categoryWeights",
+                    message,
+                }]),
+            )
+        }
+    }
+
+    /**
+     * Ключ настроек для весов категорий LLM.
+     */
+    private static readonly LLM_CATEGORY_WEIGHTS_KEY = "llm_category_weights"
 }
