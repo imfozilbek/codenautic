@@ -83,6 +83,10 @@ import { ProjectOverviewPanel } from "@/components/graphs/project-overview-panel
 import { ChurnComplexityScatter } from "@/components/graphs/churn-complexity-scatter"
 import { HealthTrendChart, type IHealthTrendPoint } from "@/components/graphs/health-trend-chart"
 import {
+    KnowledgeSiloPanel,
+    type IKnowledgeSiloPanelEntry,
+} from "@/components/graphs/knowledge-silo-panel"
+import {
     RootCauseChainViewer,
     type IRootCauseChainFocusPayload,
     type IRootCauseIssueDescriptor,
@@ -1292,6 +1296,77 @@ function buildBusFactorPackageColorByName(
 }
 
 /**
+ * Формирует knowledge silo entries с агрегированным risk score.
+ *
+ * @param files Файлы текущего профиля.
+ * @param ownership Маппинг владения файлами.
+ * @returns Список silo entries, отсортированный по риску.
+ */
+function buildKnowledgeSiloPanelEntries(
+    files: ReadonlyArray<ICodeCityTreemapFileDescriptor>,
+    ownership: ReadonlyArray<ICodeCityDashboardOwnershipDescriptor>,
+): ReadonlyArray<IKnowledgeSiloPanelEntry> {
+    const fileById = new Map<string, ICodeCityTreemapFileDescriptor>(
+        files.map((file): readonly [string, ICodeCityTreemapFileDescriptor] => [file.id, file]),
+    )
+    const fileIdsBySilo = new Map<string, string[]>()
+    const ownerIdsBySilo = new Map<string, Set<string>>()
+    const complexityBySilo = new Map<string, number>()
+    const churnBySilo = new Map<string, number>()
+
+    for (const relation of ownership) {
+        const file = fileById.get(relation.fileId)
+        if (file === undefined) {
+            continue
+        }
+
+        const siloId = resolveDistrictName(file.path)
+        const siloFileIds = fileIdsBySilo.get(siloId)
+        if (siloFileIds === undefined) {
+            fileIdsBySilo.set(siloId, [file.id])
+            complexityBySilo.set(siloId, file.complexity ?? 0)
+            churnBySilo.set(siloId, file.churn ?? 0)
+        } else if (siloFileIds.includes(file.id) === false) {
+            siloFileIds.push(file.id)
+            complexityBySilo.set(siloId, (complexityBySilo.get(siloId) ?? 0) + (file.complexity ?? 0))
+            churnBySilo.set(siloId, (churnBySilo.get(siloId) ?? 0) + (file.churn ?? 0))
+        }
+
+        const siloOwnerIds = ownerIdsBySilo.get(siloId)
+        if (siloOwnerIds === undefined) {
+            ownerIdsBySilo.set(siloId, new Set<string>([relation.ownerId]))
+        } else {
+            siloOwnerIds.add(relation.ownerId)
+        }
+    }
+
+    return Array.from(fileIdsBySilo.entries())
+        .map(([siloId, fileIds]): IKnowledgeSiloPanelEntry | undefined => {
+            const primaryFileId = fileIds[0]
+            if (primaryFileId === undefined) {
+                return undefined
+            }
+            const contributorCount = ownerIdsBySilo.get(siloId)?.size ?? 0
+            const ownershipRisk = contributorCount <= 1 ? 65 : contributorCount === 2 ? 40 : 18
+            const complexityRisk = Math.min(20, Math.round((complexityBySilo.get(siloId) ?? 0) / 2))
+            const churnRisk = Math.min(14, Math.round((churnBySilo.get(siloId) ?? 0) * 2))
+            const riskScore = Math.max(1, Math.min(99, ownershipRisk + complexityRisk + churnRisk))
+
+            return {
+                contributorCount: Math.max(1, contributorCount),
+                fileCount: fileIds.length,
+                fileIds,
+                primaryFileId,
+                riskScore,
+                siloId,
+                siloLabel: siloId,
+            }
+        })
+        .filter((entry): entry is IKnowledgeSiloPanelEntry => entry !== undefined)
+        .sort((leftEntry, rightEntry): number => rightEntry.riskScore - leftEntry.riskScore)
+}
+
+/**
  * Формирует модель для change risk gauge.
  *
  * @param seeds Impact seeds текущего профиля.
@@ -1407,6 +1482,7 @@ export function CodeCityDashboardPage(
     )
     const [highlightedFileId, setHighlightedFileId] = useState<string | undefined>()
     const [activeBusFactorDistrictId, setActiveBusFactorDistrictId] = useState<string | undefined>()
+    const [activeKnowledgeSiloId, setActiveKnowledgeSiloId] = useState<string | undefined>()
     const [isOwnershipOverlayEnabled, setOwnershipOverlayEnabled] = useState<boolean>(true)
     const [activeOwnershipOwnerId, setActiveOwnershipOwnerId] = useState<string | undefined>()
     const [exploredAreaIds, setExploredAreaIds] = useState<ReadonlyArray<string>>(["controls"])
@@ -1440,6 +1516,10 @@ export function CodeCityDashboardPage(
     )
     const busFactorPackageColorByName = buildBusFactorPackageColorByName(
         busFactorOverlayEntries,
+    )
+    const knowledgeSiloEntries = buildKnowledgeSiloPanelEntries(
+        currentProfile.files,
+        currentProfile.ownership,
     )
     const ownershipOverlayEntries = buildOwnershipOverlayEntries(
         currentProfile.files,
@@ -1484,6 +1564,7 @@ export function CodeCityDashboardPage(
         setRepositoryId(nextRepositoryId)
         setHighlightedFileId(undefined)
         setActiveBusFactorDistrictId(undefined)
+        setActiveKnowledgeSiloId(undefined)
         setActiveOwnershipOwnerId(undefined)
         setRootCauseChainFocus({
             chainFileIds: [],
@@ -1922,6 +2003,29 @@ export function CodeCityDashboardPage(
                                 activeFileId: entry.primaryFileId,
                                 chainFileIds: entry.fileIds,
                                 title: `Bus factor: ${entry.districtLabel}`,
+                            })
+                            markAreaExplored("controls")
+                            markAreaExplored("city-3d")
+                        }}
+                    />
+                </CardBody>
+            </Card>
+
+            <Card>
+                <CardHeader>
+                    <p className="text-sm font-semibold text-slate-900">Knowledge silo panel</p>
+                </CardHeader>
+                <CardBody>
+                    <KnowledgeSiloPanel
+                        activeSiloId={activeKnowledgeSiloId}
+                        entries={knowledgeSiloEntries}
+                        onSelectEntry={(entry): void => {
+                            setActiveKnowledgeSiloId(entry.siloId)
+                            setHighlightedFileId(entry.primaryFileId)
+                            setExploreNavigationFocus({
+                                activeFileId: entry.primaryFileId,
+                                chainFileIds: entry.fileIds,
+                                title: `Knowledge silo: ${entry.siloLabel}`,
                             })
                             markAreaExplored("controls")
                             markAreaExplored("city-3d")

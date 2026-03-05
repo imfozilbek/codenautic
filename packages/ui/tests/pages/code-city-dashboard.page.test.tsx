@@ -621,6 +621,49 @@ const { mockCityBusFactorOverlay } = vi.hoisted(() => ({
         },
     ),
 }))
+const { mockKnowledgeSiloPanel } = vi.hoisted(() => ({
+    mockKnowledgeSiloPanel: vi.fn(
+        (props: {
+            readonly entries: ReadonlyArray<{
+                readonly siloId: string
+                readonly siloLabel: string
+                readonly riskScore: number
+                readonly contributorCount: number
+                readonly fileCount: number
+                readonly fileIds: ReadonlyArray<string>
+                readonly primaryFileId: string
+            }>
+            readonly activeSiloId?: string
+            readonly onSelectEntry?: (entry: {
+                readonly siloId: string
+                readonly siloLabel: string
+                readonly riskScore: number
+                readonly contributorCount: number
+                readonly fileCount: number
+                readonly fileIds: ReadonlyArray<string>
+                readonly primaryFileId: string
+            }) => void
+        }): React.JSX.Element => {
+            return (
+                <div>
+                    <p>knowledge-silo-entries:{props.entries.length}</p>
+                    <p>knowledge-silo-active:{props.activeSiloId ?? "none"}</p>
+                    <button
+                        onClick={(): void => {
+                            const firstEntry = props.entries.at(0)
+                            if (firstEntry !== undefined) {
+                                props.onSelectEntry?.(firstEntry)
+                            }
+                        }}
+                        type="button"
+                    >
+                        inspect knowledge silo
+                    </button>
+                </div>
+            )
+        },
+    ),
+}))
 const { mockCityOwnershipOverlay } = vi.hoisted(() => ({
     mockCityOwnershipOverlay: vi.fn(
         (props: {
@@ -884,6 +927,9 @@ vi.mock("@/components/graphs/city-impact-overlay", () => ({
 vi.mock("@/components/graphs/city-bus-factor-overlay", () => ({
     CityBusFactorOverlay: mockCityBusFactorOverlay,
 }))
+vi.mock("@/components/graphs/knowledge-silo-panel", () => ({
+    KnowledgeSiloPanel: mockKnowledgeSiloPanel,
+}))
 vi.mock("@/components/graphs/city-ownership-overlay", () => ({
     CityOwnershipOverlay: mockCityOwnershipOverlay,
 }))
@@ -920,6 +966,7 @@ beforeEach((): void => {
     mockImpactAnalysisPanel.mockClear()
     mockCityImpactOverlay.mockClear()
     mockCityBusFactorOverlay.mockClear()
+    mockKnowledgeSiloPanel.mockClear()
     mockCityOwnershipOverlay.mockClear()
     mockChangeRiskGauge.mockClear()
     mockImpactGraphView.mockClear()
@@ -1070,6 +1117,10 @@ describe("CodeCityDashboardPage", (): void => {
         expect(firstBusFactorCall).not.toBeUndefined()
         expect(firstBusFactorCall?.entries.length).toBeGreaterThan(0)
 
+        const firstKnowledgeSiloCall = mockKnowledgeSiloPanel.mock.calls.at(0)?.[0]
+        expect(firstKnowledgeSiloCall).not.toBeUndefined()
+        expect(firstKnowledgeSiloCall?.entries.length).toBeGreaterThan(0)
+
         const firstOwnershipCall = mockCityOwnershipOverlay.mock.calls.at(0)?.[0]
         expect(firstOwnershipCall).not.toBeUndefined()
         expect(firstOwnershipCall?.owners.length).toBeGreaterThan(0)
@@ -1184,6 +1235,14 @@ describe("CodeCityDashboardPage", (): void => {
         const busFactor3DCall = mockCodeCity3DScene.mock.calls.at(-1)?.[0]
         expect(busFactor3DCall).not.toBeUndefined()
         expect(busFactor3DCall?.navigationLabel).toContain("Bus factor:")
+
+        await user.click(screen.getByRole("button", { name: "inspect knowledge silo" }))
+        const knowledgeSiloTreemapCall = mockCodeCityTreemap.mock.calls.at(-1)?.[0]
+        expect(knowledgeSiloTreemapCall).not.toBeUndefined()
+        expect(knowledgeSiloTreemapCall?.highlightedFileId).toBe("src/api/auth.ts")
+        const knowledgeSilo3DCall = mockCodeCity3DScene.mock.calls.at(-1)?.[0]
+        expect(knowledgeSilo3DCall).not.toBeUndefined()
+        expect(knowledgeSilo3DCall?.navigationLabel).toContain("Knowledge silo:")
 
         await user.click(screen.getByRole("button", { name: "toggle ownership colors" }))
         const ownershipDisabledTreemapCall = mockCodeCityTreemap.mock.calls.at(-1)?.[0]
