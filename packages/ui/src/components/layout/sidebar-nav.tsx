@@ -4,6 +4,7 @@ import {
     Bug,
     Building2,
     ChartNoAxesColumn,
+    ChartPie,
     FolderKanban,
     GitPullRequest,
     House,
@@ -78,6 +79,11 @@ const DEFAULT_SIDEBAR_ITEMS: readonly ISidebarItem[] = [
         icon: <FolderKanban aria-hidden="true" size={16} />,
         label: "Repositories",
         to: "/repositories",
+    },
+    {
+        icon: <ChartPie aria-hidden="true" size={16} />,
+        label: "Reports",
+        to: "/reports",
     },
     {
         icon: <Settings aria-hidden="true" size={16} />,

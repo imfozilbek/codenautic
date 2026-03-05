@@ -11,6 +11,8 @@ describe("ReportGeneratorPage", (): void => {
         renderWithProviders(<ReportGeneratorPage />)
 
         expect(screen.getByRole("heading", { level: 1, name: "Report generator" })).not.toBeNull()
+        expect(screen.getByRole("button", { name: "Open reports list" })).not.toBeNull()
+        expect(screen.getByRole("button", { name: "Open latest report" })).not.toBeNull()
 
         await user.selectOptions(screen.getByLabelText("Report type"), "delivery")
         await user.selectOptions(screen.getByLabelText("Report format"), "html")

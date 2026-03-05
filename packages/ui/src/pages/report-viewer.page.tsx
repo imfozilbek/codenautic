@@ -1,4 +1,5 @@
 import { type ReactElement, useMemo, useState } from "react"
+import { useNavigate } from "@tanstack/react-router"
 import {
     Bar,
     BarChart,
@@ -79,6 +80,7 @@ const SECTION_COLORS: ReadonlyArray<string> = ["#2563eb", "#16a34a", "#f59e0b", 
  * @returns UI report viewer с export/share действиями.
  */
 export function ReportViewerPage(): ReactElement {
+    const navigate = useNavigate()
     const [selectedMetric, setSelectedMetric] = useState<TViewerMetric>("riskScore")
     const [downloadStatus, setDownloadStatus] = useState<string>("No download requested yet.")
     const [shareLink, setShareLink] = useState<string>("No share link generated yet.")
@@ -114,6 +116,30 @@ export function ReportViewerPage(): ReactElement {
                 View generated reports in-browser, inspect interactive charts, and export/share
                 report artifacts.
             </p>
+            <div className="flex flex-wrap gap-2">
+                <Button
+                    size="sm"
+                    variant="flat"
+                    onPress={(): void => {
+                        void navigate({
+                            to: "/reports",
+                        })
+                    }}
+                >
+                    Open reports list
+                </Button>
+                <Button
+                    size="sm"
+                    variant="flat"
+                    onPress={(): void => {
+                        void navigate({
+                            to: "/reports/generate",
+                        })
+                    }}
+                >
+                    Open report generator
+                </Button>
+            </div>
 
             <Card>
                 <CardHeader>

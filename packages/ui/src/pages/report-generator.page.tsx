@@ -1,4 +1,5 @@
 import { type ChangeEvent, type ReactElement, useMemo, useState } from "react"
+import { useNavigate } from "@tanstack/react-router"
 
 import { ReportScheduleDialog } from "@/components/reports/report-schedule-dialog"
 import { ReportTemplateEditor } from "@/components/reports/report-template-editor"
@@ -66,6 +67,7 @@ function validateReportDateRange(startDate: string, endDate: string): string | u
  * @returns UI для настройки report type/sections/date range/format.
  */
 export function ReportGeneratorPage(): ReactElement {
+    const navigate = useNavigate()
     const [reportType, setReportType] = useState<TReportType>("architecture")
     const [reportFormat, setReportFormat] = useState<TReportFormat>("pdf")
     const [startDate, setStartDate] = useState<string>("2026-01-01")
@@ -153,6 +155,30 @@ export function ReportGeneratorPage(): ReactElement {
             <p className="text-sm text-[var(--foreground)]/70">
                 Configure report type, sections, date range and output format before generation.
             </p>
+            <div className="flex flex-wrap gap-2">
+                <Button
+                    size="sm"
+                    variant="flat"
+                    onPress={(): void => {
+                        void navigate({
+                            to: "/reports",
+                        })
+                    }}
+                >
+                    Open reports list
+                </Button>
+                <Button
+                    size="sm"
+                    variant="flat"
+                    onPress={(): void => {
+                        void navigate({
+                            to: "/reports/viewer",
+                        })
+                    }}
+                >
+                    Open latest report
+                </Button>
+            </div>
 
             <Card>
                 <CardHeader>

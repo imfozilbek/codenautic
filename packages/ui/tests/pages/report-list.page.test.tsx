@@ -12,6 +12,8 @@ describe("ReportListPage", (): void => {
 
         expect(screen.getByRole("heading", { level: 1, name: "Report list" })).not.toBeNull()
         expect(screen.getByLabelText("Generated reports list")).not.toBeNull()
+        expect(screen.getByRole("button", { name: "Open generator" })).not.toBeNull()
+        expect(screen.getAllByRole("button", { name: "Open viewer" }).length).toBeGreaterThan(0)
 
         await user.selectOptions(screen.getByLabelText("Report list type filter"), "architecture")
         expect(screen.getByText("Architecture Weekly Snapshot")).not.toBeNull()

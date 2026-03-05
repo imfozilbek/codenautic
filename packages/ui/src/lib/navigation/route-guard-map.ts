@@ -38,6 +38,18 @@ const BASE_TENANTS: ReadonlyArray<TTenantId> = ["platform-team", "frontend-team"
  */
 export const ROUTE_GUARD_MAP: ReadonlyArray<INavigationRouteEntry> = [
     {
+        breadcrumbs: ["Authentication", "Login"],
+        guards: {
+            requiresAuth: false,
+            roles: BASE_ROLES,
+            tenants: BASE_TENANTS,
+        },
+        label: "Login",
+        path: "/login",
+        searchKeywords: ["login", "auth", "session"],
+        section: "workflows",
+    },
+    {
         breadcrumbs: ["Dashboard"],
         guards: {
             requiresAuth: true,
@@ -47,6 +59,18 @@ export const ROUTE_GUARD_MAP: ReadonlyArray<INavigationRouteEntry> = [
         label: "Dashboard",
         path: "/",
         searchKeywords: ["home", "overview", "landing"],
+        section: "dashboard",
+    },
+    {
+        breadcrumbs: ["Dashboard", "System Health"],
+        guards: {
+            requiresAuth: true,
+            roles: BASE_ROLES,
+            tenants: BASE_TENANTS,
+        },
+        label: "System health",
+        path: "/system-health",
+        searchKeywords: ["system", "health", "status", "uptime"],
         section: "dashboard",
     },
     {
@@ -62,6 +86,42 @@ export const ROUTE_GUARD_MAP: ReadonlyArray<INavigationRouteEntry> = [
         section: "workflows",
     },
     {
+        breadcrumbs: ["Dashboard", "Onboarding"],
+        guards: {
+            requiresAuth: true,
+            roles: BASE_ROLES,
+            tenants: BASE_TENANTS,
+        },
+        label: "Repository onboarding",
+        path: "/onboarding",
+        searchKeywords: ["connect repository", "wizard", "scan"],
+        section: "workflows",
+    },
+    {
+        breadcrumbs: ["Dashboard", "Scan progress"],
+        guards: {
+            requiresAuth: true,
+            roles: BASE_ROLES,
+            tenants: BASE_TENANTS,
+        },
+        label: "Scan progress",
+        path: "/scan-progress",
+        searchKeywords: ["scan", "pipeline", "progress", "jobs"],
+        section: "workflows",
+    },
+    {
+        breadcrumbs: ["Dashboard", "Repositories"],
+        guards: {
+            requiresAuth: true,
+            roles: BASE_ROLES,
+            tenants: BASE_TENANTS,
+        },
+        label: "Repositories",
+        path: "/repositories",
+        searchKeywords: ["repositories", "overview", "owner", "catalog"],
+        section: "workflows",
+    },
+    {
         breadcrumbs: ["Dashboard", "Reviews"],
         guards: {
             requiresAuth: true,
@@ -71,6 +131,18 @@ export const ROUTE_GUARD_MAP: ReadonlyArray<INavigationRouteEntry> = [
         label: "CCR Reviews",
         path: "/reviews",
         searchKeywords: ["ccr", "code review", "triage"],
+        section: "workflows",
+    },
+    {
+        breadcrumbs: ["Dashboard", "Issues"],
+        guards: {
+            requiresAuth: true,
+            roles: BASE_ROLES,
+            tenants: BASE_TENANTS,
+        },
+        label: "Issues tracking",
+        path: "/issues",
+        searchKeywords: ["issues", "severity", "status", "triage"],
         section: "workflows",
     },
     {
@@ -96,6 +168,42 @@ export const ROUTE_GUARD_MAP: ReadonlyArray<INavigationRouteEntry> = [
         path: "/dashboard/code-city",
         searchKeywords: ["code city", "architecture", "graph"],
         section: "dashboard",
+    },
+    {
+        breadcrumbs: ["Dashboard", "Reports"],
+        guards: {
+            requiresAuth: true,
+            roles: ["developer", "lead", "admin"],
+            tenants: BASE_TENANTS,
+        },
+        label: "Reports workspace",
+        path: "/reports",
+        searchKeywords: ["reports", "analytics", "generated", "history"],
+        section: "analytics",
+    },
+    {
+        breadcrumbs: ["Dashboard", "Reports", "Generator"],
+        guards: {
+            requiresAuth: true,
+            roles: ["developer", "lead", "admin"],
+            tenants: BASE_TENANTS,
+        },
+        label: "Report generator",
+        path: "/reports/generate",
+        searchKeywords: ["reports", "generate", "schedule", "template"],
+        section: "analytics",
+    },
+    {
+        breadcrumbs: ["Dashboard", "Reports", "Viewer"],
+        guards: {
+            requiresAuth: true,
+            roles: ["developer", "lead", "admin"],
+            tenants: BASE_TENANTS,
+        },
+        label: "Report viewer",
+        path: "/reports/viewer",
+        searchKeywords: ["reports", "viewer", "export", "share"],
+        section: "analytics",
     },
     {
         breadcrumbs: ["Settings"],
@@ -146,6 +254,30 @@ export const ROUTE_GUARD_MAP: ReadonlyArray<INavigationRouteEntry> = [
         section: "settings",
     },
     {
+        breadcrumbs: ["Settings", "LLM Providers"],
+        guards: {
+            requiresAuth: true,
+            roles: ["developer", "lead", "admin"],
+            tenants: BASE_TENANTS,
+        },
+        label: "LLM providers",
+        path: "/settings-llm-providers",
+        searchKeywords: ["llm", "models", "provider", "connection"],
+        section: "settings",
+    },
+    {
+        breadcrumbs: ["Settings", "Git Providers"],
+        guards: {
+            requiresAuth: true,
+            roles: ["developer", "lead", "admin"],
+            tenants: BASE_TENANTS,
+        },
+        label: "Git providers",
+        path: "/settings-git-providers",
+        searchKeywords: ["git", "github", "gitlab", "bitbucket"],
+        section: "settings",
+    },
+    {
         breadcrumbs: ["Settings", "Integrations"],
         guards: {
             requiresAuth: true,
@@ -170,6 +302,102 @@ export const ROUTE_GUARD_MAP: ReadonlyArray<INavigationRouteEntry> = [
         section: "settings",
     },
     {
+        breadcrumbs: ["Settings", "Rules Library"],
+        guards: {
+            requiresAuth: true,
+            roles: ["developer", "lead", "admin"],
+            tenants: BASE_TENANTS,
+        },
+        label: "Rules library",
+        path: "/settings-rules-library",
+        searchKeywords: ["rules", "library", "custom", "policy"],
+        section: "settings",
+    },
+    {
+        breadcrumbs: ["Settings", "Audit Logs"],
+        guards: {
+            requiresAuth: true,
+            roles: ["lead", "admin"],
+            tenants: BASE_TENANTS,
+        },
+        label: "Audit logs",
+        path: "/settings-audit-logs",
+        searchKeywords: ["audit", "history", "actor", "events"],
+        section: "settings",
+    },
+    {
+        breadcrumbs: ["Settings", "Contract Validation"],
+        guards: {
+            requiresAuth: true,
+            roles: ["developer", "lead", "admin"],
+            tenants: BASE_TENANTS,
+        },
+        label: "Contract validation",
+        path: "/settings-contract-validation",
+        searchKeywords: ["contracts", "drift", "validation", "import/export"],
+        section: "settings",
+    },
+    {
+        breadcrumbs: ["Settings", "Privacy Export"],
+        guards: {
+            requiresAuth: true,
+            roles: ["developer", "lead", "admin"],
+            tenants: BASE_TENANTS,
+        },
+        label: "Privacy redaction",
+        path: "/settings-privacy-redaction",
+        searchKeywords: ["privacy", "redaction", "export", "pii"],
+        section: "settings",
+    },
+    {
+        breadcrumbs: ["Settings", "Provider Degradation"],
+        guards: {
+            requiresAuth: true,
+            roles: BASE_ROLES,
+            tenants: BASE_TENANTS,
+        },
+        label: "Provider degradation",
+        path: "/settings-provider-degradation",
+        searchKeywords: ["degradation", "outage", "fallback", "provider"],
+        section: "settings",
+    },
+    {
+        breadcrumbs: ["Settings", "Concurrency"],
+        guards: {
+            requiresAuth: true,
+            roles: ["developer", "lead", "admin"],
+            tenants: BASE_TENANTS,
+        },
+        label: "Concurrency resolver",
+        path: "/settings-concurrency",
+        searchKeywords: ["concurrency", "conflicts", "merge", "retry"],
+        section: "settings",
+    },
+    {
+        breadcrumbs: ["Settings", "Jobs"],
+        guards: {
+            requiresAuth: true,
+            roles: ["developer", "lead", "admin"],
+            tenants: BASE_TENANTS,
+        },
+        label: "Jobs monitor",
+        path: "/settings-jobs",
+        searchKeywords: ["jobs", "workers", "queues", "operations"],
+        section: "settings",
+    },
+    {
+        breadcrumbs: ["Settings", "Billing"],
+        guards: {
+            requiresAuth: true,
+            roles: ["lead", "admin"],
+            tenants: ["platform-team"],
+        },
+        label: "Billing lifecycle",
+        path: "/settings-billing",
+        searchKeywords: ["billing", "plan", "entitlement", "trial"],
+        section: "settings",
+    },
+    {
         breadcrumbs: ["Settings", "Organization"],
         guards: {
             requiresAuth: true,
@@ -179,6 +407,30 @@ export const ROUTE_GUARD_MAP: ReadonlyArray<INavigationRouteEntry> = [
         label: "Organization settings",
         path: "/settings-organization",
         searchKeywords: ["billing", "members", "org"],
+        section: "settings",
+    },
+    {
+        breadcrumbs: ["Settings", "SSO"],
+        guards: {
+            requiresAuth: true,
+            roles: ["lead", "admin"],
+            tenants: ["platform-team"],
+        },
+        label: "SSO management",
+        path: "/settings-sso",
+        searchKeywords: ["sso", "saml", "oidc", "identity"],
+        section: "settings",
+    },
+    {
+        breadcrumbs: ["Settings", "BYOK"],
+        guards: {
+            requiresAuth: true,
+            roles: ["lead", "admin"],
+            tenants: BASE_TENANTS,
+        },
+        label: "BYOK settings",
+        path: "/settings-byok",
+        searchKeywords: ["byok", "keys", "api key", "credentials"],
         section: "settings",
     },
     {
@@ -303,6 +555,10 @@ export function searchAccessibleRoutes(
     const normalizedQuery = query.trim().toLowerCase()
 
     return ROUTE_GUARD_MAP.filter((route): boolean => {
+        if (context.isAuthenticated === true && route.path === "/login") {
+            return false
+        }
+
         if (isRouteAccessible(route.path, context) !== true) {
             return false
         }

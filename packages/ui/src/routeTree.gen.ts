@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as SystemHealthRouteImport } from './routes/system-health'
 import { Route as SettingsWebhooksRouteImport } from './routes/settings-webhooks'
 import { Route as SettingsTokenUsageRouteImport } from './routes/settings-token-usage'
 import { Route as SettingsTeamRouteImport } from './routes/settings-team'
@@ -34,6 +35,7 @@ import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as ScanProgressRouteImport } from './routes/scan-progress'
 import { Route as ReviewsRouteImport } from './routes/reviews'
 import { Route as RepositoriesRouteImport } from './routes/repositories'
+import { Route as ReportsRouteImport } from './routes/reports'
 import { Route as OnboardingRouteImport } from './routes/onboarding'
 import { Route as MyWorkRouteImport } from './routes/my-work'
 import { Route as LoginRouteImport } from './routes/login'
@@ -42,8 +44,15 @@ import { Route as HelpDiagnosticsRouteImport } from './routes/help-diagnostics'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ReviewsReviewIdRouteImport } from './routes/reviews.$reviewId'
 import { Route as RepositoriesRepositoryIdRouteImport } from './routes/repositories.$repositoryId'
+import { Route as ReportsViewerRouteImport } from './routes/reports.viewer'
+import { Route as ReportsGenerateRouteImport } from './routes/reports.generate'
 import { Route as DashboardCodeCityRouteImport } from './routes/dashboard.code-city'
 
+const SystemHealthRoute = SystemHealthRouteImport.update({
+  id: '/system-health',
+  path: '/system-health',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SettingsWebhooksRoute = SettingsWebhooksRouteImport.update({
   id: '/settings-webhooks',
   path: '/settings-webhooks',
@@ -173,6 +182,11 @@ const RepositoriesRoute = RepositoriesRouteImport.update({
   path: '/repositories',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ReportsRoute = ReportsRouteImport.update({
+  id: '/reports',
+  path: '/reports',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const OnboardingRoute = OnboardingRouteImport.update({
   id: '/onboarding',
   path: '/onboarding',
@@ -214,6 +228,16 @@ const RepositoriesRepositoryIdRoute =
     path: '/$repositoryId',
     getParentRoute: () => RepositoriesRoute,
   } as any)
+const ReportsViewerRoute = ReportsViewerRouteImport.update({
+  id: '/viewer',
+  path: '/viewer',
+  getParentRoute: () => ReportsRoute,
+} as any)
+const ReportsGenerateRoute = ReportsGenerateRouteImport.update({
+  id: '/generate',
+  path: '/generate',
+  getParentRoute: () => ReportsRoute,
+} as any)
 const DashboardCodeCityRoute = DashboardCodeCityRouteImport.update({
   id: '/dashboard/code-city',
   path: '/dashboard/code-city',
@@ -227,6 +251,7 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/my-work': typeof MyWorkRoute
   '/onboarding': typeof OnboardingRoute
+  '/reports': typeof ReportsRouteWithChildren
   '/repositories': typeof RepositoriesRouteWithChildren
   '/reviews': typeof ReviewsRouteWithChildren
   '/scan-progress': typeof ScanProgressRoute
@@ -252,7 +277,10 @@ export interface FileRoutesByFullPath {
   '/settings-team': typeof SettingsTeamRoute
   '/settings-token-usage': typeof SettingsTokenUsageRoute
   '/settings-webhooks': typeof SettingsWebhooksRoute
+  '/system-health': typeof SystemHealthRoute
   '/dashboard/code-city': typeof DashboardCodeCityRoute
+  '/reports/generate': typeof ReportsGenerateRoute
+  '/reports/viewer': typeof ReportsViewerRoute
   '/repositories/$repositoryId': typeof RepositoriesRepositoryIdRoute
   '/reviews/$reviewId': typeof ReviewsReviewIdRoute
 }
@@ -263,6 +291,7 @@ export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/my-work': typeof MyWorkRoute
   '/onboarding': typeof OnboardingRoute
+  '/reports': typeof ReportsRouteWithChildren
   '/repositories': typeof RepositoriesRouteWithChildren
   '/reviews': typeof ReviewsRouteWithChildren
   '/scan-progress': typeof ScanProgressRoute
@@ -288,7 +317,10 @@ export interface FileRoutesByTo {
   '/settings-team': typeof SettingsTeamRoute
   '/settings-token-usage': typeof SettingsTokenUsageRoute
   '/settings-webhooks': typeof SettingsWebhooksRoute
+  '/system-health': typeof SystemHealthRoute
   '/dashboard/code-city': typeof DashboardCodeCityRoute
+  '/reports/generate': typeof ReportsGenerateRoute
+  '/reports/viewer': typeof ReportsViewerRoute
   '/repositories/$repositoryId': typeof RepositoriesRepositoryIdRoute
   '/reviews/$reviewId': typeof ReviewsReviewIdRoute
 }
@@ -300,6 +332,7 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/my-work': typeof MyWorkRoute
   '/onboarding': typeof OnboardingRoute
+  '/reports': typeof ReportsRouteWithChildren
   '/repositories': typeof RepositoriesRouteWithChildren
   '/reviews': typeof ReviewsRouteWithChildren
   '/scan-progress': typeof ScanProgressRoute
@@ -325,7 +358,10 @@ export interface FileRoutesById {
   '/settings-team': typeof SettingsTeamRoute
   '/settings-token-usage': typeof SettingsTokenUsageRoute
   '/settings-webhooks': typeof SettingsWebhooksRoute
+  '/system-health': typeof SystemHealthRoute
   '/dashboard/code-city': typeof DashboardCodeCityRoute
+  '/reports/generate': typeof ReportsGenerateRoute
+  '/reports/viewer': typeof ReportsViewerRoute
   '/repositories/$repositoryId': typeof RepositoriesRepositoryIdRoute
   '/reviews/$reviewId': typeof ReviewsReviewIdRoute
 }
@@ -338,6 +374,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/my-work'
     | '/onboarding'
+    | '/reports'
     | '/repositories'
     | '/reviews'
     | '/scan-progress'
@@ -363,7 +400,10 @@ export interface FileRouteTypes {
     | '/settings-team'
     | '/settings-token-usage'
     | '/settings-webhooks'
+    | '/system-health'
     | '/dashboard/code-city'
+    | '/reports/generate'
+    | '/reports/viewer'
     | '/repositories/$repositoryId'
     | '/reviews/$reviewId'
   fileRoutesByTo: FileRoutesByTo
@@ -374,6 +414,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/my-work'
     | '/onboarding'
+    | '/reports'
     | '/repositories'
     | '/reviews'
     | '/scan-progress'
@@ -399,7 +440,10 @@ export interface FileRouteTypes {
     | '/settings-team'
     | '/settings-token-usage'
     | '/settings-webhooks'
+    | '/system-health'
     | '/dashboard/code-city'
+    | '/reports/generate'
+    | '/reports/viewer'
     | '/repositories/$repositoryId'
     | '/reviews/$reviewId'
   id:
@@ -410,6 +454,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/my-work'
     | '/onboarding'
+    | '/reports'
     | '/repositories'
     | '/reviews'
     | '/scan-progress'
@@ -435,7 +480,10 @@ export interface FileRouteTypes {
     | '/settings-team'
     | '/settings-token-usage'
     | '/settings-webhooks'
+    | '/system-health'
     | '/dashboard/code-city'
+    | '/reports/generate'
+    | '/reports/viewer'
     | '/repositories/$repositoryId'
     | '/reviews/$reviewId'
   fileRoutesById: FileRoutesById
@@ -447,6 +495,7 @@ export interface RootRouteChildren {
   LoginRoute: typeof LoginRoute
   MyWorkRoute: typeof MyWorkRoute
   OnboardingRoute: typeof OnboardingRoute
+  ReportsRoute: typeof ReportsRouteWithChildren
   RepositoriesRoute: typeof RepositoriesRouteWithChildren
   ReviewsRoute: typeof ReviewsRouteWithChildren
   ScanProgressRoute: typeof ScanProgressRoute
@@ -472,11 +521,19 @@ export interface RootRouteChildren {
   SettingsTeamRoute: typeof SettingsTeamRoute
   SettingsTokenUsageRoute: typeof SettingsTokenUsageRoute
   SettingsWebhooksRoute: typeof SettingsWebhooksRoute
+  SystemHealthRoute: typeof SystemHealthRoute
   DashboardCodeCityRoute: typeof DashboardCodeCityRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/system-health': {
+      id: '/system-health'
+      path: '/system-health'
+      fullPath: '/system-health'
+      preLoaderRoute: typeof SystemHealthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/settings-webhooks': {
       id: '/settings-webhooks'
       path: '/settings-webhooks'
@@ -652,6 +709,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RepositoriesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/reports': {
+      id: '/reports'
+      path: '/reports'
+      fullPath: '/reports'
+      preLoaderRoute: typeof ReportsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/onboarding': {
       id: '/onboarding'
       path: '/onboarding'
@@ -708,6 +772,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RepositoriesRepositoryIdRouteImport
       parentRoute: typeof RepositoriesRoute
     }
+    '/reports/viewer': {
+      id: '/reports/viewer'
+      path: '/viewer'
+      fullPath: '/reports/viewer'
+      preLoaderRoute: typeof ReportsViewerRouteImport
+      parentRoute: typeof ReportsRoute
+    }
+    '/reports/generate': {
+      id: '/reports/generate'
+      path: '/generate'
+      fullPath: '/reports/generate'
+      preLoaderRoute: typeof ReportsGenerateRouteImport
+      parentRoute: typeof ReportsRoute
+    }
     '/dashboard/code-city': {
       id: '/dashboard/code-city'
       path: '/dashboard/code-city'
@@ -717,6 +795,19 @@ declare module '@tanstack/react-router' {
     }
   }
 }
+
+interface ReportsRouteChildren {
+  ReportsGenerateRoute: typeof ReportsGenerateRoute
+  ReportsViewerRoute: typeof ReportsViewerRoute
+}
+
+const ReportsRouteChildren: ReportsRouteChildren = {
+  ReportsGenerateRoute: ReportsGenerateRoute,
+  ReportsViewerRoute: ReportsViewerRoute,
+}
+
+const ReportsRouteWithChildren =
+  ReportsRoute._addFileChildren(ReportsRouteChildren)
 
 interface RepositoriesRouteChildren {
   RepositoriesRepositoryIdRoute: typeof RepositoriesRepositoryIdRoute
@@ -748,6 +839,7 @@ const rootRouteChildren: RootRouteChildren = {
   LoginRoute: LoginRoute,
   MyWorkRoute: MyWorkRoute,
   OnboardingRoute: OnboardingRoute,
+  ReportsRoute: ReportsRouteWithChildren,
   RepositoriesRoute: RepositoriesRouteWithChildren,
   ReviewsRoute: ReviewsRouteWithChildren,
   ScanProgressRoute: ScanProgressRoute,
@@ -773,6 +865,7 @@ const rootRouteChildren: RootRouteChildren = {
   SettingsTeamRoute: SettingsTeamRoute,
   SettingsTokenUsageRoute: SettingsTokenUsageRoute,
   SettingsWebhooksRoute: SettingsWebhooksRoute,
+  SystemHealthRoute: SystemHealthRoute,
   DashboardCodeCityRoute: DashboardCodeCityRoute,
 }
 export const routeTree = rootRouteImport

@@ -11,6 +11,8 @@ describe("ReportViewerPage", (): void => {
         renderWithProviders(<ReportViewerPage />)
 
         expect(screen.getByRole("heading", { level: 1, name: "Report viewer" })).not.toBeNull()
+        expect(screen.getByRole("button", { name: "Open reports list" })).not.toBeNull()
+        expect(screen.getByRole("button", { name: "Open report generator" })).not.toBeNull()
         expect(screen.getByLabelText("Report trend chart")).not.toBeNull()
         expect(screen.getByLabelText("Report sections distribution chart")).not.toBeNull()
 

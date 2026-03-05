@@ -41,7 +41,14 @@ const COMMAND_PALETTE_RECENT_STORAGE_KEY = "codenautic:ui:command-palette:recent
 const COMMAND_PALETTE_PINNED_STORAGE_KEY = "codenautic:ui:command-palette:pinned:v1"
 const MAX_RECENT_COMMANDS = 8
 
-type TCommandPaletteGroup = "CCRs" | "Issues" | "Repos" | "Settings" | "Actions" | "General"
+type TCommandPaletteGroup =
+    | "CCRs"
+    | "Issues"
+    | "Repos"
+    | "Reports"
+    | "Settings"
+    | "Actions"
+    | "General"
 
 interface ICommandPaletteItem {
     readonly group: TCommandPaletteGroup
@@ -77,7 +84,7 @@ const STATIC_COMMAND_DEFINITIONS: ReadonlyArray<IStaticCommandDefinition> = [
         id: "action-open-diagnostics",
         keywords: "diagnostics degradation help support",
         label: "Open Diagnostics Center",
-        path: "/settings-provider-degradation",
+        path: "/help-diagnostics",
     },
     {
         group: "Actions",
@@ -85,6 +92,13 @@ const STATIC_COMMAND_DEFINITIONS: ReadonlyArray<IStaticCommandDefinition> = [
         keywords: "repositories onboarding scan",
         label: "Open Repositories",
         path: "/repositories",
+    },
+    {
+        group: "Actions",
+        id: "action-open-reports",
+        keywords: "reports analytics export generation viewer",
+        label: "Open Reports Workspace",
+        path: "/reports",
     },
 ]
 
@@ -97,6 +111,9 @@ function inferCommandPaletteGroup(path: string): TCommandPaletteGroup {
     }
     if (path.startsWith("/repositories")) {
         return "Repos"
+    }
+    if (path.startsWith("/reports")) {
+        return "Reports"
     }
     if (path.startsWith("/settings")) {
         return "Settings"
@@ -250,6 +267,12 @@ export interface IHeaderProps {
     readonly searchRoutes?: ReadonlyArray<IHeaderSearchRouteOption>
     /** Навигация по выбранному маршруту из global search. */
     readonly onSearchRouteNavigate?: (path: string) => void
+    /** Открыть страницу Settings из user-menu. */
+    readonly onOpenSettings?: () => void
+    /** Открыть страницу Billing из user-menu. */
+    readonly onOpenBilling?: () => void
+    /** Открыть страницу Help & Diagnostics из user-menu. */
+    readonly onOpenHelp?: () => void
 }
 
 /**
@@ -574,6 +597,9 @@ export function Header(props: IHeaderProps): ReactElement {
                     </Button>
                     <ThemeToggle />
                     <UserMenu
+                        onOpenBilling={props.onOpenBilling}
+                        onOpenHelp={props.onOpenHelp}
+                        onOpenSettings={props.onOpenSettings}
                         onSignOut={props.onSignOut}
                         userEmail={props.userEmail}
                         userName={props.userName}

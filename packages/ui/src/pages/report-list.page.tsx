@@ -1,4 +1,5 @@
 import { type ChangeEvent, type ReactElement, useMemo, useState } from "react"
+import { useNavigate } from "@tanstack/react-router"
 
 import { Alert, Button, Card, CardBody, CardHeader } from "@/components/ui"
 import { showToastInfo, showToastSuccess } from "@/lib/notifications/toast"
@@ -61,6 +62,7 @@ function resolveReportStatusBadgeClass(status: TReportStatus): string {
  * @returns UI со списком, фильтрами, status badges и delete/regenerate actions.
  */
 export function ReportListPage(): ReactElement {
+    const navigate = useNavigate()
     const [reportTypeFilter, setReportTypeFilter] = useState<TReportType | "all">("all")
     const [dateFrom, setDateFrom] = useState<string>("")
     const [dateTo, setDateTo] = useState<string>("")
@@ -114,6 +116,16 @@ export function ReportListPage(): ReactElement {
         setActionStatus(`Regeneration queued for report ${reportId}.`)
         showToastInfo("Report regeneration queued.")
     }
+    const handleOpenGenerator = (): void => {
+        void navigate({
+            to: "/reports/generate",
+        })
+    }
+    const handleOpenViewer = (): void => {
+        void navigate({
+            to: "/reports/viewer",
+        })
+    }
 
     return (
         <section className="space-y-4">
@@ -121,6 +133,14 @@ export function ReportListPage(): ReactElement {
             <p className="text-sm text-[var(--foreground)]/70">
                 Browse generated reports, apply filters, and trigger lifecycle actions.
             </p>
+            <div className="flex flex-wrap gap-2">
+                <Button size="sm" variant="flat" onPress={handleOpenGenerator}>
+                    Open generator
+                </Button>
+                <Button size="sm" variant="flat" onPress={handleOpenViewer}>
+                    Open viewer
+                </Button>
+            </div>
 
             <Card>
                 <CardHeader>
@@ -214,6 +234,9 @@ export function ReportListPage(): ReactElement {
                                         Type: {report.type} · Date: {report.generatedAt}
                                     </p>
                                     <div className="mt-2 flex gap-2">
+                                        <Button size="sm" variant="flat" onPress={handleOpenViewer}>
+                                            Open viewer
+                                        </Button>
                                         <Button
                                             size="sm"
                                             variant="flat"
