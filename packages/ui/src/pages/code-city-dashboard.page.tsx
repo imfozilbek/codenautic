@@ -46,6 +46,7 @@ import {
     RefactoringDashboard,
     type IRefactoringTargetDescriptor,
 } from "@/components/graphs/refactoring-dashboard"
+import { RefactoringExportDialog } from "@/components/graphs/refactoring-export-dialog"
 import {
     RefactoringTimeline,
     type IRefactoringTimelineTask,
@@ -1287,6 +1288,31 @@ export function CodeCityDashboardPage(
                             markAreaExplored("city-3d")
                         }}
                         tasks={refactoringTimelineTasks}
+                    />
+                </CardBody>
+            </Card>
+
+            <Card>
+                <CardHeader>
+                    <p className="text-sm font-semibold text-slate-900">
+                        Refactoring export dialog
+                    </p>
+                </CardHeader>
+                <CardBody>
+                    <RefactoringExportDialog
+                        onExport={(payload): void => {
+                            const primaryFileId = payload.fileIds[0]
+                            if (primaryFileId !== undefined) {
+                                setHighlightedFileId(primaryFileId)
+                            }
+                            setExploreNavigationFocus({
+                                activeFileId: primaryFileId,
+                                chainFileIds: payload.fileIds,
+                                title: `Export plan: ${payload.destination}`,
+                            })
+                            markAreaExplored("city-3d")
+                        }}
+                        targets={refactoringTargets}
                     />
                 </CardBody>
             </Card>

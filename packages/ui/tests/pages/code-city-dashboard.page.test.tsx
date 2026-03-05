@@ -453,6 +453,50 @@ const { mockRefactoringTimeline } = vi.hoisted(() => ({
         },
     ),
 }))
+const { mockRefactoringExportDialog } = vi.hoisted(() => ({
+    mockRefactoringExportDialog: vi.fn(
+        (props: {
+            readonly targets: ReadonlyArray<{
+                readonly fileId: string
+                readonly title: string
+                readonly module: string
+                readonly roiScore: number
+                readonly riskScore: number
+                readonly effortScore: number
+            }>
+            readonly onExport?: (payload: {
+                readonly destination: "github" | "jira"
+                readonly templateTitle: string
+                readonly templateBody: string
+                readonly fileIds: ReadonlyArray<string>
+            }) => void
+        }): React.JSX.Element => {
+            return (
+                <div>
+                    <p>export-targets:{props.targets.length}</p>
+                    <button
+                        onClick={(): void => {
+                            const firstTarget = props.targets.at(0)
+                            const secondTarget = props.targets.at(1)
+                            if (firstTarget === undefined || secondTarget === undefined) {
+                                return
+                            }
+                            props.onExport?.({
+                                destination: "jira",
+                                fileIds: [firstTarget.fileId, secondTarget.fileId],
+                                templateBody: "Body template",
+                                templateTitle: "Title template",
+                            })
+                        }}
+                        type="button"
+                    >
+                        export refactor plan
+                    </button>
+                </div>
+            )
+        },
+    ),
+}))
 const { mockRootCauseChainViewer } = vi.hoisted(() => ({
     mockRootCauseChainViewer: vi.fn(
         (props: {
@@ -536,6 +580,9 @@ vi.mock("@/components/graphs/simulation-panel", () => ({
 vi.mock("@/components/graphs/refactoring-timeline", () => ({
     RefactoringTimeline: mockRefactoringTimeline,
 }))
+vi.mock("@/components/graphs/refactoring-export-dialog", () => ({
+    RefactoringExportDialog: mockRefactoringExportDialog,
+}))
 vi.mock("@/components/graphs/root-cause-chain-viewer", () => ({
     RootCauseChainViewer: mockRootCauseChainViewer,
 }))
@@ -556,6 +603,7 @@ beforeEach((): void => {
     mockCityRefactoringOverlay.mockClear()
     mockSimulationPanel.mockClear()
     mockRefactoringTimeline.mockClear()
+    mockRefactoringExportDialog.mockClear()
     mockRootCauseChainViewer.mockClear()
 })
 
@@ -683,6 +731,10 @@ describe("CodeCityDashboardPage", (): void => {
         const firstTimelineCall = mockRefactoringTimeline.mock.calls.at(0)?.[0]
         expect(firstTimelineCall).not.toBeUndefined()
         expect(firstTimelineCall?.tasks.length).toBeGreaterThan(0)
+
+        const firstExportCall = mockRefactoringExportDialog.mock.calls.at(0)?.[0]
+        expect(firstExportCall).not.toBeUndefined()
+        expect(firstExportCall?.targets.length).toBeGreaterThan(0)
     })
 
     it("обновляет treemap при смене репозитория и метрики", async (): Promise<void> => {
@@ -739,6 +791,12 @@ describe("CodeCityDashboardPage", (): void => {
         const timelineNavigation3DCall = mockCodeCity3DScene.mock.calls.at(-1)?.[0]
         expect(timelineNavigation3DCall).not.toBeUndefined()
         expect(timelineNavigation3DCall?.navigationLabel).toContain("Refactoring timeline:")
+
+        await user.click(screen.getByRole("button", { name: "export refactor plan" }))
+        const exportNavigation3DCall = mockCodeCity3DScene.mock.calls.at(-1)?.[0]
+        expect(exportNavigation3DCall).not.toBeUndefined()
+        expect(exportNavigation3DCall?.navigationLabel).toBe("Export plan: jira")
+        expect(exportNavigation3DCall?.navigationChainFileIds.length).toBeGreaterThan(1)
 
         const repositorySelect = screen.getByRole("combobox", { name: "Repository" })
         const metricSelect = screen.getByRole("combobox", { name: "Metric" })
