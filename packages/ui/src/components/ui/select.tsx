@@ -63,8 +63,12 @@ export function Select(props: SelectProps): ReactElement {
         ...selectProps
     } = props
 
-    const selectedKey = getSelectedKey(selectedKeys)
-    const defaultSelectedKey = getSelectedKey(defaultSelectedKeys)
+    const hasControlledSelection = selectedKeys !== undefined
+    const hasDefaultSelection = defaultSelectedKeys !== undefined
+    const selectedKey = hasControlledSelection ? getSelectedKey(selectedKeys) : undefined
+    const defaultSelectedKey = hasDefaultSelection
+        ? getDefaultSelectedKey(defaultSelectedKeys)
+        : undefined
 
     const mergedClassName = mergeSelectClassName(className, size)
 
@@ -72,8 +76,8 @@ export function Select(props: SelectProps): ReactElement {
         <HeroUISelect
             {...selectProps}
             className={mergedClassName}
-            defaultSelectedKey={defaultSelectedKey}
-            selectedKey={selectedKey}
+            {...(hasDefaultSelection ? { defaultSelectedKey } : {})}
+            {...(hasControlledSelection ? { selectedKey } : {})}
             onSelectionChange={(keys): void => {
                 if (onSelectionChange === undefined) {
                     return
@@ -114,8 +118,21 @@ export function SelectSection(props: SelectSectionProps): ReactElement {
     return <ListBoxSection>{props.children}</ListBoxSection>
 }
 
-function getSelectedKey(keys: ReadonlySet<string> | "all" | undefined): string | undefined {
-    if (keys === undefined || keys === "all") {
+function getSelectedKey(keys: ReadonlySet<string> | "all"): string | null {
+    if (keys === "all") {
+        return null
+    }
+
+    const next = keys.values().next()
+    if (next.done === true) {
+        return null
+    }
+
+    return String(next.value)
+}
+
+function getDefaultSelectedKey(keys: ReadonlySet<string> | "all"): string | undefined {
+    if (keys === "all") {
         return undefined
     }
 

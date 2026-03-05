@@ -172,10 +172,14 @@ export const server = setupServer(
         })
     }),
     http.get("http://localhost:3000/api/v1/user/settings", () => {
-        return HttpResponse.json({}, { status: 404 })
+        return HttpResponse.json({
+            updatedAtMs: "2026-03-02T00:00:00.000Z",
+        })
     }),
     http.get("http://localhost:3000/api/v1/user/preferences", () => {
-        return HttpResponse.json({}, { status: 404 })
+        return HttpResponse.json({
+            updatedAtMs: "2026-03-02T00:00:00.000Z",
+        })
     }),
     http.get("http://localhost:3000/api/v1/rules", () => {
         return HttpResponse.json({
@@ -236,22 +240,34 @@ export const server = setupServer(
         })
     }),
     http.post("http://localhost:3000/api/v1/user/settings", () => {
-        return HttpResponse.json({}, { status: 404 })
+        return HttpResponse.json({
+            updated: true,
+        })
     }),
     http.post("http://localhost:3000/api/v1/user/preferences", () => {
-        return HttpResponse.json({}, { status: 404 })
+        return HttpResponse.json({
+            updated: true,
+        })
     }),
     http.patch("http://localhost:3000/api/v1/user/settings", () => {
-        return HttpResponse.json({}, { status: 404 })
+        return HttpResponse.json({
+            updated: true,
+        })
     }),
     http.patch("http://localhost:3000/api/v1/user/preferences", () => {
-        return HttpResponse.json({}, { status: 404 })
+        return HttpResponse.json({
+            updated: true,
+        })
     }),
     http.put("http://localhost:3000/api/v1/user/settings", () => {
-        return HttpResponse.json({}, { status: 404 })
+        return HttpResponse.json({
+            updated: true,
+        })
     }),
     http.put("http://localhost:3000/api/v1/user/preferences", () => {
-        return HttpResponse.json({}, { status: 404 })
+        return HttpResponse.json({
+            updated: true,
+        })
     }),
     http.get("http://localhost:3000/api/v1/reviews/:reviewId", ({ params }) => {
         const reviewId = String(params.reviewId)
