@@ -51,6 +51,13 @@
 - Если библиотека имеет dual-license или “free tier + paid extensions”, разрешено использовать только OSS-часть и только
   если это не блокирует реализацию задач из `packages/ui/TODO.md`.
 
+### Иконки (стандарт пакета UI)
+
+- Базовая библиотека иконок: `lucide-react` (OSS, ISC license).
+- Иконки должны наследовать цвет через `currentColor` и theme tokens (`var(--foreground)`, `var(--primary)` и т.д.).
+- Запрещены hardcoded цветовые значения иконок (`#hex`, `text-slate-*`) в production-компонентах, если это не часть явно
+  заданного semantic-state токена.
+
 Примеры запрещённых категорий (не исчерпывающе):
 
 - Enterprise-таблицы/гриды с paywall: AG Grid Pro/Enterprise, MUI X Pro, KendoReact (commercial)
