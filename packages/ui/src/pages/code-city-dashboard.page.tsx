@@ -73,6 +73,11 @@ import {
     type IPredictionComparisonSnapshot,
 } from "@/components/graphs/prediction-comparison-view"
 import {
+    SprintComparisonView,
+    type ISprintComparisonMetric,
+    type ISprintComparisonSnapshot,
+} from "@/components/graphs/sprint-comparison-view"
+import {
     CityOwnershipOverlay,
     type ICityOwnershipOverlayOwnerEntry,
 } from "@/components/graphs/city-ownership-overlay"
@@ -1627,6 +1632,67 @@ function buildPredictionComparisonSnapshots(
     })
 }
 
+function calculateSprintImprovementScore(
+    metrics: ReadonlyArray<ISprintComparisonMetric>,
+): number {
+    const weightedChange = metrics.reduce((total, metric): number => {
+        const beforeValue = Math.max(metric.beforeValue, 1)
+        if (metric.label === "Coverage") {
+            return total + ((metric.afterValue - metric.beforeValue) / beforeValue) * 100
+        }
+        return total + ((metric.beforeValue - metric.afterValue) / beforeValue) * 100
+    }, 0)
+    return Math.max(0, Math.round(weightedChange / Math.max(metrics.length, 1)))
+}
+
+/**
+ * Формирует side-by-side sprint snapshots для CodeCity comparison.
+ *
+ * @param files Файлы текущего профиля.
+ * @returns Набор before/after snapshot-ов.
+ */
+function buildSprintComparisonSnapshots(
+    files: ReadonlyArray<ICodeCityTreemapFileDescriptor>,
+): ReadonlyArray<ISprintComparisonSnapshot> {
+    const candidateFiles = files.slice(0, 3)
+    return candidateFiles.map((file, index): ISprintComparisonSnapshot => {
+        const beforeComplexity = Math.max(1, Math.round((file.complexity ?? 0) + 4 + index))
+        const afterComplexity = Math.max(1, beforeComplexity - 2 - index)
+        const beforeCoverage = Math.max(
+            1,
+            Math.round(68 - (file.complexity ?? 0) / 2 - index),
+        )
+        const afterCoverage = Math.min(100, beforeCoverage + 4 + index)
+        const beforeChurn = Math.max(1, (file.churn ?? 0) + 5 + index)
+        const afterChurn = Math.max(1, beforeChurn - 2)
+        const metrics: ReadonlyArray<ISprintComparisonMetric> = [
+            {
+                afterValue: afterComplexity,
+                beforeValue: beforeComplexity,
+                label: "Complexity",
+            },
+            {
+                afterValue: afterCoverage,
+                beforeValue: beforeCoverage,
+                label: "Coverage",
+            },
+            {
+                afterValue: afterChurn,
+                beforeValue: beforeChurn,
+                label: "Churn",
+            },
+        ]
+
+        return {
+            fileId: file.id,
+            id: `sprint-comparison-${String(index)}-${file.id}`,
+            improvementScore: calculateSprintImprovementScore(metrics),
+            metrics,
+            title: `Sprint ${String(12 - index)} vs ${String(11 - index)}`,
+        }
+    })
+}
+
 /**
  * Формирует список bug-prone файлов для prediction dashboard.
  *
@@ -2397,6 +2463,8 @@ export function CodeCityDashboardPage(
     >()
     const [activePredictionComparisonSnapshotId, setActivePredictionComparisonSnapshotId] =
         useState<string | undefined>()
+    const [activeSprintComparisonSnapshotId, setActiveSprintComparisonSnapshotId] =
+        useState<string | undefined>()
     const [activeKnowledgeSiloId, setActiveKnowledgeSiloId] = useState<string | undefined>()
     const [activeContributorId, setActiveContributorId] = useState<string | undefined>()
     const [activeOwnershipTransitionId, setActiveOwnershipTransitionId] = useState<string | undefined>()
@@ -2450,6 +2518,7 @@ export function CodeCityDashboardPage(
         currentProfile.files,
         predictionOverlayEntries,
     )
+    const sprintComparisonSnapshots = buildSprintComparisonSnapshots(currentProfile.files)
     const predictionBugProneFiles = buildPredictionBugProneFiles(
         currentProfile.files,
         predictionOverlayEntries,
@@ -2536,6 +2605,7 @@ export function CodeCityDashboardPage(
         setActiveTrendForecastPointId(undefined)
         setActivePredictionAccuracyCaseId(undefined)
         setActivePredictionComparisonSnapshotId(undefined)
+        setActiveSprintComparisonSnapshotId(undefined)
         setActiveKnowledgeSiloId(undefined)
         setActiveContributorId(undefined)
         setActiveOwnershipTransitionId(undefined)
@@ -3117,6 +3187,34 @@ export function CodeCityDashboardPage(
                             markAreaExplored("city-3d")
                         }}
                         snapshots={predictionComparisonSnapshots}
+                    />
+                </CardBody>
+            </Card>
+
+            <Card>
+                <CardHeader>
+                    <p className="text-sm font-semibold text-slate-900">Sprint comparison view</p>
+                </CardHeader>
+                <CardBody>
+                    <SprintComparisonView
+                        activeSnapshotId={activeSprintComparisonSnapshotId}
+                        onSelectSnapshot={(snapshot): void => {
+                            setActiveSprintComparisonSnapshotId(snapshot.id)
+                            setActivePredictionHotspotId(undefined)
+                            setActivePredictionFileId(snapshot.fileId)
+                            if (snapshot.fileId !== undefined) {
+                                setHighlightedFileId(snapshot.fileId)
+                            }
+                            setExploreNavigationFocus({
+                                activeFileId: snapshot.fileId,
+                                chainFileIds:
+                                    snapshot.fileId === undefined ? [] : [snapshot.fileId],
+                                title: `Sprint comparison: ${snapshot.title}`,
+                            })
+                            markAreaExplored("controls")
+                            markAreaExplored("city-3d")
+                        }}
+                        snapshots={sprintComparisonSnapshots}
                     />
                 </CardBody>
             </Card>

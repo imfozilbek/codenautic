@@ -896,6 +896,53 @@ const { mockPredictionComparisonView } = vi.hoisted(() => ({
         },
     ),
 }))
+const { mockSprintComparisonView } = vi.hoisted(() => ({
+    mockSprintComparisonView: vi.fn(
+        (props: {
+            readonly snapshots: ReadonlyArray<{
+                readonly id: string
+                readonly title: string
+                readonly fileId?: string
+                readonly metrics: ReadonlyArray<{
+                    readonly label: string
+                    readonly beforeValue: number
+                    readonly afterValue: number
+                }>
+                readonly improvementScore: number
+            }>
+            readonly activeSnapshotId?: string
+            readonly onSelectSnapshot?: (snapshot: {
+                readonly id: string
+                readonly title: string
+                readonly fileId?: string
+                readonly metrics: ReadonlyArray<{
+                    readonly label: string
+                    readonly beforeValue: number
+                    readonly afterValue: number
+                }>
+                readonly improvementScore: number
+            }) => void
+        }): React.JSX.Element => {
+            return (
+                <div>
+                    <p>sprint-comparison-snapshots:{props.snapshots.length}</p>
+                    <p>sprint-comparison-active:{props.activeSnapshotId ?? "none"}</p>
+                    <button
+                        onClick={(): void => {
+                            const firstSnapshot = props.snapshots.at(0)
+                            if (firstSnapshot !== undefined) {
+                                props.onSelectSnapshot?.(firstSnapshot)
+                            }
+                        }}
+                        type="button"
+                    >
+                        inspect sprint comparison snapshot
+                    </button>
+                </div>
+            )
+        },
+    ),
+}))
 const { mockCityBusFactorOverlay } = vi.hoisted(() => ({
     mockCityBusFactorOverlay: vi.fn(
         (props: {
@@ -1442,6 +1489,9 @@ vi.mock("@/components/graphs/alert-config-dialog", () => ({
 vi.mock("@/components/graphs/prediction-comparison-view", () => ({
     PredictionComparisonView: mockPredictionComparisonView,
 }))
+vi.mock("@/components/graphs/sprint-comparison-view", () => ({
+    SprintComparisonView: mockSprintComparisonView,
+}))
 vi.mock("@/components/graphs/city-bus-factor-overlay", () => ({
     CityBusFactorOverlay: mockCityBusFactorOverlay,
 }))
@@ -1502,6 +1552,7 @@ beforeEach((): void => {
     mockPredictionAccuracyWidget.mockClear()
     mockAlertConfigDialog.mockClear()
     mockPredictionComparisonView.mockClear()
+    mockSprintComparisonView.mockClear()
     mockCityBusFactorOverlay.mockClear()
     mockBusFactorTrendChart.mockClear()
     mockKnowledgeSiloPanel.mockClear()
@@ -1686,6 +1737,10 @@ describe("CodeCityDashboardPage", (): void => {
         expect(firstPredictionComparisonCall).not.toBeUndefined()
         expect(firstPredictionComparisonCall?.snapshots.length).toBeGreaterThan(0)
 
+        const firstSprintComparisonCall = mockSprintComparisonView.mock.calls.at(0)?.[0]
+        expect(firstSprintComparisonCall).not.toBeUndefined()
+        expect(firstSprintComparisonCall?.snapshots.length).toBeGreaterThan(0)
+
         const firstBusFactorCall = mockCityBusFactorOverlay.mock.calls.at(0)?.[0]
         expect(firstBusFactorCall).not.toBeUndefined()
         expect(firstBusFactorCall?.entries.length).toBeGreaterThan(0)
@@ -1862,6 +1917,14 @@ describe("CodeCityDashboardPage", (): void => {
         const predictionComparison3DCall = mockCodeCity3DScene.mock.calls.at(-1)?.[0]
         expect(predictionComparison3DCall).not.toBeUndefined()
         expect(predictionComparison3DCall?.navigationLabel).toContain("Prediction comparison:")
+
+        await user.click(screen.getByRole("button", { name: "inspect sprint comparison snapshot" }))
+        const sprintComparisonTreemapCall = mockCodeCityTreemap.mock.calls.at(-1)?.[0]
+        expect(sprintComparisonTreemapCall).not.toBeUndefined()
+        expect(sprintComparisonTreemapCall?.highlightedFileId).toBe("src/api/auth.ts")
+        const sprintComparison3DCall = mockCodeCity3DScene.mock.calls.at(-1)?.[0]
+        expect(sprintComparison3DCall).not.toBeUndefined()
+        expect(sprintComparison3DCall?.navigationLabel).toContain("Sprint comparison:")
 
         await user.click(screen.getByRole("button", { name: "inspect change risk point" }))
         const riskNavigation3DCall = mockCodeCity3DScene.mock.calls.at(-1)?.[0]
