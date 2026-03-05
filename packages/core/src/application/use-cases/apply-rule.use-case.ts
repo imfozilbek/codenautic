@@ -27,10 +27,11 @@ import {
 import type {IValidationErrorField} from "../../domain/errors/validation.error"
 import {ValidationError} from "../../domain/errors/validation.error"
 import {RuleValidationService} from "../../domain/services/rule-validation.service"
-import {type SeverityLevel, SEVERITY_LEVEL} from "../../domain/value-objects/severity.value-object"
+import {type SeverityLevel} from "../../domain/value-objects/severity.value-object"
 import {Result} from "../../shared/result"
 import {deduplicate} from "../../shared/utils/deduplicate"
 import {hash} from "../../shared/utils/hash"
+import {normalizeSeverity} from "../shared/severity-normalization"
 import {readBooleanField} from "./review/pipeline-stage-state.utils"
 import type {IApplyRuleDefaults} from "../dto/config/system-defaults.dto"
 
@@ -1377,11 +1378,7 @@ export class ApplyRuleUseCase implements
      * @returns Canonical severity.
      */
     private normalizeSeverity(value: string): SeverityLevel {
-        const normalized = value.trim().toUpperCase()
-        if (Object.values(SEVERITY_LEVEL).includes(normalized as SeverityLevel)) {
-            return normalized as SeverityLevel
-        }
-
-        return this.defaults.ruleSeverity
+        return normalizeSeverity(value, {fallback: this.defaults.ruleSeverity})
+            ?? this.defaults.ruleSeverity
     }
 }

@@ -2,9 +2,10 @@ import type {ISuggestionDTO} from "../../../dto/review/suggestion.dto"
 import type {IDiscardedSuggestionDTO} from "../../../dto/review/discarded-suggestion.dto"
 import type {ReviewPipelineState} from "../../../types/review/review-pipeline-state"
 import type {ISafeGuardFilter} from "../../../types/review/safeguard-filter.contract"
-import {Severity, SEVERITY_LEVEL} from "../../../../domain/value-objects/severity.value-object"
+import {Severity, type SeverityLevel} from "../../../../domain/value-objects/severity.value-object"
 import {createDiscardedSuggestion, resolveSeverityLevel} from "./safeguard-filter.utils"
 import type {ISeveritySafeguardDefaults} from "../../../dto/config/system-defaults.dto"
+import {normalizeSeverity} from "../../../shared/severity-normalization"
 
 const FILTER_NAME = "severity-threshold"
 const BELOW_THRESHOLD_DISCARD_REASON = "below_threshold"
@@ -94,8 +95,10 @@ export class SeverityThresholdSafeguardFilter implements ISafeGuardFilter {
     private resolveSeverityThreshold(config: Readonly<Record<string, unknown>>): string {
         const rawThreshold = config["severityThreshold"]
         if (typeof rawThreshold === "string") {
-            const normalized = rawThreshold.trim().toUpperCase()
-            if (this.isKnownSeverity(normalized)) {
+            const normalized = normalizeSeverity(rawThreshold, {
+                fallback: this.defaults.threshold as SeverityLevel,
+            })
+            if (normalized !== undefined) {
                 return normalized
             }
         }
@@ -118,8 +121,8 @@ export class SeverityThresholdSafeguardFilter implements ISafeGuardFilter {
         const limits: ISeverityLimits = {}
         const entries = Object.entries(rawLimits as Readonly<Record<string, unknown>>)
         for (const [rawSeverity, rawLimit] of entries) {
-            const normalizedSeverity = this.normalizeSeverity(rawSeverity)
-            if (!this.isKnownSeverity(normalizedSeverity) || !this.isPositiveInteger(rawLimit)) {
+            const normalizedSeverity = normalizeSeverity(rawSeverity)
+            if (normalizedSeverity === undefined || !this.isPositiveInteger(rawLimit)) {
                 continue
             }
 
@@ -146,28 +149,6 @@ export class SeverityThresholdSafeguardFilter implements ISafeGuardFilter {
         }
 
         return limit
-    }
-
-    /**
-     * Checks whether a value belongs to known severity level.
-     *
-     * @param value Severity label.
-     * @returns True when known.
-     */
-    private isKnownSeverity(value: string): boolean {
-        return Object.values(SEVERITY_LEVEL).includes(
-            value as (typeof SEVERITY_LEVEL)[keyof typeof SEVERITY_LEVEL],
-        )
-    }
-
-    /**
-     * Normalizes unknown severity keys.
-     *
-     * @param rawSeverity Raw key.
-     * @returns Uppercased severity key.
-     */
-    private normalizeSeverity(rawSeverity: string): string {
-        return rawSeverity.trim().toUpperCase()
     }
 
     /**

@@ -8,7 +8,7 @@ import {
 } from "../ports/outbound/feedback-repository.port"
 import {ValidationError, type IValidationErrorField} from "../../domain/errors/validation.error"
 import {Result} from "../../shared/result"
-import {SEVERITY_LEVEL} from "../../domain/value-objects/severity.value-object"
+import {normalizeSeverity} from "../shared/severity-normalization"
 
 /**
  * Raw feedback counters per rule.
@@ -362,27 +362,6 @@ export class AnalyzeFeedbackUseCase
      * @returns Normalized severity level or undefined.
      */
     private resolveSeverity(rawValue: string): IFeedbackAnalysisSeverity | undefined {
-        const normalizedValue = rawValue.trim().toUpperCase()
-        if (normalizedValue === SEVERITY_LEVEL.INFO) {
-            return SEVERITY_LEVEL.INFO
-        }
-
-        if (normalizedValue === SEVERITY_LEVEL.LOW) {
-            return SEVERITY_LEVEL.LOW
-        }
-
-        if (normalizedValue === SEVERITY_LEVEL.MEDIUM) {
-            return SEVERITY_LEVEL.MEDIUM
-        }
-
-        if (normalizedValue === SEVERITY_LEVEL.HIGH) {
-            return SEVERITY_LEVEL.HIGH
-        }
-
-        if (normalizedValue === SEVERITY_LEVEL.CRITICAL) {
-            return SEVERITY_LEVEL.CRITICAL
-        }
-
-        return undefined
+        return normalizeSeverity(rawValue)
     }
 }
