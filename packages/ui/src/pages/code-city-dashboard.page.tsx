@@ -82,6 +82,10 @@ import {
     type IDistrictTrendIndicatorEntry,
 } from "@/components/graphs/district-trend-indicators"
 import {
+    AchievementsPanel,
+    type IAchievementPanelEntry,
+} from "@/components/graphs/achievements-panel"
+import {
     CityOwnershipOverlay,
     type ICityOwnershipOverlayOwnerEntry,
 } from "@/components/graphs/city-ownership-overlay"
@@ -1795,6 +1799,71 @@ function buildDistrictTrendIndicators(
         })
 }
 
+function resolveAchievementBadge(
+    improvementPercent: number,
+): IAchievementPanelEntry["badge"] {
+    if (improvementPercent >= 18) {
+        return "gold"
+    }
+    if (improvementPercent >= 12) {
+        return "silver"
+    }
+    return "bronze"
+}
+
+/**
+ * Формирует sprint achievements для gamification-панели.
+ *
+ * @param files Файлы текущего профиля.
+ * @returns Набор достижений по модулям.
+ */
+function buildSprintAchievements(
+    files: ReadonlyArray<ICodeCityTreemapFileDescriptor>,
+): ReadonlyArray<IAchievementPanelEntry> {
+    return files
+        .slice(0, 4)
+        .map((file, index): IAchievementPanelEntry => {
+            const districtName = resolveDistrictName(file.path)
+            const baseComplexity = Math.max(1, file.complexity ?? 1)
+            const complexityReduction = Math.max(
+                6,
+                Math.min(24, Math.round(baseComplexity / (index + 2) + 8)),
+            )
+            const churnReduction = Math.max(
+                4,
+                Math.round(((file.churn ?? 0) + index + 3) / 2),
+            )
+            const improvementPercent = Math.max(complexityReduction, churnReduction)
+            const relatedFileIds = files
+                .filter((candidateFile): boolean => {
+                    return resolveDistrictName(candidateFile.path) === districtName
+                })
+                .slice(0, 3)
+                .map((candidateFile): string => candidateFile.id)
+            const normalizedRelatedFileIds =
+                relatedFileIds.length > 0 ? relatedFileIds : [file.id]
+
+            return {
+                badge: resolveAchievementBadge(improvementPercent),
+                fileId: file.id,
+                id: `achievement-${String(index)}-${file.id}`,
+                improvementPercent,
+                relatedFileIds: normalizedRelatedFileIds,
+                summary:
+                    `Reduced complexity in module ${districtName} by `
+                    + `${String(complexityReduction)}%. Churn also improved by `
+                    + `${String(churnReduction)}%.`,
+                title: `Reduced complexity in ${districtName} by ${String(complexityReduction)}%`,
+            }
+        })
+        .sort((leftAchievement, rightAchievement): number => {
+            if (rightAchievement.improvementPercent !== leftAchievement.improvementPercent) {
+                return rightAchievement.improvementPercent - leftAchievement.improvementPercent
+            }
+            return leftAchievement.title.localeCompare(rightAchievement.title)
+        })
+}
+
 /**
  * Формирует список bug-prone файлов для prediction dashboard.
  *
@@ -2568,6 +2637,7 @@ export function CodeCityDashboardPage(
     const [activeSprintComparisonSnapshotId, setActiveSprintComparisonSnapshotId] =
         useState<string | undefined>()
     const [activeDistrictTrendId, setActiveDistrictTrendId] = useState<string | undefined>()
+    const [activeAchievementId, setActiveAchievementId] = useState<string | undefined>()
     const [activeKnowledgeSiloId, setActiveKnowledgeSiloId] = useState<string | undefined>()
     const [activeContributorId, setActiveContributorId] = useState<string | undefined>()
     const [activeOwnershipTransitionId, setActiveOwnershipTransitionId] = useState<string | undefined>()
@@ -2623,6 +2693,7 @@ export function CodeCityDashboardPage(
     )
     const sprintComparisonSnapshots = buildSprintComparisonSnapshots(currentProfile.files)
     const districtTrendIndicators = buildDistrictTrendIndicators(currentProfile.files)
+    const sprintAchievements = buildSprintAchievements(currentProfile.files)
     const predictionBugProneFiles = buildPredictionBugProneFiles(
         currentProfile.files,
         predictionOverlayEntries,
@@ -2711,6 +2782,7 @@ export function CodeCityDashboardPage(
         setActivePredictionComparisonSnapshotId(undefined)
         setActiveSprintComparisonSnapshotId(undefined)
         setActiveDistrictTrendId(undefined)
+        setActiveAchievementId(undefined)
         setActiveKnowledgeSiloId(undefined)
         setActiveContributorId(undefined)
         setActiveOwnershipTransitionId(undefined)
@@ -3343,6 +3415,31 @@ export function CodeCityDashboardPage(
                                 activeFileId: entry.primaryFileId,
                                 chainFileIds: entry.affectedFileIds,
                                 title: `District trend: ${entry.districtLabel}`,
+                            })
+                            markAreaExplored("controls")
+                            markAreaExplored("city-3d")
+                        }}
+                    />
+                </CardBody>
+            </Card>
+
+            <Card>
+                <CardHeader>
+                    <p className="text-sm font-semibold text-slate-900">Achievements panel</p>
+                </CardHeader>
+                <CardBody>
+                    <AchievementsPanel
+                        achievements={sprintAchievements}
+                        activeAchievementId={activeAchievementId}
+                        onSelectAchievement={(achievement): void => {
+                            setActiveAchievementId(achievement.id)
+                            setActivePredictionHotspotId(undefined)
+                            setActivePredictionFileId(achievement.fileId)
+                            setHighlightedFileId(achievement.fileId)
+                            setExploreNavigationFocus({
+                                activeFileId: achievement.fileId,
+                                chainFileIds: achievement.relatedFileIds,
+                                title: `Achievement: ${achievement.title}`,
                             })
                             markAreaExplored("controls")
                             markAreaExplored("city-3d")

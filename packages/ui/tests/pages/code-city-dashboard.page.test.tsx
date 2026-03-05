@@ -986,6 +986,49 @@ const { mockDistrictTrendIndicators } = vi.hoisted(() => ({
         },
     ),
 }))
+const { mockAchievementsPanel } = vi.hoisted(() => ({
+    mockAchievementsPanel: vi.fn(
+        (props: {
+            readonly achievements: ReadonlyArray<{
+                readonly id: string
+                readonly title: string
+                readonly summary: string
+                readonly improvementPercent: number
+                readonly badge: "gold" | "silver" | "bronze"
+                readonly fileId: string
+                readonly relatedFileIds: ReadonlyArray<string>
+            }>
+            readonly activeAchievementId?: string
+            readonly onSelectAchievement?: (entry: {
+                readonly id: string
+                readonly title: string
+                readonly summary: string
+                readonly improvementPercent: number
+                readonly badge: "gold" | "silver" | "bronze"
+                readonly fileId: string
+                readonly relatedFileIds: ReadonlyArray<string>
+            }) => void
+        }): React.JSX.Element => {
+            return (
+                <div>
+                    <p>achievements-entries:{props.achievements.length}</p>
+                    <p>achievements-active:{props.activeAchievementId ?? "none"}</p>
+                    <button
+                        onClick={(): void => {
+                            const firstAchievement = props.achievements.at(0)
+                            if (firstAchievement !== undefined) {
+                                props.onSelectAchievement?.(firstAchievement)
+                            }
+                        }}
+                        type="button"
+                    >
+                        inspect sprint achievement
+                    </button>
+                </div>
+            )
+        },
+    ),
+}))
 const { mockCityBusFactorOverlay } = vi.hoisted(() => ({
     mockCityBusFactorOverlay: vi.fn(
         (props: {
@@ -1538,6 +1581,9 @@ vi.mock("@/components/graphs/sprint-comparison-view", () => ({
 vi.mock("@/components/graphs/district-trend-indicators", () => ({
     DistrictTrendIndicators: mockDistrictTrendIndicators,
 }))
+vi.mock("@/components/graphs/achievements-panel", () => ({
+    AchievementsPanel: mockAchievementsPanel,
+}))
 vi.mock("@/components/graphs/city-bus-factor-overlay", () => ({
     CityBusFactorOverlay: mockCityBusFactorOverlay,
 }))
@@ -1600,6 +1646,7 @@ beforeEach((): void => {
     mockPredictionComparisonView.mockClear()
     mockSprintComparisonView.mockClear()
     mockDistrictTrendIndicators.mockClear()
+    mockAchievementsPanel.mockClear()
     mockCityBusFactorOverlay.mockClear()
     mockBusFactorTrendChart.mockClear()
     mockKnowledgeSiloPanel.mockClear()
@@ -1791,6 +1838,10 @@ describe("CodeCityDashboardPage", (): void => {
         const firstDistrictTrendCall = mockDistrictTrendIndicators.mock.calls.at(0)?.[0]
         expect(firstDistrictTrendCall).not.toBeUndefined()
         expect(firstDistrictTrendCall?.entries.length).toBeGreaterThan(0)
+
+        const firstAchievementsCall = mockAchievementsPanel.mock.calls.at(0)?.[0]
+        expect(firstAchievementsCall).not.toBeUndefined()
+        expect(firstAchievementsCall?.achievements.length).toBeGreaterThan(0)
 
         const firstBusFactorCall = mockCityBusFactorOverlay.mock.calls.at(0)?.[0]
         expect(firstBusFactorCall).not.toBeUndefined()
@@ -1984,6 +2035,14 @@ describe("CodeCityDashboardPage", (): void => {
         const districtTrend3DCall = mockCodeCity3DScene.mock.calls.at(-1)?.[0]
         expect(districtTrend3DCall).not.toBeUndefined()
         expect(districtTrend3DCall?.navigationLabel).toContain("District trend:")
+
+        await user.click(screen.getByRole("button", { name: "inspect sprint achievement" }))
+        const achievementTreemapCall = mockCodeCityTreemap.mock.calls.at(-1)?.[0]
+        expect(achievementTreemapCall).not.toBeUndefined()
+        expect(achievementTreemapCall?.highlightedFileId).toBeDefined()
+        const achievement3DCall = mockCodeCity3DScene.mock.calls.at(-1)?.[0]
+        expect(achievement3DCall).not.toBeUndefined()
+        expect(achievement3DCall?.navigationLabel).toContain("Achievement:")
 
         await user.click(screen.getByRole("button", { name: "inspect change risk point" }))
         const riskNavigation3DCall = mockCodeCity3DScene.mock.calls.at(-1)?.[0]
