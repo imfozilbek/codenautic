@@ -152,4 +152,20 @@ describe("SettingsContractValidationPage", (): void => {
             ),
         ).not.toBeNull()
     })
+
+    it("настраивает drift alerts по severity threshold, violation count и channels", async (): Promise<void> => {
+        const user = userEvent.setup()
+        renderWithProviders(<SettingsContractValidationPage />)
+
+        await user.selectOptions(screen.getByLabelText("Drift alert severity threshold"), "critical")
+        await user.clear(screen.getByRole("spinbutton", { name: "Drift alert violation threshold" }))
+        await user.type(screen.getByRole("spinbutton", { name: "Drift alert violation threshold" }), "1")
+        await user.click(screen.getByRole("checkbox", { name: "Drift alert channel email" }))
+        await user.click(screen.getByRole("button", { name: "Save drift alert config" }))
+
+        await waitFor(() => {
+            expect(screen.getByText(/Drift alerts saved: severity critical, threshold 1/)).not.toBeNull()
+        })
+        expect(screen.getByText(/channels: slack, email\./)).not.toBeNull()
+    })
 })

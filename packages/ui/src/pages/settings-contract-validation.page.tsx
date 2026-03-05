@@ -59,6 +59,7 @@ interface IBlueprintValidationResult {
 
 type TDriftSeverity = "critical" | "high" | "medium" | "low"
 type TDriftSortMode = "severity-desc" | "severity-asc" | "files-desc" | "files-asc"
+type TDriftAlertChannel = "slack" | "email" | "teams" | "webhook"
 
 interface IDriftViolation {
     readonly id: string
@@ -89,6 +90,11 @@ interface IDriftTrendPoint {
     readonly period: string
     readonly driftScore: number
     readonly architectureChange?: string
+}
+
+interface IDriftAlertChannelOption {
+    readonly id: TDriftAlertChannel
+    readonly label: string
 }
 
 const DEFAULT_BLUEPRINT_YAML = [
@@ -302,6 +308,25 @@ const DRIFT_TREND_POINTS: ReadonlyArray<IDriftTrendPoint> = [
         architectureChange: "ADR-024: Isolated domain events from infrastructure handlers.",
         driftScore: 41,
         period: "Jun",
+    },
+]
+
+const DRIFT_ALERT_CHANNEL_OPTIONS: ReadonlyArray<IDriftAlertChannelOption> = [
+    {
+        id: "slack",
+        label: "Slack",
+    },
+    {
+        id: "email",
+        label: "Email",
+    },
+    {
+        id: "teams",
+        label: "Teams",
+    },
+    {
+        id: "webhook",
+        label: "Webhook",
     },
 ]
 
@@ -654,6 +679,15 @@ export function SettingsContractValidationPage(): ReactElement {
     )
     const [driftExportStatus, setDriftExportStatus] = useState<string>("No drift report exported yet.")
     const [selectedDriftOverlayFileId, setSelectedDriftOverlayFileId] = useState<string | undefined>()
+    const [driftAlertSeverityThreshold, setDriftAlertSeverityThreshold] =
+        useState<TDriftSeverity>("high")
+    const [driftAlertViolationThreshold, setDriftAlertViolationThreshold] = useState<number>(2)
+    const [driftAlertChannels, setDriftAlertChannels] = useState<ReadonlyArray<TDriftAlertChannel>>(
+        ["slack"],
+    )
+    const [driftAlertSaveStatus, setDriftAlertSaveStatus] = useState<string>(
+        "No drift alert configuration saved yet.",
+    )
 
     const previewSummary = useMemo((): string => {
         const envelope = validationResult.normalizedEnvelope
@@ -766,6 +800,15 @@ export function SettingsContractValidationPage(): ReactElement {
             Math.abs(delta),
         )} points ${direction} vs baseline).`
     }, [])
+    const driftAlertRelevantViolationCount = useMemo((): number => {
+        const thresholdPriority = DRIFT_SEVERITY_PRIORITY[driftAlertSeverityThreshold]
+        return DEFAULT_DRIFT_VIOLATIONS.filter((violation): boolean => {
+            return DRIFT_SEVERITY_PRIORITY[violation.severity] >= thresholdPriority
+        }).length
+    }, [driftAlertSeverityThreshold])
+    const driftAlertWouldTrigger = useMemo((): boolean => {
+        return driftAlertRelevantViolationCount >= driftAlertViolationThreshold
+    }, [driftAlertRelevantViolationCount, driftAlertViolationThreshold])
 
     const handleValidateContract = (): void => {
         const nextResult = parseContractEnvelope(rawContract)
@@ -856,6 +899,37 @@ export function SettingsContractValidationPage(): ReactElement {
             `Exported drift report with ${String(filteredSortedDriftViolations.length)} violations.`,
         )
         showToastInfo("Drift report exported.")
+    }
+    const handleDriftAlertChannelToggle = (channel: TDriftAlertChannel): void => {
+        setDriftAlertChannels((currentChannels): ReadonlyArray<TDriftAlertChannel> => {
+            if (currentChannels.includes(channel) === true) {
+                return currentChannels.filter((currentChannel): boolean => currentChannel !== channel)
+            }
+            return [...currentChannels, channel]
+        })
+    }
+    const handleDriftAlertThresholdChange = (event: ChangeEvent<HTMLInputElement>): void => {
+        const parsedThreshold = Number.parseInt(event.currentTarget.value, 10)
+        if (Number.isNaN(parsedThreshold) === true) {
+            setDriftAlertViolationThreshold(0)
+            return
+        }
+        setDriftAlertViolationThreshold(Math.max(0, parsedThreshold))
+    }
+    const handleSaveDriftAlertConfig = (): void => {
+        if (driftAlertChannels.length === 0) {
+            setDriftAlertSaveStatus("Save blocked: select at least one notification channel.")
+            showToastError("Drift alert save blocked.")
+            return
+        }
+
+        const channelsLabel = driftAlertChannels.join(", ")
+        setDriftAlertSaveStatus(
+            `Drift alerts saved: severity ${driftAlertSeverityThreshold}, threshold ${String(
+                driftAlertViolationThreshold,
+            )}, channels: ${channelsLabel}.`,
+        )
+        showToastSuccess("Drift alerts configuration saved.")
     }
 
     return (
@@ -1352,6 +1426,94 @@ export function SettingsContractValidationPage(): ReactElement {
                             </li>
                         ))}
                     </ul>
+                </CardBody>
+            </Card>
+
+            <Card>
+                <CardHeader>
+                    <p className="text-base font-semibold text-[var(--foreground)]">
+                        Drift alert configuration
+                    </p>
+                </CardHeader>
+                <CardBody className="space-y-3">
+                    <p className="text-sm text-[var(--foreground)]/70">
+                        Configure drift alerts by severity threshold, violation count, and delivery
+                        channels.
+                    </p>
+                    <div className="grid gap-3 md:grid-cols-2">
+                        <label className="space-y-1 text-sm">
+                            <span className="font-semibold text-[var(--foreground)]">
+                                Severity threshold
+                            </span>
+                            <select
+                                aria-label="Drift alert severity threshold"
+                                className="w-full rounded border border-slate-300 bg-white px-2 py-1 text-sm text-slate-900"
+                                value={driftAlertSeverityThreshold}
+                                onChange={(event): void => {
+                                    const nextValue = event.currentTarget.value
+                                    if (
+                                        nextValue === "critical"
+                                        || nextValue === "high"
+                                        || nextValue === "medium"
+                                        || nextValue === "low"
+                                    ) {
+                                        setDriftAlertSeverityThreshold(nextValue)
+                                    }
+                                }}
+                            >
+                                <option value="critical">critical</option>
+                                <option value="high">high</option>
+                                <option value="medium">medium</option>
+                                <option value="low">low</option>
+                            </select>
+                        </label>
+                        <label className="space-y-1 text-sm">
+                            <span className="font-semibold text-[var(--foreground)]">
+                                Violation count threshold
+                            </span>
+                            <input
+                                aria-label="Drift alert violation threshold"
+                                className="w-full rounded border border-slate-300 bg-white px-2 py-1 text-sm text-slate-900"
+                                min={0}
+                                type="number"
+                                value={String(driftAlertViolationThreshold)}
+                                onChange={handleDriftAlertThresholdChange}
+                            />
+                        </label>
+                    </div>
+                    <fieldset className="space-y-2">
+                        <legend className="text-sm font-semibold text-[var(--foreground)]">
+                            Notification channels
+                        </legend>
+                        <div className="grid gap-2 sm:grid-cols-2">
+                            {DRIFT_ALERT_CHANNEL_OPTIONS.map((channel): ReactElement => (
+                                <label
+                                    className="flex items-center gap-2 rounded border border-slate-200 bg-slate-50 px-2 py-1 text-sm text-slate-900"
+                                    key={channel.id}
+                                >
+                                    <input
+                                        aria-label={`Drift alert channel ${channel.id}`}
+                                        checked={driftAlertChannels.includes(channel.id)}
+                                        type="checkbox"
+                                        onChange={(): void => {
+                                            handleDriftAlertChannelToggle(channel.id)
+                                        }}
+                                    />
+                                    <span>{channel.label}</span>
+                                </label>
+                            ))}
+                        </div>
+                    </fieldset>
+                    <Alert color={driftAlertWouldTrigger === true ? "danger" : "primary"} title="Alert trigger preview" variant="flat">
+                        Violations at or above threshold: {String(driftAlertRelevantViolationCount)}.
+                        {driftAlertWouldTrigger === true
+                            ? " Alert will trigger with current drift data."
+                            : " Alert will not trigger with current drift data."}
+                    </Alert>
+                    <Button onPress={handleSaveDriftAlertConfig}>Save drift alert config</Button>
+                    <Alert color="primary" title="Drift alert save status" variant="flat">
+                        {driftAlertSaveStatus}
+                    </Alert>
                 </CardBody>
             </Card>
         </section>
