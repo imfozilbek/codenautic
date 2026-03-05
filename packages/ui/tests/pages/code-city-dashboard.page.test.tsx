@@ -609,6 +609,47 @@ const { mockChangeRiskGauge } = vi.hoisted(() => ({
         },
     ),
 }))
+const { mockImpactGraphView } = vi.hoisted(() => ({
+    mockImpactGraphView: vi.fn(
+        (props: {
+            readonly nodes: ReadonlyArray<{
+                readonly id: string
+                readonly label: string
+                readonly depth: number
+                readonly impactScore: number
+            }>
+            readonly edges: ReadonlyArray<{
+                readonly id: string
+                readonly sourceId: string
+                readonly targetId: string
+            }>
+            readonly onFocusNode?: (node: {
+                readonly id: string
+                readonly label: string
+                readonly depth: number
+                readonly impactScore: number
+            }) => void
+        }): React.JSX.Element => {
+            return (
+                <div>
+                    <p>impact-graph-nodes:{props.nodes.length}</p>
+                    <p>impact-graph-edges:{props.edges.length}</p>
+                    <button
+                        onClick={(): void => {
+                            const firstNode = props.nodes.at(0)
+                            if (firstNode !== undefined) {
+                                props.onFocusNode?.(firstNode)
+                            }
+                        }}
+                        type="button"
+                    >
+                        inspect impact graph node
+                    </button>
+                </div>
+            )
+        },
+    ),
+}))
 const { mockRootCauseChainViewer } = vi.hoisted(() => ({
     mockRootCauseChainViewer: vi.fn(
         (props: {
@@ -704,6 +745,9 @@ vi.mock("@/components/graphs/city-impact-overlay", () => ({
 vi.mock("@/components/graphs/change-risk-gauge", () => ({
     ChangeRiskGauge: mockChangeRiskGauge,
 }))
+vi.mock("@/components/graphs/impact-graph-view", () => ({
+    ImpactGraphView: mockImpactGraphView,
+}))
 vi.mock("@/components/graphs/root-cause-chain-viewer", () => ({
     RootCauseChainViewer: mockRootCauseChainViewer,
 }))
@@ -728,6 +772,7 @@ beforeEach((): void => {
     mockImpactAnalysisPanel.mockClear()
     mockCityImpactOverlay.mockClear()
     mockChangeRiskGauge.mockClear()
+    mockImpactGraphView.mockClear()
     mockRootCauseChainViewer.mockClear()
 })
 
@@ -871,6 +916,11 @@ describe("CodeCityDashboardPage", (): void => {
         const firstRiskGaugeCall = mockChangeRiskGauge.mock.calls.at(0)?.[0]
         expect(firstRiskGaugeCall).not.toBeUndefined()
         expect(firstRiskGaugeCall?.historicalPoints.length).toBeGreaterThan(0)
+
+        const firstImpactGraphCall = mockImpactGraphView.mock.calls.at(0)?.[0]
+        expect(firstImpactGraphCall).not.toBeUndefined()
+        expect(firstImpactGraphCall?.nodes.length).toBeGreaterThan(0)
+        expect(firstImpactGraphCall?.edges.length).toBeGreaterThan(0)
     })
 
     it("обновляет treemap при смене репозитория и метрики", async (): Promise<void> => {
@@ -948,6 +998,11 @@ describe("CodeCityDashboardPage", (): void => {
         const riskNavigation3DCall = mockCodeCity3DScene.mock.calls.at(-1)?.[0]
         expect(riskNavigation3DCall).not.toBeUndefined()
         expect(riskNavigation3DCall?.navigationLabel).toContain("Risk gauge:")
+
+        await user.click(screen.getByRole("button", { name: "inspect impact graph node" }))
+        const graphNavigation3DCall = mockCodeCity3DScene.mock.calls.at(-1)?.[0]
+        expect(graphNavigation3DCall).not.toBeUndefined()
+        expect(graphNavigation3DCall?.navigationLabel).toContain("Impact graph:")
 
         const repositorySelect = screen.getByRole("combobox", { name: "Repository" })
         const metricSelect = screen.getByRole("combobox", { name: "Metric" })

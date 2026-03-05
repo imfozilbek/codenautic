@@ -39,6 +39,11 @@ import {
     type IGuidedTourStep,
 } from "@/components/graphs/guided-tour-overlay"
 import {
+    ImpactGraphView,
+    type IImpactGraphEdge,
+    type IImpactGraphNode,
+} from "@/components/graphs/impact-graph-view"
+import {
     ImpactAnalysisPanel,
     type IImpactAnalysisSeed,
 } from "@/components/graphs/impact-analysis-panel"
@@ -1006,6 +1011,44 @@ function buildChangeRiskGaugeModel(
     }
 }
 
+/**
+ * Формирует impact graph модель (nodes + edges).
+ *
+ * @param seeds Impact seeds.
+ * @returns Граф propagation.
+ */
+function buildImpactGraphModel(seeds: ReadonlyArray<IImpactAnalysisSeed>): {
+    readonly nodes: ReadonlyArray<IImpactGraphNode>
+    readonly edges: ReadonlyArray<IImpactGraphEdge>
+} {
+    const nodes = seeds.slice(0, 6).map((seed, index): IImpactGraphNode => {
+        return {
+            depth: index === 0 ? 0 : 1,
+            id: seed.fileId,
+            impactScore: seed.riskScore,
+            label: seed.label,
+        }
+    })
+
+    const edges: Array<IImpactGraphEdge> = []
+    for (let index = 0; index < nodes.length - 1; index += 1) {
+        const sourceNode = nodes[index]
+        const targetNode = nodes[index + 1]
+        if (sourceNode !== undefined && targetNode !== undefined) {
+            edges.push({
+                id: `impact-edge-${sourceNode.id}-${targetNode.id}`,
+                sourceId: sourceNode.id,
+                targetId: targetNode.id,
+            })
+        }
+    }
+
+    return {
+        edges,
+        nodes,
+    }
+}
+
 export function CodeCityDashboardPage(
     props: ICodeCityDashboardPageProps = {},
 ): ReactElement {
@@ -1056,6 +1099,7 @@ export function CodeCityDashboardPage(
         impactAnalysisSeeds,
         currentProfile.healthTrend,
     )
+    const impactGraphModel = buildImpactGraphModel(impactAnalysisSeeds)
     const onboardingProgressModules = buildOnboardingProgressModules(exploredAreaIds)
     const fileLink = createRepositoryFilesLink(currentProfile.id)
     const overlayImpactedFiles =
@@ -1492,6 +1536,27 @@ export function CodeCityDashboardPage(
                                 activeFileId,
                                 chainFileIds: activeFileId === undefined ? [] : [activeFileId],
                                 title: `Risk gauge: ${point.label}`,
+                            })
+                            markAreaExplored("city-3d")
+                        }}
+                    />
+                </CardBody>
+            </Card>
+
+            <Card>
+                <CardHeader>
+                    <p className="text-sm font-semibold text-slate-900">Impact graph view</p>
+                </CardHeader>
+                <CardBody>
+                    <ImpactGraphView
+                        edges={impactGraphModel.edges}
+                        nodes={impactGraphModel.nodes}
+                        onFocusNode={(node): void => {
+                            setHighlightedFileId(node.id)
+                            setExploreNavigationFocus({
+                                activeFileId: node.id,
+                                chainFileIds: [node.id],
+                                title: `Impact graph: ${node.label}`,
                             })
                             markAreaExplored("city-3d")
                         }}
