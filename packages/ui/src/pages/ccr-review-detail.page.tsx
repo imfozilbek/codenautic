@@ -40,6 +40,11 @@ interface IReviewHistoryHeatEntry {
     readonly reviewsByWindow: Readonly<Record<TReviewHistoryWindow, number>>
 }
 
+interface IFileNeighborhoodDetails {
+    readonly dependencies: ReadonlyArray<string>
+    readonly recentChanges: ReadonlyArray<string>
+}
+
 interface ISafeGuardTraceStep {
     /** Идентификатор фильтра SafeGuard. */
     readonly filterId: TSafeGuardFilterId
@@ -239,6 +244,45 @@ function buildReviewNeighborhoodByPath(
         },
         {},
     )
+}
+
+function buildFileNeighborhoodDetails(
+    diffFiles: ReadonlyArray<ICcrDiffFile>,
+): Readonly<Record<string, IFileNeighborhoodDetails>> {
+    const allPaths = diffFiles.map((file): string => file.filePath)
+
+    return diffFiles.reduce((mapping, file): Record<string, IFileNeighborhoodDetails> => {
+        const directory = resolvePathDirectory(file.filePath)
+        const siblingDependencies = allPaths.filter((candidatePath): boolean => {
+            if (candidatePath === file.filePath) {
+                return false
+            }
+            return resolvePathDirectory(candidatePath) === directory
+        })
+        const baselineDependencies = [
+            `${directory}/index.ts`,
+            "src/shared/review-context.ts",
+        ].filter((dependencyPath): boolean => dependencyPath !== file.filePath)
+        const dependencies = [...siblingDependencies, ...baselineDependencies].filter(
+            (dependencyPath, dependencyIndex, dependencyList): boolean =>
+                dependencyList.indexOf(dependencyPath) === dependencyIndex,
+        )
+        const changedLineCount = resolveDiffChangedLineCount(file)
+        const issueCount = resolveDiffIssueCount(file)
+        const recentChanges = [
+            `Updated ${String(changedLineCount)} changed lines in current CCR.`,
+            `Reviewed comments: ${String(issueCount)} items in last review iteration.`,
+            `Latest review touched ${directory} dependency neighborhood.`,
+        ]
+
+        return {
+            ...mapping,
+            [file.filePath]: {
+                dependencies: dependencies.slice(0, 5),
+                recentChanges,
+            },
+        }
+    }, {})
 }
 
 function buildReviewHistoryHeatEntries(
@@ -531,6 +575,12 @@ export function CcrReviewDetailPage(props: ICcrReviewDetailPageProps): ReactElem
     const reviewNeighborhoodByPath = useMemo((): Readonly<Record<string, ReadonlyArray<string>>> => {
         return buildReviewNeighborhoodByPath(ccrDiffFiles)
     }, [ccrDiffFiles])
+    const fileNeighborhoodDetailsByPath = useMemo(
+        (): Readonly<Record<string, IFileNeighborhoodDetails>> => {
+            return buildFileNeighborhoodDetails(ccrDiffFiles)
+        },
+        [ccrDiffFiles],
+    )
     const reviewHistoryHeatEntries = useMemo((): ReadonlyArray<IReviewHistoryHeatEntry> => {
         return buildReviewHistoryHeatEntries(ccrDiffFiles)
     }, [ccrDiffFiles])
@@ -580,6 +630,12 @@ export function CcrReviewDetailPage(props: ICcrReviewDetailPageProps): ReactElem
         }
         return reviewNeighborhoodByPath[activeFilePath] ?? []
     }, [activeFilePath, reviewNeighborhoodByPath])
+    const activeNeighborhoodDetails = useMemo((): IFileNeighborhoodDetails | undefined => {
+        if (activeFilePath === undefined) {
+            return undefined
+        }
+        return fileNeighborhoodDetailsByPath[activeFilePath]
+    }, [activeFilePath, fileNeighborhoodDetailsByPath])
     const safeGuardTraceItems = useMemo((): ReadonlyArray<ISafeGuardTraceItem> => {
         return buildSafeGuardTraceItems(ccr)
     }, [ccr])
@@ -1051,7 +1107,7 @@ export function CcrReviewDetailPage(props: ICcrReviewDetailPageProps): ReactElem
                             </Alert>
                             <div className="rounded-lg border border-slate-200 bg-slate-50 p-3">
                                 <p className="text-sm font-semibold text-slate-900">
-                                    Neighborhood context
+                                    File neighborhood panel
                                 </p>
                                 <p className="text-xs text-slate-600">
                                     Focused file: {activeFilePath ?? "none selected"}
@@ -1081,6 +1137,51 @@ export function CcrReviewDetailPage(props: ICcrReviewDetailPageProps): ReactElem
                                         ))}
                                     </ul>
                                 )}
+                                <div className="mt-3 grid gap-2 md:grid-cols-2">
+                                    <div className="rounded border border-slate-200 bg-white p-2">
+                                        <p className="text-xs font-semibold text-slate-900">
+                                            Dependencies
+                                        </p>
+                                        <ul
+                                            aria-label="Neighborhood dependency list"
+                                            className="mt-1 space-y-1 text-xs text-slate-700"
+                                        >
+                                            {(activeNeighborhoodDetails?.dependencies.length ?? 0) === 0 ? (
+                                                <li>none</li>
+                                            ) : (
+                                                activeNeighborhoodDetails?.dependencies.map(
+                                                    (dependencyPath): ReactElement => (
+                                                        <li key={`dependency-${dependencyPath}`}>
+                                                            {dependencyPath}
+                                                        </li>
+                                                    ),
+                                                )
+                                            )}
+                                        </ul>
+                                    </div>
+                                    <div className="rounded border border-slate-200 bg-white p-2">
+                                        <p className="text-xs font-semibold text-slate-900">
+                                            Recent changes
+                                        </p>
+                                        <ul
+                                            aria-label="Neighborhood recent changes list"
+                                            className="mt-1 space-y-1 text-xs text-slate-700"
+                                        >
+                                            {(activeNeighborhoodDetails?.recentChanges.length ?? 0) ===
+                                            0 ? (
+                                                <li>none</li>
+                                            ) : (
+                                                activeNeighborhoodDetails?.recentChanges.map(
+                                                    (changeRecord): ReactElement => (
+                                                        <li key={`recent-change-${changeRecord}`}>
+                                                            {changeRecord}
+                                                        </li>
+                                                    ),
+                                                )
+                                            )}
+                                        </ul>
+                                    </div>
+                                </div>
                             </div>
                         </CardBody>
                     </Card>

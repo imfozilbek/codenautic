@@ -85,7 +85,7 @@ describe("ccr review detail page", (): void => {
         renderWithProviders(<CcrReviewDetailPage ccr={ccr} />)
 
         expect(screen.getByRole("heading", { name: "CCR impact CodeCity view" })).not.toBeNull()
-        expect(screen.getByText("Neighborhood context")).not.toBeNull()
+        expect(screen.getByText("File neighborhood panel")).not.toBeNull()
 
         await user.click(
             screen.getByRole("checkbox", { name: "Select impact file src/auth/middleware.ts" }),
@@ -110,6 +110,28 @@ describe("ccr review detail page", (): void => {
 
         expect(screen.getByText("Review history heatmap is enabled. Window 90d.")).not.toBeNull()
         expect(screen.getByRole("list", { name: "Review history heatmap list" })).not.toBeNull()
+    })
+
+    it("показывает file neighborhood panel с dependencies и recent changes", async (): Promise<void> => {
+        const user = userEvent.setup()
+        const ccr = getMockCcrRow(0)
+
+        renderWithProviders(<CcrReviewDetailPage ccr={ccr} />)
+
+        expect(screen.getByText("File neighborhood panel")).not.toBeNull()
+        expect(screen.getByRole("list", { name: "Neighborhood dependency list" })).not.toBeNull()
+        expect(screen.getByRole("list", { name: "Neighborhood recent changes list" })).not.toBeNull()
+
+        const neighborhoodButtons = screen.getAllByRole("button", {
+            name: /Open neighborhood file/,
+        })
+        const firstNeighborhoodButton = neighborhoodButtons[0]
+        if (firstNeighborhoodButton === undefined) {
+            throw new Error("Expected at least one neighborhood action button")
+        }
+        await user.click(firstNeighborhoodButton)
+
+        expect(screen.getByText(/Focused file:\s*src\/auth\//)).not.toBeNull()
     })
 
     it("показывает restricted decision states для viewer роли", (): void => {
