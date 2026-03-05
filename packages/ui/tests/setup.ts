@@ -54,6 +54,81 @@ class TestResizeObserver implements ResizeObserver {
     public disconnect(): void {}
 }
 
+class TestEventSource {
+    public static readonly CONNECTING = 0
+    public static readonly OPEN = 1
+    public static readonly CLOSED = 2
+    public readonly CONNECTING = 0
+    public readonly OPEN = 1
+    public readonly CLOSED = 2
+    public readonly url: string
+    public readonly withCredentials = false
+    public readyState = TestEventSource.OPEN
+    public onerror: ((this: EventSource, ev: Event) => void) | null = null
+    public onmessage: ((this: EventSource, ev: MessageEvent<string>) => void) | null = null
+    public onopen: ((this: EventSource, ev: Event) => void) | null = null
+    private readonly listeners = new Map<string, Set<EventListenerOrEventListenerObject>>()
+
+    public constructor(url: string | URL) {
+        this.url = String(url)
+    }
+
+    public addEventListener(
+        type: string,
+        callback: EventListenerOrEventListenerObject | null,
+    ): void {
+        if (callback === null) {
+            return
+        }
+
+        const existingListeners = this.listeners.get(type)
+        if (existingListeners !== undefined) {
+            existingListeners.add(callback)
+            return
+        }
+
+        this.listeners.set(type, new Set([callback]))
+    }
+
+    public removeEventListener(
+        type: string,
+        callback: EventListenerOrEventListenerObject | null,
+    ): void {
+        if (callback === null) {
+            return
+        }
+
+        const existingListeners = this.listeners.get(type)
+        if (existingListeners === undefined) {
+            return
+        }
+
+        existingListeners.delete(callback)
+    }
+
+    public close(): void {
+        this.readyState = TestEventSource.CLOSED
+    }
+
+    public dispatchEvent(event: Event): boolean {
+        const listeners = this.listeners.get(event.type)
+        if (listeners === undefined) {
+            return true
+        }
+
+        listeners.forEach((listener): void => {
+            if (typeof listener === "function") {
+                listener(event)
+                return
+            }
+
+            listener.handleEvent(event)
+        })
+
+        return true
+    }
+}
+
 function defineReadonlyDimension(target: object, property: string, value: number): void {
     const descriptor = Object.getOwnPropertyDescriptor(target, property)
     if (descriptor?.configurable === false) {
@@ -70,6 +145,14 @@ function defineReadonlyDimension(target: object, property: string, value: number
 
 function defineGlobalResizeObserver(value: typeof ResizeObserver): void {
     Object.defineProperty(globalThis, "ResizeObserver", {
+        configurable: true,
+        writable: true,
+        value,
+    })
+}
+
+function defineGlobalEventSource(value: typeof EventSource): void {
+    Object.defineProperty(globalThis, "EventSource", {
         configurable: true,
         writable: true,
         value,
@@ -208,6 +291,7 @@ beforeAll(async (): Promise<void> => {
     defineReadonlyDimension(HTMLElement.prototype, "clientHeight", DEFAULT_TEST_ELEMENT_HEIGHT)
     defineTestBoundingClientRect(HTMLElement.prototype)
     defineGlobalResizeObserver(TestResizeObserver)
+    defineGlobalEventSource(TestEventSource as unknown as typeof EventSource)
     Object.defineProperty(window, "confirm", {
         configurable: true,
         writable: true,
