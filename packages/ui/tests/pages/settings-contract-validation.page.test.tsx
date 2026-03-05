@@ -39,4 +39,40 @@ describe("SettingsContractValidationPage", (): void => {
         })
         expect(screen.getByText(/Invalid JSON format/)).not.toBeNull()
     })
+
+    it("валидирует architecture blueprint yaml и показывает visual preview", async (): Promise<void> => {
+        const user = userEvent.setup()
+        renderWithProviders(<SettingsContractValidationPage />)
+
+        expect(screen.getByLabelText("Blueprint syntax highlight preview")).not.toBeNull()
+        expect(screen.getByLabelText("Blueprint visual nodes list")).not.toBeNull()
+
+        await user.click(screen.getByRole("button", { name: "Validate blueprint" }))
+        await waitFor(() => {
+            expect(screen.getByText("Blueprint is valid")).not.toBeNull()
+        })
+
+        await user.click(screen.getByRole("button", { name: "Apply blueprint" }))
+        await waitFor(() => {
+            expect(screen.getByText(/Applied architecture blueprint/)).not.toBeNull()
+        })
+    })
+
+    it("показывает ошибки для blueprint без обязательных секций", async (): Promise<void> => {
+        const user = userEvent.setup()
+        renderWithProviders(<SettingsContractValidationPage />)
+
+        await user.clear(screen.getByRole("textbox", { name: "Architecture blueprint yaml" }))
+        fireEvent.change(screen.getByRole("textbox", { name: "Architecture blueprint yaml" }), {
+            target: {
+                value: "version: 1\nlayers:\n  - name: domain",
+            },
+        })
+        await user.click(screen.getByRole("button", { name: "Validate blueprint" }))
+
+        await waitFor(() => {
+            expect(screen.getByText("Blueprint validation errors")).not.toBeNull()
+        })
+        expect(screen.getByText("Blueprint must include `rules` section.")).not.toBeNull()
+    })
 })
