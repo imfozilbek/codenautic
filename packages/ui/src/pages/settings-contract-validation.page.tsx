@@ -42,6 +42,17 @@ interface IBlueprintValidationResult {
     readonly nodes: ReadonlyArray<IBlueprintNode>
 }
 
+type TDriftSeverity = "critical" | "high" | "medium" | "low"
+type TDriftSortMode = "severity-desc" | "severity-asc" | "files-desc" | "files-asc"
+
+interface IDriftViolation {
+    readonly id: string
+    readonly rule: string
+    readonly severity: TDriftSeverity
+    readonly affectedFiles: ReadonlyArray<string>
+    readonly rationale: string
+}
+
 const DEFAULT_BLUEPRINT_YAML = [
     "version: 1",
     "layers:",
@@ -57,6 +68,48 @@ const DEFAULT_BLUEPRINT_YAML = [
     "    target: domain",
     "    mode: forbid",
 ].join("\n")
+
+const DRIFT_SEVERITY_PRIORITY: Record<TDriftSeverity, number> = {
+    critical: 4,
+    high: 3,
+    low: 1,
+    medium: 2,
+}
+
+const DEFAULT_DRIFT_VIOLATIONS: ReadonlyArray<IDriftViolation> = [
+    {
+        affectedFiles: ["src/infrastructure/http/review.controller.ts", "src/domain/review.aggregate.ts"],
+        id: "drift-001",
+        rationale: "Controller layer imports aggregate directly, bypassing application use case.",
+        rule: "Layer violation: infrastructure imports domain directly",
+        severity: "high",
+    },
+    {
+        affectedFiles: [
+            "src/application/use-cases/review-merge-request.use-case.ts",
+            "src/infrastructure/repository/review.repository.ts",
+            "src/infrastructure/messaging/review.events.ts",
+        ],
+        id: "drift-002",
+        rationale: "Mutual dependency chain creates cycle between application and infrastructure.",
+        rule: "Dependency cycle between application and infrastructure",
+        severity: "critical",
+    },
+    {
+        affectedFiles: ["src/domain/entities/review.ts", "src/domain/value-objects/risk-score.ts"],
+        id: "drift-003",
+        rationale: "Rule requires explicit domain events but several state transitions are silent.",
+        rule: "Domain events missing in aggregate state transitions",
+        severity: "medium",
+    },
+    {
+        affectedFiles: ["src/adapters/git/gitlab-client.ts"],
+        id: "drift-004",
+        rationale: "Adapter naming is inconsistent with anti-corruption layer naming convention.",
+        rule: "Naming drift in adapter boundary",
+        severity: "low",
+    },
+]
 
 function resolveBlueprintNodeKind(key: string): IBlueprintNode["kind"] {
     if (key === "layers" || key === "name" || key === "layer") {
@@ -190,6 +243,26 @@ function buildBlueprintHighlightLines(rawYaml: string): ReadonlyArray<IBlueprint
         })
 }
 
+function compareDriftViolations(
+    left: IDriftViolation,
+    right: IDriftViolation,
+    sortMode: TDriftSortMode,
+): number {
+    if (sortMode === "severity-desc") {
+        return DRIFT_SEVERITY_PRIORITY[right.severity] - DRIFT_SEVERITY_PRIORITY[left.severity]
+    }
+
+    if (sortMode === "severity-asc") {
+        return DRIFT_SEVERITY_PRIORITY[left.severity] - DRIFT_SEVERITY_PRIORITY[right.severity]
+    }
+
+    if (sortMode === "files-desc") {
+        return right.affectedFiles.length - left.affectedFiles.length
+    }
+
+    return left.affectedFiles.length - right.affectedFiles.length
+}
+
 function parseContractEnvelope(rawValue: string): IValidationResult {
     let parsedValue: unknown
     try {
@@ -301,6 +374,13 @@ export function SettingsContractValidationPage(): ReactElement {
     const [lastBlueprintApplyState, setLastBlueprintApplyState] = useState<string>(
         "No architecture blueprint applied yet.",
     )
+    const [driftSeverityFilter, setDriftSeverityFilter] = useState<TDriftSeverity | "all">("all")
+    const [driftSearchQuery, setDriftSearchQuery] = useState<string>("")
+    const [driftSortMode, setDriftSortMode] = useState<TDriftSortMode>("severity-desc")
+    const [driftExportPayload, setDriftExportPayload] = useState<string>(
+        "No drift report exported yet.",
+    )
+    const [driftExportStatus, setDriftExportStatus] = useState<string>("No drift report exported yet.")
 
     const previewSummary = useMemo((): string => {
         const envelope = validationResult.normalizedEnvelope
@@ -316,6 +396,25 @@ export function SettingsContractValidationPage(): ReactElement {
     const blueprintHighlightLines = useMemo((): ReadonlyArray<IBlueprintHighlightLine> => {
         return buildBlueprintHighlightLines(blueprintYaml)
     }, [blueprintYaml])
+    const filteredSortedDriftViolations = useMemo((): ReadonlyArray<IDriftViolation> => {
+        const normalizedSearchQuery = driftSearchQuery.trim().toLowerCase()
+        return DEFAULT_DRIFT_VIOLATIONS.filter((violation): boolean => {
+            const matchesSeverity =
+                driftSeverityFilter === "all" || violation.severity === driftSeverityFilter
+            const matchesSearch =
+                normalizedSearchQuery.length === 0
+                || violation.rule.toLowerCase().includes(normalizedSearchQuery)
+                || violation.rationale.toLowerCase().includes(normalizedSearchQuery)
+                || violation.affectedFiles.some((file): boolean => {
+                    return file.toLowerCase().includes(normalizedSearchQuery)
+                })
+            return matchesSeverity && matchesSearch
+        })
+            .slice()
+            .sort((left, right): number => {
+                return compareDriftViolations(left, right, driftSortMode)
+            })
+    }, [driftSearchQuery, driftSeverityFilter, driftSortMode])
 
     const handleValidateContract = (): void => {
         const nextResult = parseContractEnvelope(rawContract)
@@ -389,6 +488,23 @@ export function SettingsContractValidationPage(): ReactElement {
                 showToastError("Failed to read blueprint YAML file.")
             })
         event.currentTarget.value = ""
+    }
+
+    const handleExportDriftReport = (): void => {
+        const exportEnvelope = {
+            generatedAt: new Date().toISOString(),
+            searchQuery: driftSearchQuery,
+            severityFilter: driftSeverityFilter,
+            sortMode: driftSortMode,
+            totalViolations: filteredSortedDriftViolations.length,
+            violations: filteredSortedDriftViolations,
+        }
+        const payload = JSON.stringify(exportEnvelope, null, 2)
+        setDriftExportPayload(payload)
+        setDriftExportStatus(
+            `Exported drift report with ${String(filteredSortedDriftViolations.length)} violations.`,
+        )
+        showToastInfo("Drift report exported.")
     }
 
     return (
@@ -558,6 +674,127 @@ export function SettingsContractValidationPage(): ReactElement {
                             </li>
                         ))}
                     </ul>
+                </CardBody>
+            </Card>
+
+            <Card>
+                <CardHeader>
+                    <p className="text-base font-semibold text-[var(--foreground)]">
+                        Drift analysis report
+                    </p>
+                </CardHeader>
+                <CardBody className="space-y-3">
+                    <p className="text-sm text-[var(--foreground)]/70">
+                        Review architecture drift violations with severity and affected files. Use
+                        filters, sorting and export to share actionable reports.
+                    </p>
+                    <div className="grid gap-2 md:grid-cols-3">
+                        <label className="space-y-1 text-sm text-[var(--foreground)]/80">
+                            Search
+                            <input
+                                aria-label="Drift report search query"
+                                className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm text-slate-900"
+                                placeholder="Rule, rationale or file"
+                                type="text"
+                                value={driftSearchQuery}
+                                onChange={(event): void => {
+                                    setDriftSearchQuery(event.currentTarget.value)
+                                }}
+                            />
+                        </label>
+                        <label className="space-y-1 text-sm text-[var(--foreground)]/80">
+                            Severity filter
+                            <select
+                                aria-label="Drift severity filter"
+                                className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm text-slate-900"
+                                value={driftSeverityFilter}
+                                onChange={(event): void => {
+                                    const nextValue = event.currentTarget.value
+                                    if (
+                                        nextValue === "all"
+                                        || nextValue === "critical"
+                                        || nextValue === "high"
+                                        || nextValue === "medium"
+                                        || nextValue === "low"
+                                    ) {
+                                        setDriftSeverityFilter(nextValue)
+                                    }
+                                }}
+                            >
+                                <option value="all">All severities</option>
+                                <option value="critical">Critical</option>
+                                <option value="high">High</option>
+                                <option value="medium">Medium</option>
+                                <option value="low">Low</option>
+                            </select>
+                        </label>
+                        <label className="space-y-1 text-sm text-[var(--foreground)]/80">
+                            Sort
+                            <select
+                                aria-label="Drift report sort mode"
+                                className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm text-slate-900"
+                                value={driftSortMode}
+                                onChange={(event): void => {
+                                    const nextValue = event.currentTarget.value
+                                    if (
+                                        nextValue === "severity-desc"
+                                        || nextValue === "severity-asc"
+                                        || nextValue === "files-desc"
+                                        || nextValue === "files-asc"
+                                    ) {
+                                        setDriftSortMode(nextValue)
+                                    }
+                                }}
+                            >
+                                <option value="severity-desc">Severity: high to low</option>
+                                <option value="severity-asc">Severity: low to high</option>
+                                <option value="files-desc">Affected files: many to few</option>
+                                <option value="files-asc">Affected files: few to many</option>
+                            </select>
+                        </label>
+                    </div>
+                    <div className="flex flex-wrap items-center gap-2">
+                        <Button onPress={handleExportDriftReport}>Export drift report</Button>
+                        <span className="text-xs text-[var(--foreground)]/70">
+                            Filtered violations: {String(filteredSortedDriftViolations.length)}
+                        </span>
+                    </div>
+                    {filteredSortedDriftViolations.length === 0 ? (
+                        <Alert color="warning" title="No drift violations found" variant="flat">
+                            Change filters or search query to see drift analysis data.
+                        </Alert>
+                    ) : (
+                        <ul aria-label="Drift violations list" className="space-y-2">
+                            {filteredSortedDriftViolations.map((violation): ReactElement => (
+                                <li
+                                    className="space-y-1 rounded-md border border-slate-200 bg-slate-50 p-3 text-sm"
+                                    key={violation.id}
+                                >
+                                    <div className="flex flex-wrap items-center gap-2">
+                                        <span className="font-semibold text-slate-900">
+                                            {violation.rule}
+                                        </span>
+                                        <span className="rounded border border-slate-300 bg-white px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-slate-700">
+                                            {violation.severity}
+                                        </span>
+                                    </div>
+                                    <p className="text-slate-700">{violation.rationale}</p>
+                                    <p className="text-xs text-slate-600">
+                                        Affected files: {violation.affectedFiles.join(", ")}
+                                    </p>
+                                </li>
+                            ))}
+                        </ul>
+                    )}
+                    <Alert color="primary" title="Drift export status" variant="flat">
+                        {driftExportStatus}
+                    </Alert>
+                    <pre
+                        aria-label="Drift report export payload"
+                        className="overflow-x-auto rounded-md border border-slate-200 bg-slate-950 p-3 text-xs leading-6 text-emerald-200"
+                    >
+                        {driftExportPayload}
+                    </pre>
                 </CardBody>
             </Card>
         </section>

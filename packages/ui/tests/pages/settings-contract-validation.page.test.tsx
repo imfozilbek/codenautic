@@ -75,4 +75,38 @@ describe("SettingsContractValidationPage", (): void => {
         })
         expect(screen.getByText("Blueprint must include `rules` section.")).not.toBeNull()
     })
+
+    it("фильтрует, сортирует и экспортирует drift analysis report", async (): Promise<void> => {
+        const user = userEvent.setup()
+        renderWithProviders(<SettingsContractValidationPage />)
+
+        expect(
+            screen.getByText("Layer violation: infrastructure imports domain directly"),
+        ).not.toBeNull()
+        expect(
+            screen.getByText("Dependency cycle between application and infrastructure"),
+        ).not.toBeNull()
+
+        await user.selectOptions(screen.getByLabelText("Drift severity filter"), "critical")
+        await waitFor(() => {
+            expect(
+                screen.getByText("Dependency cycle between application and infrastructure"),
+            ).not.toBeNull()
+        })
+        expect(
+            screen.queryByText("Layer violation: infrastructure imports domain directly"),
+        ).toBeNull()
+
+        await user.selectOptions(screen.getByLabelText("Drift report sort mode"), "files-desc")
+        await user.clear(screen.getByRole("textbox", { name: "Drift report search query" }))
+        await user.type(screen.getByRole("textbox", { name: "Drift report search query" }), "cycle")
+
+        await user.click(screen.getByRole("button", { name: "Export drift report" }))
+        await waitFor(() => {
+            expect(screen.getByText(/Exported drift report with 1 violations/)).not.toBeNull()
+        })
+        expect(screen.getByLabelText("Drift report export payload").textContent).toContain(
+            "\"totalViolations\": 1",
+        )
+    })
 })
