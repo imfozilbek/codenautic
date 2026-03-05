@@ -43,6 +43,17 @@ class InMemoryRuleCategoryRepository implements IRuleCategoryRepository {
         return Promise.resolve(categories)
     }
 
+    public findAllWithWeights(): Promise<readonly {slug: string; weight: number}[]> {
+        return Promise.resolve(
+            [...this.storage.values()].map((category) => {
+                return {
+                    slug: category.slug,
+                    weight: category.weight,
+                }
+            }),
+        )
+    }
+
     public saveMany(categories: readonly RuleCategory[]): Promise<void> {
         for (const category of categories) {
             this.storage.set(category.slug, category)

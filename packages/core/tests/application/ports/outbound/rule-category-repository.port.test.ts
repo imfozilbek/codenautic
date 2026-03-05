@@ -47,6 +47,17 @@ class InMemoryRuleCategoryRepository implements IRuleCategoryRepository {
         )
     }
 
+    public findAllWithWeights(): Promise<readonly {slug: string; weight: number}[]> {
+        return Promise.resolve(
+            [...this.storage.values()].map((category) => {
+                return {
+                    slug: category.slug,
+                    weight: category.weight,
+                }
+            }),
+        )
+    }
+
     public saveMany(categories: readonly RuleCategory[]): Promise<void> {
         for (const category of categories) {
             this.storage.set(category.id.value, category)
@@ -166,5 +177,38 @@ describe("IRuleCategoryRepository contract", () => {
 
         expect(activeCategories).toHaveLength(1)
         expect(activeCategories[0]?.slug).toBe("security")
+    })
+
+    test("finds category weights", async () => {
+        const repository = new InMemoryRuleCategoryRepository()
+        const security = createCategory({
+            slug: "security",
+            name: "Security",
+            description: "Security checks",
+            weight: 3,
+            isActive: true,
+        })
+        const quality = createCategory({
+            slug: "quality",
+            name: "Quality",
+            description: "Quality rules",
+            weight: 1.5,
+            isActive: true,
+        })
+
+        await repository.saveMany([security, quality])
+
+        const weights = await repository.findAllWithWeights()
+
+        expect(weights).toEqual([
+            {
+                slug: "security",
+                weight: 3,
+            },
+            {
+                slug: "quality",
+                weight: 1.5,
+            },
+        ])
     })
 })

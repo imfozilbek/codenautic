@@ -28,6 +28,13 @@ export interface IRuleCategoryRepository extends IRepository<RuleCategory> {
     findActive(): Promise<readonly RuleCategory[]>
 
     /**
+     * Loads category weights for scoring.
+     *
+     * @returns Slug and weight pairs.
+     */
+    findAllWithWeights(): Promise<readonly {slug: string; weight: number}[]>
+
+    /**
      * Persists many categories in one batch.
      *
      * @param categories Categories to persist.
