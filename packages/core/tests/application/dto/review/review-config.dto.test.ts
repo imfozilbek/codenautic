@@ -26,6 +26,9 @@ describe("IReviewConfigDTO", () => {
             generation: {
                 main: "generation guidance",
             },
+            templates: {
+                hallucinationCheck: "hallucination guidance",
+            },
         }
 
         const config: IReviewConfigDTO = {
@@ -42,6 +45,7 @@ describe("IReviewConfigDTO", () => {
         expect(config.ignorePaths).toEqual(["dist/**", "vendor/**"])
         expect(config.customRuleIds).toEqual(["rule-1", "rule-2"])
         expect(config.promptOverrides?.severity?.flags?.high).toBe("high guidance")
+        expect(config.promptOverrides?.templates?.hallucinationCheck).toBe("hallucination guidance")
     })
 
     test("supports config payload without prompt overrides", () => {

@@ -50,12 +50,20 @@ export interface IReviewPromptOverrideGenerationDTO {
 }
 
 /**
+ * Templates section for review prompt overrides.
+ */
+export interface IReviewPromptOverrideTemplatesDTO {
+    readonly hallucinationCheck?: string
+}
+
+/**
  * Structured prompt overrides for review pipeline.
  */
 export interface IReviewPromptOverridesDTO {
     readonly categories?: IReviewPromptOverrideCategoriesDTO
     readonly severity?: IReviewPromptOverrideSeverityDTO
     readonly generation?: IReviewPromptOverrideGenerationDTO
+    readonly templates?: IReviewPromptOverrideTemplatesDTO
 }
 
 /**

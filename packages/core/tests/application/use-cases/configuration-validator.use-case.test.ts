@@ -27,6 +27,9 @@ describe("ConfigurationValidatorUseCase", () => {
                 generation: {
                     main: " main guidance ",
                 },
+                templates: {
+                    hallucinationCheck: " hallucination guidance ",
+                },
             },
         })
 
@@ -47,6 +50,9 @@ describe("ConfigurationValidatorUseCase", () => {
             },
             generation: {
                 main: "main guidance",
+            },
+            templates: {
+                hallucinationCheck: "hallucination guidance",
             },
         })
     })
@@ -105,6 +111,9 @@ describe("ConfigurationValidatorUseCase", () => {
                     },
                 },
                 generation: "invalid",
+                templates: {
+                    hallucinationCheck: 1,
+                },
             },
         })
 
@@ -132,6 +141,10 @@ describe("ConfigurationValidatorUseCase", () => {
         expect(result.error.fields).toContainEqual({
             field: "promptOverrides.generation",
             message: "must be an object with optional main field",
+        })
+        expect(result.error.fields).toContainEqual({
+            field: "promptOverrides.templates.hallucinationCheck",
+            message: "must be a non-empty string when provided",
         })
     })
 
@@ -198,6 +211,9 @@ describe("ConfigurationValidatorUseCase", () => {
                             generation: {
                                 main: " generation notes ",
                             },
+                            templates: {
+                                hallucinationCheck: " hallucination note ",
+                            },
                         },
                     },
                 },
@@ -231,9 +247,11 @@ describe("ConfigurationValidatorUseCase", () => {
         const severity = requireDefined(promptOverrides.severity, "Expected severity overrides")
         const flags = requireDefined(severity.flags, "Expected severity flags")
         const generation = requireDefined(promptOverrides.generation, "Expected generation overrides")
+        const templates = requireDefined(promptOverrides.templates, "Expected templates overrides")
         expect(descriptions.bug).toBe("bug notes")
         expect(flags.critical).toBe("critical flag")
         expect(generation.main).toBe("generation notes")
+        expect(templates.hallucinationCheck).toBe("hallucination note")
         expect(value.extra).toEqual({list: [{id: 1}]})
     })
 

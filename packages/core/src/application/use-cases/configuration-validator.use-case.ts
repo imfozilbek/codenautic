@@ -9,6 +9,7 @@ import {
     type IReviewPromptOverrideGenerationDTO,
     type IReviewPromptOverrideSeverityDTO,
     type IReviewPromptOverrideSeverityFlagsDTO,
+    type IReviewPromptOverrideTemplatesDTO,
     type ValidatedConfig,
 } from "../dto/review/review-config.dto"
 import type {IDirectoryConfig} from "../dto/config/directory-config.dto"
@@ -534,11 +535,13 @@ export class ConfigurationValidatorUseCase
         const categories = this.validatePromptOverrideCategories(record["categories"], fields)
         const severity = this.validatePromptOverrideSeverity(record["severity"], fields)
         const generation = this.validatePromptOverrideGeneration(record["generation"], fields)
+        const templates = this.validatePromptOverrideTemplates(record["templates"], fields)
 
         return {
             ...(categories === undefined ? {} : {categories}),
             ...(severity === undefined ? {} : {severity}),
             ...(generation === undefined ? {} : {generation}),
+            ...(templates === undefined ? {} : {templates}),
         }
     }
 
@@ -745,6 +748,41 @@ export class ConfigurationValidatorUseCase
         }
 
         return {main}
+    }
+
+    /**
+     * Validates optional templates section.
+     *
+     * @param value Raw templates payload.
+     * @param fields Error accumulator.
+     * @returns Normalized templates or undefined.
+     */
+    private validatePromptOverrideTemplates(
+        value: unknown,
+        fields: IValidationErrorField[],
+    ): IReviewPromptOverrideTemplatesDTO | undefined {
+        if (value === undefined) {
+            return undefined
+        }
+
+        if (value === null || typeof value !== "object" || Array.isArray(value)) {
+            fields.push({
+                field: "promptOverrides.templates",
+                message: "must be an object with optional string fields",
+            })
+            return undefined
+        }
+
+        const record = value as Readonly<Record<string, unknown>>
+        const hallucinationCheck = this.validateOptionalString(
+            record["hallucinationCheck"],
+            "promptOverrides.templates.hallucinationCheck",
+            fields,
+        )
+
+        return this.collectSectionValues({
+            hallucinationCheck,
+        })
     }
 
     /**
