@@ -40,6 +40,7 @@ import type {LibraryRule} from "../../../domain/entities/library-rule.entity"
 import {deduplicate} from "../../../shared/utils/deduplicate"
 import {hash} from "../../../shared/utils/hash"
 import {Result} from "../../../shared/result"
+import {enrichSuggestions} from "../../shared/suggestion-enrichment"
 import {
     extractJsonArray,
     parseFromContent,
@@ -1299,67 +1300,25 @@ export class ProcessFilesReviewStageUseCase implements IPipelineStageUseCase {
      * @returns Suggestion list.
      */
     private mapParsedSuggestions(filePath: string, payload: ParsedJsonPayload): readonly ISuggestionDTO[] {
-        const items = extractJsonArray(payload)
-        const suggestions: ISuggestionDTO[] = []
-
-        for (const item of items) {
-            if (item === null || typeof item !== "object" || Array.isArray(item)) {
-                continue
-            }
-
-            const suggestion = this.mapParsedSuggestionRecord(
-                filePath,
-                item as Readonly<Record<string, unknown>>,
-            )
-            if (suggestion === null) {
-                continue
-            }
-
-            suggestions.push(suggestion)
-        }
-
-        return suggestions
-    }
-
-    /**
-     * Maps one parsed suggestion record to typed suggestion.
-     *
-     * @param filePath File path.
-     * @param record Parsed suggestion record.
-     * @returns Typed suggestion or null.
-     */
-    private mapParsedSuggestionRecord(
-        filePath: string,
-        record: Readonly<Record<string, unknown>>,
-    ): ISuggestionDTO | null {
-        const rawMessage = record["message"]
-        if (typeof rawMessage !== "string" || rawMessage.trim().length === 0) {
-            return null
-        }
-
-        const lineStart = this.readPositiveInteger(record["lineStart"], 1)
-        const lineEnd = this.readPositiveInteger(record["lineEnd"], lineStart)
-        const message = rawMessage.trim()
-
-        return {
-            id: `file-${hash(`${filePath}|${lineStart}|${lineEnd}|${message}`)}`,
-            filePath,
-            lineStart,
-            lineEnd,
-            severity: this.readString(record["severity"], "MEDIUM"),
-            category: this.readString(record["category"], "code_quality"),
-            message,
-            codeBlock: this.readCodeBlock(record),
-            committable: this.readBoolean(record["committable"], true),
-            rankScore: this.readPositiveInteger(record["rankScore"], 50),
-        }
+        return enrichSuggestions(extractJsonArray(payload), {
+            idPrefix: "file",
+            idComponents: ["filePath", "lineStart", "lineEnd", "message"],
+            defaultFilePath: filePath,
+            defaultLineStart: 1,
+            defaults: {
+                category: "code_quality",
+                severity: "MEDIUM",
+                committable: true,
+                rankScore: 50,
+            },
+        })
     }
 
     /**
      * Reads non-empty string field with fallback.
      *
      * @param value Candidate value.
-     * @returns Normalized string or fallback.
+     * @returns Normalized string or undefined.
      */
     private resolveString(value: unknown): string | undefined {
         if (typeof value !== "string") {
@@ -1372,71 +1331,6 @@ export class ProcessFilesReviewStageUseCase implements IPipelineStageUseCase {
         }
 
         return normalized
-    }
-
-    /**
-     * Reads string with fallback.
-     *
-     * @param value Candidate value.
-     * @param fallback Fallback value.
-     * @returns String value.
-     */
-    private readString(value: unknown, fallback: string): string {
-        if (typeof value !== "string" || value.trim().length === 0) {
-            return fallback
-        }
-
-        return value.trim()
-    }
-
-    /**
-     * Reads boolean with fallback.
-     *
-     * @param value Candidate value.
-     * @param fallback Fallback value.
-     * @returns Boolean value.
-     */
-    private readBoolean(value: unknown, fallback: boolean): boolean {
-        if (typeof value !== "boolean") {
-            return fallback
-        }
-
-        return value
-    }
-
-    /**
-     * Reads optional trimmed code block.
-     *
-     * @param source Parsed suggestion record.
-     * @returns Trimmed code block when available.
-     */
-    private readCodeBlock(source: Readonly<Record<string, unknown>>): string | undefined {
-        const rawCodeBlock = source["codeBlock"]
-        if (typeof rawCodeBlock !== "string") {
-            return undefined
-        }
-
-        const normalizedCodeBlock = rawCodeBlock.trim()
-        if (normalizedCodeBlock.length === 0) {
-            return undefined
-        }
-
-        return normalizedCodeBlock
-    }
-
-    /**
-     * Reads optional number with fallback.
-     *
-     * @param value Candidate value.
-     * @param fallback Fallback value.
-     * @returns Number value.
-     */
-    private readPositiveInteger(value: unknown, fallback: number): number {
-        if (typeof value !== "number" || Number.isInteger(value) === false || value < 1) {
-            return fallback
-        }
-
-        return value
     }
 
     /**

@@ -14,6 +14,7 @@ import type {
     IGetEnabledRulesOutput,
 } from "../../dto/rules/get-enabled-rules.dto"
 import type {ILibraryRuleRepository} from "../../ports/outbound/rule/library-rule-repository.port"
+import {enrichSuggestions} from "../../shared/suggestion-enrichment"
 import {
     extractJsonArray,
     parseFromContent,
@@ -294,98 +295,18 @@ export class ProcessCcrLevelReviewStageUseCase implements IPipelineStageUseCase 
      * @returns Mapped suggestions.
      */
     private mapJsonSuggestions(payload: ParsedJsonPayload): readonly ISuggestionDTO[] {
-        const sourceArray = extractJsonArray(payload)
-        const suggestions: ISuggestionDTO[] = []
-
-        for (const item of sourceArray) {
-            if (item === null || typeof item !== "object" || Array.isArray(item)) {
-                continue
-            }
-
-            const record = item as Readonly<Record<string, unknown>>
-            const rawMessage = record["message"]
-            if (typeof rawMessage !== "string" || rawMessage.trim().length === 0) {
-                continue
-            }
-
-            const category = this.readEnumString(record["category"], "architecture")
-            const severity = this.readEnumString(record["severity"], "MEDIUM")
-            const filePath = this.readEnumString(record["filePath"], "GLOBAL")
-            const lineStart = this.readPositiveInteger(record["lineStart"], 1)
-            const lineEnd = this.readPositiveInteger(record["lineEnd"], lineStart)
-            const rankScore = this.readPositiveInteger(record["rankScore"], 50)
-            const committable = this.readBoolean(record["committable"], false)
-            const codeBlock =
-                typeof record["codeBlock"] === "string" && record["codeBlock"].trim().length > 0
-                    ? record["codeBlock"].trim()
-                    : undefined
-            const normalizedMessage = rawMessage.trim()
-
-            suggestions.push({
-                id: `ccr-${hash(`${category}|${filePath}|${lineStart}|${lineEnd}|${normalizedMessage}`)}`,
-                filePath,
-                lineStart,
-                lineEnd,
-                severity,
-                category,
-                message: normalizedMessage,
-                codeBlock,
-                committable,
-                rankScore,
-            })
-        }
-
-        return suggestions
-    }
-
-    /**
-     * Reads normalized string with fallback.
-     *
-     * @param value Candidate value.
-     * @param fallback Fallback value.
-     * @returns Normalized string.
-     */
-    private readEnumString(value: unknown, fallback: string): string {
-        if (typeof value !== "string") {
-            return fallback
-        }
-
-        const normalized = value.trim()
-        if (normalized.length === 0) {
-            return fallback
-        }
-
-        return normalized
-    }
-
-    /**
-     * Reads positive integer with fallback.
-     *
-     * @param value Candidate value.
-     * @param fallback Fallback value.
-     * @returns Positive integer.
-     */
-    private readPositiveInteger(value: unknown, fallback: number): number {
-        if (typeof value !== "number" || Number.isInteger(value) === false || value < 1) {
-            return fallback
-        }
-
-        return value
-    }
-
-    /**
-     * Reads boolean with fallback.
-     *
-     * @param value Candidate value.
-     * @param fallback Fallback value.
-     * @returns Boolean.
-     */
-    private readBoolean(value: unknown, fallback: boolean): boolean {
-        if (typeof value !== "boolean") {
-            return fallback
-        }
-
-        return value
+        return enrichSuggestions(extractJsonArray(payload), {
+            idPrefix: "ccr",
+            idComponents: ["category", "filePath", "lineStart", "lineEnd", "message"],
+            defaultFilePath: "GLOBAL",
+            defaultLineStart: 1,
+            defaults: {
+                category: "architecture",
+                severity: "MEDIUM",
+                committable: false,
+                rankScore: 50,
+            },
+        })
     }
 
     /**
