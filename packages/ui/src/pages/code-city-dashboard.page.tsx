@@ -69,6 +69,10 @@ import {
     type IAlertConfigDialogValue,
 } from "@/components/graphs/alert-config-dialog"
 import {
+    PredictionComparisonView,
+    type IPredictionComparisonSnapshot,
+} from "@/components/graphs/prediction-comparison-view"
+import {
     CityOwnershipOverlay,
     type ICityOwnershipOverlayOwnerEntry,
 } from "@/components/graphs/city-ownership-overlay"
@@ -1574,6 +1578,56 @@ function resolvePredictionAlertFocusFileId(
 }
 
 /**
+ * Формирует cross-time comparison snapshots для prediction-модуля.
+ *
+ * @param files Файлы текущего профиля.
+ * @param entries Prediction overlay entries.
+ * @returns Снимки сравнения "prediction vs reality".
+ */
+function buildPredictionComparisonSnapshots(
+    files: ReadonlyArray<ICodeCityTreemapFileDescriptor>,
+    entries: ReadonlyArray<ICityPredictionOverlayEntry>,
+): ReadonlyArray<IPredictionComparisonSnapshot> {
+    const periods = ["3 months ago", "2 months ago", "1 month ago"] as const
+    const fileById = new Map<string, ICodeCityTreemapFileDescriptor>(
+        files.map((file): readonly [string, ICodeCityTreemapFileDescriptor] => [file.id, file]),
+    )
+
+    return periods.map((periodLabel, index): IPredictionComparisonSnapshot => {
+        const entry = entries[index]
+        const file = entry === undefined ? undefined : fileById.get(entry.fileId)
+        const riskBonus =
+            entry?.riskLevel === "high" ? 2 : entry?.riskLevel === "medium" ? 1 : 0
+        const predictedHotspots = Math.max(1, 4 - index + riskBonus)
+        const actualHotspots = Math.max(
+            0,
+            predictedHotspots + (index % 2 === 0 ? -1 : 0),
+        )
+        const denominator = Math.max(predictedHotspots, actualHotspots, 1)
+        const accuracyScore = Math.max(
+            0,
+            Math.min(
+                100,
+                Math.round(100 - (Math.abs(predictedHotspots - actualHotspots) / denominator) * 100),
+            ),
+        )
+        const anchorLabel = entry?.label ?? "core module"
+        const summary = `${periodLabel} we predicted ${String(predictedHotspots)} hotspots in ${anchorLabel}; `
+            + `${String(actualHotspots)} actually happened after observing recent CCR outcomes.`
+
+        return {
+            accuracyScore,
+            actualHotspots,
+            fileId: file?.id ?? entry?.fileId,
+            id: `prediction-comparison-${String(index)}`,
+            periodLabel,
+            predictedHotspots,
+            summary,
+        }
+    })
+}
+
+/**
  * Формирует список bug-prone файлов для prediction dashboard.
  *
  * @param files Файлы текущего профиля.
@@ -2341,6 +2395,8 @@ export function CodeCityDashboardPage(
     const [activePredictionAccuracyCaseId, setActivePredictionAccuracyCaseId] = useState<
         string | undefined
     >()
+    const [activePredictionComparisonSnapshotId, setActivePredictionComparisonSnapshotId] =
+        useState<string | undefined>()
     const [activeKnowledgeSiloId, setActiveKnowledgeSiloId] = useState<string | undefined>()
     const [activeContributorId, setActiveContributorId] = useState<string | undefined>()
     const [activeOwnershipTransitionId, setActiveOwnershipTransitionId] = useState<string | undefined>()
@@ -2390,6 +2446,10 @@ export function CodeCityDashboardPage(
         predictionOverlayEntries,
     )
     const predictionAlertModules = buildPredictionAlertModules(currentProfile.files)
+    const predictionComparisonSnapshots = buildPredictionComparisonSnapshots(
+        currentProfile.files,
+        predictionOverlayEntries,
+    )
     const predictionBugProneFiles = buildPredictionBugProneFiles(
         currentProfile.files,
         predictionOverlayEntries,
@@ -2475,6 +2535,7 @@ export function CodeCityDashboardPage(
         setActivePredictionHotspotId(undefined)
         setActiveTrendForecastPointId(undefined)
         setActivePredictionAccuracyCaseId(undefined)
+        setActivePredictionComparisonSnapshotId(undefined)
         setActiveKnowledgeSiloId(undefined)
         setActiveContributorId(undefined)
         setActiveOwnershipTransitionId(undefined)
@@ -3026,6 +3087,36 @@ export function CodeCityDashboardPage(
                             markAreaExplored("controls")
                             markAreaExplored("city-3d")
                         }}
+                    />
+                </CardBody>
+            </Card>
+
+            <Card>
+                <CardHeader>
+                    <p className="text-sm font-semibold text-slate-900">
+                        Prediction comparison view
+                    </p>
+                </CardHeader>
+                <CardBody>
+                    <PredictionComparisonView
+                        activeSnapshotId={activePredictionComparisonSnapshotId}
+                        onSelectSnapshot={(snapshot): void => {
+                            setActivePredictionComparisonSnapshotId(snapshot.id)
+                            setActivePredictionHotspotId(undefined)
+                            setActivePredictionFileId(snapshot.fileId)
+                            if (snapshot.fileId !== undefined) {
+                                setHighlightedFileId(snapshot.fileId)
+                            }
+                            setExploreNavigationFocus({
+                                activeFileId: snapshot.fileId,
+                                chainFileIds:
+                                    snapshot.fileId === undefined ? [] : [snapshot.fileId],
+                                title: `Prediction comparison: ${snapshot.periodLabel}`,
+                            })
+                            markAreaExplored("controls")
+                            markAreaExplored("city-3d")
+                        }}
+                        snapshots={predictionComparisonSnapshots}
                     />
                 </CardBody>
             </Card>

@@ -853,6 +853,49 @@ const { mockAlertConfigDialog } = vi.hoisted(() => ({
         },
     ),
 }))
+const { mockPredictionComparisonView } = vi.hoisted(() => ({
+    mockPredictionComparisonView: vi.fn(
+        (props: {
+            readonly snapshots: ReadonlyArray<{
+                readonly id: string
+                readonly periodLabel: string
+                readonly predictedHotspots: number
+                readonly actualHotspots: number
+                readonly accuracyScore: number
+                readonly fileId?: string
+                readonly summary: string
+            }>
+            readonly activeSnapshotId?: string
+            readonly onSelectSnapshot?: (snapshot: {
+                readonly id: string
+                readonly periodLabel: string
+                readonly predictedHotspots: number
+                readonly actualHotspots: number
+                readonly accuracyScore: number
+                readonly fileId?: string
+                readonly summary: string
+            }) => void
+        }): React.JSX.Element => {
+            return (
+                <div>
+                    <p>prediction-comparison-snapshots:{props.snapshots.length}</p>
+                    <p>prediction-comparison-active:{props.activeSnapshotId ?? "none"}</p>
+                    <button
+                        onClick={(): void => {
+                            const firstSnapshot = props.snapshots.at(0)
+                            if (firstSnapshot !== undefined) {
+                                props.onSelectSnapshot?.(firstSnapshot)
+                            }
+                        }}
+                        type="button"
+                    >
+                        inspect prediction comparison snapshot
+                    </button>
+                </div>
+            )
+        },
+    ),
+}))
 const { mockCityBusFactorOverlay } = vi.hoisted(() => ({
     mockCityBusFactorOverlay: vi.fn(
         (props: {
@@ -1396,6 +1439,9 @@ vi.mock("@/components/graphs/prediction-accuracy-widget", () => ({
 vi.mock("@/components/graphs/alert-config-dialog", () => ({
     AlertConfigDialog: mockAlertConfigDialog,
 }))
+vi.mock("@/components/graphs/prediction-comparison-view", () => ({
+    PredictionComparisonView: mockPredictionComparisonView,
+}))
 vi.mock("@/components/graphs/city-bus-factor-overlay", () => ({
     CityBusFactorOverlay: mockCityBusFactorOverlay,
 }))
@@ -1455,6 +1501,7 @@ beforeEach((): void => {
     mockTrendForecastChart.mockClear()
     mockPredictionAccuracyWidget.mockClear()
     mockAlertConfigDialog.mockClear()
+    mockPredictionComparisonView.mockClear()
     mockCityBusFactorOverlay.mockClear()
     mockBusFactorTrendChart.mockClear()
     mockKnowledgeSiloPanel.mockClear()
@@ -1635,6 +1682,10 @@ describe("CodeCityDashboardPage", (): void => {
         expect(firstAlertConfigCall).not.toBeUndefined()
         expect(firstAlertConfigCall?.modules.length).toBeGreaterThan(0)
 
+        const firstPredictionComparisonCall = mockPredictionComparisonView.mock.calls.at(0)?.[0]
+        expect(firstPredictionComparisonCall).not.toBeUndefined()
+        expect(firstPredictionComparisonCall?.snapshots.length).toBeGreaterThan(0)
+
         const firstBusFactorCall = mockCityBusFactorOverlay.mock.calls.at(0)?.[0]
         expect(firstBusFactorCall).not.toBeUndefined()
         expect(firstBusFactorCall?.entries.length).toBeGreaterThan(0)
@@ -1803,6 +1854,14 @@ describe("CodeCityDashboardPage", (): void => {
         const alertConfig3DCall = mockCodeCity3DScene.mock.calls.at(-1)?.[0]
         expect(alertConfig3DCall).not.toBeUndefined()
         expect(alertConfig3DCall?.navigationLabel).toContain("Alert config:")
+
+        await user.click(screen.getByRole("button", { name: "inspect prediction comparison snapshot" }))
+        const predictionComparisonTreemapCall = mockCodeCityTreemap.mock.calls.at(-1)?.[0]
+        expect(predictionComparisonTreemapCall).not.toBeUndefined()
+        expect(predictionComparisonTreemapCall?.highlightedFileId).toBe("src/api/auth.ts")
+        const predictionComparison3DCall = mockCodeCity3DScene.mock.calls.at(-1)?.[0]
+        expect(predictionComparison3DCall).not.toBeUndefined()
+        expect(predictionComparison3DCall?.navigationLabel).toContain("Prediction comparison:")
 
         await user.click(screen.getByRole("button", { name: "inspect change risk point" }))
         const riskNavigation3DCall = mockCodeCity3DScene.mock.calls.at(-1)?.[0]
