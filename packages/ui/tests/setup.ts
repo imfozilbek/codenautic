@@ -442,10 +442,10 @@ afterEach(async (): Promise<void> => {
     localStorage.clear()
     localStorage.setItem(LOCALE_STORAGE_KEY, DEFAULT_LOCALE)
     await i18next.changeLanguage(DEFAULT_LOCALE)
-    globalThis.fetch = originalFetch
 })
 
 afterAll((): void => {
+    globalThis.fetch = originalFetch
     globalThis.console.log = originalConsoleLog
     globalThis.console.info = originalConsoleInfo
     globalThis.console.warn = originalConsoleWarn
