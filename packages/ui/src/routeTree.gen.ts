@@ -32,7 +32,9 @@ import { Route as SettingsAuditLogsRouteImport } from './routes/settings-audit-l
 import { Route as SettingsAppearanceRouteImport } from './routes/settings-appearance'
 import { Route as SettingsAdoptionAnalyticsRouteImport } from './routes/settings-adoption-analytics'
 import { Route as SettingsRouteImport } from './routes/settings'
+import { Route as SessionRecoveryRouteImport } from './routes/session-recovery'
 import { Route as ScanProgressRouteImport } from './routes/scan-progress'
+import { Route as ScanErrorRecoveryRouteImport } from './routes/scan-error-recovery'
 import { Route as ReviewsRouteImport } from './routes/reviews'
 import { Route as RepositoriesRouteImport } from './routes/repositories'
 import { Route as ReportsRouteImport } from './routes/reports'
@@ -167,9 +169,19 @@ const SettingsRoute = SettingsRouteImport.update({
   path: '/settings',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SessionRecoveryRoute = SessionRecoveryRouteImport.update({
+  id: '/session-recovery',
+  path: '/session-recovery',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ScanProgressRoute = ScanProgressRouteImport.update({
   id: '/scan-progress',
   path: '/scan-progress',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ScanErrorRecoveryRoute = ScanErrorRecoveryRouteImport.update({
+  id: '/scan-error-recovery',
+  path: '/scan-error-recovery',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ReviewsRoute = ReviewsRouteImport.update({
@@ -254,7 +266,9 @@ export interface FileRoutesByFullPath {
   '/reports': typeof ReportsRouteWithChildren
   '/repositories': typeof RepositoriesRouteWithChildren
   '/reviews': typeof ReviewsRouteWithChildren
+  '/scan-error-recovery': typeof ScanErrorRecoveryRoute
   '/scan-progress': typeof ScanProgressRoute
+  '/session-recovery': typeof SessionRecoveryRoute
   '/settings': typeof SettingsRoute
   '/settings-adoption-analytics': typeof SettingsAdoptionAnalyticsRoute
   '/settings-appearance': typeof SettingsAppearanceRoute
@@ -294,7 +308,9 @@ export interface FileRoutesByTo {
   '/reports': typeof ReportsRouteWithChildren
   '/repositories': typeof RepositoriesRouteWithChildren
   '/reviews': typeof ReviewsRouteWithChildren
+  '/scan-error-recovery': typeof ScanErrorRecoveryRoute
   '/scan-progress': typeof ScanProgressRoute
+  '/session-recovery': typeof SessionRecoveryRoute
   '/settings': typeof SettingsRoute
   '/settings-adoption-analytics': typeof SettingsAdoptionAnalyticsRoute
   '/settings-appearance': typeof SettingsAppearanceRoute
@@ -335,7 +351,9 @@ export interface FileRoutesById {
   '/reports': typeof ReportsRouteWithChildren
   '/repositories': typeof RepositoriesRouteWithChildren
   '/reviews': typeof ReviewsRouteWithChildren
+  '/scan-error-recovery': typeof ScanErrorRecoveryRoute
   '/scan-progress': typeof ScanProgressRoute
+  '/session-recovery': typeof SessionRecoveryRoute
   '/settings': typeof SettingsRoute
   '/settings-adoption-analytics': typeof SettingsAdoptionAnalyticsRoute
   '/settings-appearance': typeof SettingsAppearanceRoute
@@ -377,7 +395,9 @@ export interface FileRouteTypes {
     | '/reports'
     | '/repositories'
     | '/reviews'
+    | '/scan-error-recovery'
     | '/scan-progress'
+    | '/session-recovery'
     | '/settings'
     | '/settings-adoption-analytics'
     | '/settings-appearance'
@@ -417,7 +437,9 @@ export interface FileRouteTypes {
     | '/reports'
     | '/repositories'
     | '/reviews'
+    | '/scan-error-recovery'
     | '/scan-progress'
+    | '/session-recovery'
     | '/settings'
     | '/settings-adoption-analytics'
     | '/settings-appearance'
@@ -457,7 +479,9 @@ export interface FileRouteTypes {
     | '/reports'
     | '/repositories'
     | '/reviews'
+    | '/scan-error-recovery'
     | '/scan-progress'
+    | '/session-recovery'
     | '/settings'
     | '/settings-adoption-analytics'
     | '/settings-appearance'
@@ -498,7 +522,9 @@ export interface RootRouteChildren {
   ReportsRoute: typeof ReportsRouteWithChildren
   RepositoriesRoute: typeof RepositoriesRouteWithChildren
   ReviewsRoute: typeof ReviewsRouteWithChildren
+  ScanErrorRecoveryRoute: typeof ScanErrorRecoveryRoute
   ScanProgressRoute: typeof ScanProgressRoute
+  SessionRecoveryRoute: typeof SessionRecoveryRoute
   SettingsRoute: typeof SettingsRoute
   SettingsAdoptionAnalyticsRoute: typeof SettingsAdoptionAnalyticsRoute
   SettingsAppearanceRoute: typeof SettingsAppearanceRoute
@@ -688,11 +714,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SettingsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/session-recovery': {
+      id: '/session-recovery'
+      path: '/session-recovery'
+      fullPath: '/session-recovery'
+      preLoaderRoute: typeof SessionRecoveryRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/scan-progress': {
       id: '/scan-progress'
       path: '/scan-progress'
       fullPath: '/scan-progress'
       preLoaderRoute: typeof ScanProgressRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/scan-error-recovery': {
+      id: '/scan-error-recovery'
+      path: '/scan-error-recovery'
+      fullPath: '/scan-error-recovery'
+      preLoaderRoute: typeof ScanErrorRecoveryRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/reviews': {
@@ -842,7 +882,9 @@ const rootRouteChildren: RootRouteChildren = {
   ReportsRoute: ReportsRouteWithChildren,
   RepositoriesRoute: RepositoriesRouteWithChildren,
   ReviewsRoute: ReviewsRouteWithChildren,
+  ScanErrorRecoveryRoute: ScanErrorRecoveryRoute,
   ScanProgressRoute: ScanProgressRoute,
+  SessionRecoveryRoute: SessionRecoveryRoute,
   SettingsRoute: SettingsRoute,
   SettingsAdoptionAnalyticsRoute: SettingsAdoptionAnalyticsRoute,
   SettingsAppearanceRoute: SettingsAppearanceRoute,

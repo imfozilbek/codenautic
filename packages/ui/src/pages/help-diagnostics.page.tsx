@@ -44,8 +44,9 @@ interface IDiagnosticSuggestedAction {
     /** Куда ведёт действие. */
     readonly path?:
         | "/dashboard/code-city"
+        | "/scan-error-recovery"
+        | "/session-recovery"
         | "/settings-integrations"
-        | "/settings-organization"
         | "/settings-provider-degradation"
 }
 
@@ -229,7 +230,7 @@ function buildSuggestedActions(
             description: "Re-authenticate and restore draft/session state before retrying.",
             id: "action-session-recovery",
             label: "Open session recovery",
-            path: "/settings-organization",
+            path: "/session-recovery",
         })
     }
     if (networkCheck?.status === "error") {
@@ -507,7 +508,7 @@ export function HelpDiagnosticsPage(): ReactElement {
                                 variant="flat"
                                 onPress={(): void => {
                                     void navigate({
-                                        to: "/repositories",
+                                        to: "/scan-error-recovery",
                                     })
                                 }}
                             >
@@ -518,7 +519,7 @@ export function HelpDiagnosticsPage(): ReactElement {
                                 variant="flat"
                                 onPress={(): void => {
                                     void navigate({
-                                        to: "/settings-organization",
+                                        to: "/session-recovery",
                                     })
                                 }}
                             >
