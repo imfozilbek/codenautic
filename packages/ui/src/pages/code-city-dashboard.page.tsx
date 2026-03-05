@@ -42,6 +42,7 @@ import {
     RefactoringDashboard,
     type IRefactoringTargetDescriptor,
 } from "@/components/graphs/refactoring-dashboard"
+import { ROICalculatorWidget } from "@/components/graphs/roi-calculator-widget"
 import { TourCustomizer } from "@/components/graphs/tour-customizer"
 import { ProjectOverviewPanel } from "@/components/graphs/project-overview-panel"
 import { ChurnComplexityScatter } from "@/components/graphs/churn-complexity-scatter"
@@ -1128,6 +1129,29 @@ export function CodeCityDashboardPage(
                                 activeFileId: target.fileId,
                                 chainFileIds: [target.fileId],
                                 title: `Refactor target: ${target.title}`,
+                            })
+                            markAreaExplored("city-3d")
+                        }}
+                        targets={refactoringTargets}
+                    />
+                </CardBody>
+            </Card>
+
+            <Card>
+                <CardHeader>
+                    <p className="text-sm font-semibold text-slate-900">ROI calculator widget</p>
+                </CardHeader>
+                <CardBody>
+                    <ROICalculatorWidget
+                        onApplyScenario={(fileIds): void => {
+                            const primaryFileId = fileIds[0]
+                            if (primaryFileId !== undefined) {
+                                setHighlightedFileId(primaryFileId)
+                            }
+                            setExploreNavigationFocus({
+                                activeFileId: primaryFileId,
+                                chainFileIds: fileIds,
+                                title: "ROI scenario",
                             })
                             markAreaExplored("city-3d")
                         }}

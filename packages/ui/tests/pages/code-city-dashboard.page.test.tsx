@@ -305,6 +305,40 @@ const { mockRefactoringDashboard } = vi.hoisted(() => ({
         },
     ),
 }))
+const { mockROICalculatorWidget } = vi.hoisted(() => ({
+    mockROICalculatorWidget: vi.fn(
+        (props: {
+            readonly targets: ReadonlyArray<{
+                readonly fileId: string
+                readonly title: string
+                readonly module: string
+                readonly roiScore: number
+                readonly riskScore: number
+                readonly effortScore: number
+            }>
+            readonly onApplyScenario?: (fileIds: ReadonlyArray<string>) => void
+        }): React.JSX.Element => {
+            return (
+                <div>
+                    <p>roi-targets:{props.targets.length}</p>
+                    <button
+                        onClick={(): void => {
+                            const firstTarget = props.targets.at(0)
+                            const secondTarget = props.targets.at(1)
+                            if (firstTarget === undefined || secondTarget === undefined) {
+                                return
+                            }
+                            props.onApplyScenario?.([firstTarget.fileId, secondTarget.fileId])
+                        }}
+                        type="button"
+                    >
+                        apply roi scenario
+                    </button>
+                </div>
+            )
+        },
+    ),
+}))
 const { mockRootCauseChainViewer } = vi.hoisted(() => ({
     mockRootCauseChainViewer: vi.fn(
         (props: {
@@ -376,6 +410,9 @@ vi.mock("@/components/graphs/tour-customizer", () => ({
 vi.mock("@/components/graphs/refactoring-dashboard", () => ({
     RefactoringDashboard: mockRefactoringDashboard,
 }))
+vi.mock("@/components/graphs/roi-calculator-widget", () => ({
+    ROICalculatorWidget: mockROICalculatorWidget,
+}))
 vi.mock("@/components/graphs/root-cause-chain-viewer", () => ({
     RootCauseChainViewer: mockRootCauseChainViewer,
 }))
@@ -392,6 +429,7 @@ beforeEach((): void => {
     mockOnboardingProgressTracker.mockClear()
     mockTourCustomizer.mockClear()
     mockRefactoringDashboard.mockClear()
+    mockROICalculatorWidget.mockClear()
     mockRootCauseChainViewer.mockClear()
 })
 
@@ -503,6 +541,10 @@ describe("CodeCityDashboardPage", (): void => {
         const firstRefactoringCall = mockRefactoringDashboard.mock.calls.at(0)?.[0]
         expect(firstRefactoringCall).not.toBeUndefined()
         expect(firstRefactoringCall?.targets.length).toBeGreaterThan(0)
+
+        const firstRoiCalculatorCall = mockROICalculatorWidget.mock.calls.at(0)?.[0]
+        expect(firstRoiCalculatorCall).not.toBeUndefined()
+        expect(firstRoiCalculatorCall?.targets.length).toBeGreaterThan(0)
     })
 
     it("обновляет treemap при смене репозитория и метрики", async (): Promise<void> => {
@@ -537,6 +579,12 @@ describe("CodeCityDashboardPage", (): void => {
         const refactorNavigation3DCall = mockCodeCity3DScene.mock.calls.at(-1)?.[0]
         expect(refactorNavigation3DCall).not.toBeUndefined()
         expect(refactorNavigation3DCall?.navigationLabel).toContain("Refactor target:")
+
+        await user.click(screen.getByRole("button", { name: "apply roi scenario" }))
+        const roiNavigation3DCall = mockCodeCity3DScene.mock.calls.at(-1)?.[0]
+        expect(roiNavigation3DCall).not.toBeUndefined()
+        expect(roiNavigation3DCall?.navigationLabel).toBe("ROI scenario")
+        expect(roiNavigation3DCall?.navigationChainFileIds.length).toBeGreaterThan(1)
 
         const repositorySelect = screen.getByRole("combobox", { name: "Repository" })
         const metricSelect = screen.getByRole("combobox", { name: "Metric" })
