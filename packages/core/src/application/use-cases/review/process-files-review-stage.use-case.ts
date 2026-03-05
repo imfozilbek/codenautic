@@ -1,4 +1,5 @@
 import type {IChatRequestDTO} from "../../dto/llm/chat.dto"
+import type {IToolCallDTO} from "../../dto/llm/message.dto"
 import type {ISuggestionDTO} from "../../dto/review/suggestion.dto"
 import {
     REVIEW_DEPTH_MODE,
@@ -40,6 +41,7 @@ import {deduplicate} from "../../../shared/utils/deduplicate"
 import {hash} from "../../../shared/utils/hash"
 import {Result} from "../../../shared/result"
 import {enrichSuggestions} from "../../shared/suggestion-enrichment"
+import {SUGGESTION_TOOL} from "../../shared/suggestion-tool"
 import {
     appendRuleContext,
     resolveRuleContext,
@@ -47,7 +49,7 @@ import {
 } from "../../shared/prompt-resolution"
 import {
     extractJsonArray,
-    parseFromContent,
+    parseSuggestions,
     type ParsedJsonPayload,
 } from "../../shared/suggestion-parsing"
 import {
@@ -619,7 +621,11 @@ export class ProcessFilesReviewStageUseCase implements IPipelineStageUseCase {
 
         try {
             const response = await this.runWithTimeout(this.llmProvider.chat(request), timeoutMs)
-            const suggestions = this.parseFileSuggestions(filePathValue, response.content)
+            const suggestions = this.parseFileSuggestions(
+                filePathValue,
+                response.content,
+                response.toolCalls,
+            )
 
             return {
                 filePath: filePathValue,
@@ -1200,9 +1206,17 @@ export class ProcessFilesReviewStageUseCase implements IPipelineStageUseCase {
      * @param content LLM content.
      * @returns Suggestion list.
      */
-    private parseFileSuggestions(filePath: string, content: string): readonly ISuggestionDTO[] {
-        const parsed = parseFromContent(content)
-        if (parsed !== null) {
+    private parseFileSuggestions(
+        filePath: string,
+        content: string,
+        toolCalls: readonly IToolCallDTO[] | undefined,
+    ): readonly ISuggestionDTO[] {
+        const parsed = parseSuggestions({
+            content,
+            toolCalls,
+            toolNames: [SUGGESTION_TOOL],
+        })
+        if (parsed.length > 0) {
             const suggestions = this.mapParsedSuggestions(filePath, parsed)
             if (suggestions.length > 0) {
                 return suggestions

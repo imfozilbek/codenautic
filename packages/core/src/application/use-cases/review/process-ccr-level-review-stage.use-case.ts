@@ -1,4 +1,5 @@
 import type {IChatRequestDTO} from "../../dto/llm/chat.dto"
+import type {IToolCallDTO} from "../../dto/llm/message.dto"
 import type {ISuggestionDTO} from "../../dto/review/suggestion.dto"
 import type {IGeneratePromptInput} from "../generate-prompt.use-case"
 import type {IUseCase} from "../../ports/inbound/use-case.port"
@@ -15,6 +16,7 @@ import type {
 } from "../../dto/rules/get-enabled-rules.dto"
 import type {ILibraryRuleRepository} from "../../ports/outbound/rule/library-rule-repository.port"
 import {enrichSuggestions} from "../../shared/suggestion-enrichment"
+import {SUGGESTION_TOOL} from "../../shared/suggestion-tool"
 import {
     appendRuleContext,
     resolveRuleContext,
@@ -22,7 +24,7 @@ import {
 } from "../../shared/prompt-resolution"
 import {
     extractJsonArray,
-    parseFromContent,
+    parseSuggestions,
     type ParsedJsonPayload,
 } from "../../shared/suggestion-parsing"
 import {RuleContextFormatterService} from "../../../domain/services/rule-context-formatter.service"
@@ -103,7 +105,10 @@ export class ProcessCcrLevelReviewStageUseCase implements IPipelineStageUseCase 
 
         try {
             const response = await this.llmProvider.chat(request)
-            const ccrSuggestions = this.parseCcrSuggestions(response.content)
+            const ccrSuggestions = this.parseCcrSuggestions(
+                response.content,
+                response.toolCalls,
+            )
 
             return Result.ok<IStageTransition, StageError>({
                 state: input.state.with({
@@ -280,10 +285,17 @@ export class ProcessCcrLevelReviewStageUseCase implements IPipelineStageUseCase 
      * @param content LLM response content.
      * @returns Structured suggestions.
      */
-    private parseCcrSuggestions(content: string): readonly ISuggestionDTO[] {
-        const parsedJson = parseFromContent(content)
-        if (parsedJson !== null) {
-            const suggestions = this.mapJsonSuggestions(parsedJson)
+    private parseCcrSuggestions(
+        content: string,
+        toolCalls: readonly IToolCallDTO[] | undefined,
+    ): readonly ISuggestionDTO[] {
+        const parsed = parseSuggestions({
+            content,
+            toolCalls,
+            toolNames: [SUGGESTION_TOOL],
+        })
+        if (parsed.length > 0) {
+            const suggestions = this.mapJsonSuggestions(parsed)
             if (suggestions.length > 0) {
                 return suggestions
             }

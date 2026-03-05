@@ -7,6 +7,7 @@ import {
     parseFromToolCalls,
     parseSuggestions,
 } from "../../../src/application/shared/suggestion-parsing"
+import {SUGGESTION_TOOL} from "../../../src/application/shared/suggestion-tool"
 
 describe("suggestion parsing", () => {
     test("extractJsonArray returns array payloads as-is", () => {
@@ -57,8 +58,8 @@ describe("suggestion parsing", () => {
 
     test("parseFromToolCalls parses JSON arguments", () => {
         const toolCalls: readonly IToolCallDTO[] = [
-            {id: "1", name: "suggestions", arguments: JSON.stringify([{message: "one"}])},
-            {id: "2", name: "suggestions", arguments: JSON.stringify({suggestions: [{message: "two"}]})},
+            {id: "1", name: SUGGESTION_TOOL, arguments: JSON.stringify([{message: "one"}])},
+            {id: "2", name: SUGGESTION_TOOL, arguments: JSON.stringify({suggestions: [{message: "two"}]})},
         ]
 
         const parsed = parseFromToolCalls(toolCalls)
@@ -68,11 +69,11 @@ describe("suggestion parsing", () => {
 
     test("parseFromToolCalls respects tool name filtering", () => {
         const toolCalls: readonly IToolCallDTO[] = [
-            {id: "1", name: "suggestions", arguments: JSON.stringify([{message: "one"}])},
+            {id: "1", name: SUGGESTION_TOOL, arguments: JSON.stringify([{message: "one"}])},
             {id: "2", name: "other", arguments: JSON.stringify([{message: "two"}])},
         ]
 
-        const parsed = parseFromToolCalls(toolCalls, ["suggestions"])
+        const parsed = parseFromToolCalls(toolCalls, [SUGGESTION_TOOL])
 
         expect(parsed).toEqual([[{message: "one"}]])
     })
@@ -85,18 +86,18 @@ describe("suggestion parsing", () => {
 
     test("parseFromToolCalls ignores invalid JSON payloads", () => {
         const toolCalls: readonly IToolCallDTO[] = [
-            {id: "1", name: "suggestions", arguments: "null"},
-            {id: "2", name: "suggestions", arguments: "true"},
+            {id: "1", name: SUGGESTION_TOOL, arguments: "null"},
+            {id: "2", name: SUGGESTION_TOOL, arguments: "true"},
         ]
 
-        const parsed = parseFromToolCalls(toolCalls, ["suggestions", " "])
+        const parsed = parseFromToolCalls(toolCalls, [SUGGESTION_TOOL, " "])
 
         expect(parsed).toEqual([])
     })
 
     test("parseSuggestions prefers tool call suggestions over content", () => {
         const toolCalls: readonly IToolCallDTO[] = [
-            {id: "1", name: "suggestions", arguments: JSON.stringify({suggestions: [{message: "tool"}]})},
+            {id: "1", name: SUGGESTION_TOOL, arguments: JSON.stringify({suggestions: [{message: "tool"}]})},
         ]
 
         const parsed = parseSuggestions({
