@@ -27,6 +27,7 @@ import type {IPipelineCheckpointStore} from "../../src/application/ports/outboun
 import type {IRepositoryConfigLoader} from "../../src/application/ports/outbound/review/repository-config-loader.port"
 import type {IReviewRepository} from "../../src/application/ports/outbound/review/review-repository.port"
 import type {ICustomRuleAstEvaluator} from "../../src/application/ports/outbound/rule/custom-rule-ast-evaluator.port"
+import type {ICategoryWeightProvider} from "../../src/application/ports/outbound/rule/category-weight-provider.port"
 import type {ILibraryRuleRepository} from "../../src/application/ports/outbound/rule/library-rule-repository.port"
 import type {IRuleCategoryRepository} from "../../src/application/ports/outbound/rule/rule-category-repository.port"
 import type {IRuleRepository} from "../../src/application/ports/outbound/rule/rule-repository.port"
@@ -147,6 +148,8 @@ describe("TOKENS", () => {
         const libraryRuleRepositoryToken: InjectionToken<ILibraryRuleRepository> =
             TOKENS.Rule.LibraryRepository
         const ruleRepositoryToken: InjectionToken<IRuleRepository> = TOKENS.Rule.Repository
+        const categoryWeightProviderToken: InjectionToken<ICategoryWeightProvider> =
+            TOKENS.Rules.CategoryWeightProvider
         const teamRuleProviderToken: InjectionToken<ITeamRuleProvider> =
             TOKENS.Rules.TeamRuleProvider
         const repositoryIndexRepositoryToken: InjectionToken<IRepositoryIndexRepository> =
@@ -191,6 +194,7 @@ describe("TOKENS", () => {
             customRuleRepositoryToken,
             libraryRuleRepositoryToken,
             ruleRepositoryToken,
+            categoryWeightProviderToken,
             teamRuleProviderToken,
             repositoryIndexRepositoryToken,
             repositoryScannerToken,

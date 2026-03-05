@@ -51,6 +51,7 @@ export {
 } from "./application/ports/outbound/rule/library-rule-repository.port"
 export {type IRuleCategoryRepository} from "./application/ports/outbound/rule/rule-category-repository.port"
 export {type ICustomRuleRepository} from "./application/ports/outbound/custom-rule-repository.port"
+export {type ICategoryWeightProvider} from "./application/ports/outbound/rule/category-weight-provider.port"
 export {type ITeamRuleProvider} from "./application/ports/outbound/rule/team-rule-provider.port"
 export {type INotificationProvider} from "./application/ports/outbound/notification/notification-provider.port"
 export {type INotificationService} from "./application/ports/outbound/notification/notification-service.port"
@@ -188,6 +189,10 @@ export {
     type IGetEnabledRulesInput,
     type IGetEnabledRulesOutput,
 } from "./application/dto/rules/get-enabled-rules.dto"
+export {
+    type IGetCategoryWeightsInput,
+    type IGetCategoryWeightsOutput,
+} from "./application/dto/rules/get-category-weights.dto"
 export {
     type IListRulesInput,
     type IListRulesOutput,
@@ -418,6 +423,10 @@ export {
     GetEnabledRulesUseCase,
     type IGetEnabledRulesDependencies,
 } from "./application/use-cases/rules/get-enabled-rules.use-case"
+export {
+    GetCategoryWeightsUseCase,
+    type IGetCategoryWeightsUseCaseDependencies,
+} from "./application/use-cases/rules/get-category-weights.use-case"
 export {
     ListRulesUseCase,
 } from "./application/use-cases/rules/list-rules.use-case"

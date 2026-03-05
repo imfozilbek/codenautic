@@ -26,6 +26,7 @@ import type {IPipelineCheckpointStore} from "../application/ports/outbound/revie
 import type {IRepositoryConfigLoader} from "../application/ports/outbound/review/repository-config-loader.port"
 import type {IReviewRepository} from "../application/ports/outbound/review/review-repository.port"
 import type {ICustomRuleAstEvaluator} from "../application/ports/outbound/rule/custom-rule-ast-evaluator.port"
+import type {ICategoryWeightProvider} from "../application/ports/outbound/rule/category-weight-provider.port"
 import type {ILibraryRuleRepository} from "../application/ports/outbound/rule/library-rule-repository.port"
 import type {IRuleCategoryRepository} from "../application/ports/outbound/rule/rule-category-repository.port"
 import type {IRuleRepository} from "../application/ports/outbound/rule/rule-repository.port"
@@ -121,6 +122,9 @@ export const TOKENS = {
         Repository: createToken<IRuleRepository>("core.rule.repository"),
     },
     Rules: {
+        CategoryWeightProvider: createToken<ICategoryWeightProvider>(
+            "core.rules.category-weight-provider",
+        ),
         TeamRuleProvider: createToken<ITeamRuleProvider>("core.rules.team-rule-provider"),
     },
     Scanning: {
