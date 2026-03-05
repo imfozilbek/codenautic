@@ -31,6 +31,10 @@ import {
     type ICityBusFactorOverlayEntry,
 } from "@/components/graphs/city-bus-factor-overlay"
 import {
+    BusFactorTrendChart,
+    type IBusFactorTrendSeries,
+} from "@/components/graphs/bus-factor-trend-chart"
+import {
     CityImpactOverlay,
     type ICityImpactOverlayEntry,
 } from "@/components/graphs/city-impact-overlay"
@@ -1379,6 +1383,72 @@ function buildBusFactorPackageColorByName(
     return Object.keys(packageColorByName).length === 0 ? undefined : packageColorByName
 }
 
+function clampBusFactorValue(value: number): number {
+    return Math.max(1, Math.min(10, value))
+}
+
+/**
+ * Формирует series для line chart тренда bus factor по модулям.
+ *
+ * @param entries District bus factor entries.
+ * @returns Набор module-series с timeline и аннотациями team changes.
+ */
+function buildBusFactorTrendSeries(
+    entries: ReadonlyArray<ICityBusFactorOverlayEntry>,
+): ReadonlyArray<IBusFactorTrendSeries> {
+    const timeline = [
+        "2025-10-20T00:00:00.000Z",
+        "2025-11-15T00:00:00.000Z",
+        "2025-12-20T00:00:00.000Z",
+        "2026-01-18T00:00:00.000Z",
+        "2026-02-01T00:00:00.000Z",
+    ] as const
+
+    return entries.slice(0, 5).map((entry, index): IBusFactorTrendSeries => {
+        const baseBusFactor = clampBusFactorValue(entry.busFactor)
+        const points = timeline.map((timestamp, pointIndex) => {
+            const pointValue = (() => {
+                if (pointIndex === 0) {
+                    return clampBusFactorValue(baseBusFactor + 1)
+                }
+                if (pointIndex === 1) {
+                    return baseBusFactor
+                }
+                if (pointIndex === 2) {
+                    return clampBusFactorValue(baseBusFactor - 1)
+                }
+                if (pointIndex === 3) {
+                    return clampBusFactorValue(baseBusFactor - 1 + (index % 2))
+                }
+                return baseBusFactor
+            })()
+
+            const annotation = (() => {
+                if (pointIndex === 1) {
+                    return "Team rotation"
+                }
+                if (pointIndex === 3 && index % 2 === 1) {
+                    return "New maintainer onboarded"
+                }
+                return undefined
+            })()
+
+            return {
+                annotation,
+                busFactor: pointValue,
+                timestamp,
+            }
+        })
+
+        return {
+            moduleId: entry.districtId,
+            moduleLabel: entry.districtLabel,
+            points,
+            primaryFileId: entry.primaryFileId,
+        }
+    })
+}
+
 /**
  * Формирует knowledge silo entries с агрегированным risk score.
  *
@@ -1724,6 +1794,7 @@ export function CodeCityDashboardPage(
     )
     const [highlightedFileId, setHighlightedFileId] = useState<string | undefined>()
     const [activeBusFactorDistrictId, setActiveBusFactorDistrictId] = useState<string | undefined>()
+    const [activeBusFactorTrendModuleId, setActiveBusFactorTrendModuleId] = useState<string | undefined>()
     const [activeKnowledgeSiloId, setActiveKnowledgeSiloId] = useState<string | undefined>()
     const [activeContributorId, setActiveContributorId] = useState<string | undefined>()
     const [activeOwnershipTransitionId, setActiveOwnershipTransitionId] = useState<string | undefined>()
@@ -1761,6 +1832,7 @@ export function CodeCityDashboardPage(
     const busFactorPackageColorByName = buildBusFactorPackageColorByName(
         busFactorOverlayEntries,
     )
+    const busFactorTrendSeries = buildBusFactorTrendSeries(busFactorOverlayEntries)
     const knowledgeSiloEntries = buildKnowledgeSiloPanelEntries(
         currentProfile.files,
         currentProfile.ownership,
@@ -1817,6 +1889,7 @@ export function CodeCityDashboardPage(
         setRepositoryId(nextRepositoryId)
         setHighlightedFileId(undefined)
         setActiveBusFactorDistrictId(undefined)
+        setActiveBusFactorTrendModuleId(undefined)
         setActiveKnowledgeSiloId(undefined)
         setActiveContributorId(undefined)
         setActiveOwnershipTransitionId(undefined)
@@ -2262,6 +2335,30 @@ export function CodeCityDashboardPage(
                             markAreaExplored("controls")
                             markAreaExplored("city-3d")
                         }}
+                    />
+                </CardBody>
+            </Card>
+
+            <Card>
+                <CardHeader>
+                    <p className="text-sm font-semibold text-slate-900">Bus factor trend chart</p>
+                </CardHeader>
+                <CardBody>
+                    <BusFactorTrendChart
+                        activeModuleId={activeBusFactorTrendModuleId}
+                        onSelectSeries={(series): void => {
+                            setActiveBusFactorTrendModuleId(series.moduleId)
+                            setActiveBusFactorDistrictId(series.moduleId)
+                            setHighlightedFileId(series.primaryFileId)
+                            setExploreNavigationFocus({
+                                activeFileId: series.primaryFileId,
+                                chainFileIds: [series.primaryFileId],
+                                title: `Bus factor trend: ${series.moduleLabel}`,
+                            })
+                            markAreaExplored("controls")
+                            markAreaExplored("city-3d")
+                        }}
+                        series={busFactorTrendSeries}
                     />
                 </CardBody>
             </Card>

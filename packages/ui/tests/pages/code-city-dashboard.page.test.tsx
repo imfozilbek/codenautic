@@ -621,6 +621,51 @@ const { mockCityBusFactorOverlay } = vi.hoisted(() => ({
         },
     ),
 }))
+const { mockBusFactorTrendChart } = vi.hoisted(() => ({
+    mockBusFactorTrendChart: vi.fn(
+        (props: {
+            readonly series: ReadonlyArray<{
+                readonly moduleId: string
+                readonly moduleLabel: string
+                readonly primaryFileId: string
+                readonly points: ReadonlyArray<{
+                    readonly timestamp: string
+                    readonly busFactor: number
+                    readonly annotation?: string
+                }>
+            }>
+            readonly activeModuleId?: string
+            readonly onSelectSeries?: (series: {
+                readonly moduleId: string
+                readonly moduleLabel: string
+                readonly primaryFileId: string
+                readonly points: ReadonlyArray<{
+                    readonly timestamp: string
+                    readonly busFactor: number
+                    readonly annotation?: string
+                }>
+            }) => void
+        }): React.JSX.Element => {
+            return (
+                <div>
+                    <p>bus-factor-trend-series:{props.series.length}</p>
+                    <p>bus-factor-trend-active:{props.activeModuleId ?? "none"}</p>
+                    <button
+                        onClick={(): void => {
+                            const firstSeries = props.series.at(0)
+                            if (firstSeries !== undefined) {
+                                props.onSelectSeries?.(firstSeries)
+                            }
+                        }}
+                        type="button"
+                    >
+                        inspect bus factor trend module
+                    </button>
+                </div>
+            )
+        },
+    ),
+}))
 const { mockKnowledgeSiloPanel } = vi.hoisted(() => ({
     mockKnowledgeSiloPanel: vi.fn(
         (props: {
@@ -1013,6 +1058,9 @@ vi.mock("@/components/graphs/city-impact-overlay", () => ({
 vi.mock("@/components/graphs/city-bus-factor-overlay", () => ({
     CityBusFactorOverlay: mockCityBusFactorOverlay,
 }))
+vi.mock("@/components/graphs/bus-factor-trend-chart", () => ({
+    BusFactorTrendChart: mockBusFactorTrendChart,
+}))
 vi.mock("@/components/graphs/knowledge-silo-panel", () => ({
     KnowledgeSiloPanel: mockKnowledgeSiloPanel,
 }))
@@ -1058,6 +1106,7 @@ beforeEach((): void => {
     mockImpactAnalysisPanel.mockClear()
     mockCityImpactOverlay.mockClear()
     mockCityBusFactorOverlay.mockClear()
+    mockBusFactorTrendChart.mockClear()
     mockKnowledgeSiloPanel.mockClear()
     mockContributorCollaborationGraph.mockClear()
     mockOwnershipTransitionWidget.mockClear()
@@ -1211,6 +1260,10 @@ describe("CodeCityDashboardPage", (): void => {
         expect(firstBusFactorCall).not.toBeUndefined()
         expect(firstBusFactorCall?.entries.length).toBeGreaterThan(0)
 
+        const firstBusFactorTrendCall = mockBusFactorTrendChart.mock.calls.at(0)?.[0]
+        expect(firstBusFactorTrendCall).not.toBeUndefined()
+        expect(firstBusFactorTrendCall?.series.length).toBeGreaterThan(0)
+
         const firstKnowledgeSiloCall = mockKnowledgeSiloPanel.mock.calls.at(0)?.[0]
         expect(firstKnowledgeSiloCall).not.toBeUndefined()
         expect(firstKnowledgeSiloCall?.entries.length).toBeGreaterThan(0)
@@ -1338,6 +1391,15 @@ describe("CodeCityDashboardPage", (): void => {
         const busFactor3DCall = mockCodeCity3DScene.mock.calls.at(-1)?.[0]
         expect(busFactor3DCall).not.toBeUndefined()
         expect(busFactor3DCall?.navigationLabel).toContain("Bus factor:")
+
+        await user.click(screen.getByRole("button", { name: "inspect bus factor trend module" }))
+        const busFactorTrendSeries = mockBusFactorTrendChart.mock.calls.at(-1)?.[0]?.series.at(0)
+        const busFactorTrendTreemapCall = mockCodeCityTreemap.mock.calls.at(-1)?.[0]
+        expect(busFactorTrendTreemapCall).not.toBeUndefined()
+        expect(busFactorTrendTreemapCall?.highlightedFileId).toBe(busFactorTrendSeries?.primaryFileId)
+        const busFactorTrend3DCall = mockCodeCity3DScene.mock.calls.at(-1)?.[0]
+        expect(busFactorTrend3DCall).not.toBeUndefined()
+        expect(busFactorTrend3DCall?.navigationLabel).toContain("Bus factor trend:")
 
         await user.click(screen.getByRole("button", { name: "inspect knowledge silo" }))
         const knowledgeSiloTreemapCall = mockCodeCityTreemap.mock.calls.at(-1)?.[0]
