@@ -23,6 +23,10 @@ import {
     type TCausalOverlayMode,
 } from "@/components/graphs/causal-overlay-selector"
 import {
+    CityRefactoringOverlay,
+    type ICityRefactoringOverlayEntry,
+} from "@/components/graphs/city-refactoring-overlay"
+import {
     GuidedTourOverlay,
     type IGuidedTourStep,
 } from "@/components/graphs/guided-tour-overlay"
@@ -837,6 +841,28 @@ function buildRefactoringTargets(
         .slice(0, 6)
 }
 
+/**
+ * Формирует overlay-слой приоритетов рефакторинга для CodeCity.
+ *
+ * @param targets Приоритизированные refactoring targets.
+ * @returns Дескрипторы overlay-элементов.
+ */
+function buildCityRefactoringOverlayEntries(
+    targets: ReadonlyArray<IRefactoringTargetDescriptor>,
+): ReadonlyArray<ICityRefactoringOverlayEntry> {
+    return targets.slice(0, 5).map((target, index): ICityRefactoringOverlayEntry => {
+        const priority: ICityRefactoringOverlayEntry["priority"] =
+            index === 0 ? "critical" : index < 3 ? "high" : "medium"
+
+        return {
+            details: `ROI ${String(target.roiScore)} · Risk ${String(target.riskScore)} · Effort ${String(target.effortScore)}`,
+            fileId: target.fileId,
+            label: target.title,
+            priority,
+        }
+    })
+}
+
 export function CodeCityDashboardPage(
     props: ICodeCityDashboardPageProps = {},
 ): ReactElement {
@@ -879,6 +905,7 @@ export function CodeCityDashboardPage(
     const exploreModePaths = buildExploreModePaths(currentProfile.files)
     const hotAreaHighlights = buildHotAreaHighlights(currentProfile.files)
     const refactoringTargets = buildRefactoringTargets(currentProfile.files)
+    const cityRefactoringOverlayEntries = buildCityRefactoringOverlayEntries(refactoringTargets)
     const onboardingProgressModules = buildOnboardingProgressModules(exploredAreaIds)
     const fileLink = createRepositoryFilesLink(currentProfile.id)
     const overlayImpactedFiles =
@@ -1156,6 +1183,26 @@ export function CodeCityDashboardPage(
                             markAreaExplored("city-3d")
                         }}
                         targets={refactoringTargets}
+                    />
+                </CardBody>
+            </Card>
+
+            <Card>
+                <CardHeader>
+                    <p className="text-sm font-semibold text-slate-900">City refactoring overlay</p>
+                </CardHeader>
+                <CardBody>
+                    <CityRefactoringOverlay
+                        entries={cityRefactoringOverlayEntries}
+                        onSelectEntry={(entry): void => {
+                            setHighlightedFileId(entry.fileId)
+                            setExploreNavigationFocus({
+                                activeFileId: entry.fileId,
+                                chainFileIds: [entry.fileId],
+                                title: `Refactor overlay: ${entry.label}`,
+                            })
+                            markAreaExplored("city-3d")
+                        }}
                     />
                 </CardBody>
             </Card>

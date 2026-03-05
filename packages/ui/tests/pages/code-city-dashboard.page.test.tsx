@@ -339,6 +339,41 @@ const { mockROICalculatorWidget } = vi.hoisted(() => ({
         },
     ),
 }))
+const { mockCityRefactoringOverlay } = vi.hoisted(() => ({
+    mockCityRefactoringOverlay: vi.fn(
+        (props: {
+            readonly entries: ReadonlyArray<{
+                readonly fileId: string
+                readonly label: string
+                readonly priority: "critical" | "high" | "medium"
+                readonly details: string
+            }>
+            readonly onSelectEntry?: (entry: {
+                readonly fileId: string
+                readonly label: string
+                readonly priority: "critical" | "high" | "medium"
+                readonly details: string
+            }) => void
+        }): React.JSX.Element => {
+            return (
+                <div>
+                    <p>refactor-overlay-entries:{props.entries.length}</p>
+                    <button
+                        onClick={(): void => {
+                            const firstEntry = props.entries.at(0)
+                            if (firstEntry !== undefined) {
+                                props.onSelectEntry?.(firstEntry)
+                            }
+                        }}
+                        type="button"
+                    >
+                        inspect refactor overlay
+                    </button>
+                </div>
+            )
+        },
+    ),
+}))
 const { mockRootCauseChainViewer } = vi.hoisted(() => ({
     mockRootCauseChainViewer: vi.fn(
         (props: {
@@ -413,6 +448,9 @@ vi.mock("@/components/graphs/refactoring-dashboard", () => ({
 vi.mock("@/components/graphs/roi-calculator-widget", () => ({
     ROICalculatorWidget: mockROICalculatorWidget,
 }))
+vi.mock("@/components/graphs/city-refactoring-overlay", () => ({
+    CityRefactoringOverlay: mockCityRefactoringOverlay,
+}))
 vi.mock("@/components/graphs/root-cause-chain-viewer", () => ({
     RootCauseChainViewer: mockRootCauseChainViewer,
 }))
@@ -430,6 +468,7 @@ beforeEach((): void => {
     mockTourCustomizer.mockClear()
     mockRefactoringDashboard.mockClear()
     mockROICalculatorWidget.mockClear()
+    mockCityRefactoringOverlay.mockClear()
     mockRootCauseChainViewer.mockClear()
 })
 
@@ -545,6 +584,10 @@ describe("CodeCityDashboardPage", (): void => {
         const firstRoiCalculatorCall = mockROICalculatorWidget.mock.calls.at(0)?.[0]
         expect(firstRoiCalculatorCall).not.toBeUndefined()
         expect(firstRoiCalculatorCall?.targets.length).toBeGreaterThan(0)
+
+        const firstOverlayCall = mockCityRefactoringOverlay.mock.calls.at(0)?.[0]
+        expect(firstOverlayCall).not.toBeUndefined()
+        expect(firstOverlayCall?.entries.length).toBeGreaterThan(0)
     })
 
     it("обновляет treemap при смене репозитория и метрики", async (): Promise<void> => {
@@ -585,6 +628,11 @@ describe("CodeCityDashboardPage", (): void => {
         expect(roiNavigation3DCall).not.toBeUndefined()
         expect(roiNavigation3DCall?.navigationLabel).toBe("ROI scenario")
         expect(roiNavigation3DCall?.navigationChainFileIds.length).toBeGreaterThan(1)
+
+        await user.click(screen.getByRole("button", { name: "inspect refactor overlay" }))
+        const overlayNavigation3DCall = mockCodeCity3DScene.mock.calls.at(-1)?.[0]
+        expect(overlayNavigation3DCall).not.toBeUndefined()
+        expect(overlayNavigation3DCall?.navigationLabel).toContain("Refactor overlay:")
 
         const repositorySelect = screen.getByRole("combobox", { name: "Repository" })
         const metricSelect = screen.getByRole("combobox", { name: "Metric" })
