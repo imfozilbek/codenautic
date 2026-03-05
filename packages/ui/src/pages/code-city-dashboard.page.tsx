@@ -86,6 +86,10 @@ import {
     type IAchievementPanelEntry,
 } from "@/components/graphs/achievements-panel"
 import {
+    TeamLeaderboard,
+    type ITeamLeaderboardEntry,
+} from "@/components/graphs/team-leaderboard"
+import {
     CityOwnershipOverlay,
     type ICityOwnershipOverlayOwnerEntry,
 } from "@/components/graphs/city-ownership-overlay"
@@ -1864,6 +1868,116 @@ function buildSprintAchievements(
         })
 }
 
+function clampLeaderboardScore(value: number): number {
+    return Math.max(1, Math.min(180, value))
+}
+
+/**
+ * Формирует leaderboard-команду для gamification ранжирования.
+ *
+ * @param files Файлы текущего профиля.
+ * @param contributors Контрибьюторы репозитория.
+ * @param ownership Маппинг file -> owner.
+ * @returns Набор leaderboard entries.
+ */
+function buildTeamLeaderboardEntries(
+    files: ReadonlyArray<ICodeCityTreemapFileDescriptor>,
+    contributors: ReadonlyArray<ICodeCityDashboardContributorDescriptor>,
+    ownership: ReadonlyArray<ICodeCityDashboardOwnershipDescriptor>,
+): ReadonlyArray<ITeamLeaderboardEntry> {
+    const fileById = new Map<string, ICodeCityTreemapFileDescriptor>(
+        files.map((file): readonly [string, ICodeCityTreemapFileDescriptor] => [file.id, file]),
+    )
+    const fileIdsByOwner = new Map<string, string[]>()
+    for (const relation of ownership) {
+        if (fileById.has(relation.fileId) === false) {
+            continue
+        }
+        const ownerFileIds = fileIdsByOwner.get(relation.ownerId)
+        if (ownerFileIds === undefined) {
+            fileIdsByOwner.set(relation.ownerId, [relation.fileId])
+            continue
+        }
+        if (ownerFileIds.includes(relation.fileId) === false) {
+            ownerFileIds.push(relation.fileId)
+        }
+    }
+
+    return contributors
+        .map((contributor): ITeamLeaderboardEntry => {
+            const ownerFileIds = fileIdsByOwner.get(contributor.ownerId) ?? []
+            const normalizedFileIds =
+                ownerFileIds.length > 0
+                    ? ownerFileIds
+                    : files[0] === undefined
+                      ? []
+                      : [files[0].id]
+            const primaryFileId =
+                normalizedFileIds[0] ?? files[0]?.id ?? `leaderboard-${contributor.ownerId}`
+            const ownerFiles = normalizedFileIds
+                .map((fileId): ICodeCityTreemapFileDescriptor | undefined => fileById.get(fileId))
+                .filter((file): file is ICodeCityTreemapFileDescriptor => file !== undefined)
+            const fileCount = Math.max(1, normalizedFileIds.length)
+            const totalComplexity = ownerFiles.reduce((sum, file): number => {
+                return sum + (file.complexity ?? 0)
+            }, 0)
+            const totalChurn = ownerFiles.reduce((sum, file): number => {
+                return sum + (file.churn ?? 0)
+            }, 0)
+            const totalBugIntroductions = ownerFiles.reduce((sum, file): number => {
+                return sum + (file.bugIntroductions?.["30d"] ?? 0)
+            }, 0)
+            const avgComplexity = totalComplexity / fileCount
+            const avgChurn = totalChurn / fileCount
+            const avgBugIntroductions = totalBugIntroductions / fileCount
+            const qualityMonth = clampLeaderboardScore(
+                Math.round(100 - avgComplexity * 3 - avgChurn * 1.2 - avgBugIntroductions * 6),
+            )
+            const qualitySprint = clampLeaderboardScore(
+                Math.round(qualityMonth + 3 + contributor.commitCount / 25),
+            )
+            const qualityQuarter = clampLeaderboardScore(Math.round(qualityMonth - 4))
+            const velocityMonth = clampLeaderboardScore(
+                Math.round(contributor.commitCount * 1.1 + fileCount * 4),
+            )
+            const velocitySprint = clampLeaderboardScore(Math.round(velocityMonth + 8))
+            const velocityQuarter = clampLeaderboardScore(Math.round(velocityMonth - 6))
+            const ownershipMonth = clampLeaderboardScore(
+                Math.round(fileCount * 12 + contributor.commitCount * 0.6),
+            )
+            const ownershipSprint = clampLeaderboardScore(Math.round(ownershipMonth + 4))
+            const ownershipQuarter = clampLeaderboardScore(Math.round(ownershipMonth + 10))
+
+            return {
+                fileIds: normalizedFileIds,
+                ownerId: contributor.ownerId,
+                ownerName: contributor.ownerName,
+                ownership: {
+                    month: ownershipMonth,
+                    quarter: ownershipQuarter,
+                    sprint: ownershipSprint,
+                },
+                primaryFileId,
+                quality: {
+                    month: qualityMonth,
+                    quarter: qualityQuarter,
+                    sprint: qualitySprint,
+                },
+                velocity: {
+                    month: velocityMonth,
+                    quarter: velocityQuarter,
+                    sprint: velocitySprint,
+                },
+            }
+        })
+        .sort((leftEntry, rightEntry): number => {
+            if (rightEntry.quality.sprint !== leftEntry.quality.sprint) {
+                return rightEntry.quality.sprint - leftEntry.quality.sprint
+            }
+            return leftEntry.ownerName.localeCompare(rightEntry.ownerName)
+        })
+}
+
 /**
  * Формирует список bug-prone файлов для prediction dashboard.
  *
@@ -2638,6 +2752,9 @@ export function CodeCityDashboardPage(
         useState<string | undefined>()
     const [activeDistrictTrendId, setActiveDistrictTrendId] = useState<string | undefined>()
     const [activeAchievementId, setActiveAchievementId] = useState<string | undefined>()
+    const [activeTeamLeaderboardOwnerId, setActiveTeamLeaderboardOwnerId] = useState<
+        string | undefined
+    >()
     const [activeKnowledgeSiloId, setActiveKnowledgeSiloId] = useState<string | undefined>()
     const [activeContributorId, setActiveContributorId] = useState<string | undefined>()
     const [activeOwnershipTransitionId, setActiveOwnershipTransitionId] = useState<string | undefined>()
@@ -2694,6 +2811,11 @@ export function CodeCityDashboardPage(
     const sprintComparisonSnapshots = buildSprintComparisonSnapshots(currentProfile.files)
     const districtTrendIndicators = buildDistrictTrendIndicators(currentProfile.files)
     const sprintAchievements = buildSprintAchievements(currentProfile.files)
+    const teamLeaderboardEntries = buildTeamLeaderboardEntries(
+        currentProfile.files,
+        currentProfile.contributors,
+        currentProfile.ownership,
+    )
     const predictionBugProneFiles = buildPredictionBugProneFiles(
         currentProfile.files,
         predictionOverlayEntries,
@@ -2783,6 +2905,7 @@ export function CodeCityDashboardPage(
         setActiveSprintComparisonSnapshotId(undefined)
         setActiveDistrictTrendId(undefined)
         setActiveAchievementId(undefined)
+        setActiveTeamLeaderboardOwnerId(undefined)
         setActiveKnowledgeSiloId(undefined)
         setActiveContributorId(undefined)
         setActiveOwnershipTransitionId(undefined)
@@ -3440,6 +3563,31 @@ export function CodeCityDashboardPage(
                                 activeFileId: achievement.fileId,
                                 chainFileIds: achievement.relatedFileIds,
                                 title: `Achievement: ${achievement.title}`,
+                            })
+                            markAreaExplored("controls")
+                            markAreaExplored("city-3d")
+                        }}
+                    />
+                </CardBody>
+            </Card>
+
+            <Card>
+                <CardHeader>
+                    <p className="text-sm font-semibold text-slate-900">Team leaderboard</p>
+                </CardHeader>
+                <CardBody>
+                    <TeamLeaderboard
+                        activeOwnerId={activeTeamLeaderboardOwnerId}
+                        entries={teamLeaderboardEntries}
+                        onSelectEntry={(entry): void => {
+                            setActiveTeamLeaderboardOwnerId(entry.ownerId)
+                            setActivePredictionHotspotId(undefined)
+                            setActivePredictionFileId(entry.primaryFileId)
+                            setHighlightedFileId(entry.primaryFileId)
+                            setExploreNavigationFocus({
+                                activeFileId: entry.primaryFileId,
+                                chainFileIds: entry.fileIds,
+                                title: `Leaderboard: ${entry.ownerName}`,
                             })
                             markAreaExplored("controls")
                             markAreaExplored("city-3d")

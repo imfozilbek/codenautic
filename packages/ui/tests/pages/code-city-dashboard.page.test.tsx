@@ -1029,6 +1029,73 @@ const { mockAchievementsPanel } = vi.hoisted(() => ({
         },
     ),
 }))
+const { mockTeamLeaderboard } = vi.hoisted(() => ({
+    mockTeamLeaderboard: vi.fn(
+        (props: {
+            readonly entries: ReadonlyArray<{
+                readonly ownerId: string
+                readonly ownerName: string
+                readonly primaryFileId: string
+                readonly fileIds: ReadonlyArray<string>
+                readonly quality: {
+                    readonly sprint: number
+                    readonly month: number
+                    readonly quarter: number
+                }
+                readonly velocity: {
+                    readonly sprint: number
+                    readonly month: number
+                    readonly quarter: number
+                }
+                readonly ownership: {
+                    readonly sprint: number
+                    readonly month: number
+                    readonly quarter: number
+                }
+            }>
+            readonly activeOwnerId?: string
+            readonly onSelectEntry?: (entry: {
+                readonly ownerId: string
+                readonly ownerName: string
+                readonly primaryFileId: string
+                readonly fileIds: ReadonlyArray<string>
+                readonly quality: {
+                    readonly sprint: number
+                    readonly month: number
+                    readonly quarter: number
+                }
+                readonly velocity: {
+                    readonly sprint: number
+                    readonly month: number
+                    readonly quarter: number
+                }
+                readonly ownership: {
+                    readonly sprint: number
+                    readonly month: number
+                    readonly quarter: number
+                }
+            }) => void
+        }): React.JSX.Element => {
+            return (
+                <div>
+                    <p>team-leaderboard-entries:{props.entries.length}</p>
+                    <p>team-leaderboard-active:{props.activeOwnerId ?? "none"}</p>
+                    <button
+                        onClick={(): void => {
+                            const firstEntry = props.entries.at(0)
+                            if (firstEntry !== undefined) {
+                                props.onSelectEntry?.(firstEntry)
+                            }
+                        }}
+                        type="button"
+                    >
+                        inspect team leaderboard contributor
+                    </button>
+                </div>
+            )
+        },
+    ),
+}))
 const { mockCityBusFactorOverlay } = vi.hoisted(() => ({
     mockCityBusFactorOverlay: vi.fn(
         (props: {
@@ -1584,6 +1651,9 @@ vi.mock("@/components/graphs/district-trend-indicators", () => ({
 vi.mock("@/components/graphs/achievements-panel", () => ({
     AchievementsPanel: mockAchievementsPanel,
 }))
+vi.mock("@/components/graphs/team-leaderboard", () => ({
+    TeamLeaderboard: mockTeamLeaderboard,
+}))
 vi.mock("@/components/graphs/city-bus-factor-overlay", () => ({
     CityBusFactorOverlay: mockCityBusFactorOverlay,
 }))
@@ -1647,6 +1717,7 @@ beforeEach((): void => {
     mockSprintComparisonView.mockClear()
     mockDistrictTrendIndicators.mockClear()
     mockAchievementsPanel.mockClear()
+    mockTeamLeaderboard.mockClear()
     mockCityBusFactorOverlay.mockClear()
     mockBusFactorTrendChart.mockClear()
     mockKnowledgeSiloPanel.mockClear()
@@ -1842,6 +1913,10 @@ describe("CodeCityDashboardPage", (): void => {
         const firstAchievementsCall = mockAchievementsPanel.mock.calls.at(0)?.[0]
         expect(firstAchievementsCall).not.toBeUndefined()
         expect(firstAchievementsCall?.achievements.length).toBeGreaterThan(0)
+
+        const firstTeamLeaderboardCall = mockTeamLeaderboard.mock.calls.at(0)?.[0]
+        expect(firstTeamLeaderboardCall).not.toBeUndefined()
+        expect(firstTeamLeaderboardCall?.entries.length).toBeGreaterThan(0)
 
         const firstBusFactorCall = mockCityBusFactorOverlay.mock.calls.at(0)?.[0]
         expect(firstBusFactorCall).not.toBeUndefined()
@@ -2043,6 +2118,16 @@ describe("CodeCityDashboardPage", (): void => {
         const achievement3DCall = mockCodeCity3DScene.mock.calls.at(-1)?.[0]
         expect(achievement3DCall).not.toBeUndefined()
         expect(achievement3DCall?.navigationLabel).toContain("Achievement:")
+
+        await user.click(
+            screen.getByRole("button", { name: "inspect team leaderboard contributor" }),
+        )
+        const leaderboardTreemapCall = mockCodeCityTreemap.mock.calls.at(-1)?.[0]
+        expect(leaderboardTreemapCall).not.toBeUndefined()
+        expect(leaderboardTreemapCall?.highlightedFileId).toBeDefined()
+        const leaderboard3DCall = mockCodeCity3DScene.mock.calls.at(-1)?.[0]
+        expect(leaderboard3DCall).not.toBeUndefined()
+        expect(leaderboard3DCall?.navigationLabel).toContain("Leaderboard:")
 
         await user.click(screen.getByRole("button", { name: "inspect change risk point" }))
         const riskNavigation3DCall = mockCodeCity3DScene.mock.calls.at(-1)?.[0]
