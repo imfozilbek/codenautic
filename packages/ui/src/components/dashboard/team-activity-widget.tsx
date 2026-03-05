@@ -33,7 +33,7 @@ export function TeamActivityWidget(props: ITeamActivityWidgetProps): ReactElemen
                     CCRs merged by developer in selected date range.
                 </p>
                 <div className="h-64 w-full">
-                    <ResponsiveContainer height="100%" width="100%">
+                    <ResponsiveContainer height="100%" minHeight={1} minWidth={1} width="100%">
                         <BarChart data={props.points}>
                             <CartesianGrid strokeDasharray="3 3" />
                             <XAxis dataKey="developer" />

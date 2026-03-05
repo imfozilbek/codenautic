@@ -1566,7 +1566,7 @@ export function CodeCityTreemap(props: ICodeCityTreemapProps): ReactElement {
                     className="relative"
                     style={{ height, width: "100%" }}
                 >
-                    <ResponsiveContainer height="100%" width="100%">
+                    <ResponsiveContainer height="100%" minHeight={1} minWidth={1} width="100%">
                         <Treemap
                             data={visiblePackages as unknown as ReadonlyArray<Record<string, unknown>>}
                             dataKey="value"

@@ -177,7 +177,7 @@ export function ReportViewerPage(): ReactElement {
                         </div>
                     </div>
                     <div aria-label="Report trend chart" className="h-72 w-full">
-                        <ResponsiveContainer height="100%" width="100%">
+                        <ResponsiveContainer height="100%" minHeight={1} minWidth={1} width="100%">
                             <LineChart data={REPORT_TREND_POINTS} margin={{ bottom: 8, left: 8, right: 12, top: 12 }}>
                                 <CartesianGrid strokeDasharray="3 3" />
                                 <XAxis dataKey="period" />
@@ -196,7 +196,7 @@ export function ReportViewerPage(): ReactElement {
                         </ResponsiveContainer>
                     </div>
                     <div aria-label="Report sections distribution chart" className="h-72 w-full">
-                        <ResponsiveContainer height="100%" width="100%">
+                        <ResponsiveContainer height="100%" minHeight={1} minWidth={1} width="100%">
                             <BarChart
                                 data={SECTION_DISTRIBUTION_POINTS}
                                 margin={{ bottom: 8, left: 8, right: 12, top: 12 }}

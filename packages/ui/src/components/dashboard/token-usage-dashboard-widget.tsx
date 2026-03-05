@@ -58,7 +58,7 @@ export function TokenUsageDashboardWidget(props: ITokenUsageDashboardWidgetProps
                 </p>
                 <div className="grid gap-3 lg:grid-cols-2">
                     <div className="h-56 w-full">
-                        <ResponsiveContainer height="100%" width="100%">
+                        <ResponsiveContainer height="100%" minHeight={1} minWidth={1} width="100%">
                             <PieChart>
                                 <Pie
                                     cx="50%"
@@ -80,7 +80,7 @@ export function TokenUsageDashboardWidget(props: ITokenUsageDashboardWidgetProps
                         </ResponsiveContainer>
                     </div>
                     <div className="h-56 w-full">
-                        <ResponsiveContainer height="100%" width="100%">
+                        <ResponsiveContainer height="100%" minHeight={1} minWidth={1} width="100%">
                             <AreaChart data={props.costTrend}>
                                 <CartesianGrid strokeDasharray="3 3" />
                                 <XAxis dataKey="period" />

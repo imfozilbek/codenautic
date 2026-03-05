@@ -49,7 +49,7 @@ export function ArchitectureHealthWidget(props: IArchitectureHealthWidgetProps):
                     Health score, layer violations and DDD compliance in one architecture widget.
                 </p>
                 <div className="h-60 w-full">
-                    <ResponsiveContainer height="100%" width="100%">
+                    <ResponsiveContainer height="100%" minHeight={1} minWidth={1} width="100%">
                         <RadarChart data={radarData}>
                             <PolarGrid />
                             <PolarAngleAxis dataKey="metric" />

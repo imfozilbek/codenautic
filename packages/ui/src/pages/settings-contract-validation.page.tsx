@@ -1529,7 +1529,7 @@ export function SettingsContractValidationPage(): ReactElement {
                         Drift score trend over time with architecture change annotations.
                     </p>
                     <div aria-label="Drift score trend chart" className="h-72 w-full">
-                        <ResponsiveContainer height="100%" width="100%">
+                        <ResponsiveContainer height="100%" minHeight={1} minWidth={1} width="100%">
                             <LineChart data={DRIFT_TREND_POINTS} margin={{ bottom: 8, left: 8, right: 12, top: 12 }}>
                                 <CartesianGrid strokeDasharray="3 3" />
                                 <XAxis dataKey="period" />

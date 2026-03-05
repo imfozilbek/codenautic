@@ -56,7 +56,7 @@ export function FlowMetricsWidget(props: IFlowMetricsWidgetProps): ReactElement 
                     Track flow efficiency and delivery capacity dynamics across recent windows.
                 </p>
                 <div className="h-64 w-full">
-                    <ResponsiveContainer height="100%" width="100%">
+                    <ResponsiveContainer height="100%" minHeight={1} minWidth={1} width="100%">
                         <LineChart data={props.points}>
                             <CartesianGrid strokeDasharray="3 3" />
                             <XAxis dataKey="window" />

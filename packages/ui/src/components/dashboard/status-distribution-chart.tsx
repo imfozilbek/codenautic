@@ -55,7 +55,7 @@ export function StatusDistributionChart(props: IStatusDistributionChartProps): R
             {({ displayData }): ReactElement => (
                 <>
                     <div className="h-72">
-                        <ResponsiveContainer height="100%" width="100%">
+                        <ResponsiveContainer height="100%" minHeight={1} minWidth={1} width="100%">
                             <PieChart>
                                 <Pie
                                     data={displayData}
