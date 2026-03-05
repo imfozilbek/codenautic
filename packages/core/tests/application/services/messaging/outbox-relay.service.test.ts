@@ -184,4 +184,12 @@ describe("OutboxRelayService", () => {
         expect(updated?.retryCount).toBe(1)
         expect(repository.getEvents()).toEqual([`markFailed:${message.id.value}`])
     })
+
+    test("exposes configured batch size", () => {
+        const repository = new InMemoryOutboxRepository([])
+        const broker = new InMemoryMessageBroker()
+        const relayService = new OutboxRelayService(repository, broker, {batchSize: 7})
+
+        expect(relayService.getBatchSize()).toBe(7)
+    })
 })

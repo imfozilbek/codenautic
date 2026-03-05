@@ -61,6 +61,19 @@ describe("InboxDeduplicationService", () => {
         expect(found?.isProcessed()).toBe(true)
     })
 
+    test("использует default now при отсутствии провайдера", async () => {
+        const repository = new InMemoryInboxRepository()
+        const service = new InboxDeduplicationService({
+            inboxRepository: repository,
+        })
+
+        const first = await service.process("msg-default", "EVENT_CREATED")
+        const found = await repository.findByMessageId("msg-default")
+
+        expect(first).toBe(true)
+        expect(found?.processedAt).toBeInstanceOf(Date)
+    })
+
     test("isDuplicate возвращает корректный статус", async () => {
         const repository = new InMemoryInboxRepository()
         const service = new InboxDeduplicationService({

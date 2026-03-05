@@ -354,6 +354,37 @@ describe("Safeguard filters", () => {
         expect(provider.requests[0]?.messages[0]?.content).toContain("strict static review validator")
     })
 
+    test("includes hunk text when building hallucination prompt", async () => {
+        const provider = new InMemoryLLMProvider()
+        provider.responses.push({content: '{"isSupported": true}'})
+        const generatePromptUseCase = new InMemoryGeneratePromptUseCase()
+        const filter = new HallucinationSafeguardFilter({
+            llmProvider: provider,
+            generatePromptUseCase,
+            defaults: hallucinationDefaults,
+        })
+        const state = createStateWithFiles({}, [
+            {
+                path: "src/app.ts",
+                patch: "+function y() {}\\n",
+                hunks: [
+                    "@@ -1,1 +1,1 @@",
+                    42,
+                ],
+            },
+        ])
+        const suggestion = createSuggestion({
+            id: "hunks",
+            codeBlock: "function x() {}",
+        })
+
+        const result = await filter.filter([suggestion], state)
+
+        expect(result.passed).toHaveLength(1)
+        expect(provider.requests).toHaveLength(1)
+        expect(provider.requests[0]?.messages[1]?.content).toContain("@@ -1,1 +1,1 @@")
+    })
+
     test("discards suggestions already implemented in file patch", async () => {
         const filter = new ImplementationCheckSafeguardFilter()
         const state = createStateWithFiles({}, [
@@ -380,5 +411,31 @@ describe("Safeguard filters", () => {
         expect(result.passed.map((item) => item.id)).toEqual(["new"])
         expect(result.discarded.map((item) => item.id)).toEqual(["implemented"])
         expect(result.discarded[0]?.discardReason).toBe("already_implemented")
+    })
+
+    test("keeps suggestions without code block or without matching file", async () => {
+        const filter = new ImplementationCheckSafeguardFilter()
+        const state = createStateWithFiles({}, [
+            {
+                path: "src/app.ts",
+                patch: "+function existing() {}\\n",
+            },
+        ])
+        const source = [
+            createSuggestion({
+                id: "no-code",
+                codeBlock: "",
+            }),
+            createSuggestion({
+                id: "no-file",
+                filePath: "src/missing.ts",
+                codeBlock: "function missing() {}",
+            }),
+        ]
+
+        const result = await filter.filter(source, state)
+
+        expect(result.passed.map((item) => item.id)).toEqual(["no-code", "no-file"])
+        expect(result.discarded).toHaveLength(0)
     })
 })

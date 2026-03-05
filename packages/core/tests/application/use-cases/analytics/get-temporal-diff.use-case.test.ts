@@ -204,4 +204,33 @@ describe("GetTemporalDiffUseCase", () => {
         expect(missingTo.error).toBeInstanceOf(NotFoundError)
         expect((missingTo.error as NotFoundError).entityId).toBe("gh:repo@missing-feature")
     })
+
+    test("sorts multiple added and changed nodes deterministically", async () => {
+        const repository = new InMemoryGraphRepository({
+            "gh:repo@main": createGraph([
+                node("n-a", "src/a.ts", {loc: 5}),
+                node("n-b", "src/b.ts", {loc: 10}),
+                node("n-c", "src/c.ts", {loc: 20}),
+            ]),
+            "gh:repo@feature": createGraph([
+                node("n-b", "src/b.ts", {loc: 12}),
+                node("n-c", "src/c.ts", {loc: 30}),
+                node("n-d", "src/d.ts", {loc: 1}),
+                node("n-e", "src/e.ts", {loc: 2}),
+            ]),
+        })
+
+        const useCase = new GetTemporalDiffUseCase({
+            graphRepository: repository,
+        })
+        const result = await useCase.execute({
+            repoId: "gh:repo",
+            fromCommit: "main",
+            toCommit: "feature",
+        })
+
+        expect(result.isOk).toBe(true)
+        expect(result.value.added.map((item) => item.id)).toEqual(["src/d.ts", "src/e.ts"])
+        expect(result.value.changed.map((item) => item.node.id)).toEqual(["src/b.ts", "src/c.ts"])
+    })
 })

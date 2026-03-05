@@ -106,6 +106,22 @@ class StaticFilter implements ISafeGuardFilter {
     }
 }
 
+class InvalidDiscardFilter implements ISafeGuardFilter {
+    public readonly name = "invalid-filter"
+
+    public filter(
+        _suggestions: readonly ISuggestionDTO[],
+        _context: ReviewPipelineState,
+    ): Promise<{passed: readonly ISuggestionDTO[]; discarded: readonly IDiscardedSuggestionDTO[]}> {
+        return Promise.resolve({
+            passed: [],
+            discarded: [
+                {} as IDiscardedSuggestionDTO,
+            ],
+        })
+    }
+}
+
 class StaticAstEvaluator implements ICustomRuleAstEvaluator {
     public constructor(
         private readonly matches: readonly ICustomRuleAstMatch[],
@@ -362,6 +378,42 @@ describe("ApplyRuleUseCase", () => {
         expect(result.value.discardedSuggestions[0]?.discardReason).toBe("filtered")
     })
 
+    test("passes through SafeGuard when filters accept suggestions", async () => {
+        const llmProvider = new InMemoryLLMProvider()
+        const useCase = new ApplyRuleUseCase({
+            llmProvider,
+            filters: [new StaticFilter("pass")],
+            defaults: applyRuleDefaults,
+        })
+
+        const result = await useCase.execute({
+            rules: [
+                createActiveRule({
+                    id: "r-pass",
+                    title: "regex rule",
+                    rule: "TODO",
+                }),
+            ],
+            scope: CUSTOM_RULE_SCOPE.FILE,
+            config: {
+                applyFiltersToCustomRules: true,
+            },
+            files: [
+                {
+                    path: "src/app.ts",
+                    patch: "TODO",
+                },
+            ],
+            filterContext: createState(),
+        })
+
+        expect(result.isOk).toBe(true)
+        if (result.isOk) {
+            expect(result.value.suggestions).toHaveLength(1)
+            expect(result.value.discardedSuggestions).toHaveLength(0)
+        }
+    })
+
     test("requires filter context when SafeGuard is enabled", async () => {
         const llmProvider = new InMemoryLLMProvider()
         const useCase = new ApplyRuleUseCase({
@@ -394,6 +446,109 @@ describe("ApplyRuleUseCase", () => {
             field: "filterContext",
             message: "must be provided when filter chain is enabled",
         })
+    })
+
+    test("returns validation error when filter throws", async () => {
+        const llmProvider = new InMemoryLLMProvider()
+        const useCase = new ApplyRuleUseCase({
+            llmProvider,
+            filters: [new StaticFilter("throw")],
+            defaults: applyRuleDefaults,
+        })
+        const result = await useCase.execute({
+            rules: [
+                createActiveRule({
+                    id: "r-throw",
+                    title: "regex rule",
+                    rule: "TODO",
+                }),
+            ],
+            scope: CUSTOM_RULE_SCOPE.FILE,
+            config: {
+                applyFiltersToCustomRules: true,
+            },
+            files: [
+                {
+                    path: "src/app.ts",
+                    patch: "TODO",
+                },
+            ],
+            filterContext: createState(),
+        })
+
+        expect(result.isFail).toBe(true)
+        expect(result.error.fields).toContainEqual({
+            field: "filters",
+            message: "filter failed",
+        })
+    })
+
+    test("uses hunks as source text when patch and content are missing", async () => {
+        const llmProvider = new InMemoryLLMProvider()
+        const useCase = new ApplyRuleUseCase({llmProvider, defaults: applyRuleDefaults})
+        const result = await useCase.execute({
+            rules: [
+                createActiveRule({
+                    id: "r-hunk",
+                    rule: "TODO",
+                    type: "REGEX",
+                }),
+            ],
+            scope: CUSTOM_RULE_SCOPE.FILE,
+            config: {},
+            files: [
+                {
+                    path: "src/app.ts",
+                    hunks: [
+                        {
+                            patch: "+TODO: update handler",
+                        },
+                    ],
+                },
+            ],
+        })
+
+        expect(result.isOk).toBe(true)
+        if (result.isOk) {
+            expect(result.value.suggestions).toHaveLength(1)
+            expect(result.value.suggestions[0]?.filePath).toBe("src/app.ts")
+        }
+    })
+
+    test("creates fallback discarded suggestion for malformed filter payload", async () => {
+        const llmProvider = new InMemoryLLMProvider()
+        const useCase = new ApplyRuleUseCase({
+            llmProvider,
+            defaults: applyRuleDefaults,
+            filters: [new InvalidDiscardFilter()],
+        })
+        const result = await useCase.execute({
+            rules: [
+                createActiveRule({
+                    id: "r-filter",
+                    rule: "TODO",
+                    type: "REGEX",
+                }),
+            ],
+            scope: CUSTOM_RULE_SCOPE.FILE,
+            config: {
+                applyFiltersToCustomRules: true,
+            },
+            files: [
+                {
+                    path: "src/app.ts",
+                    patch: "TODO",
+                },
+            ],
+            filterContext: createState(),
+        })
+
+        expect(result.isOk).toBe(true)
+        if (result.isOk) {
+            expect(result.value.suggestions).toHaveLength(0)
+            expect(result.value.discardedSuggestions).toHaveLength(1)
+            expect(result.value.discardedSuggestions[0]?.filterName).toBe("invalid-filter")
+        }
     })
 
     test("maps CCR scope for prompt rules", async () => {

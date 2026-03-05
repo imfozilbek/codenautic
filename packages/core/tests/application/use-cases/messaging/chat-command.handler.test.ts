@@ -66,6 +66,12 @@ function buildFields(
 }
 
 describe("ChatCommandHandler", () => {
+    test("exposes commandType for registry", () => {
+        const handler = new ChatCommandHandler(new FakeChatUseCase([]))
+
+        expect(handler.commandType).toBe("chat")
+    })
+
     test("выполняет ChatUseCase для @codenautic chat команды", async () => {
         const chatUseCase = new FakeChatUseCase([Result.ok<IChatOutput, ValidationError>(defaultChatOutput)])
         const handler = new ChatCommandHandler(chatUseCase)

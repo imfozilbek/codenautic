@@ -63,6 +63,20 @@ class ThrowingStageUseCase implements IPipelineStageUseCase {
     }
 }
 
+class CrashStageUseCase implements IPipelineStageUseCase {
+    public readonly stageId: string
+    public readonly stageName: string
+
+    public constructor(stageId: string, stageName: string) {
+        this.stageId = stageId
+        this.stageName = stageName
+    }
+
+    public execute(_input: IStageCommand): Promise<Result<IStageTransition, StageError>> {
+        throw new Error("stage crashed")
+    }
+}
+
 function createState(runId: string, definitionVersion: string): ReviewPipelineState {
     return ReviewPipelineState.create({
         runId,
@@ -366,5 +380,220 @@ describe("DryRunReviewUseCase", () => {
         expect(stageA.executions).toBe(0)
         expect(stageB.executions).toBe(1)
         expect(stageC.executions).toBe(1)
+    })
+
+    test("fails when definition contains duplicate stage ids", async () => {
+        const useCase = new DryRunReviewUseCase({
+            stages: {
+                "stage-a": new StaticStageUseCase("stage-a", "Stage A", (state) => {
+                    return Result.ok<IStageTransition, StageError>({
+                        state,
+                    })
+                }),
+            },
+            defaults: dryRunDefaults,
+        })
+        const result = await useCase.execute({
+            initialState: createState("run-8", "v1"),
+            definition: {
+                definitionVersion: "v1",
+                stages: [
+                    {stageId: "stage-a", stageName: "Stage A"},
+                    {stageId: "stage-a", stageName: "Stage A duplicate"},
+                ],
+            },
+        })
+
+        expect(result.isFail).toBe(true)
+        expect(result.error.message).toContain("Pipeline definition contains duplicate stageId")
+    })
+
+    test("fails when stage implementation is missing", async () => {
+        const useCase = new DryRunReviewUseCase({
+            stages: {},
+            defaults: dryRunDefaults,
+        })
+
+        const result = await useCase.execute({
+            initialState: createState("run-9", "v1"),
+            definition: {
+                definitionVersion: "v1",
+                stages: [
+                    {stageId: "stage-missing", stageName: "Missing Stage"},
+                ],
+            },
+        })
+
+        expect(result.isFail).toBe(true)
+        expect(result.error.message).toContain("No stage implementation registered for stageId stage-missing")
+    })
+
+    test("fails when definition has no stages", async () => {
+        const useCase = new DryRunReviewUseCase({
+            stages: {},
+            defaults: dryRunDefaults,
+        })
+        const result = await useCase.execute({
+            initialState: createState("run-10", "v1"),
+            definition: {
+                definitionVersion: "v1",
+                stages: [],
+            },
+        })
+
+        expect(result.isFail).toBe(true)
+        expect(result.error.message).toContain("Pipeline definition must contain at least one stage")
+    })
+
+    test("fails when stageId is empty", async () => {
+        const useCase = new DryRunReviewUseCase({
+            stages: {
+                "stage-a": new StaticStageUseCase("stage-a", "Stage A", (state) => {
+                    return Result.ok<IStageTransition, StageError>({
+                        state,
+                    })
+                }),
+            },
+            defaults: dryRunDefaults,
+        })
+        const result = await useCase.execute({
+            initialState: createState("run-11", "v1"),
+            definition: {
+                definitionVersion: "v1",
+                stages: [
+                    {stageId: " ", stageName: "Blank"},
+                ],
+            },
+        })
+
+        expect(result.isFail).toBe(true)
+        expect(result.error.message).toContain("Pipeline definition contains empty stageId")
+    })
+
+    test("fails when current stage id is not in definition", async () => {
+        const definition = createDefinition()
+        const useCase = new DryRunReviewUseCase({
+            stages: {
+                "stage-a": new StaticStageUseCase("stage-a", "Stage A", (state) => {
+                    return Result.ok<IStageTransition, StageError>({
+                        state,
+                    })
+                }),
+                "stage-b": new StaticStageUseCase("stage-b", "Stage B", (state) => {
+                    return Result.ok<IStageTransition, StageError>({
+                        state,
+                    })
+                }),
+            },
+            defaults: dryRunDefaults,
+        })
+        const state = createState("run-12", "v1").with({
+            currentStageId: "stage-missing",
+        })
+
+        const result = await useCase.execute({
+            initialState: state,
+            definition,
+        })
+
+        expect(result.isFail).toBe(true)
+        expect(result.error.message).toContain("Current stage id stage-missing not found in definition")
+    })
+
+    test("fails when pipeline already completed on current stage", async () => {
+        const useCase = new DryRunReviewUseCase({
+            stages: {
+                "stage-a": new StaticStageUseCase("stage-a", "Stage A", (state) => {
+                    return Result.ok<IStageTransition, StageError>({
+                        state,
+                    })
+                }),
+            },
+            defaults: dryRunDefaults,
+        })
+        const state = createState("run-13", "v1").with({
+            currentStageId: "stage-a",
+            lastCompletedStageId: "stage-a",
+            stageAttempts: {
+                "stage-a": 1,
+            },
+        })
+
+        const result = await useCase.execute({
+            initialState: state,
+            definition: {
+                definitionVersion: "v1",
+                stages: [
+                    {stageId: "stage-a", stageName: "Stage A"},
+                ],
+            },
+        })
+
+        expect(result.isFail).toBe(true)
+        expect(result.error.message).toContain("Pipeline run is already completed, no stages left to execute")
+    })
+
+    test("resumes from last completed stage when current stage is empty", async () => {
+        const definition = createDefinition()
+        const stageA = new StaticStageUseCase("stage-a", "Stage A", (state) => {
+            return Result.ok<IStageTransition, StageError>({
+                state,
+            })
+        })
+        const stageB = new StaticStageUseCase("stage-b", "Stage B", (state) => {
+            return Result.ok<IStageTransition, StageError>({
+                state,
+            })
+        })
+        const useCase = new DryRunReviewUseCase({
+            stages: {
+                "stage-a": stageA,
+                "stage-b": stageB,
+            },
+            defaults: dryRunDefaults,
+        })
+        const state = createState("run-14", "v1").with({
+            currentStageId: null,
+            lastCompletedStageId: "stage-a",
+            stageAttempts: {
+                "stage-a": 1,
+            },
+        })
+
+        const result = await useCase.execute({
+            initialState: state,
+            definition,
+        })
+
+        expect(result.isOk).toBe(true)
+        expect(result.value.stageResults[0]?.status).toBe(PIPELINE_STAGE_RESULT_STATUS.SKIPPED)
+        expect(result.value.stageResults[0]?.stageId).toBe("stage-a")
+        expect(result.value.stageResults[1]?.stageId).toBe("stage-b")
+        expect(stageA.executions).toBe(0)
+        expect(stageB.executions).toBe(1)
+    })
+
+    test("maps unexpected stage exception into failure result", async () => {
+        const useCase = new DryRunReviewUseCase({
+            stages: {
+                "stage-a": new CrashStageUseCase("stage-a", "Stage A"),
+            },
+            defaults: dryRunDefaults,
+        })
+
+        const result = await useCase.execute({
+            initialState: createState("run-15", "v1"),
+            definition: {
+                definitionVersion: "v1",
+                stages: [
+                    {stageId: "stage-a", stageName: "Stage A"},
+                ],
+            },
+        })
+
+        expect(result.isOk).toBe(true)
+        expect(result.value.success).toBe(false)
+        expect(result.value.failureReason).toBe("stage crashed")
+        expect(result.value.stoppedAtStageId).toBe("stage-a")
     })
 })

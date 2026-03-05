@@ -1,10 +1,11 @@
 import {describe, expect, test} from "bun:test"
 
-import {MCPServer} from "../../../src/application/services/mcp-server"
+import {MCPServer, validateInputAgainstSchema} from "../../../src/application/services/mcp-server"
 import {
     MCP_METHOD,
     type MCPMethod,
     type IMCPInitializeResponse,
+    type IMCPRequest,
     type IMCPResourcesListResponse,
     type IMCPTool,
     type IMCPToolCallResponse,
@@ -167,6 +168,112 @@ describe("MCPServer", () => {
 
         expect(response.error).toBeDefined()
         expect(response.error?.code).toBe(-32602)
+    })
+
+    test("returns invalid request for malformed payload", async () => {
+        const server = new MCPServer(MCP_DEFAULTS)
+
+        const response = await server.handleRequest(null as unknown as IMCPRequest)
+
+        expect(response.error).toBeDefined()
+        expect(response.error?.code).toBe(-32600)
+    })
+
+    test("throws on invalid tool schema and resource provider", () => {
+        const server = new MCPServer(MCP_DEFAULTS)
+
+        expect(() => {
+            server.registerTool({
+                name: "invalid",
+                description: "Invalid",
+                inputSchema: "schema" as unknown as IMCPTool["inputSchema"],
+            }, () => "ok")
+        }).toThrow("tool inputSchema must be object")
+
+        expect(() => {
+            server.registerResource({
+                uri: "mcp://invalid",
+                name: "Invalid",
+                mimeType: "application/json",
+            }, "not-a-function" as unknown as () => unknown)
+        }).toThrow("resource provider must be function")
+    })
+
+    test("returns error result when tool handler throws", async () => {
+        const server = new MCPServer(MCP_DEFAULTS)
+        server.registerTool(
+            {
+                name: "explode",
+                description: "Throws",
+                inputSchema: {
+                    type: "object",
+                    properties: {},
+                },
+            },
+            () => {
+                throw new Error("boom")
+            },
+        )
+
+        const response = await server.handleRequest({
+            id: "call",
+            method: MCP_METHOD.TOOLS_CALL,
+            params: {
+                name: "explode",
+                arguments: {},
+            },
+        })
+
+        if (isToolCallResponse(response.result) === false) {
+            throw new Error("expected tool call result")
+        }
+
+        expect(response.result.isError).toBe(true)
+        expect(response.result.content[0]?.text).toBe("boom")
+    })
+
+    test("validates schema-required fields and types", () => {
+        const validation = validateInputAgainstSchema({
+            count: "3",
+        } as Record<string, unknown>, {
+            type: "object",
+            required: ["count", "message"],
+            properties: {
+                count: {type: "integer"},
+                message: {type: "string"},
+            },
+        })
+
+        expect(validation.isValid).toBe(false)
+        expect(validation.errors).toContain("required field message is missing")
+        expect(validation.errors).toContain("field count must be integer")
+
+        const invalidArgs = validateInputAgainstSchema([] as unknown as Record<string, unknown>, {
+            type: "object",
+            properties: {},
+        })
+        expect(invalidArgs.isValid).toBe(false)
+        expect(invalidArgs.errors).toContain("tool arguments must be object")
+    })
+
+    test("accepts boolean, array, object and number schema types", () => {
+        const validation = validateInputAgainstSchema({
+            flag: true,
+            items: [],
+            meta: {enabled: true},
+            score: 1.5,
+        }, {
+            type: "object",
+            properties: {
+                flag: {type: "boolean"},
+                items: {type: "array"},
+                meta: {type: "object"},
+                score: {type: "number"},
+            },
+        })
+
+        expect(validation.isValid).toBe(true)
+        expect(validation.errors).toHaveLength(0)
     })
 })
 

@@ -91,6 +91,94 @@ describe("MCP use cases", () => {
         expect(result.error).toBeInstanceOf(ValidationError)
     })
 
+    test("fails discover when server returns error response", async () => {
+        const server = {
+            handleRequest: () => {
+                return Promise.resolve({
+                    id: "tools-list",
+                    error: {
+                        message: "registry unavailable",
+                    },
+                })
+            },
+        } as unknown as MCPServer
+        const useCase = new DiscoverMCPToolsUseCase()
+        const result = await useCase.execute({server})
+
+        expect(result.isFail).toBe(true)
+        if (result.isFail) {
+            expect(result.error.fields[0]?.message).toContain("registry unavailable")
+        }
+    })
+
+    test("fails discover when server error has no message", async () => {
+        const server = {
+            handleRequest: () => {
+                return Promise.resolve({
+                    id: "tools-list",
+                    error: {},
+                })
+            },
+        } as unknown as MCPServer
+        const useCase = new DiscoverMCPToolsUseCase()
+        const result = await useCase.execute({server})
+
+        expect(result.isFail).toBe(true)
+        if (result.isFail) {
+            expect(result.error.fields[0]?.message).toContain("tool discovery failed")
+        }
+    })
+
+    test("fails discover when server returns unexpected format", async () => {
+        const server = {
+            handleRequest: () => {
+                return Promise.resolve({
+                    id: "tools-list",
+                    result: {
+                        tools: "invalid",
+                    },
+                })
+            },
+        } as unknown as MCPServer
+        const useCase = new DiscoverMCPToolsUseCase()
+        const result = await useCase.execute({server})
+
+        expect(result.isFail).toBe(true)
+        if (result.isFail) {
+            expect(result.error.fields[0]?.message).toContain("unexpected tools/list format")
+        }
+    })
+
+    test("fails discover when server throws", async () => {
+        const server = {
+            handleRequest: () => {
+                return Promise.reject(new Error("server offline"))
+            },
+        } as unknown as MCPServer
+        const useCase = new DiscoverMCPToolsUseCase()
+        const result = await useCase.execute({server})
+
+        expect(result.isFail).toBe(true)
+        if (result.isFail) {
+            expect(result.error.fields[0]?.message).toContain("server offline")
+        }
+    })
+
+    test("fails discover when server throws non-error", async () => {
+        const server = {
+            handleRequest: () => {
+                return Promise.reject(new Error("registry down"))
+            },
+        } as unknown as MCPServer
+        const useCase = new DiscoverMCPToolsUseCase()
+        const result = await useCase.execute({server})
+
+        expect(result.isFail).toBe(true)
+        if (result.isFail) {
+            expect(result.error.fields[0]?.message).toContain("registry down")
+        }
+    })
+
     test("validates tool args with schema", async () => {
         const tool: IMCPTool = {
             name: "sum",
@@ -144,5 +232,261 @@ describe("MCP use cases", () => {
         expect(result.value.valid).toBe(false)
         expect(result.value.errors).toHaveLength(1)
         expect(result.value.errors[0]).toBe("required field b is missing")
+    })
+
+    test("fails register when input is malformed", async () => {
+        const server = new MCPServer(MCP_DEFAULTS)
+        const useCase = new RegisterMCPToolUseCase()
+        const result = await useCase.execute({
+            server,
+            tool: {
+                name: "broken",
+                description: "Missing handler",
+                inputSchema: {
+                    type: "object",
+                    properties: {},
+                },
+            },
+        } as unknown as IRegisterMCPToolInput)
+
+        expect(result.isFail).toBe(true)
+        if (result.isFail) {
+            expect(result.error.fields[0]?.message).toContain("server, tool and handler are required")
+        }
+    })
+
+    test("fails register when input is not an object", async () => {
+        const useCase = new RegisterMCPToolUseCase()
+        const result = await useCase.execute(null as unknown as IRegisterMCPToolInput)
+
+        expect(result.isFail).toBe(true)
+        if (result.isFail) {
+            expect(result.error.fields[0]?.message).toContain("server, tool and handler are required")
+        }
+    })
+
+    test("fails register when server is invalid", async () => {
+        const useCase = new RegisterMCPToolUseCase()
+        const result = await useCase.execute({
+            server: {} as MCPServer,
+            tool: {
+                name: "tool",
+                description: "desc",
+                inputSchema: {
+                    type: "object",
+                    properties: {},
+                },
+            },
+            handler: () => "ok",
+        })
+
+        expect(result.isFail).toBe(true)
+        if (result.isFail) {
+            expect(result.error.fields[0]?.message).toContain("server, tool and handler are required")
+        }
+    })
+
+    test("fails register when server is null", async () => {
+        const useCase = new RegisterMCPToolUseCase()
+        const result = await useCase.execute({
+            server: null as unknown as MCPServer,
+            tool: {
+                name: "tool",
+                description: "desc",
+                inputSchema: {
+                    type: "object",
+                    properties: {},
+                },
+            },
+            handler: () => "ok",
+        })
+
+        expect(result.isFail).toBe(true)
+        if (result.isFail) {
+            expect(result.error.fields[0]?.message).toContain("server, tool and handler are required")
+        }
+    })
+
+    test("fails register when server is not an object", async () => {
+        const useCase = new RegisterMCPToolUseCase()
+        const result = await useCase.execute({
+            server: 42 as unknown as MCPServer,
+            tool: {
+                name: "tool",
+                description: "desc",
+                inputSchema: {
+                    type: "object",
+                    properties: {},
+                },
+            },
+            handler: () => "ok",
+        })
+
+        expect(result.isFail).toBe(true)
+        if (result.isFail) {
+            expect(result.error.fields[0]?.message).toContain("server, tool and handler are required")
+        }
+    })
+
+    test("fails register when tool is invalid", async () => {
+        const server = new MCPServer(MCP_DEFAULTS)
+        const useCase = new RegisterMCPToolUseCase()
+        const result = await useCase.execute({
+            server,
+            tool: null as unknown as IMCPTool,
+            handler: () => "ok",
+        })
+
+        expect(result.isFail).toBe(true)
+        if (result.isFail) {
+            expect(result.error.fields[0]?.message).toContain("server, tool and handler are required")
+        }
+    })
+
+    test("fails register when server throws", async () => {
+        const server = {
+            registerTool: () => {
+                throw new Error("registry locked")
+            },
+        } as unknown as MCPServer
+        const useCase = new RegisterMCPToolUseCase()
+        const result = await useCase.execute({
+            server,
+            tool: {
+                name: "tool",
+                description: "desc",
+                inputSchema: {
+                    type: "object",
+                    properties: {},
+                },
+            },
+            handler: () => "ok",
+        })
+
+        expect(result.isFail).toBe(true)
+        if (result.isFail) {
+            expect(result.error.fields[0]?.message).toContain("registry locked")
+        }
+    })
+
+    test("fails register when server throws non-error", async () => {
+        const server = {
+            registerTool: () => {
+                throw new Error("registry unavailable")
+            },
+        } as unknown as MCPServer
+        const useCase = new RegisterMCPToolUseCase()
+        const result = await useCase.execute({
+            server,
+            tool: {
+                name: "tool",
+                description: "desc",
+                inputSchema: {
+                    type: "object",
+                    properties: {},
+                },
+            },
+            handler: () => "ok",
+        })
+
+        expect(result.isFail).toBe(true)
+        if (result.isFail) {
+            expect(result.error.fields[0]?.message).toContain("registry unavailable")
+        }
+    })
+
+    test("fails validation when input payload is invalid", async () => {
+        const useCase = new ValidateMCPToolInputUseCase()
+        const result = await useCase.execute({} as IValidateMCPToolInputInput)
+
+        expect(result.isFail).toBe(true)
+        if (result.isFail) {
+            expect(result.error.fields[0]?.message).toContain("tool and arguments are required")
+        }
+    })
+
+    test("fails validation when input is not an object", async () => {
+        const useCase = new ValidateMCPToolInputUseCase()
+        const result = await useCase.execute(null as unknown as IValidateMCPToolInputInput)
+
+        expect(result.isFail).toBe(true)
+        if (result.isFail) {
+            expect(result.error.fields[0]?.message).toContain("tool and arguments are required")
+        }
+    })
+
+    test("fails validation when tool shape is invalid", async () => {
+        const useCase = new ValidateMCPToolInputUseCase()
+        const result = await useCase.execute({
+            tool: {
+                name: "",
+                description: "desc",
+                inputSchema: {
+                    type: "object",
+                    properties: {},
+                },
+            } as IMCPTool,
+            arguments: {},
+        })
+
+        expect(result.isFail).toBe(true)
+        if (result.isFail) {
+            expect(result.error.fields[0]?.message).toContain("tool and arguments are required")
+        }
+    })
+
+    test("fails validation when tool description is empty", async () => {
+        const useCase = new ValidateMCPToolInputUseCase()
+        const result = await useCase.execute({
+            tool: {
+                name: "tool",
+                description: "  ",
+                inputSchema: {
+                    type: "object",
+                    properties: {},
+                },
+            } as IMCPTool,
+            arguments: {},
+        })
+
+        expect(result.isFail).toBe(true)
+        if (result.isFail) {
+            expect(result.error.fields[0]?.message).toContain("tool and arguments are required")
+        }
+    })
+
+    test("fails validation when tool schema is missing", async () => {
+        const useCase = new ValidateMCPToolInputUseCase()
+        const result = await useCase.execute({
+            tool: {
+                name: "tool",
+                description: "desc",
+            } as IMCPTool,
+            arguments: {},
+        })
+
+        expect(result.isFail).toBe(true)
+        if (result.isFail) {
+            expect(result.error.fields[0]?.message).toContain("tool and arguments are required")
+        }
+    })
+
+    test("fails validation when arguments are missing", async () => {
+        const useCase = new ValidateMCPToolInputUseCase()
+        const result = await useCase.execute({
+            tool: {
+                name: "valid",
+                description: "desc",
+                inputSchema: {
+                    type: "object",
+                    properties: {},
+                },
+            },
+        } as IValidateMCPToolInputInput)
+
+        expect(result.isFail).toBe(true)
+        if (result.isFail) {
+            expect(result.error.fields[0]?.message).toContain("tool and arguments are required")
+        }
     })
 })

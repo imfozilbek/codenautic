@@ -207,6 +207,45 @@ describe("GeneratePromptUseCase", () => {
         expect(result.value).toBe("Hello Alice")
     })
 
+    test("renders nested arrays and objects in runtime variables", async () => {
+        const templateRepository = new InMemoryPromptTemplateRepository()
+        const configurationRepository = new InMemoryPromptConfigurationRepository()
+        const useCase = new GeneratePromptUseCase({
+            promptTemplateRepository: templateRepository,
+            promptConfigurationRepository: configurationRepository,
+            promptEngineService: new PromptEngineService(),
+        })
+        const template = new PromptTemplate(UniqueId.create("template-nested"), {
+            name: "nested-template",
+            category: PROMPT_TEMPLATE_CATEGORY.RULES,
+            type: PROMPT_TEMPLATE_TYPE.SYSTEM,
+            content: "Items: {{items}}",
+            variables: [],
+            version: 1,
+            isGlobal: true,
+        })
+
+        templateRepository.add(template.name, template)
+        const result = await useCase.execute({
+            name: "nested-template",
+            runtimeVariables: {
+                items: [
+                    {
+                        id: 1,
+                        tags: ["a"],
+                    },
+                ],
+            },
+        })
+
+        expect(result.isOk).toBe(true)
+        if (result.isFail) {
+            throw new Error("Expected prompt generation success")
+        }
+
+        expect(result.value).toBe("Items: [{\"id\":1,\"tags\":[\"a\"]}]")
+    })
+
     test("returns validation error when template does not exist", async () => {
         const templateRepository = new InMemoryPromptTemplateRepository()
         const configurationRepository = new InMemoryPromptConfigurationRepository()

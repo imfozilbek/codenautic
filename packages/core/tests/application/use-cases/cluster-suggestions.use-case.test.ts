@@ -235,6 +235,36 @@ describe("ClusterSuggestionsUseCase", () => {
         ])
     })
 
+    test("returns validation error when embedding dimensions mismatch", async () => {
+        const useCase = new ClusterSuggestionsUseCase({defaults: clusteringDefaults})
+        const result = await useCase.execute({
+            mode: "SMART",
+            suggestions: [
+                {
+                    suggestionId: "s-1",
+                    problemDescription: "Критичное замечание",
+                    actionStatement: "Починить",
+                    embedding: {
+                        vector: [0.1, 0.2],
+                        dimensions: 3,
+                        model: "test-model",
+                    },
+                },
+            ],
+        })
+
+        if (result.isOk) {
+            throw new Error("Expected validation error")
+        }
+
+        expect(result.error.fields).toEqual([
+            {
+                field: "suggestions.0.embedding",
+                message: "Embedding dimensions must match vector length",
+            },
+        ])
+    })
+
     test("returns empty clusters for empty input", async () => {
         const useCase = new ClusterSuggestionsUseCase({defaults: clusteringDefaults})
         const result = await useCase.execute({

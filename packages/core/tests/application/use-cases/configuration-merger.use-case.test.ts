@@ -201,4 +201,19 @@ describe("ConfigurationMergerUseCase", () => {
             items: ["repo"],
         })
     })
+
+    test("keeps current value when incoming is undefined", async () => {
+        const useCase = new ConfigurationMergerUseCase()
+        const result = await useCase.execute({
+            default: {
+                flags: ["base"],
+            },
+            org: {
+                flags: undefined,
+            },
+        })
+
+        expect(result.isOk).toBe(true)
+        expect(result.value.flags).toEqual(["base"])
+    })
 })

@@ -8,9 +8,12 @@ import type {IConversationThreadRepository} from "../../../../src/application/po
 import type {ILLMProvider} from "../../../../src/application/ports/outbound/llm/llm-provider.port"
 import type {ITokenUsageDTO} from "../../../../src/application/dto/review/token-usage.dto"
 import {ConversationMessage} from "../../../../src/domain/value-objects/conversation-message.value-object"
-import {ConversationThread} from "../../../../src/domain/entities/conversation-thread.entity"
+import {
+    ConversationThread,
+    CONVERSATION_THREAD_STATUS,
+    MAX_MESSAGES_PER_CONVERSATION_THREAD,
+} from "../../../../src/domain/entities/conversation-thread.entity"
 import {ConversationThreadFactory} from "../../../../src/domain/factories/conversation-thread.factory"
-import {CONVERSATION_THREAD_STATUS} from "../../../../src/domain/entities/conversation-thread.entity"
 import {UniqueId} from "../../../../src/domain/value-objects/unique-id.value-object"
 import {ValidationError} from "../../../../src/domain/errors/validation.error"
 import {type Result} from "../../../../src/shared/result"
@@ -356,6 +359,44 @@ describe("ChatUseCase", () => {
             }),
         )
         expect(failResult.fields[0]?.field).toBe("message")
+    })
+
+    test("возвращает ошибку при превышении лимита сообщений в thread", async () => {
+        const repository = new InMemoryConversationThreadRepository()
+        const messages = Array.from({length: MAX_MESSAGES_PER_CONVERSATION_THREAD}, (_, index) => {
+            return ConversationMessage.create({
+                role: "user",
+                content: `Сообщение ${index + 1}`,
+            })
+        })
+        const thread = new ConversationThread(UniqueId.create("overflow-thread"), {
+            channelId: "merge-8",
+            participantIds: ["user-8"],
+            messages,
+            status: CONVERSATION_THREAD_STATUS.ACTIVE,
+        })
+        await repository.save(thread)
+
+        const provider = new FakeLLMProvider([
+            {
+                content: "ignored",
+                usage: defaultUsage,
+            },
+        ])
+        const useCase = createUseCase({repository, provider})
+
+        const result = unwrapFailureResult(
+            await useCase.execute({
+                channelId: "merge-8",
+                userId: "user-8",
+                message: "Новое сообщение",
+            }),
+        )
+
+        expect(result.fields[0]?.message).toBe(
+            "Conversation thread message limit reached: 50",
+        )
+        expect(provider.requests).toHaveLength(0)
     })
 
     test("возвращает валидацию для некорректного input", async () => {
