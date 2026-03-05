@@ -943,6 +943,49 @@ const { mockSprintComparisonView } = vi.hoisted(() => ({
         },
     ),
 }))
+const { mockDistrictTrendIndicators } = vi.hoisted(() => ({
+    mockDistrictTrendIndicators: vi.fn(
+        (props: {
+            readonly entries: ReadonlyArray<{
+                readonly districtId: string
+                readonly districtLabel: string
+                readonly trend: "improving" | "degrading" | "stable"
+                readonly deltaPercentage: number
+                readonly fileCount: number
+                readonly primaryFileId: string
+                readonly affectedFileIds: ReadonlyArray<string>
+            }>
+            readonly activeDistrictId?: string
+            readonly onSelectEntry?: (entry: {
+                readonly districtId: string
+                readonly districtLabel: string
+                readonly trend: "improving" | "degrading" | "stable"
+                readonly deltaPercentage: number
+                readonly fileCount: number
+                readonly primaryFileId: string
+                readonly affectedFileIds: ReadonlyArray<string>
+            }) => void
+        }): React.JSX.Element => {
+            return (
+                <div>
+                    <p>district-trend-entries:{props.entries.length}</p>
+                    <p>district-trend-active:{props.activeDistrictId ?? "none"}</p>
+                    <button
+                        onClick={(): void => {
+                            const firstEntry = props.entries.at(0)
+                            if (firstEntry !== undefined) {
+                                props.onSelectEntry?.(firstEntry)
+                            }
+                        }}
+                        type="button"
+                    >
+                        inspect district trend indicator
+                    </button>
+                </div>
+            )
+        },
+    ),
+}))
 const { mockCityBusFactorOverlay } = vi.hoisted(() => ({
     mockCityBusFactorOverlay: vi.fn(
         (props: {
@@ -1492,6 +1535,9 @@ vi.mock("@/components/graphs/prediction-comparison-view", () => ({
 vi.mock("@/components/graphs/sprint-comparison-view", () => ({
     SprintComparisonView: mockSprintComparisonView,
 }))
+vi.mock("@/components/graphs/district-trend-indicators", () => ({
+    DistrictTrendIndicators: mockDistrictTrendIndicators,
+}))
 vi.mock("@/components/graphs/city-bus-factor-overlay", () => ({
     CityBusFactorOverlay: mockCityBusFactorOverlay,
 }))
@@ -1553,6 +1599,7 @@ beforeEach((): void => {
     mockAlertConfigDialog.mockClear()
     mockPredictionComparisonView.mockClear()
     mockSprintComparisonView.mockClear()
+    mockDistrictTrendIndicators.mockClear()
     mockCityBusFactorOverlay.mockClear()
     mockBusFactorTrendChart.mockClear()
     mockKnowledgeSiloPanel.mockClear()
@@ -1741,6 +1788,10 @@ describe("CodeCityDashboardPage", (): void => {
         expect(firstSprintComparisonCall).not.toBeUndefined()
         expect(firstSprintComparisonCall?.snapshots.length).toBeGreaterThan(0)
 
+        const firstDistrictTrendCall = mockDistrictTrendIndicators.mock.calls.at(0)?.[0]
+        expect(firstDistrictTrendCall).not.toBeUndefined()
+        expect(firstDistrictTrendCall?.entries.length).toBeGreaterThan(0)
+
         const firstBusFactorCall = mockCityBusFactorOverlay.mock.calls.at(0)?.[0]
         expect(firstBusFactorCall).not.toBeUndefined()
         expect(firstBusFactorCall?.entries.length).toBeGreaterThan(0)
@@ -1925,6 +1976,14 @@ describe("CodeCityDashboardPage", (): void => {
         const sprintComparison3DCall = mockCodeCity3DScene.mock.calls.at(-1)?.[0]
         expect(sprintComparison3DCall).not.toBeUndefined()
         expect(sprintComparison3DCall?.navigationLabel).toContain("Sprint comparison:")
+
+        await user.click(screen.getByRole("button", { name: "inspect district trend indicator" }))
+        const districtTrendTreemapCall = mockCodeCityTreemap.mock.calls.at(-1)?.[0]
+        expect(districtTrendTreemapCall).not.toBeUndefined()
+        expect(districtTrendTreemapCall?.highlightedFileId).toBeDefined()
+        const districtTrend3DCall = mockCodeCity3DScene.mock.calls.at(-1)?.[0]
+        expect(districtTrend3DCall).not.toBeUndefined()
+        expect(districtTrend3DCall?.navigationLabel).toContain("District trend:")
 
         await user.click(screen.getByRole("button", { name: "inspect change risk point" }))
         const riskNavigation3DCall = mockCodeCity3DScene.mock.calls.at(-1)?.[0]

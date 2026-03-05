@@ -78,6 +78,10 @@ import {
     type ISprintComparisonSnapshot,
 } from "@/components/graphs/sprint-comparison-view"
 import {
+    DistrictTrendIndicators,
+    type IDistrictTrendIndicatorEntry,
+} from "@/components/graphs/district-trend-indicators"
+import {
     CityOwnershipOverlay,
     type ICityOwnershipOverlayOwnerEntry,
 } from "@/components/graphs/city-ownership-overlay"
@@ -1694,6 +1698,104 @@ function buildSprintComparisonSnapshots(
 }
 
 /**
+ * Формирует district-level trend indicators для CodeCity.
+ *
+ * @param files Файлы текущего профиля.
+ * @returns District entries с направлением тренда и delta.
+ */
+function buildDistrictTrendIndicators(
+    files: ReadonlyArray<ICodeCityTreemapFileDescriptor>,
+): ReadonlyArray<IDistrictTrendIndicatorEntry> {
+    const aggregatedDistricts = new Map<
+        string,
+        {
+            complexity: number
+            churn: number
+            bugIntroductions: number
+            fileIds: string[]
+            primaryFileId: string
+        }
+    >()
+
+    for (const file of files) {
+        const districtId = resolveDistrictName(file.path)
+        const existingDistrict = aggregatedDistricts.get(districtId)
+        const bugIntroductions = file.bugIntroductions?.["30d"] ?? 0
+        if (existingDistrict === undefined) {
+            aggregatedDistricts.set(districtId, {
+                bugIntroductions,
+                churn: file.churn ?? 0,
+                complexity: file.complexity ?? 0,
+                fileIds: [file.id],
+                primaryFileId: file.id,
+            })
+            continue
+        }
+
+        existingDistrict.complexity += file.complexity ?? 0
+        existingDistrict.churn += file.churn ?? 0
+        existingDistrict.bugIntroductions += bugIntroductions
+        if (existingDistrict.fileIds.includes(file.id) === false) {
+            existingDistrict.fileIds.push(file.id)
+        }
+    }
+
+    const sortedDistrictIds = Array.from(aggregatedDistricts.keys()).sort(
+        (leftDistrictId, rightDistrictId): number => {
+            return leftDistrictId.localeCompare(rightDistrictId)
+        },
+    )
+
+    return sortedDistrictIds
+        .map((districtId, index): IDistrictTrendIndicatorEntry | undefined => {
+            const district = aggregatedDistricts.get(districtId)
+            if (district === undefined) {
+                return undefined
+            }
+
+            const baselineRisk =
+                district.complexity +
+                district.churn * 0.6 +
+                district.bugIntroductions * 8 +
+                district.fileIds.length * 2
+            const trendShiftRatio =
+                index % 3 === 0
+                    ? 0.16
+                    : index % 3 === 1
+                      ? -0.12
+                      : 0.02
+            const currentRisk = Math.max(1, baselineRisk * (1 - trendShiftRatio))
+            const deltaPercentage = Math.round(
+                ((baselineRisk - currentRisk) / Math.max(baselineRisk, 1)) * 100,
+            )
+            const trend: IDistrictTrendIndicatorEntry["trend"] =
+                deltaPercentage >= 4
+                    ? "improving"
+                    : deltaPercentage <= -4
+                      ? "degrading"
+                      : "stable"
+
+            return {
+                affectedFileIds: district.fileIds,
+                deltaPercentage,
+                districtId,
+                districtLabel: districtId,
+                fileCount: district.fileIds.length,
+                primaryFileId: district.primaryFileId,
+                trend,
+            }
+        })
+        .filter((entry): entry is IDistrictTrendIndicatorEntry => entry !== undefined)
+        .sort((leftEntry, rightEntry): number => {
+            const deltaDistance = Math.abs(rightEntry.deltaPercentage) - Math.abs(leftEntry.deltaPercentage)
+            if (deltaDistance !== 0) {
+                return deltaDistance
+            }
+            return leftEntry.districtLabel.localeCompare(rightEntry.districtLabel)
+        })
+}
+
+/**
  * Формирует список bug-prone файлов для prediction dashboard.
  *
  * @param files Файлы текущего профиля.
@@ -2465,6 +2567,7 @@ export function CodeCityDashboardPage(
         useState<string | undefined>()
     const [activeSprintComparisonSnapshotId, setActiveSprintComparisonSnapshotId] =
         useState<string | undefined>()
+    const [activeDistrictTrendId, setActiveDistrictTrendId] = useState<string | undefined>()
     const [activeKnowledgeSiloId, setActiveKnowledgeSiloId] = useState<string | undefined>()
     const [activeContributorId, setActiveContributorId] = useState<string | undefined>()
     const [activeOwnershipTransitionId, setActiveOwnershipTransitionId] = useState<string | undefined>()
@@ -2519,6 +2622,7 @@ export function CodeCityDashboardPage(
         predictionOverlayEntries,
     )
     const sprintComparisonSnapshots = buildSprintComparisonSnapshots(currentProfile.files)
+    const districtTrendIndicators = buildDistrictTrendIndicators(currentProfile.files)
     const predictionBugProneFiles = buildPredictionBugProneFiles(
         currentProfile.files,
         predictionOverlayEntries,
@@ -2606,6 +2710,7 @@ export function CodeCityDashboardPage(
         setActivePredictionAccuracyCaseId(undefined)
         setActivePredictionComparisonSnapshotId(undefined)
         setActiveSprintComparisonSnapshotId(undefined)
+        setActiveDistrictTrendId(undefined)
         setActiveKnowledgeSiloId(undefined)
         setActiveContributorId(undefined)
         setActiveOwnershipTransitionId(undefined)
@@ -3215,6 +3320,33 @@ export function CodeCityDashboardPage(
                             markAreaExplored("city-3d")
                         }}
                         snapshots={sprintComparisonSnapshots}
+                    />
+                </CardBody>
+            </Card>
+
+            <Card>
+                <CardHeader>
+                    <p className="text-sm font-semibold text-slate-900">
+                        District trend indicators
+                    </p>
+                </CardHeader>
+                <CardBody>
+                    <DistrictTrendIndicators
+                        activeDistrictId={activeDistrictTrendId}
+                        entries={districtTrendIndicators}
+                        onSelectEntry={(entry): void => {
+                            setActiveDistrictTrendId(entry.districtId)
+                            setActivePredictionHotspotId(undefined)
+                            setActivePredictionFileId(entry.primaryFileId)
+                            setHighlightedFileId(entry.primaryFileId)
+                            setExploreNavigationFocus({
+                                activeFileId: entry.primaryFileId,
+                                chainFileIds: entry.affectedFileIds,
+                                title: `District trend: ${entry.districtLabel}`,
+                            })
+                            markAreaExplored("controls")
+                            markAreaExplored("city-3d")
+                        }}
                     />
                 </CardBody>
             </Card>
