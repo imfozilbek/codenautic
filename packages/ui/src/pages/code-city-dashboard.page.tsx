@@ -23,6 +23,10 @@ import {
     type TCausalOverlayMode,
 } from "@/components/graphs/causal-overlay-selector"
 import {
+    ChangeRiskGauge,
+    type IChangeRiskGaugePoint,
+} from "@/components/graphs/change-risk-gauge"
+import {
     CityImpactOverlay,
     type ICityImpactOverlayEntry,
 } from "@/components/graphs/city-impact-overlay"
@@ -965,6 +969,43 @@ function buildCityImpactOverlayEntries(
     })
 }
 
+/**
+ * Формирует модель для change risk gauge.
+ *
+ * @param seeds Impact seeds текущего профиля.
+ * @param healthTrend Исторический тренд health score.
+ * @returns Текущий риск и historical points.
+ */
+function buildChangeRiskGaugeModel(
+    seeds: ReadonlyArray<IImpactAnalysisSeed>,
+    healthTrend: ReadonlyArray<IHealthTrendPoint>,
+): {
+    readonly currentScore: number
+    readonly historicalPoints: ReadonlyArray<IChangeRiskGaugePoint>
+} {
+    const currentScore =
+        seeds.length === 0
+            ? 0
+            : Math.round(
+                  seeds.slice(0, 3).reduce((total, seed): number => total + seed.riskScore, 0) /
+                      Math.min(3, seeds.length),
+              )
+
+    const historicalPoints = healthTrend.slice(-3).map((point): IChangeRiskGaugePoint => {
+        const riskFromHealth = Math.max(0, Math.min(100, 100 - point.healthScore))
+        const date = new Date(point.timestamp)
+        return {
+            label: `${String(date.getUTCMonth() + 1).padStart(2, "0")}/${String(date.getUTCDate()).padStart(2, "0")}`,
+            score: riskFromHealth,
+        }
+    })
+
+    return {
+        currentScore,
+        historicalPoints,
+    }
+}
+
 export function CodeCityDashboardPage(
     props: ICodeCityDashboardPageProps = {},
 ): ReactElement {
@@ -1011,6 +1052,10 @@ export function CodeCityDashboardPage(
     const refactoringTimelineTasks = buildRefactoringTimelineTasks(refactoringTargets)
     const impactAnalysisSeeds = buildImpactAnalysisSeeds(currentProfile.files)
     const cityImpactOverlayEntries = buildCityImpactOverlayEntries(impactAnalysisSeeds)
+    const changeRiskGaugeModel = buildChangeRiskGaugeModel(
+        impactAnalysisSeeds,
+        currentProfile.healthTrend,
+    )
     const onboardingProgressModules = buildOnboardingProgressModules(exploredAreaIds)
     const fileLink = createRepositoryFilesLink(currentProfile.id)
     const overlayImpactedFiles =
@@ -1421,6 +1466,32 @@ export function CodeCityDashboardPage(
                                 activeFileId: entry.fileId,
                                 chainFileIds: [entry.fileId],
                                 title: `Impact overlay: ${entry.label}`,
+                            })
+                            markAreaExplored("city-3d")
+                        }}
+                    />
+                </CardBody>
+            </Card>
+
+            <Card>
+                <CardHeader>
+                    <p className="text-sm font-semibold text-slate-900">Change risk gauge</p>
+                </CardHeader>
+                <CardBody>
+                    <ChangeRiskGauge
+                        currentScore={changeRiskGaugeModel.currentScore}
+                        historicalPoints={changeRiskGaugeModel.historicalPoints}
+                        onSelectHistoricalPoint={(point): void => {
+                            const primaryImpactSeed = impactAnalysisSeeds[0]
+                            const activeFileId =
+                                primaryImpactSeed === undefined ? undefined : primaryImpactSeed.fileId
+                            if (activeFileId !== undefined) {
+                                setHighlightedFileId(activeFileId)
+                            }
+                            setExploreNavigationFocus({
+                                activeFileId,
+                                chainFileIds: activeFileId === undefined ? [] : [activeFileId],
+                                title: `Risk gauge: ${point.label}`,
                             })
                             markAreaExplored("city-3d")
                         }}
