@@ -39,6 +39,21 @@ describe("GetCodeCityDataUseCase", () => {
         assertTrackedCalls(trackedCalls)
     })
 
+    test("uses default now provider when none is supplied", async () => {
+        const useCase = createUseCase({}, undefined, true)
+
+        const result = await useCase.execute({
+            repoId: "gh:repo-1",
+        })
+
+        expect(result.isOk).toBe(true)
+        if (result.isOk === false) {
+            return
+        }
+
+        expect(result.value.generatedAt).toMatch(/^\d{4}-\d{2}-\d{2}T/)
+    })
+
     test("returns expected merged payload and issue metrics for duplicate aggregation rows", async () => {
         const {useCase} = createDeterministicUseCase()
         const result = await useCase.execute({
@@ -140,7 +155,7 @@ describe("GetCodeCityDataUseCase", () => {
     })
 })
 
-    function createUseCase(
+function createUseCase(
     overrides: {
         readonly graph?: ICodeGraph | null
         readonly metricsProvider?: Partial<IFileMetricsProvider>
@@ -148,6 +163,7 @@ describe("GetCodeCityDataUseCase", () => {
         readonly trackedCalls?: ITrackedCalls
     } = {},
     now: Date = new Date("2026-03-03T00:00:00.000Z"),
+    useDefaultNow: boolean = false,
 ): GetCodeCityDataUseCase {
     const graphRepository: IGraphRepository = {
         loadGraph: (repositoryId: string, branch: string | undefined) => {
@@ -222,7 +238,7 @@ describe("GetCodeCityDataUseCase", () => {
         graphRepository,
         fileMetricsProvider,
         issueAggregationProvider,
-        now: () => now,
+        ...(useDefaultNow ? {} : {now: () => now}),
     })
 }
 

@@ -65,6 +65,56 @@ describe("CustomRule", () => {
         }).toThrow("Deleted rule cannot be activated")
     })
 
+    test("throws when activating from non-pending status", () => {
+        const rule = new CustomRule(UniqueId.create(), {
+            title: "Active rule",
+            rule: "x",
+            type: "REGEX",
+            scope: "FILE",
+            status: "ACTIVE",
+            severity: Severity.create("LOW"),
+            examples: [],
+        })
+
+        expect(() => {
+            rule.activate()
+        }).toThrow("Cannot activate rule in status ACTIVE")
+    })
+
+    test("throws when rejecting deleted rule", () => {
+        const rule = createPendingRule()
+        rule.softDelete()
+
+        expect(() => {
+            rule.reject()
+        }).toThrow("Deleted rule cannot be rejected")
+    })
+
+    test("throws when rejecting non-pending status", () => {
+        const rule = new CustomRule(UniqueId.create(), {
+            title: "Active rule",
+            rule: "x",
+            type: "REGEX",
+            scope: "FILE",
+            status: "ACTIVE",
+            severity: Severity.create("LOW"),
+            examples: [],
+        })
+
+        expect(() => {
+            rule.reject()
+        }).toThrow("Cannot reject rule in status ACTIVE")
+    })
+
+    test("throws when deleting already deleted rule", () => {
+        const rule = createPendingRule()
+        rule.softDelete()
+
+        expect(() => {
+            rule.softDelete()
+        }).toThrow("Rule is already deleted")
+    })
+
     test("throws on unknown scope", () => {
         expect(() => {
             return new CustomRule(UniqueId.create(), {
@@ -77,6 +127,34 @@ describe("CustomRule", () => {
                 examples: [],
             })
         }).toThrow("Unknown custom rule scope")
+    })
+
+    test("throws on unknown type", () => {
+        expect(() => {
+            return new CustomRule(UniqueId.create(), {
+                title: "Bad type",
+                rule: "x",
+                type: "UNKNOWN" as unknown as "REGEX",
+                scope: "FILE",
+                status: "PENDING",
+                severity: Severity.create("LOW"),
+                examples: [],
+            })
+        }).toThrow("Unknown custom rule type: UNKNOWN")
+    })
+
+    test("throws on unknown status", () => {
+        expect(() => {
+            return new CustomRule(UniqueId.create(), {
+                title: "Bad status",
+                rule: "x",
+                type: "REGEX",
+                scope: "FILE",
+                status: "UNKNOWN" as unknown as "PENDING",
+                severity: Severity.create("LOW"),
+                examples: [],
+            })
+        }).toThrow("Unknown custom rule status: UNKNOWN")
     })
 
     test("throws on empty examples snippet", () => {

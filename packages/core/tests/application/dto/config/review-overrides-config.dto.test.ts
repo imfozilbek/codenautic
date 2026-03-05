@@ -23,6 +23,46 @@ describe("review override config dto", () => {
         expect(parseReviewOverridesConfig(null)).toBeUndefined()
         expect(parseReviewOverridesConfig({})).toBeUndefined()
         expect(parseReviewOverridesConfig({name: "missing"})).toBeUndefined()
+        expect(parseReviewOverridesConfig({
+            name: "bad-categories",
+            categories: {},
+            severity: createOverrides().severity,
+            generation: createOverrides().generation,
+        })).toBeUndefined()
+        expect(parseReviewOverridesConfig({
+            name: "bad-category-desc",
+            categories: {
+                descriptions: {
+                    bug: "   ",
+                    performance: "ok",
+                    security: "ok",
+                },
+            },
+            severity: createOverrides().severity,
+            generation: createOverrides().generation,
+        })).toBeUndefined()
+        expect(parseReviewOverridesConfig({
+            name: "bad-severity-flags",
+            categories: createOverrides().categories,
+            severity: {},
+            generation: createOverrides().generation,
+        })).toBeUndefined()
+        expect(parseReviewOverridesConfig({
+            name: "missing-severity-flag",
+            categories: createOverrides().categories,
+            severity: {
+                flags: {
+                    critical: "Critical description",
+                },
+            },
+            generation: createOverrides().generation,
+        })).toBeUndefined()
+        expect(parseReviewOverridesConfig({
+            name: "missing-generation",
+            categories: createOverrides().categories,
+            severity: createOverrides().severity,
+            generation: {},
+        })).toBeUndefined()
     })
 
     test("builds prompt configuration defaults from overrides", () => {

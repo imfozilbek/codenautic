@@ -364,6 +364,32 @@ describe("ConfigurationValidatorUseCase", () => {
         }
     })
 
+    test("returns error when directory config payload is not an object", async () => {
+        const useCase = new ConfigurationValidatorUseCase()
+        const result = await useCase.execute({
+            severityThreshold: "LOW",
+            ignorePaths: [],
+            maxSuggestionsPerFile: 1,
+            maxSuggestionsPerCCR: 2,
+            cadence: "standard",
+            customRuleIds: [],
+            directories: [
+                {
+                    path: "src",
+                    config: [],
+                },
+            ],
+        })
+
+        expect(result.isFail).toBe(true)
+        if (result.isFail) {
+            expect(result.error.fields).toContainEqual({
+                field: "directories[].config",
+                message: "must be an object",
+            })
+        }
+    })
+
     test("returns error when directory path is empty", async () => {
         const useCase = new ConfigurationValidatorUseCase()
         const result = await useCase.execute({
@@ -376,6 +402,32 @@ describe("ConfigurationValidatorUseCase", () => {
             directories: [
                 {
                     path: " ",
+                    config: {},
+                },
+            ],
+        })
+
+        expect(result.isFail).toBe(true)
+        if (result.isFail) {
+            expect(result.error.fields).toContainEqual({
+                field: "directories[].path",
+                message: "must be a non-empty string",
+            })
+        }
+    })
+
+    test("returns error when directory path is not a string", async () => {
+        const useCase = new ConfigurationValidatorUseCase()
+        const result = await useCase.execute({
+            severityThreshold: "LOW",
+            ignorePaths: [],
+            maxSuggestionsPerFile: 1,
+            maxSuggestionsPerCCR: 2,
+            cadence: "standard",
+            customRuleIds: [],
+            directories: [
+                {
+                    path: 123,
                     config: {},
                 },
             ],
@@ -411,6 +463,25 @@ describe("ConfigurationValidatorUseCase", () => {
         }
     })
 
+    test("allows empty prompt override sections", async () => {
+        const useCase = new ConfigurationValidatorUseCase()
+        const result = await useCase.execute({
+            severityThreshold: "LOW",
+            ignorePaths: [],
+            maxSuggestionsPerFile: 1,
+            maxSuggestionsPerCCR: 2,
+            cadence: "standard",
+            customRuleIds: [],
+            promptOverrides: {},
+        })
+
+        expect(result.isOk).toBe(true)
+        if (result.isFail) {
+            throw new Error("Expected success result")
+        }
+        expect(result.value.promptOverrides).toEqual({})
+    })
+
     test("returns errors for invalid prompt override sections", async () => {
         const useCase = new ConfigurationValidatorUseCase()
         const result = await useCase.execute({
@@ -442,6 +513,29 @@ describe("ConfigurationValidatorUseCase", () => {
                 message: "must be an object with optional main field",
             })
         }
+    })
+
+    test("returns empty prompt overrides when nested sections are missing", async () => {
+        const useCase = new ConfigurationValidatorUseCase()
+        const result = await useCase.execute({
+            severityThreshold: "LOW",
+            ignorePaths: [],
+            maxSuggestionsPerFile: 1,
+            maxSuggestionsPerCCR: 2,
+            cadence: "standard",
+            customRuleIds: [],
+            promptOverrides: {
+                categories: {},
+                severity: {},
+                generation: {},
+            },
+        })
+
+        expect(result.isOk).toBe(true)
+        if (result.isFail) {
+            throw new Error("Expected success result")
+        }
+        expect(result.value.promptOverrides).toEqual({})
     })
 
     test("returns errors for invalid prompt override descriptions and flags", async () => {
@@ -476,6 +570,67 @@ describe("ConfigurationValidatorUseCase", () => {
         }
     })
 
+    test("ignores non-string optional directory overrides", async () => {
+        const useCase = new ConfigurationValidatorUseCase()
+        const result = await useCase.execute({
+            severityThreshold: "LOW",
+            ignorePaths: [],
+            maxSuggestionsPerFile: 1,
+            maxSuggestionsPerCCR: 2,
+            cadence: "standard",
+            customRuleIds: [],
+            directories: [
+                {
+                    path: "src",
+                    config: {
+                        severityThreshold: 1,
+                        reviewDepthStrategy: 123,
+                    },
+                },
+            ],
+        })
+
+        expect(result.isOk).toBe(true)
+        if (result.isFail) {
+            throw new Error("Expected success result")
+        }
+        const config = result.value.directories?.[0]?.config
+        if (config === undefined) {
+            throw new Error("Expected directory config to be present")
+        }
+        expect(config.severityThreshold).toBeUndefined()
+        expect(config.reviewDepthStrategy).toBeUndefined()
+    })
+
+    test("keeps optional directory strategy undefined when not provided", async () => {
+        const useCase = new ConfigurationValidatorUseCase()
+        const result = await useCase.execute({
+            severityThreshold: "LOW",
+            ignorePaths: [],
+            maxSuggestionsPerFile: 1,
+            maxSuggestionsPerCCR: 2,
+            cadence: "standard",
+            customRuleIds: [],
+            directories: [
+                {
+                    path: "src",
+                    config: {
+                        maxSuggestionsPerFile: 2,
+                    },
+                },
+            ],
+        })
+
+        expect(result.isOk).toBe(true)
+        if (result.isFail) {
+            throw new Error("Expected success result")
+        }
+        const config = result.value.directories?.[0]?.config
+        if (config === undefined) {
+            throw new Error("Expected directory config to be present")
+        }
+        expect(config.reviewDepthStrategy).toBeUndefined()
+    })
     test("ignores invalid optional directory override values", async () => {
         const useCase = new ConfigurationValidatorUseCase()
         const result = await useCase.execute({

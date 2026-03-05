@@ -41,6 +41,12 @@ export class ValidateMCPToolInputUseCase
     implements IUseCase<IValidateMCPToolInputInput, IValidateMCPToolInputOutput, ValidationError>
 {
     /**
+     * Creates validation use case instance.
+     */
+    public constructor() {
+    }
+
+    /**
      * Validates input against tool schema.
      *
      * @param input Validation request.

@@ -103,6 +103,12 @@ export class LibraryRuleFactory implements IEntityFactory<
     IReconstituteLibraryRuleProps
 > {
     /**
+     * Creates factory instance.
+     */
+    public constructor() {
+    }
+
+    /**
      * Creates new library rule.
      *
      * @param input Creation payload.

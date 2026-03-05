@@ -45,6 +45,26 @@ describe("RuleCategory", () => {
         }).toThrow("Category slug must be kebab-case")
     })
 
+    test("throws for empty or non-string slug", () => {
+        expect(() => {
+            return new RuleCategory(UniqueId.create(), {
+                slug: "   ",
+                name: "Security",
+                description: "desc",
+                isActive: true,
+            })
+        }).toThrow("Category slug cannot be empty")
+
+        expect(() => {
+            return new RuleCategory(UniqueId.create(), {
+                slug: 123 as unknown as string,
+                name: "Security",
+                description: "desc",
+                isActive: true,
+            })
+        }).toThrow("Category slug cannot be empty")
+    })
+
     test("throws for empty fields", () => {
         expect(() => {
             return new RuleCategory(UniqueId.create(), {
@@ -60,6 +80,26 @@ describe("RuleCategory", () => {
                 slug: "security",
                 name: "Security",
                 description: " ",
+                isActive: true,
+            })
+        }).toThrow("Category description cannot be empty")
+    })
+
+    test("throws for non-string name and description", () => {
+        expect(() => {
+            return new RuleCategory(UniqueId.create(), {
+                slug: "security",
+                name: 123 as unknown as string,
+                description: "desc",
+                isActive: true,
+            })
+        }).toThrow("Category name cannot be empty")
+
+        expect(() => {
+            return new RuleCategory(UniqueId.create(), {
+                slug: "security",
+                name: "Security",
+                description: 123 as unknown as string,
                 isActive: true,
             })
         }).toThrow("Category description cannot be empty")

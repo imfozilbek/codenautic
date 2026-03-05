@@ -169,6 +169,74 @@ describe("Team", () => {
 
         expect(team.disabledRuleUuids.map((id) => id.value)).toEqual(["rule-2"])
     })
+
+    test("ignores disabling already disabled rule", () => {
+        const ruleId = UniqueId.create("rule-1")
+        const team = new Team(UniqueId.create(), createTeamProps({
+            name: "Disabled Team",
+            organizationId: "org-10",
+            memberIds: [],
+            repoIds: [],
+            ruleIds: [],
+            disabledRuleUuids: [ruleId.value],
+        }))
+
+        team.disableRule(ruleId)
+
+        expect(team.disabledRuleUuids.map((id) => id.value)).toEqual(["rule-1"])
+    })
+
+    test("throws when organizationId is missing", () => {
+        expect(() => {
+            void new Team(UniqueId.create(), {
+                name: "Missing Org",
+                organizationId: undefined as unknown as UniqueId,
+                memberIds: [],
+                repoIds: [],
+                ruleIds: [],
+                disabledRuleUuids: [],
+            })
+        }).toThrow("Team organizationId must be defined")
+    })
+
+    test("throws when member id is missing", () => {
+        expect(() => {
+            void new Team(UniqueId.create(), {
+                name: "Bad member",
+                organizationId: UniqueId.create("org-11"),
+                memberIds: [undefined as unknown as UniqueId],
+                repoIds: [],
+                ruleIds: [],
+                disabledRuleUuids: [],
+            })
+        }).toThrow("Member id cannot be empty")
+    })
+
+    test("throws when repo id is missing", () => {
+        expect(() => {
+            void new Team(UniqueId.create(), {
+                name: "Bad repo",
+                organizationId: UniqueId.create("org-12"),
+                memberIds: [],
+                repoIds: [undefined as unknown as RepositoryId],
+                ruleIds: [],
+                disabledRuleUuids: [],
+            })
+        }).toThrow("Repo id cannot be empty")
+    })
+
+    test("throws when rule id is missing", () => {
+        expect(() => {
+            void new Team(UniqueId.create(), {
+                name: "Bad rule",
+                organizationId: UniqueId.create("org-13"),
+                memberIds: [],
+                repoIds: [],
+                ruleIds: [undefined as unknown as UniqueId],
+                disabledRuleUuids: [],
+            })
+        }).toThrow("Rule id cannot be empty")
+    })
 })
 
 /**

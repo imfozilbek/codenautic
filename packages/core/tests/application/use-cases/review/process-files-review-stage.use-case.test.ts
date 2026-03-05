@@ -9,9 +9,22 @@ import type {
     IStreamingChatResponseDTO,
     IUseCase,
 } from "../../../../src"
+import type {
+    IGetEnabledRulesInput,
+    IGetEnabledRulesOutput,
+} from "../../../../src/application/dto/rules/get-enabled-rules.dto"
+import type {
+    ILibraryRuleFilters,
+    ILibraryRuleRepository,
+} from "../../../../src/application/ports/outbound/rule/library-rule-repository.port"
 import {ReviewPipelineState} from "../../../../src/application/types/review/review-pipeline-state"
 import {ProcessFilesReviewStageUseCase} from "../../../../src/application/use-cases/review/process-files-review-stage.use-case"
 import type {IReviewFileDefaults} from "../../../../src/application/dto/config/system-defaults.dto"
+import type {LibraryRule} from "../../../../src/domain/entities/library-rule.entity"
+import {LibraryRuleFactory} from "../../../../src/domain/factories/library-rule.factory"
+import {OrganizationId} from "../../../../src/domain/value-objects/organization-id.value-object"
+import {UniqueId} from "../../../../src/domain/value-objects/unique-id.value-object"
+import {RuleContextFormatterService} from "../../../../src/domain/services/rule-context-formatter.service"
 
 const fileReviewDefaults: IReviewFileDefaults = {
     model: "gpt-4o-mini",
@@ -130,9 +143,96 @@ class InMemoryGeneratePromptUseCase
     }
 }
 
+/**
+ * In-memory enabled-rules use case stub.
+ */
+class InMemoryGetEnabledRulesUseCase
+    implements IUseCase<IGetEnabledRulesInput, IGetEnabledRulesOutput, ValidationError>
+{
+    public readonly calls: IGetEnabledRulesInput[] = []
+    public nextResult: Result<IGetEnabledRulesOutput, ValidationError>
+
+    /**
+     * Creates stub with empty rule list.
+     */
+    public constructor() {
+        this.nextResult = Result.ok({
+            ruleIds: [],
+        })
+    }
+
+    public execute(
+        input: IGetEnabledRulesInput,
+    ): Promise<Result<IGetEnabledRulesOutput, ValidationError>> {
+        this.calls.push(input)
+        return Promise.resolve(this.nextResult)
+    }
+}
+
+/**
+ * In-memory library rule repository for tests.
+ */
+class InMemoryLibraryRuleRepository implements ILibraryRuleRepository {
+    private readonly rulesByUuid: Map<string, LibraryRule>
+
+    /**
+     * Creates repository with optional seed rules.
+     *
+     * @param rules Seed rules.
+     */
+    public constructor(rules: readonly LibraryRule[] = []) {
+        this.rulesByUuid = new Map(
+            rules.map((rule): [string, LibraryRule] => {
+                return [rule.uuid, rule]
+            }),
+        )
+    }
+
+    public findByUuid(ruleUuid: string): Promise<LibraryRule | null> {
+        return Promise.resolve(this.rulesByUuid.get(ruleUuid) ?? null)
+    }
+
+    public findById(_id: UniqueId): Promise<LibraryRule | null> {
+        return Promise.resolve(null)
+    }
+
+    public save(_entity: LibraryRule): Promise<void> {
+        return Promise.resolve()
+    }
+
+    public findByLanguage(_language: string): Promise<readonly LibraryRule[]> {
+        return Promise.resolve([])
+    }
+
+    public findByCategory(_category: string): Promise<readonly LibraryRule[]> {
+        return Promise.resolve([])
+    }
+
+    public findGlobal(): Promise<readonly LibraryRule[]> {
+        return Promise.resolve([])
+    }
+
+    public findByOrganization(_organizationId: OrganizationId): Promise<readonly LibraryRule[]> {
+        return Promise.resolve([])
+    }
+
+    public count(_filters: ILibraryRuleFilters): Promise<number> {
+        return Promise.resolve(0)
+    }
+
+    public saveMany(_rules: readonly LibraryRule[]): Promise<void> {
+        return Promise.resolve()
+    }
+
+    public delete(_id: UniqueId): Promise<void> {
+        return Promise.resolve()
+    }
+}
+
 interface IUseCaseBundle {
     readonly useCase: ProcessFilesReviewStageUseCase
     readonly generatePromptUseCase: InMemoryGeneratePromptUseCase
+    readonly getEnabledRulesUseCase: InMemoryGetEnabledRulesUseCase
 }
 
 /**
@@ -147,14 +247,21 @@ function createUseCaseBundle(
     promptUseCase?: InMemoryGeneratePromptUseCase,
 ): IUseCaseBundle {
     const generatePromptUseCase = promptUseCase ?? new InMemoryGeneratePromptUseCase()
+    const getEnabledRulesUseCase = new InMemoryGetEnabledRulesUseCase()
+    const libraryRuleRepository = new InMemoryLibraryRuleRepository()
+    const ruleContextFormatterService = new RuleContextFormatterService()
 
     return {
         useCase: new ProcessFilesReviewStageUseCase({
             llmProvider,
             generatePromptUseCase,
+            getEnabledRulesUseCase,
+            libraryRuleRepository,
+            ruleContextFormatterService,
             defaults: fileReviewDefaults,
         }),
         generatePromptUseCase,
+        getEnabledRulesUseCase,
     }
 }
 
@@ -170,12 +277,14 @@ function createState(
     files: readonly Readonly<Record<string, unknown>>[],
     config: Readonly<Record<string, unknown>>,
     externalContext: Readonly<Record<string, unknown>> | null,
+    mergeRequestOverrides: Readonly<Record<string, unknown>> = {},
 ): ReviewPipelineState {
     return ReviewPipelineState.create({
         runId: "run-files-review",
         definitionVersion: "v1",
         mergeRequest: {
             id: "mr-41",
+            ...mergeRequestOverrides,
         },
         config,
         files,
@@ -506,6 +615,79 @@ describe("ProcessFilesReviewStageUseCase", () => {
         const systemPrompt = llmProvider.requests.at(0)?.messages.at(0)?.content ?? ""
         expect(systemPrompt).toBe("TEMPLATE_SYSTEM")
         expect(systemPrompt).not.toContain("OVERRIDE_BUG")
+    })
+
+    test("injects enabled rules into template variables", async () => {
+        const llmProvider = new InMemoryLLMProvider()
+        llmProvider.replies.set(
+            "src/rules.ts",
+            {
+                content: JSON.stringify([]),
+            },
+        )
+        const ruleFactory = new LibraryRuleFactory()
+        const rule = ruleFactory.create({
+            uuid: "rule-file-1",
+            title: "Avoid any",
+            rule: "Do not use any",
+            whyIsThisImportant: "Any hides type errors",
+            severity: "MEDIUM",
+            examples: [{
+                snippet: "const value: any = 1",
+                isCorrect: false,
+            }],
+            language: "ts",
+            buckets: ["maintainability"],
+            scope: "FILE",
+            plugAndPlay: true,
+        })
+        const generatePromptUseCase = new InMemoryGeneratePromptUseCase()
+        const getEnabledRulesUseCase = new InMemoryGetEnabledRulesUseCase()
+        getEnabledRulesUseCase.nextResult = Result.ok({
+            ruleIds: [rule.uuid],
+        })
+        const libraryRuleRepository = new InMemoryLibraryRuleRepository([rule])
+        const ruleContextFormatterService = new RuleContextFormatterService()
+
+        const stage = new ProcessFilesReviewStageUseCase({
+            llmProvider,
+            generatePromptUseCase,
+            getEnabledRulesUseCase,
+            libraryRuleRepository,
+            ruleContextFormatterService,
+            defaults: fileReviewDefaults,
+        })
+
+        const state = createState(
+            [{
+                path: "src/rules.ts",
+                patch: "@@ -1,1 +1,1 @@\n+const value: any = 1\n",
+                status: "modified",
+            }],
+            {
+                globalRuleIds: [rule.uuid],
+                organizationRuleIds: [],
+            },
+            null,
+            {
+                organizationId: "org-1",
+                teamId: "team-1",
+            },
+        )
+
+        const result = await stage.execute({state})
+
+        expect(result.isOk).toBe(true)
+        expect(getEnabledRulesUseCase.calls).toHaveLength(1)
+        expect(getEnabledRulesUseCase.calls[0]?.organizationId).toBe("org-1")
+        expect(getEnabledRulesUseCase.calls[0]?.globalRuleIds).toEqual([rule.uuid])
+        const promptCall = generatePromptUseCase.calls[0]
+        const runtimeVariables = promptCall?.runtimeVariables as
+            | Readonly<Record<string, unknown>>
+            | undefined
+        expect(runtimeVariables?.["rules"]).toBe(
+            ruleContextFormatterService.formatForPrompt([rule]),
+        )
     })
 
     test("fails stage when prompt template is missing", async () => {

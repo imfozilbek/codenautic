@@ -75,5 +75,27 @@ describe("rule category config dto", () => {
         expect(parseRuleCategoryConfigList(null)).toBeUndefined()
         expect(parseRuleCategoryConfigList({})).toBeUndefined()
         expect(parseRuleCategoryConfigList({items: {}})).toBeUndefined()
+        expect(parseRuleCategoryConfigList({items: ["invalid"]})).toBeUndefined()
+    })
+
+    test("returns undefined for invalid item fields", () => {
+        expect(parseRuleCategoryConfigList({
+            items: [
+                {
+                    slug: "valid-slug",
+                    name: 123,
+                    description: "desc",
+                },
+            ],
+        })).toBeUndefined()
+        expect(parseRuleCategoryConfigList({
+            items: [
+                {
+                    slug: "valid-slug",
+                    name: "Name",
+                    description: "   ",
+                },
+            ],
+        })).toBeUndefined()
     })
 })

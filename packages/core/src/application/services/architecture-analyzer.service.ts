@@ -58,6 +58,12 @@ export class ArchitectureAnalyzer implements IArchitectureAnalyzer {
     private static readonly COUPLING_PENALTY_PER_TARGET = 4
 
     /**
+     * Creates architecture analyzer service instance.
+     */
+    public constructor() {
+    }
+
+    /**
      * {@inheritDoc}
      */
     public async analyzeHealth(repoId: string): Promise<IArchitectureHealthScore> {

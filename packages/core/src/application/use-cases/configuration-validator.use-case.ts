@@ -47,6 +47,12 @@ const REVIEW_CONFIG_KEYS = [
 export class ConfigurationValidatorUseCase
     implements IUseCase<IConfigurationValidatorInput, ValidatedConfig, ValidationError> {
     /**
+     * Creates configuration validator instance.
+     */
+    public constructor() {
+    }
+
+    /**
      * Validates and normalizes review config payload.
      *
      * @param input Arbitrary input payload.

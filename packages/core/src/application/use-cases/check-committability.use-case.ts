@@ -75,6 +75,12 @@ export interface ICheckCommittabilityOutput {
 export class CheckCommittabilityUseCase
     implements IUseCase<ICheckCommittabilityInput, ICheckCommittabilityOutput, ValidationError>
 {
+    /**
+     * Creates committability use case instance.
+     */
+    public constructor() {
+    }
+
     private static readonly REASON_UPSTREAM_NON_COMMITTABLE = "upstream_non_committable"
     private static readonly REASON_MISSING_CODE_BLOCK = "missing_code_block"
     private static readonly REASON_INVALID_SYNTAX = "invalid_code_block_syntax"

@@ -13,8 +13,20 @@ import type {
     IStreamingChatResponseDTO,
     IUseCase,
 } from "../../../../src"
+import type {
+    IGetEnabledRulesInput,
+    IGetEnabledRulesOutput,
+} from "../../../../src/application/dto/rules/get-enabled-rules.dto"
+import type {
+    ILibraryRuleFilters,
+    ILibraryRuleRepository,
+} from "../../../../src/application/ports/outbound/rule/library-rule-repository.port"
 import {ReviewPipelineState} from "../../../../src/application/types/review/review-pipeline-state"
 import {ProcessCcrLevelReviewStageUseCase} from "../../../../src/application/use-cases/review/process-ccr-level-review-stage.use-case"
+import type {LibraryRule} from "../../../../src/domain/entities/library-rule.entity"
+import {LibraryRuleFactory} from "../../../../src/domain/factories/library-rule.factory"
+import {OrganizationId} from "../../../../src/domain/value-objects/organization-id.value-object"
+import {UniqueId} from "../../../../src/domain/value-objects/unique-id.value-object"
 
 const ccrReviewDefaults = {
     model: "gpt-4o-mini",
@@ -121,9 +133,97 @@ class InMemoryGeneratePromptUseCase
     }
 }
 
+/**
+ * In-memory enabled-rules use case stub.
+ */
+class InMemoryGetEnabledRulesUseCase
+    implements IUseCase<IGetEnabledRulesInput, IGetEnabledRulesOutput, ValidationError>
+{
+    public readonly calls: IGetEnabledRulesInput[] = []
+    public nextResult: Result<IGetEnabledRulesOutput, ValidationError>
+
+    /**
+     * Creates stub with empty rule list.
+     */
+    public constructor() {
+        this.nextResult = Result.ok({
+            ruleIds: [],
+        })
+    }
+
+    public execute(
+        input: IGetEnabledRulesInput,
+    ): Promise<Result<IGetEnabledRulesOutput, ValidationError>> {
+        this.calls.push(input)
+        return Promise.resolve(this.nextResult)
+    }
+}
+
+/**
+ * In-memory library rule repository for tests.
+ */
+class InMemoryLibraryRuleRepository implements ILibraryRuleRepository {
+    private readonly rulesByUuid: Map<string, LibraryRule>
+
+    /**
+     * Creates repository with optional seed rules.
+     *
+     * @param rules Seed rules.
+     */
+    public constructor(rules: readonly LibraryRule[] = []) {
+        this.rulesByUuid = new Map(
+            rules.map((rule): [string, LibraryRule] => {
+                return [rule.uuid, rule]
+            }),
+        )
+    }
+
+    public findByUuid(ruleUuid: string): Promise<LibraryRule | null> {
+        return Promise.resolve(this.rulesByUuid.get(ruleUuid) ?? null)
+    }
+
+    public findById(_id: UniqueId): Promise<LibraryRule | null> {
+        return Promise.resolve(null)
+    }
+
+    public save(_entity: LibraryRule): Promise<void> {
+        return Promise.resolve()
+    }
+
+    public findByLanguage(_language: string): Promise<readonly LibraryRule[]> {
+        return Promise.resolve([])
+    }
+
+    public findByCategory(_category: string): Promise<readonly LibraryRule[]> {
+        return Promise.resolve([])
+    }
+
+    public findGlobal(): Promise<readonly LibraryRule[]> {
+        return Promise.resolve([])
+    }
+
+    public findByOrganization(_organizationId: OrganizationId): Promise<readonly LibraryRule[]> {
+        return Promise.resolve([])
+    }
+
+    public count(_filters: ILibraryRuleFilters): Promise<number> {
+        return Promise.resolve(0)
+    }
+
+    public saveMany(_rules: readonly LibraryRule[]): Promise<void> {
+        return Promise.resolve()
+    }
+
+    public delete(_id: UniqueId): Promise<void> {
+        return Promise.resolve()
+    }
+}
+
 interface IUseCaseBundle {
     readonly useCase: ProcessCcrLevelReviewStageUseCase
     readonly generatePromptUseCase: InMemoryGeneratePromptUseCase
+    readonly getEnabledRulesUseCase: InMemoryGetEnabledRulesUseCase
+    readonly ruleContextFormatterService: RuleContextFormatterService
 }
 
 /**
@@ -138,15 +238,22 @@ function createUseCaseBundle(
     promptUseCase?: InMemoryGeneratePromptUseCase,
 ): IUseCaseBundle {
     const generatePromptUseCase = promptUseCase ?? new InMemoryGeneratePromptUseCase()
+    const getEnabledRulesUseCase = new InMemoryGetEnabledRulesUseCase()
+    const libraryRuleRepository = new InMemoryLibraryRuleRepository()
+    const ruleContextFormatterService = new RuleContextFormatterService()
 
     return {
         useCase: new ProcessCcrLevelReviewStageUseCase({
             llmProvider,
             generatePromptUseCase,
-            ruleContextFormatterService: new RuleContextFormatterService(),
+            getEnabledRulesUseCase,
+            libraryRuleRepository,
+            ruleContextFormatterService,
             defaults: ccrReviewDefaults,
         }),
         generatePromptUseCase,
+        getEnabledRulesUseCase,
+        ruleContextFormatterService,
     }
 }
 
@@ -160,12 +267,14 @@ function createUseCaseBundle(
 function createState(
     files: readonly Readonly<Record<string, unknown>>[],
     config: Readonly<Record<string, unknown>>,
+    mergeRequestOverrides: Readonly<Record<string, unknown>> = {},
 ): ReviewPipelineState {
     return ReviewPipelineState.create({
         runId: "run-ccr",
         definitionVersion: "v1",
         mergeRequest: {
             id: "mr-40",
+            ...mergeRequestOverrides,
         },
         config,
         files,
@@ -223,10 +332,76 @@ describe("ProcessCcrLevelReviewStageUseCase", () => {
         const runtimeVariables = assertRuntimeVariables(promptCall?.runtimeVariables)
         expect(typeof runtimeVariables["files"]).toBe("string")
         expect(runtimeVariables["files"]).toContain("FILE: src/main.ts")
-        expect(runtimeVariables["rules"]).toBe("[]")
+        expect(runtimeVariables["rules"]).toBeUndefined()
         expect(request.model).toBe("gpt-4o-mini")
         expect(request.messages[0]?.content).toBe("TEMPLATE_SYSTEM")
         expect(request.messages[1]?.content.includes("FILE: src/main.ts")).toBe(true)
+    })
+
+    test("injects enabled rules into template variables", async () => {
+        const llmProvider = new InMemoryLLMProvider()
+        llmProvider.responseContent = JSON.stringify({suggestions: []})
+        const ruleFactory = new LibraryRuleFactory()
+        const rule = ruleFactory.create({
+            uuid: "rule-ccr-1",
+            title: "Avoid eval",
+            rule: "Never use eval",
+            whyIsThisImportant: "Eval is unsafe",
+            severity: "HIGH",
+            examples: [{
+                snippet: "eval(userInput)",
+                isCorrect: false,
+            }],
+            language: "ts",
+            buckets: ["security"],
+            scope: "FILE",
+            plugAndPlay: true,
+        })
+        const generatePromptUseCase = new InMemoryGeneratePromptUseCase()
+        const getEnabledRulesUseCase = new InMemoryGetEnabledRulesUseCase()
+        getEnabledRulesUseCase.nextResult = Result.ok({
+            ruleIds: [rule.uuid],
+        })
+        const libraryRuleRepository = new InMemoryLibraryRuleRepository([rule])
+        const ruleContextFormatterService = new RuleContextFormatterService()
+
+        const stage = new ProcessCcrLevelReviewStageUseCase({
+            llmProvider,
+            generatePromptUseCase,
+            getEnabledRulesUseCase,
+            libraryRuleRepository,
+            ruleContextFormatterService,
+            defaults: ccrReviewDefaults,
+        })
+
+        const state = createState(
+            [
+                {
+                    path: "src/main.ts",
+                    patch: "@@ -1,1 +1,2 @@",
+                },
+            ],
+            {
+                globalRuleIds: [rule.uuid],
+                organizationRuleIds: [],
+            },
+            {
+                organizationId: "org-1",
+                teamId: "team-1",
+            },
+        )
+
+        const result = await stage.execute({state})
+
+        expect(result.isOk).toBe(true)
+        expect(getEnabledRulesUseCase.calls).toHaveLength(1)
+        expect(getEnabledRulesUseCase.calls[0]?.organizationId).toBe("org-1")
+        expect(getEnabledRulesUseCase.calls[0]?.globalRuleIds).toEqual([rule.uuid])
+        const promptCall = generatePromptUseCase.calls[0]
+        const runtimeVariables = assertRuntimeVariables(promptCall?.runtimeVariables)
+        expect(runtimeVariables["rules"]).toBe(
+            ruleContextFormatterService.formatForPrompt([rule]),
+        )
     })
 
     test("fails stage when prompt template is missing", async () => {

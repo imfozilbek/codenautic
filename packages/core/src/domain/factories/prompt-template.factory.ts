@@ -47,6 +47,12 @@ export class PromptTemplateFactory
     implements IEntityFactory<PromptTemplate, ICreatePromptTemplateProps, IReconstitutePromptTemplateProps>
 {
     /**
+     * Creates factory instance.
+     */
+    public constructor() {
+    }
+
+    /**
      * Creates new prompt template with stable defaults.
      *
      * @param input Creation payload.

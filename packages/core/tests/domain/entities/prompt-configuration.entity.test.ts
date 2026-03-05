@@ -33,6 +33,19 @@ describe("PromptConfiguration", () => {
         })
     })
 
+    test("defaults empty maps for missing defaults and overrides", () => {
+        const configuration = new PromptConfiguration(UniqueId.create("configuration-1a"), {
+            templateId: UniqueId.create("template-1a"),
+            name: "Config",
+            defaults: undefined as unknown as Record<string, unknown>,
+            overrides: null as unknown as Record<string, unknown>,
+            isGlobal: true,
+        })
+
+        expect(configuration.defaults).toEqual({})
+        expect(configuration.overrides).toEqual({})
+    })
+
     test("defaults organization scope for global configurations", () => {
         const configuration = new PromptConfiguration(UniqueId.create("configuration-2"), {
             templateId: UniqueId.create("template-2"),

@@ -84,7 +84,6 @@ export class CustomRule extends Entity<ICustomRuleProps> {
         this.props.status = normalizeRuleStatus(props.status)
         this.props.severity = props.severity
         this.props.examples = normalizeExamples(props.examples)
-        this.ensureStateIsValid()
     }
 
     /**
@@ -191,18 +190,6 @@ export class CustomRule extends Entity<ICustomRuleProps> {
         this.props.status = CUSTOM_RULE_STATUS.DELETED
     }
 
-    /**
-     * Validates state consistency.
-     */
-    private ensureStateIsValid(): void {
-        if (this.props.examples.length > 0) {
-            for (const example of this.props.examples) {
-                if (example.snippet.trim().length === 0) {
-                    throw new Error("Example snippet cannot be empty")
-                }
-            }
-        }
-    }
 }
 
 /**

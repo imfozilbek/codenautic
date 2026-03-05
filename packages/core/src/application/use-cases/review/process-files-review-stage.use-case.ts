@@ -20,6 +20,11 @@ import type {IReviewConfigDTO} from "../../dto/review/review-config.dto"
 import type {IGeneratePromptInput} from "../generate-prompt.use-case"
 import type {IUseCase} from "../../ports/inbound/use-case.port"
 import type {ILLMProvider} from "../../ports/outbound/llm/llm-provider.port"
+import type {ILibraryRuleRepository} from "../../ports/outbound/rule/library-rule-repository.port"
+import type {
+    IGetEnabledRulesInput,
+    IGetEnabledRulesOutput,
+} from "../../dto/rules/get-enabled-rules.dto"
 import type {
     PipelineCollectionItem,
     ReviewPipelineState,
@@ -31,6 +36,7 @@ import type {
 } from "../../types/review/pipeline-stage.contract"
 import type {ValidationError} from "../../../domain/errors/validation.error"
 import {StageError} from "../../../domain/errors/stage.error"
+import type {LibraryRule} from "../../../domain/entities/library-rule.entity"
 import {deduplicate} from "../../../shared/utils/deduplicate"
 import {hash} from "../../../shared/utils/hash"
 import {Result} from "../../../shared/result"
@@ -41,6 +47,7 @@ import {
     readStringField,
 } from "./pipeline-stage-state.utils"
 import type {IReviewFileDefaults} from "../../dto/config/system-defaults.dto"
+import {RuleContextFormatterService} from "../../../domain/services/rule-context-formatter.service"
 
 const FILE_CONTENT_LIMIT = 5000
 
@@ -52,6 +59,9 @@ type ParsedJsonPayload = unknown[] | Readonly<Record<string, unknown>>
 export interface IProcessFilesReviewStageDependencies {
     llmProvider: ILLMProvider
     generatePromptUseCase: IUseCase<IGeneratePromptInput, string, ValidationError>
+    getEnabledRulesUseCase: IUseCase<IGetEnabledRulesInput, IGetEnabledRulesOutput, ValidationError>
+    libraryRuleRepository: ILibraryRuleRepository
+    ruleContextFormatterService: RuleContextFormatterService
     defaults: IReviewFileDefaults
 }
 
@@ -99,6 +109,9 @@ export class ProcessFilesReviewStageUseCase implements IPipelineStageUseCase {
 
     private readonly llmProvider: ILLMProvider
     private readonly generatePromptUseCase: IUseCase<IGeneratePromptInput, string, ValidationError>
+    private readonly getEnabledRulesUseCase: IUseCase<IGetEnabledRulesInput, IGetEnabledRulesOutput, ValidationError>
+    private readonly libraryRuleRepository: ILibraryRuleRepository
+    private readonly ruleContextFormatterService: RuleContextFormatterService
     private readonly model: string
     private readonly defaults: IReviewFileDefaults
 
@@ -112,6 +125,9 @@ export class ProcessFilesReviewStageUseCase implements IPipelineStageUseCase {
         this.stageName = "Process Files Review"
         this.llmProvider = dependencies.llmProvider
         this.generatePromptUseCase = dependencies.generatePromptUseCase
+        this.getEnabledRulesUseCase = dependencies.getEnabledRulesUseCase
+        this.libraryRuleRepository = dependencies.libraryRuleRepository
+        this.ruleContextFormatterService = dependencies.ruleContextFormatterService
         this.defaults = dependencies.defaults
         this.model = dependencies.defaults.model
     }
@@ -130,6 +146,7 @@ export class ProcessFilesReviewStageUseCase implements IPipelineStageUseCase {
             input.state.runId,
             input.state.definitionVersion,
             input.state.mergeRequest,
+            input.state.config,
         )
         if (templateSystemPromptResult.isFail) {
             return Result.fail<IStageTransition, StageError>(templateSystemPromptResult.error)
@@ -1004,14 +1021,30 @@ export class ProcessFilesReviewStageUseCase implements IPipelineStageUseCase {
         runId: string,
         definitionVersion: string,
         mergeRequest: Readonly<Record<string, unknown>>,
+        config: Readonly<Record<string, unknown>>,
     ): Promise<Result<string, StageError>> {
         const organizationId = readStringField(mergeRequest, "organizationId")
+        const rulesContextResult = await this.resolveRulesContext(
+            runId,
+            definitionVersion,
+            mergeRequest,
+            config,
+        )
+        if (rulesContextResult.isFail) {
+            return Result.fail<string, StageError>(rulesContextResult.error)
+        }
+        const rulesContext = rulesContextResult.value
 
         try {
+            const runtimeVariables: Record<string, unknown> = {}
+            if (rulesContext !== undefined) {
+                runtimeVariables.rules = rulesContext
+            }
+
             const result = await this.generatePromptUseCase.execute({
                 name: this.defaults.systemPromptName,
                 organizationId: organizationId ?? null,
-                runtimeVariables: {},
+                runtimeVariables,
             })
             if (result.isFail) {
                 return Result.fail<string, StageError>(
@@ -1109,6 +1142,86 @@ export class ProcessFilesReviewStageUseCase implements IPipelineStageUseCase {
         }
 
         return `${reviewerPrompt}\n\nFILE: ${filePath}\nPATCH:\n${truncatedPatch}`
+    }
+
+    /**
+     * Resolves rules context payload for prompt injection.
+     *
+     * @param runId Pipeline run id.
+     * @param definitionVersion Pipeline definition version.
+     * @param mergeRequest Merge request payload.
+     * @param config Review config payload.
+     * @returns JSON rules payload or undefined.
+     */
+    private async resolveRulesContext(
+        runId: string,
+        definitionVersion: string,
+        mergeRequest: Readonly<Record<string, unknown>>,
+        config: Readonly<Record<string, unknown>>,
+    ): Promise<Result<string | undefined, StageError>> {
+        const organizationId = readStringField(mergeRequest, "organizationId")
+        if (organizationId === undefined) {
+            return Result.ok<string | undefined, StageError>(undefined)
+        }
+
+        try {
+            const enabledRulesResult = await this.getEnabledRulesUseCase.execute({
+                organizationId,
+                globalRuleIds: config["globalRuleIds"] as readonly string[] | undefined,
+                organizationRuleIds: config["organizationRuleIds"] as readonly string[] | undefined,
+                teamId: readStringField(mergeRequest, "teamId"),
+            })
+            if (enabledRulesResult.isFail) {
+                return Result.fail<string | undefined, StageError>(
+                    this.createStageError(
+                        runId,
+                        definitionVersion,
+                        "Failed to resolve enabled rules for file review stage",
+                        false,
+                        enabledRulesResult.error,
+                    ),
+                )
+            }
+
+            const rules = await this.loadRulesByIds(enabledRulesResult.value.ruleIds)
+            if (rules.length === 0) {
+                return Result.ok<string | undefined, StageError>(undefined)
+            }
+
+            return Result.ok<string | undefined, StageError>(
+                this.ruleContextFormatterService.formatForPrompt(rules),
+            )
+        } catch (error: unknown) {
+            return Result.fail<string | undefined, StageError>(
+                this.createStageError(
+                    runId,
+                    definitionVersion,
+                    "Failed to resolve rules for file review stage",
+                    true,
+                    error instanceof Error ? error : undefined,
+                ),
+            )
+        }
+    }
+
+    /**
+     * Loads library rules by identifiers.
+     *
+     * @param ruleIds Rule identifiers.
+     * @returns Resolved library rules.
+     */
+    private async loadRulesByIds(ruleIds: readonly string[]): Promise<readonly LibraryRule[]> {
+        if (ruleIds.length === 0) {
+            return []
+        }
+
+        const rules = await Promise.all(
+            ruleIds.map(async (ruleId): Promise<LibraryRule | null> => {
+                return this.libraryRuleRepository.findByUuid(ruleId)
+            }),
+        )
+
+        return rules.filter((rule): rule is LibraryRule => rule !== null)
     }
 
     /**

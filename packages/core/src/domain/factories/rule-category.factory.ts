@@ -30,6 +30,12 @@ export class RuleCategoryFactory
     implements IEntityFactory<RuleCategory, ICreateRuleCategoryProps, IReconstituteRuleCategoryProps>
 {
     /**
+     * Creates factory instance.
+     */
+    public constructor() {
+    }
+
+    /**
      * Creates new rule category.
      *
      * @param input Category payload.

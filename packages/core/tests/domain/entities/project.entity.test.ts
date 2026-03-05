@@ -76,6 +76,49 @@ describe("Project", () => {
         }).toThrow("RepositoryId must match format <platform>:<id>")
     })
 
+    test("throws when repositoryId is missing", () => {
+        expect(() => {
+            void new Project(UniqueId.create(), {
+                repositoryId: undefined as unknown as RepositoryId,
+                organizationId: OrganizationId.create("org-10"),
+                settings: ProjectSettings.create(),
+                integrations: [],
+            })
+        }).toThrow("Project repositoryId must be defined")
+    })
+
+    test("throws when organizationId is missing", () => {
+        expect(() => {
+            void new Project(UniqueId.create(), {
+                repositoryId: RepositoryId.parse("gl:repo-10"),
+                organizationId: undefined as unknown as OrganizationId,
+                settings: ProjectSettings.create(),
+                integrations: [],
+            })
+        }).toThrow("Project organizationId must be defined")
+    })
+
+    test("throws when settings are missing", () => {
+        expect(() => {
+            void new Project(UniqueId.create(), {
+                repositoryId: RepositoryId.parse("gl:repo-11"),
+                organizationId: OrganizationId.create("org-11"),
+                settings: undefined as unknown as ProjectSettings,
+                integrations: [],
+            })
+        }).toThrow("Project settings must be defined")
+    })
+
+    test("throws when integration is empty", () => {
+        expect(() => {
+            void new Project(UniqueId.create(), createProjectProps({
+                repositoryId: "gl:repo-12",
+                organizationId: "org-12",
+                integrations: ["   "],
+            }))
+        }).toThrow("Integration cannot be empty")
+    })
+
     test("allows global organization scope", () => {
         const project = new Project(UniqueId.create(), createProjectProps({
             repositoryId: "az:repo-3",

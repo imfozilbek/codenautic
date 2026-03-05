@@ -32,6 +32,12 @@ export interface IReconstituteUserProps {
  */
 export class UserFactory implements IEntityFactory<User, ICreateUserProps, IReconstituteUserProps> {
     /**
+     * Creates factory instance.
+     */
+    public constructor() {
+    }
+
+    /**
      * Creates new user.
      *
      * @param input New user payload.

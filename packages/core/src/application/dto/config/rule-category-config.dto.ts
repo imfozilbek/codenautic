@@ -59,10 +59,7 @@ export function parseRuleCategoryConfigList(
  * @returns Parsed item or undefined.
  */
 function parseRuleCategoryItem(value: unknown): IRuleCategoryConfigData | undefined {
-    const raw = readObject(value)
-    if (raw === undefined) {
-        return undefined
-    }
+    const raw = readObject(value) ?? {}
 
     const slug = normalizeSlug(raw["slug"])
     const name = readNonEmptyText(raw["name"])
@@ -86,15 +83,7 @@ function parseRuleCategoryItem(value: unknown): IRuleCategoryConfigData | undefi
  */
 function normalizeSlug(value: unknown): string | undefined {
     const raw = readNonEmptyText(value)
-    if (raw === undefined) {
-        return undefined
-    }
-
-    if (RULE_CATEGORY_SLUG_PATTERN.test(raw) === false) {
-        return undefined
-    }
-
-    return raw
+    return raw !== undefined && RULE_CATEGORY_SLUG_PATTERN.test(raw) ? raw : undefined
 }
 
 /**
@@ -104,16 +93,8 @@ function normalizeSlug(value: unknown): string | undefined {
  * @returns Trimmed string or undefined.
  */
 function readNonEmptyText(value: unknown): string | undefined {
-    if (typeof value !== "string") {
-        return undefined
-    }
-
-    const normalized = value.trim()
-    if (normalized.length === 0) {
-        return undefined
-    }
-
-    return normalized
+    const normalized = typeof value === "string" ? value.trim() : ""
+    return normalized.length > 0 ? normalized : undefined
 }
 
 /**

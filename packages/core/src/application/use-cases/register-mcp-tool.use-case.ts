@@ -42,6 +42,12 @@ export interface IRegisterMCPToolOutput {
  */
 export class RegisterMCPToolUseCase implements IUseCase<IRegisterMCPToolInput, IRegisterMCPToolOutput, ValidationError> {
     /**
+     * Creates register use case instance.
+     */
+    public constructor() {
+    }
+
+    /**
      * Registers tool and returns success.
      *
      * @param input Registration request.
@@ -65,12 +71,13 @@ export class RegisterMCPToolUseCase implements IUseCase<IRegisterMCPToolInput, I
             input.server.registerTool(input.tool, input.handler)
             return Promise.resolve(Result.ok<IRegisterMCPToolOutput, ValidationError>({registered: true}))
         } catch (error: unknown) {
+            const message = error instanceof Error ? error.message : "unknown error"
             return Promise.resolve(
                 Result.fail<IRegisterMCPToolOutput, ValidationError>(
                     new ValidationError("Register MCP tool failed", [
                         {
                             field: "tool",
-                            message: readErrorMessage(error),
+                            message,
                         },
                     ]),
                 ),
@@ -143,20 +150,4 @@ function hasValidTool(tool: unknown): tool is IMCPTool {
  */
 function hasValidToolHandler(handler: unknown): handler is IMCPToolHandler {
     return typeof handler === "function"
-}
-
-/**
- * Reads error message from unknown.
- *
- * @param error Error input.
- * @returns Message.
- */
-function readErrorMessage(error: unknown): string {
-    if (error instanceof Error) {
-        return error.message
-    }
-    if (typeof error === "string") {
-        return error
-    }
-    return "unknown error"
 }

@@ -28,8 +28,11 @@ describe("prompt template config dto", () => {
     })
 
     test("returns undefined for invalid payloads", () => {
+        expect(parsePromptTemplateConfigList("invalid")).toBeUndefined()
+        expect(parsePromptTemplateConfigList([])).toBeUndefined()
         expect(parsePromptTemplateConfigList({})).toBeUndefined()
         expect(parsePromptTemplateConfigList({items: [{}]})).toBeUndefined()
+        expect(parsePromptTemplateConfigList({items: ["bad"]})).toBeUndefined()
         expect(parsePromptTemplateConfigList({
             items: [
                 {
@@ -60,6 +63,17 @@ describe("prompt template config dto", () => {
                     type: "system",
                     content: "x",
                     variables: ["", "ok"],
+                },
+            ],
+        })).toBeUndefined()
+        expect(parsePromptTemplateConfigList({
+            items: [
+                {
+                    name: "bad-vars-type",
+                    category: "analysis",
+                    type: "system",
+                    content: "x",
+                    variables: "oops",
                 },
             ],
         })).toBeUndefined()

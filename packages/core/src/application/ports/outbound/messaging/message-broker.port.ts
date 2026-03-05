@@ -75,23 +75,5 @@ function parsePayload(payload: string): MessageBrokerPayload {
         throw new Error("Outbox payload must be JSON object")
     }
 
-    if (isMessageBrokerPayload(parsed)) {
-        return parsed
-    }
-
-    throw new Error("Outbox payload must be JSON object")
-}
-
-/**
- * Checks if value is safe broker payload.
- *
- * @param value Candidate value.
- * @returns True if value is object payload.
- */
-function isMessageBrokerPayload(value: unknown): value is MessageBrokerPayload {
-    return (
-        typeof value === "object" &&
-        value !== null &&
-        Array.isArray(value) === false
-    )
+    return parsed as MessageBrokerPayload
 }

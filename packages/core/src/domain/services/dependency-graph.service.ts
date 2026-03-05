@@ -50,6 +50,12 @@ export class DependencyGraphService implements IDependencyGraphService {
     private graph: CodeGraph = {nodes: [], edges: []}
 
     /**
+     * Creates dependency graph service instance.
+     */
+    public constructor() {
+    }
+
+    /**
      * Builds graph from file-level diff payload.
      *
      * @param files Changed files from scan or diff.

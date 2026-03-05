@@ -20,6 +20,12 @@ export class ReviewDepthModeResolver {
         /^\+(?:\s*export\b|\s*type\s+|\s*interface\s+|\s*enum\s+|\s*class\s+|\s*function\s+|\s*abstract\s+class\s+|\s*namespace\s+)/
 
     /**
+     * Creates resolver instance.
+     */
+    public constructor() {
+    }
+
+    /**
      * Resolves review depth mode for a single diff file.
      *
      * @param file Diff file payload.

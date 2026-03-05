@@ -14,6 +14,12 @@ export class ImplementationCheckSafeguardFilter implements ISafeGuardFilter {
     public readonly name = FILTER_NAME
 
     /**
+     * Creates safeguard filter instance.
+     */
+    public constructor() {
+    }
+
+    /**
      * Filters suggestions that are already implemented in file payload.
      *
      * @param suggestions Input suggestions.

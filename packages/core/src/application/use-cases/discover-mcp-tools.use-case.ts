@@ -32,6 +32,12 @@ export interface IDiscoverMCPToolsOutput {
  */
 export class DiscoverMCPToolsUseCase implements IUseCase<IDiscoverMCPToolsInput, IDiscoverMCPToolsOutput, ValidationError> {
     /**
+     * Creates discover use case instance.
+     */
+    public constructor() {
+    }
+
+    /**
      * Returns registered tool list.
      *
  * @param input Discovery request.
@@ -83,11 +89,12 @@ export class DiscoverMCPToolsUseCase implements IUseCase<IDiscoverMCPToolsInput,
                 tools: response.result.tools,
             })
         } catch (error: unknown) {
+            const message = error instanceof Error ? error.message : "tool discovery failed"
             return Result.fail<IDiscoverMCPToolsOutput, ValidationError>(
                 new ValidationError("Discover MCP tools failed", [
                     {
                         field: "server",
-                        message: readErrorMessage(error),
+                        message,
                     },
                 ]),
             )
@@ -118,20 +125,4 @@ function isMCPToolsListResponse(payload: unknown): payload is IMCPToolsListRespo
         "tools" in payload &&
         Array.isArray((payload as {readonly tools: unknown[]}).tools)
     )
-}
-
-/**
- * Reads error message from unknown.
- *
- * @param error Error input.
- * @returns Message.
- */
-function readErrorMessage(error: unknown): string {
-    if (error instanceof Error) {
-        return error.message
-    }
-    if (typeof error === "string") {
-        return error
-    }
-    return "tool discovery failed"
 }

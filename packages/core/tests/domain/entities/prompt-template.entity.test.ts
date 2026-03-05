@@ -133,4 +133,32 @@ describe("PromptTemplate", () => {
             })
         }).toThrow("Prompt template content cannot be empty")
     })
+
+    test("throws for empty template name", () => {
+        expect(() => {
+            return new PromptTemplate(UniqueId.create("template-8"), {
+                name: "   ",
+                category: PROMPT_TEMPLATE_CATEGORY.RULES,
+                type: PROMPT_TEMPLATE_TYPE.SYSTEM,
+                content: "Hello",
+                variables: [],
+                version: 1,
+                isGlobal: true,
+            })
+        }).toThrow("Prompt template name cannot be empty")
+    })
+
+    test("throws for empty variable name", () => {
+        expect(() => {
+            return new PromptTemplate(UniqueId.create("template-9"), {
+                name: "Vars",
+                category: PROMPT_TEMPLATE_CATEGORY.RULES,
+                type: PROMPT_TEMPLATE_TYPE.SYSTEM,
+                content: "Hello",
+                variables: [{name: "   "}],
+                version: 1,
+                isGlobal: true,
+            })
+        }).toThrow("Template variable name cannot be empty")
+    })
 })

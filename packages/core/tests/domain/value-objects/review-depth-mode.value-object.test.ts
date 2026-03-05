@@ -20,6 +20,12 @@ function createFile(params: {
 }
 
 describe("ReviewDepthModeResolver", () => {
+    test("creates resolver instance", () => {
+        const resolver = new ReviewDepthModeResolver()
+
+        expect(resolver).toBeInstanceOf(ReviewDepthModeResolver)
+    })
+
     test("marks heavy when import changes are detected", () => {
         const file = createFile({
             patch: "+import {x} from \"pkg\"\n",

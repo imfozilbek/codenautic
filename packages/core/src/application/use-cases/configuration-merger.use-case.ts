@@ -17,6 +17,12 @@ export interface IConfigurationMergerInput {
 export class ConfigurationMergerUseCase
     implements IUseCase<IConfigurationMergerInput, ValidatedConfig, Error> {
     /**
+     * Creates merger use case instance.
+     */
+    public constructor() {
+    }
+
+    /**
      * Merges layered configuration into validated output.
      *
      * @param input Layered configuration inputs.

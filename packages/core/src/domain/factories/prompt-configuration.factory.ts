@@ -43,6 +43,12 @@ export class PromptConfigurationFactory
         >
 {
     /**
+     * Creates factory instance.
+     */
+    public constructor() {
+    }
+
+    /**
      * Creates new prompt configuration.
      *
      * @param input Creation payload.

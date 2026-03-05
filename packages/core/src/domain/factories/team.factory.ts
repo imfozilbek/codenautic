@@ -33,6 +33,12 @@ export interface IReconstituteTeamProps {
  */
 export class TeamFactory implements IEntityFactory<Team, ICreateTeamProps, IReconstituteTeamProps> {
     /**
+     * Creates factory instance.
+     */
+    public constructor() {
+    }
+
+    /**
      * Creates new team entity.
      *
      * @param input Input payload.

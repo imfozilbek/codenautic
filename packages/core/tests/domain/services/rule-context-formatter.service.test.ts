@@ -97,4 +97,20 @@ describe("RuleContextFormatterService", () => {
             service.formatForPrompt([{} as unknown as typeof securityRule])
         }).toThrow("Rules must contain LibraryRule entities")
     })
+
+    test("throws on non-array rules input", () => {
+        const service = new RuleContextFormatterService()
+
+        expect(() => {
+            service.formatForPrompt("invalid" as unknown as readonly typeof securityRule[])
+        }).toThrow("Rules must be an array")
+    })
+
+    test("throws on non-string category", () => {
+        const service = new RuleContextFormatterService()
+
+        expect(() => {
+            service.formatCategorySection([securityRule], 123 as unknown as string)
+        }).toThrow("Category must be a non-empty string")
+    })
 })

@@ -35,6 +35,12 @@ export interface IReconstituteOrganizationProps {
  */
 export class OrganizationFactory implements IEntityFactory<Organization, ICreateOrganizationProps, IReconstituteOrganizationProps> {
     /**
+     * Creates factory instance.
+     */
+    public constructor() {
+    }
+
+    /**
      * Creates organization in default state.
      *
      * @param input Raw input.

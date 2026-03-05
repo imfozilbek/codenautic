@@ -71,6 +71,24 @@ describe("LibraryRule", () => {
         }).toThrow("Rule uuid cannot be empty")
     })
 
+    test("throws when uuid is not a string", () => {
+        expect(() => {
+            return new LibraryRule(UniqueId.create("bad-2"), {
+                uuid: 123 as unknown as string,
+                title: "Title",
+                rule: "Rule body",
+                whyIsThisImportant: "Why",
+                severity: Severity.create("low"),
+                examples: BASE_EXAMPLES,
+                language: "ts",
+                buckets: ["a"],
+                scope: LIBRARY_RULE_SCOPE.FILE,
+                plugAndPlay: false,
+                isGlobal: true,
+            })
+        }).toThrow("Rule uuid cannot be empty")
+    })
+
     test("предотвращает конфликт global/organizationId", () => {
         const organizationId = OrganizationId.create("org-1")
 
@@ -131,6 +149,97 @@ describe("LibraryRule", () => {
                 isGlobal: true,
             })
         }).toThrow("Example snippet cannot be empty")
+    })
+
+    test("throws when example snippet is not a string", () => {
+        expect(() => {
+            return new LibraryRule(UniqueId.create("r4a"), {
+                uuid: "rule-4a",
+                title: "Bad example type",
+                rule: "Rule body",
+                whyIsThisImportant: "Why",
+                severity: Severity.create("medium"),
+                examples: [
+                    {
+                        snippet: 123 as unknown as string,
+                        isCorrect: true,
+                    },
+                ],
+                language: "ts",
+                buckets: ["a"],
+                scope: LIBRARY_RULE_SCOPE.FILE,
+                plugAndPlay: false,
+                isGlobal: true,
+            })
+        }).toThrow("Example snippet cannot be empty")
+    })
+
+    test("throws when buckets are invalid", () => {
+        expect(() => {
+            return new LibraryRule(UniqueId.create("r5a"), {
+                uuid: "rule-5a",
+                title: "Bad buckets",
+                rule: "Rule body",
+                whyIsThisImportant: "Why",
+                severity: Severity.create("low"),
+                examples: BASE_EXAMPLES,
+                language: "ts",
+                buckets: [],
+                scope: LIBRARY_RULE_SCOPE.FILE,
+                plugAndPlay: false,
+                isGlobal: true,
+            })
+        }).toThrow("Rule must have at least one bucket")
+
+        expect(() => {
+            return new LibraryRule(UniqueId.create("r5b"), {
+                uuid: "rule-5b",
+                title: "Bad buckets type",
+                rule: "Rule body",
+                whyIsThisImportant: "Why",
+                severity: Severity.create("low"),
+                examples: BASE_EXAMPLES,
+                language: "ts",
+                buckets: [123 as unknown as string],
+                scope: LIBRARY_RULE_SCOPE.FILE,
+                plugAndPlay: false,
+                isGlobal: true,
+            })
+        }).toThrow("Rule bucket must be a non-empty string")
+
+        expect(() => {
+            return new LibraryRule(UniqueId.create("r5c"), {
+                uuid: "rule-5c",
+                title: "Bad buckets empty",
+                rule: "Rule body",
+                whyIsThisImportant: "Why",
+                severity: Severity.create("low"),
+                examples: BASE_EXAMPLES,
+                language: "ts",
+                buckets: ["   "],
+                scope: LIBRARY_RULE_SCOPE.FILE,
+                plugAndPlay: false,
+                isGlobal: true,
+            })
+        }).toThrow("Rule bucket cannot be empty")
+    })
+
+    test("throws when scope is not a string", () => {
+        expect(() => {
+            return new LibraryRule(UniqueId.create("r5d"), {
+                uuid: "rule-5d",
+                title: "Bad scope type",
+                rule: "Rule body",
+                whyIsThisImportant: "Why",
+                severity: Severity.create("low"),
+                examples: BASE_EXAMPLES,
+                language: "ts",
+                buckets: ["a"],
+                scope: 123 as unknown as LibraryRuleScope,
+                plugAndPlay: false,
+                isGlobal: true,
+            })
+        }).toThrow("Unknown rule scope")
     })
 
     test("нормализует допустимую область и язык", () => {

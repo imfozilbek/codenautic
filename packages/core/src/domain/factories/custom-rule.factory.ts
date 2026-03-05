@@ -48,6 +48,12 @@ export class CustomRuleFactory implements IEntityFactory<
     IReconstituteCustomRuleProps
 > {
     /**
+     * Creates factory instance.
+     */
+    public constructor() {
+    }
+
+    /**
      * Creates new custom rule with defaults.
      *
      * @param input Creation payload.
