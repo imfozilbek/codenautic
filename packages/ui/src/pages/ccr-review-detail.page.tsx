@@ -45,6 +45,14 @@ interface IFileNeighborhoodDetails {
     readonly recentChanges: ReadonlyArray<string>
 }
 
+type TReviewRiskLevel = "low" | "medium" | "high" | "critical"
+
+interface IReviewRiskIndicator {
+    readonly level: TReviewRiskLevel
+    readonly reasons: ReadonlyArray<string>
+    readonly score: number
+}
+
 interface ISafeGuardTraceStep {
     /** Идентификатор фильтра SafeGuard. */
     readonly filterId: TSafeGuardFilterId
@@ -321,6 +329,88 @@ function resolveReviewHistoryHeatColor(activityCount: number, maxActivityCount: 
     const saturation = 76
     const lightness = 78 - Math.round(clampedRatio * 36)
     return `hsl(${String(hue)}, ${String(saturation)}%, ${String(lightness)}%)`
+}
+
+function mapReviewRiskChipColor(level: TReviewRiskLevel): "danger" | "primary" | "success" | "warning" {
+    if (level === "critical") {
+        return "danger"
+    }
+    if (level === "high") {
+        return "warning"
+    }
+    if (level === "medium") {
+        return "primary"
+    }
+    return "success"
+}
+
+function resolveReviewRiskIndicator(
+    diffFiles: ReadonlyArray<ICcrDiffFile>,
+    historyEntries: ReadonlyArray<IReviewHistoryHeatEntry>,
+    impactSeeds: ReadonlyArray<IImpactAnalysisSeed>,
+): IReviewRiskIndicator {
+    const changedLines = diffFiles.reduce((total, file): number => {
+        return total + resolveDiffChangedLineCount(file)
+    }, 0)
+    const issueCount = diffFiles.reduce((total, file): number => {
+        return total + resolveDiffIssueCount(file)
+    }, 0)
+    const maxHistoryActivity = historyEntries.reduce((maxValue, entry): number => {
+        return Math.max(maxValue, entry.reviewsByWindow["30d"])
+    }, 0)
+    const averageImpactRisk = impactSeeds.length === 0
+        ? 0
+        : Math.round(
+            impactSeeds.reduce((total, seed): number => total + seed.riskScore, 0) /
+                impactSeeds.length,
+        )
+    const score = Math.min(
+        100,
+        changedLines * 2 + issueCount * 9 + maxHistoryActivity * 2 + Math.round(averageImpactRisk * 0.35),
+    )
+
+    if (score >= 80) {
+        return {
+            level: "critical",
+            reasons: [
+                `High blast radius: ${String(changedLines)} changed lines across CCR files.`,
+                `Historical review pressure: peak ${String(maxHistoryActivity)} reviews in 30d window.`,
+                `Impact model average risk: ${String(averageImpactRisk)}.`,
+            ],
+            score,
+        }
+    }
+    if (score >= 60) {
+        return {
+            level: "high",
+            reasons: [
+                `Review findings volume is elevated: ${String(issueCount)} issue signals.`,
+                `Impact model average risk: ${String(averageImpactRisk)}.`,
+                `Historical review pressure: peak ${String(maxHistoryActivity)} reviews.`,
+            ],
+            score,
+        }
+    }
+    if (score >= 40) {
+        return {
+            level: "medium",
+            reasons: [
+                `Moderate blast radius from ${String(changedLines)} changed lines.`,
+                `Issue signals detected: ${String(issueCount)}.`,
+                `History trend remains active (${String(maxHistoryActivity)} reviews).`,
+            ],
+            score,
+        }
+    }
+    return {
+        level: "low",
+        reasons: [
+            `Contained blast radius with ${String(changedLines)} changed lines.`,
+            `Limited issue signals: ${String(issueCount)}.`,
+            `Historical activity is stable (${String(maxHistoryActivity)} reviews).`,
+        ],
+        score,
+    }
 }
 
 function mapReviewDecisionBadge(reviewDecision: TReviewDecision): {
@@ -624,6 +714,9 @@ export function CcrReviewDetailPage(props: ICcrReviewDetailPageProps): ReactElem
             })
             .slice(0, 4)
     }, [reviewHistoryHeatEntries, selectedReviewHistoryWindow])
+    const reviewRiskIndicator = useMemo((): IReviewRiskIndicator => {
+        return resolveReviewRiskIndicator(ccrDiffFiles, reviewHistoryHeatEntries, reviewImpactSeeds)
+    }, [ccrDiffFiles, reviewHistoryHeatEntries, reviewImpactSeeds])
     const activeNeighborhoodFiles = useMemo((): ReadonlyArray<string> => {
         if (activeFilePath === undefined) {
             return []
@@ -1197,6 +1290,33 @@ export function CcrReviewDetailPage(props: ICcrReviewDetailPageProps): ReactElem
                 </div>
 
                 <aside className="min-w-0 space-y-4">
+                    <Card>
+                        <CardHeader>
+                            <p className="text-sm font-semibold text-slate-900">
+                                Review risk indicator
+                            </p>
+                        </CardHeader>
+                        <CardBody className="space-y-2">
+                            <div className="flex items-center gap-2">
+                                <Chip
+                                    aria-label={`Review risk level ${reviewRiskIndicator.level}`}
+                                    color={mapReviewRiskChipColor(reviewRiskIndicator.level)}
+                                    size="sm"
+                                    variant="flat"
+                                >
+                                    {reviewRiskIndicator.level.toUpperCase()}
+                                </Chip>
+                                <p className="text-xs text-slate-700">
+                                    Risk score: {String(reviewRiskIndicator.score)}
+                                </p>
+                            </div>
+                            <ul aria-label="Review risk drivers list" className="space-y-1 text-xs text-slate-700">
+                                {reviewRiskIndicator.reasons.map((reason): ReactElement => (
+                                    <li key={`risk-reason-${reason}`}>{reason}</li>
+                                ))}
+                            </ul>
+                        </CardBody>
+                    </Card>
                     <Alert color={decisionBadge.color}>
                         Review status: <strong>{decisionBadge.label}</strong>. Use actions in the header
                         to finalize this CCR.

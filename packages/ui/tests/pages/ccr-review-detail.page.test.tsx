@@ -134,6 +134,17 @@ describe("ccr review detail page", (): void => {
         expect(screen.getByText(/Focused file:\s*src\/auth\//)).not.toBeNull()
     })
 
+    it("рендерит review risk indicator из impact и history сигналов", (): void => {
+        const ccr = getMockCcrRow(0)
+
+        renderWithProviders(<CcrReviewDetailPage ccr={ccr} />)
+
+        expect(screen.getByText("Review risk indicator")).not.toBeNull()
+        expect(screen.getByLabelText(/Review risk level/)).not.toBeNull()
+        expect(screen.getByText(/Risk score:/)).not.toBeNull()
+        expect(screen.getByRole("list", { name: "Review risk drivers list" })).not.toBeNull()
+    })
+
     it("показывает restricted decision states для viewer роли", (): void => {
         const ccr = getMockCcrRow(0)
         window.localStorage.setItem("codenautic:rbac:role", "viewer")
