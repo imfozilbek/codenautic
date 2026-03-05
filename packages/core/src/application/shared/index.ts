@@ -1,6 +1,7 @@
 export * from "./category-weights"
 export * from "./prompt-override-variables"
 export * from "./prompt-resolution"
+export * from "./review-stage-deps"
 export * from "./severity-normalization"
 export * from "./suggestion-enrichment"
 export * from "./suggestion-parsing"

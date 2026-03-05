@@ -47,6 +47,7 @@ import {
     resolveRuleContext,
     resolveSystemPrompt,
 } from "../../shared/prompt-resolution"
+import type {IReviewStageDeps} from "../../shared/review-stage-deps"
 import {
     extractJsonArray,
     parseSuggestions,
@@ -62,18 +63,6 @@ import type {IReviewFileDefaults} from "../../dto/config/system-defaults.dto"
 import {RuleContextFormatterService} from "../../../domain/services/rule-context-formatter.service"
 
 const FILE_CONTENT_LIMIT = 5000
-
-/**
- * Dependencies for process-files-review stage use case.
- */
-export interface IProcessFilesReviewStageDependencies {
-    llmProvider: ILLMProvider
-    generatePromptUseCase: IUseCase<IGeneratePromptInput, string, ValidationError>
-    getEnabledRulesUseCase: IUseCase<IGetEnabledRulesInput, IGetEnabledRulesOutput, ValidationError>
-    libraryRuleRepository: ILibraryRuleRepository
-    ruleContextFormatterService: RuleContextFormatterService
-    defaults: IReviewFileDefaults
-}
 
 /**
  * One file analysis result payload.
@@ -130,7 +119,7 @@ export class ProcessFilesReviewStageUseCase implements IPipelineStageUseCase {
      *
      * @param dependencies Stage dependencies.
      */
-    public constructor(dependencies: IProcessFilesReviewStageDependencies) {
+    public constructor(dependencies: IReviewStageDeps<IReviewFileDefaults>) {
         this.stageId = "process-files-review"
         this.stageName = "Process Files Review"
         this.llmProvider = dependencies.llmProvider

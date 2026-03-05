@@ -1,4 +1,5 @@
 export {type IUseCase} from "./application/ports/inbound/use-case.port"
+export {type IReviewStageDeps} from "./application/shared/review-stage-deps"
 export {type IDomainEventBus} from "./application/ports/outbound/common/domain-event-bus.port"
 export {type ILogger} from "./application/ports/outbound/common/logger.port"
 export {type ISystemSettingsProvider} from "./application/ports/outbound/common/system-settings-provider.port"
@@ -382,11 +383,9 @@ export {
 } from "./application/use-cases/review/dry-run-review.use-case"
 export {
     ProcessCcrLevelReviewStageUseCase,
-    type IProcessCcrLevelReviewStageDependencies,
 } from "./application/use-cases/review/process-ccr-level-review-stage.use-case"
 export {
     ProcessFilesReviewStageUseCase,
-    type IProcessFilesReviewStageDependencies,
 } from "./application/use-cases/review/process-files-review-stage.use-case"
 export {
     RequestChangesOrApproveStageUseCase,

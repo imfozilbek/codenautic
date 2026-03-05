@@ -22,6 +22,7 @@ import {
     resolveRuleContext,
     resolveSystemPrompt,
 } from "../../shared/prompt-resolution"
+import type {IReviewStageDeps} from "../../shared/review-stage-deps"
 import {
     extractJsonArray,
     parseSuggestions,
@@ -37,18 +38,6 @@ import {
     readStringField,
 } from "./pipeline-stage-state.utils"
 import type {IReviewCcrDefaults} from "../../dto/config/system-defaults.dto"
-
-/**
- * Dependencies for process-ccr-level-review stage use case.
- */
-export interface IProcessCcrLevelReviewStageDependencies {
-    llmProvider: ILLMProvider
-    generatePromptUseCase: IUseCase<IGeneratePromptInput, string, ValidationError>
-    getEnabledRulesUseCase: IUseCase<IGetEnabledRulesInput, IGetEnabledRulesOutput, ValidationError>
-    libraryRuleRepository: ILibraryRuleRepository
-    ruleContextFormatterService: RuleContextFormatterService
-    defaults: IReviewCcrDefaults
-}
 
 /**
  * Stage 10 use case. Runs cross-file CCR-level analysis through LLM provider.
@@ -70,7 +59,7 @@ export class ProcessCcrLevelReviewStageUseCase implements IPipelineStageUseCase 
      *
      * @param dependencies Stage dependencies.
      */
-    public constructor(dependencies: IProcessCcrLevelReviewStageDependencies) {
+    public constructor(dependencies: IReviewStageDeps<IReviewCcrDefaults>) {
         this.stageId = "process-ccr-level-review"
         this.stageName = "Process CCR Level Review"
         this.llmProvider = dependencies.llmProvider
