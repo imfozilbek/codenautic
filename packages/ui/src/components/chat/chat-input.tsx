@@ -172,7 +172,7 @@ export function ChatInput(props: IChatInputProps): ReactElement {
                         className="w-full"
                         id="chat-context-select"
                         onSelectionChange={handleContextChange}
-                        selectedKeys={selectedContext === "" ? undefined : new Set([selectedContext])}
+                        selectedKeys={new Set(selectedContext === "" ? [] : [selectedContext])}
                         size="sm"
                     >
                         {contextOptions.map(
