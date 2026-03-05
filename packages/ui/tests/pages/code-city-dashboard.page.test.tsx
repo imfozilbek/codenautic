@@ -664,6 +664,43 @@ const { mockKnowledgeSiloPanel } = vi.hoisted(() => ({
         },
     ),
 }))
+const { mockContributorCollaborationGraph } = vi.hoisted(() => ({
+    mockContributorCollaborationGraph: vi.fn(
+        (props: {
+            readonly contributors: ReadonlyArray<{
+                readonly contributorId: string
+                readonly label: string
+                readonly commitCount: number
+            }>
+            readonly collaborations: ReadonlyArray<{
+                readonly sourceContributorId: string
+                readonly targetContributorId: string
+                readonly coAuthorCount: number
+            }>
+            readonly activeContributorId?: string
+            readonly onSelectContributor?: (contributorId: string) => void
+        }): React.JSX.Element => {
+            return (
+                <div>
+                    <p>contributor-graph-nodes:{props.contributors.length}</p>
+                    <p>contributor-graph-edges:{props.collaborations.length}</p>
+                    <p>contributor-graph-active:{props.activeContributorId ?? "none"}</p>
+                    <button
+                        onClick={(): void => {
+                            const firstContributor = props.contributors.at(0)
+                            if (firstContributor !== undefined) {
+                                props.onSelectContributor?.(firstContributor.contributorId)
+                            }
+                        }}
+                        type="button"
+                    >
+                        inspect contributor graph
+                    </button>
+                </div>
+            )
+        },
+    ),
+}))
 const { mockCityOwnershipOverlay } = vi.hoisted(() => ({
     mockCityOwnershipOverlay: vi.fn(
         (props: {
@@ -930,6 +967,9 @@ vi.mock("@/components/graphs/city-bus-factor-overlay", () => ({
 vi.mock("@/components/graphs/knowledge-silo-panel", () => ({
     KnowledgeSiloPanel: mockKnowledgeSiloPanel,
 }))
+vi.mock("@/components/graphs/contributor-collaboration-graph", () => ({
+    ContributorCollaborationGraph: mockContributorCollaborationGraph,
+}))
 vi.mock("@/components/graphs/city-ownership-overlay", () => ({
     CityOwnershipOverlay: mockCityOwnershipOverlay,
 }))
@@ -967,6 +1007,7 @@ beforeEach((): void => {
     mockCityImpactOverlay.mockClear()
     mockCityBusFactorOverlay.mockClear()
     mockKnowledgeSiloPanel.mockClear()
+    mockContributorCollaborationGraph.mockClear()
     mockCityOwnershipOverlay.mockClear()
     mockChangeRiskGauge.mockClear()
     mockImpactGraphView.mockClear()
@@ -1121,6 +1162,11 @@ describe("CodeCityDashboardPage", (): void => {
         expect(firstKnowledgeSiloCall).not.toBeUndefined()
         expect(firstKnowledgeSiloCall?.entries.length).toBeGreaterThan(0)
 
+        const firstContributorGraphCall = mockContributorCollaborationGraph.mock.calls.at(0)?.[0]
+        expect(firstContributorGraphCall).not.toBeUndefined()
+        expect(firstContributorGraphCall?.contributors.length).toBeGreaterThan(0)
+        expect(firstContributorGraphCall?.collaborations.length).toBeGreaterThan(0)
+
         const firstOwnershipCall = mockCityOwnershipOverlay.mock.calls.at(0)?.[0]
         expect(firstOwnershipCall).not.toBeUndefined()
         expect(firstOwnershipCall?.owners.length).toBeGreaterThan(0)
@@ -1243,6 +1289,14 @@ describe("CodeCityDashboardPage", (): void => {
         const knowledgeSilo3DCall = mockCodeCity3DScene.mock.calls.at(-1)?.[0]
         expect(knowledgeSilo3DCall).not.toBeUndefined()
         expect(knowledgeSilo3DCall?.navigationLabel).toContain("Knowledge silo:")
+
+        await user.click(screen.getByRole("button", { name: "inspect contributor graph" }))
+        const contributorTreemapCall = mockCodeCityTreemap.mock.calls.at(-1)?.[0]
+        expect(contributorTreemapCall).not.toBeUndefined()
+        expect(contributorTreemapCall?.highlightedFileId).toBe("src/api/auth.ts")
+        const contributor3DCall = mockCodeCity3DScene.mock.calls.at(-1)?.[0]
+        expect(contributor3DCall).not.toBeUndefined()
+        expect(contributor3DCall?.navigationLabel).toContain("Contributor graph:")
 
         await user.click(screen.getByRole("button", { name: "toggle ownership colors" }))
         const ownershipDisabledTreemapCall = mockCodeCityTreemap.mock.calls.at(-1)?.[0]

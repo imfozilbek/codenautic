@@ -81,6 +81,11 @@ import { SimulationPanel } from "@/components/graphs/simulation-panel"
 import { TourCustomizer } from "@/components/graphs/tour-customizer"
 import { ProjectOverviewPanel } from "@/components/graphs/project-overview-panel"
 import { ChurnComplexityScatter } from "@/components/graphs/churn-complexity-scatter"
+import {
+    ContributorCollaborationGraph,
+    type IContributorCollaborationEdge,
+    type IContributorCollaborationNode,
+} from "@/components/graphs/contributor-collaboration-graph"
 import { HealthTrendChart, type IHealthTrendPoint } from "@/components/graphs/health-trend-chart"
 import {
     KnowledgeSiloPanel,
@@ -124,6 +129,9 @@ interface ICodeCityDashboardRepositoryProfile {
     readonly contributors: ReadonlyArray<ICodeCityDashboardContributorDescriptor>
     /** Маппинг файл -> owner для ownership overlay. */
     readonly ownership: ReadonlyArray<ICodeCityDashboardOwnershipDescriptor>
+    /** Связи co-authoring между контрибьюторами. */
+    readonly contributorCollaborations:
+        ReadonlyArray<ICodeCityDashboardContributorCollaborationDescriptor>
 }
 
 interface ICodeCityDashboardContributorDescriptor {
@@ -135,6 +143,8 @@ interface ICodeCityDashboardContributorDescriptor {
     readonly color: string
     /** Ссылка на avatar. */
     readonly ownerAvatarUrl?: string
+    /** Количество коммитов для contributor graph. */
+    readonly commitCount: number
 }
 
 interface ICodeCityDashboardOwnershipDescriptor {
@@ -142,6 +152,15 @@ interface ICodeCityDashboardOwnershipDescriptor {
     readonly fileId: string
     /** Владелец файла. */
     readonly ownerId: string
+}
+
+interface ICodeCityDashboardContributorCollaborationDescriptor {
+    /** Source owner id. */
+    readonly sourceOwnerId: string
+    /** Target owner id. */
+    readonly targetOwnerId: string
+    /** Частота совместных коммитов. */
+    readonly coAuthorCount: number
 }
 
 interface ICodeCityDashboardPageProps {
@@ -315,16 +334,36 @@ const CODE_CITY_DASHBOARD_REPOSITORIES: ReadonlyArray<ICodeCityDashboardReposito
                 ownerId: "alice-rivera",
                 ownerName: "Alice Rivera",
                 color: "#0f766e",
+                commitCount: 42,
             },
             {
                 ownerId: "max-h",
                 ownerName: "Max H.",
                 color: "#2563eb",
+                commitCount: 26,
             },
             {
                 ownerId: "luna-kim",
                 ownerName: "Luna Kim",
                 color: "#be123c",
+                commitCount: 13,
+            },
+        ],
+        contributorCollaborations: [
+            {
+                sourceOwnerId: "alice-rivera",
+                targetOwnerId: "max-h",
+                coAuthorCount: 9,
+            },
+            {
+                sourceOwnerId: "alice-rivera",
+                targetOwnerId: "luna-kim",
+                coAuthorCount: 4,
+            },
+            {
+                sourceOwnerId: "max-h",
+                targetOwnerId: "luna-kim",
+                coAuthorCount: 3,
             },
         ],
         ownership: [
@@ -459,16 +498,36 @@ const CODE_CITY_DASHBOARD_REPOSITORIES: ReadonlyArray<ICodeCityDashboardReposito
                 ownerId: "nora-s",
                 ownerName: "Nora S.",
                 color: "#0f766e",
+                commitCount: 51,
             },
             {
                 ownerId: "samir-i",
                 ownerName: "Samir I.",
                 color: "#2563eb",
+                commitCount: 37,
             },
             {
                 ownerId: "dina-k",
                 ownerName: "Dina K.",
                 color: "#ca8a04",
+                commitCount: 23,
+            },
+        ],
+        contributorCollaborations: [
+            {
+                sourceOwnerId: "nora-s",
+                targetOwnerId: "samir-i",
+                coAuthorCount: 11,
+            },
+            {
+                sourceOwnerId: "samir-i",
+                targetOwnerId: "dina-k",
+                coAuthorCount: 6,
+            },
+            {
+                sourceOwnerId: "nora-s",
+                targetOwnerId: "dina-k",
+                coAuthorCount: 5,
             },
         ],
         ownership: [
@@ -614,16 +673,36 @@ const CODE_CITY_DASHBOARD_REPOSITORIES: ReadonlyArray<ICodeCityDashboardReposito
                 ownerId: "ryan-p",
                 ownerName: "Ryan P.",
                 color: "#be123c",
+                commitCount: 46,
             },
             {
                 ownerId: "mira-v",
                 ownerName: "Mira V.",
                 color: "#2563eb",
+                commitCount: 31,
             },
             {
                 ownerId: "igor-t",
                 ownerName: "Igor T.",
                 color: "#0f766e",
+                commitCount: 18,
+            },
+        ],
+        contributorCollaborations: [
+            {
+                sourceOwnerId: "ryan-p",
+                targetOwnerId: "mira-v",
+                coAuthorCount: 12,
+            },
+            {
+                sourceOwnerId: "mira-v",
+                targetOwnerId: "igor-t",
+                coAuthorCount: 5,
+            },
+            {
+                sourceOwnerId: "ryan-p",
+                targetOwnerId: "igor-t",
+                coAuthorCount: 3,
             },
         ],
         ownership: [
@@ -1367,6 +1446,42 @@ function buildKnowledgeSiloPanelEntries(
 }
 
 /**
+ * Формирует узлы графа контрибьюторов для contributor collaboration view.
+ *
+ * @param contributors Справочник контрибьюторов.
+ * @returns Нормализованные graph nodes.
+ */
+function buildContributorGraphNodes(
+    contributors: ReadonlyArray<ICodeCityDashboardContributorDescriptor>,
+): ReadonlyArray<IContributorCollaborationNode> {
+    return contributors.map((entry): IContributorCollaborationNode => {
+        return {
+            commitCount: entry.commitCount,
+            contributorId: entry.ownerId,
+            label: entry.ownerName,
+        }
+    })
+}
+
+/**
+ * Формирует ребра совместной работы для contributor graph.
+ *
+ * @param collaborations Co-authoring связи профиля.
+ * @returns Graph edges.
+ */
+function buildContributorGraphEdges(
+    collaborations: ReadonlyArray<ICodeCityDashboardContributorCollaborationDescriptor>,
+): ReadonlyArray<IContributorCollaborationEdge> {
+    return collaborations.map((entry): IContributorCollaborationEdge => {
+        return {
+            coAuthorCount: entry.coAuthorCount,
+            sourceContributorId: entry.sourceOwnerId,
+            targetContributorId: entry.targetOwnerId,
+        }
+    })
+}
+
+/**
  * Формирует модель для change risk gauge.
  *
  * @param seeds Impact seeds текущего профиля.
@@ -1483,6 +1598,7 @@ export function CodeCityDashboardPage(
     const [highlightedFileId, setHighlightedFileId] = useState<string | undefined>()
     const [activeBusFactorDistrictId, setActiveBusFactorDistrictId] = useState<string | undefined>()
     const [activeKnowledgeSiloId, setActiveKnowledgeSiloId] = useState<string | undefined>()
+    const [activeContributorId, setActiveContributorId] = useState<string | undefined>()
     const [isOwnershipOverlayEnabled, setOwnershipOverlayEnabled] = useState<boolean>(true)
     const [activeOwnershipOwnerId, setActiveOwnershipOwnerId] = useState<string | undefined>()
     const [exploredAreaIds, setExploredAreaIds] = useState<ReadonlyArray<string>>(["controls"])
@@ -1520,6 +1636,10 @@ export function CodeCityDashboardPage(
     const knowledgeSiloEntries = buildKnowledgeSiloPanelEntries(
         currentProfile.files,
         currentProfile.ownership,
+    )
+    const contributorGraphNodes = buildContributorGraphNodes(currentProfile.contributors)
+    const contributorGraphEdges = buildContributorGraphEdges(
+        currentProfile.contributorCollaborations,
     )
     const ownershipOverlayEntries = buildOwnershipOverlayEntries(
         currentProfile.files,
@@ -1565,6 +1685,7 @@ export function CodeCityDashboardPage(
         setHighlightedFileId(undefined)
         setActiveBusFactorDistrictId(undefined)
         setActiveKnowledgeSiloId(undefined)
+        setActiveContributorId(undefined)
         setActiveOwnershipOwnerId(undefined)
         setRootCauseChainFocus({
             chainFileIds: [],
@@ -2026,6 +2147,41 @@ export function CodeCityDashboardPage(
                                 activeFileId: entry.primaryFileId,
                                 chainFileIds: entry.fileIds,
                                 title: `Knowledge silo: ${entry.siloLabel}`,
+                            })
+                            markAreaExplored("controls")
+                            markAreaExplored("city-3d")
+                        }}
+                    />
+                </CardBody>
+            </Card>
+
+            <Card>
+                <CardHeader>
+                    <p className="text-sm font-semibold text-slate-900">
+                        Contributor collaboration graph
+                    </p>
+                </CardHeader>
+                <CardBody>
+                    <ContributorCollaborationGraph
+                        activeContributorId={activeContributorId}
+                        collaborations={contributorGraphEdges}
+                        contributors={contributorGraphNodes}
+                        onSelectContributor={(contributorId): void => {
+                            const ownerOverlayEntry = ownershipOverlayEntries.find(
+                                (entry): boolean => entry.ownerId === contributorId,
+                            )
+                            const activeFileId = ownerOverlayEntry?.primaryFileId
+
+                            setActiveContributorId(contributorId)
+                            setActiveOwnershipOwnerId(contributorId)
+                            setOwnershipOverlayEnabled(true)
+                            if (activeFileId !== undefined) {
+                                setHighlightedFileId(activeFileId)
+                            }
+                            setExploreNavigationFocus({
+                                activeFileId,
+                                chainFileIds: ownerOverlayEntry?.fileIds ?? [],
+                                title: `Contributor graph: ${ownerOverlayEntry?.ownerName ?? contributorId}`,
                             })
                             markAreaExplored("controls")
                             markAreaExplored("city-3d")
