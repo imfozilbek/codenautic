@@ -75,10 +75,28 @@ export const queryKeys = {
             return ["ccr-summary", "by-repository", repositoryId] as const
         },
     },
+    ccrWorkspace: {
+        all: (): readonly ["ccr-workspace"] => ["ccr-workspace"] as const,
+        list: (): readonly ["ccr-workspace", "list"] => {
+            return ["ccr-workspace", "list"] as const
+        },
+        context: (reviewId: string): readonly ["ccr-workspace", "context", string] => {
+            return ["ccr-workspace", "context", reviewId] as const
+        },
+    },
     codeReview: {
         all: (): readonly ["code-review"] => ["code-review"] as const,
         byId: (reviewId: string): readonly ["code-review", "by-id", string] => {
             return ["code-review", "by-id", reviewId] as const
+        },
+    },
+    gitProviders: {
+        all: (): readonly ["git-providers"] => ["git-providers"] as const,
+        list: (): readonly ["git-providers", "list"] => {
+            return ["git-providers", "list"] as const
+        },
+        byId: (providerId: string): readonly ["git-providers", "by-id", string] => {
+            return ["git-providers", "by-id", providerId] as const
         },
     },
 }

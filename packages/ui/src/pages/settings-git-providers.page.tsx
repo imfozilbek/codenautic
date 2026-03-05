@@ -1,201 +1,113 @@
-import { type ReactElement, useMemo, useState } from "react"
+import { type ReactElement, useMemo } from "react"
 
 import { Button, Card, CardBody } from "@/components/ui"
+import {
+    GIT_PROVIDER_CONNECTION_STATUS,
+    type IGitProviderConnection,
+} from "@/lib/api/endpoints/git-providers.endpoint"
+import { useGitProviders } from "@/lib/hooks/queries"
 import { GitProvidersList } from "@/components/settings/git-providers-list"
-import { TestConnectionButton } from "@/components/settings/test-connection-button"
 import type { IGitProviderCardProps } from "@/components/settings/git-provider-card"
+import { TestConnectionButton } from "@/components/settings/test-connection-button"
 
-/** Конфигурация mock git-провайдеров. */
-interface IGitProviderState extends IGitProviderCardProps {
-    /** Есть ли локально сохранённый key. */
-    readonly isKeySet: boolean
+const FALLBACK_GIT_PROVIDERS: ReadonlyArray<IGitProviderConnection> = [
+    {
+        account: "acme-org",
+        connected: true,
+        id: "github",
+        isKeySet: true,
+        lastSyncAt: "2026-03-03 08:00",
+        provider: "GitHub",
+        status: GIT_PROVIDER_CONNECTION_STATUS.connected,
+    },
+    {
+        account: "runtime-team",
+        connected: false,
+        id: "gitlab",
+        isKeySet: false,
+        lastSyncAt: "2026-03-02 22:12",
+        provider: "GitLab",
+        status: GIT_PROVIDER_CONNECTION_STATUS.disconnected,
+    },
+    {
+        account: "build-team",
+        connected: false,
+        id: "bitbucket",
+        isKeySet: false,
+        lastSyncAt: undefined,
+        provider: "Bitbucket",
+        status: GIT_PROVIDER_CONNECTION_STATUS.disconnected,
+    },
+    {
+        account: "platform-team",
+        connected: false,
+        id: "azure-devops",
+        isKeySet: false,
+        lastSyncAt: undefined,
+        provider: "Azure DevOps",
+        status: GIT_PROVIDER_CONNECTION_STATUS.disconnected,
+    },
+]
+
+function resolveSourceProviders(
+    providers: ReadonlyArray<IGitProviderConnection> | undefined,
+): ReadonlyArray<IGitProviderConnection> {
+    if (providers === undefined || providers.length === 0) {
+        return FALLBACK_GIT_PROVIDERS
+    }
+
+    return providers
 }
 
-/**
- * Возвращает стартовый набор провайдеров.
- *
- * @returns Readonly массив конфигураций.
- */
-function getMockProvidersState(): ReadonlyArray<IGitProviderState> {
-    return [
-        {
-            account: "acme-org",
-            connected: true,
-            isKeySet: true,
-            lastSyncAt: "2026-03-03 08:00",
-            onAction: () => {
-                return
-            },
-            provider: "GitHub",
-        },
-        {
-            account: "runtime-team",
-            connected: false,
-            isKeySet: false,
-            lastSyncAt: "2026-03-02 22:12",
-            onAction: () => {
-                return
-            },
-            provider: "GitLab",
-        },
-        {
-            account: "build-team",
-            connected: false,
-            isKeySet: false,
-            lastSyncAt: undefined,
-            onAction: () => {
-                return
-            },
-            provider: "Bitbucket",
-        },
-    ]
-}
-
-/**
- * Проверяет наличие сохранённого ключа для провайдера.
- *
- * @param providers Список провайдеров.
- * @param providerName Имя провайдера.
- * @returns true, если ключ уже сохранён.
- */
-function hasProviderKey(
-    providers: ReadonlyArray<IGitProviderState>,
-    providerName: string,
-): boolean {
-    const providerState = providers.find((item): boolean => item.provider === providerName)
-
-    return providerState !== undefined && providerState.isKeySet === true
-}
-
-/**
- * Переключает подключение у провайдера.
- *
- * @param previousValue Существующий state.
- * @param providerName Имя провайдера.
- * @returns Новое состояние.
- */
-function toggleProviderConnectionState(
-    previousValue: ReadonlyArray<IGitProviderState>,
-    providerName: string,
-): ReadonlyArray<IGitProviderState> {
-    return previousValue.map((item): IGitProviderState => {
-        if (item.provider !== providerName) {
-            return item
-        }
-
-        return {
-            ...item,
-            connected: !item.connected,
-            isKeySet: true,
-        }
-    })
-}
-
-/**
- * Добавляет обработчик действия в список карточек провайдеров.
- *
- * @param providers Состояние провайдеров.
- * @param onAction Обработчик.
- * @returns Список с привязанным onAction.
- */
-function withActions(
-    providers: ReadonlyArray<IGitProviderState>,
-    onAction: (providerName: string) => void,
-): ReadonlyArray<IGitProviderState> {
-    return providers.map(
-        (item): IGitProviderState => ({
-            ...item,
-            onAction: (): void => {
-                onAction(item.provider)
-            },
-        }),
-    )
-}
-
-/**
- * Проверяет подключение через mock-стаб.
- *
- * @param providers Список провайдеров.
- * @param providerName Имя провайдера.
- * @returns Результат проверки.
- */
-function checkProviderConnection(
-    providers: ReadonlyArray<IGitProviderState>,
-    providerName: string,
-): Promise<boolean> {
-    const providerState = providers.find((item): boolean => item.provider === providerName)
-
-    return Promise.resolve(providerState !== undefined && providerState.isKeySet === true)
-}
-
-/**
- * Рендер строки проверки доступности и кнопки.
- *
- * @param provider Конфигурация провайдера.
- * @param onTest Функция проверки.
- * @param onToggle Функция переключения подключения.
- * @returns JSX для строки.
- */
-function renderConnectionRow(
-    provider: IGitProviderState,
-    onTest: (providerName: string) => Promise<boolean>,
-    onToggle: (providerName: string) => void,
-): ReactElement {
-    return (
-        <div key={`connectivity-${provider.provider}`} className="flex items-center gap-3">
-            <TestConnectionButton
-                providerLabel={provider.provider}
-                onTest={async (): Promise<boolean> => onTest(provider.provider)}
-            />
-            <Button
-                onPress={(): void => {
-                    onToggle(provider.provider)
-                }}
-                size="sm"
-                variant="secondary"
-            >
-                {provider.connected ? "Force reconnect" : "Connect"}
-            </Button>
-        </div>
-    )
+function hasAnyConfiguredToken(providers: ReadonlyArray<IGitProviderConnection>): boolean {
+    return providers.some((provider): boolean => provider.isKeySet === true)
 }
 
 /**
  * Страница управления Git providers.
  *
- * @returns Список Git подключений и кнопки подключения/теста.
+ * @returns Список Git подключений и действия connect/test.
  */
 export function SettingsGitProvidersPage(): ReactElement {
-    const [providers, setProviders] =
-        useState<ReadonlyArray<IGitProviderState>>(getMockProvidersState)
+    const gitProviders = useGitProviders()
 
-    const handleAction = (providerName: string): void => {
-        setProviders(
-            (previousValue): ReadonlyArray<IGitProviderState> =>
-                toggleProviderConnectionState(previousValue, providerName),
-        )
+    const sourceProviders = useMemo((): ReadonlyArray<IGitProviderConnection> => {
+        return resolveSourceProviders(gitProviders.providersQuery.data?.providers)
+    }, [gitProviders.providersQuery.data?.providers])
+
+    const providerCards = useMemo((): ReadonlyArray<IGitProviderCardProps> => {
+        return sourceProviders.map((provider): IGitProviderCardProps => {
+            const isMutatingProvider =
+                gitProviders.updateConnection.isPending === true
+                && gitProviders.updateConnection.variables?.providerId === provider.id
+
+            return {
+                account: provider.account,
+                connected: provider.connected,
+                isLoading: isMutatingProvider,
+                lastSyncAt: provider.lastSyncAt,
+                onAction: async (): Promise<void> => {
+                    await gitProviders.updateConnection.mutateAsync({
+                        connected: provider.connected !== true,
+                        providerId: provider.id,
+                    })
+                },
+                provider: provider.provider,
+            }
+        })
+    }, [
+        gitProviders.updateConnection.isPending,
+        gitProviders.updateConnection.mutateAsync,
+        gitProviders.updateConnection.variables?.providerId,
+        sourceProviders,
+    ])
+
+    const handleTestConnection = async (providerId: string): Promise<boolean> => {
+        const result = await gitProviders.testConnection.mutateAsync(providerId)
+        return result.ok
     }
 
-    const providersWithActions = useMemo(
-        (): ReadonlyArray<IGitProviderState> => withActions(providers, handleAction),
-        [providers],
-    )
-
-    const handleTestConnection = async (providerName: string): Promise<boolean> => {
-        const result = await checkProviderConnection(providers, providerName)
-
-        if (result !== true) {
-            handleAction(providerName)
-        }
-
-        return result
-    }
-
-    const hasActiveKey = hasProviderKey(providers, "GitHub")
-    const isKeyConfigured =
-        hasActiveKey ||
-        hasProviderKey(providers, "GitLab") ||
-        hasProviderKey(providers, "Bitbucket")
+    const isTokenConfigured = hasAnyConfiguredToken(sourceProviders)
 
     return (
         <section className="space-y-4">
@@ -203,18 +115,38 @@ export function SettingsGitProvidersPage(): ReactElement {
             <p className="text-sm text-slate-600">
                 Настройка OAuth/чтение репозиториев и webhook-интеграций.
             </p>
-            <GitProvidersList providers={providersWithActions} />
+            <GitProvidersList providers={providerCards} />
             <Card>
                 <CardBody className="space-y-3">
                     <p className="text-sm font-medium text-slate-700">Connectivity checks</p>
                     <div className="space-y-2">
-                        {providersWithActions.map(
-                            (provider): ReactElement =>
-                                renderConnectionRow(provider, handleTestConnection, handleAction),
+                        {sourceProviders.map(
+                            (provider): ReactElement => (
+                                <div key={`connectivity-${provider.id}`} className="flex items-center gap-3">
+                                    <TestConnectionButton
+                                        providerLabel={provider.provider}
+                                        onTest={async (): Promise<boolean> => {
+                                            return handleTestConnection(provider.id)
+                                        }}
+                                    />
+                                    <Button
+                                        size="sm"
+                                        variant="secondary"
+                                        onPress={(): void => {
+                                            void gitProviders.updateConnection.mutateAsync({
+                                                connected: provider.connected !== true,
+                                                providerId: provider.id,
+                                            })
+                                        }}
+                                    >
+                                        {provider.connected ? "Force reconnect" : "Connect"}
+                                    </Button>
+                                </div>
+                            ),
                         )}
                     </div>
                     <p className="text-xs text-slate-500">
-                        {isKeyConfigured
+                        {isTokenConfigured
                             ? "At least one token is configured."
                             : "No tokens are configured yet."}
                     </p>

@@ -17,6 +17,12 @@ import { ReviewCommentThread } from "@/components/reviews/review-comment-thread"
 import { CodeDiffViewer } from "@/components/reviews/code-diff-viewer"
 import { Alert, Button, Card, CardBody, CardHeader, Chip } from "@/components/ui"
 import { SseStreamViewer } from "@/components/streaming/sse-stream-viewer"
+import type {
+    ICcrWorkspaceContextResponse,
+    ICcrWorkspaceDiffFile,
+    ICcrWorkspaceReviewCommentThread,
+} from "@/lib/api/endpoints/ccr-workspace.endpoint"
+import { useCodeReview } from "@/lib/hooks/queries"
 import { getUiActionPolicy, useUiRole } from "@/lib/permissions/ui-policy"
 import {
     ccrToContextItem,
@@ -122,6 +128,8 @@ const FEEDBACK_REJECTION_REASONS: Readonly<Record<TReviewerFeedbackReason, strin
 export interface ICcrReviewDetailPageProps {
     /** Данные CCR, для которой рендерится review context. */
     readonly ccr: ICcrRowData
+    /** API-контекст review workspace (опционально). */
+    readonly workspaceContext?: ICcrWorkspaceContextResponse
     /** SSE источник для дополнительного стриминга по CCR. */
     readonly streamSourceUrl?: string
 }
@@ -591,11 +599,50 @@ export function CcrReviewDetailPage(props: ICcrReviewDetailPageProps): ReactElem
         return ccrToContextItem(ccr)
     }, [ccr])
     const ccrDiffFiles = useMemo((): ReadonlyArray<ICcrDiffFile> => {
+        const contextDiffFiles = props.workspaceContext?.diffFiles
+        if (
+            contextDiffFiles !== undefined
+            && props.workspaceContext?.reviewId === ccr.id
+        ) {
+            return contextDiffFiles.map((file): ICcrDiffFile => {
+                const typedFile: ICcrWorkspaceDiffFile = file
+
+                return {
+                    filePath: typedFile.filePath,
+                    language: typedFile.language,
+                    lines: typedFile.lines,
+                }
+            })
+        }
+
         return getCcrDiffById(ccr.id)
-    }, [ccr.id])
+    }, [ccr.id, props.workspaceContext?.diffFiles, props.workspaceContext?.reviewId])
     const ccrReviewThreads = useMemo((): ReadonlyArray<IReviewCommentThread> => {
+        const contextThreads = props.workspaceContext?.threads
+        if (
+            contextThreads !== undefined
+            && props.workspaceContext?.reviewId === ccr.id
+        ) {
+            return contextThreads.map((thread): IReviewCommentThread => {
+                const typedThread: ICcrWorkspaceReviewCommentThread = thread
+
+                return {
+                    author: typedThread.author,
+                    createdAt: typedThread.createdAt,
+                    feedback: typedThread.feedback,
+                    id: typedThread.id,
+                    isResolved: typedThread.isResolved,
+                    message: typedThread.message,
+                    replies: typedThread.replies,
+                }
+            })
+        }
+
         return getCcrReviewThreadsById(ccr.id)
-    }, [ccr.id])
+    }, [ccr.id, props.workspaceContext?.reviewId, props.workspaceContext?.threads])
+    const codeReview = useCodeReview({
+        reviewId: ccr.id,
+    })
     const reviewContextTreemapFiles = useMemo((): ReadonlyArray<ICodeCityTreemapFileDescriptor> => {
         return buildReviewContextTreemapFiles(ccrDiffFiles, ccr.updatedAt)
     }, [ccr.updatedAt, ccrDiffFiles])
@@ -936,6 +983,17 @@ export function CcrReviewDetailPage(props: ICcrReviewDetailPageProps): ReactElem
                             <p className="text-sm text-slate-700">
                                 {ccr.id} · {ccr.repository} · {ccr.team} · {ccr.status}
                             </p>
+                            {codeReview.codeReviewQuery.data?.summary === undefined ? null : (
+                                <p className="mt-1 text-xs text-slate-600">
+                                    {codeReview.codeReviewQuery.data.summary}
+                                </p>
+                            )}
+                            {codeReview.codeReviewQuery.error === null ||
+                            codeReview.codeReviewQuery.error === undefined ? null : (
+                                <p className="mt-1 text-xs text-amber-700">
+                                    Live review summary is unavailable, showing workspace fallback data.
+                                </p>
+                            )}
                             <p className="mt-2 text-xs uppercase tracking-[0.08em] text-slate-500">
                                 Review decision: {decisionBadge.label}
                             </p>

@@ -1,6 +1,7 @@
 import { createApiConfig } from "./config"
 import { AuthApi } from "./endpoints/auth.endpoint"
 import { CCRSummaryApi } from "./endpoints/ccr-summary.endpoint"
+import { CcrWorkspaceApi } from "./endpoints/ccr-workspace.endpoint"
 import { CodeReviewApi } from "./endpoints/code-review.endpoint"
 import { CustomRulesApi } from "./endpoints/custom-rules.endpoint"
 import { ExternalContextApi } from "./endpoints/external-context.endpoint"
@@ -9,6 +10,7 @@ import { FeatureFlagsApi } from "./endpoints/feature-flags.endpoint"
 import { SystemApi } from "./endpoints/system.endpoint"
 import { RepoConfigApi } from "./endpoints/repo-config.endpoint"
 import { DryRunApi } from "./endpoints/dry-run.endpoint"
+import { GitProvidersApi } from "./endpoints/git-providers.endpoint"
 import { FetchHttpClient } from "./http-client"
 
 /**
@@ -21,12 +23,14 @@ export function createApiContracts(): {
     readonly auth: AuthApi
     readonly codeReview: CodeReviewApi
     readonly ccrSummary: CCRSummaryApi
+    readonly ccrWorkspace: CcrWorkspaceApi
     readonly customRules: CustomRulesApi
     readonly externalContext: ExternalContextApi
     readonly featureFlags: FeatureFlagsApi
     readonly permissions: PermissionsApi
     readonly repoConfig: RepoConfigApi
     readonly dryRun: DryRunApi
+    readonly gitProviders: GitProvidersApi
 } {
     const config = createApiConfig({})
     const httpClient = new FetchHttpClient(config)
@@ -36,12 +40,14 @@ export function createApiContracts(): {
         auth: new AuthApi(httpClient),
         codeReview: new CodeReviewApi(httpClient),
         ccrSummary: new CCRSummaryApi(httpClient),
+        ccrWorkspace: new CcrWorkspaceApi(httpClient),
         customRules: new CustomRulesApi(httpClient),
         externalContext: new ExternalContextApi(httpClient),
         permissions: new PermissionsApi(httpClient),
         featureFlags: new FeatureFlagsApi(httpClient),
         repoConfig: new RepoConfigApi(httpClient),
         dryRun: new DryRunApi(httpClient),
+        gitProviders: new GitProvidersApi(httpClient),
     }
 }
 
@@ -59,11 +65,13 @@ export type { IApiConfig, IUiEnv } from "./config"
 export type { IAuthApi } from "./endpoints/auth.endpoint"
 export type { IPermissionsApi } from "./endpoints/permissions.endpoint"
 export type { ICCRSummaryApi } from "./endpoints/ccr-summary.endpoint"
+export type { ICcrWorkspaceApi } from "./endpoints/ccr-workspace.endpoint"
 export type { ICodeReviewApi } from "./endpoints/code-review.endpoint"
 export type { ICustomRulesApi } from "./endpoints/custom-rules.endpoint"
 export type { IExternalContextApi } from "./endpoints/external-context.endpoint"
 export type { IRepoConfigApi } from "./endpoints/repo-config.endpoint"
 export type { IDryRunApi } from "./endpoints/dry-run.endpoint"
+export type { IGitProvidersApi } from "./endpoints/git-providers.endpoint"
 export type {
     IDelayFunction,
     IFetchHttpClientDependencies,

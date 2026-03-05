@@ -1,6 +1,8 @@
 import { type ChangeEvent, type ReactElement, useEffect, useMemo, useState } from "react"
 
+import type { ICcrWorkspaceRow } from "@/lib/api/endpoints/ccr-workspace.endpoint"
 import { FOCUS_REVIEWS_FILTERS_EVENT } from "@/lib/keyboard/shortcut-registry"
+import { useCcrWorkspace } from "@/lib/hooks/queries"
 import { ReviewsContent, type IReviewRow } from "@/components/reviews/reviews-content"
 import { MOCK_CCR_ROWS, type ICcrRowData } from "@/pages/ccr-data"
 
@@ -35,6 +37,21 @@ interface ICcrFilterPreset {
     readonly id: string
     readonly name: string
     readonly filters: ICcrFilters
+}
+
+function mapWorkspaceRowToCcrRow(row: ICcrWorkspaceRow): ICcrRow {
+    return {
+        assignee: row.assignee,
+        attachedFiles: row.attachedFiles,
+        comments: row.comments,
+        id: row.id,
+        repository: row.repository,
+        severity: row.severity,
+        status: row.status,
+        team: row.team,
+        title: row.title,
+        updatedAt: row.updatedAt,
+    }
 }
 
 interface ICcrFilterPresetsState {
@@ -485,7 +502,7 @@ function useCcrFilterPresets(
     }
 }
 
-function useCcrFilters(): {
+function useCcrFilters(rows: ReadonlyArray<ICcrRow>): {
     readonly initialRows: ReadonlyArray<ICcrRow>
     readonly filterOptions: {
         readonly statusOptions: ReadonlyArray<string>
@@ -498,11 +515,11 @@ function useCcrFilters(): {
         readonly teamOptions: ReadonlyArray<string>
         readonly repositoryOptions: ReadonlyArray<string>
     } => {
-        return findFilterOptions(MOCK_CCR_ROWS)
-    }, [])
+        return findFilterOptions(rows)
+    }, [rows])
 
     return {
-        initialRows: MOCK_CCR_ROWS,
+        initialRows: rows,
         filterOptions: filters,
     }
 }
@@ -514,6 +531,7 @@ function useCcrFilters(): {
  * @returns Список CCR с поиском, фильтрами и бесконечной подгрузкой.
  */
 export function CcrManagementPage(props: ICcrManagementPageProps): ReactElement {
+    const ccrWorkspace = useCcrWorkspace()
     const [visibleItems, setVisibleItems] = useState<number>(PAGE_SIZE)
     const [searchState, setSearchState] = useState<ICcrFilters>({
         repository: props.repository,
@@ -531,6 +549,15 @@ export function CcrManagementPage(props: ICcrManagementPageProps): ReactElement 
         })
         setVisibleItems(PAGE_SIZE)
     }, [props.repository, props.search, props.status, props.team])
+
+    const ccrRows = useMemo((): ReadonlyArray<ICcrRow> => {
+        const workspaceRows = ccrWorkspace.ccrListQuery.data?.ccrs
+        if (workspaceRows === undefined || workspaceRows.length === 0) {
+            return MOCK_CCR_ROWS
+        }
+
+        return workspaceRows.map((row): ICcrRow => mapWorkspaceRowToCcrRow(row))
+    }, [ccrWorkspace.ccrListQuery.data?.ccrs])
 
     useEffect((): (() => void) | void => {
         if (typeof window === "undefined") {
@@ -554,10 +581,10 @@ export function CcrManagementPage(props: ICcrManagementPageProps): ReactElement 
         }
     }, [])
 
-    const { filterOptions } = useCcrFilters()
+    const { filterOptions } = useCcrFilters(ccrRows)
     const filteredRows = useMemo((): ReadonlyArray<ICcrRow> => {
-        return filterRows(MOCK_CCR_ROWS, searchState)
-    }, [searchState])
+        return filterRows(ccrRows, searchState)
+    }, [ccrRows, searchState])
     const visibleRows = useMemo((): ReadonlyArray<IReviewRow> => {
         return filteredRows.slice(0, visibleItems)
     }, [filteredRows, visibleItems])
@@ -583,6 +610,11 @@ export function CcrManagementPage(props: ICcrManagementPageProps): ReactElement 
                 Filters are synced with URL. Shareable state for search, status, team and
                 repository.
             </p>
+            {ccrWorkspace.ccrListQuery.error === null || ccrWorkspace.ccrListQuery.error === undefined ? null : (
+                <p className="text-xs text-amber-700">
+                    Workspace API unavailable, fallback dataset is shown.
+                </p>
+            )}
             <CcrFiltersPanel
                 filterState={searchState}
                 onFilterChange={updateFilters}
