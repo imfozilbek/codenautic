@@ -29,11 +29,13 @@ describe("rule category config dto", () => {
                 slug: "style-conventions",
                 name: "Style & Conventions",
                 description: "Consistent formatting.",
+                weight: 3,
             },
             {
                 slug: "error-handling",
                 name: "Error Handling",
                 description: "Handle errors explicitly.",
+                weight: 0,
             },
         ])
     })
@@ -104,6 +106,26 @@ describe("rule category config dto", () => {
                     slug: 123,
                     name: "Name",
                     description: "desc",
+                },
+            ],
+        })).toBeUndefined()
+        expect(parseRuleCategoryConfigList({
+            items: [
+                {
+                    slug: "valid-slug",
+                    name: "Name",
+                    description: "desc",
+                    weight: -1,
+                },
+            ],
+        })).toBeUndefined()
+        expect(parseRuleCategoryConfigList({
+            items: [
+                {
+                    slug: "valid-slug",
+                    name: "Name",
+                    description: "desc",
+                    weight: "oops",
                 },
             ],
         })).toBeUndefined()

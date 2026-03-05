@@ -123,6 +123,54 @@ export const server = setupServer(
             permissions: ["review:read", "settings:read"],
         })
     }),
+    http.get("http://localhost:3000/api/v1/context/sources", () => {
+        return HttpResponse.json({
+            total: 2,
+            sources: [
+                {
+                    id: "source-jira",
+                    provider: "JIRA",
+                    status: "CONNECTED",
+                    enabled: true,
+                    lastSyncedAt: "2026-03-01T09:30:00.000Z",
+                    itemCount: 38,
+                },
+                {
+                    id: "source-sentry",
+                    provider: "SENTRY",
+                    status: "DEGRADED",
+                    enabled: true,
+                    lastSyncedAt: "2026-03-01T08:00:00.000Z",
+                    itemCount: 12,
+                },
+            ],
+        })
+    }),
+    http.get("http://localhost:3000/api/v1/context/sources/:sourceId/preview", ({ params }) => {
+        return HttpResponse.json({
+            sourceId: String(params.sourceId),
+            status: "ok",
+            items: [],
+        })
+    }),
+    http.put("http://localhost:3000/api/v1/context/sources/:sourceId", ({ params }) => {
+        return HttpResponse.json({
+            source: {
+                id: String(params.sourceId),
+                provider: "JIRA",
+                status: "CONNECTED",
+                enabled: true,
+                lastSyncedAt: "2026-03-01T09:30:00.000Z",
+                itemCount: 38,
+            },
+        })
+    }),
+    http.post("http://localhost:3000/api/v1/context/sources/:sourceId/refresh", ({ params }) => {
+        return HttpResponse.json({
+            sourceId: String(params.sourceId),
+            status: "SYNCING",
+        })
+    }),
     http.get("http://localhost:3000/api/v1/user/settings", () => {
         return HttpResponse.json({}, { status: 404 })
     }),

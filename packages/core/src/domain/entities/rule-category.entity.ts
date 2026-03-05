@@ -21,6 +21,11 @@ export interface IRuleCategoryProps {
     readonly description: string
 
     /**
+     * Category weight for scoring and prioritization.
+     */
+    readonly weight: number
+
+    /**
      * Activity flag.
      */
     isActive: boolean
@@ -68,6 +73,15 @@ export class RuleCategory extends Entity<IRuleCategoryProps> {
     }
 
     /**
+     * Category weight.
+     *
+     * @returns Weight value.
+     */
+    public get weight(): number {
+        return this.props.weight
+    }
+
+    /**
      * Activity state.
      *
      * @returns True when active.
@@ -106,11 +120,13 @@ function normalizeRuleCategoryProps(props: IRuleCategoryProps): IRuleCategoryPro
     const slug = normalizeSlug(props.slug)
     const name = normalizeNonEmptyText(props.name, "Category name")
     const description = normalizeNonEmptyText(props.description, "Category description")
+    const weight = normalizeWeight(props.weight)
 
     return {
         slug,
         name,
         description,
+        weight,
         isActive: props.isActive,
     }
 }
@@ -156,4 +172,18 @@ function normalizeNonEmptyText(value: string, fieldName: string): string {
     }
 
     return normalized
+}
+
+/**
+ * Normalizes weight value.
+ *
+ * @param value Raw weight.
+ * @returns Validated weight.
+ */
+function normalizeWeight(value: number): number {
+    if (typeof value !== "number" || Number.isFinite(value) === false || value < 0) {
+        throw new Error("Category weight must be a non-negative number")
+    }
+
+    return value
 }

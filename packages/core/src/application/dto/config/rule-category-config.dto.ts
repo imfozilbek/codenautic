@@ -5,6 +5,7 @@ export interface IRuleCategoryConfigData {
     readonly slug: string
     readonly name: string
     readonly description: string
+    readonly weight: number
 }
 
 /**
@@ -64,7 +65,8 @@ function parseRuleCategoryItem(value: unknown): IRuleCategoryConfigData | undefi
     const slug = normalizeSlug(raw["slug"])
     const name = readNonEmptyText(raw["name"])
     const description = readNonEmptyText(raw["description"])
-    if (slug === undefined || name === undefined || description === undefined) {
+    const weight = readWeight(raw["weight"])
+    if (slug === undefined || name === undefined || description === undefined || weight === undefined) {
         return undefined
     }
 
@@ -72,6 +74,7 @@ function parseRuleCategoryItem(value: unknown): IRuleCategoryConfigData | undefi
         slug,
         name,
         description,
+        weight,
     }
 }
 
@@ -95,6 +98,24 @@ function normalizeSlug(value: unknown): string | undefined {
 function readNonEmptyText(value: unknown): string | undefined {
     const normalized = typeof value === "string" ? value.trim() : ""
     return normalized.length > 0 ? normalized : undefined
+}
+
+/**
+ * Reads optional non-negative weight value.
+ *
+ * @param value Raw value.
+ * @returns Weight value or undefined when invalid.
+ */
+function readWeight(value: unknown): number | undefined {
+    if (value === undefined) {
+        return 0
+    }
+
+    if (typeof value !== "number" || Number.isFinite(value) === false || value < 0) {
+        return undefined
+    }
+
+    return value
 }
 
 /**

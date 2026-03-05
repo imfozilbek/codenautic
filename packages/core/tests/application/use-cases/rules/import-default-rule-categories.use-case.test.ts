@@ -58,8 +58,8 @@ describe("ImportDefaultRuleCategoriesUseCase", () => {
             ruleCategoryRepository: repository,
         })
         const input: readonly IConfigRuleCategoryItem[] = [
-            createItem("security-hardening"),
-            createItem("performance-efficiency"),
+            createItem("security-hardening", 2.5),
+            createItem("performance-efficiency", 0),
         ]
 
         const result = await useCase.execute(input)
@@ -74,19 +74,21 @@ describe("ImportDefaultRuleCategoriesUseCase", () => {
         })
         const stored = await repository.findAll()
         expect(stored).toHaveLength(2)
+        const security = await repository.findBySlug("security-hardening")
+        expect(security?.weight).toBe(2.5)
     })
 
     test("пропускает уже существующие категории", async () => {
         const repository = new InMemoryRuleCategoryRepository()
         const factory = new RuleCategoryFactory()
-        await repository.save(factory.create(createItem("security-hardening")))
+        await repository.save(factory.create(createItem("security-hardening", 1)))
 
         const useCase = new ImportDefaultRuleCategoriesUseCase({
             ruleCategoryRepository: repository,
         })
         const input: readonly IConfigRuleCategoryItem[] = [
-            createItem("security-hardening"),
-            createItem("observability-logging"),
+            createItem("security-hardening", 1),
+            createItem("observability-logging", 0.5),
         ]
 
         const result = await useCase.execute(input)
@@ -107,6 +109,7 @@ describe("ImportDefaultRuleCategoriesUseCase", () => {
             slug: "Not Kebab",
             name: "Invalid",
             description: "Invalid slug",
+            weight: 1,
         }]
 
         const result = await useCase.execute(input)
@@ -135,10 +138,11 @@ describe("ImportDefaultRuleCategoriesUseCase", () => {
     })
 })
 
-function createItem(slug: string): IConfigRuleCategoryItem {
+function createItem(slug: string, weight: number): IConfigRuleCategoryItem {
     return {
         slug,
         name: slug.replace(/-/g, " ").trim(),
         description: `Category for ${slug}`,
+        weight,
     }
 }

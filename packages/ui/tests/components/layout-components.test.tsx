@@ -164,6 +164,10 @@ describe("layout components", (): void => {
                         label: "Provider Degradation",
                         path: "/settings-provider-degradation",
                     },
+                    {
+                        label: "Help and diagnostics",
+                        path: "/help-diagnostics",
+                    },
                 ]}
             />,
         )
@@ -175,7 +179,7 @@ describe("layout components", (): void => {
         await user.type(paletteSearch, "diagnostics")
         await user.keyboard("{Enter}")
 
-        expect(onSearchRouteNavigate).toHaveBeenCalledWith("/settings-provider-degradation")
+        expect(onSearchRouteNavigate).toHaveBeenCalledWith("/help-diagnostics")
     })
 
     it("открывает shortcuts overlay по ? и позволяет фильтровать список", async (): Promise<void> => {

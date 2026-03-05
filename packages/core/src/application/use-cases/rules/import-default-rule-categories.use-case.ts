@@ -66,6 +66,7 @@ export class ImportDefaultRuleCategoriesUseCase
                 slug: item.slug,
                 name: item.name,
                 description: item.description,
+                weight: item.weight,
                 isActive: true,
             })
 
@@ -157,8 +158,9 @@ export class ImportDefaultRuleCategoriesUseCase
         const slug = this.readSlug(record, index, fields)
         const name = this.readRequiredText(record, "name", index, fields)
         const description = this.readRequiredText(record, "description", index, fields)
+        const weight = this.readWeight(record, index, fields)
 
-        if (slug === undefined || name === undefined || description === undefined) {
+        if (slug === undefined || name === undefined || description === undefined || weight === undefined) {
             return undefined
         }
 
@@ -166,6 +168,7 @@ export class ImportDefaultRuleCategoriesUseCase
             slug,
             name,
             description,
+            weight,
         }
     }
 
@@ -214,6 +217,35 @@ export class ImportDefaultRuleCategoriesUseCase
                 field: `items[${index}].${key}`,
                 message: "must be a non-empty string",
             })
+        }
+
+        return value
+    }
+
+    /**
+     * Reads optional weight value.
+     *
+     * @param record Input record.
+     * @param index Item index.
+     * @param fields Validation errors list.
+     * @returns Weight value or undefined.
+     */
+    private readWeight(
+        record: Record<string, unknown>,
+        index: number,
+        fields: IValidationErrorField[],
+    ): number | undefined {
+        const value = record["weight"]
+        if (value === undefined) {
+            return 0
+        }
+
+        if (typeof value !== "number" || Number.isFinite(value) === false || value < 0) {
+            fields.push({
+                field: `items[${index}].weight`,
+                message: "must be a non-negative number",
+            })
+            return undefined
         }
 
         return value

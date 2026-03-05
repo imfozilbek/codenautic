@@ -14,6 +14,7 @@ describe("RuleCategoryFactory", () => {
         expect(category.slug).toBe("security-hardening")
         expect(category.name).toBe("Security Hardening")
         expect(category.description).toBe("Security-focused checks")
+        expect(category.weight).toBe(0)
         expect(category.isActive).toBe(true)
     })
 
@@ -24,6 +25,7 @@ describe("RuleCategoryFactory", () => {
             slug: "performance-efficiency",
             name: "Performance & Efficiency",
             description: "Performance-related checks",
+            weight: 3.5,
             isActive: false,
         })
 
@@ -31,6 +33,7 @@ describe("RuleCategoryFactory", () => {
         expect(category.slug).toBe("performance-efficiency")
         expect(category.name).toBe("Performance & Efficiency")
         expect(category.description).toBe("Performance-related checks")
+        expect(category.weight).toBe(3.5)
         expect(category.isActive).toBe(false)
     })
 })

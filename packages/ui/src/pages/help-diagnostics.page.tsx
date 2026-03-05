@@ -328,8 +328,7 @@ export function HelpDiagnosticsPage(): ReactElement {
                 return source.status === "DEGRADED" || source.status === "SYNCING"
             }).length ?? 0
 
-        const featureFlagsReady =
-            featureFlags.error === undefined && featureFlags.data !== undefined
+        const featureFlagsReady = featureFlags.error === null && featureFlags.data !== undefined
 
         setChecks(
             runDiagnosticsChecks({
@@ -372,7 +371,7 @@ export function HelpDiagnosticsPage(): ReactElement {
             },
             featureFlags: {
                 loaded: featureFlags.data !== undefined,
-                loadError: featureFlags.error === undefined ? null : featureFlags.error.message,
+                loadError: featureFlags.error === null ? null : featureFlags.error.message,
             },
         }
 
@@ -576,8 +575,12 @@ export function HelpDiagnosticsPage(): ReactElement {
                                             size="sm"
                                             variant="flat"
                                             onPress={(): void => {
+                                                const actionPath = action.path
+                                                if (actionPath === undefined) {
+                                                    return
+                                                }
                                                 void navigate({
-                                                    to: action.path,
+                                                    to: actionPath,
                                                 })
                                             }}
                                         >

@@ -9,6 +9,7 @@ export interface ICreateRuleCategoryProps {
     readonly slug: string
     readonly name: string
     readonly description: string
+    readonly weight?: number
     readonly isActive?: boolean
 }
 
@@ -20,6 +21,7 @@ export interface IReconstituteRuleCategoryProps {
     readonly slug: string
     readonly name: string
     readonly description: string
+    readonly weight?: number
     readonly isActive: boolean
 }
 
@@ -46,6 +48,7 @@ export class RuleCategoryFactory
             slug: input.slug,
             name: input.name,
             description: input.description,
+            weight: input.weight ?? 0,
             isActive: input.isActive ?? true,
         }
 
@@ -63,6 +66,7 @@ export class RuleCategoryFactory
             slug: input.slug,
             name: input.name,
             description: input.description,
+            weight: input.weight ?? 0,
             isActive: input.isActive,
         }
 

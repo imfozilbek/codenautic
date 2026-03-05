@@ -72,6 +72,7 @@ describe("IRuleCategoryRepository contract", () => {
             slug: "security",
             name: "Security",
             description: "Security checks and recommendations",
+            weight: 1,
             isActive: true,
         })
 
@@ -94,12 +95,14 @@ describe("IRuleCategoryRepository contract", () => {
             slug: "security",
             name: "Security",
             description: "Security checks",
+            weight: 1,
             isActive: true,
         })
         const quality = createCategory({
             slug: "quality",
             name: "Quality",
             description: "Quality rules",
+            weight: 2,
             isActive: true,
         })
 
@@ -121,12 +124,14 @@ describe("IRuleCategoryRepository contract", () => {
             slug: "security",
             name: "Security",
             description: "Security checks",
+            weight: 1,
             isActive: true,
         })
         const two = createCategory({
             slug: "maintainability",
             name: "Maintainability",
             description: "Code health",
+            weight: 0,
             isActive: false,
         })
 
@@ -144,12 +149,14 @@ describe("IRuleCategoryRepository contract", () => {
             slug: "security",
             name: "Security",
             description: "Security checks",
+            weight: 1,
             isActive: true,
         })
         const inactive = createCategory({
             slug: "legacy",
             name: "Legacy",
             description: "Old rules",
+            weight: 0,
             isActive: false,
         })
 
