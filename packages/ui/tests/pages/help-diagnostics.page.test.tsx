@@ -32,6 +32,9 @@ describe("HelpDiagnosticsPage", (): void => {
         await user.click(screen.getByRole("button", { name: "Run diagnostics" }))
         expect(screen.getByText("Auth/session state")).not.toBeNull()
         expect(screen.getByText("Network availability")).not.toBeNull()
+        expect(screen.getByText("Suggested actions")).not.toBeNull()
+        expect(screen.getByLabelText("Diagnostics suggested actions")).not.toBeNull()
+        expect(screen.getAllByRole("button", { name: "Open action" }).length).toBeGreaterThan(0)
 
         await user.click(screen.getByRole("button", { name: "Generate redacted bundle" }))
         expect(screen.getByText("Redacted support bundle is ready to attach to support ticket.")).not

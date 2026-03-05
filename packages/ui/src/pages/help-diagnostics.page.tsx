@@ -1,7 +1,9 @@
 import { type ReactElement, useMemo, useState } from "react"
+import { useNavigate } from "@tanstack/react-router"
 
 import { Alert, Button, Card, CardBody, CardHeader, Chip, Textarea } from "@/components/ui"
 import { SystemStateCard } from "@/components/infrastructure/system-state-card"
+import { useExternalContext, useFeatureFlagsQuery } from "@/lib/hooks/queries"
 
 type TArticleCategory = "auth" | "incidents" | "network" | "providers" | "rendering"
 type TDiagnosticStatus = "error" | "ok" | "pending" | "warning"
@@ -30,6 +32,21 @@ interface IDiagnosticCheck {
     readonly details: string
     /** Ссылка на релевантную статью. */
     readonly articleHref: string
+}
+
+interface IDiagnosticSuggestedAction {
+    /** Идентификатор действия. */
+    readonly id: string
+    /** Заголовок действия. */
+    readonly label: string
+    /** Описание шага. */
+    readonly description: string
+    /** Куда ведёт действие. */
+    readonly path?:
+        | "/dashboard/code-city"
+        | "/settings-integrations"
+        | "/settings-organization"
+        | "/settings-provider-degradation"
 }
 
 const HELP_ARTICLES: ReadonlyArray<IHelpArticle> = [
@@ -125,57 +142,132 @@ function mapStatusColor(status: TDiagnosticStatus): "danger" | "default" | "succ
     return "default"
 }
 
-function runDiagnosticsChecks(): ReadonlyArray<IDiagnosticCheck> {
-    const networkStatus = typeof navigator !== "undefined" && navigator.onLine === true
-    const webGlStatus =
-        typeof document !== "undefined" &&
-        document.createElement("canvas").getContext("webgl") !== null
-    const hasSessionToken =
-        typeof window !== "undefined" && window.localStorage.getItem("session-token") !== null
+interface IDiagnosticsRuntimeSnapshot {
+    readonly hasSessionToken: boolean
+    readonly networkOnline: boolean
+    readonly webGlReady: boolean
+    readonly featureFlagsReady: boolean
+    readonly providerConnectedCount: number
+    readonly providerDegradedCount: number
+}
+
+function runDiagnosticsChecks(
+    snapshot: IDiagnosticsRuntimeSnapshot,
+): ReadonlyArray<IDiagnosticCheck> {
+    const providerStatus: TDiagnosticStatus =
+        snapshot.providerDegradedCount > 0
+            ? "warning"
+            : snapshot.providerConnectedCount > 0
+              ? "ok"
+              : "error"
+
+    const providerDetails =
+        snapshot.providerDegradedCount > 0
+            ? `Detected degraded providers: ${String(snapshot.providerDegradedCount)}.`
+            : snapshot.providerConnectedCount > 0
+              ? `Provider connectivity healthy for ${String(snapshot.providerConnectedCount)} providers.`
+              : "No connected provider detected. Check provider configuration."
 
     return [
         {
             articleHref: "/settings-organization",
-            details: hasSessionToken
+            details: snapshot.hasSessionToken
                 ? "Session token is present in local storage."
                 : "No session token found. Re-authentication may be required.",
             id: "diag-auth",
             label: "Auth/session state",
-            status: hasSessionToken ? "ok" : "warning",
+            status: snapshot.hasSessionToken ? "ok" : "warning",
         },
         {
             articleHref: "/settings-integrations",
-            details: networkStatus
+            details: snapshot.networkOnline
                 ? "Network looks reachable from browser context."
                 : "Browser reports offline network state.",
             id: "diag-network",
             label: "Network availability",
-            status: networkStatus ? "ok" : "error",
+            status: snapshot.networkOnline ? "ok" : "error",
         },
         {
             articleHref: "/settings-integrations",
-            details: "Provider ping requires backend check; marked with warning for manual verification.",
+            details: providerDetails,
             id: "diag-provider",
             label: "Provider connectivity",
-            status: "warning",
+            status: providerStatus,
         },
         {
             articleHref: "/settings",
-            details: "Feature flags loaded from UI defaults.",
+            details: snapshot.featureFlagsReady
+                ? "Feature flags loaded and evaluated."
+                : "Feature flags unavailable; defaults may be applied.",
             id: "diag-flags",
             label: "Feature flags state",
-            status: "ok",
+            status: snapshot.featureFlagsReady ? "ok" : "warning",
         },
         {
             articleHref: "/dashboard/code-city",
-            details: webGlStatus
+            details: snapshot.webGlReady
                 ? "WebGL context is available."
                 : "WebGL context unavailable, fallback renderer recommended.",
             id: "diag-webgl",
             label: "Browser/WebGL readiness",
-            status: webGlStatus ? "ok" : "warning",
+            status: snapshot.webGlReady ? "ok" : "warning",
         },
     ]
+}
+
+function buildSuggestedActions(
+    checks: ReadonlyArray<IDiagnosticCheck>,
+): ReadonlyArray<IDiagnosticSuggestedAction> {
+    const actions: IDiagnosticSuggestedAction[] = []
+    const authCheck = checks.find((check): boolean => check.id === "diag-auth")
+    const networkCheck = checks.find((check): boolean => check.id === "diag-network")
+    const providerCheck = checks.find((check): boolean => check.id === "diag-provider")
+    const webglCheck = checks.find((check): boolean => check.id === "diag-webgl")
+
+    if (authCheck?.status === "warning" || authCheck?.status === "error") {
+        actions.push({
+            description: "Re-authenticate and restore draft/session state before retrying.",
+            id: "action-session-recovery",
+            label: "Open session recovery",
+            path: "/settings-organization",
+        })
+    }
+    if (networkCheck?.status === "error") {
+        actions.push({
+            description: "Check connectivity and external source settings for failed requests.",
+            id: "action-network-recovery",
+            label: "Open integration diagnostics",
+            path: "/settings-integrations",
+        })
+    }
+    if (providerCheck?.status === "warning" || providerCheck?.status === "error") {
+        actions.push({
+            description: "Switch provider fallback and inspect degradation timeline.",
+            id: "action-provider-recovery",
+            label: "Open degradation console",
+            path: "/settings-provider-degradation",
+        })
+    }
+    if (webglCheck?.status === "warning" || webglCheck?.status === "error") {
+        actions.push({
+            description: "Use safe fallback renderer or validate browser WebGL support.",
+            id: "action-webgl-recovery",
+            label: "Open CodeCity fallback check",
+            path: "/dashboard/code-city",
+        })
+    }
+
+    if (actions.length === 0) {
+        return [
+            {
+                description: "No blocking issues detected. Continue your workflow.",
+                id: "action-healthy",
+                label: "Diagnostics are healthy",
+            },
+        ]
+    }
+
+    return actions
 }
 
 /**
@@ -184,6 +276,11 @@ function runDiagnosticsChecks(): ReadonlyArray<IDiagnosticCheck> {
  * @returns Экран поиска help-статей, запуск диагностики и support bundle.
  */
 export function HelpDiagnosticsPage(): ReactElement {
+    const navigate = useNavigate()
+    const featureFlags = useFeatureFlagsQuery()
+    const externalContext = useExternalContext({
+        previewEnabled: false,
+    })
     const [search, setSearch] = useState<string>("")
     const [category, setCategory] = useState<"all" | TArticleCategory>("all")
     const [checks, setChecks] = useState<ReadonlyArray<IDiagnosticCheck>>(INITIAL_CHECKS)
@@ -209,9 +306,40 @@ export function HelpDiagnosticsPage(): ReactElement {
             return categoryMatches && queryMatches
         })
     }, [category, search])
+    const suggestedActions = useMemo((): ReadonlyArray<IDiagnosticSuggestedAction> => {
+        return buildSuggestedActions(checks)
+    }, [checks])
 
     const handleRunDiagnostics = (): void => {
-        setChecks(runDiagnosticsChecks())
+        const hasSessionToken =
+            typeof window !== "undefined" && window.localStorage.getItem("session-token") !== null
+        const networkOnline = typeof navigator !== "undefined" && navigator.onLine === true
+        const webGlReady =
+            typeof document !== "undefined"
+            && document.createElement("canvas").getContext("webgl") !== null
+
+        const connectedProviderCount =
+            externalContext.sourcesQuery.data?.sources.filter((source): boolean => {
+                return source.status === "CONNECTED"
+            }).length ?? 0
+        const degradedProviderCount =
+            externalContext.sourcesQuery.data?.sources.filter((source): boolean => {
+                return source.status === "DEGRADED" || source.status === "SYNCING"
+            }).length ?? 0
+
+        const featureFlagsReady =
+            featureFlags.error === undefined && featureFlags.data !== undefined
+
+        setChecks(
+            runDiagnosticsChecks({
+                featureFlagsReady,
+                hasSessionToken,
+                networkOnline,
+                providerConnectedCount: connectedProviderCount,
+                providerDegradedCount: degradedProviderCount,
+                webGlReady,
+            }),
+        )
     }
 
     const handleGenerateSupportBundle = (): void => {
@@ -231,6 +359,19 @@ export function HelpDiagnosticsPage(): ReactElement {
                 category,
                 query: search,
                 sourceContext,
+            },
+            providers: {
+                connected: externalContext.sourcesQuery.data?.sources.filter((source): boolean => {
+                    return source.status === "CONNECTED"
+                }).length ?? 0,
+                degraded: externalContext.sourcesQuery.data?.sources.filter((source): boolean => {
+                    return source.status === "DEGRADED" || source.status === "SYNCING"
+                }).length ?? 0,
+                total: externalContext.sourcesQuery.data?.total ?? 0,
+            },
+            featureFlags: {
+                loaded: featureFlags.data !== undefined,
+                loadError: featureFlags.error === undefined ? null : featureFlags.error.message,
             },
         }
 
@@ -346,9 +487,47 @@ export function HelpDiagnosticsPage(): ReactElement {
                             Checks: auth/session, network, provider connectivity, feature flags,
                             browser/webgl readiness.
                         </p>
-                        <Button size="sm" variant="flat" onPress={handleRunDiagnostics}>
-                            Run diagnostics
-                        </Button>
+                        <div className="flex flex-wrap items-center gap-2">
+                            <Button size="sm" variant="flat" onPress={handleRunDiagnostics}>
+                                Run diagnostics
+                            </Button>
+                            <Button
+                                size="sm"
+                                variant="flat"
+                                onPress={(): void => {
+                                    void navigate({
+                                        to: "/settings-provider-degradation",
+                                    })
+                                }}
+                            >
+                                Open degradation console
+                            </Button>
+                            <Button
+                                size="sm"
+                                variant="flat"
+                                onPress={(): void => {
+                                    void navigate({
+                                        to: "/repositories",
+                                    })
+                                }}
+                            >
+                                Open scan recovery
+                            </Button>
+                            <Button
+                                size="sm"
+                                variant="flat"
+                                onPress={(): void => {
+                                    void navigate({
+                                        to: "/settings-organization",
+                                    })
+                                }}
+                            >
+                                Open session recovery
+                            </Button>
+                            <Button size="sm" variant="flat" onPress={handleGenerateSupportBundle}>
+                                Generate support bundle
+                            </Button>
+                        </div>
                     </div>
                     <ul aria-label="Diagnostics checks list" className="space-y-2">
                         {checks.map((check): ReactElement => (
@@ -374,6 +553,40 @@ export function HelpDiagnosticsPage(): ReactElement {
                             </li>
                         ))}
                     </ul>
+                    <div className="rounded-lg border border-[var(--border)] bg-[var(--surface)] px-3 py-2">
+                        <p className="text-sm font-semibold text-[var(--foreground)]">
+                            Suggested actions
+                        </p>
+                        <ul aria-label="Diagnostics suggested actions" className="mt-2 space-y-2">
+                            {suggestedActions.map((action): ReactElement => (
+                                <li
+                                    className="rounded border border-[var(--border)] bg-[var(--surface)] px-2 py-2"
+                                    key={action.id}
+                                >
+                                    <p className="text-sm font-semibold text-[var(--foreground)]">
+                                        {action.label}
+                                    </p>
+                                    <p className="text-xs text-[var(--foreground)]/70">
+                                        {action.description}
+                                    </p>
+                                    {action.path !== undefined ? (
+                                        <Button
+                                            className="mt-2"
+                                            size="sm"
+                                            variant="flat"
+                                            onPress={(): void => {
+                                                void navigate({
+                                                    to: action.path,
+                                                })
+                                            }}
+                                        >
+                                            Open action
+                                        </Button>
+                                    ) : null}
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
                 </CardBody>
             </Card>
 

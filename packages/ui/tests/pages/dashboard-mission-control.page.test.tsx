@@ -25,6 +25,12 @@ describe("DashboardMissionControlPage", (): void => {
         expect(screen.getByText("Usage by model, cost breakdown and trend chart for selected range.")).not.toBeNull()
         expect(screen.getByText("Architecture health")).not.toBeNull()
         expect(screen.getByText("Health score, layer violations and DDD compliance in one architecture widget.")).not.toBeNull()
+        expect(screen.getByRole("link", { name: "Open Graph Explorer" })).not.toBeNull()
+        expect(screen.getByRole("link", { name: "Open Causal Analysis" })).not.toBeNull()
+        expect(screen.getByRole("link", { name: "Open Impact Planning" })).not.toBeNull()
+        expect(screen.getByRole("link", { name: "Open Refactoring Planner" })).not.toBeNull()
+        expect(screen.getByRole("link", { name: "Open Knowledge Map" })).not.toBeNull()
+        expect(screen.getByRole("link", { name: "Open Reports" })).not.toBeNull()
 
         await user.click(screen.getByRole("button", { name: "Open provenance" }))
         expect(screen.getByText("Source data provenance")).not.toBeNull()

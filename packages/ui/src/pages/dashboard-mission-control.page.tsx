@@ -575,6 +575,62 @@ function renderExploreCard(): ReactElement {
                     <li>
                         <Link
                             className="text-sm font-medium underline underline-offset-4"
+                            to="/dashboard/code-city"
+                        >
+                            Open Graph Explorer
+                        </Link>
+                    </li>
+                    <li>
+                        <Link
+                            className="text-sm font-medium underline underline-offset-4"
+                            to="/dashboard/code-city"
+                        >
+                            Open Causal Analysis
+                        </Link>
+                    </li>
+                    <li>
+                        <Link
+                            className="text-sm font-medium underline underline-offset-4"
+                            to="/dashboard/code-city"
+                        >
+                            Open Impact Planning
+                        </Link>
+                    </li>
+                    <li>
+                        <Link
+                            className="text-sm font-medium underline underline-offset-4"
+                            to="/dashboard/code-city"
+                        >
+                            Open Refactoring Planner
+                        </Link>
+                    </li>
+                    <li>
+                        <Link
+                            className="text-sm font-medium underline underline-offset-4"
+                            to="/dashboard/code-city"
+                        >
+                            Open Knowledge Map
+                        </Link>
+                    </li>
+                    <li>
+                        <Link
+                            className="text-sm font-medium underline underline-offset-4"
+                            to="/reports"
+                        >
+                            Open Reports
+                        </Link>
+                    </li>
+                    <li>
+                        <Link
+                            className="text-sm font-medium underline underline-offset-4"
+                            to="/reports/generate"
+                        >
+                            Generate report
+                        </Link>
+                    </li>
+                    <li>
+                        <Link
+                            className="text-sm font-medium underline underline-offset-4"
                             to="/settings-code-review"
                         >
                             Code review configuration
