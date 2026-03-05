@@ -105,4 +105,123 @@ describe("rule config dto", () => {
 
         expect(parsed).toBeUndefined()
     })
+
+    test("returns undefined when examples or buckets are invalid", () => {
+        expect(parseRuleConfigList({
+            items: [
+                {
+                    uuid: "rule-2",
+                    title: "Rule title",
+                    rule: "Rule body",
+                    whyIsThisImportant: "Because",
+                    severity: "HIGH",
+                    examples: [
+                        {
+                            snippet: "",
+                            isCorrect: true,
+                        },
+                    ],
+                    language: "ts",
+                    buckets: ["quality"],
+                    scope: "FILE",
+                    plugAndPlay: false,
+                },
+            ],
+        })).toBeUndefined()
+
+        expect(parseRuleConfigList({
+            items: [
+                {
+                    uuid: "rule-3",
+                    title: "Rule title",
+                    rule: "Rule body",
+                    whyIsThisImportant: "Because",
+                    severity: "HIGH",
+                    examples: [
+                        {
+                            snippet: "ok",
+                            isCorrect: true,
+                        },
+                    ],
+                    language: "ts",
+                    buckets: [],
+                    scope: "FILE",
+                    plugAndPlay: false,
+                },
+            ],
+        })).toBeUndefined()
+    })
+
+    test("normalizes language and scope values", () => {
+        const parsed = parseRuleConfigList({
+            items: [
+                {
+                    uuid: "rule-4",
+                    title: "Rule title",
+                    rule: "Rule body",
+                    whyIsThisImportant: "Because",
+                    severity: "LOW",
+                    examples: [
+                        {
+                            snippet: "example",
+                            isCorrect: true,
+                        },
+                    ],
+                    language: "TypeScript",
+                    buckets: ["architecture"],
+                    scope: "CCR",
+                    plugAndPlay: true,
+                },
+            ],
+        })
+
+        expect(parsed?.[0]?.language).toBe("typescript")
+        expect(parsed?.[0]?.scope).toBe("PULL_REQUEST")
+    })
+
+    test("returns undefined for invalid scope and plug-and-play types", () => {
+        expect(parseRuleConfigList({
+            items: [
+                {
+                    uuid: "rule-5",
+                    title: "Rule title",
+                    rule: "Rule body",
+                    whyIsThisImportant: "Because",
+                    severity: "LOW",
+                    examples: [
+                        {
+                            snippet: "example",
+                            isCorrect: true,
+                        },
+                    ],
+                    language: "ts",
+                    buckets: ["architecture"],
+                    scope: "UNKNOWN",
+                    plugAndPlay: true,
+                },
+            ],
+        })).toBeUndefined()
+
+        expect(parseRuleConfigList({
+            items: [
+                {
+                    uuid: "rule-6",
+                    title: "Rule title",
+                    rule: "Rule body",
+                    whyIsThisImportant: "Because",
+                    severity: "LOW",
+                    examples: [
+                        {
+                            snippet: "example",
+                            isCorrect: true,
+                        },
+                    ],
+                    language: "ts",
+                    buckets: ["architecture"],
+                    scope: "FILE",
+                    plugAndPlay: "yes",
+                },
+            ],
+        })).toBeUndefined()
+    })
 })
