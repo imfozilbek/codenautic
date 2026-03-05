@@ -7,9 +7,13 @@ import { DEFAULT_LOCALE, LOCALE_STORAGE_KEY, initializeI18n } from "@/lib/i18n/i
 import { server } from "./mocks/server"
 
 const originalFetch = globalThis.fetch
+const originalConsoleLog = globalThis.console.log
+const originalConsoleInfo = globalThis.console.info
 const originalConsoleWarn = globalThis.console.warn
 const originalConsoleError = globalThis.console.error
 const processRef = globalThis.process
+const originalProcessStdoutWrite = processRef?.stdout.write.bind(processRef.stdout)
+const originalProcessStderrWrite = processRef?.stderr.write.bind(processRef.stderr)
 const DEFAULT_TEST_ELEMENT_WIDTH = 1024
 const DEFAULT_TEST_ELEMENT_HEIGHT = 768
 const RECHARTS_SIZE_WARNING = "of chart should be greater than 0"
@@ -17,6 +21,7 @@ const CONTROLLED_STATE_WARNING = "WARN: A component changed from uncontrolled to
 const HEROUI_WARNING_PREFIX = "[HeroUI]"
 const PRESS_RESPONDER_WARNING = "A PressResponder was rendered without a pressable child."
 const SOCKET_HANG_UP_MESSAGE = "socket hang up"
+const LOCIZE_SUPPORT_MESSAGE = "i18next is maintained with support from Locize"
 const BENIGN_API_ERROR_MESSAGES = [
     "GET http://localhost:3000/api/v1/user/settings",
     "GET http://localhost:3000/api/v1/user/preferences",
@@ -25,6 +30,7 @@ const BENIGN_API_ERROR_MESSAGES = [
 ]
 const BENIGN_SOCKET_ERROR_CODES = new Set<string>(["ECONNRESET", "ECONNREFUSED"])
 let unhandledRejectionCleanup: (() => void) | undefined
+let processStreamCleanup: (() => void) | undefined
 
 class TestResizeObserver implements ResizeObserver {
     private readonly callback: ResizeObserverCallback
@@ -212,7 +218,85 @@ function shouldSuppressTestConsoleNoise(args: ReadonlyArray<unknown>): boolean {
         return true
     }
 
-    return BENIGN_API_ERROR_MESSAGES.some((prefix): boolean => message.startsWith(prefix))
+    if (message.includes(LOCIZE_SUPPORT_MESSAGE)) {
+        return true
+    }
+
+    return shouldSuppressBenignApiMessage(message)
+}
+
+function shouldSuppressBenignApiMessage(message: string): boolean {
+    return BENIGN_API_ERROR_MESSAGES.some((prefix): boolean => message.includes(prefix))
+}
+
+function shouldSuppressBenignNetworkMessage(message: string): boolean {
+    const normalized = message.toLowerCase()
+    if (normalized.includes("socket hang up")) {
+        return true
+    }
+
+    if (normalized.includes("econnrefused")) {
+        return true
+    }
+
+    return false
+}
+
+function shouldSuppressStreamChunk(chunk: string): boolean {
+    if (shouldSuppressBenignApiMessage(chunk)) {
+        return true
+    }
+
+    return shouldSuppressBenignNetworkMessage(chunk)
+}
+
+function chunkToString(chunk: unknown): string | undefined {
+    if (typeof chunk === "string") {
+        return chunk
+    }
+
+    if (chunk instanceof Uint8Array) {
+        return new TextDecoder().decode(chunk)
+    }
+
+    return undefined
+}
+
+function installProcessStreamNoiseFilter(): void {
+    if (processRef === undefined) {
+        return
+    }
+
+    const stdoutWrite = originalProcessStdoutWrite
+    const stderrWrite = originalProcessStderrWrite
+    if (stdoutWrite === undefined || stderrWrite === undefined) {
+        return
+    }
+
+    const createFilteredWriter = (
+        writer: (chunk: unknown, ...rest: ReadonlyArray<unknown>) => boolean,
+    ): ((chunk: unknown, ...rest: ReadonlyArray<unknown>) => boolean) => {
+        return (chunk: unknown, ...rest: ReadonlyArray<unknown>): boolean => {
+            const message = chunkToString(chunk)
+            if (message !== undefined && shouldSuppressStreamChunk(message)) {
+                return true
+            }
+
+            return writer(chunk, ...rest)
+        }
+    }
+
+    processRef.stdout.write = createFilteredWriter(
+        stdoutWrite as unknown as (chunk: unknown, ...rest: ReadonlyArray<unknown>) => boolean,
+    ) as typeof processRef.stdout.write
+    processRef.stderr.write = createFilteredWriter(
+        stderrWrite as unknown as (chunk: unknown, ...rest: ReadonlyArray<unknown>) => boolean,
+    ) as typeof processRef.stderr.write
+
+    processStreamCleanup = (): void => {
+        processRef.stdout.write = stdoutWrite
+        processRef.stderr.write = stderrWrite
+    }
 }
 
 function readErrorCode(value: unknown): string | undefined {
@@ -230,15 +314,43 @@ function shouldSuppressUnhandledRejection(reason: unknown): boolean {
         return true
     }
 
-    if (reason instanceof Error) {
-        const message = reason.message.toLowerCase()
-        if (message.includes("socket hang up")) {
+    if (typeof reason === "string") {
+        if (shouldSuppressBenignApiMessage(reason)) {
             return true
         }
 
-        if (message.includes("econnrefused")) {
+        if (shouldSuppressBenignNetworkMessage(reason)) {
             return true
         }
+    }
+
+    if (reason instanceof Error) {
+        if (shouldSuppressBenignApiMessage(reason.message)) {
+            return true
+        }
+
+        if (shouldSuppressBenignNetworkMessage(reason.message)) {
+            return true
+        }
+    }
+
+    if (reason instanceof AggregateError) {
+        return reason.errors.some((nestedError): boolean => {
+            const nestedCode = readErrorCode(nestedError)
+            if (nestedCode !== undefined && BENIGN_SOCKET_ERROR_CODES.has(nestedCode)) {
+                return true
+            }
+
+            if (nestedError instanceof Error) {
+                return shouldSuppressBenignNetworkMessage(nestedError.message)
+            }
+
+            if (typeof nestedError === "string") {
+                return shouldSuppressBenignNetworkMessage(nestedError)
+            }
+
+            return false
+        })
     }
 
     return false
@@ -264,6 +376,22 @@ function installUnhandledRejectionFilter(): void {
 }
 
 function installTestConsoleNoiseFilter(): void {
+    globalThis.console.log = (...args: unknown[]): void => {
+        if (shouldSuppressTestConsoleNoise(args)) {
+            return
+        }
+
+        originalConsoleLog(...args)
+    }
+
+    globalThis.console.info = (...args: unknown[]): void => {
+        if (shouldSuppressTestConsoleNoise(args)) {
+            return
+        }
+
+        originalConsoleInfo(...args)
+    }
+
     globalThis.console.warn = (...args: unknown[]): void => {
         if (shouldSuppressTestConsoleNoise(args)) {
             return
@@ -283,6 +411,7 @@ function installTestConsoleNoiseFilter(): void {
 
 installTestConsoleNoiseFilter()
 installUnhandledRejectionFilter()
+installProcessStreamNoiseFilter()
 
 beforeAll(async (): Promise<void> => {
     defineReadonlyDimension(HTMLElement.prototype, "offsetWidth", DEFAULT_TEST_ELEMENT_WIDTH)
@@ -317,8 +446,11 @@ afterEach(async (): Promise<void> => {
 })
 
 afterAll((): void => {
+    globalThis.console.log = originalConsoleLog
+    globalThis.console.info = originalConsoleInfo
     globalThis.console.warn = originalConsoleWarn
     globalThis.console.error = originalConsoleError
+    processStreamCleanup?.()
     unhandledRejectionCleanup?.()
     server.close()
 })
