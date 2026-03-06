@@ -1,14 +1,43 @@
-import { readFileSync } from "node:fs"
-import { resolve } from "node:path"
+import { readFileSync, readdirSync } from "node:fs"
+import { join, resolve } from "node:path"
 
 import { describe, expect, it } from "vitest"
 
 interface IMermaidBlock {
     readonly content: string
+    readonly filePath: string
     readonly startLine: number
 }
 
-function extractMermaidBlocks(markdown: string): ReadonlyArray<IMermaidBlock> {
+interface IMermaidLine {
+    readonly line: string
+    readonly sourceLineOffset: number
+}
+
+function collectMarkdownFiles(directoryPath: string): ReadonlyArray<string> {
+    const files: Array<string> = []
+
+    const walk = (currentPath: string): void => {
+        const entries = readdirSync(currentPath, { withFileTypes: true })
+
+        entries.forEach((entry): void => {
+            const entryPath = join(currentPath, entry.name)
+            if (entry.isDirectory()) {
+                walk(entryPath)
+                return
+            }
+
+            if (entry.isFile() && entryPath.endsWith(".md")) {
+                files.push(entryPath)
+            }
+        })
+    }
+
+    walk(directoryPath)
+    return files
+}
+
+function extractMermaidBlocks(markdown: string, filePath: string): ReadonlyArray<IMermaidBlock> {
     const pattern = /```mermaid\s*\n([\s\S]*?)```/g
     const blocks: Array<IMermaidBlock> = []
     let match: RegExpExecArray | null = pattern.exec(markdown)
@@ -21,6 +50,7 @@ function extractMermaidBlocks(markdown: string): ReadonlyArray<IMermaidBlock> {
         if (content !== undefined) {
             blocks.push({
                 content,
+                filePath,
                 startLine,
             })
         }
@@ -62,18 +92,35 @@ function extractEdgeTarget(line: string): string | undefined {
     return target
 }
 
-function normalizeLines(blockContent: string): ReadonlyArray<string> {
+function normalizeLines(blockContent: string): ReadonlyArray<IMermaidLine> {
     return blockContent
         .split(/\r?\n/)
-        .map((line): string => line.trim())
-        .filter((line): boolean => line.length > 0)
+        .map((line, index): IMermaidLine => ({
+            line: line.trim(),
+            sourceLineOffset: index,
+        }))
+        .filter((entry): boolean => entry.line.length > 0)
+}
+
+function toRelativePath(rootPath: string, absolutePath: string): string {
+    const prefix = `${rootPath}/`
+    if (absolutePath.startsWith(prefix)) {
+        return absolutePath.slice(prefix.length)
+    }
+    return absolutePath
 }
 
 describe("SCREENS and scenarios mermaid syntax contract", (): void => {
-    it("валидирует базовую синтаксическую целостность всех mermaid блоков", (): void => {
-        const filePath = resolve(process.cwd(), "SCREENS-AND-SCENARIOS.md")
-        const markdown = readFileSync(filePath, "utf8")
-        const blocks = extractMermaidBlocks(markdown)
+    it("валидирует базовую синтаксическую целостность всех mermaid блоков в ui markdown", (): void => {
+        const rootDirectory = resolve(process.cwd())
+        const markdownFiles = collectMarkdownFiles(rootDirectory)
+
+        expect(markdownFiles.length).toBeGreaterThan(0)
+
+        const blocks = markdownFiles.flatMap((filePath): ReadonlyArray<IMermaidBlock> => {
+            const markdown = readFileSync(filePath, "utf8")
+            return extractMermaidBlocks(markdown, filePath)
+        })
 
         expect(blocks.length).toBeGreaterThan(0)
 
@@ -81,39 +128,41 @@ describe("SCREENS and scenarios mermaid syntax contract", (): void => {
 
         blocks.forEach((block, blockIndex): void => {
             const lines = normalizeLines(block.content)
-            const firstLine = lines.at(0)
+            const firstLine = lines.at(0)?.line
             const graphDirective = /^(flowchart|graph|sequenceDiagram|stateDiagram(?:-v2)?|gantt)\b/
+            const relativePath = toRelativePath(rootDirectory, block.filePath)
 
             if (firstLine === undefined || graphDirective.test(firstLine) === false) {
                 issues.push(
-                    `Block #${blockIndex + 1} at line ${block.startLine}: missing or invalid graph directive`,
+                    `Block #${blockIndex + 1} in ${relativePath}:${String(block.startLine)} has invalid graph directive`,
                 )
                 return
             }
 
-            lines.forEach((line, lineIndex): void => {
-                if (detectArrowToken(line) === undefined) {
+            lines.forEach((entry): void => {
+                if (detectArrowToken(entry.line) === undefined) {
                     return
                 }
+                const lineNumber = block.startLine + entry.sourceLineOffset
 
-                if (/^[A-Za-z][A-Za-z0-9_]*/.test(line) === false) {
+                if (/^[A-Za-z][A-Za-z0-9_]*/.test(entry.line) === false) {
                     issues.push(
-                        `Block #${blockIndex + 1} line ${block.startLine + lineIndex}: edge line must start with node id`,
+                        `Block #${blockIndex + 1} in ${relativePath}:${String(lineNumber)} has edge without start node id`,
                     )
                     return
                 }
 
-                const target = extractEdgeTarget(line)
+                const target = extractEdgeTarget(entry.line)
                 if (target === undefined) {
                     issues.push(
-                        `Block #${blockIndex + 1} line ${block.startLine + lineIndex}: edge target is missing`,
+                        `Block #${blockIndex + 1} in ${relativePath}:${String(lineNumber)} has missing edge target`,
                     )
                     return
                 }
 
                 if (/^[A-Za-z][A-Za-z0-9_]*/.test(target) === false) {
                     issues.push(
-                        `Block #${blockIndex + 1} line ${block.startLine + lineIndex}: edge target must start with node id`,
+                        `Block #${blockIndex + 1} in ${relativePath}:${String(lineNumber)} has edge target without node id`,
                     )
                 }
             })
