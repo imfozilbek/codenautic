@@ -6,7 +6,7 @@
         "severityThreshold": "LOW",
         "ignorePaths": [],
         "maxSuggestionsPerFile": 10,
-        "maxSuggestionsPerPR": 50,
+        "maxSuggestionsPerCCR": 50,
         "cadence": "automatic",
         "customRuleIds": [],
         "batchSize": 30,
