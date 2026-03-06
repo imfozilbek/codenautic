@@ -130,6 +130,26 @@ function normalize(value: string): string {
     return value.trim().toLowerCase()
 }
 
+function resolveClientFamily(userAgent: string | undefined): string {
+    const normalizedUserAgent = normalize(userAgent ?? "")
+    if (normalizedUserAgent.includes("edg/")) {
+        return "edge"
+    }
+    if (normalizedUserAgent.includes("chrome/")) {
+        return "chrome"
+    }
+    if (normalizedUserAgent.includes("firefox/")) {
+        return "firefox"
+    }
+    if (
+        normalizedUserAgent.includes("safari/") &&
+        normalizedUserAgent.includes("chrome/") === false
+    ) {
+        return "safari"
+    }
+    return "unknown"
+}
+
 function mapStatusColor(status: TDiagnosticStatus): "danger" | "default" | "success" | "warning" {
     if (status === "error") {
         return "danger"
@@ -396,6 +416,9 @@ export function HelpDiagnosticsPage(): ReactElement {
     }
 
     const handleGenerateSupportBundle = (): void => {
+        const browserLanguage = typeof navigator !== "undefined" ? navigator.language : "unknown"
+        const browserUserAgent =
+            typeof navigator !== "undefined" ? navigator.userAgent : undefined
         const payload = {
             checks: checks.map((check): { readonly id: string; readonly status: TDiagnosticStatus } => ({
                 id: check.id,
@@ -403,10 +426,8 @@ export function HelpDiagnosticsPage(): ReactElement {
             })),
             generatedAt: new Date().toISOString(),
             redactedClient: {
-                language:
-                    typeof navigator !== "undefined" ? navigator.language : "unknown",
-                userAgent:
-                    typeof navigator !== "undefined" ? navigator.userAgent.slice(0, 72) : "unknown",
+                clientFamily: resolveClientFamily(browserUserAgent),
+                language: browserLanguage,
             },
             searchContext: {
                 category,

@@ -39,7 +39,19 @@ describe("HelpDiagnosticsPage", (): void => {
         await user.click(screen.getByRole("button", { name: "Generate redacted bundle" }))
         expect(screen.getByText("Redacted support bundle is ready to attach to support ticket.")).not
             .toBeNull()
-        expect(screen.getByRole("textbox", { name: "Support bundle payload" })).not.toBeNull()
+        const bundleTextbox = screen.getByRole("textbox", { name: "Support bundle payload" })
+        expect(bundleTextbox).not.toBeNull()
+        const bundlePayload = JSON.parse((bundleTextbox as HTMLTextAreaElement).value) as {
+            readonly redactedClient: {
+                readonly clientFamily: string
+                readonly language: string
+            }
+        }
+        expect(bundlePayload.redactedClient.clientFamily.length).toBeGreaterThan(0)
+        expect(bundlePayload.redactedClient.language.length).toBeGreaterThan(0)
+        expect(
+            Object.prototype.hasOwnProperty.call(bundlePayload.redactedClient, "userAgent"),
+        ).toBe(false)
     })
 
     it("помечает provider/feature checks как pending до завершения загрузки query", (): void => {
