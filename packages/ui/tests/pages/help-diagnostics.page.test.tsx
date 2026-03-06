@@ -2,7 +2,7 @@ import { screen } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { describe, expect, it } from "vitest"
 
-import { HelpDiagnosticsPage } from "@/pages/help-diagnostics.page"
+import { HelpDiagnosticsPage, runDiagnosticsChecks } from "@/pages/help-diagnostics.page"
 import { renderWithProviders } from "../utils/render"
 
 describe("HelpDiagnosticsPage", (): void => {
@@ -40,5 +40,26 @@ describe("HelpDiagnosticsPage", (): void => {
         expect(screen.getByText("Redacted support bundle is ready to attach to support ticket.")).not
             .toBeNull()
         expect(screen.getByRole("textbox", { name: "Support bundle payload" })).not.toBeNull()
+    })
+
+    it("помечает provider/feature checks как pending до завершения загрузки query", (): void => {
+        const checks = runDiagnosticsChecks({
+            featureFlagsPending: true,
+            featureFlagsReady: false,
+            hasSessionToken: true,
+            networkOnline: true,
+            providerConnectedCount: 0,
+            providerDegradedCount: 0,
+            providersPending: true,
+            webGlReady: true,
+        })
+
+        const providerCheck = checks.find((check): boolean => check.id === "diag-provider")
+        const flagsCheck = checks.find((check): boolean => check.id === "diag-flags")
+
+        expect(providerCheck?.status).toBe("pending")
+        expect(providerCheck?.details).toContain("still loading")
+        expect(flagsCheck?.status).toBe("pending")
+        expect(flagsCheck?.details).toContain("still loading")
     })
 })

@@ -148,26 +148,70 @@ interface IDiagnosticsRuntimeSnapshot {
     readonly networkOnline: boolean
     readonly webGlReady: boolean
     readonly featureFlagsReady: boolean
+    readonly featureFlagsPending: boolean
+    readonly featureFlagsErrorMessage?: string
     readonly providerConnectedCount: number
     readonly providerDegradedCount: number
+    readonly providersPending: boolean
+    readonly providersErrorMessage?: string
 }
 
-function runDiagnosticsChecks(
+export function runDiagnosticsChecks(
     snapshot: IDiagnosticsRuntimeSnapshot,
 ): ReadonlyArray<IDiagnosticCheck> {
-    const providerStatus: TDiagnosticStatus =
-        snapshot.providerDegradedCount > 0
-            ? "warning"
-            : snapshot.providerConnectedCount > 0
-              ? "ok"
-              : "error"
+    const providerStatus: TDiagnosticStatus = (() => {
+        if (snapshot.providersPending === true) {
+            return "pending"
+        }
+        if (snapshot.providersErrorMessage !== undefined) {
+            return "warning"
+        }
+        if (snapshot.providerDegradedCount > 0) {
+            return "warning"
+        }
+        if (snapshot.providerConnectedCount > 0) {
+            return "ok"
+        }
+        return "error"
+    })()
 
-    const providerDetails =
-        snapshot.providerDegradedCount > 0
-            ? `Detected degraded providers: ${String(snapshot.providerDegradedCount)}.`
-            : snapshot.providerConnectedCount > 0
-              ? `Provider connectivity healthy for ${String(snapshot.providerConnectedCount)} providers.`
-              : "No connected provider detected. Check provider configuration."
+    const providerDetails = (() => {
+        if (snapshot.providersPending === true) {
+            return "Provider status is still loading. Re-run diagnostics in a moment."
+        }
+        if (snapshot.providersErrorMessage !== undefined) {
+            return `Provider status unavailable: ${snapshot.providersErrorMessage}`
+        }
+        if (snapshot.providerDegradedCount > 0) {
+            return `Detected degraded providers: ${String(snapshot.providerDegradedCount)}.`
+        }
+        if (snapshot.providerConnectedCount > 0) {
+            return `Provider connectivity healthy for ${String(snapshot.providerConnectedCount)} providers.`
+        }
+        return "No connected provider detected. Check provider configuration."
+    })()
+
+    const featureFlagsStatus: TDiagnosticStatus = (() => {
+        if (snapshot.featureFlagsPending === true) {
+            return "pending"
+        }
+        if (snapshot.featureFlagsErrorMessage !== undefined) {
+            return "warning"
+        }
+        return snapshot.featureFlagsReady ? "ok" : "warning"
+    })()
+
+    const featureFlagsDetails = (() => {
+        if (snapshot.featureFlagsPending === true) {
+            return "Feature flags are still loading."
+        }
+        if (snapshot.featureFlagsErrorMessage !== undefined) {
+            return `Feature flags unavailable: ${snapshot.featureFlagsErrorMessage}`
+        }
+        return snapshot.featureFlagsReady
+            ? "Feature flags loaded and evaluated."
+            : "Feature flags unavailable; defaults may be applied."
+    })()
 
     return [
         {
@@ -197,12 +241,10 @@ function runDiagnosticsChecks(
         },
         {
             articleHref: "/settings",
-            details: snapshot.featureFlagsReady
-                ? "Feature flags loaded and evaluated."
-                : "Feature flags unavailable; defaults may be applied.",
+            details: featureFlagsDetails,
             id: "diag-flags",
             label: "Feature flags state",
-            status: snapshot.featureFlagsReady ? "ok" : "warning",
+            status: featureFlagsStatus,
         },
         {
             articleHref: "/dashboard/code-city",
@@ -328,15 +370,26 @@ export function HelpDiagnosticsPage(): ReactElement {
                 return source.status === "DEGRADED" || source.status === "SYNCING"
             }).length ?? 0
 
-        const featureFlagsReady = featureFlags.error === null && featureFlags.data !== undefined
+        const featureFlagsReady =
+            featureFlags.isPending === false &&
+            featureFlags.error === null &&
+            featureFlags.data !== undefined
 
         setChecks(
             runDiagnosticsChecks({
+                featureFlagsErrorMessage:
+                    featureFlags.error === null ? undefined : featureFlags.error.message,
+                featureFlagsPending: featureFlags.isPending,
                 featureFlagsReady,
                 hasSessionToken,
                 networkOnline,
                 providerConnectedCount: connectedProviderCount,
                 providerDegradedCount: degradedProviderCount,
+                providersErrorMessage:
+                    externalContext.sourcesQuery.error === null
+                        ? undefined
+                        : externalContext.sourcesQuery.error.message,
+                providersPending: externalContext.sourcesQuery.isPending,
                 webGlReady,
             }),
         )
