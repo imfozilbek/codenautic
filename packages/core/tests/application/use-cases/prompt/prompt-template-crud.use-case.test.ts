@@ -193,6 +193,122 @@ describe("CreatePromptTemplateUseCase", () => {
             },
         ])
     })
+
+    test("rejects non-global without organizationId", async () => {
+        const repository = new InMemoryPromptTemplateRepository()
+        const useCase = new CreatePromptTemplateUseCase({
+            promptTemplateRepository: repository,
+            promptTemplateFactory: new PromptTemplateFactory(),
+            promptEngineService: new PromptEngineService(),
+        })
+
+        const result = await useCase.execute({
+            name: "review-summary",
+            category: PROMPT_TEMPLATE_CATEGORY.RULES,
+            type: PROMPT_TEMPLATE_TYPE.SYSTEM,
+            content: "Hello {{name}}",
+            isGlobal: false,
+        })
+
+        expect(result.isFail).toBe(true)
+        expect(result.error.fields).toEqual([
+            {
+                field: "organizationId",
+                message: "organizationId is required for non-global templates",
+            },
+        ])
+    })
+
+    test("rejects invalid organizationId format", async () => {
+        const repository = new InMemoryPromptTemplateRepository()
+        const useCase = new CreatePromptTemplateUseCase({
+            promptTemplateRepository: repository,
+            promptTemplateFactory: new PromptTemplateFactory(),
+            promptEngineService: new PromptEngineService(),
+        })
+
+        const result = await useCase.execute({
+            name: "review-summary",
+            category: PROMPT_TEMPLATE_CATEGORY.RULES,
+            type: PROMPT_TEMPLATE_TYPE.SYSTEM,
+            content: "Hello {{name}}",
+            isGlobal: false,
+            organizationId: "bad org",
+        })
+
+        expect(result.isFail).toBe(true)
+        expect(result.error.fields[0]?.field).toBe("organizationId")
+    })
+
+    test("creates organization-scoped template", async () => {
+        const repository = new InMemoryPromptTemplateRepository()
+        const useCase = new CreatePromptTemplateUseCase({
+            promptTemplateRepository: repository,
+            promptTemplateFactory: new PromptTemplateFactory(),
+            promptEngineService: new PromptEngineService(),
+        })
+
+        const result = await useCase.execute({
+            name: "review-summary",
+            category: PROMPT_TEMPLATE_CATEGORY.RULES,
+            type: PROMPT_TEMPLATE_TYPE.SYSTEM,
+            content: "Hello {{name}}",
+            isGlobal: false,
+            organizationId: "org-1",
+        })
+
+        expect(result.isOk).toBe(true)
+        if (result.isFail) {
+            throw new Error("Expected organization scoped create success")
+        }
+
+        expect(result.value.template.isGlobal).toBe(false)
+        expect(result.value.template.organizationId).toBe("org-1")
+    })
+
+    test("rejects invalid variables payload", async () => {
+        const repository = new InMemoryPromptTemplateRepository()
+        const useCase = new CreatePromptTemplateUseCase({
+            promptTemplateRepository: repository,
+            promptTemplateFactory: new PromptTemplateFactory(),
+            promptEngineService: new PromptEngineService(),
+        })
+
+        const result = await useCase.execute({
+            name: "review-summary",
+            category: PROMPT_TEMPLATE_CATEGORY.RULES,
+            type: PROMPT_TEMPLATE_TYPE.SYSTEM,
+            content: "Hello {{name}}",
+            variables: [""],
+        })
+
+        expect(result.isFail).toBe(true)
+        expect(result.error.fields).toEqual([
+            {
+                field: "variables",
+                message: "variables must be an array of non-empty strings",
+            },
+        ])
+    })
+
+    test("maps content validation errors", async () => {
+        const repository = new InMemoryPromptTemplateRepository()
+        const useCase = new CreatePromptTemplateUseCase({
+            promptTemplateRepository: repository,
+            promptTemplateFactory: new PromptTemplateFactory(),
+            promptEngineService: new PromptEngineService(),
+        })
+
+        const result = await useCase.execute({
+            name: "review-summary",
+            category: PROMPT_TEMPLATE_CATEGORY.RULES,
+            type: PROMPT_TEMPLATE_TYPE.SYSTEM,
+            content: "a".repeat(20001),
+        })
+
+        expect(result.isFail).toBe(true)
+        expect(result.error.fields[0]?.field).toBe("content")
+    })
 })
 
 describe("UpdatePromptTemplateUseCase", () => {
