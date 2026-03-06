@@ -15,6 +15,8 @@ import { type TReviewStatus } from "./review-status-badge"
 export interface IReviewsContentProps {
     /** Исходный список CCR. */
     readonly rows: ReadonlyArray<IReviewRow>
+    /** Показывать ли встроенную панель фильтров списка. */
+    readonly showInlineFilters?: boolean
     /** Есть ли ещё страницы. */
     readonly hasMore: boolean
     /** Идёт ли фоновая подгрузка. */
@@ -36,6 +38,7 @@ function estimateCcrRowHeight(row: IReviewRow, density: "comfortable" | "compact
  * Секция управления CCR в стиле mission control.
  */
 export function ReviewsContent(props: IReviewsContentProps): ReactElement {
+    const showInlineFilters = props.showInlineFilters ?? true
     const [search, setSearch] = useState("")
     const [statusFilter, setStatusFilter] = useState<string>("all")
     const [assigneeFilter, setAssigneeFilter] = useState<string>("all")
@@ -58,6 +61,10 @@ export function ReviewsContent(props: IReviewsContentProps): ReactElement {
     }, [props.rows])
 
     const filteredRows = useMemo((): readonly IReviewRow[] => {
+        if (showInlineFilters === false) {
+            return props.rows
+        }
+
         return props.rows.filter((row): boolean => {
             const searchNormalized = debouncedSearch.trim().toLowerCase()
             const statusMatches = statusFilter === "all" || row.status === statusFilter
@@ -69,29 +76,32 @@ export function ReviewsContent(props: IReviewsContentProps): ReactElement {
                 row.repository.toLowerCase().includes(searchNormalized)
             return statusMatches && assigneeMatches && textMatches
         })
-    }, [assigneeFilter, debouncedSearch, props.rows, statusFilter])
+    }, [assigneeFilter, debouncedSearch, props.rows, showInlineFilters, statusFilter])
 
     const hasActiveFilter =
-        statusFilter !== "all" || assigneeFilter !== "all" || debouncedSearch.trim().length > 0
+        showInlineFilters === true &&
+        (statusFilter !== "all" || assigneeFilter !== "all" || debouncedSearch.trim().length > 0)
 
     return (
         <section className="space-y-4">
             <h2 className="text-xl font-semibold text-slate-900">CCR Management</h2>
-            <ReviewsFilters
-                assignee={assigneeFilter}
-                assigneeOptions={assigneeOptions}
-                search={search}
-                status={statusFilter}
-                statusOptions={statusOptions}
-                onAssigneeChange={setAssigneeFilter}
-                onReset={(): void => {
-                    setSearch("")
-                    setStatusFilter("all")
-                    setAssigneeFilter("all")
-                }}
-                onSearchChange={setSearch}
-                onStatusChange={setStatusFilter}
-            />
+            {showInlineFilters === true ? (
+                <ReviewsFilters
+                    assignee={assigneeFilter}
+                    assigneeOptions={assigneeOptions}
+                    search={search}
+                    status={statusFilter}
+                    statusOptions={statusOptions}
+                    onAssigneeChange={setAssigneeFilter}
+                    onReset={(): void => {
+                        setSearch("")
+                        setStatusFilter("all")
+                        setAssigneeFilter("all")
+                    }}
+                    onSearchChange={setSearch}
+                    onStatusChange={setStatusFilter}
+                />
+            ) : null}
             {hasActiveFilter ? (
                 <p className="text-sm text-slate-600">
                     Showing {filteredRows.length} from {props.rows.length} CCR entries.

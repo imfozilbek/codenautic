@@ -637,6 +637,7 @@ export function CcrManagementPage(props: ICcrManagementPageProps): ReactElement 
                 isLoadingMore={false}
                 onLoadMore={handleLoadMore}
                 rows={visibleRows}
+                showInlineFilters={false}
             />
         </section>
     )

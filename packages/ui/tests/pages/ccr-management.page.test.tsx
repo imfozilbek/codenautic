@@ -74,6 +74,7 @@ describe("ccr management page filter presets", (): void => {
         const searchInput = screen.getByPlaceholderText("Search title / id / repo / assignee")
         await user.type(searchInput, "security")
         await user.selectOptions(screen.getByRole("combobox", { name: "Filter by team" }), "frontend")
+        expect(screen.queryByPlaceholderText("Search by repository or title")).toBeNull()
 
         await user.type(screen.getByRole("textbox", { name: "Filter preset name" }), "Critical preset")
         await user.click(screen.getByRole("button", { name: "Save preset" }))
