@@ -5,6 +5,7 @@ import type {
     IGetEnabledRulesOutput,
 } from "../dto/rules/get-enabled-rules.dto"
 import type {ILibraryRuleRepository} from "../ports/outbound/rule/library-rule-repository.port"
+import type {IExpertPanelRepository} from "../ports/outbound/expert-panel-repository.port"
 import type {LibraryRule} from "../../domain/entities/library-rule.entity"
 import type {ValidationError} from "../../domain/errors/validation.error"
 import {RuleContextFormatterService} from "../../domain/services/rule-context-formatter.service"
@@ -46,6 +47,8 @@ export interface IPromptResolutionConfig {
     readonly promptName: string
     readonly organizationId?: string | null
     readonly runtimeVariables?: Record<string, unknown>
+    readonly expertPanelRepository?: IExpertPanelRepository
+    readonly expertPanelName?: string
     readonly defaultPrompt?: string
 }
 
@@ -98,10 +101,11 @@ export async function resolveSystemPrompt(
     input: IPromptResolutionConfig,
 ): Promise<Result<string, PromptResolutionError>> {
     try {
+        const runtimeVariables = await resolvePromptRuntimeVariables(input)
         const result = await input.generatePromptUseCase.execute({
             name: input.promptName,
             organizationId: input.organizationId ?? null,
-            runtimeVariables: input.runtimeVariables ?? {},
+            runtimeVariables,
         })
         if (result.isFail) {
             return resolveFallbackPrompt(
@@ -128,6 +132,40 @@ export async function resolveSystemPrompt(
             ),
         )
     }
+}
+
+async function resolvePromptRuntimeVariables(
+    input: IPromptResolutionConfig,
+): Promise<Record<string, unknown>> {
+    const runtimeVariables: Record<string, unknown> = {
+        ...(input.runtimeVariables ?? {}),
+    }
+
+    const expertPanel = await resolveExpertPanelValue(
+        input.expertPanelRepository,
+        input.expertPanelName,
+    )
+    if (expertPanel !== undefined && runtimeVariables["expertPanel"] === undefined) {
+        runtimeVariables["expertPanel"] = expertPanel
+    }
+
+    return runtimeVariables
+}
+
+async function resolveExpertPanelValue(
+    repository: IExpertPanelRepository | undefined,
+    name: string | undefined,
+): Promise<string | undefined> {
+    if (repository === undefined || name === undefined || name.trim().length === 0) {
+        return undefined
+    }
+
+    const panel = await repository.findByName(name)
+    if (panel === null) {
+        return undefined
+    }
+
+    return panel.formatForPrompt()
 }
 
 /**

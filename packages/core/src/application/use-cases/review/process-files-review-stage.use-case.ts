@@ -22,6 +22,7 @@ import type {IGeneratePromptInput} from "../generate-prompt.use-case"
 import type {IUseCase} from "../../ports/inbound/use-case.port"
 import type {ILLMProvider} from "../../ports/outbound/llm/llm-provider.port"
 import type {ILibraryRuleRepository} from "../../ports/outbound/rule/library-rule-repository.port"
+import type {IExpertPanelRepository} from "../../ports/outbound/expert-panel-repository.port"
 import type {
     IGetEnabledRulesInput,
     IGetEnabledRulesOutput,
@@ -63,6 +64,9 @@ import type {IReviewFileDefaults} from "../../dto/config/system-defaults.dto"
 import {RuleContextFormatterService} from "../../../domain/services/rule-context-formatter.service"
 
 const FILE_CONTENT_LIMIT = 5000
+const PROMPT_CONFIG = {
+    expertPanelName: "safeguard",
+} as const
 
 /**
  * One file analysis result payload.
@@ -110,6 +114,7 @@ export class ProcessFilesReviewStageUseCase implements IPipelineStageUseCase {
     private readonly generatePromptUseCase: IUseCase<IGeneratePromptInput, string, ValidationError>
     private readonly getEnabledRulesUseCase: IUseCase<IGetEnabledRulesInput, IGetEnabledRulesOutput, ValidationError>
     private readonly libraryRuleRepository: ILibraryRuleRepository
+    private readonly expertPanelRepository?: IExpertPanelRepository
     private readonly ruleContextFormatterService: RuleContextFormatterService
     private readonly model: string
     private readonly defaults: IReviewFileDefaults
@@ -126,6 +131,7 @@ export class ProcessFilesReviewStageUseCase implements IPipelineStageUseCase {
         this.generatePromptUseCase = dependencies.generatePromptUseCase
         this.getEnabledRulesUseCase = dependencies.getEnabledRulesUseCase
         this.libraryRuleRepository = dependencies.libraryRuleRepository
+        this.expertPanelRepository = dependencies.expertPanelRepository
         this.ruleContextFormatterService = dependencies.ruleContextFormatterService
         this.defaults = dependencies.defaults
         this.model = dependencies.defaults.model
@@ -1059,6 +1065,8 @@ export class ProcessFilesReviewStageUseCase implements IPipelineStageUseCase {
             promptName: this.defaults.systemPromptName,
             organizationId: organizationId ?? null,
             runtimeVariables,
+            expertPanelRepository: this.expertPanelRepository,
+            expertPanelName: PROMPT_CONFIG.expertPanelName,
         })
         if (promptResult.isFail) {
             const reason = promptResult.error.reason

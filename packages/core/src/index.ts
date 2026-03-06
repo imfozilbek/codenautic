@@ -9,6 +9,7 @@ export {type IRepository} from "./application/ports/outbound/common/repository.p
 export {type IProjectRepository} from "./application/ports/outbound/project-repository.port"
 export {type IProjectFilters} from "./application/ports/outbound/project-repository.port"
 export {type IOrganizationRepository} from "./application/ports/outbound/organization-repository.port"
+export {type IExpertPanelRepository} from "./application/ports/outbound/expert-panel-repository.port"
 export {type ICache} from "./application/ports/outbound/cache/cache.port"
 export {type IGitProvider} from "./application/ports/outbound/git/git-provider.port"
 export {type IFileMetricsProvider} from "./application/ports/outbound/analysis/file-metrics-provider"

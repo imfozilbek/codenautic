@@ -22,6 +22,7 @@ import type {IOrganizationRepository} from "../application/ports/outbound/organi
 import type {IProjectRepository} from "../application/ports/outbound/project-repository.port"
 import type {IPromptConfigurationRepository} from "../application/ports/outbound/prompt-configuration-repository.port"
 import type {IPromptTemplateRepository} from "../application/ports/outbound/prompt-template-repository.port"
+import type {IExpertPanelRepository} from "../application/ports/outbound/expert-panel-repository.port"
 import type {IExternalContextProvider} from "../application/ports/outbound/review/external-context-provider.port"
 import type {IIssueAggregationProvider} from "../application/ports/outbound/review/issue-aggregation-provider"
 import type {IPipelineCheckpointStore} from "../application/ports/outbound/review/pipeline-checkpoint-store.port"
@@ -102,6 +103,9 @@ export const TOKENS = {
     Prompt: {
         ConfigurationRepository: createToken<IPromptConfigurationRepository>(
             "core.prompt.configuration-repository",
+        ),
+        ExpertPanelRepository: createToken<IExpertPanelRepository>(
+            "core.prompt.expert-panel-repository",
         ),
         TemplateRepository: createToken<IPromptTemplateRepository>(
             "core.prompt.template-repository",

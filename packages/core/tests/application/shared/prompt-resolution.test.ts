@@ -10,9 +10,12 @@ import type {
     ILibraryRuleFilters,
     ILibraryRuleRepository,
 } from "../../../src/application/ports/outbound/rule/library-rule-repository.port"
+import type {IExpertPanelRepository} from "../../../src/application/ports/outbound/expert-panel-repository.port"
 import {LibraryRuleFactory} from "../../../src/domain/factories/library-rule.factory"
 import {LIBRARY_RULE_SCOPE} from "../../../src/domain/entities/library-rule.entity"
 import type {LibraryRule} from "../../../src/domain/entities/library-rule.entity"
+import {ExpertPanel} from "../../../src/domain/value-objects/prompt/expert-panel"
+import {Expert} from "../../../src/domain/value-objects/prompt/expert"
 import {OrganizationId} from "../../../src/domain/value-objects/organization-id.value-object"
 import {UniqueId} from "../../../src/domain/value-objects/unique-id.value-object"
 import {ValidationError} from "../../../src/domain/errors/validation.error"
@@ -54,6 +57,39 @@ describe("prompt resolution", () => {
 
         expect(result.isOk).toBe(true)
         expect(result.value).toBe("Hello Prompt")
+    })
+
+    test("resolveSystemPrompt injects expert panel into runtime variables", async () => {
+        let capturedVariables: Record<string, unknown> | undefined
+        const generatePromptUseCase: IUseCase<IGeneratePromptInput, string, ValidationError> = {
+            execute(input: IGeneratePromptInput): Promise<Result<string, ValidationError>> {
+                capturedVariables = input.runtimeVariables
+                return Promise.resolve(Result.ok<string, ValidationError>("Prompt"))
+            },
+        }
+        const panel = ExpertPanel.create([
+            Expert.create({
+                name: "Neo",
+                role: "Lead reviewer",
+                responsibilities: ["Reject unsafe suggestions"],
+                priority: 1,
+            }),
+        ])
+        const repository: IExpertPanelRepository = {
+            findByName(name: string): Promise<ExpertPanel | null> {
+                return Promise.resolve(name === "safeguard" ? panel : null)
+            },
+        }
+
+        const result = await resolveSystemPrompt({
+            ...DEFAULT_PROMPT_INPUT,
+            generatePromptUseCase,
+            expertPanelRepository: repository,
+            expertPanelName: "safeguard",
+        })
+
+        expect(result.isOk).toBe(true)
+        expect(capturedVariables?.expertPanel).toBe(panel.formatForPrompt())
     })
 
     test("resolveSystemPrompt reports missing prompt template", async () => {

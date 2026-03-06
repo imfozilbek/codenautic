@@ -303,7 +303,7 @@
 
 | ID | Задача | Статус | Результат | Acceptance Criteria |
 |----------|--------------------|--------|-----------|---------------------|
-| CORE-228 | Реализовать wire ExpertPanel в ProcessFiles/CcrLevel stages | TODO | Не начато | Реализация: IReviewStageDeps: optional expertPanelRepository. ProcessFilesReviewStage + ProcessCcrLevelReviewStage: expertPanelName "safeguard" в PROMPT_CONFIG, expertPanelRepository в promptDeps. Тесты проходят (optional dep, undefined = skip). 0 lint ошибок. Готово, если: для CORE-228 полностью выполнены пункты блока «Реализация», поведение подтверждено unit/integration тестами (happy-path, negative, edge-case), контракты DTO/ports совместимы, регрессии в смежных use case отсутствуют; DoD: `cd packages/core && bun run lint && bun run typecheck && bun test`. |
+| CORE-228 | Реализовать wire ExpertPanel в ProcessFiles/CcrLevel stages | DONE | 2026-03-06 | Реализация: IReviewStageDeps: optional expertPanelRepository. ProcessFilesReviewStage + ProcessCcrLevelReviewStage: expertPanelName "safeguard" в PROMPT_CONFIG, expertPanelRepository в promptDeps. Тесты проходят (optional dep, undefined = skip). 0 lint ошибок. Готово, если: для CORE-228 полностью выполнены пункты блока «Реализация», поведение подтверждено unit/integration тестами (happy-path, negative, edge-case), контракты DTO/ports совместимы, регрессии в смежных use case отсутствуют; DoD: `cd packages/core && bun run lint && bun run typecheck && bun test`. |
 
 ---
 

@@ -4,6 +4,7 @@ import type {ISuggestionDTO} from "../../dto/review/suggestion.dto"
 import type {IGeneratePromptInput} from "../generate-prompt.use-case"
 import type {IUseCase} from "../../ports/inbound/use-case.port"
 import type {ILLMProvider} from "../../ports/outbound/llm/llm-provider.port"
+import type {IExpertPanelRepository} from "../../ports/outbound/expert-panel-repository.port"
 import type {
     IPipelineStageUseCase,
     IStageCommand,
@@ -39,6 +40,10 @@ import {
 } from "./pipeline-stage-state.utils"
 import type {IReviewCcrDefaults} from "../../dto/config/system-defaults.dto"
 
+const PROMPT_CONFIG = {
+    expertPanelName: "safeguard",
+} as const
+
 /**
  * Stage 10 use case. Runs cross-file CCR-level analysis through LLM provider.
  */
@@ -50,6 +55,7 @@ export class ProcessCcrLevelReviewStageUseCase implements IPipelineStageUseCase 
     private readonly generatePromptUseCase: IUseCase<IGeneratePromptInput, string, ValidationError>
     private readonly getEnabledRulesUseCase: IUseCase<IGetEnabledRulesInput, IGetEnabledRulesOutput, ValidationError>
     private readonly libraryRuleRepository: ILibraryRuleRepository
+    private readonly expertPanelRepository?: IExpertPanelRepository
     private readonly ruleContextFormatterService: RuleContextFormatterService
     private readonly model: string
     private readonly defaults: IReviewCcrDefaults
@@ -66,6 +72,7 @@ export class ProcessCcrLevelReviewStageUseCase implements IPipelineStageUseCase 
         this.generatePromptUseCase = dependencies.generatePromptUseCase
         this.getEnabledRulesUseCase = dependencies.getEnabledRulesUseCase
         this.libraryRuleRepository = dependencies.libraryRuleRepository
+        this.expertPanelRepository = dependencies.expertPanelRepository
         this.ruleContextFormatterService = dependencies.ruleContextFormatterService
         this.defaults = dependencies.defaults
         this.model = dependencies.defaults.model
@@ -205,6 +212,8 @@ export class ProcessCcrLevelReviewStageUseCase implements IPipelineStageUseCase 
             promptName: this.defaults.promptName,
             organizationId: organizationId ?? null,
             runtimeVariables,
+            expertPanelRepository: this.expertPanelRepository,
+            expertPanelName: PROMPT_CONFIG.expertPanelName,
         })
         if (promptResult.isFail) {
             const reason = promptResult.error.reason

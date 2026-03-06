@@ -6,6 +6,7 @@ import type {
 } from "../dto/rules/get-enabled-rules.dto"
 import type {ILLMProvider} from "../ports/outbound/llm/llm-provider.port"
 import type {ILibraryRuleRepository} from "../ports/outbound/rule/library-rule-repository.port"
+import type {IExpertPanelRepository} from "../ports/outbound/expert-panel-repository.port"
 import type {ValidationError} from "../../domain/errors/validation.error"
 import {RuleContextFormatterService} from "../../domain/services/rule-context-formatter.service"
 
@@ -41,6 +42,11 @@ export interface IReviewStageDeps<TDefaults> {
      * Rule context formatter service.
      */
     readonly ruleContextFormatterService: RuleContextFormatterService
+
+    /**
+     * Optional expert panel repository.
+     */
+    readonly expertPanelRepository?: IExpertPanelRepository
 
     /**
      * Stage defaults.
