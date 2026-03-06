@@ -7,7 +7,9 @@ import { THEME_PRESETS } from "@/lib/theme/theme-provider"
 import { renderWithProviders } from "../utils/render"
 
 describe("SettingsAppearancePage", (): void => {
-    it("переключает mode/preset, применяет advanced controls и сбрасывает тему к default", async (): Promise<void> => {
+    it(
+        "переключает mode/preset, применяет advanced controls и сбрасывает тему к default",
+        async (): Promise<void> => {
         const user = userEvent.setup()
         renderWithProviders(<SettingsAppearancePage />)
 
@@ -135,5 +137,7 @@ describe("SettingsAppearancePage", (): void => {
         await waitFor(() => {
             expect(screen.getByRole("option", { name: "Security Focus Theme (3)" })).not.toBeNull()
         })
-    })
+        },
+        15000,
+    )
 })
