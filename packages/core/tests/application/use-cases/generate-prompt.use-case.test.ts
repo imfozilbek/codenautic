@@ -17,8 +17,13 @@ import {UniqueId} from "../../../src/domain/value-objects/unique-id.value-object
 
 class InMemoryPromptTemplateRepository implements IPromptTemplateRepository {
     public readonly byName = new Map<string, PromptTemplate>()
+    public readonly byId = new Map<string, PromptTemplate>()
     private static readonly GLOBAL_SCOPE = "global"
     private static readonly KEY_DELIMITER = "::"
+
+    public findById(id: UniqueId): Promise<PromptTemplate | null> {
+        return Promise.resolve(this.byId.get(id.value) ?? null)
+    }
 
     public findByName(name: string, organizationId?: OrganizationId): Promise<PromptTemplate | null> {
         const scoped = this.makeKey(
@@ -33,22 +38,47 @@ class InMemoryPromptTemplateRepository implements IPromptTemplateRepository {
     }
 
     public findByCategory(_category: PromptTemplateCategory): Promise<readonly PromptTemplate[]> {
-        return Promise.resolve([])
+        const templates = Array.from(this.byId.values()).filter((template) => template.category === _category)
+        return Promise.resolve(templates)
     }
 
     public findGlobal(): Promise<readonly PromptTemplate[]> {
-        return Promise.resolve([])
+        const templates = Array.from(this.byId.values()).filter((template) => template.isGlobal)
+        return Promise.resolve(templates)
     }
 
-    public async save(_template: PromptTemplate): Promise<void> {
+    public findAll(): Promise<readonly PromptTemplate[]> {
+        return Promise.resolve(Array.from(this.byId.values()))
+    }
+
+    public async save(template: PromptTemplate): Promise<void> {
+        this.store(template, template.name, template.organizationId)
         return Promise.resolve()
     }
 
     public add(name: string, template: PromptTemplate, organizationId?: OrganizationId): void {
+        this.store(template, name, organizationId)
+    }
+
+    public async deleteById(id: UniqueId): Promise<void> {
+        const existing = this.byId.get(id.value)
+        if (existing !== undefined) {
+            const scope = existing.isGlobal
+                ? InMemoryPromptTemplateRepository.GLOBAL_SCOPE
+                : existing.organizationId?.toString() ?? InMemoryPromptTemplateRepository.GLOBAL_SCOPE
+            this.byName.delete(this.makeKey(existing.name, scope))
+            this.byId.delete(id.value)
+        }
+
+        return Promise.resolve()
+    }
+
+    private store(template: PromptTemplate, name: string, organizationId?: OrganizationId): void {
         const scope = organizationId === undefined
             ? InMemoryPromptTemplateRepository.GLOBAL_SCOPE
             : organizationId.toString()
         this.byName.set(this.makeKey(name, scope), template)
+        this.byId.set(template.id.value, template)
     }
 
     private makeKey(name: string, organizationId: string): string {

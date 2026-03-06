@@ -123,6 +123,19 @@ export {
     parseSystemSettingConfigList,
     parseReviewOverridesConfig,
 } from "./application/dto/config"
+export {
+    type IPromptTemplateDTO,
+    type IPromptTemplateVariableDTO,
+    type ICreatePromptTemplateInput,
+    type ICreatePromptTemplateOutput,
+    type IUpdatePromptTemplateInput,
+    type IUpdatePromptTemplateOutput,
+    type IPromptTemplateIdInput,
+    type IGetPromptTemplateOutput,
+    type IDeletePromptTemplateOutput,
+    type IListPromptTemplatesInput,
+    type IListPromptTemplatesOutput,
+} from "./application/dto/prompt/prompt-template.dto"
 export {type IImportResult} from "./application/dto/common/import-result.dto"
 export {type IFileMetricsDTO} from "./application/dto/analytics"
 export {
@@ -445,6 +458,26 @@ export {
     ImportDefaultPromptTemplatesUseCase,
     type IImportDefaultPromptTemplatesUseCaseDependencies,
 } from "./application/use-cases/prompt/import-default-prompt-templates.use-case"
+export {
+    CreatePromptTemplateUseCase,
+    type ICreatePromptTemplateUseCaseDependencies,
+} from "./application/use-cases/prompt/create-prompt-template.use-case"
+export {
+    UpdatePromptTemplateUseCase,
+    type IUpdatePromptTemplateUseCaseDependencies,
+} from "./application/use-cases/prompt/update-prompt-template.use-case"
+export {
+    DeletePromptTemplateUseCase,
+    type IDeletePromptTemplateUseCaseDependencies,
+} from "./application/use-cases/prompt/delete-prompt-template.use-case"
+export {
+    GetPromptTemplateByIdUseCase,
+    type IGetPromptTemplateByIdUseCaseDependencies,
+} from "./application/use-cases/prompt/get-prompt-template-by-id.use-case"
+export {
+    ListPromptTemplatesUseCase,
+    type IListPromptTemplatesUseCaseDependencies,
+} from "./application/use-cases/prompt/list-prompt-templates.use-case"
 export {
     ImportDefaultSystemSettingsUseCase,
     type IImportDefaultSystemSettingsUseCaseDependencies,

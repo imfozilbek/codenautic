@@ -9,6 +9,7 @@ import {
 } from "../../../../src/domain/entities/prompt-template.entity"
 import {PromptTemplateFactory} from "../../../../src/domain/factories/prompt-template.factory"
 import {OrganizationId} from "../../../../src/domain/value-objects/organization-id.value-object"
+import {UniqueId} from "../../../../src/domain/value-objects/unique-id.value-object"
 import type {IPromptTemplateRepository} from "../../../../src/application/ports/outbound/prompt-template-repository.port"
 import {ImportDefaultPromptTemplatesUseCase} from "../../../../src/application/use-cases/prompt/import-default-prompt-templates.use-case"
 import type {IConfigPromptTemplateItem} from "../../../../src/application/dto/config/prompt-template-config.dto"
@@ -19,6 +20,11 @@ class InMemoryPromptTemplateRepository implements IPromptTemplateRepository {
 
     public constructor() {
         this.storage = []
+    }
+
+    public findById(id: UniqueId): Promise<PromptTemplate | null> {
+        const found = this.storage.find((template) => template.id.value === id.value)
+        return Promise.resolve(found ?? null)
     }
 
     public findByName(name: string, organizationId?: OrganizationId): Promise<PromptTemplate | null> {
@@ -58,6 +64,10 @@ class InMemoryPromptTemplateRepository implements IPromptTemplateRepository {
         return Promise.resolve(templates)
     }
 
+    public findAll(): Promise<readonly PromptTemplate[]> {
+        return Promise.resolve(this.storage)
+    }
+
     public save(template: PromptTemplate): Promise<void> {
         const organizationId = template.organizationId?.value ?? null
         const existingIndex = this.storage.findIndex((candidate) => {
@@ -70,6 +80,15 @@ class InMemoryPromptTemplateRepository implements IPromptTemplateRepository {
         }
 
         this.storage.push(template)
+        return Promise.resolve()
+    }
+
+    public async deleteById(id: UniqueId): Promise<void> {
+        const index = this.storage.findIndex((template) => template.id.value === id.value)
+        if (index >= 0) {
+            this.storage.splice(index, 1)
+        }
+
         return Promise.resolve()
     }
 }
