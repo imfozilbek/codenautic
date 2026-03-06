@@ -17,6 +17,11 @@ export {
     parseRuleConfigList,
 } from "./rule-config-data.dto"
 export {
+    type IConfigSystemSettingItem,
+    type ISystemSettingConfigData,
+    parseSystemSettingConfigList,
+} from "./system-setting-config.dto"
+export {
     REVIEW_OVERRIDE_PROMPT_NAMES,
     type IReviewOverrideCategoryConfig,
     type IReviewOverrideCategoryDescriptions,
