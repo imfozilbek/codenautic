@@ -9,6 +9,7 @@ import {ValidationError, type IValidationErrorField} from "../../../domain/error
 import {type ILibraryRuleFilters} from "../../ports/outbound/rule/library-rule-repository.port"
 import type {ILibraryRuleRepository} from "../../ports/outbound/rule/library-rule-repository.port"
 import type {IListRulesInput, IListRulesOutput} from "../../dto/rules/list-rules.dto"
+import {mapLibraryRuleToDTO} from "../../dto/rules/library-rule.dto"
 import {Result} from "../../../shared/result"
 import type {IListRulesDefaults} from "../../dto/config/system-defaults.dto"
 
@@ -68,7 +69,7 @@ export class ListRulesUseCase implements
         const total = await this.ruleRepository.count(filters)
 
         return Result.ok<IListRulesOutput, ValidationError>({
-            rules,
+            rules: rules.map((rule) => mapLibraryRuleToDTO(rule)),
             total,
         })
     }

@@ -1,4 +1,4 @@
-import type {LibraryRule} from "../../../domain/entities/library-rule.entity"
+import type {ILibraryRuleDTO} from "./library-rule.dto"
 
 /**
  * Input payload for listing rules library.
@@ -28,7 +28,7 @@ export interface IListRulesInput {
  */
 export interface IListRulesOutput {
     /** Returned rules after filtering. */
-    readonly rules: readonly LibraryRule[]
+    readonly rules: readonly ILibraryRuleDTO[]
 
     /** Total matching rules count. */
     readonly total: number

@@ -208,6 +208,17 @@ export {
     type IGetEnabledRulesOutput,
 } from "./application/dto/rules/get-enabled-rules.dto"
 export {
+    type ILibraryRuleDTO,
+    type ILibraryRuleExampleDTO,
+    type ICreateLibraryRuleInput,
+    type ICreateLibraryRuleOutput,
+    type IUpdateLibraryRuleInput,
+    type IUpdateLibraryRuleOutput,
+    type ILibraryRuleIdInput,
+    type IGetLibraryRuleOutput,
+    type IDeleteLibraryRuleOutput,
+} from "./application/dto/rules/library-rule.dto"
+export {
     type IRuleCategoryDTO,
     type ICreateRuleCategoryInput,
     type ICreateRuleCategoryOutput,
@@ -457,6 +468,22 @@ export {
 export {
     ListRulesUseCase,
 } from "./application/use-cases/rules/list-rules.use-case"
+export {
+    CreateRuleUseCase,
+    type ICreateRuleUseCaseDependencies,
+} from "./application/use-cases/rules/create-rule.use-case"
+export {
+    UpdateRuleUseCase,
+    type IUpdateRuleUseCaseDependencies,
+} from "./application/use-cases/rules/update-rule.use-case"
+export {
+    DeleteRuleUseCase,
+    type IDeleteRuleUseCaseDependencies,
+} from "./application/use-cases/rules/delete-rule.use-case"
+export {
+    GetRuleByIdUseCase,
+    type IGetRuleByIdUseCaseDependencies,
+} from "./application/use-cases/rules/get-rule-by-id.use-case"
 export {
     ImportDefaultRuleCategoriesUseCase,
     type IImportDefaultRuleCategoriesUseCaseDependencies,
