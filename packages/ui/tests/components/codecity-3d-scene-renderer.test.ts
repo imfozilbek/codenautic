@@ -261,6 +261,14 @@ describe("CodeCity3DSceneRenderer building generation", (): void => {
             quality: "medium",
             useInstancing: true,
         })
+        expect(resolveCodeCityRenderBudget(320, 46)).toMatchObject({
+            quality: "medium",
+            useInstancing: true,
+        })
+        expect(resolveCodeCityRenderBudget(320, 35)).toMatchObject({
+            quality: "low",
+            useInstancing: true,
+        })
     })
 
     it("безопасно деградирует к sync layout при ошибке инициализации worker", (): void => {

@@ -103,6 +103,8 @@ const MEDIUM_QUALITY_MAX_BUILDINGS = 480
 const LOW_QUALITY_MAX_BUILDINGS = 900
 const PERFORMANCE_SAMPLE_WINDOW_SECONDS = 1
 const TARGET_FPS = 60
+const WARNING_FPS = TARGET_FPS - 10
+const CRITICAL_FPS = TARGET_FPS - 22
 const CAUSAL_ARC_BASE_LIFT = 1.8
 const CAUSAL_ARC_SEGMENTS = 20
 const MAX_CAUSAL_ARCS_HIGH_QUALITY = 42
@@ -348,8 +350,12 @@ export function resolveCodeCityRenderBudget(
         quality = "medium"
     }
 
-    if (sampledFps !== undefined && sampledFps < TARGET_FPS - 10) {
-        quality = quality === "high" ? "medium" : "low"
+    if (sampledFps !== undefined) {
+        if (sampledFps < CRITICAL_FPS) {
+            quality = "low"
+        } else if (sampledFps < WARNING_FPS && quality === "high") {
+            quality = "medium"
+        }
     }
 
     if (quality === "high") {
