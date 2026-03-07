@@ -14,6 +14,12 @@ export {
     type IssueCategory,
 } from "./entities/review-issue.entity"
 export {
+    REVIEW_ISSUE_TICKET_STATUS,
+    ReviewIssueTicket,
+    type IReviewIssueTicketProps,
+    type ReviewIssueTicketStatus,
+} from "./entities/review-issue-ticket.entity"
+export {
     type IUserProps,
     User,
 } from "./entities/user.entity"

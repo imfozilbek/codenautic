@@ -688,6 +688,12 @@ export {
     type IssueCategory,
 } from "./domain/entities/review-issue.entity"
 export {
+    REVIEW_ISSUE_TICKET_STATUS,
+    ReviewIssueTicket,
+    type IReviewIssueTicketProps,
+    type ReviewIssueTicketStatus,
+} from "./domain/entities/review-issue-ticket.entity"
+export {
     type IUserProps,
     User,
 } from "./domain/entities/user.entity"
