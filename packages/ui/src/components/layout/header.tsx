@@ -294,6 +294,7 @@ export function Header(props: IHeaderProps): ReactElement {
     })
     const searchInputRef = useRef<HTMLInputElement | null>(null)
     const commandPaletteInputRef = useRef<HTMLInputElement | null>(null)
+    const commandPaletteInvokerRef = useRef<HTMLElement | null>(null)
     const hasNotifications = props.notificationCount !== undefined && props.notificationCount > 0
     const activeOrganization = props.organizations?.find((organization): boolean => {
         return organization.id === props.activeOrganizationId
@@ -360,9 +361,19 @@ export function Header(props: IHeaderProps): ReactElement {
         setIsCommandPaletteOpen(false)
         setCommandPaletteQuery("")
         setActiveCommandIndex(0)
+
+        if (typeof window !== "undefined") {
+            window.requestAnimationFrame((): void => {
+                commandPaletteInvokerRef.current?.focus()
+            })
+        }
     }
 
     const openCommandPalette = (): void => {
+        if (typeof document !== "undefined" && document.activeElement instanceof HTMLElement) {
+            commandPaletteInvokerRef.current = document.activeElement
+        }
+
         setIsCommandPaletteOpen(true)
     }
 

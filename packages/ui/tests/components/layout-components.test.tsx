@@ -182,6 +182,34 @@ describe("layout components", (): void => {
         expect(onSearchRouteNavigate).toHaveBeenCalledWith("/help-diagnostics")
     })
 
+    it("возвращает фокус на инициатор после закрытия command palette по Escape", async (): Promise<void> => {
+        const user = userEvent.setup()
+
+        renderWithProviders(
+            <Header
+                searchRoutes={[
+                    {
+                        label: "Dashboard",
+                        path: "/",
+                    },
+                ]}
+            />,
+        )
+
+        const trigger = screen.getByRole("button", { name: "Open navigation menu" })
+        trigger.focus()
+
+        await user.keyboard("{Control>}k{/Control}")
+        expect(screen.getByRole("dialog", { name: "Global command palette" })).not.toBeNull()
+
+        await user.keyboard("{Escape}")
+
+        await waitFor((): void => {
+            expect(screen.queryByRole("dialog", { name: "Global command palette" })).toBeNull()
+            expect(document.activeElement).toBe(trigger)
+        })
+    })
+
     it("открывает shortcuts overlay по ? и позволяет фильтровать список", async (): Promise<void> => {
         const user = userEvent.setup()
         currentRoute = "/reviews"
