@@ -150,13 +150,14 @@
 
 ```mermaid
 flowchart LR
-    A["Пользователь открывает защищенный URL"] --> B["AuthBoundary проверяет сессию"]
-    B --> C{"Сессия валидна"}
-    C -- "Нет" --> D["Redirect на Login c next"]
-    D --> E["OAuth или OIDC login"]
-    E --> F["Session refresh и snapshot"]
-    F --> G["Возврат в исходный URL"]
-    C -- "Да" --> G
+    A["Пользователь открывает защищенный URL"] --> B["AuthBoundary проверяет сессию"];
+    B --> C{"Сессия валидна"};
+    C -- "Нет" --> D["Redirect на Login c next"];
+    D --> E["OAuth или OIDC login"];
+    E --> F["Session refresh и snapshot"];
+    F --> G["Возврат в исходный URL"];
+    C -- "Да" --> G;
+
 ```
 
 ```text
@@ -181,13 +182,14 @@ flowchart LR
 
 ```mermaid
 flowchart LR
-    A["Onboarding Empty State"] --> B["Onboarding Wizard"]
-    B --> C["Запуск Scan"]
-    C --> D["Scan Progress Page"]
-    D --> E{"Scan успешен"}
-    E -- "Нет" --> F["Scan Error Recovery"]
-    F --> C
-    E -- "Да" --> G["Repository Overview"]
+    A["Onboarding Empty State"] --> B["Onboarding Wizard"];
+    B --> C["Запуск Scan"];
+    C --> D["Scan Progress Page"];
+    D --> E{"Scan успешен"};
+    E -- "Нет" --> F["Scan Error Recovery"];
+    F --> C;
+    E -- "Да" --> G["Repository Overview"];
+
 ```
 
 ```text
@@ -211,12 +213,13 @@ flowchart LR
 
 ```mermaid
 flowchart LR
-    A["Открыть Dashboard"] --> B["Просмотр KPI cards"]
-    B --> C["Проверка trend/health widgets"]
-    C --> D["Просмотр activity timeline"]
-    D --> E{"Есть аномалия"}
-    E -- "Да" --> F["Переход в CCR/Issues/CodeCity"]
-    E -- "Нет" --> G["Завершить ежедневный чек"]
+    A["Открыть Dashboard"] --> B["Просмотр KPI cards"];
+    B --> C["Проверка trend/health widgets"];
+    C --> D["Просмотр activity timeline"];
+    D --> E{"Есть аномалия"};
+    E -- "Да" --> F["Переход в CCR/Issues/CodeCity"];
+    E -- "Нет" --> G["Завершить ежедневный чек"];
+
 ```
 
 ```text
@@ -237,41 +240,42 @@ flowchart LR
 ```mermaid
 flowchart TB
     subgraph DASH["Dashboard Mission Control"]
-        S["Scope bar: Org/Repo/Team + Date Range"]
-        K["KPI strip: cycle time, deploy freq, bug ratio, cost"]
-        W["Work Queue: CCRs, Issues, Inbox"]
-        SIG["Signals: Drift, Predictions, Architecture Health"]
-        EXP["Explore: CodeCity, Graph, Causal, Impact, Refactor, Knowledge, Reports"]
-        OPS["Ops: Jobs, Provider Health, Degraded Mode"]
-        U["Usage & Plan: token usage, entitlement state"]
-        QA["Quick Actions: scan, review, report, dry-run"]
+        S["Scope bar: Org/Repo/Team + Date Range"];
+        K["KPI strip: cycle time, deploy freq, bug ratio, cost"];
+        W["Work Queue: CCRs, Issues, Inbox"];
+        SIG["Signals: Drift, Predictions, Architecture Health"];
+        EXP["Explore: CodeCity, Graph, Causal, Impact, Refactor, Knowledge, Reports"];
+        OPS["Ops: Jobs, Provider Health, Degraded Mode"];
+        U["Usage & Plan: token usage, entitlement state"];
+        QA["Quick Actions: scan, review, report, dry-run"];
     end
 
-    W -->|"Open CCR list"| CCR["CCR Management"]
-    W -->|"Open Review"| RV["Review Diff Workspace"]
-    W -->|"Open Issues"| ISS["Issues Tracking"]
-    W -->|"Open Inbox"| N["Notification Center"]
+    W -->|"Open CCR list"| CCR["CCR Management"];
+    W -->|"Open Review"| RV["Review Diff Workspace"];
+    W -->|"Open Issues"| ISS["Issues Tracking"];
+    W -->|"Open Inbox"| N["Notification Center"];
 
-    SIG -->|"Open CodeCity"| CITY["CodeCity 2D/3D"]
-    SIG -->|"Open Drift"| DR["Drift Detection Workspace"]
-    SIG -->|"Open Predictions"| PR["Prediction Workspace"]
+    SIG -->|"Open CodeCity"| CITY["CodeCity 2D/3D"];
+    SIG -->|"Open Drift"| DR["Drift Detection Workspace"];
+    SIG -->|"Open Predictions"| PR["Prediction Workspace"];
 
-    EXP -->|"Open Graph"| GR["Graph Explorer"]
-    EXP -->|"Open Causal"| CAUS["Causal Analysis Workspace"]
-    EXP -->|"Open Impact"| IMP["Impact Planning Workspace"]
-    EXP -->|"Open Refactor"| RF["Refactoring Planner"]
-    EXP -->|"Open Knowledge"| KNOW["Knowledge Map Workspace"]
-    EXP -->|"Open Reports"| REP["Reporting Workspace"]
+    EXP -->|"Open Graph"| GR["Graph Explorer"];
+    EXP -->|"Open Causal"| CAUS["Causal Analysis Workspace"];
+    EXP -->|"Open Impact"| IMP["Impact Planning Workspace"];
+    EXP -->|"Open Refactor"| RF["Refactoring Planner"];
+    EXP -->|"Open Knowledge"| KNOW["Knowledge Map Workspace"];
+    EXP -->|"Open Reports"| REP["Reporting Workspace"];
 
-    OPS -->|"Open Jobs"| JOB["Job Operations Center"]
-    OPS -->|"Provider outage details"| OUT["Provider Degradation Console"]
-    OPS -->|"Open Provider Settings"| SET["Settings: Providers"]
+    OPS -->|"Open Jobs"| JOB["Job Operations Center"];
+    OPS -->|"Provider outage details"| OUT["Provider Degradation Console"];
+    OPS -->|"Open Provider Settings"| SET["Settings: Providers"];
 
-    U -->|"Open Usage"| USG["Token Usage"]
-    U -->|"Open Billing"| BILL["Billing Lifecycle Console"]
+    U -->|"Open Usage"| USG["Token Usage"];
+    U -->|"Open Billing"| BILL["Billing Lifecycle Console"];
 
-    QA -->|"Run Dry Run"| DRY["Dry Run Results"]
-    QA -->|"Generate report"| REP["Reporting Workspace"]
+    QA -->|"Run Dry Run"| DRY["Dry Run Results"];
+    QA -->|"Generate report"| REP["Reporting Workspace"];
+
 ```
 
 ```text
@@ -300,12 +304,13 @@ flowchart TB
 
 ```mermaid
 flowchart LR
-    A["CCR Management List"] --> B["Выбор CCR"]
-    B --> C["Review Diff Workspace"]
-    C --> D["Inline comments и thread"]
-    D --> E["SSE streaming suggestions"]
-    E --> F["Принять или отклонить"]
-    F --> G["Сохранить review result"]
+    A["CCR Management List"] --> B["Выбор CCR"];
+    B --> C["Review Diff Workspace"];
+    C --> D["Inline comments и thread"];
+    D --> E["SSE streaming suggestions"];
+    E --> F["Принять или отклонить"];
+    F --> G["Сохранить review result"];
+
 ```
 
 ```text
@@ -329,11 +334,12 @@ flowchart LR
 
 ```mermaid
 flowchart LR
-    A["Открыть Chat Panel"] --> B["Выбрать thread или создать новый"]
-    B --> C["Проверить context indicator"]
-    C --> D["Отправить вопрос по коду"]
-    D --> E["Streaming answer"]
-    E --> F["Перейти по code references"]
+    A["Открыть Chat Panel"] --> B["Выбрать thread или создать новый"];
+    B --> C["Проверить context indicator"];
+    C --> D["Отправить вопрос по коду"];
+    D --> E["Streaming answer"];
+    E --> F["Перейти по code references"];
+
 ```
 
 ```text
@@ -353,11 +359,12 @@ flowchart LR
 
 ```mermaid
 flowchart LR
-    A["Открыть Theme Switcher"] --> B["Выбрать mode light/dark/system"]
-    B --> C["Выбрать preset"]
-    C --> D["Тонкая настройка Accent/Base/Radius"]
-    D --> E["Сохранить в Theme Library"]
-    E --> F["Синхронизировать в профиль"]
+    A["Открыть Theme Switcher"] --> B["Выбрать mode light/dark/system"];
+    B --> C["Выбрать preset"];
+    C --> D["Тонкая настройка Accent/Base/Radius"];
+    D --> E["Сохранить в Theme Library"];
+    E --> F["Синхронизировать в профиль"];
+
 ```
 
 ```text
@@ -377,11 +384,12 @@ flowchart LR
 
 ```mermaid
 flowchart LR
-    A["Settings Home"] --> B["Git/LLM Providers"]
-    B --> C["BYOK/SAML/OIDC"]
-    C --> D["Webhooks/Integrations"]
-    D --> E["Org/Team config"]
-    E --> F["Audit logs review"]
+    A["Settings Home"] --> B["Git/LLM Providers"];
+    B --> C["BYOK/SAML/OIDC"];
+    C --> D["Webhooks/Integrations"];
+    D --> E["Org/Team config"];
+    E --> F["Audit logs review"];
+
 ```
 
 ```text
@@ -400,13 +408,14 @@ flowchart LR
 
 ```mermaid
 flowchart LR
-    A["Rules Library"] --> B["Открыть rule editor"]
-    B --> C["Изменить или создать правило"]
-    C --> D["Запустить Dry Run"]
-    D --> E["Оценить результаты"]
-    E --> F{"Подходит"}
-    F -- "Да" --> G["Сохранить и применить"]
-    F -- "Нет" --> B
+    A["Rules Library"] --> B["Открыть rule editor"];
+    B --> C["Изменить или создать правило"];
+    C --> D["Запустить Dry Run"];
+    D --> E["Оценить результаты"];
+    E --> F{"Подходит"};
+    F -- "Да" --> G["Сохранить и применить"];
+    F -- "Нет" --> B;
+
 ```
 
 ```text
@@ -430,11 +439,12 @@ flowchart LR
 
 ```mermaid
 flowchart LR
-    A["CodeCity 2D"] --> B["Выбор файла/модуля"]
-    B --> C["Tooltip с метриками"]
-    C --> D["Открыть dependency graph"]
-    D --> E["Node details + highlight paths"]
-    E --> F["Export graph"]
+    A["CodeCity 2D"] --> B["Выбор файла/модуля"];
+    B --> C["Tooltip с метриками"];
+    C --> D["Открыть dependency graph"];
+    D --> E["Node details + highlight paths"];
+    E --> F["Export graph"];
+
 ```
 
 ```text
@@ -453,11 +463,12 @@ flowchart LR
 
 ```mermaid
 flowchart LR
-    A["Открыть 3D City"] --> B["Запустить Guided Tour"]
-    B --> C["Step spotlight и описание"]
-    C --> D["Перейти по explore path"]
-    D --> E["Отметить прогресс"]
-    E --> F["Завершить tour или customize"]
+    A["Открыть 3D City"] --> B["Запустить Guided Tour"];
+    B --> C["Step spotlight и описание"];
+    C --> D["Перейти по explore path"];
+    D --> E["Отметить прогресс"];
+    E --> F["Завершить tour или customize"];
+
 ```
 
 ```text
@@ -476,11 +487,12 @@ flowchart LR
 
 ```mermaid
 flowchart LR
-    A["Выбрать causal overlay"] --> B["Просмотреть heat/coupling"]
-    B --> C["Открыть scatter или trend chart"]
-    C --> D["Клик на issue"]
-    D --> E["Root cause chain viewer"]
-    E --> F["Передать в refactoring/impact план"]
+    A["Выбрать causal overlay"] --> B["Просмотреть heat/coupling"];
+    B --> C["Открыть scatter или trend chart"];
+    C --> D["Клик на issue"];
+    D --> E["Root cause chain viewer"];
+    E --> F["Передать в refactoring/impact план"];
+
 ```
 
 ```text
@@ -499,11 +511,12 @@ flowchart LR
 
 ```mermaid
 flowchart LR
-    A["Refactoring Dashboard"] --> B["Выбрать target modules"]
-    B --> C["ROI calculator"]
-    C --> D["Собрать план и зависимости"]
-    D --> E["Simulation before/after"]
-    E --> F["Export в Jira/GitHub issues"]
+    A["Refactoring Dashboard"] --> B["Выбрать target modules"];
+    B --> C["ROI calculator"];
+    C --> D["Собрать план и зависимости"];
+    D --> E["Simulation before/after"];
+    E --> F["Export в Jira/GitHub issues"];
+
 ```
 
 ```text
@@ -523,11 +536,12 @@ flowchart LR
 
 ```mermaid
 flowchart LR
-    A["Выбрать файлы для изменения"] --> B["What-if panel"]
-    B --> C["Расчет blast radius"]
-    C --> D["Impact graph view"]
-    D --> E["Risk gauge"]
-    E --> F["Решение: менять scope или идти в реализацию"]
+    A["Выбрать файлы для изменения"] --> B["What-if panel"];
+    B --> C["Расчет blast radius"];
+    C --> D["Impact graph view"];
+    D --> E["Risk gauge"];
+    E --> F["Решение: менять scope или идти в реализацию"];
+
 ```
 
 ```text
@@ -546,10 +560,11 @@ flowchart LR
 
 ```mermaid
 flowchart LR
-    A["Ownership overlay"] --> B["Bus factor overlay"]
-    B --> C["Открыть knowledge silo panel"]
-    C --> D["Перейти в contributor graph"]
-    D --> E["Построить mitigation actions"]
+    A["Ownership overlay"] --> B["Bus factor overlay"];
+    B --> C["Открыть knowledge silo panel"];
+    C --> D["Перейти в contributor graph"];
+    D --> E["Построить mitigation actions"];
+
 ```
 
 ```text
@@ -568,11 +583,12 @@ flowchart LR
 
 ```mermaid
 flowchart LR
-    A["Blueprint editor/update"] --> B["Drift report run"]
-    B --> C["Drift overlays и trend"]
-    C --> D["Сконфигурировать alerts/guardrails"]
-    D --> E["Сгенерировать report"]
-    E --> F["Просмотр, сохранение, schedule"]
+    A["Blueprint editor/update"] --> B["Drift report run"];
+    B --> C["Drift overlays и trend"];
+    C --> D["Сконфигурировать alerts/guardrails"];
+    D --> E["Сгенерировать report"];
+    E --> F["Просмотр, сохранение, schedule"];
+
 ```
 
 ```text
@@ -591,11 +607,12 @@ flowchart LR
 
 ```mermaid
 flowchart LR
-    A["Событие review/drift/prediction"] --> B["Notification Center inbox"]
-    B --> C["Фильтр по приоритету и типу"]
-    C --> D["Mark read или pin"]
-    D --> E["Deep-link в целевой экран"]
-    E --> F["Действие пользователя в контексте"]
+    A["Событие review/drift/prediction"] --> B["Notification Center inbox"];
+    B --> C["Фильтр по приоритету и типу"];
+    C --> D["Mark read или pin"];
+    D --> E["Deep-link в целевой экран"];
+    E --> F["Действие пользователя в контексте"];
+
 ```
 
 ```text
@@ -615,11 +632,12 @@ flowchart LR
 
 ```mermaid
 flowchart LR
-    A["Открыть замечание в review"] --> B["Открыть SafeGuard panel"]
-    B --> C["Показать applied filters"]
-    C --> D["Показать filtered-out candidates"]
-    D --> E["Понять why shown or hidden"]
-    E --> F["Принять решение по замечанию"]
+    A["Открыть замечание в review"] --> B["Открыть SafeGuard panel"];
+    B --> C["Показать applied filters"];
+    C --> D["Показать filtered-out candidates"];
+    D --> E["Понять why shown or hidden"];
+    E --> F["Принять решение по замечанию"];
+
 ```
 
 ```text
@@ -639,12 +657,13 @@ flowchart LR
 
 ```mermaid
 flowchart LR
-    A["Ревьюер видит AI-замечание"] --> B{"Решение"}
-    B -- "Accept" --> C["Отметить полезным"]
-    B -- "Reject" --> D["Указать причину"]
-    C --> E["Feedback stored"]
-    D --> E
-    E --> F["Показать learning status в UI"]
+    A["Ревьюер видит AI-замечание"] --> B{"Решение"};
+    B -- "Accept" --> C["Отметить полезным"];
+    B -- "Reject" --> D["Указать причину"];
+    C --> E["Feedback stored"];
+    D --> E;
+    E --> F["Показать learning status в UI"];
+
 ```
 
 ```text
@@ -664,11 +683,12 @@ flowchart LR
 
 ```mermaid
 flowchart LR
-    A["Current Org A"] --> B["Open Organization Switcher"]
-    B --> C["Select Org B"]
-    C --> D["Invalidate tenant cache and filters"]
-    D --> E["Load Org B data"]
-    E --> F["Render tenant-scoped pages"]
+    A["Current Org A"] --> B["Open Organization Switcher"];
+    B --> C["Select Org B"];
+    C --> D["Invalidate tenant cache and filters"];
+    D --> E["Load Org B data"];
+    E --> F["Render tenant-scoped pages"];
+
 ```
 
 ```text
@@ -688,12 +708,13 @@ flowchart LR
 
 ```mermaid
 flowchart LR
-    A["User opens menu"] --> B["Build IA by role and tenant"]
-    B --> C["Hide or disable restricted entries"]
-    C --> D["Route guard check on navigation"]
-    D --> E{"Has access"}
-    E -- "No" --> F["Show access reason and fallback"]
-    E -- "Yes" --> G["Open target page"]
+    A["User opens menu"] --> B["Build IA by role and tenant"];
+    B --> C["Hide or disable restricted entries"];
+    C --> D["Route guard check on navigation"];
+    D --> E{"Has access"};
+    E -- "No" --> F["Show access reason and fallback"];
+    E -- "Yes" --> G["Open target page"];
+
 ```
 
 ```text
@@ -713,14 +734,15 @@ flowchart LR
 
 ```mermaid
 flowchart LR
-    A["Trial started"] --> B["Track usage and expiry"]
-    B --> C{"Payment status"}
-    C -- "Active" --> D["Full features"]
-    C -- Past-due --> E["Soft lock + payment CTA"]
-    C -- "Canceled" --> F["Downgrade and feature lock"]
-    D --> G["Billing history"]
-    E --> G
-    F --> G
+    A["Trial started"] --> B["Track usage and expiry"];
+    B --> C{"Payment status"};
+    C -- "Active" --> D["Full features"];
+    C -- Past-due --> E["Soft lock + payment CTA"];
+    C -- "Canceled" --> F["Downgrade and feature lock"];
+    D --> G["Billing history"];
+    E --> G;
+    F --> G;
+
 ```
 
 ```text
@@ -740,16 +762,17 @@ flowchart LR
 
 ```mermaid
 flowchart LR
-    A["Open Job Operations Center"] --> B["Filter by type and status"]
-    B --> C["Inspect failed or stuck job"]
-    C --> D["Open error details and attempts"]
-    D --> E{"Operator action"}
-    E -- "Retry" --> F["Requeue job"]
-    E -- "Cancel" --> G["Mark canceled"]
-    E -- "Escalate" --> H["Create incident link"]
-    F --> I["Track new run state"]
-    G --> I
-    H --> I
+    A["Open Job Operations Center"] --> B["Filter by type and status"];
+    B --> C["Inspect failed or stuck job"];
+    C --> D["Open error details and attempts"];
+    D --> E{"Operator action"};
+    E -- "Retry" --> F["Requeue job"];
+    E -- "Cancel" --> G["Mark canceled"];
+    E -- "Escalate" --> H["Create incident link"];
+    F --> I["Track new run state"];
+    G --> I;
+    H --> I;
+
 ```
 
 ```text
@@ -769,13 +792,14 @@ flowchart LR
 
 ```mermaid
 flowchart LR
-    A["Пользователь редактирует форму или review comment"] --> B["Сессия истекает"]
-    B --> C["Save action returns 401"]
-    C --> D["Autosave draft в local/session storage"]
-    D --> E["Показ forced re-auth modal"]
-    E --> F["Успешный login/refresh"]
-    F --> G["Restore draft and pending intent"]
-    G --> H["Повторная отправка действия"]
+    A["Пользователь редактирует форму или review comment"] --> B["Сессия истекает"];
+    B --> C["Save action returns 401"];
+    C --> D["Autosave draft в local/session storage"];
+    D --> E["Показ forced re-auth modal"];
+    E --> F["Успешный login/refresh"];
+    F --> G["Restore draft and pending intent"];
+    G --> H["Повторная отправка действия"];
+
 ```
 
 ```text
@@ -794,13 +818,14 @@ flowchart LR
 
 ```mermaid
 flowchart LR
-    A["Admin A opens config v12"] --> B["Admin B opens config v12"]
-    B --> C["Admin A saves v13"]
-    C --> D["Admin B tries save v12"]
-    D --> E["Conflict detected by version mismatch"]
-    E --> F["Show diff and merge options"]
-    F --> G["Merge or reload latest"]
-    G --> H["Audit conflict resolution"]
+    A["Admin A opens config v12"] --> B["Admin B opens config v12"];
+    B --> C["Admin A saves v13"];
+    C --> D["Admin B tries save v12"];
+    D --> E["Conflict detected by version mismatch"];
+    E --> F["Show diff and merge options"];
+    F --> G["Merge or reload latest"];
+    G --> H["Audit conflict resolution"];
+
 ```
 
 ```text
@@ -819,12 +844,13 @@ flowchart LR
 
 ```mermaid
 flowchart LR
-    A["Пользователь работает на странице"] --> B["Role or entitlement changed on backend"]
-    B --> C["UI получает policy version update"]
-    C --> D["Invalidate permissions cache"]
-    D --> E["Re-evaluate доступные actions/routes"]
-    E --> F["Disable restricted actions with reason"]
-    F --> G["Offer safe refresh or fallback route"]
+    A["Пользователь работает на странице"] --> B["Role or entitlement changed on backend"];
+    B --> C["UI получает policy version update"];
+    C --> D["Invalidate permissions cache"];
+    D --> E["Re-evaluate доступные actions/routes"];
+    E --> F["Disable restricted actions with reason"];
+    F --> G["Offer safe refresh or fallback route"];
+
 ```
 
 ```text
@@ -843,12 +869,13 @@ flowchart LR
 
 ```mermaid
 flowchart LR
-    A["Open deep-link from notification or Slack"] --> B["Validate tenant and role"]
-    B --> C{"Allowed in current org"}
-    C -- "No" --> D["Prompt org switch or deny access"]
-    C -- "Yes" --> E["Validate and sanitize query params"]
-    E --> F["Open target screen"]
-    D --> G["Safe fallback route"]
+    A["Open deep-link from notification or Slack"] --> B["Validate tenant and role"];
+    B --> C{"Allowed in current org"};
+    C -- "No" --> D["Prompt org switch or deny access"];
+    C -- "Yes" --> E["Validate and sanitize query params"];
+    E --> F["Open target screen"];
+    D --> G["Safe fallback route"];
+
 ```
 
 ```text
@@ -867,11 +894,12 @@ flowchart LR
 
 ```mermaid
 flowchart LR
-    A["Provider health drops below threshold"] --> B["Show global degraded banner"]
-    B --> C["Mark affected actions as delayed or queued"]
-    C --> D["Route user to degradation console"]
-    D --> E["Offer retry window and runbook actions"]
-    E --> F["Track recovery state"]
+    A["Provider health drops below threshold"] --> B["Show global degraded banner"];
+    B --> C["Mark affected actions as delayed or queued"];
+    C --> D["Route user to degradation console"];
+    D --> E["Offer retry window and runbook actions"];
+    E --> F["Track recovery state"];
+
 ```
 
 ```text
@@ -890,13 +918,14 @@ flowchart LR
 
 ```mermaid
 flowchart LR
-    A["Select multiple rows"] --> B["Choose batch action"]
-    B --> C["Optimistic UI update"]
-    C --> D["Show undo snackbar with timer"]
-    D --> E{"Undo clicked"}
-    E -- "Yes" --> F["Rollback local and server state"]
-    E -- "No" --> G["Commit action"]
-    G --> H["Write audit event"]
+    A["Select multiple rows"] --> B["Choose batch action"];
+    B --> C["Optimistic UI update"];
+    C --> D["Show undo snackbar with timer"];
+    D --> E{"Undo clicked"};
+    E -- "Yes" --> F["Rollback local and server state"];
+    E -- "No" --> G["Commit action"];
+    G --> H["Write audit event"];
+
 ```
 
 ```text
@@ -916,13 +945,14 @@ flowchart LR
 
 ```mermaid
 flowchart LR
-    A["User uploads JSON file"] --> B["Parse and validate schema"]
-    B --> C{"Version compatible"}
-    C -- "Yes" --> D["Show preview and apply"]
-    C -- "No" --> E["Try migration rule"]
-    E --> F{"Migration success"}
-    F -- "Yes" --> D
-    F -- "No" --> G["Show actionable error and block import"]
+    A["User uploads JSON file"] --> B["Parse and validate schema"];
+    B --> C{"Version compatible"};
+    C -- "Yes" --> D["Show preview and apply"];
+    C -- "No" --> E["Try migration rule"];
+    E --> F{"Migration success"};
+    F -- "Yes" --> D;
+    F -- "No" --> G["Show actionable error and block import"];
+
 ```
 
 ```text
@@ -942,12 +972,13 @@ flowchart LR
 
 ```mermaid
 flowchart LR
-    A["User starts export or copy action"] --> B["Run client-side sensitive data scan"]
-    B --> C["Detect secrets or PII markers"]
-    C --> D["Suggest redaction replacements"]
-    D --> E{"User confirms redacted output"}
-    E -- "Yes" --> F["Export/share redacted content"]
-    E -- "No" --> G["Cancel or edit manually"]
+    A["User starts export or copy action"] --> B["Run client-side sensitive data scan"];
+    B --> C["Detect secrets or PII markers"];
+    C --> D["Suggest redaction replacements"];
+    D --> E{"User confirms redacted output"};
+    E -- "Yes" --> F["Export/share redacted content"];
+    E -- "No" --> G["Cancel or edit manually"];
+
 ```
 
 ```text
@@ -966,12 +997,13 @@ flowchart LR
 
 ```mermaid
 flowchart LR
-    A["Tab A changes tenant/theme/role snapshot"] --> B["BroadcastChannel or storage event"]
-    B --> C["Tab B receives state update"]
-    C --> D["Revalidate permissions and route guards"]
-    D --> E["Invalidate stale caches by tenant"]
-    E --> F["Apply theme and UI policy changes"]
-    F --> G["Show non-blocking sync notice"]
+    A["Tab A changes tenant/theme/role snapshot"] --> B["BroadcastChannel or storage event"];
+    B --> C["Tab B receives state update"];
+    C --> D["Revalidate permissions and route guards"];
+    D --> E["Invalidate stale caches by tenant"];
+    E --> F["Apply theme and UI policy changes"];
+    F --> G["Show non-blocking sync notice"];
+
 ```
 
 ```text
@@ -990,14 +1022,15 @@ flowchart LR
 
 ```mermaid
 flowchart LR
-    A["PR or nightly pipeline starts"] --> B["Run critical user journeys"]
-    B --> C["Execute keyboard-only navigation checks"]
-    C --> D["Assert ARIA roles, names, landmarks"]
-    D --> E["Run long-locale and pseudo-locale snapshots"]
-    E --> F["Screen reader flow assertions"]
-    F --> G{"Regression detected"}
-    G -- "Yes" --> H["Block merge and attach diagnostics"]
-    G -- "No" --> I["Publish quality report"]
+    A["PR or nightly pipeline starts"] --> B["Run critical user journeys"];
+    B --> C["Execute keyboard-only navigation checks"];
+    C --> D["Assert ARIA roles, names, landmarks"];
+    D --> E["Run long-locale and pseudo-locale snapshots"];
+    E --> F["Screen reader flow assertions"];
+    F --> G{"Regression detected"};
+    G -- "Yes" --> H["Block merge and attach diagnostics"];
+    G -- "No" --> I["Publish quality report"];
+
 ```
 
 ```text
@@ -1018,14 +1051,15 @@ flowchart LR
 
 ```mermaid
 flowchart LR
-    A["Пользователь впервые заходит в org"] --> B["Dashboard показывает Activation Checklist"]
-    B --> C["Выбор следующего шага"]
-    C --> D["Deep-link в нужный экран"]
-    D --> E["Выполнить шаг: connect/invite/scan/config"]
-    E --> F["Checklist обновляет прогресс и blockers"]
-    F --> G{"First value достигнут"}
-    G -- "Нет" --> C
-    G -- "Да" --> H["Показать next-best actions + закрепить “My Work”"]
+    A["Пользователь впервые заходит в org"] --> B["Dashboard показывает Activation Checklist"];
+    B --> C["Выбор следующего шага"];
+    C --> D["Deep-link в нужный экран"];
+    D --> E["Выполнить шаг: connect/invite/scan/config"];
+    E --> F["Checklist обновляет прогресс и blockers"];
+    F --> G{"First value достигнут"};
+    G -- "Нет" --> C;
+    G -- "Да" --> H["Показать next-best actions + закрепить “My Work”"];
+
 ```
 
 ```text
@@ -1050,14 +1084,15 @@ flowchart LR
 
 ```mermaid
 flowchart LR
-    A["Открыть My Work"] --> B["Сформировать очередь по приоритету"]
-    B --> C["Фильтр: mine/team/repo"]
-    C --> D["Открыть элемент в контексте"]
-    D --> E["Выполнить действие: review/assign/snooze/retry"]
-    E --> F["Элемент обновляет статус в очереди"]
-    F --> G{"Очередь пустая"}
-    G -- "Нет" --> D
-    G -- "Да" --> H["Показать “All clear” + suggested actions"]
+    A["Открыть My Work"] --> B["Сформировать очередь по приоритету"];
+    B --> C["Фильтр: mine/team/repo"];
+    C --> D["Открыть элемент в контексте"];
+    D --> E["Выполнить действие: review/assign/snooze/retry"];
+    E --> F["Элемент обновляет статус в очереди"];
+    F --> G{"Очередь пустая"};
+    G -- "Нет" --> D;
+    G -- "Да" --> H["Показать “All clear” + suggested actions"];
+
 ```
 
 ```text
@@ -1079,11 +1114,12 @@ flowchart LR
 
 ```mermaid
 flowchart LR
-    A["Открыть list-страницу"] --> B["Настроить таблицу: колонки/плотность"]
-    B --> C["Фильтры + сортировка"]
-    C --> D["Сохранить view"]
-    D --> E["Навигация и действия клавиатурой"]
-    E --> F["Экспорт данных или share view link"]
+    A["Открыть list-страницу"] --> B["Настроить таблицу: колонки/плотность"];
+    B --> C["Фильтры + сортировка"];
+    C --> D["Сохранить view"];
+    D --> E["Навигация и действия клавиатурой"];
+    E --> F["Экспорт данных или share view link"];
+
 ```
 
 ```text
@@ -1105,13 +1141,14 @@ flowchart LR
 
 ```mermaid
 flowchart LR
-    A["Пользователь видит метрику/сигнал"] --> B["Индикатор freshness: updated/stale/partial"]
-    B --> C{"Данные stale или partial"}
-    C -- "Нет" --> D["Продолжить работу"]
-    C -- "Да" --> E["Открыть Provenance drawer"]
-    E --> F["Понять источник: scan/job/commit/window"]
-    F --> G["Запустить refresh/rescan или открыть job details"]
-    G --> H["Данные обновлены -> UI снимает stale"]
+    A["Пользователь видит метрику/сигнал"] --> B["Индикатор freshness: updated/stale/partial"];
+    B --> C{"Данные stale или partial"};
+    C -- "Нет" --> D["Продолжить работу"];
+    C -- "Да" --> E["Открыть Provenance drawer"];
+    E --> F["Понять источник: scan/job/commit/window"];
+    F --> G["Запустить refresh/rescan или открыть job details"];
+    G --> H["Данные обновлены -> UI снимает stale"];
+
 ```
 
 ```text
@@ -1130,13 +1167,14 @@ flowchart LR
 
 ```mermaid
 flowchart LR
-    A["Открыть schedule dialog"] --> B["Выбрать timezone"]
-    B --> C["Настроить cadence/cron-like правила"]
-    C --> D["Посмотреть preview следующих запусков"]
-    D --> E{"Похоже на ожидания"}
-    E -- "Нет" --> C
-    E -- "Да" --> F["Сохранить schedule"]
-    F --> G["UI показывает next run везде консистентно"]
+    A["Открыть schedule dialog"] --> B["Выбрать timezone"];
+    B --> C["Настроить cadence/cron-like правила"];
+    C --> D["Посмотреть preview следующих запусков"];
+    D --> E{"Похоже на ожидания"};
+    E -- "Нет" --> C;
+    E -- "Да" --> F["Сохранить schedule"];
+    F --> G["UI показывает next run везде консистентно"];
+
 ```
 
 ```text
@@ -1160,11 +1198,12 @@ flowchart LR
 
 ```mermaid
 flowchart LR
-    A["Пользователь видит риск/score"] --> B["Открыть Explain drawer"]
-    B --> C["Top factors + thresholds + confidence"]
-    C --> D["Перейти в источники/срезы данных"]
-    D --> E["Сформировать action: plan/refactor/report"]
-    E --> F["Экспорт объяснения в отчёт/сниппет"]
+    A["Пользователь видит риск/score"] --> B["Открыть Explain drawer"];
+    B --> C["Top factors + thresholds + confidence"];
+    C --> D["Перейти в источники/срезы данных"];
+    D --> E["Сформировать action: plan/refactor/report"];
+    E --> F["Экспорт объяснения в отчёт/сниппет"];
+
 ```
 
 ```text
@@ -1187,14 +1226,15 @@ flowchart LR
 
 ```mermaid
 flowchart LR
-    A["Пользователь видит ошибку или деградацию"] --> B["CTA Open Help Diagnostics"]
-    B --> C["Запустить диагностику"]
-    C --> D["Результаты: auth network provider browser"]
-    D --> E{"Есть автосценарий фикса"}
-    E -- "Да" --> F["Пошаговый runbook и deep links"]
-    E -- "Нет" --> G["Сформировать redacted support bundle"]
-    F --> H["Проверить что проблема решена"]
-    G --> H
+    A["Пользователь видит ошибку или деградацию"] --> B["CTA Open Help Diagnostics"];
+    B --> C["Запустить диагностику"];
+    C --> D["Результаты: auth network provider browser"];
+    D --> E{"Есть автосценарий фикса"};
+    E -- "Да" --> F["Пошаговый runbook и deep links"];
+    E -- "Нет" --> G["Сформировать redacted support bundle"];
+    F --> H["Проверить что проблема решена"];
+    G --> H;
+
 ```
 
 ```text
@@ -1216,14 +1256,15 @@ flowchart LR
 
 ```mermaid
 flowchart LR
-    A["Открыть страницу"] --> B["Fetch данных"]
-    B --> C{"Ответ успешен"}
-    C -- "Нет" --> D["Error state: причина + retry + diagnostics link"]
-    C -- "Да" --> E{"Данные пустые"}
-    E -- "Да" --> F["Empty state: объяснение + primary CTA"]
-    E -- "Нет" --> G["Render content"]
-    D --> B
-    F --> H["CTA ведёт в onboarding/filters/action"]
+    A["Открыть страницу"] --> B["Fetch данных"];
+    B --> C{"Ответ успешен"};
+    C -- "Нет" --> D["Error state: причина + retry + diagnostics link"];
+    C -- "Да" --> E{"Данные пустые"};
+    E -- "Да" --> F["Empty state: объяснение + primary CTA"];
+    E -- "Нет" --> G["Render content"];
+    D --> B;
+    F --> H["CTA ведёт в onboarding/filters/action"];
+
 ```
 
 ```text
@@ -1242,11 +1283,12 @@ flowchart LR
 
 ```mermaid
 flowchart LR
-    A["Открыть personalization"] --> B["Выбрать default scope"]
-    B --> C["Настроить pins/widgets"]
-    C --> D["Сохранить saved views"]
-    D --> E["Share view link или sync в профиль"]
-    E --> F["UI применяет настройки при следующем входе"]
+    A["Открыть personalization"] --> B["Выбрать default scope"];
+    B --> C["Настроить pins/widgets"];
+    C --> D["Сохранить saved views"];
+    D --> E["Share view link или sync в профиль"];
+    E --> F["UI применяет настройки при следующем входе"];
+
 ```
 
 ```text
@@ -1266,14 +1308,15 @@ flowchart LR
 
 ```mermaid
 flowchart LR
-    A["Пользователь находится на любой странице"] --> B["Нажать Cmd+K / Ctrl+K"]
-    B --> C["Открыть Command Palette"]
-    C --> D["Ввести запрос или выбрать action"]
-    D --> E{"Тип результата"}
-    E -- "Entity" --> F["Перейти на страницу объекта"]
-    E -- "Action" --> G["Выполнить действие (switch org, open diagnostics, start scan)"]
-    F --> H["Закрыть palette и сохранить контекст"]
-    G --> H
+    A["Пользователь находится на любой странице"] --> B["Нажать Cmd+K / Ctrl+K"];
+    B --> C["Открыть Command Palette"];
+    C --> D["Ввести запрос или выбрать action"];
+    D --> E{"Тип результата"};
+    E -- "Entity" --> F["Перейти на страницу объекта"];
+    E -- "Action" --> G["Выполнить действие (switch org, open diagnostics, start scan)"];
+    F --> H["Закрыть palette и сохранить контекст"];
+    G --> H;
+
 ```
 
 ```text
@@ -1298,15 +1341,16 @@ flowchart LR
 
 ```mermaid
 flowchart LR
-    A["Открыть My Work"] --> B["Отфильтровать mine/team/repo"]
-    B --> C["Сортировка по urgency/SLA"]
-    C --> D{"Item без owner"}
-    D -- "Да" --> E["Quick assign: self/team"]
-    E --> F["Установить SLA/due-date"]
-    D -- "Нет" --> G["Взять item в работу"]
-    F --> H["Work on item -> done/blocked/snooze"]
-    G --> H
-    H --> I["Escalation при риске просрочки"]
+    A["Открыть My Work"] --> B["Отфильтровать mine/team/repo"];
+    B --> C["Сортировка по urgency/SLA"];
+    C --> D{"Item без owner"};
+    D -- "Да" --> E["Quick assign: self/team"];
+    E --> F["Установить SLA/due-date"];
+    D -- "Нет" --> G["Взять item в работу"];
+    F --> H["Work on item -> done/blocked/snooze"];
+    G --> H;
+    H --> I["Escalation при риске просрочки"];
+
 ```
 
 ```text
@@ -1326,12 +1370,13 @@ flowchart LR
 
 ```mermaid
 flowchart LR
-    A["Пользователь работает клавиатурой"] --> B["Navigation shortcuts"]
-    B --> C["Cmd+K: открыть palette"]
-    B --> D["Shift+?: открыть cheatsheet"]
-    D --> E["Найти нужную команду"]
-    E --> F["Запустить shortcut"]
-    C --> F
+    A["Пользователь работает клавиатурой"] --> B["Navigation shortcuts"];
+    B --> C["Cmd+K: открыть palette"];
+    B --> D["Shift+?: открыть cheatsheet"];
+    D --> E["Найти нужную команду"];
+    E --> F["Запустить shortcut"];
+    C --> F;
+
 ```
 
 ```text
@@ -1352,14 +1397,15 @@ flowchart LR
 
 ```mermaid
 flowchart LR
-    A["Открыть Graph Explorer"] --> B["Загрузить stats (nodes/edges)"]
-    B --> C{"В пределах budget"}
-    C -- "Да" --> D["Render full graph"]
-    C -- "Нет" --> E["Предложить clustering/depth limits"]
-    E --> F["Progressive render + lazy детализация"]
-    F --> G{"Слишком большой даже с ограничениями"}
-    G -- "Да" --> H["Fallback: paths/table/summary + export"]
-    G -- "Нет" --> D
+    A["Открыть Graph Explorer"] --> B["Загрузить stats (nodes/edges)"];
+    B --> C{"В пределах budget"};
+    C -- "Да" --> D["Render full graph"];
+    C -- "Нет" --> E["Предложить clustering/depth limits"];
+    E --> F["Progressive render + lazy детализация"];
+    F --> G{"Слишком большой даже с ограничениями"};
+    G -- "Да" --> H["Fallback: paths/table/summary + export"];
+    G -- "Нет" --> D;
+
 ```
 
 ```text
@@ -1378,13 +1424,14 @@ flowchart LR
 
 ```mermaid
 flowchart LR
-    A["Открыть страницу с графиком"] --> B["Запрос данных"]
-    B --> C{"Points > threshold"}
-    C -- "Да" --> D["Server aggregation или client downsampling"]
-    C -- "Нет" --> E["Render raw series"]
-    D --> F["Render chart + badge 'aggregated'"]
-    E --> F
-    F --> G["Экспорт raw данных при необходимости"]
+    A["Открыть страницу с графиком"] --> B["Запрос данных"];
+    B --> C{"Points > threshold"};
+    C -- "Да" --> D["Server aggregation или client downsampling"];
+    C -- "Нет" --> E["Render raw series"];
+    D --> F["Render chart + badge 'aggregated'"];
+    E --> F;
+    F --> G["Экспорт raw данных при необходимости"];
+
 ```
 
 ```text
@@ -1403,15 +1450,16 @@ flowchart LR
 
 ```mermaid
 flowchart LR
-    A["Admin открывает Onboarding"] --> B["Выбрать провайдера"]
-    B --> C["Import repo list"]
-    C --> D["Multi-select repos"]
-    D --> E["Выбрать template"]
-    E --> F["Start scans (parallel)"]
-    F --> G["Bulk progress page"]
-    G --> H{"Есть failures"}
-    H -- "Да" --> I["Retry per-repo / pause / cancel"]
-    H -- "Нет" --> J["Repository Overview"]
+    A["Admin открывает Onboarding"] --> B["Выбрать провайдера"];
+    B --> C["Import repo list"];
+    C --> D["Multi-select repos"];
+    D --> E["Выбрать template"];
+    E --> F["Start scans (parallel)"];
+    F --> G["Bulk progress page"];
+    G --> H{"Есть failures"};
+    H -- "Да" --> I["Retry per-repo / pause / cancel"];
+    H -- "Нет" --> J["Repository Overview"];
+
 ```
 
 ```text
@@ -1432,12 +1480,13 @@ flowchart LR
 
 ```mermaid
 flowchart LR
-    A["Пользователи выполняют ключевые действия"] --> B["useAnalytics пишет события"]
-    B --> C["Backend агрегирует метрики"]
-    C --> D["Admin открывает Usage & Adoption"]
-    D --> E["Фаннел + drop-offs + time-to-first-value"]
-    E --> F["Принять меры: improve onboarding/permissions/help"]
-    F --> G["Повторно измерить"]
+    A["Пользователи выполняют ключевые действия"] --> B["useAnalytics пишет события"];
+    B --> C["Backend агрегирует метрики"];
+    C --> D["Admin открывает Usage & Adoption"];
+    D --> E["Фаннел + drop-offs + time-to-first-value"];
+    E --> F["Принять меры: improve onboarding/permissions/help"];
+    F --> G["Повторно измерить"];
+
 ```
 
 ```text
