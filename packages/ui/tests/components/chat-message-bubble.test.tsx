@@ -138,6 +138,29 @@ describe("chat message bubble", (): void => {
         })
     })
 
+    it("не обрабатывает route-ссылку как code-reference даже при переданных callbacks", async (): Promise<void> => {
+        const user = userEvent.setup()
+        const onCodeReferenceClick = vi.fn()
+        const onCodeReferencePreview = vi.fn()
+
+        renderWithProviders(
+            <ChatMessageBubble
+                message={messageWithMarkdown}
+                onCodeReferenceClick={onCodeReferenceClick}
+                onCodeReferencePreview={onCodeReferencePreview}
+            />,
+        )
+
+        const docsLink = screen.getByRole("link", { name: "Docs" })
+        expect(docsLink).toHaveAttribute("href", "/docs")
+        expect(screen.queryByRole("link", { name: /Code reference \/docs/i })).toBeNull()
+
+        await user.click(docsLink)
+        await user.hover(docsLink)
+        expect(onCodeReferenceClick).not.toHaveBeenCalled()
+        expect(onCodeReferencePreview).not.toHaveBeenCalled()
+    })
+
     it("парсит code references с форматом line:column и hash line+column", async (): Promise<void> => {
         const user = userEvent.setup()
         const onCodeReferenceClick = vi.fn()
