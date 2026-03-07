@@ -37,6 +37,15 @@ function hasForbiddenIconImport(fileContent: string): boolean {
     })
 }
 
+function hasDirectLucideImport(fileContent: string): boolean {
+    return /from\s+["']lucide-react["']/.test(fileContent)
+}
+
+function isAllowedLucideImportFile(filePath: string): boolean {
+    const normalizedPath = filePath.replaceAll("\\", "/")
+    return normalizedPath.endsWith("/src/components/icons/app-icons.ts")
+}
+
 function hasLiteralIconHexColor(fileContent: string): boolean {
     const hasLucideImport = /from\s+["']lucide-react["']/.test(fileContent)
     if (hasLucideImport === false) {
@@ -153,6 +162,13 @@ describe("ui icon policy contract", (): void => {
             const fileContent = readFileSync(filePath, "utf8")
             return hasForbiddenIconImport(fileContent)
         })
+        const filesWithDirectLucideImports = sourceFiles.filter((filePath): boolean => {
+            const fileContent = readFileSync(filePath, "utf8")
+            return (
+                hasDirectLucideImport(fileContent)
+                && isAllowedLucideImportFile(filePath) === false
+            )
+        })
         const filesWithLiteralIconColors = sourceFiles.filter((filePath): boolean => {
             const fileContent = readFileSync(filePath, "utf8")
             return hasLiteralIconHexColor(fileContent)
@@ -175,6 +191,7 @@ describe("ui icon policy contract", (): void => {
         })
 
         expect(filesWithForbiddenImports).toStrictEqual([])
+        expect(filesWithDirectLucideImports).toStrictEqual([])
         expect(filesWithLiteralIconColors).toStrictEqual([])
         expect(filesWithHardcodedUtilityIconColors).toStrictEqual([])
         expect(filesWithExplicitIconColorProps).toStrictEqual([])
