@@ -65,7 +65,10 @@ describe("chat panel", (): void => {
         expect(screen.getByRole("log")).not.toBeNull()
     })
 
-    it("рендерит markdown-блоки в ответе ассистента", (): void => {
+    it("рендерит markdown-блоки в ответе ассистента", async (): Promise<void> => {
+        const user = userEvent.setup()
+        const openSpy = vi.spyOn(window, "open").mockImplementation(() => null)
+
         renderWithProviders(
             <ChatPanel
                 isOpen
@@ -76,7 +79,13 @@ describe("chat panel", (): void => {
 
         expect(screen.queryByText("Система")).not.toBeNull()
         expect(screen.getByLabelText("Code block code-0")).not.toBeNull()
-        expect(screen.getByRole("link", { name: "Docs" })).toHaveAttribute("href", "/settings")
+        const docsLink = screen.getByRole("link", { name: "Docs" })
+        expect(docsLink).toHaveAttribute("href", "/settings")
+
+        await user.click(docsLink)
+        expect(openSpy).toHaveBeenCalledWith("/settings", "_blank", "noopener,noreferrer")
+
+        openSpy.mockRestore()
     })
 
     it("рендерит индикатор активного контекста и меняет его", async (): Promise<void> => {
