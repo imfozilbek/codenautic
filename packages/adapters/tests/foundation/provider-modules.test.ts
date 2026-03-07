@@ -2,7 +2,7 @@ import {describe, expect, test} from "bun:test"
 
 import {Container, TOKENS} from "@codenautic/core"
 
-import {GIT_TOKENS, registerGitModule} from "../../src/git"
+import {GIT_TOKENS, GitProviderFactory, registerGitModule} from "../../src/git"
 import {LLM_TOKENS, registerLlmModule} from "../../src/llm"
 import {registerReviewModule} from "../../src/review"
 import {registerRuleModule} from "../../src/rule"
@@ -35,6 +35,24 @@ describe("Provider modules registration", () => {
         const resolved = container.resolve(LLM_TOKENS.Provider)
 
         expect(resolved).toBe(provider)
+    })
+
+    test("registerGitModule binds optional provider factory token", () => {
+        const container = new Container()
+        const githubProvider = createGitProviderMock()
+        const provider = createGitProviderMock()
+        const providerFactory = new GitProviderFactory({
+            github: githubProvider,
+        })
+
+        registerGitModule(container, {
+            provider,
+            providerFactory,
+        })
+
+        const resolvedFactory = container.resolve(GIT_TOKENS.ProviderFactory)
+
+        expect(resolvedFactory).toBe(providerFactory)
     })
 
     test("registerReviewModule binds review repository", () => {

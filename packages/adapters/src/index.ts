@@ -1,19 +1,28 @@
 export {
     GIT_ACL_ERROR_KIND,
+    GIT_PROVIDER_FACTORY_ERROR_CODE,
+    GIT_PROVIDER_TYPE,
     GitDiffFilesAcl,
     GitErrorAcl,
     GitIdempotencyAcl,
     GitMergeRequestAcl,
+    GitProviderFactory,
+    GitProviderFactoryError,
     type GitAclErrorKind,
+    type GitProviderFactoryErrorCode,
+    type GitProviderType,
     GIT_TOKENS,
     type IExternalGitMergeRequest,
     type IGitAclIdempotencyInput,
+    type IGitProviderFactory,
+    type IGitProviderFactoryOptions,
     type INormalizedGitAclError,
     type IRegisterGitModuleOptions,
     createGitAclIdempotencyKey,
     mapExternalDiffFiles,
     mapExternalMergeRequest,
     normalizeGitAclError,
+    normalizeGitProviderType,
     registerGitModule,
     shouldRetryGitAclError,
 } from "./git"
@@ -51,5 +60,17 @@ export {
     mapJiraContext,
     mapLinearContext,
 } from "./context"
+export {
+    type IInboxDeduplicatorInput,
+    type IInboxDeduplicatorRecord,
+    type IInboxDeduplicatorResult,
+    type IOutboxWriteInput,
+    type IOutboxWriteResult,
+    type IOutboxWriterRecord,
+    InboxDeduplicator,
+    OUTBOX_WRITER_STATUS,
+    type OutboxWriterStatus,
+    OutboxWriter,
+} from "./messaging"
 export {type IRegisterReviewModuleOptions, registerReviewModule} from "./review"
 export {type IRegisterRuleModuleOptions, registerRuleModule} from "./rule"
