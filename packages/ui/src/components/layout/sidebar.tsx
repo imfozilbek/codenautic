@@ -1,4 +1,5 @@
 import type { ReactElement, ReactNode } from "react"
+import { ChevronLeft, ChevronRight } from "lucide-react"
 
 import { SidebarNav } from "./sidebar-nav"
 import { SettingsNav } from "./settings-nav"
@@ -49,7 +50,11 @@ export function Sidebar(props: ISidebarProps): ReactElement {
                     variant="light"
                     onPress={props.onSidebarToggle}
                 >
-                    {isCollapsed ? "›" : "‹"}
+                    {isCollapsed ? (
+                        <ChevronRight aria-hidden className="size-4" />
+                    ) : (
+                        <ChevronLeft aria-hidden className="size-4" />
+                    )}
                 </Button>
             </div>
             {props.headerSlot !== undefined ? (
