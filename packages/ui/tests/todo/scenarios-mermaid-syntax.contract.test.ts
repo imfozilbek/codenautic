@@ -110,6 +110,32 @@ function toRelativePath(rootPath: string, absolutePath: string): string {
     return absolutePath
 }
 
+function hasEvenDoubleQuoteCount(line: string): boolean {
+    const quoteCount = line.split("\"").length - 1
+    return quoteCount % 2 === 0
+}
+
+function hasBalancedDelimiters(
+    value: string,
+    openChar: "[" | "{" | "(",
+    closeChar: "]" | "}" | ")",
+): boolean {
+    let balance = 0
+    for (const char of value) {
+        if (char === openChar) {
+            balance += 1
+        }
+        if (char === closeChar) {
+            balance -= 1
+        }
+        if (balance < 0) {
+            return false
+        }
+    }
+
+    return balance === 0
+}
+
 describe("SCREENS and scenarios mermaid syntax contract", (): void => {
     it("валидирует базовую синтаксическую целостность всех mermaid блоков в ui markdown", (): void => {
         const rootDirectory = resolve(process.cwd())
@@ -140,10 +166,35 @@ describe("SCREENS and scenarios mermaid syntax contract", (): void => {
             }
 
             lines.forEach((entry): void => {
+                const lineNumber = block.startLine + entry.sourceLineOffset
+
+                if (hasEvenDoubleQuoteCount(entry.line) === false) {
+                    issues.push(
+                        `Block #${blockIndex + 1} in ${relativePath}:${String(lineNumber)} has unbalanced double quotes`,
+                    )
+                }
+
+                if (hasBalancedDelimiters(entry.line, "[", "]") === false) {
+                    issues.push(
+                        `Block #${blockIndex + 1} in ${relativePath}:${String(lineNumber)} has unbalanced square brackets`,
+                    )
+                }
+
+                if (hasBalancedDelimiters(entry.line, "{", "}") === false) {
+                    issues.push(
+                        `Block #${blockIndex + 1} in ${relativePath}:${String(lineNumber)} has unbalanced curly braces`,
+                    )
+                }
+
+                if (hasBalancedDelimiters(entry.line, "(", ")") === false) {
+                    issues.push(
+                        `Block #${blockIndex + 1} in ${relativePath}:${String(lineNumber)} has unbalanced parentheses`,
+                    )
+                }
+
                 if (detectArrowToken(entry.line) === undefined) {
                     return
                 }
-                const lineNumber = block.startLine + entry.sourceLineOffset
 
                 if (/^[A-Za-z][A-Za-z0-9_]*/.test(entry.line) === false) {
                     issues.push(
