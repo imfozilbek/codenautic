@@ -46,7 +46,7 @@ function parseCodeReference(value: string): IChatCodeReference | undefined {
     }
 
     const fileRangeMatch = normalized.match(
-        /^(\.?\.?\/?(?:[\w.-]+[\\/])*[\w.-]+\.[\w-]+)(?::(\d+))?(?:-(\d+))?(?:#L?(\d+))?(?:-L?(\d+))?$/,
+        /^(\.?\.?\/?(?:[\w.-]+[\\/])*[\w.-]+\.[\w-]+)(?::(\d+)(?::\d+)?)?(?:-(\d+)(?::\d+)?)?(?:#L?(\d+)(?:C\d+)?)?(?:-L?(\d+)(?:C\d+)?)?$/,
     )
     const fileOnlyMatch = normalized.match(
         /^(\.?\.?\/?(?:[\w.-]+[\\/])*[\w.-]+\.[\w-]+)$/,

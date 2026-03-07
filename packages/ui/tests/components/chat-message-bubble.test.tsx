@@ -137,4 +137,35 @@ describe("chat message bubble", (): void => {
             lineEnd: undefined,
         })
     })
+
+    it("парсит code references с форматом line:column и hash line+column", async (): Promise<void> => {
+        const user = userEvent.setup()
+        const onCodeReferenceClick = vi.fn()
+
+        renderWithProviders(
+            <ChatMessageBubble
+                message={{
+                    ...messageWithMarkdown,
+                    content: "[src/index.ts:12:4](src/index.ts:12:4) [src/app.ts#L8C2](src/app.ts#L8C2)",
+                    id: "msg-ref-columns",
+                    role: "assistant",
+                }}
+                onCodeReferenceClick={onCodeReferenceClick}
+            />,
+        )
+
+        await user.click(screen.getByRole("link", { name: "Code reference src/index.ts:12" }))
+        await user.click(screen.getByRole("link", { name: "Code reference src/app.ts:8" }))
+
+        expect(onCodeReferenceClick).toHaveBeenNthCalledWith(1, {
+            filePath: "src/index.ts",
+            lineStart: 12,
+            lineEnd: undefined,
+        })
+        expect(onCodeReferenceClick).toHaveBeenNthCalledWith(2, {
+            filePath: "src/app.ts",
+            lineStart: 8,
+            lineEnd: undefined,
+        })
+    })
 })
