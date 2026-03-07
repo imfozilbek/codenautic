@@ -121,6 +121,16 @@ function inferCommandPaletteGroup(path: string): TCommandPaletteGroup {
     return "General"
 }
 
+function createCommandPaletteOptionId(itemId: string, itemIndex: number): string {
+    const normalized = itemId
+        .toLowerCase()
+        .replace(/[^a-z0-9_-]+/g, "-")
+        .replace(/^-+|-+$/g, "")
+    const safePart = normalized.length > 0 ? normalized : "item"
+
+    return `header-command-palette-option-${safePart}-${String(itemIndex)}`
+}
+
 function readStringArrayFromStorage(storageKey: string): ReadonlyArray<string> {
     if (typeof window === "undefined") {
         return []
@@ -640,9 +650,10 @@ export function Header(props: IHeaderProps): ReactElement {
                             aria-activedescendant={
                                 filteredCommandPaletteItems[activeCommandIndex] === undefined
                                     ? undefined
-                                    : `header-command-palette-option-${
-                                          filteredCommandPaletteItems[activeCommandIndex].id
-                                      }`
+                                    : createCommandPaletteOptionId(
+                                          filteredCommandPaletteItems[activeCommandIndex].id,
+                                          activeCommandIndex,
+                                      )
                             }
                             aria-autocomplete="list"
                             aria-controls="header-command-palette-results"
@@ -734,7 +745,7 @@ export function Header(props: IHeaderProps): ReactElement {
                                                                 ? "bg-[color:color-mix(in_oklab,var(--primary)_12%,var(--surface))]"
                                                                 : "bg-transparent"
                                                         }`}
-                                                        id={`header-command-palette-option-${item.id}`}
+                                                        id={createCommandPaletteOptionId(item.id, itemIndex)}
                                                         role="option"
                                                     >
                                                         <button
