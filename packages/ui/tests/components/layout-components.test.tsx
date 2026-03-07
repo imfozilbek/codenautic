@@ -175,11 +175,52 @@ describe("layout components", (): void => {
         await user.keyboard("{Control>}k{/Control}")
 
         expect(screen.getByRole("dialog", { name: "Global command palette" })).not.toBeNull()
-        const paletteSearch = screen.getByRole("textbox", { name: "Command palette search" })
+        const paletteSearch = screen.getByRole("combobox", { name: "Command palette search" })
         await user.type(paletteSearch, "diagnostics")
         await user.keyboard("{Enter}")
 
         expect(onSearchRouteNavigate).toHaveBeenCalledWith("/help-diagnostics")
+    })
+
+    it("поддерживает aria-activedescendant при навигации по command palette", async (): Promise<void> => {
+        const user = userEvent.setup()
+
+        renderWithProviders(
+            <Header
+                searchRoutes={[
+                    {
+                        label: "Dashboard",
+                        path: "/",
+                    },
+                    {
+                        label: "CCR Management",
+                        path: "/reviews",
+                    },
+                    {
+                        label: "Help and diagnostics",
+                        path: "/help-diagnostics",
+                    },
+                ]}
+            />,
+        )
+
+        await user.keyboard("{Control>}k{/Control}")
+
+        const paletteSearch = screen.getByRole("combobox", { name: "Command palette search" })
+        expect(paletteSearch).toHaveAttribute("aria-controls", "header-command-palette-results")
+
+        const initialOption = screen.getByRole("option", { selected: true })
+        const initialOptionId = initialOption.getAttribute("id") ?? ""
+        expect(initialOptionId).not.toBe("")
+        expect(paletteSearch).toHaveAttribute("aria-activedescendant", initialOptionId)
+
+        await user.keyboard("{ArrowDown}")
+
+        const nextOption = screen.getByRole("option", { selected: true })
+        const nextOptionId = nextOption.getAttribute("id") ?? ""
+        expect(nextOptionId).not.toBe("")
+        expect(nextOptionId).not.toBe(initialOptionId)
+        expect(paletteSearch).toHaveAttribute("aria-activedescendant", nextOptionId)
     })
 
     it("возвращает фокус на инициатор после закрытия command palette по Escape", async (): Promise<void> => {

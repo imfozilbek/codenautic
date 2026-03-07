@@ -637,10 +637,21 @@ export function Header(props: IHeaderProps): ReactElement {
                     />
                     <div className="relative z-10 w-full max-w-2xl rounded-xl border border-[var(--border)] bg-[var(--surface)] p-3 shadow-2xl">
                         <input
+                            aria-activedescendant={
+                                filteredCommandPaletteItems[activeCommandIndex] === undefined
+                                    ? undefined
+                                    : `header-command-palette-option-${
+                                          filteredCommandPaletteItems[activeCommandIndex].id
+                                      }`
+                            }
+                            aria-autocomplete="list"
+                            aria-controls="header-command-palette-results"
+                            aria-expanded={filteredCommandPaletteItems.length > 0}
                             aria-label="Command palette search"
                             className="w-full rounded-lg border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-sm text-[var(--foreground)]"
                             placeholder="Search commands, routes and actions..."
                             ref={commandPaletteInputRef}
+                            role="combobox"
                             type="text"
                             value={commandPaletteQuery}
                             onChange={(event): void => {
@@ -693,6 +704,7 @@ export function Header(props: IHeaderProps): ReactElement {
                         <div
                             aria-label="Command palette results"
                             className="mt-3 max-h-[60vh] overflow-y-auto rounded-lg border border-[var(--border)]"
+                            id="header-command-palette-results"
                             role="listbox"
                         >
                             {filteredCommandPaletteItems.length === 0 ? (
@@ -722,6 +734,7 @@ export function Header(props: IHeaderProps): ReactElement {
                                                                 ? "bg-[color:color-mix(in_oklab,var(--primary)_12%,var(--surface))]"
                                                                 : "bg-transparent"
                                                         }`}
+                                                        id={`header-command-palette-option-${item.id}`}
                                                         role="option"
                                                     >
                                                         <button
