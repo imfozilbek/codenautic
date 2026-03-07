@@ -90,6 +90,28 @@ function hasHardcodedUtilityColorOnLucideIcon(fileContent: string): boolean {
     })
 }
 
+function hasExplicitColorPropOnLucideIcon(fileContent: string): boolean {
+    const iconNames = extractLucideIconNames(fileContent)
+    if (iconNames.length === 0) {
+        return false
+    }
+
+    return iconNames.some((iconName): boolean => {
+        const iconTagPattern = new RegExp(`<${iconName}\\b[^>]*>`, "g")
+        let match: RegExpExecArray | null = iconTagPattern.exec(fileContent)
+
+        while (match !== null) {
+            const tagSource = match[0]
+            if (/\b(?:color|stroke|fill)\s*=/.test(tagSource)) {
+                return true
+            }
+            match = iconTagPattern.exec(fileContent)
+        }
+
+        return false
+    })
+}
+
 function hasIconOnlyButtonWithGlyphText(fileContent: string): boolean {
     const iconOnlyButtonPattern = /<Button\b[\s\S]*?\bisIconOnly\b[\s\S]*?>([\s\S]*?)<\/Button>/g
     let match: RegExpExecArray | null = iconOnlyButtonPattern.exec(fileContent)
@@ -147,10 +169,15 @@ describe("ui icon policy contract", (): void => {
             const fileContent = readFileSync(filePath, "utf8")
             return hasHardcodedUtilityColorOnLucideIcon(fileContent)
         })
+        const filesWithExplicitIconColorProps = sourceFiles.filter((filePath): boolean => {
+            const fileContent = readFileSync(filePath, "utf8")
+            return hasExplicitColorPropOnLucideIcon(fileContent)
+        })
 
         expect(filesWithForbiddenImports).toStrictEqual([])
         expect(filesWithLiteralIconColors).toStrictEqual([])
         expect(filesWithHardcodedUtilityIconColors).toStrictEqual([])
+        expect(filesWithExplicitIconColorProps).toStrictEqual([])
         expect(filesWithGlyphIcons).toStrictEqual([])
         expect(filesWithAriaViolations).toStrictEqual([])
     })
