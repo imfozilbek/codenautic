@@ -144,25 +144,27 @@ describe("chat message bubble", (): void => {
         const onCodeReferencePreview = vi.fn()
         const openSpy = vi.spyOn(window, "open").mockImplementation(() => null)
 
-        renderWithProviders(
-            <ChatMessageBubble
-                message={messageWithMarkdown}
-                onCodeReferenceClick={onCodeReferenceClick}
-                onCodeReferencePreview={onCodeReferencePreview}
-            />,
-        )
+        try {
+            renderWithProviders(
+                <ChatMessageBubble
+                    message={messageWithMarkdown}
+                    onCodeReferenceClick={onCodeReferenceClick}
+                    onCodeReferencePreview={onCodeReferencePreview}
+                />,
+            )
 
-        const docsLink = screen.getByRole("link", { name: "Docs" })
-        expect(docsLink).toHaveAttribute("href", "/docs")
-        expect(screen.queryByRole("link", { name: /Code reference \/docs/i })).toBeNull()
+            const docsLink = screen.getByRole("link", { name: "Docs" })
+            expect(docsLink).toHaveAttribute("href", "/docs")
+            expect(screen.queryByRole("link", { name: /Code reference \/docs/i })).toBeNull()
 
-        await user.click(docsLink)
-        await user.hover(docsLink)
-        expect(onCodeReferenceClick).not.toHaveBeenCalled()
-        expect(onCodeReferencePreview).not.toHaveBeenCalled()
-        expect(openSpy).toHaveBeenCalledWith("/docs", "_blank", "noopener,noreferrer")
-
-        openSpy.mockRestore()
+            await user.click(docsLink)
+            await user.hover(docsLink)
+            expect(onCodeReferenceClick).not.toHaveBeenCalled()
+            expect(onCodeReferencePreview).not.toHaveBeenCalled()
+            expect(openSpy).toHaveBeenCalledWith("/docs", "_blank", "noopener,noreferrer")
+        } finally {
+            openSpy.mockRestore()
+        }
     })
 
     it("парсит code references с форматом line:column и hash line+column", async (): Promise<void> => {

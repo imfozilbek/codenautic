@@ -69,23 +69,25 @@ describe("chat panel", (): void => {
         const user = userEvent.setup()
         const openSpy = vi.spyOn(window, "open").mockImplementation(() => null)
 
-        renderWithProviders(
-            <ChatPanel
-                isOpen
-                messages={messageList}
-                onSendMessage={vi.fn()}
-            />,
-        )
+        try {
+            renderWithProviders(
+                <ChatPanel
+                    isOpen
+                    messages={messageList}
+                    onSendMessage={vi.fn()}
+                />,
+            )
 
-        expect(screen.queryByText("Система")).not.toBeNull()
-        expect(screen.getByLabelText("Code block code-0")).not.toBeNull()
-        const docsLink = screen.getByRole("link", { name: "Docs" })
-        expect(docsLink).toHaveAttribute("href", "/settings")
+            expect(screen.queryByText("Система")).not.toBeNull()
+            expect(screen.getByLabelText("Code block code-0")).not.toBeNull()
+            const docsLink = screen.getByRole("link", { name: "Docs" })
+            expect(docsLink).toHaveAttribute("href", "/settings")
 
-        await user.click(docsLink)
-        expect(openSpy).toHaveBeenCalledWith("/settings", "_blank", "noopener,noreferrer")
-
-        openSpy.mockRestore()
+            await user.click(docsLink)
+            expect(openSpy).toHaveBeenCalledWith("/settings", "_blank", "noopener,noreferrer")
+        } finally {
+            openSpy.mockRestore()
+        }
     })
 
     it("рендерит индикатор активного контекста и меняет его", async (): Promise<void> => {
