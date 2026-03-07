@@ -45,42 +45,30 @@ function parseCodeReference(value: string): IChatCodeReference | undefined {
         return undefined
     }
 
-    const fileRangeMatch = normalized.match(
-        /^(\.?\.?\/?(?:[\w.-]+[\\/])*[\w.-]+\.[\w-]+)(?::(\d+)(?::\d+)?)?(?:-(\d+)(?::\d+)?)?(?:#L?(\d+)(?:C\d+)?)?(?:-L?(\d+)(?:C\d+)?)?$/,
+    const match = normalized.match(
+        /^(.*\.[A-Za-z0-9-]+)(?::(\d+)(?::\d+)?)?(?:-(\d+)(?::\d+)?)?(?:#(L?\d+(?:C\d+)?(?:-L?\d+(?:C\d+)?)?))?$/,
     )
-    const fileOnlyMatch = normalized.match(
-        /^(\.?\.?\/?(?:[\w.-]+[\\/])*[\w.-]+\.[\w-]+)$/,
-    )
-    if (fileRangeMatch === null && fileOnlyMatch === null) {
+    if (match === null) {
         return undefined
     }
 
-    if (fileRangeMatch !== null) {
-        const [
-            ,
-            filePath,
-            lineStart,
-            lineEnd,
-            hashLineStart,
-            hashLineEnd,
-        ] = fileRangeMatch
-        const parsedLineStart = parseLineNumber(lineStart ?? "")
-        const parsedLineEnd = parseLineNumber(lineEnd ?? "")
-        const parsedHashStart = parseLineNumber(hashLineStart ?? "")
-        const parsedHashEnd = parseLineNumber(hashLineEnd ?? "")
-
-        return {
-            filePath: filePath ?? "",
-            lineStart: parsedLineStart ?? parsedHashStart,
-            lineEnd: parsedLineEnd ?? parsedHashEnd,
-        }
-    }
-
-    if (fileOnlyMatch === null) {
+    const [, rawFilePath, lineStart, lineEnd, hashRange] = match
+    const filePath = (rawFilePath ?? "").trim()
+    if (filePath.length === 0 || filePath.endsWith("/") || filePath.endsWith("\\")) {
         return undefined
     }
 
-    return { filePath: fileOnlyMatch[1] ?? "" }
+    const hashMatch = (hashRange ?? "").match(/^L?(\d+)(?:C\d+)?(?:-L?(\d+)(?:C\d+)?)?$/)
+    const parsedLineStart = parseLineNumber(lineStart ?? "")
+    const parsedLineEnd = parseLineNumber(lineEnd ?? "")
+    const parsedHashStart = parseLineNumber(hashMatch?.[1] ?? "")
+    const parsedHashEnd = parseLineNumber(hashMatch?.[2] ?? "")
+
+    return {
+        filePath,
+        lineStart: parsedLineStart ?? parsedHashStart,
+        lineEnd: parsedLineEnd ?? parsedHashEnd,
+    }
 }
 
 function buildReferenceLabel(reference: IChatCodeReference): string {
