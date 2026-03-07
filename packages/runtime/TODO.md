@@ -2,7 +2,7 @@
 
 > Runtime: API (NestJS) + Webhooks + Workers + Scheduler + MCP
 >
-> **Задач:** 283 | **Процессов:** 9
+> **Задач:** 295 | **Процессов:** 10
 
 ---
 
