@@ -1,6 +1,8 @@
 import {describe, expect, test} from "bun:test"
 
 import {
+    CHAT_FINISH_REASON,
+    CHAT_RESPONSE_FORMAT,
     MESSAGE_ROLE,
     type IChatChunkDTO,
     type IChatRequestDTO,
@@ -18,6 +20,7 @@ class InMemoryLLMProvider implements ILLMProvider {
                 output: 20,
                 total: 120,
             },
+            finishReason: CHAT_FINISH_REASON.STOP,
         })
     }
 
@@ -59,6 +62,9 @@ describe("ILLMProvider contract", () => {
                 },
             ],
             model: "gpt-5",
+            responseFormat: {
+                type: CHAT_RESPONSE_FORMAT.JSON_OBJECT,
+            },
         }
 
         const response = await provider.chat(request)
@@ -66,6 +72,7 @@ describe("ILLMProvider contract", () => {
 
         expect(response.content).toBe("processed:1")
         expect(response.usage.total).toBe(120)
+        expect(response.finishReason).toBe(CHAT_FINISH_REASON.STOP)
         expect(embeddings).toHaveLength(2)
         expect(embeddings[0]?.[0]).toBe(5)
     })

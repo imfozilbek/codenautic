@@ -1,5 +1,9 @@
 import {describe, expect, test} from "bun:test"
 
+import {
+    CHAT_FINISH_REASON,
+    CHAT_RESPONSE_FORMAT,
+} from "../../../../src/application/dto/llm"
 import {MESSAGE_ROLE} from "../../../../src/application/dto/llm/message.dto"
 import type {IChatRequestDTO, IChatResponseDTO} from "../../../../src/application/dto/llm/chat.dto"
 
@@ -28,10 +32,26 @@ describe("LLM chat DTOs", () => {
                     },
                 },
             ],
+            responseFormat: {
+                type: CHAT_RESPONSE_FORMAT.JSON_SCHEMA,
+                name: "review_output",
+                schema: {
+                    type: "object",
+                },
+                strict: true,
+            },
         }
 
         expect(request.messages).toHaveLength(2)
         expect(request.model).toBe("gpt-5")
+        expect(request.responseFormat).toEqual({
+            type: CHAT_RESPONSE_FORMAT.JSON_SCHEMA,
+            name: "review_output",
+            schema: {
+                type: "object",
+            },
+            strict: true,
+        })
     })
 
     test("supports chat response payload", () => {
@@ -49,9 +69,11 @@ describe("LLM chat DTOs", () => {
                 output: 250,
                 total: 1250,
             },
+            finishReason: CHAT_FINISH_REASON.TOOL_CALLS,
         }
 
         expect(response.content).toContain("issues")
         expect(response.usage.total).toBe(1250)
+        expect(response.finishReason).toBe(CHAT_FINISH_REASON.TOOL_CALLS)
     })
 })

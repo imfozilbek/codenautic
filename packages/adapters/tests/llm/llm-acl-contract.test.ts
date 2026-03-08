@@ -1,6 +1,11 @@
 import {describe, expect, test} from "bun:test"
 
 import {
+    CHAT_FINISH_REASON,
+    CHAT_RESPONSE_FORMAT,
+} from "@codenautic/core"
+
+import {
     AnthropicRequestAcl,
     AnthropicResponseAcl,
     LLM_ACL_PROVIDER,
@@ -35,6 +40,9 @@ describe("LLM ACL contract", () => {
                     },
                 },
             ],
+            responseFormat: {
+                type: CHAT_RESPONSE_FORMAT.JSON_OBJECT,
+            },
         })
 
         expect(normalized).toEqual({
@@ -67,6 +75,63 @@ describe("LLM ACL contract", () => {
                     },
                 },
             ],
+            response_format: {
+                type: "json_object",
+            },
+        })
+    })
+
+    test("normalizes OpenAI request with text response format", () => {
+        const normalized = normalizeLlmProviderRequest(LLM_ACL_PROVIDER.OPENAI, {
+            model: "gpt-4o-mini",
+            messages: [
+                {
+                    role: "user",
+                    content: "plain text only",
+                },
+            ],
+            responseFormat: {
+                type: CHAT_RESPONSE_FORMAT.TEXT,
+            },
+        })
+
+        expect(normalized.response_format).toEqual({
+            type: "text",
+        })
+    })
+
+    test("normalizes OpenAI request with JSON schema response format", () => {
+        const normalized = normalizeLlmProviderRequest(LLM_ACL_PROVIDER.OPENAI, {
+            model: "gpt-4o",
+            messages: [
+                {
+                    role: "user",
+                    content: "return typed json",
+                },
+            ],
+            responseFormat: {
+                type: CHAT_RESPONSE_FORMAT.JSON_SCHEMA,
+                name: " review_summary ",
+                description: " typed response ",
+                strict: true,
+                schema: {
+                    type: "object",
+                    additionalProperties: false,
+                },
+            },
+        })
+
+        expect(normalized.response_format).toEqual({
+            type: "json_schema",
+            json_schema: {
+                name: "review_summary",
+                description: "typed response",
+                strict: true,
+                schema: {
+                    type: "object",
+                    additionalProperties: false,
+                },
+            },
         })
     })
 
@@ -180,6 +245,7 @@ describe("LLM ACL contract", () => {
             temperature: undefined,
             max_tokens: undefined,
             tools: undefined,
+            response_format: undefined,
             messages: [
                 {
                     role: "assistant",
@@ -282,6 +348,7 @@ describe("LLM ACL contract", () => {
                             },
                         ],
                     },
+                    finish_reason: "tool_calls",
                 },
             ],
             usage: {
@@ -295,6 +362,7 @@ describe("LLM ACL contract", () => {
         expect(normalized).toEqual({
             response: {
                 content: "Done",
+                finishReason: CHAT_FINISH_REASON.TOOL_CALLS,
                 toolCalls: [
                     {
                         id: "call-1",
@@ -338,6 +406,7 @@ describe("LLM ACL contract", () => {
                     input_tokens: 400,
                     output_tokens: 100,
                 },
+                stop_reason: "stop",
             },
             {
                 pricingByProvider: {
@@ -351,6 +420,7 @@ describe("LLM ACL contract", () => {
 
         expect(normalized.response).toEqual({
             content: "Line 1\nLine 2",
+            finishReason: CHAT_FINISH_REASON.STOP,
             toolCalls: [
                 {
                     id: "tool-1",
@@ -379,6 +449,7 @@ describe("LLM ACL contract", () => {
         expect(normalized).toEqual({
             response: {
                 content: "",
+                finishReason: undefined,
                 usage: {
                     input: 20,
                     output: 10,
@@ -420,6 +491,7 @@ describe("LLM ACL contract", () => {
         expect(openAiFallback).toEqual({
             response: {
                 content: "fallback output",
+                finishReason: undefined,
                 usage: {
                     input: 7,
                     output: 3,
@@ -432,6 +504,7 @@ describe("LLM ACL contract", () => {
         expect(anthropicFallback).toEqual({
             response: {
                 content: "fallback completion",
+                finishReason: undefined,
                 toolCalls: [
                     {
                         id: "tool-only",
@@ -479,10 +552,12 @@ describe("LLM ACL contract", () => {
 
         expect(Object.keys(openAi.response).sort()).toEqual([
             "content",
+            "finishReason",
             "usage",
         ])
         expect(Object.keys(anthropic.response).sort()).toEqual([
             "content",
+            "finishReason",
             "usage",
         ])
     })

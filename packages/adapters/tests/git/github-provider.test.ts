@@ -268,6 +268,22 @@ async function captureRejectedError(execute: () => Promise<unknown>): Promise<Er
 }
 
 describe("GitHubProvider", () => {
+    test("exposes normalized GitHub provider error metadata through getters", () => {
+        const error = new GitHubProviderError({
+            kind: "RATE_LIMITED",
+            message: "rate limited",
+            isRetryable: true,
+            statusCode: 429,
+            retryAfterMs: 1000,
+        })
+
+        expect(error.name).toBe("GitHubProviderError")
+        expect(error.kind).toBe("RATE_LIMITED")
+        expect(error.isRetryable).toBe(true)
+        expect(error.statusCode).toBe(429)
+        expect(error.retryAfterMs).toBe(1000)
+    })
+
     test("creates provider from token when custom client is omitted", () => {
         const provider = new GitHubProvider({
             owner: "codenautic",
@@ -914,6 +930,41 @@ describe("GitHubProvider", () => {
 
         expect(result.id).toBe("3")
         expect(sleepCalls).toEqual([1000])
+        expect(issuesCreateComment.calls).toHaveLength(2)
+    })
+
+    test("uses default sleep implementation for retryable github rate limits", async () => {
+        const issuesCreateComment = createQueuedAsyncMethod([
+            createErrorHandler(
+                createGitHubApiError("rate limited", {
+                    status: 429,
+                    headers: {
+                        "retry-after": "0",
+                    },
+                }),
+            ),
+            createDataHandler({
+                id: 4,
+                body: "Retried with default sleep",
+                created_at: "2026-03-08T16:05:00.000Z",
+                user: {
+                    login: "review-bot",
+                },
+            }),
+        ])
+        const provider = new GitHubProvider({
+            owner: "codenautic",
+            repo: "platform",
+            client: createGitHubClientMock({
+                issues: {
+                    createComment: issuesCreateComment,
+                },
+            }),
+        })
+
+        const result = await provider.postComment("7", "Retried with default sleep")
+
+        expect(result.id).toBe("4")
         expect(issuesCreateComment.calls).toHaveLength(2)
     })
 

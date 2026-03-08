@@ -18,6 +18,15 @@ export {
     type LlmProviderFactoryErrorCode,
 } from "./llm-provider-factory.error"
 export {
+    OpenAIProvider,
+    type IOpenAIClient,
+    type IOpenAIProviderOptions,
+} from "./openai-provider"
+export {
+    OpenAIProviderError,
+    type IOpenAIProviderErrorDetails,
+} from "./openai-provider.error"
+export {
     AnthropicRequestAcl,
     AnthropicResponseAcl,
     LLM_ACL_PROVIDER,

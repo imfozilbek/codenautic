@@ -679,7 +679,9 @@ export class GitHubProvider implements IGitProvider {
      * @returns Operation result.
      */
     private async executeRequest<T>(operation: () => Promise<T>): Promise<T> {
-        for (let attempt = 1; attempt <= this.retryMaxAttempts; attempt += 1) {
+        let attempt = 1
+
+        while (true) {
             try {
                 return await operation()
             } catch (error) {
@@ -690,12 +692,9 @@ export class GitHubProvider implements IGitProvider {
                 }
 
                 await this.sleep(resolveRetryDelayMs(normalized, attempt))
+                attempt += 1
             }
         }
-
-        throw new GitHubProviderError(
-            createUnknownNormalizedError("GitHub request failed after retries"),
-        )
     }
 
     /**
@@ -1081,21 +1080,6 @@ function resolveRetryDelayMs(
     }
 
     return DEFAULT_RETRY_BASE_DELAY_MS * 2 ** (attempt - 1)
-}
-
-/**
- * Builds stable fallback normalized error.
- *
- * @param message Public error message.
- * @returns Normalized error payload.
- */
-function createUnknownNormalizedError(message: string): INormalizedGitAclError {
-    return {
-        kind: normalizeGitAclError({}).kind,
-        message,
-        isRetryable: false,
-        statusCode: undefined,
-    }
 }
 
 /**

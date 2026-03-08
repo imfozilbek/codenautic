@@ -1,6 +1,8 @@
 import {
+    CHAT_RESPONSE_FORMAT,
     MESSAGE_ROLE,
     type IChatRequestDTO,
+    type IChatResponseFormatDTO,
     type IMessageDTO,
     type IToolDefinitionDTO,
 } from "@codenautic/core"
@@ -39,7 +41,43 @@ export interface IOpenAiChatRequest {
     readonly temperature?: number
     readonly max_tokens?: number
     readonly tools?: readonly IOpenAiTool[]
+    readonly response_format?: IOpenAiResponseFormat
 }
+
+/**
+ * OpenAI-compatible text response format.
+ */
+interface IOpenAiTextResponseFormat {
+    readonly type: "text"
+}
+
+/**
+ * OpenAI-compatible legacy JSON mode response format.
+ */
+interface IOpenAiJsonObjectResponseFormat {
+    readonly type: "json_object"
+}
+
+/**
+ * OpenAI-compatible JSON schema response format.
+ */
+interface IOpenAiJsonSchemaResponseFormat {
+    readonly type: "json_schema"
+    readonly json_schema: {
+        readonly name: string
+        readonly schema: Readonly<Record<string, unknown>>
+        readonly description?: string
+        readonly strict?: boolean
+    }
+}
+
+/**
+ * OpenAI-compatible response format union.
+ */
+type IOpenAiResponseFormat =
+    | IOpenAiTextResponseFormat
+    | IOpenAiJsonObjectResponseFormat
+    | IOpenAiJsonSchemaResponseFormat
 
 /**
  * Anthropic-compatible content block payload.
@@ -152,6 +190,7 @@ function normalizeOpenAiRequest(
         temperature: resolveTemperature(request.temperature),
         max_tokens: resolveMaxTokens(request.maxTokens),
         tools: normalizedTools.length > 0 ? normalizedTools : undefined,
+        response_format: toOpenAiResponseFormat(request.responseFormat),
     }
 }
 
@@ -388,4 +427,40 @@ function resolveAnthropicMaxTokens(
  */
 function normalizeContent(content: string): string {
     return content.trim()
+}
+
+/**
+ * Converts shared response format DTO to OpenAI payload shape.
+ *
+ * @param responseFormat Shared response format DTO.
+ * @returns OpenAI-formatted response format.
+ */
+function toOpenAiResponseFormat(
+    responseFormat: IChatResponseFormatDTO | undefined,
+): IOpenAiResponseFormat | undefined {
+    if (responseFormat === undefined) {
+        return undefined
+    }
+
+    if (responseFormat.type === CHAT_RESPONSE_FORMAT.TEXT) {
+        return {
+            type: "text",
+        }
+    }
+
+    if (responseFormat.type === CHAT_RESPONSE_FORMAT.JSON_OBJECT) {
+        return {
+            type: "json_object",
+        }
+    }
+
+    return {
+        type: "json_schema",
+        json_schema: {
+            name: responseFormat.name.trim(),
+            schema: responseFormat.schema,
+            description: responseFormat.description?.trim(),
+            strict: responseFormat.strict,
+        },
+    }
 }

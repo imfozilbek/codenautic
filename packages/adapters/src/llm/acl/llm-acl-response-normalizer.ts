@@ -1,4 +1,9 @@
-import {type IChatResponseDTO, type IToolCallDTO, type ITokenUsageDTO} from "@codenautic/core"
+import {
+    type ChatFinishReason,
+    type IChatResponseDTO,
+    type IToolCallDTO,
+    type ITokenUsageDTO,
+} from "@codenautic/core"
 
 import {
     type ILlmAclNormalizedResponse,
@@ -54,6 +59,7 @@ function normalizeOpenAiResponse(
         readNumber(usageRecord, ["completion_tokens"]),
         readNumber(usageRecord, ["total_tokens"]),
     )
+    const finishReason = readFinishReason(firstChoice["finish_reason"])
 
     const estimatedCostUsd = resolveCost(
         LLM_ACL_PROVIDER.OPENAI,
@@ -64,7 +70,7 @@ function normalizeOpenAiResponse(
     )
 
     return {
-        response: buildChatResponse(content, toolCalls, usage),
+        response: buildChatResponse(content, toolCalls, usage, finishReason),
         estimatedCostUsd,
     }
 }
@@ -91,6 +97,7 @@ function normalizeAnthropicResponse(
         readNumber(usageRecord, ["output_tokens"]),
         readNumber(usageRecord, ["total_tokens"]),
     )
+    const finishReason = readFinishReason(root["stop_reason"])
 
     const estimatedCostUsd = resolveCost(
         LLM_ACL_PROVIDER.ANTHROPIC,
@@ -101,7 +108,7 @@ function normalizeAnthropicResponse(
     )
 
     return {
-        response: buildChatResponse(content, toolCalls, usage),
+        response: buildChatResponse(content, toolCalls, usage, finishReason),
         estimatedCostUsd,
     }
 }
@@ -285,11 +292,13 @@ function buildChatResponse(
     content: string,
     toolCalls: readonly IToolCallDTO[],
     usage: ITokenUsageDTO,
+    finishReason: ChatFinishReason | undefined,
 ): IChatResponseDTO {
     if (toolCalls.length === 0) {
         return {
             content,
             usage,
+            finishReason,
         }
     }
 
@@ -297,7 +306,27 @@ function buildChatResponse(
         content,
         toolCalls,
         usage,
+        finishReason,
     }
+}
+
+/**
+ * Normalizes provider finish reason field.
+ *
+ * @param value Raw finish reason value.
+ * @returns Normalized finish reason or undefined.
+ */
+function readFinishReason(value: unknown): ChatFinishReason | undefined {
+    if (typeof value !== "string") {
+        return undefined
+    }
+
+    const normalized = value.trim()
+    if (normalized.length === 0) {
+        return undefined
+    }
+
+    return normalized
 }
 
 /**

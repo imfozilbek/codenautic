@@ -28,6 +28,6 @@
 | ID | Задача | Статус | Результат | Acceptance Criteria |
 |----------|--------------------|--------|-----------|---------------------|
 | LLM-001 | Реализовать LLMProviderFactory | DONE | Реализовано | Реализация: Создает провайдер по типу. Возвращает ILLMProvider. Поддержка BYOK. Готово, если: factory поддерживает BYOK и fallback-конфигурацию без утечки секретов, неверный provider/model приводит к предсказуемой ошибке конфигурации; DoD: `cd packages/adapters && bun run lint && bun run typecheck && bun test`. |
-| LLM-002 | Реализовать OpenAIProvider | TODO | Не начато | Реализация: Интеграция через OpenAI SDK. GPT-4o, GPT-4o-mini. Поддержка streaming SSE. Поддержка JSON mode. Tools. Готово, если: OpenAI adapter стабильно работает в sync/stream/json/tools режимах, token usage и finish reason корректно маппятся в domain DTO, retry/backoff применяется к 429/5xx; DoD: `cd packages/adapters && bun run lint && bun run typecheck && bun test`. |
+| LLM-002 | Реализовать OpenAIProvider | DONE | Реализовано | Реализация: Интеграция через OpenAI SDK. GPT-4o, GPT-4o-mini. Поддержка streaming SSE. Поддержка JSON mode. Tools. Готово, если: OpenAI adapter стабильно работает в sync/stream/json/tools режимах, token usage и finish reason корректно маппятся в domain DTO, retry/backoff применяется к 429/5xx; DoD: `cd packages/adapters && bun run lint && bun run typecheck && bun test`. |
 
 ---

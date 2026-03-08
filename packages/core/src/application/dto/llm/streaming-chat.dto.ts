@@ -1,3 +1,4 @@
+import type {ChatFinishReason} from "./chat-finish-reason.dto"
 import type {ITokenUsageDTO} from "../review/token-usage.dto"
 
 /**
@@ -5,7 +6,7 @@ import type {ITokenUsageDTO} from "../review/token-usage.dto"
  */
 export interface IChatChunkDTO {
     readonly delta: string
-    readonly finishReason?: string
+    readonly finishReason?: ChatFinishReason
     readonly usage?: ITokenUsageDTO
 }
 
