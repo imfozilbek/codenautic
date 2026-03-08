@@ -11,7 +11,7 @@ import {
     useRef,
     useState,
 } from "react"
-import { createApiConfig, type IUiEnv } from "../api/config"
+import { createApiConfig, resolveUiEnv } from "../api/config"
 import { FetchHttpClient, isApiHttpError } from "../api/http-client"
 import type { IHttpClient } from "../api/http-client"
 
@@ -135,24 +135,9 @@ interface IThemeProfileResponse {
     readonly updatedAtMs: number
 }
 
-/**
- * Безопасно приводит значение окружения к строке.
- *
- * @param value Значение из окружения.
- * @returns Строка или undefined.
- */
-function toStringEnv(value: unknown): string | undefined {
-    return typeof value === "string" ? value : undefined
-}
-
-/**
- * Безопасно приводит значение окружения к boolean.
- *
- * @param value Значение из окружения.
- * @returns Boolean или undefined.
- */
-function toBooleanEnv(value: unknown): boolean | undefined {
-    return typeof value === "boolean" ? value : undefined
+type TThemeSyncSelection = {
+    readonly profile: IThemeProfile
+    readonly source: "local" | "remote"
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -264,13 +249,47 @@ function parseUpdatedAtValue(rawValue: unknown): number {
     return THEME_PROFILE_DEFAULT_UPDATED_AT_MS
 }
 
-function readThemeProfileSyncState(): IThemeProfileSyncState | undefined {
+function getWindowLocalStorage(): Storage | undefined {
     if (typeof window === "undefined") {
         return undefined
     }
 
-    const rawState = window.localStorage.getItem(THEME_PROFILE_STORAGE_SYNC_KEY)
-    if (rawState === null) {
+    try {
+        return window.localStorage
+    } catch {
+        return undefined
+    }
+}
+
+function readLocalStorageItem(storageKey: string): string | undefined {
+    const storage = getWindowLocalStorage()
+    if (storage === undefined) {
+        return undefined
+    }
+
+    try {
+        return storage.getItem(storageKey) ?? undefined
+    } catch {
+        return undefined
+    }
+}
+
+function writeLocalStorageItem(storageKey: string, value: string): void {
+    const storage = getWindowLocalStorage()
+    if (storage === undefined) {
+        return
+    }
+
+    try {
+        storage.setItem(storageKey, value)
+    } catch {
+        return
+    }
+}
+
+function readThemeProfileSyncState(): IThemeProfileSyncState | undefined {
+    const rawState = readLocalStorageItem(THEME_PROFILE_STORAGE_SYNC_KEY)
+    if (rawState === undefined) {
         return undefined
     }
 
@@ -295,28 +314,18 @@ function readThemeProfileSyncState(): IThemeProfileSyncState | undefined {
 }
 
 function writeThemeProfileSyncState(profile: IThemeProfile): void {
-    if (typeof window === "undefined") {
-        return
-    }
-
     const payload = {
         mode: profile.mode,
         preset: profile.preset,
         updatedAtMs: profile.updatedAtMs,
     }
 
-    window.localStorage.setItem(THEME_PROFILE_STORAGE_SYNC_KEY, JSON.stringify(payload))
+    writeLocalStorageItem(THEME_PROFILE_STORAGE_SYNC_KEY, JSON.stringify(payload))
 }
 
 function createThemeSettingsApiClient(): IHttpClient | undefined {
     try {
-        const themeApiEnv: IUiEnv = {
-            MODE: toStringEnv(import.meta.env.MODE),
-            PROD: toBooleanEnv(import.meta.env.PROD),
-            VITE_API_BEARER_TOKEN: toStringEnv(import.meta.env.VITE_API_BEARER_TOKEN),
-            VITE_API_URL: toStringEnv(import.meta.env.VITE_API_URL),
-        }
-        const config = createApiConfig(themeApiEnv)
+        const config = createApiConfig(resolveUiEnv(import.meta.env))
 
         return new FetchHttpClient(config)
     } catch {
@@ -653,12 +662,8 @@ function isThemePreset(rawPreset: string): rawPreset is ThemePresetId {
 }
 
 function readStoredThemeMode(): ThemeMode {
-    if (typeof window === "undefined") {
-        return THEME_DEFAULT_MODE
-    }
-
-    const rawMode = window.localStorage.getItem(THEME_MODE_STORAGE_KEY)
-    if (rawMode !== null && isThemeMode(rawMode) === true) {
+    const rawMode = readLocalStorageItem(THEME_MODE_STORAGE_KEY)
+    if (rawMode !== undefined && isThemeMode(rawMode) === true) {
         return rawMode
     }
 
@@ -666,12 +671,8 @@ function readStoredThemeMode(): ThemeMode {
 }
 
 function readStoredThemePreset(): ThemePresetId {
-    if (typeof window === "undefined") {
-        return DEFAULT_THEME_PRESET_ID
-    }
-
-    const rawPreset = window.localStorage.getItem(THEME_PRESET_STORAGE_KEY)
-    if (rawPreset !== null && isThemePreset(rawPreset) === true) {
+    const rawPreset = readLocalStorageItem(THEME_PRESET_STORAGE_KEY)
+    if (rawPreset !== undefined && isThemePreset(rawPreset) === true) {
         return rawPreset
     }
 
@@ -683,8 +684,12 @@ function resolveSystemTheme(mediaQuery?: MediaQueryList): ThemeResolvedMode {
         return "light"
     }
 
-    const resolvedQuery = mediaQuery ?? window.matchMedia("(prefers-color-scheme: dark)")
-    return resolvedQuery.matches === true ? "dark" : "light"
+    try {
+        const resolvedQuery = mediaQuery ?? window.matchMedia("(prefers-color-scheme: dark)")
+        return resolvedQuery.matches === true ? "dark" : "light"
+    } catch {
+        return "light"
+    }
 }
 
 function resolveThemeMode(themeMode: ThemeMode, systemTheme: ThemeResolvedMode): ThemeResolvedMode {
@@ -750,9 +755,12 @@ export function initializeTheme(): IThemeBootstrapState {
 function selectThemeProfile(
     remoteProfile: IThemeProfileResponse | undefined,
     localProfile: IThemeProfile,
-): IThemeProfile {
+): TThemeSyncSelection {
     if (remoteProfile === undefined) {
-        return localProfile
+        return {
+            profile: localProfile,
+            source: "local",
+        }
     }
 
     const candidate = toThemeProfile(remoteProfile.profile, localProfile)
@@ -760,10 +768,16 @@ function selectThemeProfile(
         localProfile.updatedAtMs !== THEME_PROFILE_DEFAULT_UPDATED_AT_MS &&
         candidate.updatedAtMs < localProfile.updatedAtMs
     ) {
-        return localProfile
+        return {
+            profile: localProfile,
+            source: "local",
+        }
     }
 
-    return candidate
+    return {
+        profile: candidate,
+        source: "remote",
+    }
 }
 
 /**
@@ -780,6 +794,7 @@ type TThemeProviderProps = {
 
 export function ThemeProvider(props: TThemeProviderProps): ReactElement {
     const { children, defaultMode, defaultPreset } = props
+    const initialThemeSyncState = readThemeProfileSyncState()
 
     const [mode, setThemeMode] = useState<ThemeMode>(() => {
         const persistedMode = readStoredThemeMode()
@@ -804,12 +819,19 @@ export function ThemeProvider(props: TThemeProviderProps): ReactElement {
     )
     const shouldSyncProfileRef = useRef(false)
     const lastSyncSignatureRef = useRef("")
+    const profileUpdatedAtRef = useRef(
+        initialThemeSyncState?.updatedAtMs ?? THEME_PROFILE_DEFAULT_UPDATED_AT_MS,
+    )
+    const pendingLocalProfileUpdatedAtRef = useRef<number | undefined>(undefined)
 
     const setMode = useCallback((nextMode: SetStateAction<ThemeMode>): void => {
         setThemeMode((stateMode): ThemeMode => {
             const modeCandidate =
                 nextMode instanceof Function === true ? nextMode(stateMode) : nextMode
             if (isThemeMode(modeCandidate) === true) {
+                if (modeCandidate !== stateMode) {
+                    pendingLocalProfileUpdatedAtRef.current = Date.now()
+                }
                 return modeCandidate
             }
 
@@ -822,6 +844,9 @@ export function ThemeProvider(props: TThemeProviderProps): ReactElement {
             const presetCandidate =
                 nextPreset instanceof Function === true ? nextPreset(statePreset) : nextPreset
             if (isThemePreset(presetCandidate) === true) {
+                if (presetCandidate !== statePreset) {
+                    pendingLocalProfileUpdatedAtRef.current = Date.now()
+                }
                 return presetCandidate
             }
 
@@ -830,10 +855,19 @@ export function ThemeProvider(props: TThemeProviderProps): ReactElement {
     }, [])
 
     useThemeSystemModeSync(setSystemMode)
-    useThemeApplyModePresetEffect(mode, preset, resolvedMode)
+    useThemeApplyModePresetEffect(
+        mode,
+        preset,
+        resolvedMode,
+        profileUpdatedAtRef,
+        pendingLocalProfileUpdatedAtRef,
+    )
     useThemeSyncFromApiEffect({
         mode,
         preset,
+        lastSyncSignatureRef,
+        pendingLocalProfileUpdatedAtRef,
+        profileUpdatedAtRef,
         setThemeMode,
         setThemePreset,
         shouldSyncProfileRef,
@@ -842,6 +876,8 @@ export function ThemeProvider(props: TThemeProviderProps): ReactElement {
         mode,
         preset,
         lastSyncSignatureRef,
+        pendingLocalProfileUpdatedAtRef,
+        profileUpdatedAtRef,
         shouldSyncProfileRef,
     })
     useThemeStorageEffect(setMode, setPreset)
@@ -884,31 +920,44 @@ function useThemeApplyModePresetEffect(
     mode: ThemeMode,
     preset: ThemePresetId,
     resolvedMode: ThemeResolvedMode,
+    profileUpdatedAtRef?: { current: number },
+    pendingLocalProfileUpdatedAtRef?: { current: number | undefined },
 ): void {
     useEffect((): void => {
         applyThemeTokens(resolvedMode, preset)
-        if (typeof window === "undefined") {
-            return
-        }
-
-        window.localStorage.setItem(THEME_MODE_STORAGE_KEY, mode)
-        window.localStorage.setItem(THEME_PRESET_STORAGE_KEY, preset)
+        writeLocalStorageItem(THEME_MODE_STORAGE_KEY, mode)
+        writeLocalStorageItem(THEME_PRESET_STORAGE_KEY, preset)
         writeThemeProfileSyncState({
             mode,
             preset,
-            updatedAtMs: Date.now(),
+            updatedAtMs:
+                pendingLocalProfileUpdatedAtRef?.current
+                ?? profileUpdatedAtRef?.current
+                ?? THEME_PROFILE_DEFAULT_UPDATED_AT_MS,
         })
-    }, [mode, preset, resolvedMode])
+    }, [mode, pendingLocalProfileUpdatedAtRef, preset, profileUpdatedAtRef, resolvedMode])
 }
 
 function useThemeSyncFromApiEffect(args: {
     readonly mode: ThemeMode
     readonly preset: ThemePresetId
+    readonly lastSyncSignatureRef: { current: string }
+    readonly pendingLocalProfileUpdatedAtRef: { current: number | undefined }
+    readonly profileUpdatedAtRef: { current: number }
     readonly setThemeMode: (updater: SetStateAction<ThemeMode>) => void
     readonly setThemePreset: (updater: SetStateAction<ThemePresetId>) => void
     readonly shouldSyncProfileRef: { current: boolean }
 }): void {
-    const { mode, preset, setThemeMode, setThemePreset, shouldSyncProfileRef } = args
+    const {
+        mode,
+        preset,
+        lastSyncSignatureRef,
+        pendingLocalProfileUpdatedAtRef,
+        profileUpdatedAtRef,
+        setThemeMode,
+        setThemePreset,
+        shouldSyncProfileRef,
+    } = args
 
     useEffect((): (() => void) | undefined => {
         if (typeof window === "undefined") {
@@ -922,6 +971,10 @@ function useThemeSyncFromApiEffect(args: {
         }
 
         const localSyncState = readThemeProfileSyncState()
+        const localUpdatedAtMs =
+            pendingLocalProfileUpdatedAtRef.current
+            ?? localSyncState?.updatedAtMs
+            ?? profileUpdatedAtRef.current
         const localProfile = toThemeProfile(
             {
                 mode,
@@ -930,7 +983,7 @@ function useThemeSyncFromApiEffect(args: {
             {
                 mode,
                 preset,
-                updatedAtMs: localSyncState?.updatedAtMs ?? THEME_PROFILE_DEFAULT_UPDATED_AT_MS,
+                updatedAtMs: localUpdatedAtMs,
             },
         )
         const abortController = new AbortController()
@@ -939,7 +992,10 @@ function useThemeSyncFromApiEffect(args: {
         }, THEME_SETTINGS_TIMEOUT_MS)
 
         const syncFromProfile = async (): Promise<void> => {
-            let selectedProfile = localProfile
+            let selectedThemeProfile: TThemeSyncSelection = {
+                profile: localProfile,
+                source: "local",
+            }
             for (const endpoint of THEME_SETTINGS_ENDPOINTS) {
                 const response = await fetchThemeProfileFromApi(
                     apiClient,
@@ -947,14 +1003,20 @@ function useThemeSyncFromApiEffect(args: {
                     endpoint,
                 )
                 if (response !== undefined) {
-                    const responseProfile = selectThemeProfile(response, localProfile)
-                    selectedProfile = responseProfile
+                    selectedThemeProfile = selectThemeProfile(response, localProfile)
                     break
                 }
             }
 
             if (abortController.signal.aborted) {
                 return
+            }
+
+            const selectedProfile = selectedThemeProfile.profile
+            profileUpdatedAtRef.current = selectedProfile.updatedAtMs
+            pendingLocalProfileUpdatedAtRef.current = undefined
+            if (selectedThemeProfile.source === "remote") {
+                lastSyncSignatureRef.current = `${selectedProfile.mode}:${selectedProfile.preset}`
             }
 
             setThemeMode((_: ThemeMode): ThemeMode => {
@@ -987,16 +1049,34 @@ function useThemeSyncFromApiEffect(args: {
             abortController.abort()
             shouldSyncProfileRef.current = true
         }
-    }, [mode, preset, setThemeMode, setThemePreset, shouldSyncProfileRef])
+    }, [
+        lastSyncSignatureRef,
+        mode,
+        pendingLocalProfileUpdatedAtRef,
+        preset,
+        profileUpdatedAtRef,
+        setThemeMode,
+        setThemePreset,
+        shouldSyncProfileRef,
+    ])
 }
 
 function useThemeSyncToApiEffect(args: {
     readonly mode: ThemeMode
     readonly preset: ThemePresetId
     readonly lastSyncSignatureRef: { current: string }
+    readonly pendingLocalProfileUpdatedAtRef: { current: number | undefined }
+    readonly profileUpdatedAtRef: { current: number }
     readonly shouldSyncProfileRef: { current: boolean }
 }): void {
-    const { mode, preset, lastSyncSignatureRef, shouldSyncProfileRef } = args
+    const {
+        mode,
+        preset,
+        lastSyncSignatureRef,
+        pendingLocalProfileUpdatedAtRef,
+        profileUpdatedAtRef,
+        shouldSyncProfileRef,
+    } = args
 
     useEffect((): (() => void) | undefined => {
         if (typeof window === "undefined") {
@@ -1008,12 +1088,24 @@ function useThemeSyncToApiEffect(args: {
         }
 
         const signature = `${mode}:${preset}`
-        if (lastSyncSignatureRef.current === signature) {
+        if (
+            lastSyncSignatureRef.current === signature &&
+            pendingLocalProfileUpdatedAtRef.current === undefined
+        ) {
             return undefined
         }
 
         const apiClient = createThemeSettingsApiClient()
         if (apiClient === undefined) {
+            const fallbackUpdatedAtMs =
+                pendingLocalProfileUpdatedAtRef.current ?? profileUpdatedAtRef.current
+            profileUpdatedAtRef.current = fallbackUpdatedAtMs
+            pendingLocalProfileUpdatedAtRef.current = undefined
+            writeThemeProfileSyncState({
+                mode,
+                preset,
+                updatedAtMs: fallbackUpdatedAtMs,
+            })
             lastSyncSignatureRef.current = signature
             return undefined
         }
@@ -1023,11 +1115,13 @@ function useThemeSyncToApiEffect(args: {
             abortController.abort()
         }, THEME_SETTINGS_TIMEOUT_MS)
         const timerHandle = window.setTimeout((): void => {
+            const updatedAtMs = pendingLocalProfileUpdatedAtRef.current ?? Date.now()
             const profile: IThemeProfile = {
                 mode,
                 preset,
-                updatedAtMs: Date.now(),
+                updatedAtMs,
             }
+            profileUpdatedAtRef.current = updatedAtMs
 
             void (async (): Promise<void> => {
                 let synced = false
@@ -1054,6 +1148,7 @@ function useThemeSyncToApiEffect(args: {
                 }
             })()
             writeThemeProfileSyncState(profile)
+            pendingLocalProfileUpdatedAtRef.current = undefined
             lastSyncSignatureRef.current = signature
         }, THEME_SETTINGS_SAVE_DEBOUNCE_MS)
 
@@ -1062,7 +1157,14 @@ function useThemeSyncToApiEffect(args: {
             clearTimeout(timerHandle)
             abortController.abort()
         }
-    }, [mode, preset, lastSyncSignatureRef, shouldSyncProfileRef])
+    }, [
+        lastSyncSignatureRef,
+        mode,
+        pendingLocalProfileUpdatedAtRef,
+        preset,
+        profileUpdatedAtRef,
+        shouldSyncProfileRef,
+    ])
 }
 
 function useThemeStorageEffect(

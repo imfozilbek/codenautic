@@ -71,6 +71,8 @@ export const server = setupServer(
                     id: "u-default",
                     email: "default@example.com",
                     displayName: "Default User",
+                    role: "admin",
+                    tenantId: "platform-team",
                 },
             },
         })
@@ -84,6 +86,8 @@ export const server = setupServer(
                     id: "u-default",
                     email: "default@example.com",
                     displayName: "Default User",
+                    role: "admin",
+                    tenantId: "platform-team",
                 },
             },
         })

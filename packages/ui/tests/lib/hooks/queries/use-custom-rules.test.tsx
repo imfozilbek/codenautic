@@ -107,6 +107,51 @@ function CustomRulesState(hook: IUseCustomRulesResult): ReactElement {
     )
 }
 
+function MultiFilterCustomRulesProbe(): ReactElement {
+    const fileHook = useCustomRules({
+        scope: CUSTOM_RULE_SCOPE.file,
+        status: CUSTOM_RULE_STATUS.active,
+    })
+    const ccrHook = useCustomRules({
+        scope: CUSTOM_RULE_SCOPE.ccr,
+        status: CUSTOM_RULE_STATUS.pending,
+    })
+
+    return (
+        <div>
+            <p data-testid="file-rules-titles">
+                {fileHook.customRulesQuery.data?.rules.length === 0
+                    ? "empty"
+                    : (fileHook.customRulesQuery.data?.rules
+                          .map((item): string => item.title)
+                          .join("|") ?? "empty")}
+            </p>
+            <p data-testid="ccr-rules-titles">
+                {ccrHook.customRulesQuery.data?.rules.length === 0
+                    ? "empty"
+                    : (ccrHook.customRulesQuery.data?.rules
+                          .map((item): string => item.title)
+                          .join("|") ?? "empty")}
+            </p>
+            <button
+                data-testid="move-rule"
+                disabled={fileHook.updateRule.isPending}
+                type="button"
+                onClick={(): void => {
+                    void fileHook.updateRule.mutateAsync({
+                        id: BASE_RULE.id,
+                        scope: CUSTOM_RULE_SCOPE.ccr,
+                        status: CUSTOM_RULE_STATUS.pending,
+                        title: "Moved to CCR queue",
+                    })
+                }}
+            >
+                Move rule
+            </button>
+        </div>
+    )
+}
+
 function buildCreateRequest(): ICreateCustomRuleRequest {
     return {
         title: "Draft optimistic rule",
@@ -262,5 +307,47 @@ describe("useCustomRules", (): void => {
         await waitFor((): void => {
             expect(screen.getByTestId("delete-status").textContent).toBe("deleted:rule-1")
         }, { timeout: 250 })
+    })
+
+    it("инвалидирует все фильтрованные списки после изменения scope/status", async (): Promise<void> => {
+        let currentRule: ICustomRule = BASE_RULE
+
+        server.use(
+            http.get("http://localhost:3000/api/v1/rules", ({ request }) => {
+                const requestUrl = new URL(request.url)
+                const requestedScope = requestUrl.searchParams.get("scope")
+                const requestedStatus = requestUrl.searchParams.get("status")
+                const matchesFilter =
+                    requestedScope === currentRule.scope && requestedStatus === currentRule.status
+
+                return HttpResponse.json({
+                    rules: matchesFilter ? [currentRule] : [],
+                    total: matchesFilter ? 1 : 0,
+                })
+            }),
+            http.put("http://localhost:3000/api/v1/rules/rule-1", async () => {
+                currentRule = {
+                    ...BASE_RULE,
+                    scope: CUSTOM_RULE_SCOPE.ccr,
+                    status: CUSTOM_RULE_STATUS.pending,
+                    title: "Moved to CCR queue",
+                }
+
+                return HttpResponse.json(currentRule)
+            }),
+        )
+
+        renderWithProviders(<MultiFilterCustomRulesProbe />)
+        await waitFor((): void => {
+            expect(screen.getByTestId("file-rules-titles")).toHaveTextContent("Current rule")
+            expect(screen.getByTestId("ccr-rules-titles")).toHaveTextContent("empty")
+        })
+
+        await userEvent.click(screen.getByTestId("move-rule"))
+
+        await waitFor((): void => {
+            expect(screen.getByTestId("file-rules-titles")).toHaveTextContent("empty")
+            expect(screen.getByTestId("ccr-rules-titles")).toHaveTextContent("Moved to CCR queue")
+        })
     })
 })

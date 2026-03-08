@@ -59,6 +59,7 @@ describe("login route helpers", (): void => {
         expect(resolveLoginDestination("   ")).toBe("/")
         expect(resolveLoginDestination("/login?next=/dashboard")).toBe("/")
         expect(resolveLoginDestination("/dashboard?tab=active")).toBe("/dashboard?tab=active")
+        expect(resolveLoginDestination("//evil.example/phishing")).toBe("/")
         expect(resolveLoginDestination("https://evil.example/phishing")).toBe("/")
     })
 

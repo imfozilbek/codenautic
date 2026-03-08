@@ -44,7 +44,7 @@ describe("auth-session helpers", (): void => {
     })
 
     it("сохраняет snapshot без токенов в sessionStorage", (): void => {
-        const session = createSession("2026-03-03T10:10:00.000Z")
+        const session = createSession("2030-03-03T10:10:00.000Z")
 
         persistAuthSession(sessionStorage, session)
 
@@ -61,7 +61,7 @@ describe("auth-session helpers", (): void => {
         const restored = loadPersistedAuthSession(sessionStorage)
         expect(restored).toEqual({
             provider: "github",
-            expiresAt: "2026-03-03T10:10:00.000Z",
+            expiresAt: "2030-03-03T10:10:00.000Z",
             user: {
                 id: "u-1",
                 email: "dev@example.com",
@@ -86,6 +86,24 @@ describe("auth-session helpers", (): void => {
             }),
         )
         expect(loadPersistedAuthSession(sessionStorage)).toBeUndefined()
+    })
+
+    it("очищает истёкший snapshot во время загрузки", (): void => {
+        sessionStorage.setItem(
+            AUTH_SESSION_STORAGE_KEY,
+            JSON.stringify({
+                provider: "github",
+                expiresAt: "2020-01-01T00:00:00.000Z",
+                user: {
+                    id: "u-1",
+                    email: "dev@example.com",
+                    displayName: "Dev User",
+                },
+            }),
+        )
+
+        expect(loadPersistedAuthSession(sessionStorage)).toBeUndefined()
+        expect(sessionStorage.getItem(AUTH_SESSION_STORAGE_KEY)).toBeNull()
     })
 
     it("отклоняет snapshot с невалидными user полями", (): void => {

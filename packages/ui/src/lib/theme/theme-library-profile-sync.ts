@@ -1,4 +1,4 @@
-import { createApiConfig, type IUiEnv } from "../api/config"
+import { createApiConfig, resolveUiEnv } from "../api/config"
 import { FetchHttpClient, isApiHttpError, type IHttpClient } from "../api/http-client"
 
 /**
@@ -43,14 +43,6 @@ const DEFAULT_UPDATED_AT_MS = 0
 
 function isRecord(value: unknown): value is Record<string, unknown> {
     return typeof value === "object" && value !== null && Array.isArray(value) === false
-}
-
-function toStringEnv(value: unknown): string | undefined {
-    return typeof value === "string" ? value : undefined
-}
-
-function toBooleanEnv(value: unknown): boolean | undefined {
-    return typeof value === "boolean" ? value : undefined
 }
 
 function isHexColor(value: string): boolean {
@@ -222,13 +214,7 @@ function readProfilePayload(rawValue: unknown): IThemeLibraryProfileState | unde
 
 function createThemeLibraryApiClient(): IHttpClient | undefined {
     try {
-        const uiEnv: IUiEnv = {
-            MODE: toStringEnv(import.meta.env.MODE),
-            PROD: toBooleanEnv(import.meta.env.PROD),
-            VITE_API_BEARER_TOKEN: toStringEnv(import.meta.env.VITE_API_BEARER_TOKEN),
-            VITE_API_URL: toStringEnv(import.meta.env.VITE_API_URL),
-        }
-        const config = createApiConfig(uiEnv)
+        const config = createApiConfig(resolveUiEnv(import.meta.env))
         return new FetchHttpClient(config)
     } catch {
         return undefined
@@ -251,6 +237,7 @@ export async function readThemeLibraryProfileState(): Promise<IThemeLibraryProfi
             const response = await client.request<unknown>({
                 method: "GET",
                 path: endpoint,
+                credentials: "include",
             })
             const parsed = readProfilePayload(response)
             if (parsed !== undefined) {
@@ -298,6 +285,7 @@ export async function writeThemeLibraryProfileState(
                     method,
                     path: endpoint,
                     body: payload,
+                    credentials: "include",
                 })
                 return true
             } catch (error: unknown) {

@@ -1,4 +1,4 @@
-import { type ReactElement, useCallback, useEffect, useMemo, useState } from "react"
+import { type ReactElement, useCallback, useEffect, useMemo, useRef, useState } from "react"
 
 import { ThemeToggle } from "@/components/layout/theme-toggle"
 import { Button, Card, CardBody, CardHeader, Chip, Input } from "@/components/ui"
@@ -106,6 +106,7 @@ const APPEARANCE_RADIUS_STORAGE_KEY = `${APPEARANCE_STORAGE_PREFIX}:radius-globa
 const APPEARANCE_FORM_RADIUS_STORAGE_KEY = `${APPEARANCE_STORAGE_PREFIX}:radius-form`
 const APPEARANCE_LIBRARY_STORAGE_KEY = `${APPEARANCE_STORAGE_PREFIX}:library`
 const APPEARANCE_LIBRARY_FAVORITE_PRESET_STORAGE_KEY = `${APPEARANCE_STORAGE_PREFIX}:favorite-preset`
+const APPEARANCE_LIBRARY_SYNC_STORAGE_KEY = `${APPEARANCE_STORAGE_PREFIX}:library-sync`
 
 const DEFAULT_ACCENT_COLOR = "#5f6dff"
 const DEFAULT_ACCENT_INTENSITY = 76
@@ -119,6 +120,57 @@ const MAX_RADIUS = 24
 const MIN_FORM_RADIUS = 4
 const MAX_FORM_RADIUS = 20
 const QUICK_PRESET_KEYWORDS: ReadonlyArray<string> = ["default", "sky", "lavender", "mint"]
+
+function getWindowLocalStorage(): Storage | undefined {
+    if (typeof window === "undefined") {
+        return undefined
+    }
+
+    try {
+        return window.localStorage
+    } catch {
+        return undefined
+    }
+}
+
+function readLocalStorageItem(storageKey: string): string | undefined {
+    const storage = getWindowLocalStorage()
+    if (storage === undefined) {
+        return undefined
+    }
+
+    try {
+        return storage.getItem(storageKey) ?? undefined
+    } catch {
+        return undefined
+    }
+}
+
+function writeLocalStorageItem(storageKey: string, value: string): void {
+    const storage = getWindowLocalStorage()
+    if (storage === undefined) {
+        return
+    }
+
+    try {
+        storage.setItem(storageKey, value)
+    } catch {
+        return
+    }
+}
+
+function removeLocalStorageItem(storageKey: string): void {
+    const storage = getWindowLocalStorage()
+    if (storage === undefined) {
+        return
+    }
+
+    try {
+        storage.removeItem(storageKey)
+    } catch {
+        return
+    }
+}
 
 interface IUserThemeLibraryItem {
     /** Идентификатор пользовательской темы. */
@@ -155,12 +207,8 @@ function isHexColor(value: string): boolean {
 }
 
 function readStoredHexColor(storageKey: string, fallback: string): string {
-    if (typeof window === "undefined") {
-        return fallback
-    }
-
-    const rawValue = window.localStorage.getItem(storageKey)
-    if (rawValue === null) {
+    const rawValue = readLocalStorageItem(storageKey)
+    if (rawValue === undefined) {
         return fallback
     }
 
@@ -173,12 +221,8 @@ function readStoredNumber(
     min: number,
     max: number,
 ): number {
-    if (typeof window === "undefined") {
-        return fallback
-    }
-
-    const rawValue = window.localStorage.getItem(storageKey)
-    if (rawValue === null) {
+    const rawValue = readLocalStorageItem(storageKey)
+    if (rawValue === undefined) {
         return fallback
     }
 
@@ -191,11 +235,7 @@ function readStoredNumber(
 }
 
 function readStoredBasePalette(storageKey: string, fallback: TBasePaletteId): TBasePaletteId {
-    if (typeof window === "undefined") {
-        return fallback
-    }
-
-    const rawValue = window.localStorage.getItem(storageKey)
+    const rawValue = readLocalStorageItem(storageKey)
     if (rawValue === "neutral" || rawValue === "warm" || rawValue === "cool") {
         return rawValue
     }
@@ -280,15 +320,11 @@ function getContrastRatio(firstColor: string, secondColor: string): number {
 }
 
 function clearAppearanceStorage(): void {
-    if (typeof window === "undefined") {
-        return
-    }
-
-    window.localStorage.removeItem(APPEARANCE_ACCENT_STORAGE_KEY)
-    window.localStorage.removeItem(APPEARANCE_INTENSITY_STORAGE_KEY)
-    window.localStorage.removeItem(APPEARANCE_BASE_PALETTE_STORAGE_KEY)
-    window.localStorage.removeItem(APPEARANCE_RADIUS_STORAGE_KEY)
-    window.localStorage.removeItem(APPEARANCE_FORM_RADIUS_STORAGE_KEY)
+    removeLocalStorageItem(APPEARANCE_ACCENT_STORAGE_KEY)
+    removeLocalStorageItem(APPEARANCE_INTENSITY_STORAGE_KEY)
+    removeLocalStorageItem(APPEARANCE_BASE_PALETTE_STORAGE_KEY)
+    removeLocalStorageItem(APPEARANCE_RADIUS_STORAGE_KEY)
+    removeLocalStorageItem(APPEARANCE_FORM_RADIUS_STORAGE_KEY)
 }
 
 function createThemeLibraryId(prefix: string): string {
@@ -407,12 +443,8 @@ function parseThemeLibraryItem(
 }
 
 function readStoredThemeLibrary(availablePresetIds: ReadonlyArray<ThemePresetId>): ReadonlyArray<IUserThemeLibraryItem> {
-    if (typeof window === "undefined") {
-        return []
-    }
-
-    const rawValue = window.localStorage.getItem(APPEARANCE_LIBRARY_STORAGE_KEY)
-    if (rawValue === null) {
+    const rawValue = readLocalStorageItem(APPEARANCE_LIBRARY_STORAGE_KEY)
+    if (rawValue === undefined) {
         return []
     }
 
@@ -439,12 +471,8 @@ function readStoredThemeLibrary(availablePresetIds: ReadonlyArray<ThemePresetId>
 function readStoredFavoritePreset(
     availablePresetIds: ReadonlyArray<ThemePresetId>,
 ): ThemePresetId | undefined {
-    if (typeof window === "undefined") {
-        return undefined
-    }
-
-    const rawValue = window.localStorage.getItem(APPEARANCE_LIBRARY_FAVORITE_PRESET_STORAGE_KEY)
-    if (rawValue === null) {
+    const rawValue = readLocalStorageItem(APPEARANCE_LIBRARY_FAVORITE_PRESET_STORAGE_KEY)
+    if (rawValue === undefined) {
         return undefined
     }
 
@@ -453,6 +481,31 @@ function readStoredFavoritePreset(
     }
 
     return undefined
+}
+
+function readStoredThemeLibraryUpdatedAtMs(): number {
+    const rawValue = readLocalStorageItem(APPEARANCE_LIBRARY_SYNC_STORAGE_KEY)
+    if (rawValue === undefined) {
+        return 0
+    }
+
+    try {
+        const parsed = JSON.parse(rawValue) as { updatedAtMs?: unknown }
+        return typeof parsed.updatedAtMs === "number" && Number.isFinite(parsed.updatedAtMs)
+            ? parsed.updatedAtMs
+            : 0
+    } catch {
+        return 0
+    }
+}
+
+function writeStoredThemeLibraryUpdatedAtMs(updatedAtMs: number): void {
+    writeLocalStorageItem(
+        APPEARANCE_LIBRARY_SYNC_STORAGE_KEY,
+        JSON.stringify({
+            updatedAtMs,
+        }),
+    )
 }
 
 function toProfileTheme(theme: IUserThemeLibraryItem): IThemeLibraryProfileTheme {
@@ -575,6 +628,8 @@ export function SettingsAppearancePage(): ReactElement {
         (): ReadonlyArray<ThemePresetId> => presets.map((themePreset): ThemePresetId => themePreset.id),
         [presets],
     )
+    const libraryUpdatedAtMsRef = useRef(readStoredThemeLibraryUpdatedAtMs())
+    const pendingLibraryUpdatedAtMsRef = useRef<number | undefined>(undefined)
     const [accentColor, setAccentColor] = useState<string>(() =>
         readStoredHexColor(APPEARANCE_ACCENT_STORAGE_KEY, DEFAULT_ACCENT_COLOR),
     )
@@ -615,6 +670,7 @@ export function SettingsAppearancePage(): ReactElement {
     const [favoritePresetId, setFavoritePresetId] = useState<ThemePresetId | undefined>(() =>
         readStoredFavoritePreset(availablePresetIds),
     )
+    const [isLibraryHydrated, setIsLibraryHydrated] = useState(false)
     const [librarySyncStatus, setLibrarySyncStatus] = useState<"error" | "idle" | "synced" | "syncing">("idle")
     const [pendingRandomPresetId, setPendingRandomPresetId] = useState<ThemePresetId | undefined>(undefined)
     const [lastRandomUndoPresetId, setLastRandomUndoPresetId] = useState<ThemePresetId | undefined>(undefined)
@@ -715,6 +771,10 @@ export function SettingsAppearancePage(): ReactElement {
         return presetDefinition.label
     }, [favoritePresetId, presets])
 
+    const markThemeLibraryDirty = useCallback((): void => {
+        pendingLibraryUpdatedAtMsRef.current = Date.now()
+    }, [])
+
     const selectRandomPresetPreview = useCallback((): void => {
         const currentPresetId = preset
         const candidateIds = accessiblePresetIds.filter(
@@ -779,6 +839,7 @@ export function SettingsAppearancePage(): ReactElement {
         )
         const snapshot = createThemeSnapshot(resolvedName)
 
+        markThemeLibraryDirty()
         setThemeLibrary((previous): ReadonlyArray<IUserThemeLibraryItem> => [snapshot, ...previous])
         setSelectedThemeId(snapshot.id)
         setThemeDraftName("")
@@ -796,6 +857,7 @@ export function SettingsAppearancePage(): ReactElement {
                 .filter((themeItem): boolean => themeItem.id !== selectedTheme.id)
                 .map((themeItem): string => themeItem.name),
         )
+        markThemeLibraryDirty()
         setThemeLibrary((previous): ReadonlyArray<IUserThemeLibraryItem> =>
             previous.map((themeItem): IUserThemeLibraryItem => {
                 if (themeItem.id !== selectedTheme.id) {
@@ -826,6 +888,7 @@ export function SettingsAppearancePage(): ReactElement {
             id: createThemeLibraryId(resolvedName),
             name: resolvedName,
         }
+        markThemeLibraryDirty()
         setThemeLibrary((previous): ReadonlyArray<IUserThemeLibraryItem> => [duplicate, ...previous])
         setSelectedThemeId(duplicate.id)
         showToastSuccess("Theme duplicated.")
@@ -836,6 +899,7 @@ export function SettingsAppearancePage(): ReactElement {
             return
         }
 
+        markThemeLibraryDirty()
         setThemeLibrary((previous): ReadonlyArray<IUserThemeLibraryItem> =>
             previous.filter((themeItem): boolean => themeItem.id !== selectedTheme.id),
         )
@@ -879,6 +943,7 @@ export function SettingsAppearancePage(): ReactElement {
             return
         }
 
+        markThemeLibraryDirty()
         setThemeLibrary((previous): ReadonlyArray<IUserThemeLibraryItem> => {
             const existingNames = previous.map((themeItem): string => themeItem.name)
             const importedThemes = parsedPayload.themes.map((themeItem): IUserThemeLibraryItem => {
@@ -901,6 +966,7 @@ export function SettingsAppearancePage(): ReactElement {
 
     const handlePinCurrentPreset = (): void => {
         const currentPresetId = preset
+        markThemeLibraryDirty()
         setFavoritePresetId(currentPresetId)
         showToastSuccess("Favorite preset pinned.")
     }
@@ -914,7 +980,7 @@ export function SettingsAppearancePage(): ReactElement {
     }
 
     useEffect((): void => {
-        if (typeof window === "undefined") {
+        if (typeof document === "undefined") {
             return
         }
 
@@ -934,20 +1000,11 @@ export function SettingsAppearancePage(): ReactElement {
         root.style.setProperty("--radius-lg", `${lgRadius}px`)
         root.style.setProperty("--radius-form", `${formRadius}px`)
 
-        window.localStorage.setItem(APPEARANCE_ACCENT_STORAGE_KEY, accentColor)
-        window.localStorage.setItem(
-            APPEARANCE_INTENSITY_STORAGE_KEY,
-            String(accentIntensity),
-        )
-        window.localStorage.setItem(
-            APPEARANCE_BASE_PALETTE_STORAGE_KEY,
-            basePaletteId,
-        )
-        window.localStorage.setItem(APPEARANCE_RADIUS_STORAGE_KEY, String(globalRadius))
-        window.localStorage.setItem(
-            APPEARANCE_FORM_RADIUS_STORAGE_KEY,
-            String(formRadius),
-        )
+        writeLocalStorageItem(APPEARANCE_ACCENT_STORAGE_KEY, accentColor)
+        writeLocalStorageItem(APPEARANCE_INTENSITY_STORAGE_KEY, String(accentIntensity))
+        writeLocalStorageItem(APPEARANCE_BASE_PALETTE_STORAGE_KEY, basePaletteId)
+        writeLocalStorageItem(APPEARANCE_RADIUS_STORAGE_KEY, String(globalRadius))
+        writeLocalStorageItem(APPEARANCE_FORM_RADIUS_STORAGE_KEY, String(formRadius))
     }, [
         accentColor,
         accentIntensity,
@@ -1015,6 +1072,7 @@ export function SettingsAppearancePage(): ReactElement {
 
             if (profileState === undefined) {
                 setLibrarySyncStatus("idle")
+                setIsLibraryHydrated(true)
                 return
             }
 
@@ -1024,17 +1082,31 @@ export function SettingsAppearancePage(): ReactElement {
                 )
                 .filter((themeItem): themeItem is IUserThemeLibraryItem => themeItem !== undefined)
 
-            if (parsedThemes.length > 0) {
-                setThemeLibrary(parsedThemes)
-                setSelectedThemeId(parsedThemes[0]?.id ?? "")
-            }
             if (
                 profileState.favoritePresetId !== undefined
                 && availablePresetIds.includes(profileState.favoritePresetId as ThemePresetId)
             ) {
-                setFavoritePresetId(profileState.favoritePresetId as ThemePresetId)
+                if (
+                    profileState.updatedAtMs
+                    > (pendingLibraryUpdatedAtMsRef.current ?? libraryUpdatedAtMsRef.current)
+                ) {
+                    setFavoritePresetId(profileState.favoritePresetId as ThemePresetId)
+                }
+            }
+            if (
+                profileState.updatedAtMs
+                > (pendingLibraryUpdatedAtMsRef.current ?? libraryUpdatedAtMsRef.current)
+            ) {
+                setThemeLibrary(parsedThemes)
+                setSelectedThemeId(parsedThemes[0]?.id ?? "")
+                if (profileState.favoritePresetId === undefined) {
+                    setFavoritePresetId(undefined)
+                }
+                libraryUpdatedAtMsRef.current = profileState.updatedAtMs
+                pendingLibraryUpdatedAtMsRef.current = undefined
             }
             setLibrarySyncStatus("synced")
+            setIsLibraryHydrated(true)
         })()
 
         return (): void => {
@@ -1047,25 +1119,36 @@ export function SettingsAppearancePage(): ReactElement {
             return undefined
         }
 
-        window.localStorage.setItem(APPEARANCE_LIBRARY_STORAGE_KEY, JSON.stringify(themeLibrary))
+        writeLocalStorageItem(APPEARANCE_LIBRARY_STORAGE_KEY, JSON.stringify(themeLibrary))
         if (favoritePresetId !== undefined) {
-            window.localStorage.setItem(
-                APPEARANCE_LIBRARY_FAVORITE_PRESET_STORAGE_KEY,
-                favoritePresetId,
-            )
+            writeLocalStorageItem(APPEARANCE_LIBRARY_FAVORITE_PRESET_STORAGE_KEY, favoritePresetId)
         } else {
-            window.localStorage.removeItem(APPEARANCE_LIBRARY_FAVORITE_PRESET_STORAGE_KEY)
+            removeLocalStorageItem(APPEARANCE_LIBRARY_FAVORITE_PRESET_STORAGE_KEY)
+        }
+
+        const localUpdatedAtMs =
+            pendingLibraryUpdatedAtMsRef.current ?? libraryUpdatedAtMsRef.current
+        if (localUpdatedAtMs > 0) {
+            writeStoredThemeLibraryUpdatedAtMs(localUpdatedAtMs)
+        }
+
+        if (isLibraryHydrated !== true) {
+            return undefined
         }
 
         const timer = window.setTimeout((): void => {
             void (async (): Promise<void> => {
                 setLibrarySyncStatus("syncing")
+                const updatedAtMs = pendingLibraryUpdatedAtMsRef.current ?? Date.now()
+                libraryUpdatedAtMsRef.current = updatedAtMs
+                pendingLibraryUpdatedAtMsRef.current = undefined
+                writeStoredThemeLibraryUpdatedAtMs(updatedAtMs)
                 const updated = await writeThemeLibraryProfileState({
                     favoritePresetId,
                     themes: themeLibrary.map((themeItem): IThemeLibraryProfileTheme =>
                         toProfileTheme(themeItem),
                     ),
-                    updatedAtMs: Date.now(),
+                    updatedAtMs,
                 })
                 setLibrarySyncStatus(updated ? "synced" : "error")
             })()
@@ -1074,7 +1157,7 @@ export function SettingsAppearancePage(): ReactElement {
         return (): void => {
             window.clearTimeout(timer)
         }
-    }, [favoritePresetId, themeLibrary])
+    }, [favoritePresetId, isLibraryHydrated, themeLibrary])
 
     const handleResetTheme = (): void => {
         const defaultPreset = presets.at(0)?.id
@@ -1087,6 +1170,7 @@ export function SettingsAppearancePage(): ReactElement {
         setBasePaletteId(DEFAULT_BASE_PALETTE)
         setGlobalRadius(DEFAULT_GLOBAL_RADIUS)
         setFormRadius(DEFAULT_FORM_RADIUS)
+        markThemeLibraryDirty()
         setFavoritePresetId(undefined)
         setThemeLibrary([])
         setThemeImportValue("")
@@ -1097,8 +1181,9 @@ export function SettingsAppearancePage(): ReactElement {
         setLastAppliedRandomPresetId(undefined)
         clearAppearanceStorage()
         if (typeof window !== "undefined") {
-            window.localStorage.removeItem(APPEARANCE_LIBRARY_STORAGE_KEY)
-            window.localStorage.removeItem(APPEARANCE_LIBRARY_FAVORITE_PRESET_STORAGE_KEY)
+            removeLocalStorageItem(APPEARANCE_LIBRARY_STORAGE_KEY)
+            removeLocalStorageItem(APPEARANCE_LIBRARY_FAVORITE_PRESET_STORAGE_KEY)
+            removeLocalStorageItem(APPEARANCE_LIBRARY_SYNC_STORAGE_KEY)
         }
         showToastSuccess("Theme reset to defaults.")
     }

@@ -18,7 +18,7 @@ import {
 } from "@/components/dashboard/dashboard-date-range-filter"
 import { type IMetricGridMetric, MetricsGrid } from "@/components/dashboard/metrics-grid"
 import { type IStatusDistributionPoint } from "@/components/dashboard/status-distribution-chart"
-import { readUiRoleFromStorage } from "@/lib/permissions/ui-policy"
+import { useUiRole } from "@/lib/permissions/ui-policy"
 import { Link } from "@tanstack/react-router"
 
 import { DashboardSkeleton } from "@/components/skeletons/dashboard-skeleton"
@@ -686,7 +686,7 @@ function renderSignalsCard(): ReactElement {
  * @returns Страница центра мониторинга.
  */
 export function DashboardMissionControlPage(): ReactElement {
-    const uiRole = readUiRoleFromStorage()
+    const uiRole = useUiRole()
     const checklistRole = uiRole === "admin" ? "admin" : "developer"
     const personalizationDefaults = readWorkspacePersonalization()
     const [range, setRange] = useState<TDashboardDateRange>("7d")

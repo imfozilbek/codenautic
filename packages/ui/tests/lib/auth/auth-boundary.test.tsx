@@ -218,6 +218,38 @@ describe("AuthBoundary", (): void => {
         })
     })
 
+    it("игнорирует protocol-relative intended destination", async (): Promise<void> => {
+        const startOAuth = vi.fn(() => {
+            return Promise.resolve({
+                provider: "github" as const,
+                authorizationUrl: "https://auth.example/github",
+                state: "state-protocol-relative-next",
+            })
+        })
+        const api = createAuthApiMock({
+            startOAuth,
+        })
+        const user = userEvent.setup()
+
+        renderWithProviders(
+            <AuthBoundary
+                authApi={api}
+                intendedDestination="//evil.example/phishing"
+                onRedirect={vi.fn()}
+            >
+                <div>Private dashboard</div>
+            </AuthBoundary>,
+        )
+
+        const githubButton = await screen.findByRole("button", { name: "GitHub" })
+        await user.click(githubButton)
+
+        expect(startOAuth).toHaveBeenCalledWith({
+            provider: "github",
+            redirectUri: "http://localhost:3000/",
+        })
+    })
+
     it("переходит к корню при синтаксически невалидном intended destination", async (): Promise<void> => {
         const startOAuth = vi.fn(() => {
             return Promise.resolve({
@@ -454,6 +486,74 @@ describe("AuthBoundary", (): void => {
 
         const cachedUser = await screen.findByText("Cached User")
         expect(cachedUser.textContent).toBe("Cached User")
+    })
+
+    it("удаляет истёкший session snapshot и не считает его валидной сессией", async (): Promise<void> => {
+        sessionStorage.setItem(
+            "codenautic.ui.auth.session",
+            JSON.stringify({
+                provider: "github",
+                expiresAt: "2020-01-01T00:00:00.000Z",
+                user: {
+                    id: "u-expired",
+                    email: "expired@example.com",
+                    displayName: "Expired User",
+                },
+            }),
+        )
+
+        const api = createAuthApiMock({
+            getSession: (): Promise<IAuthSessionEnvelope> => {
+                return Promise.reject(new Error("Network unavailable"))
+            },
+        })
+
+        renderWithProviders(
+            <AuthBoundary authApi={api}>
+                <div>Private dashboard</div>
+            </AuthBoundary>,
+        )
+
+        const loginTitle = await screen.findByText("Войдите, чтобы открыть dashboard")
+        expect(loginTitle.textContent).toBe("Войдите, чтобы открыть dashboard")
+        expect(sessionStorage.getItem("codenautic.ui.auth.session")).toBeNull()
+    })
+
+    it("редиректит авторизованного пользователя на fallback route при запрете route guard", async (): Promise<void> => {
+        const assignSpy = vi
+            .spyOn(window.location, "assign")
+            .mockImplementation((_url: string | URL): void => undefined)
+
+        try {
+            const api = createAuthApiMock({
+                getSession: (): Promise<IAuthSessionEnvelope> => {
+                    return Promise.resolve({
+                        session: {
+                            ...createSession("2030-01-01T00:00:00.000Z"),
+                            user: {
+                                id: "u-viewer",
+                                email: "viewer@example.com",
+                                displayName: "Viewer User",
+                                role: "viewer",
+                                tenantId: "platform-team",
+                            },
+                        },
+                    })
+                },
+            })
+
+            renderWithProviders(
+                <AuthBoundary authApi={api} routePath="/settings-billing">
+                    <div>Restricted screen</div>
+                </AuthBoundary>,
+            )
+
+            await waitFor((): void => {
+                expect(assignSpy).toHaveBeenCalledWith("/")
+            })
+        } finally {
+            assignSpy.mockRestore()
+        }
     })
 
     it("выполняет refresh для сессии с близким истечением", async (): Promise<void> => {

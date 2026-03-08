@@ -3,7 +3,11 @@ import { useEffect } from "react"
 import { createFileRoute } from "@tanstack/react-router"
 import { useTranslation } from "react-i18next"
 
-import { AuthBoundary, type TAuthGuardStatusCode } from "@/lib/auth/auth-boundary"
+import {
+    AuthBoundary,
+    sanitizeAppDestinationPath,
+    type TAuthGuardStatusCode,
+} from "@/lib/auth/auth-boundary"
 
 interface ILoginRouteSearch {
     readonly next?: string
@@ -58,24 +62,13 @@ export function validateLoginRouteSearch(search: Record<string, unknown>): ILogi
 }
 
 export function resolveLoginDestination(next: string | undefined): string {
-    if (next === undefined) {
+    const sanitizedDestination = sanitizeAppDestinationPath(next, "/")
+
+    if (sanitizedDestination.startsWith("/login")) {
         return "/"
     }
 
-    const trimmedDestination = next.trim()
-    if (trimmedDestination.length === 0) {
-        return "/"
-    }
-
-    if (trimmedDestination.startsWith("/login")) {
-        return "/"
-    }
-
-    if (trimmedDestination.startsWith("/")) {
-        return trimmedDestination
-    }
-
-    return "/"
+    return sanitizedDestination
 }
 
 export function resolveAuthStatusHint(

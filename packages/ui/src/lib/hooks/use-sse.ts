@@ -19,6 +19,8 @@ export interface ISSEEventPayload {
 
 /** Распаршенное событие из SSE-потока. */
 export interface ISSEStreamEvent {
+    /** Уникальный идентификатор события в рамках текущей сессии потока. */
+    readonly id: string
     /** Идентификатор типа события. */
     readonly type: TSSEEventType
     /** Данные payload. */
@@ -129,11 +131,17 @@ function normalizeEventType(value: string): TSSEEventType {
     return "message"
 }
 
-function parseSSEEvent(eventType: string, data: string): ISSEStreamEvent {
+function parseSSEEvent(eventType: string, data: string, eventId: string): ISSEStreamEvent {
     return {
+        id: eventId,
         payload: parseSSEPayload(data),
         type: normalizeEventType(eventType),
     }
+}
+
+function createSSEEventId(sequence: { current: number }): string {
+    sequence.current += 1
+    return `event-${sequence.current.toString()}`
 }
 
 /**
@@ -161,6 +169,7 @@ export function useSSEStream(props: IUseSSEStreamProps): IUseSSEStreamResult {
     const runningRef = useRef(false)
     const reconnectCountRef = useRef(0)
     const reconnectDelayRef = useRef(initialReconnectDelayMs)
+    const eventSequenceRef = useRef(0)
 
     const clearReconnectTimer = useCallback((): void => {
         if (reconnectTimerRef.current !== null) {
@@ -214,6 +223,7 @@ export function useSSEStream(props: IUseSSEStreamProps): IUseSSEStreamResult {
         setError(undefined)
 
         if (typeof EventSource !== "function") {
+            runningRef.current = false
             setState("error")
             setError("EventSource is not available in this environment.")
             return
@@ -221,12 +231,23 @@ export function useSSEStream(props: IUseSSEStreamProps): IUseSSEStreamResult {
 
         const normalizedSourceUrl = sourceUrl.trim()
         if (normalizedSourceUrl.length === 0) {
+            runningRef.current = false
             setState("error")
             setError("SSE source URL is empty.")
             return
         }
 
-        const source = new EventSource(normalizedSourceUrl)
+        let source: EventSource
+        try {
+            source = new EventSource(normalizedSourceUrl)
+        } catch (error: unknown) {
+            runningRef.current = false
+            setState("error")
+            setError(
+                error instanceof Error ? error.message : "Failed to initialize SSE connection.",
+            )
+            return
+        }
         sourceRef.current = source
 
         const onOpen = (): void => {
@@ -270,28 +291,46 @@ export function useSSEStream(props: IUseSSEStreamProps): IUseSSEStreamResult {
                 return
             }
 
-            appendEvent(parseSSEEvent("message", event.data))
+            appendEvent(parseSSEEvent("message", event.data, createSSEEventId(eventSequenceRef)))
         })
         source.addEventListener("progress", (event: Event): void => {
             if (event instanceof MessageEvent === false || typeof event.data !== "string") {
                 return
             }
 
-            appendEvent(parseSSEEvent("progress", event.data))
+            appendEvent(
+                parseSSEEvent(
+                    "progress",
+                    event.data,
+                    createSSEEventId(eventSequenceRef),
+                ),
+            )
         })
         source.addEventListener("done", (event: Event): void => {
             if (event instanceof MessageEvent === false || typeof event.data !== "string") {
                 return
             }
 
-            appendEvent(parseSSEEvent("done", event.data))
+            appendEvent(
+                parseSSEEvent(
+                    "done",
+                    event.data,
+                    createSSEEventId(eventSequenceRef),
+                ),
+            )
         })
         source.addEventListener("stream-error", (event: Event): void => {
             if (event instanceof MessageEvent === false || typeof event.data !== "string") {
                 return
             }
 
-            appendEvent(parseSSEEvent("error", event.data))
+            appendEvent(
+                parseSSEEvent(
+                    "error",
+                    event.data,
+                    createSSEEventId(eventSequenceRef),
+                ),
+            )
         })
     }, [
         appendEvent,
@@ -308,6 +347,9 @@ export function useSSEStream(props: IUseSSEStreamProps): IUseSSEStreamResult {
         }
 
         runningRef.current = true
+        reconnectCountRef.current = 0
+        reconnectDelayRef.current = initialReconnectDelayMs
+        eventSequenceRef.current = 0
         setEvents([])
         setProgressCurrent(0)
         setProgressTotal(0)

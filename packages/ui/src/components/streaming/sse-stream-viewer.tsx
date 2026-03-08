@@ -89,7 +89,7 @@ function buildEventLabel(event: ISSEStreamEvent): string {
 }
 
 function createEventItemKey(event: ISSEStreamEvent): string {
-    return `${event.type}-${event.payload.message ?? ""}-${JSON.stringify(event.payload)}`
+    return event.id
 }
 
 function getStatusLabel(type: TSSEEventType): string {

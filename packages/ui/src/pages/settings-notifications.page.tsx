@@ -2,9 +2,11 @@ import { type ReactElement, useEffect, useMemo, useRef, useState } from "react"
 import { useNavigate } from "@tanstack/react-router"
 
 import { Alert, Button, Card, CardBody, CardHeader, Chip, Input, Switch } from "@/components/ui"
+import { useAuthAccess } from "@/lib/auth/auth-access"
 import { resolveDeepLinkGuard } from "@/lib/navigation/deep-link-guard"
 import { showToastError, showToastInfo, showToastSuccess } from "@/lib/notifications/toast"
-import { readUiRoleFromStorage } from "@/lib/permissions/ui-policy"
+import { useUiRole } from "@/lib/permissions/ui-policy"
+import type { TTenantId } from "@/lib/access/access-types"
 
 type TNotificationEventType = "drift.alert" | "prediction.alert" | "review.completed"
 type TNotificationChannelId = "discord" | "inApp" | "slack" | "teams"
@@ -118,6 +120,35 @@ const EVENT_TYPE_LABELS: Readonly<Record<TNotificationEventType, string>> = {
     "review.completed": "Review completed",
 }
 
+function isTenantId(value: string | undefined): value is TTenantId {
+    return value === "platform-team" || value === "frontend-team" || value === "runtime-team"
+}
+
+function readStoredActiveTenantId(): TTenantId | undefined {
+    if (typeof window === "undefined") {
+        return undefined
+    }
+
+    try {
+        const storedValue = window.localStorage.getItem("codenautic:tenant:active") ?? undefined
+        return isTenantId(storedValue) ? storedValue : undefined
+    } catch {
+        return undefined
+    }
+}
+
+function writeStoredActiveTenantId(tenantId: TTenantId): void {
+    if (typeof window === "undefined") {
+        return
+    }
+
+    try {
+        window.localStorage.setItem("codenautic:tenant:active", tenantId)
+    } catch {
+        return
+    }
+}
+
 function dedupeNotificationsById(
     notifications: ReadonlyArray<INotificationItem>,
 ): ReadonlyArray<INotificationItem> {
@@ -154,6 +185,8 @@ function formatNotificationTime(rawValue: string): string {
  * @returns Inbox лента и настройки доставки уведомлений.
  */
 export function SettingsNotificationsPage(): ReactElement {
+    const activeRole = useUiRole()
+    const authAccess = useAuthAccess()
     const navigate = useNavigate()
     const [eventTypeFilter, setEventTypeFilter] = useState<"all" | TNotificationEventType>("all")
     const [notifications, setNotifications] = useState<ReadonlyArray<INotificationItem>>(() =>
@@ -251,14 +284,7 @@ export function SettingsNotificationsPage(): ReactElement {
     }
 
     const handleOpenDeepLink = (targetHref: string): void => {
-        const activeRole = readUiRoleFromStorage()
-        const rawTenantId = window.localStorage.getItem("codenautic:tenant:active")
-        const tenantId =
-            rawTenantId === "platform-team"
-            || rawTenantId === "frontend-team"
-            || rawTenantId === "runtime-team"
-                ? rawTenantId
-                : "platform-team"
+        const tenantId = readStoredActiveTenantId() ?? authAccess?.tenantId ?? "platform-team"
         const deepLinkResult = resolveDeepLinkGuard(targetHref, {
             isAuthenticated: true,
             role: activeRole,
@@ -274,7 +300,7 @@ export function SettingsNotificationsPage(): ReactElement {
         }
 
         if (deepLinkResult.decision === "switch_org") {
-            window.localStorage.setItem("codenautic:tenant:active", deepLinkResult.switchTenantId ?? tenantId)
+            writeStoredActiveTenantId(deepLinkResult.switchTenantId ?? tenantId)
             setDeepLinkGuardNotice(
                 `Deep-link required workspace switch to ${deepLinkResult.switchTenantId}.`,
             )

@@ -420,8 +420,6 @@ describe("layout components", (): void => {
 
         const switcher = screen.getByRole("combobox", { name: "Organization workspace switcher" })
         await user.selectOptions(switcher, "frontend-team")
-        const roleSwitcher = screen.getByRole("combobox", { name: "RBAC role switcher" })
-        await user.selectOptions(roleSwitcher, "viewer")
 
         await waitFor(() => {
             expect(mockNavigate).toHaveBeenCalled()

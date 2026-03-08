@@ -1,7 +1,9 @@
 import { type ReactElement, type ReactNode, useEffect, useMemo, useState } from "react"
 import { useLocation, useNavigate } from "@tanstack/react-router"
 import { useQueryClient } from "@tanstack/react-query"
-import { readUiRoleFromStorage, writeUiRoleToStorage, type TUiRole } from "@/lib/permissions/ui-policy"
+import type { TTenantId, TUiRole } from "@/lib/access/access-types"
+import { useAuthAccess } from "@/lib/auth/auth-access"
+import { useUiRole } from "@/lib/permissions/ui-policy"
 import {
     POLICY_DRIFT_EVENT_NAME,
     isPolicyDriftEventDetail,
@@ -17,7 +19,6 @@ import {
     TENANT_STORAGE_KEY,
     THEME_MODE_STORAGE_KEY,
     THEME_PRESET_STORAGE_KEY,
-    UI_ROLE_STORAGE_KEY,
     isMultiTabSyncMessage,
     type TMultiTabSyncMessage,
 } from "@/lib/sync/multi-tab-consistency"
@@ -34,7 +35,6 @@ import {
     getBreadcrumbs,
     isRouteAccessible,
     searchAccessibleRoutes,
-    type TTenantId,
 } from "@/lib/navigation/route-guard-map"
 import { useKeyboardShortcuts } from "@/lib/hooks/use-keyboard-shortcuts"
 import {
@@ -47,7 +47,6 @@ import { Alert, Button, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader
 
 import { Header } from "./header"
 import type { IHeaderOrganizationOption } from "./header"
-import type { IHeaderRoleOption } from "./header"
 import { Sidebar } from "./sidebar"
 import { MobileSidebar } from "./mobile-sidebar"
 
@@ -93,24 +92,26 @@ function resolveDefaultOrganizationId(): TTenantId {
     return firstOrganization.id as TTenantId
 }
 
-const ROLE_OPTIONS: ReadonlyArray<IHeaderRoleOption> = [
-    {
-        id: "viewer",
-        label: "Viewer",
-    },
-    {
-        id: "developer",
-        label: "Developer",
-    },
-    {
-        id: "lead",
-        label: "Lead",
-    },
-    {
-        id: "admin",
-        label: "Admin",
-    },
-]
+function readStoredActiveOrganizationId(
+    fallbackTenantId: TTenantId | undefined,
+): TTenantId {
+    if (typeof window !== "undefined") {
+        try {
+            const storedTenantId = window.localStorage.getItem(TENANT_STORAGE_KEY)
+            if (
+                storedTenantId === "platform-team"
+                || storedTenantId === "frontend-team"
+                || storedTenantId === "runtime-team"
+            ) {
+                return storedTenantId
+            }
+        } catch {
+            return fallbackTenantId ?? DEFAULT_ORGANIZATION_ID
+        }
+    }
+
+    return fallbackTenantId ?? DEFAULT_ORGANIZATION_ID
+}
 
 function clearTenantScopedStorage(previousTenantId: string, nextTenantId: string): void {
     if (typeof window === "undefined") {
@@ -142,13 +143,14 @@ function clearTenantScopedStorage(previousTenantId: string, nextTenantId: string
  * @returns Обёрнутый контент с верхней панелью.
  */
 export function DashboardLayout(props: IDashboardLayoutProps): ReactElement {
+    const authAccess = useAuthAccess()
+    const persistedRoleId = useUiRole()
     const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false)
     const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false)
-    const [activeOrganizationId, setActiveOrganizationId] =
-        useState<TTenantId>(DEFAULT_ORGANIZATION_ID)
-    const [activeRoleId, setActiveRoleId] = useState<TUiRole>(() => {
-        return readUiRoleFromStorage()
+    const [activeOrganizationId, setActiveOrganizationId] = useState<TTenantId>(() => {
+        return readStoredActiveOrganizationId(authAccess?.tenantId)
     })
+    const [policyRoleOverride, setPolicyRoleOverride] = useState<TUiRole | undefined>(undefined)
     const [isSessionRecoveryOpen, setIsSessionRecoveryOpen] = useState(false)
     const [sessionFailureCode, setSessionFailureCode] = useState<401 | 419>(401)
     const [restoredDraftMessage, setRestoredDraftMessage] = useState<string | undefined>(undefined)
@@ -161,6 +163,7 @@ export function DashboardLayout(props: IDashboardLayoutProps): ReactElement {
     const navigate = useNavigate()
     const location = useLocation()
     const queryClient = useQueryClient()
+    const activeRoleId = policyRoleOverride ?? persistedRoleId
     const routeGuardContext = useMemo(
         () => ({
             isAuthenticated: true,
@@ -275,6 +278,26 @@ export function DashboardLayout(props: IDashboardLayoutProps): ReactElement {
         void props.onSignOut()
     }
 
+    useEffect((): void => {
+        if (authAccess === undefined) {
+            return
+        }
+
+        setActiveOrganizationId(readStoredActiveOrganizationId(authAccess.tenantId))
+    }, [authAccess])
+
+    useEffect((): void => {
+        if (policyRoleOverride === undefined) {
+            return
+        }
+
+        if (policyRoleOverride !== persistedRoleId) {
+            return
+        }
+
+        setPolicyRoleOverride(undefined)
+    }, [persistedRoleId, policyRoleOverride])
+
     const handleOrganizationChange = (organizationId: string): void => {
         if (
             organizationId !== "platform-team"
@@ -311,23 +334,6 @@ export function DashboardLayout(props: IDashboardLayoutProps): ReactElement {
             channel.postMessage({
                 tenantId: organizationId,
                 type: "tenant",
-            } satisfies TMultiTabSyncMessage)
-            channel.close()
-        }
-    }
-
-    const handleRoleChange = (roleId: string): void => {
-        if (roleId !== "viewer" && roleId !== "developer" && roleId !== "lead" && roleId !== "admin") {
-            return
-        }
-
-        setActiveRoleId(roleId)
-        writeUiRoleToStorage(roleId)
-        if (typeof window.BroadcastChannel === "function") {
-            const channel = new window.BroadcastChannel(MULTI_TAB_SYNC_CHANNEL)
-            channel.postMessage({
-                role: roleId,
-                type: "permissions",
             } satisfies TMultiTabSyncMessage)
             channel.close()
         }
@@ -374,7 +380,6 @@ export function DashboardLayout(props: IDashboardLayoutProps): ReactElement {
                     || target.type === "search"
                     || target.type === "url"
                     || target.type === "tel"
-                    || target.type === "password"
                 if (isTextInput !== true) {
                     return
                 }
@@ -417,11 +422,11 @@ export function DashboardLayout(props: IDashboardLayoutProps): ReactElement {
                 return
             }
 
-            setActiveRoleId(detail.nextRole)
-            writeUiRoleToStorage(detail.nextRole)
+            setPolicyRoleOverride(detail.nextRole)
             setPolicyDriftNotice(
                 `Policy changed to ${detail.nextRole}: ${detail.reason}. UI permissions were refreshed.`,
             )
+            void queryClient.invalidateQueries({ queryKey: queryKeys.auth.session() })
             void queryClient.invalidateQueries({ queryKey: queryKeys.permissions.all() })
         }
 
@@ -483,10 +488,9 @@ export function DashboardLayout(props: IDashboardLayoutProps): ReactElement {
                 return
             }
 
-            if (data.type === "permissions" && data.role !== activeRoleId) {
-                setActiveRoleId(data.role)
-                writeUiRoleToStorage(data.role)
+            if (data.type === "permissions") {
                 setMultiTabNotice(`Permissions updated in another tab: ${data.role}.`)
+                void queryClient.invalidateQueries({ queryKey: queryKeys.auth.session() })
                 void queryClient.invalidateQueries({ queryKey: queryKeys.permissions.all() })
                 return
             }
@@ -502,7 +506,7 @@ export function DashboardLayout(props: IDashboardLayoutProps): ReactElement {
             channel.removeEventListener("message", handleMessage)
             channel.close()
         }
-    }, [activeOrganizationId, activeRoleId, queryClient])
+    }, [activeOrganizationId, queryClient])
 
     useEffect((): (() => void) | void => {
         if (typeof window === "undefined") {
@@ -523,21 +527,6 @@ export function DashboardLayout(props: IDashboardLayoutProps): ReactElement {
                 return
             }
 
-            if (event.key === UI_ROLE_STORAGE_KEY && event.newValue !== null) {
-                if (
-                    (event.newValue === "viewer"
-                        || event.newValue === "developer"
-                        || event.newValue === "lead"
-                        || event.newValue === "admin")
-                    && event.newValue !== activeRoleId
-                ) {
-                    setActiveRoleId(event.newValue)
-                    setMultiTabNotice(`Permissions synchronized from another tab: ${event.newValue}.`)
-                    void queryClient.invalidateQueries({ queryKey: queryKeys.permissions.all() })
-                }
-                return
-            }
-
             if (
                 event.key === THEME_MODE_STORAGE_KEY
                 || event.key === THEME_PRESET_STORAGE_KEY
@@ -550,7 +539,7 @@ export function DashboardLayout(props: IDashboardLayoutProps): ReactElement {
         return (): void => {
             window.removeEventListener("storage", handleStorageSync)
         }
-    }, [activeOrganizationId, activeRoleId, queryClient])
+    }, [activeOrganizationId])
 
     const handleSearchRouteNavigate = (to: string): void => {
         void navigate({
@@ -603,7 +592,6 @@ export function DashboardLayout(props: IDashboardLayoutProps): ReactElement {
         <div className="relative min-h-screen bg-[var(--background)] text-[var(--foreground)]">
             <Header
                 activeOrganizationId={activeOrganizationId}
-                activeRoleId={activeRoleId}
                 breadcrumbs={breadcrumbs}
                 onMobileMenuOpen={(): void => {
                     setIsMobileSidebarOpen(true)
@@ -612,13 +600,11 @@ export function DashboardLayout(props: IDashboardLayoutProps): ReactElement {
                 onOpenBilling={handleOpenBilling}
                 onOpenHelp={handleOpenHelpDiagnostics}
                 onOpenSettings={handleOpenSettings}
-                onRoleChange={handleRoleChange}
                 onSearchRouteNavigate={handleSearchRouteNavigate}
                 userEmail={props.userEmail}
                 userName={props.userName}
                 onSignOut={handleSignOut}
                 organizations={ORGANIZATION_OPTIONS}
-                roleOptions={ROLE_OPTIONS}
                 searchRoutes={searchableRoutes}
                 title={props.title}
             />

@@ -1,4 +1,4 @@
-import { createApiConfig } from "./config"
+import { createApiConfig, resolveUiEnv } from "./config"
 import { AuthApi } from "./endpoints/auth.endpoint"
 import { CCRSummaryApi } from "./endpoints/ccr-summary.endpoint"
 import { CcrWorkspaceApi } from "./endpoints/ccr-workspace.endpoint"
@@ -32,7 +32,7 @@ export function createApiContracts(): {
     readonly dryRun: DryRunApi
     readonly gitProviders: GitProvidersApi
 } {
-    const config = createApiConfig({})
+    const config = createApiConfig(resolveUiEnv(import.meta.env))
     const httpClient = new FetchHttpClient(config)
 
     return {
@@ -51,7 +51,7 @@ export function createApiContracts(): {
     }
 }
 
-export { createApiConfig } from "./config"
+export { createApiConfig, resolveUiEnv } from "./config"
 export {
     ApiHttpError,
     ApiNetworkError,

@@ -110,4 +110,27 @@ describe("SseStreamViewer", (): void => {
         expect(secondSource).not.toBeUndefined()
         expect(mockSources.length).toBeGreaterThanOrEqual(2)
     })
+
+    it("позволяет повторно запустить поток после стартовой ошибки и смены URL", async (): Promise<void> => {
+        const renderResult = renderWithProviders(
+            <SseStreamViewer autoStart={false} eventSourceUrl="" title="Review stream" />,
+        )
+
+        await act(async (): Promise<void> => {
+            screen.getByRole("button", { name: "Start" }).click()
+        })
+        expect(screen.getByText("SSE source URL is empty.")).not.toBeNull()
+        expect(mockSources).toHaveLength(0)
+
+        renderResult.rerender(
+            <SseStreamViewer autoStart={false} eventSourceUrl="/api/v1/stream" title="Review stream" />,
+        )
+
+        await act(async (): Promise<void> => {
+            screen.getByRole("button", { name: "Start" }).click()
+        })
+
+        expect(mockSources).toHaveLength(1)
+        expect(mockSources[0]?.url).toBe("/api/v1/stream")
+    })
 })

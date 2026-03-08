@@ -70,7 +70,11 @@ export function persistAuthSession(storage: Storage | undefined, session: IAuthS
     }
 
     const snapshot = createAuthSessionSnapshot(session)
-    storage.setItem(AUTH_SESSION_STORAGE_KEY, JSON.stringify(snapshot))
+    try {
+        storage.setItem(AUTH_SESSION_STORAGE_KEY, JSON.stringify(snapshot))
+    } catch {
+        return
+    }
 }
 
 /**
@@ -86,7 +90,13 @@ export function loadPersistedAuthSession(
         return undefined
     }
 
-    const rawSnapshot = storage.getItem(AUTH_SESSION_STORAGE_KEY)
+    let rawSnapshot: string | null
+    try {
+        rawSnapshot = storage.getItem(AUTH_SESSION_STORAGE_KEY)
+    } catch {
+        return undefined
+    }
+
     if (rawSnapshot === null) {
         return undefined
     }
@@ -99,6 +109,11 @@ export function loadPersistedAuthSession(
     }
 
     if (isAuthSessionSnapshot(parsedSnapshot) !== true) {
+        return undefined
+    }
+
+    if (isAuthSessionExpired(parsedSnapshot) === true) {
+        clearPersistedAuthSession(storage)
         return undefined
     }
 
@@ -115,7 +130,11 @@ export function clearPersistedAuthSession(storage: Storage | undefined): void {
         return
     }
 
-    storage.removeItem(AUTH_SESSION_STORAGE_KEY)
+    try {
+        storage.removeItem(AUTH_SESSION_STORAGE_KEY)
+    } catch {
+        return
+    }
 }
 
 /**
@@ -133,6 +152,9 @@ function createAuthSessionSnapshot(session: IAuthSession): IAuthSessionSnapshot 
             email: session.user.email,
             displayName: session.user.displayName,
             avatarUrl: session.user.avatarUrl,
+            role: session.user.role,
+            roles: session.user.roles,
+            tenantId: session.user.tenantId,
         },
     }
 }
@@ -193,10 +215,40 @@ function isAuthUser(value: unknown): value is IAuthUser {
     }
 
     if (value.avatarUrl === undefined) {
+        return isOptionalAccessMetadata(value)
+    }
+
+    if (typeof value.avatarUrl !== "string") {
+        return false
+    }
+
+    return isOptionalAccessMetadata(value)
+}
+
+/**
+ * Проверяет optional access metadata внутри auth user.
+ *
+ * @param value Неизвестное значение.
+ * @returns true, если optional поля валидны.
+ */
+function isOptionalAccessMetadata(value: Record<string, unknown>): boolean {
+    if (value.role !== undefined && typeof value.role !== "string") {
+        return false
+    }
+
+    if (value.tenantId !== undefined && typeof value.tenantId !== "string") {
+        return false
+    }
+
+    if (value.roles === undefined) {
         return true
     }
 
-    return typeof value.avatarUrl === "string"
+    if (Array.isArray(value.roles) === false) {
+        return false
+    }
+
+    return value.roles.every((role): boolean => typeof role === "string" && role.length > 0)
 }
 
 /**

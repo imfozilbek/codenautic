@@ -22,7 +22,36 @@ export interface IUiEnv {
     readonly PROD?: boolean
 }
 
+interface IUiEnvSource {
+    readonly MODE?: unknown
+    readonly PROD?: unknown
+    readonly VITE_API_BEARER_TOKEN?: unknown
+    readonly VITE_API_URL?: unknown
+}
+
 const DEFAULT_API_URL = "http://localhost:3000"
+
+/**
+ * Безопасно нормализует runtime env Vite в типизированную конфигурацию UI.
+ *
+ * @param source Нестрого типизированный источник import.meta.env.
+ * @returns Нормализованный env-объект для API-клиента.
+ */
+export function resolveUiEnv(source: IUiEnvSource | undefined): IUiEnv {
+    if (source === undefined) {
+        return {}
+    }
+
+    return {
+        MODE: typeof source.MODE === "string" ? source.MODE : undefined,
+        PROD: source.PROD === true,
+        VITE_API_BEARER_TOKEN:
+            typeof source.VITE_API_BEARER_TOKEN === "string"
+                ? source.VITE_API_BEARER_TOKEN
+                : undefined,
+        VITE_API_URL: typeof source.VITE_API_URL === "string" ? source.VITE_API_URL : undefined,
+    }
+}
 
 /**
  * Формирует конфиг API-клиента из переменных окружения.

@@ -1,5 +1,4 @@
-import type { TTenantId } from "@/lib/navigation/route-guard-map"
-import type { TUiRole } from "@/lib/permissions/ui-policy"
+import type { TTenantId, TUiRole } from "@/lib/access/access-types"
 
 export const MULTI_TAB_SYNC_CHANNEL = "codenautic:multi-tab-sync"
 export const TENANT_STORAGE_KEY = "codenautic:tenant:active"

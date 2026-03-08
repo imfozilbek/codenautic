@@ -2,6 +2,7 @@ import {
     useMutation,
     useQuery,
     useQueryClient,
+    type QueryClient,
     type UseMutationResult,
     type UseQueryResult,
 } from "@tanstack/react-query"
@@ -88,7 +89,20 @@ function normalizeRuleQuery<TValue extends string>(
 function upsertOptimisticRule(
     request: ICreateCustomRuleRequest,
     queryResult: ICustomRulesListResponse,
+    query: TCustomRulesQuery,
 ): ICustomRulesListResponse {
+    if (
+        doesRuleMatchQuery(
+            {
+                ...request,
+                id: "optimistic-custom-rule",
+            },
+            query,
+        ) !== true
+    ) {
+        return queryResult
+    }
+
     const optimisticRule: ICustomRule = {
         id: `temp-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`,
         title: request.title,
@@ -104,6 +118,61 @@ function upsertOptimisticRule(
         total: queryResult.total + 1,
         rules: [...queryResult.rules, optimisticRule],
     }
+}
+
+function doesRuleMatchQuery(rule: ICustomRule, query: TCustomRulesQuery): boolean {
+    if (query.scope !== undefined && rule.scope !== query.scope) {
+        return false
+    }
+
+    if (query.status !== undefined && rule.status !== query.status) {
+        return false
+    }
+
+    return true
+}
+
+function replaceRuleInList(
+    queryResult: ICustomRulesListResponse,
+    rule: ICustomRule,
+    query: TCustomRulesQuery,
+): ICustomRulesListResponse {
+    const ruleMatchesQuery = doesRuleMatchQuery(rule, query)
+    const hasExistingRule = queryResult.rules.some((item): boolean => item.id === rule.id)
+
+    if (ruleMatchesQuery !== true) {
+        if (hasExistingRule !== true) {
+            return queryResult
+        }
+
+        const nextRules = queryResult.rules.filter((item): boolean => item.id !== rule.id)
+        return {
+            total: Math.max(queryResult.total - 1, 0),
+            rules: nextRules,
+        }
+    }
+
+    if (hasExistingRule !== true) {
+        return {
+            total: queryResult.total + 1,
+            rules: [...queryResult.rules, rule],
+        }
+    }
+
+    return {
+        total: queryResult.total,
+        rules: queryResult.rules.map((item): ICustomRule => {
+            if (item.id !== rule.id) {
+                return item
+            }
+
+            return rule
+        }),
+    }
+}
+
+async function invalidateCustomRuleQueries(queryClient: QueryClient): Promise<void> {
+    await queryClient.invalidateQueries({ queryKey: queryKeys.customRules.all() })
 }
 
 /**
@@ -151,15 +220,16 @@ export function useCustomRules(args: IUseCustomRulesQueryArgs = {}): IUseCustomR
             return api.customRules.createCustomRule(request)
         },
         onMutate: async (request): Promise<TOptimisticContext> => {
-            await queryClient.cancelQueries({ queryKey: listQueryKey })
+            await queryClient.cancelQueries({ queryKey: queryKeys.customRules.all() })
 
             const previousList = queryClient.getQueryData<ICustomRulesListResponse>(listQueryKey)
             if (previousList === undefined) {
                 return { previousList }
             }
 
-            const optimisticList = upsertOptimisticRule(request, previousList)
-            const optimisticRuleId = optimisticList.rules.at(-1)?.id
+            const optimisticList = upsertOptimisticRule(request, previousList, queryFilters)
+            const optimisticRuleId =
+                optimisticList === previousList ? undefined : optimisticList.rules.at(-1)?.id
             queryClient.setQueryData(listQueryKey, optimisticList)
 
             return {
@@ -189,7 +259,7 @@ export function useCustomRules(args: IUseCustomRulesQueryArgs = {}): IUseCustomR
             })
         },
         onSettled: async (): Promise<void> => {
-            await queryClient.invalidateQueries({ queryKey: listQueryKey })
+            await invalidateCustomRuleQueries(queryClient)
         },
     })
 
@@ -203,31 +273,33 @@ export function useCustomRules(args: IUseCustomRulesQueryArgs = {}): IUseCustomR
             return api.customRules.updateCustomRule(request)
         },
         onMutate: async (request): Promise<TOptimisticContext> => {
-            await queryClient.cancelQueries({ queryKey: listQueryKey })
+            await queryClient.cancelQueries({ queryKey: queryKeys.customRules.all() })
 
             const previousList = queryClient.getQueryData<ICustomRulesListResponse>(listQueryKey)
             if (previousList === undefined) {
                 return { previousList }
             }
 
-            queryClient.setQueryData<ICustomRulesListResponse>(listQueryKey, {
-                total: previousList.total,
-                rules: previousList.rules.map((item): ICustomRule => {
-                    if (item.id !== request.id) {
-                        return item
-                    }
-                    return {
-                        ...item,
-                        title: request.title ?? item.title,
-                        rule: request.rule ?? item.rule,
-                        type: request.type ?? item.type,
-                        scope: request.scope ?? item.scope,
-                        severity: request.severity ?? item.severity,
-                        status: request.status ?? item.status,
-                        examples: request.examples ?? item.examples,
-                    }
-                }),
-            })
+            const currentRule = previousList.rules.find((item): boolean => item.id === request.id)
+            if (currentRule !== undefined) {
+                queryClient.setQueryData<ICustomRulesListResponse>(
+                    listQueryKey,
+                    replaceRuleInList(
+                        previousList,
+                        {
+                            ...currentRule,
+                            title: request.title ?? currentRule.title,
+                            rule: request.rule ?? currentRule.rule,
+                            type: request.type ?? currentRule.type,
+                            scope: request.scope ?? currentRule.scope,
+                            severity: request.severity ?? currentRule.severity,
+                            status: request.status ?? currentRule.status,
+                            examples: request.examples ?? currentRule.examples,
+                        },
+                        queryFilters,
+                    ),
+                )
+            }
 
             return {
                 previousList,
@@ -245,18 +317,13 @@ export function useCustomRules(args: IUseCustomRulesQueryArgs = {}): IUseCustomR
                 return
             }
 
-            queryClient.setQueryData<ICustomRulesListResponse>(listQueryKey, {
-                total: currentList.total,
-                rules: currentList.rules.map((item): ICustomRule => {
-                    if (item.id !== response.id) {
-                        return item
-                    }
-                    return response
-                }),
-            })
+            queryClient.setQueryData<ICustomRulesListResponse>(
+                listQueryKey,
+                replaceRuleInList(currentList, response, queryFilters),
+            )
         },
         onSettled: async (): Promise<void> => {
-            await queryClient.invalidateQueries({ queryKey: listQueryKey })
+            await invalidateCustomRuleQueries(queryClient)
         },
     })
 
@@ -272,7 +339,7 @@ export function useCustomRules(args: IUseCustomRulesQueryArgs = {}): IUseCustomR
             return api.customRules.deleteCustomRule(request)
         },
         onMutate: async (request): Promise<TOptimisticContext> => {
-            await queryClient.cancelQueries({ queryKey: listQueryKey })
+            await queryClient.cancelQueries({ queryKey: queryKeys.customRules.all() })
 
             const previousList = queryClient.getQueryData<ICustomRulesListResponse>(listQueryKey)
             if (previousList === undefined) {
@@ -305,7 +372,7 @@ export function useCustomRules(args: IUseCustomRulesQueryArgs = {}): IUseCustomR
             }
         },
         onSettled: async (): Promise<void> => {
-            await queryClient.invalidateQueries({ queryKey: listQueryKey })
+            await invalidateCustomRuleQueries(queryClient)
         },
     })
 

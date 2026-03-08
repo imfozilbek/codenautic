@@ -16,6 +16,9 @@ export interface IAuthUser {
     readonly email: string
     readonly displayName: string
     readonly avatarUrl?: string
+    readonly role?: string
+    readonly roles?: ReadonlyArray<string>
+    readonly tenantId?: string
 }
 
 /**

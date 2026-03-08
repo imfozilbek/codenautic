@@ -1,6 +1,6 @@
-import type { TUiRole } from "@/lib/permissions/ui-policy"
+import type { TTenantId, TUiRole } from "@/lib/access/access-types"
 
-export type TTenantId = "frontend-team" | "platform-team" | "runtime-team"
+export type { TTenantId } from "@/lib/access/access-types"
 
 export interface IRouteGuardContext {
     /** Аутентифицирован ли пользователь. */

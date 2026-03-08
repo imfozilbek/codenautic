@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react"
 
-export type TUiRole = "admin" | "developer" | "lead" | "viewer"
+import { isUiRole, type TUiRole } from "@/lib/access/access-types"
+import { useAuthAccess } from "@/lib/auth/auth-access"
 
 export type TUiActionId =
     | "review.decision"
@@ -20,7 +21,6 @@ export interface IUiActionPolicy {
 }
 
 const UI_ROLE_STORAGE_KEY = "codenautic:rbac:role"
-const DEFAULT_UI_ROLE: TUiRole = "admin"
 
 const DEFAULT_POLICY: Readonly<IUiActionPolicy> = {
     reason: "Action is unavailable for the current role policy.",
@@ -121,26 +121,55 @@ const UI_POLICY_MATRIX: Readonly<Record<TUiRole, Readonly<Record<TUiActionId, IU
     },
 }
 
-function isUiRole(value: unknown): value is TUiRole {
-    return value === "viewer" || value === "developer" || value === "lead" || value === "admin"
+/**
+ * Возвращает безопасную fallback-роль вне защищённого дерева.
+ *
+ * @returns Базовая роль для текущего окружения.
+ */
+function resolveDefaultUiRole(): TUiRole {
+    if (import.meta.env.MODE === "test") {
+        return "admin"
+    }
+
+    return "viewer"
+}
+
+/**
+ * Определяет, разрешён ли локальный role preview.
+ *
+ * @returns true только в dev/test или при явном env-флаге.
+ */
+export function isRolePreviewEnabled(): boolean {
+    return (
+        import.meta.env.DEV === true
+        || import.meta.env.MODE === "test"
+        || import.meta.env.VITE_ENABLE_ROLE_PREVIEW === "true"
+    )
 }
 
 /**
  * Возвращает роль из localStorage для UI RBAC.
  *
- * @returns Текущая роль или fallback admin.
+ * @returns Текущая preview-роль или безопасный fallback.
  */
 export function readUiRoleFromStorage(): TUiRole {
-    if (typeof window === "undefined") {
-        return DEFAULT_UI_ROLE
+    const defaultRole = resolveDefaultUiRole()
+    if (typeof window === "undefined" || isRolePreviewEnabled() !== true) {
+        return defaultRole
     }
 
-    const storedRole = window.localStorage.getItem(UI_ROLE_STORAGE_KEY)
+    let storedRole: string | null
+    try {
+        storedRole = window.localStorage.getItem(UI_ROLE_STORAGE_KEY)
+    } catch {
+        return defaultRole
+    }
+
     if (isUiRole(storedRole)) {
         return storedRole
     }
 
-    return DEFAULT_UI_ROLE
+    return defaultRole
 }
 
 /**
@@ -149,11 +178,16 @@ export function readUiRoleFromStorage(): TUiRole {
  * @param nextRole Следующая роль.
  */
 export function writeUiRoleToStorage(nextRole: TUiRole): void {
-    if (typeof window === "undefined") {
+    if (typeof window === "undefined" || isRolePreviewEnabled() !== true) {
         return
     }
 
-    window.localStorage.setItem(UI_ROLE_STORAGE_KEY, nextRole)
+    try {
+        window.localStorage.setItem(UI_ROLE_STORAGE_KEY, nextRole)
+    } catch {
+        return
+    }
+
     window.dispatchEvent(
         new CustomEvent("codenautic:rbac-role-changed", {
             detail: {
@@ -185,11 +219,17 @@ export function getUiActionPolicy(role: TUiRole, actionId: TUiActionId): IUiActi
  * @returns Активная роль для UI policy.
  */
 export function useUiRole(): TUiRole {
+    const authAccess = useAuthAccess()
     const [role, setRole] = useState<TUiRole>(() => {
-        return readUiRoleFromStorage()
+        return authAccess?.role ?? readUiRoleFromStorage()
     })
 
     useEffect((): (() => void) | void => {
+        if (authAccess !== undefined) {
+            setRole(authAccess.role)
+            return
+        }
+
         if (typeof window === "undefined") {
             return
         }
@@ -208,8 +248,9 @@ export function useUiRole(): TUiRole {
                 handleRoleChanged as EventListener,
             )
         }
-    }, [])
+    }, [authAccess])
 
     return role
 }
 
+export type { TUiRole } from "@/lib/access/access-types"

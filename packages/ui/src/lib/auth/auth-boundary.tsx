@@ -10,9 +10,12 @@ import {
 import { useTranslation } from "react-i18next"
 
 import { Button } from "@/components/ui"
+import type { TTenantId, TUiRole } from "@/lib/access/access-types"
 import type { IAuthApi } from "@/lib/api"
 import { createApiContracts, isApiHttpError } from "@/lib/api"
+import { searchAccessibleRoutes, isRouteAccessible } from "@/lib/navigation/route-guard-map"
 import { queryKeys } from "@/lib/query/query-keys"
+import { AuthAccessProvider } from "./auth-access"
 import {
     clearPersistedAuthSession,
     loadPersistedAuthSession,
@@ -46,6 +49,7 @@ export interface IAuthBoundaryProps {
     readonly intendedDestination?: string
     readonly authStatusHint?: TAuthGuardStatusCode
     readonly onNavigateToLogin?: (loginPath: string) => void
+    readonly routePath?: string
 }
 
 /**
@@ -85,6 +89,11 @@ interface IAuthBoundaryState {
     readonly handleLogout: () => Promise<void>
 }
 
+interface IResolvedAuthAccess {
+    readonly role: TUiRole
+    readonly tenantId: TTenantId
+}
+
 /**
  * Граница авторизации для защищённых route с refresh и logout flow.
  *
@@ -98,6 +107,7 @@ export function AuthBoundary(props: IAuthBoundaryProps): ReactElement {
     const authApi = props.authApi ?? DEFAULT_AUTH_API
     const redirect = props.onRedirect ?? redirectToAuthorizationUrl
     const intendedDestination = resolveIntendedDestinationPath(props.intendedDestination)
+    const routePath = resolveBoundaryRoutePath(props.routePath)
 
     const state = useAuthBoundaryState({
         authApi,
@@ -114,11 +124,25 @@ export function AuthBoundary(props: IAuthBoundaryProps): ReactElement {
         state.session,
         effectiveAuthStatusCode,
     )
+    const resolvedAccess =
+        state.session !== undefined && state.session !== null
+            ? resolveAuthAccess(state.session)
+            : undefined
+    const shouldRedirectForRouteAccess =
+        resolvedAccess !== undefined && isRouteAccessible(routePath, {
+            isAuthenticated: true,
+            role: resolvedAccess.role,
+            tenantId: resolvedAccess.tenantId,
+        }) !== true
     const loginRedirectPath = createLoginRedirectPath(
         props.loginPath,
         intendedDestination,
         effectiveAuthStatusCode,
     )
+    const routeAccessRedirectPath =
+        resolvedAccess === undefined
+            ? undefined
+            : resolveAccessibleRouteFallbackPath(resolvedAccess, routePath)
     const navigateToLogin = props.onNavigateToLogin ?? navigateToPath
 
     useEffect((): void => {
@@ -133,7 +157,22 @@ export function AuthBoundary(props: IAuthBoundaryProps): ReactElement {
         navigateToLogin(loginRedirectPath)
     }, [loginRedirectPath, navigateToLogin, shouldRedirectToLogin])
 
-    const isLoadingState = state.isPending === true || shouldRedirectToLogin === true
+    useEffect((): void => {
+        if (shouldRedirectForRouteAccess !== true) {
+            return
+        }
+
+        if (routeAccessRedirectPath === undefined) {
+            return
+        }
+
+        navigateToPath(routeAccessRedirectPath)
+    }, [routeAccessRedirectPath, shouldRedirectForRouteAccess])
+
+    const isLoadingState =
+        state.isPending === true
+        || shouldRedirectToLogin === true
+        || shouldRedirectForRouteAccess === true
     if (isLoadingState === true) {
         return renderAuthLoadingState(labels.appTitle, labels.checkingSession)
     }
@@ -153,23 +192,38 @@ export function AuthBoundary(props: IAuthBoundaryProps): ReactElement {
         )
     }
 
-    if (typeof props.children === "function") {
-        return props.children({
-            userName: state.session.user.displayName,
-            userEmail: state.session.user.email,
-            onSignOut: state.handleLogout,
-        })
+    const protectedTree =
+        typeof props.children === "function"
+            ? props.children({
+                  userName: state.session.user.displayName,
+                  userEmail: state.session.user.email,
+                  onSignOut: state.handleLogout,
+              })
+            : renderAuthLoginShell({
+                  appTitle: labels.appTitle,
+                  userDisplayName: state.session.user.displayName,
+                  userEmail: state.session.user.email,
+                  logoutLabel: labels.logout,
+                  onLogout: state.handleLogout,
+                  interactionError: state.interactionError,
+                  children: props.children,
+              })
+
+    if (resolvedAccess === undefined) {
+        return protectedTree
     }
 
-    return renderAuthLoginShell({
-        appTitle: labels.appTitle,
-        userDisplayName: state.session.user.displayName,
-        userEmail: state.session.user.email,
-        logoutLabel: labels.logout,
-        onLogout: state.handleLogout,
-        interactionError: state.interactionError,
-        children: props.children,
-    })
+    return (
+        <AuthAccessProvider
+            value={{
+                role: resolvedAccess.role,
+                session: state.session,
+                tenantId: resolvedAccess.tenantId,
+            }}
+        >
+            {protectedTree}
+        </AuthAccessProvider>
+    )
 }
 
 /**
@@ -571,13 +625,58 @@ function resolveProviderLabel(provider: TOAuthProvider): string {
 }
 
 /**
+ * Санитизирует внутренний маршрут приложения и блокирует protocol-relative/external URL.
+ *
+ * @param destination Потенциальный внутренний путь.
+ * @param fallback Fallback-путь при невалидном значении.
+ * @returns Безопасный путь приложения.
+ */
+export function sanitizeAppDestinationPath(
+    destination: string | undefined,
+    fallback: string,
+): string {
+    if (destination === undefined) {
+        return fallback
+    }
+
+    const trimmedDestination = destination.trim()
+    if (trimmedDestination.length === 0) {
+        return fallback
+    }
+
+    if (trimmedDestination.startsWith("//")) {
+        return fallback
+    }
+
+    if (trimmedDestination.startsWith("/")) {
+        return trimmedDestination
+    }
+
+    try {
+        const parsedDestination = new URL(trimmedDestination)
+        if (parsedDestination.origin !== window.location.origin) {
+            return fallback
+        }
+
+        if (parsedDestination.pathname.startsWith("//")) {
+            return fallback
+        }
+
+        return `${parsedDestination.pathname}${parsedDestination.search}${parsedDestination.hash}`
+    } catch {
+        return fallback
+    }
+}
+
+/**
  * Формирует redirect URI для OAuth/OIDC flow.
  *
  * @param intendedDestination Целевой путь после успешной авторизации.
  * @returns Redirect URI в текущем origin.
  */
 function resolveAuthRedirectUri(intendedDestination: string): string {
-    return new URL(intendedDestination, window.location.origin).toString()
+    const safeDestination = sanitizeAppDestinationPath(intendedDestination, "/")
+    return new URL(safeDestination, window.location.origin).toString()
 }
 
 /**
@@ -729,29 +828,7 @@ function isCurrentPage(path: string): boolean {
  * @returns Безопасный относительный путь.
  */
 function resolveIntendedDestinationPath(destination: string | undefined): string {
-    if (destination === undefined) {
-        return getCurrentRelativeUrl()
-    }
-
-    const trimmedDestination = destination.trim()
-    if (trimmedDestination.length === 0) {
-        return "/"
-    }
-
-    if (trimmedDestination.startsWith("/")) {
-        return trimmedDestination
-    }
-
-    try {
-        const parsedDestination = new URL(trimmedDestination)
-        if (parsedDestination.origin !== window.location.origin) {
-            return "/"
-        }
-
-        return `${parsedDestination.pathname}${parsedDestination.search}${parsedDestination.hash}`
-    } catch {
-        return "/"
-    }
+    return sanitizeAppDestinationPath(destination, getCurrentRelativeUrl())
 }
 
 /**
@@ -800,5 +877,173 @@ function navigateToPath(path: string): void {
  * @returns Browser storage для auth snapshot.
  */
 function getSessionStorageOrUndefined(): Storage | undefined {
-    return window.sessionStorage
+    try {
+        return window.sessionStorage
+    } catch {
+        return undefined
+    }
+}
+
+/**
+ * Возвращает path текущего boundary для route guard проверки.
+ *
+ * @param routePath Явный route path.
+ * @returns Санитизированный path приложения.
+ */
+function resolveBoundaryRoutePath(routePath: string | undefined): string {
+    if (typeof window === "undefined") {
+        return sanitizeAppDestinationPath(routePath, "/")
+    }
+
+    return sanitizeAppDestinationPath(routePath, window.location.pathname)
+}
+
+/**
+ * Приводит auth session к доверенному role/tenant контексту.
+ *
+ * @param session Активная auth session.
+ * @returns Нормализованный доступ для route guards.
+ */
+function resolveAuthAccess(session: IAuthSession): IResolvedAuthAccess {
+    return {
+        role: resolveAuthRole(session),
+        tenantId: resolveAuthTenantId(session),
+    }
+}
+
+/**
+ * Возвращает роль пользователя из auth session.
+ *
+ * @param session Активная auth session.
+ * @returns Нормализованная роль с безопасным fallback.
+ */
+function resolveAuthRole(session: IAuthSession): TUiRole {
+    const directRole = normalizeRoleCandidate(session.user.role)
+    if (directRole !== undefined) {
+        return directRole
+    }
+
+    const roleCandidates = Array.isArray(session.user.roles) ? session.user.roles : []
+    let highestRole: TUiRole = "viewer"
+    for (const roleCandidate of roleCandidates) {
+        const normalizedRole = normalizeRoleCandidate(roleCandidate)
+        if (normalizedRole === undefined) {
+            continue
+        }
+
+        if (getRolePriority(normalizedRole) > getRolePriority(highestRole)) {
+            highestRole = normalizedRole
+        }
+    }
+
+    return highestRole
+}
+
+/**
+ * Возвращает tenant пользователя из auth session или сохранённого workspace.
+ *
+ * @param session Активная auth session.
+ * @returns Валидный tenant id.
+ */
+function resolveAuthTenantId(session: IAuthSession): TTenantId {
+    const storedTenantId = readStoredTenantId()
+    if (storedTenantId !== undefined) {
+        return storedTenantId
+    }
+
+    if (
+        session.user.tenantId === "platform-team"
+        || session.user.tenantId === "frontend-team"
+        || session.user.tenantId === "runtime-team"
+    ) {
+        return session.user.tenantId
+    }
+
+    return "platform-team"
+}
+
+/**
+ * Читает сохранённый tenant id без выброса ошибок browser storage.
+ *
+ * @returns Tenant id из storage или undefined.
+ */
+function readStoredTenantId(): TTenantId | undefined {
+    if (typeof window === "undefined") {
+        return undefined
+    }
+
+    try {
+        const tenantId = window.localStorage.getItem("codenautic:tenant:active")
+        if (tenantId === "platform-team" || tenantId === "frontend-team" || tenantId === "runtime-team") {
+            return tenantId
+        }
+    } catch {
+        return undefined
+    }
+
+    return undefined
+}
+
+/**
+ * Приводит сырой role candidate к поддерживаемой UI-роли.
+ *
+ * @param value Значение из auth session.
+ * @returns Валидная роль или undefined.
+ */
+function normalizeRoleCandidate(value: unknown): TUiRole | undefined {
+    if (value === "viewer" || value === "developer" || value === "lead" || value === "admin") {
+        return value
+    }
+
+    return undefined
+}
+
+/**
+ * Возвращает числовой приоритет роли для выбора старшей роли.
+ *
+ * @param role UI-роль.
+ * @returns Приоритет роли.
+ */
+function getRolePriority(role: TUiRole): number {
+    if (role === "admin") {
+        return 4
+    }
+
+    if (role === "lead") {
+        return 3
+    }
+
+    if (role === "developer") {
+        return 2
+    }
+
+    return 1
+}
+
+/**
+ * Находит безопасный fallback route для авторизованного пользователя.
+ *
+ * @param access Нормализованный access context.
+ * @param currentPath Текущий route path.
+ * @returns Путь fallback route.
+ */
+function resolveAccessibleRouteFallbackPath(
+    access: IResolvedAuthAccess,
+    currentPath: string,
+): string | undefined {
+    const accessibleRoute = searchAccessibleRoutes("", {
+        isAuthenticated: true,
+        role: access.role,
+        tenantId: access.tenantId,
+    }).find((route): boolean => route.path !== currentPath)
+
+    if (accessibleRoute !== undefined) {
+        return accessibleRoute.path
+    }
+
+    if (currentPath !== "/") {
+        return "/"
+    }
+
+    return undefined
 }

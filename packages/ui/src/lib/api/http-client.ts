@@ -260,11 +260,11 @@ export class FetchHttpClient implements IHttpClient {
     }
 
     private shouldRetryResponse(method: HttpMethod, status: number): boolean {
-        if (status === 429) {
-            return true
-        }
         if (RETRYABLE_METHODS.has(method) !== true) {
             return false
+        }
+        if (status === 429) {
+            return true
         }
         return RETRYABLE_HTTP_STATUSES.has(status)
     }
@@ -318,7 +318,7 @@ export class FetchHttpClient implements IHttpClient {
         if (response.ok === true) {
             return {
                 type: "success",
-                response: (await response.json()) as TResponse,
+                response: await this.parseSuccessResponse<TResponse>(response, request.path),
             }
         }
 
@@ -381,6 +381,30 @@ export class FetchHttpClient implements IHttpClient {
             error: createApiNetworkError(error, request.path),
         }
     }
+
+    private async parseSuccessResponse<TResponse>(
+        response: Response,
+        path: string,
+    ): Promise<TResponse> {
+        if (response.status === 204 || response.status === 205) {
+            return undefined as TResponse
+        }
+
+        const responseText = await response.text()
+        if (responseText.trim().length === 0) {
+            return undefined as TResponse
+        }
+
+        try {
+            return JSON.parse(responseText) as TResponse
+        } catch (error: unknown) {
+            throw new ApiHttpError(
+                response.status,
+                path,
+                buildInvalidJsonResponseMessage(path, error),
+            )
+        }
+    }
 }
 
 /**
@@ -424,6 +448,21 @@ function normalizeRequestPath(path: string): string {
  */
 function looksLikeAbsoluteUrl(value: string): boolean {
     return /^[a-zA-Z][a-zA-Z\d+.-]*:\/\//.test(value)
+}
+
+/**
+ * Формирует диагностическое сообщение для некорректного JSON в успешном ответе.
+ *
+ * @param path Путь исходного API-запроса.
+ * @param error Первичная ошибка парсинга.
+ * @returns Сообщение для ApiHttpError.
+ */
+function buildInvalidJsonResponseMessage(path: string, error: unknown): string {
+    if (error instanceof Error && error.message.trim().length > 0) {
+        return `Invalid JSON response for ${path}: ${error.message}`
+    }
+
+    return `Invalid JSON response for ${path}`
 }
 
 /**

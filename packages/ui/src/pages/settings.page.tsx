@@ -4,7 +4,7 @@ import { Link } from "@tanstack/react-router"
 
 import { Card, CardBody, CardHeader } from "@/components/ui"
 import { ActivationChecklist } from "@/components/onboarding/activation-checklist"
-import { readUiRoleFromStorage } from "@/lib/permissions/ui-policy"
+import { useUiRole } from "@/lib/permissions/ui-policy"
 
 /**
  * Базовая overview-страница раздела settings.
@@ -12,7 +12,7 @@ import { readUiRoleFromStorage } from "@/lib/permissions/ui-policy"
  * @returns Блок с входными ссылками в поднастройки.
  */
 export function SettingsPage(): ReactElement {
-    const uiRole = readUiRoleFromStorage()
+    const uiRole = useUiRole()
     const checklistRole = uiRole === "admin" ? "admin" : "developer"
 
     return (
