@@ -37,10 +37,10 @@ export interface IHotAreaHighlightsProps {
  */
 function resolveSeverityClassName(severity: THotAreaSeverity): string {
     if (severity === "critical") {
-        return "border-rose-300 bg-rose-500/15 text-rose-800"
+        return "border-danger/40 bg-danger/15 text-danger"
     }
     if (severity === "high") {
-        return "border-amber-300 bg-amber-500/15 text-amber-900"
+        return "border-amber-300 bg-warning/15 text-amber-900"
     }
     return "border-sky-300 bg-sky-500/15 text-sky-800"
 }
@@ -53,27 +53,27 @@ function resolveSeverityClassName(severity: THotAreaSeverity): string {
  */
 export function HotAreaHighlights(props: IHotAreaHighlightsProps): ReactElement {
     return (
-        <section className="rounded-lg border border-slate-200 bg-white p-3 shadow-sm">
-            <p className="text-sm font-semibold text-slate-900">Hot area highlights</p>
-            <p className="mt-1 text-xs text-slate-500">
+        <section className="rounded-lg border border-border bg-white p-3 shadow-sm">
+            <p className="text-sm font-semibold text-foreground">Hot area highlights</p>
+            <p className="mt-1 text-xs text-muted-foreground">
                 Critical city zones with short diagnostics labels.
             </p>
             <ul className="mt-3 space-y-2">
                 {props.highlights.map(
                     (highlight): ReactElement => (
                         <li
-                            className="rounded border border-slate-200 bg-slate-50 p-2"
+                            className="rounded border border-border bg-surface p-2"
                             key={highlight.fileId}
                         >
                             <div className="flex items-start justify-between gap-3">
                                 <div className="min-w-0">
-                                    <p className="flex items-center gap-2 text-sm font-semibold text-slate-900">
+                                    <p className="flex items-center gap-2 text-sm font-semibold text-foreground">
                                         <span
-                                            className={`inline-block h-2 w-2 rounded-full animate-pulse ${highlight.severity === "critical" ? "bg-rose-500" : highlight.severity === "high" ? "bg-amber-500" : "bg-sky-500"}`}
+                                            className={`inline-block h-2 w-2 rounded-full animate-pulse ${highlight.severity === "critical" ? "bg-danger" : highlight.severity === "high" ? "bg-warning" : "bg-sky-500"}`}
                                         />
                                         <span className="truncate">{highlight.label}</span>
                                     </p>
-                                    <p className="mt-1 text-xs text-slate-600">
+                                    <p className="mt-1 text-xs text-muted-foreground">
                                         {highlight.description}
                                     </p>
                                 </div>

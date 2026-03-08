@@ -173,9 +173,9 @@ export function BusFactorTrendChart(props: IBusFactorTrendChartProps): ReactElem
     }
 
     return (
-        <section className="space-y-3 rounded-lg border border-slate-200 bg-white p-3 shadow-sm">
-            <p className="text-sm font-semibold text-slate-900">Bus factor trend chart</p>
-            <p className="text-xs text-slate-500">
+        <section className="space-y-3 rounded-lg border border-border bg-white p-3 shadow-sm">
+            <p className="text-sm font-semibold text-foreground">Bus factor trend chart</p>
+            <p className="text-xs text-muted-foreground">
                 Module-level bus factor trend with team-change annotations.
             </p>
             <div
@@ -276,14 +276,14 @@ export function BusFactorTrendChart(props: IBusFactorTrendChartProps): ReactElem
                                 className={
                                     isActive
                                         ? "rounded border border-cyan-300 bg-cyan-50 p-2"
-                                        : "rounded border border-slate-200 bg-slate-50 p-2"
+                                        : "rounded border border-border bg-surface p-2"
                                 }
                                 key={series.moduleId}
                             >
-                                <p className="text-sm font-semibold text-slate-900">
+                                <p className="text-sm font-semibold text-foreground">
                                     {series.moduleLabel}
                                 </p>
-                                <p className="text-xs text-slate-600">
+                                <p className="text-xs text-muted-foreground">
                                     Latest bus factor: {String(latestBusFactor ?? "n/a")}
                                 </p>
                                 <button

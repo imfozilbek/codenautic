@@ -34,9 +34,9 @@ export function PredictionComparisonView(props: IPredictionComparisonViewProps):
         props.snapshots[0]
 
     return (
-        <section className="rounded-lg border border-slate-200 bg-white p-3 shadow-sm">
-            <p className="text-sm font-semibold text-slate-900">Prediction comparison view</p>
-            <p className="mt-1 text-xs text-slate-500">
+        <section className="rounded-lg border border-border bg-white p-3 shadow-sm">
+            <p className="text-sm font-semibold text-foreground">Prediction comparison view</p>
+            <p className="mt-1 text-xs text-muted-foreground">
                 Compare historical forecasts with what actually happened.
             </p>
 
@@ -49,7 +49,7 @@ export function PredictionComparisonView(props: IPredictionComparisonViewProps):
                             className={`w-full rounded border p-2 text-left text-xs transition ${
                                 isActive
                                     ? "border-cyan-400 bg-cyan-50 text-cyan-900"
-                                    : "border-slate-200 bg-slate-50 text-slate-700 hover:border-slate-300"
+                                    : "border-border bg-surface text-foreground hover:border-border"
                             }`}
                             key={snapshot.id}
                             onClick={(): void => {
@@ -67,12 +67,12 @@ export function PredictionComparisonView(props: IPredictionComparisonViewProps):
 
             <div
                 aria-label="Prediction comparison summary"
-                className="mt-3 rounded border border-slate-200 bg-slate-50 p-2"
+                className="mt-3 rounded border border-border bg-surface p-2"
             >
-                <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                     What happened since prediction
                 </p>
-                <p className="mt-1 text-xs text-slate-700">
+                <p className="mt-1 text-xs text-foreground">
                     {selectedSnapshot === undefined
                         ? "No comparison snapshot selected."
                         : selectedSnapshot.summary}

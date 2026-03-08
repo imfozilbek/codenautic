@@ -90,7 +90,10 @@ export function TableBody({ children, emptyContent, ...props }: ITableBodyProps)
         return (
             <tbody {...props}>
                 <tr>
-                    <td className="px-4 py-6 text-center text-sm text-slate-500" colSpan={99}>
+                    <td
+                        className="px-4 py-6 text-center text-sm text-muted-foreground"
+                        colSpan={99}
+                    >
                         {emptyContent}
                     </td>
                 </tr>
@@ -106,7 +109,7 @@ export function TableBody({ children, emptyContent, ...props }: ITableBodyProps)
  */
 export function TableColumn({ children, ...props }: TableColumnProps): ReactElement {
     return (
-        <th className="px-3 py-2 text-left text-sm font-semibold text-slate-700" {...props}>
+        <th className="px-3 py-2 text-left text-sm font-semibold text-foreground" {...props}>
             {children}
         </th>
     )
@@ -117,7 +120,7 @@ export function TableColumn({ children, ...props }: TableColumnProps): ReactElem
  */
 export function TableRow({ children, ...props }: TableRowProps): ReactElement {
     return (
-        <tr className="border-b border-slate-200 last:border-b-0" {...props}>
+        <tr className="border-b border-border last:border-b-0" {...props}>
             {children}
         </tr>
     )
@@ -128,7 +131,7 @@ export function TableRow({ children, ...props }: TableRowProps): ReactElement {
  */
 export function TableCell({ children, ...props }: TableCellProps): ReactElement {
     return (
-        <td className="px-3 py-2 text-sm text-slate-900" {...props}>
+        <td className="px-3 py-2 text-sm text-foreground" {...props}>
             {children}
         </td>
     )

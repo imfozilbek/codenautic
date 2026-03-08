@@ -77,9 +77,9 @@ export function ROICalculatorWidget(props: IROICalculatorWidgetProps): ReactElem
     }
 
     return (
-        <section className="rounded-lg border border-slate-200 bg-white p-3 shadow-sm">
-            <p className="text-sm font-semibold text-slate-900">ROI calculator widget</p>
-            <p className="mt-1 text-xs text-slate-500">
+        <section className="rounded-lg border border-border bg-white p-3 shadow-sm">
+            <p className="text-sm font-semibold text-foreground">ROI calculator widget</p>
+            <p className="mt-1 text-xs text-muted-foreground">
                 Select files and tune risk/effort weights to simulate expected refactoring ROI.
             </p>
 
@@ -87,23 +87,23 @@ export function ROICalculatorWidget(props: IROICalculatorWidgetProps): ReactElem
                 {props.targets.slice(0, 6).map(
                     (target): ReactElement => (
                         <li
-                            className="flex items-start gap-2 rounded border border-slate-200 bg-slate-50 p-2"
+                            className="flex items-start gap-2 rounded border border-border bg-surface p-2"
                             key={target.id}
                         >
                             <input
                                 aria-label={`Select ROI target ${target.title}`}
                                 checked={selectedTargetIds.includes(target.id)}
-                                className="mt-0.5 h-4 w-4 rounded border-slate-300"
+                                className="mt-0.5 h-4 w-4 rounded border-border"
                                 onChange={(): void => {
                                     toggleTargetSelection(target.id)
                                 }}
                                 type="checkbox"
                             />
                             <div className="min-w-0">
-                                <p className="text-sm font-semibold text-slate-900">
+                                <p className="text-sm font-semibold text-foreground">
                                     {target.title}
                                 </p>
-                                <p className="text-xs text-slate-600">
+                                <p className="text-xs text-muted-foreground">
                                     ROI {String(target.roiScore)} · Risk {String(target.riskScore)}{" "}
                                     · Effort {String(target.effortScore)}
                                 </p>
@@ -114,7 +114,7 @@ export function ROICalculatorWidget(props: IROICalculatorWidgetProps): ReactElem
             </ul>
 
             <label className="mt-3 block space-y-1" htmlFor="roi-risk-weight">
-                <span className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                     Risk weight: {String(riskWeight)}%
                 </span>
                 <input
@@ -129,7 +129,7 @@ export function ROICalculatorWidget(props: IROICalculatorWidgetProps): ReactElem
             </label>
 
             <label className="mt-2 block space-y-1" htmlFor="roi-effort-weight">
-                <span className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                     Effort weight: {String(effortWeight)}%
                 </span>
                 <input

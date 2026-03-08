@@ -86,7 +86,7 @@ export function ChatThreadList(props: IChatThreadListProps): ReactElement {
     }
 
     return (
-        <aside aria-label="Chat threads" className="h-full min-w-0 bg-[var(--surface-muted)] p-3">
+        <aside aria-label="Chat threads" className="h-full min-w-0 bg-surface-muted p-3">
             <div className="mb-3 flex items-center justify-between gap-2">
                 <h3 className="text-sm font-semibold">Threads</h3>
                 <Button onPress={props.onNewThread} size="sm">
@@ -116,7 +116,7 @@ export function ChatThreadList(props: IChatThreadListProps): ReactElement {
                 role="list"
             >
                 {visibleThreads.length === 0 ? (
-                    <li className="text-sm text-[var(--foreground)]/70" role="status">
+                    <li className="text-sm text-foreground/70" role="status">
                         No threads found
                     </li>
                 ) : (
@@ -126,8 +126,8 @@ export function ChatThreadList(props: IChatThreadListProps): ReactElement {
                             <li
                                 className={`rounded-lg border p-2 ${
                                     isActive
-                                        ? "border-[var(--primary)] bg-[color:color-mix(in oklab, var(--primary) 14%, var(--surface))]"
-                                        : "border-[var(--border)] bg-[var(--surface)]"
+                                        ? "border-primary bg-[color:color-mix(in oklab, var(--primary) 14%, var(--surface))]"
+                                        : "border-border bg-surface"
                                 }`}
                                 key={thread.id}
                                 role="listitem"
@@ -145,10 +145,8 @@ export function ChatThreadList(props: IChatThreadListProps): ReactElement {
                                         <p className="truncate text-sm font-medium">
                                             {thread.title}
                                         </p>
-                                        <p className="text-xs text-[var(--foreground)]/70">
-                                            {thread.repo}
-                                        </p>
-                                        <p className="text-xs text-[var(--foreground)]/70">
+                                        <p className="text-xs text-foreground/70">{thread.repo}</p>
+                                        <p className="text-xs text-foreground/70">
                                             CCR: {thread.ccr}
                                         </p>
                                     </button>

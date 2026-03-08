@@ -57,19 +57,19 @@ export function ExploreModeSidebar(props: IExploreModeSidebarProps): ReactElemen
     }
 
     return (
-        <aside className="rounded-lg border border-slate-200 bg-white p-3 shadow-sm">
-            <p className="text-sm font-semibold text-slate-900">Explore mode sidebar</p>
-            <p className="mt-1 text-xs text-slate-500">
+        <aside className="rounded-lg border border-border bg-white p-3 shadow-sm">
+            <p className="text-sm font-semibold text-foreground">Explore mode sidebar</p>
+            <p className="mt-1 text-xs text-muted-foreground">
                 Recommended exploration paths with role-aware filtering.
             </p>
 
             <label className="mt-3 block space-y-1" htmlFor="explore-role-filter">
-                <span className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                     Filter by role
                 </span>
                 <select
                     aria-label="Explore role filter"
-                    className="w-full rounded-lg border border-slate-200 px-2 py-1.5 text-sm"
+                    className="w-full rounded-lg border border-border px-2 py-1.5 text-sm"
                     id="explore-role-filter"
                     onChange={handleRoleFilterChange}
                     value={roleFilter}
@@ -87,19 +87,16 @@ export function ExploreModeSidebar(props: IExploreModeSidebarProps): ReactElemen
             <ul className="mt-3 space-y-2">
                 {filteredPaths.map(
                     (path): ReactElement => (
-                        <li
-                            className="rounded border border-slate-200 bg-slate-50 p-2"
-                            key={path.id}
-                        >
+                        <li className="rounded border border-border bg-surface p-2" key={path.id}>
                             <div className="flex items-start justify-between gap-2">
                                 <div>
-                                    <p className="text-sm font-semibold text-slate-900">
+                                    <p className="text-sm font-semibold text-foreground">
                                         {path.title}
                                     </p>
-                                    <p className="mt-1 text-xs text-slate-600">
+                                    <p className="mt-1 text-xs text-muted-foreground">
                                         {path.description}
                                     </p>
-                                    <p className="mt-1 text-[11px] uppercase tracking-wide text-slate-500">
+                                    <p className="mt-1 text-[11px] uppercase tracking-wide text-muted-foreground">
                                         Role: {path.role} · Files:{" "}
                                         {String(path.fileChainIds.length)}
                                     </p>

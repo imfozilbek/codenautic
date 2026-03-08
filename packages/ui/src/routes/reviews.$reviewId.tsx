@@ -65,9 +65,9 @@ function createFallbackCcrRow(reviewId: string): ICcrRowData {
 
 function ReviewRouteFallback(): ReactElement {
     return (
-        <div className="rounded-lg border border-rose-200 bg-rose-50 p-4">
+        <div className="rounded-lg border border-danger/30 bg-danger/10 p-4">
             <p className="text-sm font-semibold text-rose-900">CCR not found</p>
-            <p className="mt-1 text-sm text-rose-800">
+            <p className="mt-1 text-sm text-danger">
                 Review not found. Open available CCR list to pick active review.
             </p>
             <Link className="mt-3 inline-block text-sm underline underline-offset-4" to="/reviews">

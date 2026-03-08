@@ -106,13 +106,13 @@ export function Textarea(props: TextareaProps): ReactElement {
             )}
             <div className="relative">
                 {startContent === undefined ? null : (
-                    <span className="pointer-events-none absolute left-2 top-3 inline-flex text-slate-500">
+                    <span className="pointer-events-none absolute left-2 top-3 inline-flex text-muted-foreground">
                         {startContent}
                     </span>
                 )}
                 {textarea}
                 {endContent === undefined ? null : (
-                    <span className="pointer-events-none absolute right-2 top-3 inline-flex text-slate-500">
+                    <span className="pointer-events-none absolute right-2 top-3 inline-flex text-muted-foreground">
                         {endContent}
                     </span>
                 )}

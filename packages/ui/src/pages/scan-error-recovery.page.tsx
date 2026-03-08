@@ -13,8 +13,8 @@ export function ScanErrorRecoveryPage(): ReactElement {
 
     return (
         <section className="space-y-4">
-            <h1 className="text-2xl font-semibold text-[var(--foreground)]">Scan error recovery</h1>
-            <p className="text-sm text-[var(--foreground)]/70">
+            <h1 className="text-2xl font-semibold text-foreground">Scan error recovery</h1>
+            <p className="text-sm text-foreground/70">
                 Recover failed repository scans using safe retry steps and diagnostics links.
             </p>
 
@@ -24,12 +24,10 @@ export function ScanErrorRecoveryPage(): ReactElement {
 
             <Card>
                 <CardHeader>
-                    <p className="text-base font-semibold text-[var(--foreground)]">
-                        Recommended steps
-                    </p>
+                    <p className="text-base font-semibold text-foreground">Recommended steps</p>
                 </CardHeader>
                 <CardBody className="space-y-3">
-                    <ol className="list-decimal space-y-2 pl-5 text-sm text-[var(--foreground)]/85">
+                    <ol className="list-decimal space-y-2 pl-5 text-sm text-foreground/85">
                         <li>
                             Open repositories and confirm provider connectivity and webhook status.
                         </li>

@@ -485,7 +485,7 @@ export function Header(props: IHeaderProps): ReactElement {
     }, [activeCommandIndex, filteredCommandPaletteItems.length])
 
     return (
-        <div className="border-b border-[var(--border)] bg-[color:color-mix(in_oklab,var(--surface)_88%,transparent)] backdrop-blur">
+        <div className="border-b border-border bg-[color:color-mix(in_oklab,var(--surface)_88%,transparent)] backdrop-blur">
             <div className="mx-auto flex h-16 items-center gap-3 px-3">
                 <div className={props.title === undefined ? "md:hidden" : "hidden md:flex"}>
                     <Button
@@ -498,17 +498,13 @@ export function Header(props: IHeaderProps): ReactElement {
                         <Menu size={20} />
                     </Button>
                 </div>
-                <p className="text-sm font-semibold tracking-wide text-[var(--foreground)]">
-                    CodeNautic
-                </p>
+                <p className="text-sm font-semibold tracking-wide text-foreground">CodeNautic</p>
                 <div className="mx-auto hidden md:block">
                     {props.title !== undefined ? (
                         <div className="space-y-0.5">
-                            <p className="text-sm font-medium text-[var(--foreground)]/80">
-                                {props.title}
-                            </p>
+                            <p className="text-sm font-medium text-foreground/80">{props.title}</p>
                             {props.breadcrumbs === undefined ? null : (
-                                <p className="text-[11px] text-[var(--foreground)]/60">
+                                <p className="text-[11px] text-foreground/60">
                                     {props.breadcrumbs.join(" / ")}
                                 </p>
                             )}
@@ -519,7 +515,7 @@ export function Header(props: IHeaderProps): ReactElement {
                     <div className="hidden min-w-[230px] md:block">
                         <input
                             aria-label="Global route search"
-                            className="w-full rounded-md border border-[var(--border)] bg-[var(--surface)] px-2 py-1 text-xs text-[var(--foreground)]"
+                            className="w-full rounded-md border border-border bg-surface px-2 py-1 text-xs text-foreground"
                             list="header-global-route-search"
                             placeholder="Global search (Ctrl+K)"
                             ref={searchInputRef}
@@ -560,14 +556,14 @@ export function Header(props: IHeaderProps): ReactElement {
                         {props.organizations === undefined ? null : (
                             <div className="min-w-[220px]">
                                 <label
-                                    className="text-[11px] uppercase tracking-[0.08em] text-[var(--foreground)]/60"
+                                    className="text-[11px] uppercase tracking-[0.08em] text-foreground/60"
                                     htmlFor="header-organization-switcher"
                                 >
                                     Workspace
                                 </label>
                                 <select
                                     aria-label="Organization workspace switcher"
-                                    className="mt-0.5 w-full rounded-md border border-[var(--border)] bg-[var(--surface)] px-2 py-1 text-xs text-[var(--foreground)]"
+                                    className="mt-0.5 w-full rounded-md border border-border bg-surface px-2 py-1 text-xs text-foreground"
                                     id="header-organization-switcher"
                                     value={props.activeOrganizationId}
                                     onChange={(event): void => {
@@ -582,7 +578,7 @@ export function Header(props: IHeaderProps): ReactElement {
                                         ),
                                     )}
                                 </select>
-                                <p className="text-[11px] text-[var(--foreground)]/60">
+                                <p className="text-[11px] text-foreground/60">
                                     Current: {activeOrganization?.label ?? "Unknown workspace"}
                                 </p>
                             </div>
@@ -590,14 +586,14 @@ export function Header(props: IHeaderProps): ReactElement {
                         {props.roleOptions === undefined ? null : (
                             <div className="min-w-[170px]">
                                 <label
-                                    className="text-[11px] uppercase tracking-[0.08em] text-[var(--foreground)]/60"
+                                    className="text-[11px] uppercase tracking-[0.08em] text-foreground/60"
                                     htmlFor="header-rbac-role-switcher"
                                 >
                                     Role preview
                                 </label>
                                 <select
                                     aria-label="RBAC role switcher"
-                                    className="mt-0.5 w-full rounded-md border border-[var(--border)] bg-[var(--surface)] px-2 py-1 text-xs text-[var(--foreground)]"
+                                    className="mt-0.5 w-full rounded-md border border-border bg-surface px-2 py-1 text-xs text-foreground"
                                     id="header-rbac-role-switcher"
                                     value={props.activeRoleId}
                                     onChange={(event): void => {
@@ -612,7 +608,7 @@ export function Header(props: IHeaderProps): ReactElement {
                                         ),
                                     )}
                                 </select>
-                                <p className="text-[11px] text-[var(--foreground)]/60">
+                                <p className="text-[11px] text-foreground/60">
                                     Active: {activeRole?.label ?? "Unknown role"}
                                 </p>
                             </div>
@@ -631,7 +627,7 @@ export function Header(props: IHeaderProps): ReactElement {
                             {hasNotifications ? (
                                 <span
                                     aria-hidden="true"
-                                    className="absolute -right-1.5 -top-1.5 inline-flex h-4 w-4 items-center justify-center rounded-full bg-rose-500 text-[10px] leading-none text-white"
+                                    className="absolute -right-1.5 -top-1.5 inline-flex h-4 w-4 items-center justify-center rounded-full bg-danger text-[10px] leading-none text-white"
                                 >
                                     {props.notificationCount}
                                 </span>
@@ -650,8 +646,8 @@ export function Header(props: IHeaderProps): ReactElement {
                 </div>
             </div>
             {props.title === undefined ? null : (
-                <div className="border-t border-[var(--border)] px-3 py-2 md:hidden">
-                    <p className="text-sm text-[var(--foreground)]/80">{props.title}</p>
+                <div className="border-t border-border px-3 py-2 md:hidden">
+                    <p className="text-sm text-foreground/80">{props.title}</p>
                 </div>
             )}
             {isCommandPaletteOpen === true ? (
@@ -667,7 +663,7 @@ export function Header(props: IHeaderProps): ReactElement {
                         type="button"
                         onClick={closeCommandPalette}
                     />
-                    <div className="relative z-10 w-full max-w-2xl rounded-xl border border-[var(--border)] bg-[var(--surface)] p-3 shadow-2xl">
+                    <div className="relative z-10 w-full max-w-2xl rounded-xl border border-border bg-surface p-3 shadow-2xl">
                         <input
                             aria-activedescendant={
                                 filteredCommandPaletteItems[activeCommandIndex] === undefined
@@ -681,7 +677,7 @@ export function Header(props: IHeaderProps): ReactElement {
                             aria-controls="header-command-palette-results"
                             aria-expanded={filteredCommandPaletteItems.length > 0}
                             aria-label="Command palette search"
-                            className="w-full rounded-lg border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-sm text-[var(--foreground)]"
+                            className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground"
                             placeholder="Search commands, routes and actions..."
                             ref={commandPaletteInputRef}
                             role="combobox"
@@ -739,12 +735,12 @@ export function Header(props: IHeaderProps): ReactElement {
                         />
                         <div
                             aria-label="Command palette results"
-                            className="mt-3 max-h-[60vh] overflow-y-auto rounded-lg border border-[var(--border)]"
+                            className="mt-3 max-h-[60vh] overflow-y-auto rounded-lg border border-border"
                             id="header-command-palette-results"
                             role="listbox"
                         >
                             {filteredCommandPaletteItems.length === 0 ? (
-                                <p className="px-3 py-4 text-sm text-[var(--foreground)]/60">
+                                <p className="px-3 py-4 text-sm text-foreground/60">
                                     No results found for current query.
                                 </p>
                             ) : (
@@ -752,9 +748,9 @@ export function Header(props: IHeaderProps): ReactElement {
                                     (section): ReactElement => (
                                         <div
                                             key={section.group}
-                                            className="border-b border-[var(--border)] last:border-b-0"
+                                            className="border-b border-border last:border-b-0"
                                         >
-                                            <p className="px-3 py-2 text-xs font-semibold uppercase tracking-[0.08em] text-[var(--foreground)]/60">
+                                            <p className="px-3 py-2 text-xs font-semibold uppercase tracking-[0.08em] text-foreground/60">
                                                 {section.group}
                                             </p>
                                             {section.items.map((item): ReactElement => {
@@ -782,7 +778,7 @@ export function Header(props: IHeaderProps): ReactElement {
                                                         role="option"
                                                     >
                                                         <button
-                                                            className="text-left text-[var(--foreground)]"
+                                                            className="text-left text-foreground"
                                                             type="button"
                                                             onClick={(): void => {
                                                                 handleCommandSelection(item)
@@ -794,13 +790,13 @@ export function Header(props: IHeaderProps): ReactElement {
                                                             <span className="font-medium">
                                                                 {item.label}
                                                             </span>
-                                                            <span className="ml-2 text-[11px] text-[var(--foreground)]/60">
+                                                            <span className="ml-2 text-[11px] text-foreground/60">
                                                                 {item.path}
                                                             </span>
                                                         </button>
                                                         <button
                                                             aria-label={`${isPinned ? "Unpin" : "Pin"} ${item.label}`}
-                                                            className="rounded border border-[var(--border)] px-2 py-1 text-[11px] text-[var(--foreground)]/70"
+                                                            className="rounded border border-border px-2 py-1 text-[11px] text-foreground/70"
                                                             type="button"
                                                             onClick={(): void => {
                                                                 togglePinnedCommand(item.path)
@@ -816,7 +812,7 @@ export function Header(props: IHeaderProps): ReactElement {
                                 )
                             )}
                         </div>
-                        <p className="mt-2 text-[11px] text-[var(--foreground)]/60">
+                        <p className="mt-2 text-[11px] text-foreground/60">
                             Use Arrow keys, Enter to open, and Esc to close.
                         </p>
                     </div>

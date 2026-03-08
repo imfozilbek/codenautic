@@ -48,12 +48,12 @@ const INITIAL_REPORTS: ReadonlyArray<IGeneratedReport> = [
 
 function resolveReportStatusBadgeClass(status: TReportStatus): string {
     if (status === "completed") {
-        return "border-emerald-300 bg-emerald-50 text-emerald-700"
+        return "border-success/40 bg-success/10 text-success"
     }
     if (status === "queued") {
-        return "border-amber-300 bg-amber-50 text-amber-700"
+        return "border-amber-300 bg-warning/10 text-warning"
     }
-    return "border-rose-300 bg-rose-50 text-rose-700"
+    return "border-danger/40 bg-danger/10 text-danger"
 }
 
 /**
@@ -129,8 +129,8 @@ export function ReportListPage(): ReactElement {
 
     return (
         <section className="space-y-4">
-            <h1 className="text-2xl font-semibold text-[var(--foreground)]">Report list</h1>
-            <p className="text-sm text-[var(--foreground)]/70">
+            <h1 className="text-2xl font-semibold text-foreground">Report list</h1>
+            <p className="text-sm text-foreground/70">
                 Browse generated reports, apply filters, and trigger lifecycle actions.
             </p>
             <div className="flex flex-wrap gap-2">
@@ -144,19 +144,15 @@ export function ReportListPage(): ReactElement {
 
             <Card>
                 <CardHeader>
-                    <p className="text-base font-semibold text-[var(--foreground)]">
-                        Report filters
-                    </p>
+                    <p className="text-base font-semibold text-foreground">Report filters</p>
                 </CardHeader>
                 <CardBody className="space-y-3">
                     <div className="grid gap-3 md:grid-cols-3">
                         <label className="space-y-1 text-sm">
-                            <span className="font-semibold text-[var(--foreground)]">
-                                Report type
-                            </span>
+                            <span className="font-semibold text-foreground">Report type</span>
                             <select
                                 aria-label="Report list type filter"
-                                className="w-full rounded border border-slate-300 bg-white px-2 py-1 text-sm text-slate-900"
+                                className="w-full rounded border border-border bg-white px-2 py-1 text-sm text-foreground"
                                 value={reportTypeFilter}
                                 onChange={(event): void => {
                                     const nextValue = event.currentTarget.value
@@ -177,22 +173,20 @@ export function ReportListPage(): ReactElement {
                             </select>
                         </label>
                         <label className="space-y-1 text-sm">
-                            <span className="font-semibold text-[var(--foreground)]">
-                                Date from
-                            </span>
+                            <span className="font-semibold text-foreground">Date from</span>
                             <input
                                 aria-label="Report list date from"
-                                className="w-full rounded border border-slate-300 bg-white px-2 py-1 text-sm text-slate-900"
+                                className="w-full rounded border border-border bg-white px-2 py-1 text-sm text-foreground"
                                 type="date"
                                 value={dateFrom}
                                 onChange={handleDateFromChange}
                             />
                         </label>
                         <label className="space-y-1 text-sm">
-                            <span className="font-semibold text-[var(--foreground)]">Date to</span>
+                            <span className="font-semibold text-foreground">Date to</span>
                             <input
                                 aria-label="Report list date to"
-                                className="w-full rounded border border-slate-300 bg-white px-2 py-1 text-sm text-slate-900"
+                                className="w-full rounded border border-border bg-white px-2 py-1 text-sm text-foreground"
                                 type="date"
                                 value={dateTo}
                                 onChange={handleDateToChange}
@@ -207,9 +201,7 @@ export function ReportListPage(): ReactElement {
 
             <Card>
                 <CardHeader>
-                    <p className="text-base font-semibold text-[var(--foreground)]">
-                        Generated reports
-                    </p>
+                    <p className="text-base font-semibold text-foreground">Generated reports</p>
                 </CardHeader>
                 <CardBody className="space-y-3">
                     {filteredReports.length === 0 ? (
@@ -222,11 +214,11 @@ export function ReportListPage(): ReactElement {
                                 (report): ReactElement => (
                                     <li
                                         aria-label={`Report row ${report.id}`}
-                                        className="rounded border border-slate-200 bg-slate-50 p-3"
+                                        className="rounded border border-border bg-surface p-3"
                                         key={report.id}
                                     >
                                         <div className="mb-2 flex flex-wrap items-center gap-2">
-                                            <p className="font-semibold text-slate-900">
+                                            <p className="font-semibold text-foreground">
                                                 {report.title}
                                             </p>
                                             <span
@@ -237,7 +229,7 @@ export function ReportListPage(): ReactElement {
                                                 {report.status}
                                             </span>
                                         </div>
-                                        <p className="text-sm text-slate-700">
+                                        <p className="text-sm text-foreground">
                                             Type: {report.type} · Date: {report.generatedAt}
                                         </p>
                                         <div className="mt-2 flex gap-2">

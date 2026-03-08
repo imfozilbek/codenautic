@@ -104,24 +104,24 @@ function ReviewCommentNode(props: IReviewCommentNodeProps): ReactElement {
 
     return (
         <li className="space-y-2" style={{ paddingLeft: leftPadding }}>
-            <article className="rounded-lg border border-slate-200 bg-white p-3">
+            <article className="rounded-lg border border-border bg-white p-3">
                 <div className="flex items-start justify-between gap-2">
                     <div>
-                        <p className="text-sm font-semibold text-slate-900">
+                        <p className="text-sm font-semibold text-foreground">
                             {props.comment.author}
                         </p>
-                        <p className="text-xs text-slate-600">{props.comment.createdAt}</p>
+                        <p className="text-xs text-muted-foreground">{props.comment.createdAt}</p>
                     </div>
                     {props.comment.isResolved ? (
-                        <span className="rounded border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-[11px] text-emerald-700">
+                        <span className="rounded border border-success/30 bg-success/10 px-2 py-0.5 text-[11px] text-success">
                             Resolved
                         </span>
                     ) : null}
                 </div>
-                <p className="mt-2 text-sm text-slate-800">{props.comment.message}</p>
+                <p className="mt-2 text-sm text-foreground">{props.comment.message}</p>
                 <div className="mt-3 flex flex-wrap gap-2">
                     <button
-                        className="rounded border border-slate-200 px-2 py-1 text-xs"
+                        className="rounded border border-border px-2 py-1 text-xs"
                         type="button"
                         onClick={toggleResolve}
                         aria-label={resolveButtonLabel}
@@ -129,7 +129,7 @@ function ReviewCommentNode(props: IReviewCommentNodeProps): ReactElement {
                         {resolveButtonLabel}
                     </button>
                     <button
-                        className="rounded border border-slate-200 px-2 py-1 text-xs"
+                        className="rounded border border-border px-2 py-1 text-xs"
                         type="button"
                         aria-label={`Like comment from ${props.comment.author}`}
                         onClick={toggleLike}
@@ -137,7 +137,7 @@ function ReviewCommentNode(props: IReviewCommentNodeProps): ReactElement {
                         {isLiked ? "👍 Liked" : "👍 Like"}
                     </button>
                     <button
-                        className="rounded border border-slate-200 px-2 py-1 text-xs"
+                        className="rounded border border-border px-2 py-1 text-xs"
                         type="button"
                         aria-label={`Dislike comment from ${props.comment.author}`}
                         onClick={toggleDislike}
@@ -145,7 +145,7 @@ function ReviewCommentNode(props: IReviewCommentNodeProps): ReactElement {
                         {isDisliked ? "👎 Disliked" : "👎 Dislike"}
                     </button>
                     <button
-                        className="rounded border border-slate-200 px-2 py-1 text-xs"
+                        className="rounded border border-border px-2 py-1 text-xs"
                         type="button"
                         aria-label={`Reply to ${props.comment.author}`}
                         onClick={(): void => {
@@ -159,7 +159,7 @@ function ReviewCommentNode(props: IReviewCommentNodeProps): ReactElement {
                     <div className="mt-3 space-y-2">
                         <textarea
                             aria-label={`Reply textarea for ${props.comment.author}`}
-                            className="min-h-16 w-full rounded border border-slate-200 px-2 py-1 text-sm"
+                            className="min-h-16 w-full rounded border border-border px-2 py-1 text-sm"
                             value={replyText}
                             onChange={(event): void => {
                                 setReplyText(event.currentTarget.value)
@@ -245,7 +245,7 @@ export function ReviewCommentThread(props: IReviewCommentThreadProps): ReactElem
 
     if (props.threads.length === 0) {
         return (
-            <section className="rounded-lg border border-slate-200 bg-slate-50 p-4 text-sm text-slate-600">
+            <section className="rounded-lg border border-border bg-surface p-4 text-sm text-muted-foreground">
                 No review comments yet.
             </section>
         )
@@ -253,7 +253,7 @@ export function ReviewCommentThread(props: IReviewCommentThreadProps): ReactElem
 
     if (threads.length === 0) {
         return (
-            <section className="rounded-lg border border-slate-200 bg-slate-50 p-4 text-sm text-slate-600">
+            <section className="rounded-lg border border-border bg-surface p-4 text-sm text-muted-foreground">
                 No review comments.
             </section>
         )
@@ -261,7 +261,7 @@ export function ReviewCommentThread(props: IReviewCommentThreadProps): ReactElem
 
     return (
         <section className="space-y-3">
-            <h2 className="text-xl font-semibold text-slate-900">Review comments</h2>
+            <h2 className="text-xl font-semibold text-foreground">Review comments</h2>
             <ul className="space-y-3">
                 {threads.map(
                     (thread): ReactElement => (

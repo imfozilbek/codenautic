@@ -41,7 +41,7 @@ export function FlowMetricsWidget(props: IFlowMetricsWidgetProps): ReactElement 
     return (
         <Card>
             <CardHeader className="flex flex-wrap items-center justify-between gap-2">
-                <p className="text-base font-semibold text-[var(--foreground)]">Flow metrics</p>
+                <p className="text-base font-semibold text-foreground">Flow metrics</p>
                 <div className="flex flex-wrap items-center gap-2">
                     <Chip color="primary" size="sm" variant="flat">
                         {`Flow efficiency ${props.flowTrendLabel}`}
@@ -52,7 +52,7 @@ export function FlowMetricsWidget(props: IFlowMetricsWidgetProps): ReactElement 
                 </div>
             </CardHeader>
             <CardBody className="space-y-2">
-                <p className="text-sm text-[var(--foreground)]/70">
+                <p className="text-sm text-foreground/70">
                     Track flow efficiency and delivery capacity dynamics across recent windows.
                 </p>
                 <div className="h-64 w-full">

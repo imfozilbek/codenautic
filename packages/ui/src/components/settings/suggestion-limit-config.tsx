@@ -27,11 +27,11 @@ export function SuggestionLimitConfig(props: ISuggestionLimitConfigProps): React
     }
 
     return (
-        <label className="space-y-1 text-sm text-slate-700" htmlFor="ccr-summary-max-suggestions">
-            <span className="block font-medium text-slate-900">Max suggestions in summary</span>
+        <label className="space-y-1 text-sm text-foreground" htmlFor="ccr-summary-max-suggestions">
+            <span className="block font-medium text-foreground">Max suggestions in summary</span>
             <input
                 id="ccr-summary-max-suggestions"
-                className="w-full rounded-md border border-slate-300 px-3 py-2"
+                className="w-full rounded-md border border-border px-3 py-2"
                 max={maxValue}
                 min={minValue}
                 type="number"

@@ -68,7 +68,7 @@ export function ThemeToggle(props: IThemeToggleProps): ReactElement {
                     }}
                     presets={presets}
                 />
-                <p className="px-1 text-xs text-[var(--foreground)]/70">
+                <p className="px-1 text-xs text-foreground/70">
                     Preset: {getPresetLabel(presets, preset)}
                 </p>
                 <p className="sr-only" aria-live="polite">
@@ -90,7 +90,7 @@ function ThemeModeButtons({
     return (
         <div
             aria-label="Theme mode"
-            className="inline-flex items-center rounded-lg border border-[var(--border)] bg-[color:color-mix(in_oklab,var(--surface)_85%,transparent)] p-1 backdrop-blur"
+            className="inline-flex items-center rounded-lg border border-border bg-[color:color-mix(in_oklab,var(--surface)_85%,transparent)] p-1 backdrop-blur"
             role="radiogroup"
         >
             {MODE_OPTIONS.map((option): ReactElement => {
@@ -183,15 +183,15 @@ function ThemePalettePreview({
     return (
         <div aria-hidden="true" className="mt-2 flex gap-2">
             <span
-                className="h-3 w-8 rounded-full border border-[var(--border)]"
+                className="h-3 w-8 rounded-full border border-border"
                 style={{ backgroundColor: palette.primary }}
             />
             <span
-                className="h-3 w-8 rounded-full border border-[var(--border)]"
+                className="h-3 w-8 rounded-full border border-border"
                 style={{ backgroundColor: palette.accent }}
             />
             <span
-                className="h-3 w-8 rounded-full border border-[var(--border)]"
+                className="h-3 w-8 rounded-full border border-border"
                 style={{ backgroundColor: palette.success }}
             />
         </div>

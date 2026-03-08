@@ -275,7 +275,7 @@ function UsageTable(props: {
     return (
         <Card>
             <CardHeader>
-                <p className="text-base font-semibold text-slate-900">{props.title}</p>
+                <p className="text-base font-semibold text-foreground">{props.title}</p>
             </CardHeader>
             <CardBody>
                 <EnterpriseDataTable
@@ -441,8 +441,8 @@ export function SettingsTokenUsagePage(): ReactElement {
         <section className="space-y-4">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                 <div>
-                    <h1 className="text-2xl font-semibold text-slate-900">Token Usage</h1>
-                    <p className="text-sm text-slate-600">
+                    <h1 className="text-2xl font-semibold text-foreground">Token Usage</h1>
+                    <p className="text-sm text-muted-foreground">
                         Usage by model, developer and CCR with estimated cost over selected date
                         range.
                     </p>

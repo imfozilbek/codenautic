@@ -122,15 +122,15 @@ export function TrendForecastChart(props: ITrendForecastChartProps): ReactElemen
     const forecastStartX = coordinates[forecastStartIndex]?.x ?? 0
 
     return (
-        <section className="rounded-lg border border-slate-200 bg-white p-3 shadow-sm">
-            <p className="text-sm font-semibold text-slate-900">Trend forecast chart</p>
-            <p className="mt-1 text-xs text-slate-500">
+        <section className="rounded-lg border border-border bg-white p-3 shadow-sm">
+            <p className="text-sm font-semibold text-foreground">Trend forecast chart</p>
+            <p className="mt-1 text-xs text-muted-foreground">
                 Historical quality trend with forecast zone and confidence interval bands.
             </p>
 
             <div
                 aria-label="Trend forecast visualization"
-                className="mt-3 rounded border border-slate-200 bg-slate-50 p-2"
+                className="mt-3 rounded border border-border bg-surface p-2"
             >
                 <svg
                     className="h-auto w-full"
@@ -169,7 +169,7 @@ export function TrendForecastChart(props: ITrendForecastChartProps): ReactElemen
                 </svg>
             </div>
 
-            <p className="mt-2 text-xs text-slate-600">
+            <p className="mt-2 text-xs text-muted-foreground">
                 Forecast zone shaded in slate, confidence interval shown in cyan band.
             </p>
 
@@ -182,7 +182,7 @@ export function TrendForecastChart(props: ITrendForecastChartProps): ReactElemen
                             className={`w-full rounded border px-2 py-1 text-left text-xs transition ${
                                 isActive
                                     ? "border-cyan-400 bg-cyan-50 text-cyan-900"
-                                    : "border-slate-200 bg-slate-50 text-slate-700 hover:border-slate-300"
+                                    : "border-border bg-surface text-foreground hover:border-border"
                             }`}
                             key={point.id}
                             onClick={(): void => {

@@ -66,9 +66,9 @@ function resolvePredictedLabel(riskLevel: TCodeCityTreemapPredictionRiskLevel): 
  */
 export function PredictionAccuracyWidget(props: IPredictionAccuracyWidgetProps): ReactElement {
     return (
-        <section className="rounded-lg border border-slate-200 bg-white p-3 shadow-sm">
-            <p className="text-sm font-semibold text-slate-900">Prediction accuracy widget</p>
-            <p className="mt-1 text-xs text-slate-500">
+        <section className="rounded-lg border border-border bg-white p-3 shadow-sm">
+            <p className="text-sm font-semibold text-foreground">Prediction accuracy widget</p>
+            <p className="mt-1 text-xs text-muted-foreground">
                 Track forecast accuracy over time with confusion matrix and predicted vs actual
                 cases.
             </p>
@@ -76,7 +76,7 @@ export function PredictionAccuracyWidget(props: IPredictionAccuracyWidgetProps):
             <div aria-label="Prediction accuracy trend" className="mt-3 space-y-1">
                 {props.points.map((point): ReactElement => {
                     return (
-                        <p className="text-xs text-slate-700" key={point.timestamp}>
+                        <p className="text-xs text-foreground" key={point.timestamp}>
                             {point.timestamp}: predicted {String(point.predictedIncidents)} / actual{" "}
                             {String(point.actualIncidents)} / accuracy {String(point.accuracyScore)}
                             %
@@ -87,18 +87,18 @@ export function PredictionAccuracyWidget(props: IPredictionAccuracyWidgetProps):
 
             <div
                 aria-label="Prediction confusion matrix"
-                className="mt-3 grid grid-cols-2 gap-2 rounded border border-slate-200 bg-slate-50 p-2"
+                className="mt-3 grid grid-cols-2 gap-2 rounded border border-border bg-surface p-2"
             >
-                <p className="rounded border border-emerald-200 bg-emerald-50 px-2 py-1 text-xs text-emerald-800">
+                <p className="rounded border border-success/30 bg-success/10 px-2 py-1 text-xs text-success">
                     TP {String(props.matrix.truePositive)}
                 </p>
                 <p className="rounded border border-cyan-200 bg-cyan-50 px-2 py-1 text-xs text-cyan-800">
                     TN {String(props.matrix.trueNegative)}
                 </p>
-                <p className="rounded border border-amber-200 bg-amber-50 px-2 py-1 text-xs text-amber-800">
+                <p className="rounded border border-warning/30 bg-warning/10 px-2 py-1 text-xs text-warning">
                     FP {String(props.matrix.falsePositive)}
                 </p>
-                <p className="rounded border border-rose-200 bg-rose-50 px-2 py-1 text-xs text-rose-800">
+                <p className="rounded border border-danger/30 bg-danger/10 px-2 py-1 text-xs text-danger">
                     FN {String(props.matrix.falseNegative)}
                 </p>
             </div>
@@ -112,7 +112,7 @@ export function PredictionAccuracyWidget(props: IPredictionAccuracyWidgetProps):
                             className={`w-full rounded border p-2 text-left text-xs transition ${
                                 isActive
                                     ? "border-cyan-400 bg-cyan-50 text-cyan-900"
-                                    : "border-slate-200 bg-slate-50 text-slate-700 hover:border-slate-300"
+                                    : "border-border bg-surface text-foreground hover:border-border"
                             }`}
                             key={entry.id}
                             onClick={(): void => {

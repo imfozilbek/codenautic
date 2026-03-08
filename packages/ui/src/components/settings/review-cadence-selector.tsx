@@ -50,9 +50,9 @@ function mapReviewModeToLabel(mode: TRepoReviewMode): string {
  */
 export function ReviewCadenceSelector(props: IReviewCadenceSelectorProps): ReactElement {
     return (
-        <section className="space-y-3 rounded-xl border border-slate-200 bg-white p-4">
-            <h2 className="text-base font-semibold text-slate-900">Review cadence settings</h2>
-            <p className="text-sm text-slate-600">
+        <section className="space-y-3 rounded-xl border border-border bg-white p-4">
+            <h2 className="text-base font-semibold text-foreground">Review cadence settings</h2>
+            <p className="text-sm text-muted-foreground">
                 Choose how code review is executed for repository updates.
             </p>
             <fieldset aria-label="Review cadence mode" className="space-y-2">
@@ -60,7 +60,7 @@ export function ReviewCadenceSelector(props: IReviewCadenceSelectorProps): React
                     (option): ReactElement => (
                         <label
                             key={option.key}
-                            className="flex cursor-pointer items-start gap-2 rounded-md border border-slate-200 p-3 text-sm text-slate-700"
+                            className="flex cursor-pointer items-start gap-2 rounded-md border border-border p-3 text-sm text-foreground"
                         >
                             <input
                                 checked={props.mode === option.key}
@@ -73,10 +73,10 @@ export function ReviewCadenceSelector(props: IReviewCadenceSelectorProps): React
                                 }}
                             />
                             <span className="space-y-1">
-                                <span className="block font-medium text-slate-900">
+                                <span className="block font-medium text-foreground">
                                     {option.label}
                                 </span>
-                                <span className="block text-xs text-slate-600">
+                                <span className="block text-xs text-muted-foreground">
                                     {option.description}
                                 </span>
                             </span>
@@ -84,7 +84,7 @@ export function ReviewCadenceSelector(props: IReviewCadenceSelectorProps): React
                     ),
                 )}
             </fieldset>
-            <p className="text-xs text-slate-500" data-testid="review-cadence-current">
+            <p className="text-xs text-muted-foreground" data-testid="review-cadence-current">
                 {`Current mode: ${mapReviewModeToLabel(props.mode)} (${props.mode})`}
             </p>
             <Button

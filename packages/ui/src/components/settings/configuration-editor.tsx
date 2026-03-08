@@ -65,23 +65,23 @@ export function ConfigurationEditor(props: IConfigurationEditorProps): ReactElem
 
     return (
         <form
-            className="space-y-3 rounded-xl border border-slate-200 bg-white p-4"
+            className="space-y-3 rounded-xl border border-border bg-white p-4"
             onSubmit={props.onSave}
         >
-            <h2 className="text-base font-semibold text-slate-900">Repository config</h2>
-            <p className="text-sm text-slate-600">
+            <h2 className="text-base font-semibold text-foreground">Repository config</h2>
+            <p className="text-sm text-muted-foreground">
                 Edit <code>codenautic-config.yml</code> visually and keep repository review settings
                 in sync.
             </p>
             <div className="grid gap-3 md:grid-cols-2">
                 <label
-                    className="space-y-1 text-sm text-slate-700"
+                    className="space-y-1 text-sm text-foreground"
                     htmlFor="repo-config-repository-id"
                 >
-                    <span className="font-medium text-slate-900">Repository ID</span>
+                    <span className="font-medium text-foreground">Repository ID</span>
                     <input
                         aria-label="Repository ID"
-                        className="w-full rounded-lg border border-slate-300 px-3 py-2"
+                        className="w-full rounded-lg border border-border px-3 py-2"
                         data-testid="repo-config-repository-id"
                         id="repo-config-repository-id"
                         value={props.repositoryId}
@@ -90,11 +90,11 @@ export function ConfigurationEditor(props: IConfigurationEditorProps): ReactElem
                         }}
                     />
                 </label>
-                <label className="space-y-1 text-sm text-slate-700" htmlFor="repo-review-mode">
-                    <span className="font-medium text-slate-900">Review mode</span>
+                <label className="space-y-1 text-sm text-foreground" htmlFor="repo-review-mode">
+                    <span className="font-medium text-foreground">Review mode</span>
                     <select
                         aria-label="Repository review mode"
-                        className="w-full rounded-lg border border-slate-300 px-3 py-2"
+                        className="w-full rounded-lg border border-border px-3 py-2"
                         data-testid="repo-review-mode"
                         id="repo-review-mode"
                         value={props.reviewMode}
@@ -106,11 +106,11 @@ export function ConfigurationEditor(props: IConfigurationEditorProps): ReactElem
                     </select>
                 </label>
             </div>
-            <label className="space-y-1 text-sm text-slate-700" htmlFor="repo-config-yaml">
-                <span className="font-medium text-slate-900">Config YAML</span>
+            <label className="space-y-1 text-sm text-foreground" htmlFor="repo-config-yaml">
+                <span className="font-medium text-foreground">Config YAML</span>
                 <textarea
                     aria-label="Repository config YAML"
-                    className="min-h-[220px] w-full rounded-lg border border-slate-300 px-3 py-2 font-mono text-xs"
+                    className="min-h-[220px] w-full rounded-lg border border-border px-3 py-2 font-mono text-xs"
                     data-testid="repo-config-yaml"
                     id="repo-config-yaml"
                     value={props.configYaml}
@@ -128,7 +128,7 @@ export function ConfigurationEditor(props: IConfigurationEditorProps): ReactElem
                 >
                     Save repository config
                 </Button>
-                <p className="text-xs text-slate-600" data-testid="repo-config-state">
+                <p className="text-xs text-muted-foreground" data-testid="repo-config-state">
                     {stateMessage}
                 </p>
             </div>

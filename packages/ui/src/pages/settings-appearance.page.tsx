@@ -1201,24 +1201,22 @@ export function SettingsAppearancePage(): ReactElement {
 
     return (
         <section className="space-y-4">
-            <h1 className="text-2xl font-semibold text-[var(--foreground)]">Appearance settings</h1>
-            <p className="text-sm text-[var(--foreground)]/70">
+            <h1 className="text-2xl font-semibold text-foreground">Appearance settings</h1>
+            <p className="text-sm text-foreground/70">
                 Switch theme mode and presets in one place. All changes are applied immediately
                 without page reload.
             </p>
 
             <Card>
                 <CardHeader className="flex flex-wrap items-center justify-between gap-2">
-                    <p className="text-base font-semibold text-[var(--foreground)]">
-                        Theme controls
-                    </p>
+                    <p className="text-base font-semibold text-foreground">Theme controls</p>
                     <Button variant="flat" onPress={handleResetTheme}>
                         Reset to default
                     </Button>
                 </CardHeader>
                 <CardBody className="space-y-3">
                     <ThemeToggle />
-                    <div className="flex flex-wrap items-center gap-2 text-xs text-[var(--foreground)]/70">
+                    <div className="flex flex-wrap items-center gap-2 text-xs text-foreground/70">
                         <Chip size="sm" variant="flat">
                             mode: {mode}
                         </Chip>
@@ -1234,8 +1232,8 @@ export function SettingsAppearancePage(): ReactElement {
                             </Chip>
                         ) : null}
                     </div>
-                    <div className="space-y-2 rounded-lg border border-[var(--border)] bg-[var(--surface)] p-3">
-                        <p className="text-xs uppercase tracking-[0.12em] text-[var(--foreground)]/60">
+                    <div className="space-y-2 rounded-lg border border-border bg-surface p-3">
+                        <p className="text-xs uppercase tracking-[0.12em] text-foreground/60">
                             Quick presets
                         </p>
                         <div className="flex flex-wrap gap-2">
@@ -1278,11 +1276,11 @@ export function SettingsAppearancePage(): ReactElement {
                             ) : null}
                         </div>
                         {pendingRandomPreset !== undefined ? (
-                            <div className="rounded-lg border border-[var(--border)] bg-[var(--surface-muted)] p-3">
-                                <p className="text-sm font-semibold text-[var(--foreground)]">
+                            <div className="rounded-lg border border-border bg-surface-muted p-3">
+                                <p className="text-sm font-semibold text-foreground">
                                     Preview preset: {pendingRandomPreset.label}
                                 </p>
-                                <p className="mt-1 text-xs text-[var(--foreground)]/70">
+                                <p className="mt-1 text-xs text-foreground/70">
                                     Apply to switch immediately or cancel to keep current theme.
                                 </p>
                                 <div className="mt-2 flex flex-wrap gap-2">
@@ -1307,39 +1305,35 @@ export function SettingsAppearancePage(): ReactElement {
 
             <Card>
                 <CardHeader>
-                    <p className="text-base font-semibold text-[var(--foreground)]">
-                        Advanced controls
-                    </p>
+                    <p className="text-base font-semibold text-foreground">Advanced controls</p>
                 </CardHeader>
                 <CardBody className="space-y-4">
                     <div className="grid gap-4 xl:grid-cols-2">
-                        <div className="space-y-3 rounded-lg border border-[var(--border)] bg-[var(--surface)] p-3">
-                            <p className="text-sm font-semibold text-[var(--foreground)]">
-                                Accent control
-                            </p>
+                        <div className="space-y-3 rounded-lg border border-border bg-surface p-3">
+                            <p className="text-sm font-semibold text-foreground">Accent control</p>
                             <div className="flex items-center gap-3">
                                 <input
                                     aria-label="Accent color picker"
-                                    className="h-10 w-14 cursor-pointer rounded-md border border-[var(--border)] bg-transparent p-1"
+                                    className="h-10 w-14 cursor-pointer rounded-md border border-border bg-transparent p-1"
                                     type="color"
                                     value={accentColor}
                                     onChange={(event): void => {
                                         setAccentColor(event.currentTarget.value)
                                     }}
                                 />
-                                <p className="text-xs font-mono text-[var(--foreground)]/70">
+                                <p className="text-xs font-mono text-foreground/70">
                                     {effectiveAccentColor}
                                 </p>
                             </div>
                             <label
-                                className="text-xs uppercase tracking-[0.12em] text-[var(--foreground)]/60"
+                                className="text-xs uppercase tracking-[0.12em] text-foreground/60"
                                 htmlFor="accent-intensity-slider"
                             >
                                 Accent intensity: {accentIntensity}
                             </label>
                             <input
                                 aria-label="Accent intensity slider"
-                                className="w-full accent-[var(--primary)]"
+                                className="w-full accent-primary"
                                 id="accent-intensity-slider"
                                 max={MAX_INTENSITY}
                                 min={MIN_INTENSITY}
@@ -1351,10 +1345,8 @@ export function SettingsAppearancePage(): ReactElement {
                             />
                         </div>
 
-                        <div className="space-y-3 rounded-lg border border-[var(--border)] bg-[var(--surface)] p-3">
-                            <p className="text-sm font-semibold text-[var(--foreground)]">
-                                Base palette
-                            </p>
+                        <div className="space-y-3 rounded-lg border border-border bg-surface p-3">
+                            <p className="text-sm font-semibold text-foreground">Base palette</p>
                             <div
                                 aria-label="Base palette picker"
                                 className="flex flex-wrap gap-2"
@@ -1379,23 +1371,23 @@ export function SettingsAppearancePage(): ReactElement {
                                     ),
                                 )}
                             </div>
-                            <p className="text-xs text-[var(--foreground)]/70">
+                            <p className="text-xs text-foreground/70">
                                 {getPaletteDefinition(basePaletteId).description}
                             </p>
                         </div>
                     </div>
 
                     <div className="grid gap-4 xl:grid-cols-2">
-                        <div className="space-y-2 rounded-lg border border-[var(--border)] bg-[var(--surface)] p-3">
+                        <div className="space-y-2 rounded-lg border border-border bg-surface p-3">
                             <label
-                                className="text-xs uppercase tracking-[0.12em] text-[var(--foreground)]/60"
+                                className="text-xs uppercase tracking-[0.12em] text-foreground/60"
                                 htmlFor="global-radius-slider"
                             >
                                 Global radius: {globalRadius}px
                             </label>
                             <input
                                 aria-label="Global radius slider"
-                                className="w-full accent-[var(--primary)]"
+                                className="w-full accent-primary"
                                 id="global-radius-slider"
                                 max={MAX_RADIUS}
                                 min={MIN_RADIUS}
@@ -1406,16 +1398,16 @@ export function SettingsAppearancePage(): ReactElement {
                                 }}
                             />
                         </div>
-                        <div className="space-y-2 rounded-lg border border-[var(--border)] bg-[var(--surface)] p-3">
+                        <div className="space-y-2 rounded-lg border border-border bg-surface p-3">
                             <label
-                                className="text-xs uppercase tracking-[0.12em] text-[var(--foreground)]/60"
+                                className="text-xs uppercase tracking-[0.12em] text-foreground/60"
                                 htmlFor="form-radius-slider"
                             >
                                 Form radius: {formRadius}px
                             </label>
                             <input
                                 aria-label="Form radius slider"
-                                className="w-full accent-[var(--primary)]"
+                                className="w-full accent-primary"
                                 id="form-radius-slider"
                                 max={MAX_FORM_RADIUS}
                                 min={MIN_FORM_RADIUS}
@@ -1428,7 +1420,7 @@ export function SettingsAppearancePage(): ReactElement {
                         </div>
                     </div>
 
-                    <div className="flex flex-wrap items-center gap-2 text-xs text-[var(--foreground)]/70">
+                    <div className="flex flex-wrap items-center gap-2 text-xs text-foreground/70">
                         <Chip size="sm" variant="flat">
                             base: {basePaletteId}
                         </Chip>
@@ -1452,9 +1444,7 @@ export function SettingsAppearancePage(): ReactElement {
 
             <Card>
                 <CardHeader className="flex flex-wrap items-center justify-between gap-2">
-                    <p className="text-base font-semibold text-[var(--foreground)]">
-                        Theme library
-                    </p>
+                    <p className="text-base font-semibold text-foreground">Theme library</p>
                     <Chip
                         color={
                             librarySyncStatus === "synced"
@@ -1470,11 +1460,9 @@ export function SettingsAppearancePage(): ReactElement {
                     </Chip>
                 </CardHeader>
                 <CardBody className="space-y-4">
-                    <div className="rounded-lg border border-[var(--border)] bg-[var(--surface)] p-3">
-                        <p className="text-sm font-semibold text-[var(--foreground)]">
-                            Favorite preset
-                        </p>
-                        <p className="mt-1 text-xs text-[var(--foreground)]/70">
+                    <div className="rounded-lg border border-border bg-surface p-3">
+                        <p className="text-sm font-semibold text-foreground">Favorite preset</p>
+                        <p className="mt-1 text-xs text-foreground/70">
                             pinned: {favoritePresetLabel}
                         </p>
                         <div className="mt-2 flex flex-wrap gap-2">
@@ -1501,14 +1489,14 @@ export function SettingsAppearancePage(): ReactElement {
                         />
                         <div className="flex flex-col gap-1">
                             <label
-                                className="text-sm text-[var(--foreground)]/80"
+                                className="text-sm text-foreground/80"
                                 htmlFor="theme-library-selected"
                             >
                                 Library themes
                             </label>
                             <select
                                 aria-label="Theme library selection"
-                                className="rounded-lg border border-[var(--border)] bg-[var(--surface)] px-3 py-2 text-sm"
+                                className="rounded-lg border border-border bg-surface px-3 py-2 text-sm"
                                 id="theme-library-selected"
                                 value={selectedThemeId}
                                 onChange={(event): void => {
@@ -1566,13 +1554,13 @@ export function SettingsAppearancePage(): ReactElement {
                         </Button>
                     </div>
 
-                    <div className="space-y-2 rounded-lg border border-[var(--border)] bg-[var(--surface)] p-3">
-                        <p className="text-sm font-semibold text-[var(--foreground)]">
+                    <div className="space-y-2 rounded-lg border border-border bg-surface p-3">
+                        <p className="text-sm font-semibold text-foreground">
                             Import / Export JSON
                         </p>
                         <textarea
                             aria-label="Theme library json"
-                            className="min-h-28 w-full rounded-lg border border-[var(--border)] bg-[var(--surface-muted)] p-3 text-xs"
+                            className="min-h-28 w-full rounded-lg border border-border bg-surface-muted p-3 text-xs"
                             placeholder='{"version":1,"themes":[...]}'
                             value={themeImportValue}
                             onChange={(event): void => {
@@ -1593,40 +1581,40 @@ export function SettingsAppearancePage(): ReactElement {
 
             <Card>
                 <CardHeader>
-                    <p className="text-base font-semibold text-[var(--foreground)]">Live preview</p>
+                    <p className="text-base font-semibold text-foreground">Live preview</p>
                 </CardHeader>
                 <CardBody className="space-y-3">
                     <div className="grid gap-3 md:grid-cols-3">
-                        <div className="rounded-lg border border-[var(--border)] bg-[var(--surface)] p-3">
-                            <p className="text-xs uppercase tracking-[0.14em] text-[var(--foreground)]/60">
+                        <div className="rounded-lg border border-border bg-surface p-3">
+                            <p className="text-xs uppercase tracking-[0.14em] text-foreground/60">
                                 Primary action
                             </p>
                             <button
-                                className="mt-2 rounded-full border border-[var(--primary)] bg-[var(--primary)] px-3 py-1.5 text-sm text-[var(--primary-foreground)]"
+                                className="mt-2 rounded-full border border-primary bg-primary px-3 py-1.5 text-sm text-primary-foreground"
                                 style={{ borderRadius: `${globalRadius}px` }}
                                 type="button"
                             >
                                 Preview button
                             </button>
                             <button
-                                className="ml-2 mt-2 rounded-full border border-[var(--accent)] bg-[var(--accent)] px-3 py-1.5 text-sm text-[var(--accent-foreground)]"
+                                className="ml-2 mt-2 rounded-full border border-accent bg-accent px-3 py-1.5 text-sm text-accent-foreground"
                                 style={{ borderRadius: `${globalRadius}px` }}
                                 type="button"
                             >
                                 Accent action
                             </button>
                         </div>
-                        <div className="rounded-lg border border-[var(--border)] bg-[var(--surface)] p-3">
-                            <p className="text-xs uppercase tracking-[0.14em] text-[var(--foreground)]/60">
+                        <div className="rounded-lg border border-border bg-surface p-3">
+                            <p className="text-xs uppercase tracking-[0.14em] text-foreground/60">
                                 Accent & surface
                             </p>
                             <div className="mt-2 flex gap-2">
-                                <span className="h-6 w-6 rounded-full bg-[var(--accent)]" />
-                                <span className="h-6 w-6 rounded-full bg-[var(--surface-muted)]" />
+                                <span className="h-6 w-6 rounded-full bg-accent" />
+                                <span className="h-6 w-6 rounded-full bg-surface-muted" />
                             </div>
                         </div>
-                        <div className="rounded-lg border border-[var(--border)] bg-[var(--surface)] p-3">
-                            <p className="text-xs uppercase tracking-[0.14em] text-[var(--foreground)]/60">
+                        <div className="rounded-lg border border-border bg-surface p-3">
+                            <p className="text-xs uppercase tracking-[0.14em] text-foreground/60">
                                 Form controls
                             </p>
                             <Input
@@ -1639,7 +1627,7 @@ export function SettingsAppearancePage(): ReactElement {
                             />
                         </div>
                     </div>
-                    <p className="text-xs text-[var(--foreground)]/70">
+                    <p className="text-xs text-foreground/70">
                         Preset options:{" "}
                         {presets.map((themePreset): string => themePreset.label).join(", ")}
                     </p>

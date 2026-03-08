@@ -543,43 +543,43 @@ function mapBulkStatusLabel(status: TBulkScanStatus): string {
 
 function mapBulkStatusClasses(status: TBulkScanStatus): string {
     if (status === "running") {
-        return "border-blue-200 bg-blue-50 text-blue-700"
+        return "border-primary/30 bg-primary/10 text-primary"
     }
 
     if (status === "queued") {
-        return "border-slate-200 bg-white text-slate-700"
+        return "border-border bg-white text-foreground"
     }
 
     if (status === "paused") {
-        return "border-amber-200 bg-amber-50 text-amber-700"
+        return "border-warning/30 bg-warning/10 text-warning"
     }
 
     if (status === "completed") {
-        return "border-emerald-200 bg-emerald-50 text-emerald-700"
+        return "border-success/30 bg-success/10 text-success"
     }
 
     if (status === "cancelled") {
-        return "border-slate-200 bg-slate-100 text-slate-500"
+        return "border-border bg-surface-muted text-muted-foreground"
     }
 
-    return "border-rose-200 bg-rose-50 text-rose-700"
+    return "border-danger/30 bg-danger/10 text-danger"
 }
 
 function mapBulkProgressClasses(status: TBulkScanStatus): string {
     if (status === "running") {
-        return "bg-blue-500"
+        return "bg-primary"
     }
 
     if (status === "error") {
-        return "bg-rose-500"
+        return "bg-danger"
     }
 
     if (status === "paused") {
-        return "bg-amber-500"
+        return "bg-warning"
     }
 
     if (status === "completed") {
-        return "bg-emerald-500"
+        return "bg-success"
     }
 
     return "bg-slate-300"
@@ -1210,8 +1210,8 @@ export function OnboardingWizardPage(props: IOnboardingWizardPageProps): ReactEl
 
     return (
         <section className="space-y-4">
-            <h1 className="text-2xl font-semibold text-slate-900">Repository Onboarding</h1>
-            <p className="text-sm text-slate-600">
+            <h1 className="text-2xl font-semibold text-foreground">Repository Onboarding</h1>
+            <p className="text-sm text-muted-foreground">
                 Подключите новый репозиторий, проверьте параметры и запустите скан.
             </p>
 
@@ -1237,7 +1237,7 @@ export function OnboardingWizardPage(props: IOnboardingWizardPageProps): ReactEl
                                     type="button"
                                 >
                                     <div
-                                        className={`rounded-md px-2 py-2 ${isActive ? "bg-slate-900 text-white" : isCompleted ? "bg-slate-100 text-slate-900" : "bg-slate-50 text-slate-500"}`}
+                                        className={`rounded-md px-2 py-2 ${isActive ? "bg-slate-900 text-white" : isCompleted ? "bg-surface-muted text-foreground" : "bg-surface text-muted-foreground"}`}
                                     >
                                         <p className="text-xs font-semibold uppercase tracking-wider">
                                             Шаг {index + 1}
@@ -1333,7 +1333,7 @@ https://github.com/owner/repo-b`,
                                         />
 
                                         <div className="flex items-center justify-between">
-                                            <p className="text-sm text-slate-700">
+                                            <p className="text-sm text-foreground">
                                                 Выбрано{" "}
                                                 <span className="font-semibold">
                                                     {selectedRepositoryUrls.length}
@@ -1368,9 +1368,9 @@ https://github.com/owner/repo-b`,
                                             </div>
                                         </div>
 
-                                        <div className="max-h-60 space-y-2 overflow-auto rounded-md border border-slate-200 p-2">
+                                        <div className="max-h-60 space-y-2 overflow-auto rounded-md border border-border p-2">
                                             {parsedBulkList.repositories.length === 0 ? (
-                                                <p className="text-sm text-slate-500">
+                                                <p className="text-sm text-muted-foreground">
                                                     Добавьте URL репозиториев в поле выше.
                                                 </p>
                                             ) : null}
@@ -1378,7 +1378,7 @@ https://github.com/owner/repo-b`,
                                             {parsedBulkList.repositories.map(
                                                 (repositoryUrl): ReactElement => (
                                                     <div
-                                                        className="rounded-md border border-slate-200 p-2"
+                                                        className="rounded-md border border-border p-2"
                                                         key={repositoryUrl}
                                                     >
                                                         <Checkbox
@@ -1436,11 +1436,11 @@ https://github.com/owner/repo-b`,
 
                         {activeStep === 2 ? (
                             <section className="space-y-3">
-                                <div className="rounded-md border border-slate-200 p-3">
-                                    <p className="text-sm font-semibold text-slate-800">
+                                <div className="rounded-md border border-border p-3">
+                                    <p className="text-sm font-semibold text-foreground">
                                         Registry шаблонов onboarding
                                     </p>
-                                    <p className="text-xs text-slate-600">
+                                    <p className="text-xs text-muted-foreground">
                                         Выберите шаблон — сначала preview, потом примените в один
                                         клик.
                                     </p>
@@ -1462,7 +1462,7 @@ https://github.com/owner/repo-b`,
                                             <summary className="cursor-pointer text-sm font-semibold">
                                                 Что будет применено
                                             </summary>
-                                            <div className="mt-2 space-y-1 text-xs text-slate-700">
+                                            <div className="mt-2 space-y-1 text-xs text-foreground">
                                                 <p>
                                                     <span className="font-semibold">ID:</span>{" "}
                                                     {selectedTemplate.id}
@@ -1513,7 +1513,7 @@ https://github.com/owner/repo-b`,
                                             Применённые шаблоны (audit log)
                                         </summary>
                                         {templateAuditLog.length === 0 ? (
-                                            <p className="mt-2 text-sm text-slate-600">
+                                            <p className="mt-2 text-sm text-muted-foreground">
                                                 Пока шаблоны не применялись.
                                             </p>
                                         ) : null}
@@ -1532,10 +1532,10 @@ https://github.com/owner/repo-b`,
                                                                     {entry.templateName} —{" "}
                                                                     {entry.templateVersion}
                                                                 </p>
-                                                                <p className="text-xs text-slate-600">
+                                                                <p className="text-xs text-muted-foreground">
                                                                     {entry.appliedAt}
                                                                 </p>
-                                                                <p className="text-xs text-slate-600">
+                                                                <p className="text-xs text-muted-foreground">
                                                                     From:{" "}
                                                                     {formatTemplateTags(
                                                                         entry.before.tags,
@@ -1630,25 +1630,25 @@ https://github.com/owner/repo-b`,
 
                         {activeStep === 2 ? (
                             <section className="space-y-3">
-                                <p className="text-sm font-semibold text-slate-800">
+                                <p className="text-sm font-semibold text-foreground">
                                     Проверьте выбранные настройки:
                                 </p>
-                                <div className="grid gap-2 rounded-lg border border-slate-200 p-3">
+                                <div className="grid gap-2 rounded-lg border border-border p-3">
                                     {isSingleMode ? (
                                         <p className="text-sm">
                                             <span className="font-semibold">Repository:</span>{" "}
                                             {values.repositoryUrl}
                                         </p>
                                     ) : null}
-                                    <details className="rounded-md border border-slate-200 p-2">
+                                    <details className="rounded-md border border-border p-2">
                                         <summary className="cursor-pointer text-sm font-semibold">
                                             Шаблон onboarding
                                         </summary>
-                                        <p className="mt-1 text-sm text-slate-700">
+                                        <p className="mt-1 text-sm text-foreground">
                                             {appliedTemplateMeta.name} (
                                             {appliedTemplateMeta.version})
                                         </p>
-                                        <p className="text-sm text-slate-700">
+                                        <p className="text-sm text-foreground">
                                             Rules: {appliedTemplateMeta.rulesPreset}
                                         </p>
                                         <div className="mt-1 flex flex-wrap gap-1">
@@ -1664,11 +1664,11 @@ https://github.com/owner/repo-b`,
                                         </div>
                                     </details>
                                     {isSingleMode ? null : (
-                                        <details className="rounded-md border border-slate-200 p-2">
+                                        <details className="rounded-md border border-border p-2">
                                             <summary className="cursor-pointer text-sm font-semibold">
                                                 Применяемый профиль
                                             </summary>
-                                            <p className="mt-1 text-sm text-slate-700">
+                                            <p className="mt-1 text-sm text-foreground">
                                                 Один шаблон на {selectedRepositoryUrls.length}{" "}
                                                 репозиториев: {values.scanMode}/
                                                 {values.scanSchedule}
@@ -1777,7 +1777,7 @@ https://github.com/owner/repo-b`,
                                             </div>
                                         </div>
 
-                                        <div className="grid gap-2 rounded-lg border border-slate-200 p-2 text-sm">
+                                        <div className="grid gap-2 rounded-lg border border-border p-2 text-sm">
                                             <p>
                                                 В работе: {bulkSummary.running}, Очередь:{" "}
                                                 {bulkSummary.queued}, Пауза: {bulkSummary.paused},
@@ -1815,7 +1815,7 @@ https://github.com/owner/repo-b`,
                                                                 }}
                                                             />
                                                         </div>
-                                                        <p className="mt-1 text-xs text-slate-600">
+                                                        <p className="mt-1 text-xs text-muted-foreground">
                                                             Прогресс: {job.progress}%
                                                         </p>
 

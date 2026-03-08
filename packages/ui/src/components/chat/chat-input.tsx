@@ -166,9 +166,9 @@ export function ChatInput(props: IChatInputProps): ReactElement {
     }
 
     return (
-        <form className="border-t border-[var(--border)]" onSubmit={handleSubmit}>
+        <form className="border-t border-border" onSubmit={handleSubmit}>
             {contextOptions.length === 0 ? null : (
-                <div className="border-b border-[var(--border)] px-3 pt-3">
+                <div className="border-b border-border px-3 pt-3">
                     <label className="sr-only" htmlFor="chat-context-select">
                         {props.contextAriaLabel ?? "File context"}
                     </label>
@@ -191,7 +191,7 @@ export function ChatInput(props: IChatInputProps): ReactElement {
                 </div>
             )}
             {quickActions.length === 0 ? null : (
-                <div className="flex flex-wrap gap-2 border-b border-[var(--border)] px-3 pb-2 pt-2">
+                <div className="flex flex-wrap gap-2 border-b border-border px-3 pb-2 pt-2">
                     {quickActions.map(
                         (action): ReactElement => (
                             <Button
@@ -217,7 +217,7 @@ export function ChatInput(props: IChatInputProps): ReactElement {
                 <Textarea
                     aria-label={props.inputAriaLabel ?? "Message input"}
                     autoComplete="off"
-                    className="min-h-20 rounded-lg bg-[var(--surface)]"
+                    className="min-h-20 rounded-lg bg-surface"
                     id="conversation-input"
                     isDisabled={props.isLoading}
                     maxLength={maxLength}
@@ -230,7 +230,7 @@ export function ChatInput(props: IChatInputProps): ReactElement {
                 <div className="mt-2 flex items-center justify-between gap-2">
                     <p
                         aria-label={props.counterAriaLabel ?? "Message character count"}
-                        className="text-xs text-[var(--foreground)]/70"
+                        className="text-xs text-foreground/70"
                     >
                         {maxLengthLabel}
                     </p>

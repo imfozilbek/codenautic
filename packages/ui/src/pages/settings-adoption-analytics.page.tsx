@@ -145,10 +145,8 @@ export function SettingsAdoptionAnalyticsPage(): ReactElement {
 
     return (
         <section className="space-y-4">
-            <h1 className="text-2xl font-semibold text-[var(--foreground)]">
-                Usage & adoption analytics
-            </h1>
-            <p className="text-sm text-[var(--foreground)]/70">
+            <h1 className="text-2xl font-semibold text-foreground">Usage & adoption analytics</h1>
+            <p className="text-sm text-foreground/70">
                 Understand time-to-first-value funnel, drop-offs, active users, and workflow health
                 by transparent event definitions.
             </p>
@@ -173,18 +171,18 @@ export function SettingsAdoptionAnalyticsPage(): ReactElement {
             <div className="grid gap-4 md:grid-cols-2">
                 <Card>
                     <CardHeader>
-                        <p className="text-base font-semibold text-[var(--foreground)]">
+                        <p className="text-base font-semibold text-foreground">
                             Value realization KPIs
                         </p>
                     </CardHeader>
                     <CardBody className="space-y-2">
-                        <p className="text-sm text-[var(--foreground)]">
+                        <p className="text-sm text-foreground">
                             Active users: <strong>{activeUsers}</strong>
                         </p>
-                        <p className="text-sm text-[var(--foreground)]">
+                        <p className="text-sm text-foreground">
                             Median time to first value: <strong>{timeToFirstValue}</strong>
                         </p>
-                        <p className="text-xs text-[var(--foreground)]/70">
+                        <p className="text-xs text-foreground/70">
                             First value = first successful scan + first visible insights.
                         </p>
                     </CardBody>
@@ -192,20 +190,18 @@ export function SettingsAdoptionAnalyticsPage(): ReactElement {
 
                 <Card>
                     <CardHeader>
-                        <p className="text-base font-semibold text-[var(--foreground)]">
-                            Workflow health
-                        </p>
+                        <p className="text-base font-semibold text-foreground">Workflow health</p>
                     </CardHeader>
                     <CardBody className="space-y-2">
                         <ul aria-label="Workflow health list" className="space-y-2">
                             {workflowHealth.map(
                                 (item): ReactElement => (
                                     <li
-                                        className="rounded-lg border border-[var(--border)] bg-[var(--surface)] p-3"
+                                        className="rounded-lg border border-border bg-surface p-3"
                                         key={item.stage}
                                     >
                                         <div className="flex flex-wrap items-center gap-2">
-                                            <p className="text-sm font-semibold text-[var(--foreground)]">
+                                            <p className="text-sm font-semibold text-foreground">
                                                 {item.stage}
                                             </p>
                                             <Chip
@@ -216,9 +212,7 @@ export function SettingsAdoptionAnalyticsPage(): ReactElement {
                                                 {item.health}
                                             </Chip>
                                         </div>
-                                        <p className="text-xs text-[var(--foreground)]/70">
-                                            {item.summary}
-                                        </p>
+                                        <p className="text-xs text-foreground/70">{item.summary}</p>
                                     </li>
                                 ),
                             )}
@@ -229,9 +223,7 @@ export function SettingsAdoptionAnalyticsPage(): ReactElement {
 
             <Card>
                 <CardHeader>
-                    <p className="text-base font-semibold text-[var(--foreground)]">
-                        Adoption funnel
-                    </p>
+                    <p className="text-base font-semibold text-foreground">Adoption funnel</p>
                 </CardHeader>
                 <CardBody className="space-y-2">
                     <ul aria-label="Adoption funnel list" className="space-y-2">
@@ -246,18 +238,18 @@ export function SettingsAdoptionAnalyticsPage(): ReactElement {
 
                             return (
                                 <li
-                                    className="rounded-lg border border-[var(--border)] bg-[var(--surface)] p-3"
+                                    className="rounded-lg border border-border bg-surface p-3"
                                     key={stage.id}
                                 >
                                     <div className="flex flex-wrap items-center justify-between gap-2">
-                                        <p className="text-sm font-semibold text-[var(--foreground)]">
+                                        <p className="text-sm font-semibold text-foreground">
                                             {stage.label}
                                         </p>
                                         <Chip size="sm" variant="flat">
                                             {stage.count}
                                         </Chip>
                                     </div>
-                                    <p className="text-xs text-[var(--foreground)]/70">
+                                    <p className="text-xs text-foreground/70">
                                         {`Conversion from previous stage: ${String(conversion)}% · Drop-off: ${String(dropOff)}`}
                                     </p>
                                 </li>

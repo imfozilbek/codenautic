@@ -53,7 +53,7 @@ export function ReviewsTable(props: IReviewsTableProps): ReactElement {
                         <TableRow key={row.id}>
                             <TableCell>
                                 <Link
-                                    className="text-sm font-semibold text-slate-900 underline underline-offset-4"
+                                    className="text-sm font-semibold text-foreground underline underline-offset-4"
                                     params={{ reviewId: row.id }}
                                     to="/reviews/$reviewId"
                                 >

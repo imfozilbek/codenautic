@@ -57,7 +57,7 @@ export interface IReviewsFiltersProps {
  */
 export function ReviewsFilters(props: IReviewsFiltersProps): ReactElement {
     return (
-        <div className="grid gap-3 rounded-lg border border-slate-200 bg-white p-3 md:grid-cols-4">
+        <div className="grid gap-3 rounded-lg border border-border bg-white p-3 md:grid-cols-4">
             <Input
                 aria-label="Search CCR"
                 placeholder="Search by repository or title"

@@ -78,12 +78,12 @@ function sortTargets(
  */
 function resolveRiskClassName(riskScore: number): string {
     if (riskScore >= 75) {
-        return "border-rose-300 bg-rose-500/15 text-rose-800"
+        return "border-danger/40 bg-danger/15 text-danger"
     }
     if (riskScore >= 50) {
-        return "border-amber-300 bg-amber-500/15 text-amber-900"
+        return "border-amber-300 bg-warning/15 text-amber-900"
     }
-    return "border-emerald-300 bg-emerald-500/15 text-emerald-800"
+    return "border-success/40 bg-success/15 text-success"
 }
 
 /**
@@ -127,20 +127,20 @@ export function RefactoringDashboard(props: IRefactoringDashboardProps): ReactEl
     }
 
     return (
-        <section className="rounded-lg border border-slate-200 bg-white p-3 shadow-sm">
-            <p className="text-sm font-semibold text-slate-900">Refactoring dashboard</p>
-            <p className="mt-1 text-xs text-slate-500">
+        <section className="rounded-lg border border-border bg-white p-3 shadow-sm">
+            <p className="text-sm font-semibold text-foreground">Refactoring dashboard</p>
+            <p className="mt-1 text-xs text-muted-foreground">
                 Prioritized targets sorted by ROI, risk, or effort with module filtering.
             </p>
 
             <div className="mt-3 grid gap-2 md:grid-cols-2">
                 <label className="space-y-1" htmlFor="refactor-sort">
-                    <span className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                    <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                         Sort by
                     </span>
                     <select
                         aria-label="Refactoring sort"
-                        className="w-full rounded-lg border border-slate-200 px-2 py-1.5 text-sm"
+                        className="w-full rounded-lg border border-border px-2 py-1.5 text-sm"
                         id="refactor-sort"
                         onChange={handleSortChange}
                         value={sortKey}
@@ -152,12 +152,12 @@ export function RefactoringDashboard(props: IRefactoringDashboardProps): ReactEl
                 </label>
 
                 <label className="space-y-1" htmlFor="refactor-module-filter">
-                    <span className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                    <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                         Module filter
                     </span>
                     <select
                         aria-label="Refactoring module filter"
-                        className="w-full rounded-lg border border-slate-200 px-2 py-1.5 text-sm"
+                        className="w-full rounded-lg border border-border px-2 py-1.5 text-sm"
                         id="refactor-module-filter"
                         onChange={handleModuleFilterChange}
                         value={moduleFilter}
@@ -176,19 +176,16 @@ export function RefactoringDashboard(props: IRefactoringDashboardProps): ReactEl
             <ul className="mt-3 space-y-2">
                 {prioritizedTargets.map(
                     (target): ReactElement => (
-                        <li
-                            className="rounded border border-slate-200 bg-slate-50 p-2"
-                            key={target.id}
-                        >
+                        <li className="rounded border border-border bg-surface p-2" key={target.id}>
                             <div className="flex items-start justify-between gap-3">
                                 <div>
-                                    <p className="text-sm font-semibold text-slate-900">
+                                    <p className="text-sm font-semibold text-foreground">
                                         {target.title}
                                     </p>
-                                    <p className="mt-1 text-xs text-slate-600">
+                                    <p className="mt-1 text-xs text-muted-foreground">
                                         {target.description}
                                     </p>
-                                    <p className="mt-1 text-[11px] uppercase tracking-wide text-slate-500">
+                                    <p className="mt-1 text-[11px] uppercase tracking-wide text-muted-foreground">
                                         Module: {target.module}
                                     </p>
                                 </div>
@@ -198,11 +195,11 @@ export function RefactoringDashboard(props: IRefactoringDashboardProps): ReactEl
                                     Risk {String(target.riskScore)}
                                 </span>
                             </div>
-                            <div className="mt-2 flex flex-wrap items-center gap-2 text-xs text-slate-700">
-                                <span className="rounded border border-slate-300 bg-white px-2 py-0.5">
+                            <div className="mt-2 flex flex-wrap items-center gap-2 text-xs text-foreground">
+                                <span className="rounded border border-border bg-white px-2 py-0.5">
                                     ROI {String(target.roiScore)}
                                 </span>
-                                <span className="rounded border border-slate-300 bg-white px-2 py-0.5">
+                                <span className="rounded border border-border bg-white px-2 py-0.5">
                                     Effort {String(target.effortScore)}
                                 </span>
                             </div>

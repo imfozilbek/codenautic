@@ -13,7 +13,7 @@ export function pickFieldMessage(
 ): ReactNode | null {
     if (errorMessage !== undefined && errorMessage !== "") {
         return (
-            <p className="text-xs text-rose-700" role="alert">
+            <p className="text-xs text-danger" role="alert">
                 {errorMessage}
             </p>
         )
@@ -23,5 +23,5 @@ export function pickFieldMessage(
         return null
     }
 
-    return <p className="text-xs text-slate-500">{helperText}</p>
+    return <p className="text-xs text-muted-foreground">{helperText}</p>
 }

@@ -53,9 +53,9 @@ export function RefactoringTimeline(props: IRefactoringTimelineProps): ReactElem
     }, [props.tasks])
 
     return (
-        <section className="rounded-lg border border-slate-200 bg-white p-3 shadow-sm">
-            <p className="text-sm font-semibold text-slate-900">Refactoring timeline</p>
-            <p className="mt-1 text-xs text-slate-500">
+        <section className="rounded-lg border border-border bg-white p-3 shadow-sm">
+            <p className="text-sm font-semibold text-foreground">Refactoring timeline</p>
+            <p className="mt-1 text-xs text-muted-foreground">
                 Gantt-like plan for refactoring waves with explicit dependency links.
             </p>
 
@@ -64,16 +64,13 @@ export function RefactoringTimeline(props: IRefactoringTimelineProps): ReactElem
                     const startOffsetPercent = ((task.startWeek - 1) / timelineEndWeek) * 100
                     const widthPercent = (task.durationWeeks / timelineEndWeek) * 100
                     return (
-                        <li
-                            className="rounded border border-slate-200 bg-slate-50 p-2"
-                            key={task.id}
-                        >
+                        <li className="rounded border border-border bg-surface p-2" key={task.id}>
                             <div className="flex items-start justify-between gap-3">
                                 <div className="min-w-0">
-                                    <p className="text-sm font-semibold text-slate-900">
+                                    <p className="text-sm font-semibold text-foreground">
                                         {task.title}
                                     </p>
-                                    <p className="text-xs text-slate-600">
+                                    <p className="text-xs text-muted-foreground">
                                         Weeks {String(task.startWeek)}–
                                         {String(task.startWeek + task.durationWeeks - 1)}
                                     </p>
@@ -83,7 +80,7 @@ export function RefactoringTimeline(props: IRefactoringTimelineProps): ReactElem
                                 </span>
                             </div>
 
-                            <div className="relative mt-2 h-6 rounded border border-slate-200 bg-white">
+                            <div className="relative mt-2 h-6 rounded border border-border bg-white">
                                 <div
                                     className="absolute bottom-1 top-1 rounded bg-cyan-500/35"
                                     style={{
@@ -93,7 +90,7 @@ export function RefactoringTimeline(props: IRefactoringTimelineProps): ReactElem
                                 />
                             </div>
 
-                            <p className="mt-2 text-[11px] text-slate-600">
+                            <p className="mt-2 text-[11px] text-muted-foreground">
                                 Dependencies:{" "}
                                 {task.dependencies.length === 0
                                     ? "none"

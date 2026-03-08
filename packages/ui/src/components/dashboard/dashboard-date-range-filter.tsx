@@ -38,7 +38,7 @@ export function DashboardDateRangeFilter(props: IDashboardDateRangeFilterProps):
     return (
         <div
             aria-label="Dashboard date range"
-            className="inline-flex rounded-lg border border-slate-200 bg-white p-1"
+            className="inline-flex rounded-lg border border-border bg-white p-1"
             role="group"
         >
             {DATE_RANGES.map((range): ReactElement => {

@@ -76,7 +76,7 @@ export function FormRadioGroupField<
                 return (
                     <div className="flex flex-col gap-1.5">
                         {props.label === undefined ? null : (
-                            <span className="text-sm font-medium text-slate-700">
+                            <span className="text-sm font-medium text-foreground">
                                 {props.label}
                                 {hasRequiredMarker ? <span aria-hidden="true"> *</span> : null}
                             </span>

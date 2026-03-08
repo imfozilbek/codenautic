@@ -151,8 +151,8 @@ export function ReportGeneratorPage(): ReactElement {
 
     return (
         <section className="space-y-4">
-            <h1 className="text-2xl font-semibold text-[var(--foreground)]">Report generator</h1>
-            <p className="text-sm text-[var(--foreground)]/70">
+            <h1 className="text-2xl font-semibold text-foreground">Report generator</h1>
+            <p className="text-sm text-foreground/70">
                 Configure report type, sections, date range and output format before generation.
             </p>
             <div className="flex flex-wrap gap-2">
@@ -182,19 +182,15 @@ export function ReportGeneratorPage(): ReactElement {
 
             <Card>
                 <CardHeader>
-                    <p className="text-base font-semibold text-[var(--foreground)]">
-                        Report configuration
-                    </p>
+                    <p className="text-base font-semibold text-foreground">Report configuration</p>
                 </CardHeader>
                 <CardBody className="space-y-3">
                     <div className="grid gap-3 md:grid-cols-2">
                         <label className="space-y-1 text-sm">
-                            <span className="font-semibold text-[var(--foreground)]">
-                                Report type
-                            </span>
+                            <span className="font-semibold text-foreground">Report type</span>
                             <select
                                 aria-label="Report type"
-                                className="w-full rounded border border-slate-300 bg-white px-2 py-1 text-sm text-slate-900"
+                                className="w-full rounded border border-border bg-white px-2 py-1 text-sm text-foreground"
                                 value={reportType}
                                 onChange={(event): void => {
                                     const nextValue = event.currentTarget.value
@@ -213,12 +209,10 @@ export function ReportGeneratorPage(): ReactElement {
                             </select>
                         </label>
                         <label className="space-y-1 text-sm">
-                            <span className="font-semibold text-[var(--foreground)]">
-                                Output format
-                            </span>
+                            <span className="font-semibold text-foreground">Output format</span>
                             <select
                                 aria-label="Report format"
-                                className="w-full rounded border border-slate-300 bg-white px-2 py-1 text-sm text-slate-900"
+                                className="w-full rounded border border-border bg-white px-2 py-1 text-sm text-foreground"
                                 value={reportFormat}
                                 onChange={(event): void => {
                                     const nextValue = event.currentTarget.value
@@ -237,22 +231,20 @@ export function ReportGeneratorPage(): ReactElement {
                             </select>
                         </label>
                         <label className="space-y-1 text-sm">
-                            <span className="font-semibold text-[var(--foreground)]">
-                                Start date
-                            </span>
+                            <span className="font-semibold text-foreground">Start date</span>
                             <input
                                 aria-label="Report date range start"
-                                className="w-full rounded border border-slate-300 bg-white px-2 py-1 text-sm text-slate-900"
+                                className="w-full rounded border border-border bg-white px-2 py-1 text-sm text-foreground"
                                 type="date"
                                 value={startDate}
                                 onChange={handleStartDateChange}
                             />
                         </label>
                         <label className="space-y-1 text-sm">
-                            <span className="font-semibold text-[var(--foreground)]">End date</span>
+                            <span className="font-semibold text-foreground">End date</span>
                             <input
                                 aria-label="Report date range end"
-                                className="w-full rounded border border-slate-300 bg-white px-2 py-1 text-sm text-slate-900"
+                                className="w-full rounded border border-border bg-white px-2 py-1 text-sm text-foreground"
                                 type="date"
                                 value={endDate}
                                 onChange={handleEndDateChange}
@@ -260,14 +252,14 @@ export function ReportGeneratorPage(): ReactElement {
                         </label>
                     </div>
                     <fieldset className="space-y-2">
-                        <legend className="text-sm font-semibold text-[var(--foreground)]">
+                        <legend className="text-sm font-semibold text-foreground">
                             Report sections
                         </legend>
                         <div className="grid gap-2 sm:grid-cols-2">
                             {REPORT_SECTION_OPTIONS.map(
                                 (section): ReactElement => (
                                     <label
-                                        className="flex items-center gap-2 rounded border border-slate-200 bg-slate-50 px-2 py-1 text-sm text-slate-900"
+                                        className="flex items-center gap-2 rounded border border-border bg-surface px-2 py-1 text-sm text-foreground"
                                         key={section.id}
                                     >
                                         <input
@@ -298,9 +290,7 @@ export function ReportGeneratorPage(): ReactElement {
 
             <Card>
                 <CardHeader>
-                    <p className="text-base font-semibold text-[var(--foreground)]">
-                        Report preview
-                    </p>
+                    <p className="text-base font-semibold text-foreground">Report preview</p>
                 </CardHeader>
                 <CardBody className="space-y-3">
                     <Alert color="primary" title="Preview status" variant="flat">
@@ -321,7 +311,7 @@ export function ReportGeneratorPage(): ReactElement {
                     )}
                     <pre
                         aria-label="Report preview payload"
-                        className="max-h-56 overflow-auto rounded border border-slate-200 bg-slate-950 p-3 text-xs text-slate-100"
+                        className="max-h-56 overflow-auto rounded border border-border bg-slate-950 p-3 text-xs text-slate-100"
                     >
                         {JSON.stringify(previewPayload, null, 2)}
                     </pre>

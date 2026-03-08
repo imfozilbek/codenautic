@@ -444,15 +444,15 @@ export function SettingsNotificationsPage(): ReactElement {
 
     return (
         <section className="space-y-4">
-            <h1 className="text-2xl font-semibold text-[var(--foreground)]">Notification center</h1>
-            <p className="text-sm text-[var(--foreground)]/70">
+            <h1 className="text-2xl font-semibold text-foreground">Notification center</h1>
+            <p className="text-sm text-foreground/70">
                 Unified inbox for review, drift and prediction events with channel-level delivery
                 controls.
             </p>
 
             <Card>
                 <CardHeader className="flex flex-wrap items-center justify-between gap-2">
-                    <p className="text-base font-semibold text-[var(--foreground)]">Inbox</p>
+                    <p className="text-base font-semibold text-foreground">Inbox</p>
                     <Button
                         isDisabled={unreadCount === 0}
                         size="sm"
@@ -463,7 +463,7 @@ export function SettingsNotificationsPage(): ReactElement {
                     </Button>
                 </CardHeader>
                 <CardBody className="space-y-3">
-                    <div className="flex flex-wrap items-center gap-2 text-xs text-[var(--foreground)]/70">
+                    <div className="flex flex-wrap items-center gap-2 text-xs text-foreground/70">
                         <Chip size="sm" variant="flat">
                             Total: {notifications.length}
                         </Chip>
@@ -513,14 +513,14 @@ export function SettingsNotificationsPage(): ReactElement {
                     )}
                     <div className="flex flex-col gap-1 md:max-w-[260px]">
                         <label
-                            className="text-sm text-[var(--foreground)]/80"
+                            className="text-sm text-foreground/80"
                             htmlFor="notifications-event-type-filter"
                         >
                             Filter event type
                         </label>
                         <select
                             aria-label="Filter event type"
-                            className="rounded-lg border border-[var(--border)] bg-[var(--surface)] px-3 py-2 text-sm"
+                            className="rounded-lg border border-border bg-surface px-3 py-2 text-sm"
                             id="notifications-event-type-filter"
                             value={eventTypeFilter}
                             onChange={(event): void => {
@@ -547,7 +547,7 @@ export function SettingsNotificationsPage(): ReactElement {
                             (notification): ReactElement => (
                                 <li
                                     key={notification.id}
-                                    className="rounded-lg border border-[var(--border)] bg-[var(--surface)] p-3"
+                                    className="rounded-lg border border-border bg-surface p-3"
                                     role="listitem"
                                 >
                                     <div className="flex flex-wrap items-center gap-2">
@@ -556,13 +556,13 @@ export function SettingsNotificationsPage(): ReactElement {
                                             checked={selectedNotificationIds.includes(
                                                 notification.id,
                                             )}
-                                            className="h-4 w-4 accent-[var(--primary)]"
+                                            className="h-4 w-4 accent-primary"
                                             type="checkbox"
                                             onChange={(): void => {
                                                 handleToggleNotificationSelection(notification.id)
                                             }}
                                         />
-                                        <p className="text-sm font-semibold text-[var(--foreground)]">
+                                        <p className="text-sm font-semibold text-foreground">
                                             {notification.title}
                                         </p>
                                         <Chip
@@ -574,11 +574,11 @@ export function SettingsNotificationsPage(): ReactElement {
                                         <Chip size="sm" variant="flat">
                                             {EVENT_TYPE_LABELS[notification.type]}
                                         </Chip>
-                                        <p className="text-xs text-[var(--foreground)]/70">
+                                        <p className="text-xs text-foreground/70">
                                             {formatNotificationTime(notification.occurredAt)}
                                         </p>
                                     </div>
-                                    <p className="mt-1 text-sm text-[var(--foreground)]/80">
+                                    <p className="mt-1 text-sm text-foreground/80">
                                         {notification.message}
                                     </p>
                                     <div className="mt-2 flex flex-wrap items-center gap-2">
@@ -618,9 +618,7 @@ export function SettingsNotificationsPage(): ReactElement {
 
             <Card>
                 <CardHeader>
-                    <p className="text-base font-semibold text-[var(--foreground)]">
-                        Delivery preferences
-                    </p>
+                    <p className="text-base font-semibold text-foreground">Delivery preferences</p>
                 </CardHeader>
                 <CardBody className="space-y-3">
                     {(["slack", "discord", "teams", "inApp"] as const).map(
@@ -629,7 +627,7 @@ export function SettingsNotificationsPage(): ReactElement {
                             return (
                                 <div
                                     key={channelId}
-                                    className="grid gap-2 rounded-lg border border-[var(--border)] bg-[var(--surface)] p-3 md:grid-cols-[220px_1fr]"
+                                    className="grid gap-2 rounded-lg border border-border bg-surface p-3 md:grid-cols-[220px_1fr]"
                                 >
                                     <Switch
                                         aria-label={`Enable ${CHANNEL_LABELS[channelId]} notifications`}
@@ -683,12 +681,10 @@ export function SettingsNotificationsPage(): ReactElement {
 
             <Card>
                 <CardHeader>
-                    <p className="text-base font-semibold text-[var(--foreground)]">
-                        In-app mute rules
-                    </p>
+                    <p className="text-base font-semibold text-foreground">In-app mute rules</p>
                 </CardHeader>
                 <CardBody className="space-y-3">
-                    <div className="flex flex-wrap items-center gap-2 text-xs text-[var(--foreground)]/70">
+                    <div className="flex flex-wrap items-center gap-2 text-xs text-foreground/70">
                         <Chip size="sm" variant="flat">
                             Enabled rules: {enabledMuteRulesCount}
                         </Chip>
@@ -757,13 +753,11 @@ export function SettingsNotificationsPage(): ReactElement {
 
             <Card>
                 <CardHeader>
-                    <p className="text-base font-semibold text-[var(--foreground)]">
-                        Bulk action audit
-                    </p>
+                    <p className="text-base font-semibold text-foreground">Bulk action audit</p>
                 </CardHeader>
                 <CardBody className="space-y-2">
                     {bulkAudit.length === 0 ? (
-                        <p className="text-sm text-[var(--foreground)]/70">
+                        <p className="text-sm text-foreground/70">
                             No bulk operations executed yet.
                         </p>
                     ) : (
@@ -771,16 +765,14 @@ export function SettingsNotificationsPage(): ReactElement {
                             {bulkAudit.map(
                                 (entry): ReactElement => (
                                     <li
-                                        className="rounded-lg border border-[var(--border)] bg-[var(--surface)] p-3 text-xs"
+                                        className="rounded-lg border border-border bg-surface p-3 text-xs"
                                         key={entry.id}
                                     >
-                                        <p className="font-semibold text-[var(--foreground)]">
+                                        <p className="font-semibold text-foreground">
                                             {entry.status}
                                         </p>
-                                        <p className="text-[var(--foreground)]/80">
-                                            {entry.summary}
-                                        </p>
-                                        <p className="text-[var(--foreground)]/70">
+                                        <p className="text-foreground/80">{entry.summary}</p>
+                                        <p className="text-foreground/70">
                                             Notifications: {entry.notificationIds.join(", ")}
                                         </p>
                                     </li>

@@ -115,8 +115,8 @@ export function SettingsPrivacyRedactionPage(): ReactElement {
 
     return (
         <section className="space-y-4">
-            <h1 className="text-2xl font-semibold text-[var(--foreground)]">Privacy-safe export</h1>
-            <p className="text-sm text-[var(--foreground)]/70">
+            <h1 className="text-2xl font-semibold text-foreground">Privacy-safe export</h1>
+            <p className="text-sm text-foreground/70">
                 Detect and redact secrets/PII before copy, export or share operations.
             </p>
 
@@ -132,9 +132,7 @@ export function SettingsPrivacyRedactionPage(): ReactElement {
 
             <Card>
                 <CardHeader>
-                    <p className="text-base font-semibold text-[var(--foreground)]">
-                        Source content
-                    </p>
+                    <p className="text-base font-semibold text-foreground">Source content</p>
                 </CardHeader>
                 <CardBody className="space-y-3">
                     <Textarea
@@ -154,9 +152,7 @@ export function SettingsPrivacyRedactionPage(): ReactElement {
 
             <Card>
                 <CardHeader>
-                    <p className="text-base font-semibold text-[var(--foreground)]">
-                        Detection summary
-                    </p>
+                    <p className="text-base font-semibold text-foreground">Detection summary</p>
                 </CardHeader>
                 <CardBody className="space-y-2">
                     {hasSensitiveData ? (
@@ -164,19 +160,17 @@ export function SettingsPrivacyRedactionPage(): ReactElement {
                             {sensitiveHits.map(
                                 (hit, index): ReactElement => (
                                     <li
-                                        className="rounded-lg border border-[var(--border)] bg-[var(--surface)] p-3 text-sm"
+                                        className="rounded-lg border border-border bg-surface p-3 text-sm"
                                         key={`${hit.type}-${String(index)}`}
                                     >
-                                        <p className="font-semibold text-[var(--foreground)]">
-                                            {hit.type}
-                                        </p>
-                                        <p className="text-[var(--foreground)]/70">{hit.value}</p>
+                                        <p className="font-semibold text-foreground">{hit.type}</p>
+                                        <p className="text-foreground/70">{hit.value}</p>
                                     </li>
                                 ),
                             )}
                         </ul>
                     ) : (
-                        <p className="text-sm text-[var(--foreground)]/70">
+                        <p className="text-sm text-foreground/70">
                             No hits. You can export directly.
                         </p>
                     )}
@@ -185,9 +179,7 @@ export function SettingsPrivacyRedactionPage(): ReactElement {
 
             <Card>
                 <CardHeader>
-                    <p className="text-base font-semibold text-[var(--foreground)]">
-                        Redacted preview
-                    </p>
+                    <p className="text-base font-semibold text-foreground">Redacted preview</p>
                 </CardHeader>
                 <CardBody className="space-y-2">
                     <Textarea

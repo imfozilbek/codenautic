@@ -53,25 +53,27 @@ export function KnowledgeMapExportWidget(props: IKnowledgeMapExportWidgetProps):
     }
 
     return (
-        <section className="rounded-lg border border-slate-200 bg-white p-3 shadow-sm">
-            <p className="text-sm font-semibold text-slate-900">Knowledge map export</p>
-            <p className="mt-1 text-xs text-slate-500">
+        <section className="rounded-lg border border-border bg-white p-3 shadow-sm">
+            <p className="text-sm font-semibold text-foreground">Knowledge map export</p>
+            <p className="mt-1 text-xs text-muted-foreground">
                 Export knowledge map snapshot for architecture documentation with legend and
                 metadata.
             </p>
 
             <div
                 aria-label="Knowledge map metadata"
-                className="mt-3 rounded border border-slate-200 bg-slate-50 p-2"
+                className="mt-3 rounded border border-border bg-surface p-2"
             >
-                <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                     Metadata
                 </p>
-                <p className="mt-1 text-xs text-slate-700">
+                <p className="mt-1 text-xs text-foreground">
                     Repository: {props.model.metadata.repositoryLabel}
                 </p>
-                <p className="text-xs text-slate-700">Metric: {props.model.metadata.metricLabel}</p>
-                <p className="text-xs text-slate-700">
+                <p className="text-xs text-foreground">
+                    Metric: {props.model.metadata.metricLabel}
+                </p>
+                <p className="text-xs text-foreground">
                     Files: {String(props.model.metadata.totalFiles)} · Contributors:{" "}
                     {String(props.model.metadata.totalContributors)}
                 </p>
@@ -79,21 +81,21 @@ export function KnowledgeMapExportWidget(props: IKnowledgeMapExportWidgetProps):
 
             <div
                 aria-label="Knowledge map legend"
-                className="mt-2 rounded border border-slate-200 bg-slate-50 p-2"
+                className="mt-2 rounded border border-border bg-surface p-2"
             >
-                <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                     Legend
                 </p>
                 <ul className="mt-1 space-y-1">
                     {props.model.owners.slice(0, 3).map((entry): ReactElement => {
                         return (
                             <li
-                                className="flex items-center gap-2 text-xs text-slate-700"
+                                className="flex items-center gap-2 text-xs text-foreground"
                                 key={entry.ownerName}
                             >
                                 <span
                                     aria-hidden={true}
-                                    className="inline-flex h-3 w-3 rounded-full border border-slate-300"
+                                    className="inline-flex h-3 w-3 rounded-full border border-border"
                                     style={{ backgroundColor: entry.color }}
                                 />
                                 {entry.ownerName} · files {String(entry.fileCount)}
@@ -102,7 +104,7 @@ export function KnowledgeMapExportWidget(props: IKnowledgeMapExportWidgetProps):
                     })}
                     {props.model.districts.slice(0, 2).map((entry): ReactElement => {
                         return (
-                            <li className="text-xs text-slate-700" key={entry.districtLabel}>
+                            <li className="text-xs text-foreground" key={entry.districtLabel}>
                                 {entry.districtLabel} · bus factor {String(entry.busFactor)} ·{" "}
                                 {entry.riskLabel}
                             </li>
@@ -134,7 +136,7 @@ export function KnowledgeMapExportWidget(props: IKnowledgeMapExportWidgetProps):
             </div>
 
             {lastExportLabel.length > 0 ? (
-                <p className="mt-2 text-xs font-semibold text-emerald-700">{lastExportLabel}</p>
+                <p className="mt-2 text-xs font-semibold text-success">{lastExportLabel}</p>
             ) : null}
         </section>
     )

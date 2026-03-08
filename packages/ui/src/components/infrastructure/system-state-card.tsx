@@ -19,15 +19,15 @@ interface ISystemStateCardProps {
 
 function mapStateTone(variant: TSystemStateVariant): string {
     if (variant === "error") {
-        return "border-rose-200 bg-rose-50 text-rose-900"
+        return "border-danger/30 bg-danger/10 text-rose-900"
     }
     if (variant === "loading") {
-        return "border-blue-200 bg-blue-50 text-blue-900"
+        return "border-primary/30 bg-primary/10 text-blue-900"
     }
     if (variant === "partial") {
-        return "border-amber-200 bg-amber-50 text-amber-900"
+        return "border-warning/30 bg-warning/10 text-amber-900"
     }
-    return "border-slate-200 bg-slate-50 text-slate-900"
+    return "border-border bg-surface text-foreground"
 }
 
 function mapStateLabel(variant: TSystemStateVariant): string {

@@ -590,7 +590,7 @@ export function DashboardLayout(props: IDashboardLayoutProps): ReactElement {
     }
 
     return (
-        <div className="relative min-h-screen bg-[var(--background)] text-[var(--foreground)]">
+        <div className="relative min-h-screen bg-background text-foreground">
             <Header
                 activeOrganizationId={activeOrganizationId}
                 breadcrumbs={breadcrumbs}
@@ -627,8 +627,8 @@ export function DashboardLayout(props: IDashboardLayoutProps): ReactElement {
                         title="Menu"
                     />
                 </div>
-                <div className="min-h-0 flex-1 rounded-lg border border-[var(--border)] bg-[color:color-mix(in_oklab,var(--surface)_88%,transparent)] p-4 shadow-sm">
-                    <p className="mb-2 text-xs text-[var(--foreground)]/60">
+                <div className="min-h-0 flex-1 rounded-lg border border-border bg-[color:color-mix(in_oklab,var(--surface)_88%,transparent)] p-4 shadow-sm">
+                    <p className="mb-2 text-xs text-foreground/60">
                         Press ? for keyboard shortcuts.
                     </p>
                     {keyboardShortcuts.conflicts.length === 0 ? null : (
@@ -691,7 +691,7 @@ export function DashboardLayout(props: IDashboardLayoutProps): ReactElement {
                     <ModalBody>
                         <input
                             aria-label="Search shortcuts"
-                            className="w-full rounded-md border border-[var(--border)] bg-[var(--surface)] px-2 py-1 text-sm text-[var(--foreground)]"
+                            className="w-full rounded-md border border-border bg-surface px-2 py-1 text-sm text-foreground"
                             placeholder="Search by key or action"
                             type="text"
                             value={shortcutsHelpQuery}
@@ -699,7 +699,7 @@ export function DashboardLayout(props: IDashboardLayoutProps): ReactElement {
                                 setShortcutsHelpQuery(event.currentTarget.value)
                             }}
                         />
-                        <p className="text-xs text-[var(--foreground)]/60">Press ? for help.</p>
+                        <p className="text-xs text-foreground/60">Press ? for help.</p>
                         <ul
                             aria-label="Shortcuts list"
                             className="max-h-72 space-y-2 overflow-y-auto"
@@ -708,16 +708,16 @@ export function DashboardLayout(props: IDashboardLayoutProps): ReactElement {
                                 (shortcut): ReactElement => (
                                     <li
                                         key={shortcut.id}
-                                        className="flex items-center justify-between rounded-md border border-[var(--border)] px-2 py-1"
+                                        className="flex items-center justify-between rounded-md border border-border px-2 py-1"
                                     >
-                                        <span className="text-sm text-[var(--foreground)]">
+                                        <span className="text-sm text-foreground">
                                             {shortcut.label}
                                         </span>
-                                        <span className="flex items-center gap-2 text-xs text-[var(--foreground)]/70">
-                                            <span className="rounded border border-[var(--border)] px-2 py-0.5">
+                                        <span className="flex items-center gap-2 text-xs text-foreground/70">
+                                            <span className="rounded border border-border px-2 py-0.5">
                                                 {shortcut.scope}
                                             </span>
-                                            <span className="rounded border border-[var(--border)] px-2 py-0.5">
+                                            <span className="rounded border border-border px-2 py-0.5">
                                                 {shortcut.keys}
                                             </span>
                                         </span>
@@ -732,11 +732,11 @@ export function DashboardLayout(props: IDashboardLayoutProps): ReactElement {
                 <ModalContent>
                     <ModalHeader>Session expired</ModalHeader>
                     <ModalBody>
-                        <p className="text-sm text-[var(--foreground)]/80">
+                        <p className="text-sm text-foreground/80">
                             Authentication failed with {sessionFailureCode}. Re-authentication is
                             required to continue safely.
                         </p>
-                        <p className="text-xs text-[var(--foreground)]/70">
+                        <p className="text-xs text-foreground/70">
                             Drafts and pending intent were autosaved and will be restored after
                             successful sign-in.
                         </p>

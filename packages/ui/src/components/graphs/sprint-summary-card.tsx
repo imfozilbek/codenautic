@@ -46,18 +46,18 @@ export interface ISprintSummaryCardProps {
 
 function resolveDeltaClassName(deltaPercent: number): string {
     if (deltaPercent > 0) {
-        return "text-emerald-700"
+        return "text-success"
     }
     if (deltaPercent < 0) {
-        return "text-rose-700"
+        return "text-danger"
     }
-    return "text-slate-600"
+    return "text-muted-foreground"
 }
 
 function resolveMetricRowClassName(isActive: boolean): string {
     const baseClassName = isActive
         ? "border-cyan-400 bg-cyan-50"
-        : "border-slate-200 bg-slate-50 hover:border-slate-300"
+        : "border-border bg-surface hover:border-border"
     return `w-full rounded-lg border p-2 text-left transition ${baseClassName}`
 }
 
@@ -73,24 +73,24 @@ function formatDeltaPrefix(deltaPercent: number): string {
  */
 export function SprintSummaryCard(props: ISprintSummaryCardProps): ReactElement {
     return (
-        <section className="rounded-lg border border-slate-200 bg-white p-3 shadow-sm">
-            <p className="text-sm font-semibold text-slate-900">Sprint summary card</p>
-            <p className="mt-1 text-xs text-slate-500">{props.model.sprintLabel}</p>
+        <section className="rounded-lg border border-border bg-white p-3 shadow-sm">
+            <p className="text-sm font-semibold text-foreground">Sprint summary card</p>
+            <p className="mt-1 text-xs text-muted-foreground">{props.model.sprintLabel}</p>
 
             <div className="mt-3 grid grid-cols-2 gap-2">
-                <div className="rounded border border-slate-200 bg-slate-50 p-2">
-                    <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-600">
+                <div className="rounded border border-border bg-surface p-2">
+                    <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
                         Achievements
                     </p>
-                    <p className="mt-1 text-sm font-semibold text-slate-900">
+                    <p className="mt-1 text-sm font-semibold text-foreground">
                         {String(props.model.achievementsCount)}
                     </p>
                 </div>
-                <div className="rounded border border-slate-200 bg-slate-50 p-2">
-                    <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-600">
+                <div className="rounded border border-border bg-surface p-2">
+                    <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
                         Overall score
                     </p>
-                    <p className="mt-1 text-sm font-semibold text-slate-900">
+                    <p className="mt-1 text-sm font-semibold text-foreground">
                         {String(props.model.overallImprovementScore)}
                     </p>
                 </div>
@@ -111,10 +111,10 @@ export function SprintSummaryCard(props: ISprintSummaryCardProps): ReactElement 
                             >
                                 <div className="flex items-start justify-between gap-2">
                                     <div>
-                                        <p className="text-sm font-semibold text-slate-900">
+                                        <p className="text-sm font-semibold text-foreground">
                                             {metric.label}
                                         </p>
-                                        <p className="mt-1 text-xs text-slate-600">
+                                        <p className="mt-1 text-xs text-muted-foreground">
                                             {metric.value}
                                         </p>
                                     </div>

@@ -151,24 +151,24 @@ export function ProjectOverviewPanel(props: IProjectOverviewPanelProps): ReactEl
     const metrics = buildProjectOverviewMetrics(props.files)
 
     return (
-        <article className="rounded-lg border border-slate-200 bg-white p-3 shadow-sm">
+        <article className="rounded-lg border border-border bg-white p-3 shadow-sm">
             <header className="border-b border-slate-100 pb-2">
-                <p className="text-sm font-semibold text-slate-900">Project overview</p>
-                <p className="text-xs text-slate-500">
+                <p className="text-sm font-semibold text-foreground">Project overview</p>
+                <p className="text-xs text-muted-foreground">
                     {props.repositoryLabel} ({props.repositoryId})
                 </p>
             </header>
 
             <section className="mt-3 space-y-2">
-                <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                     Architecture summary
                 </p>
-                <ul className="space-y-1 text-sm text-slate-700">
+                <ul className="space-y-1 text-sm text-foreground">
                     {metrics.architectureSummary.map(
                         (item): ReactElement => (
                             <li className="flex items-center justify-between" key={item.label}>
                                 <span>{item.label}</span>
-                                <span className="text-xs text-slate-500">{item.value}</span>
+                                <span className="text-xs text-muted-foreground">{item.value}</span>
                             </li>
                         ),
                     )}
@@ -176,15 +176,15 @@ export function ProjectOverviewPanel(props: IProjectOverviewPanelProps): ReactEl
             </section>
 
             <section className="mt-3 space-y-2">
-                <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                     Tech stack
                 </p>
-                <ul className="space-y-1 text-sm text-slate-700">
+                <ul className="space-y-1 text-sm text-foreground">
                     {metrics.techStackSummary.map(
                         (item): ReactElement => (
                             <li className="flex items-center justify-between" key={item.label}>
                                 <span>{item.label}</span>
-                                <span className="text-xs text-slate-500">{item.value}</span>
+                                <span className="text-xs text-muted-foreground">{item.value}</span>
                             </li>
                         ),
                     )}
@@ -192,21 +192,21 @@ export function ProjectOverviewPanel(props: IProjectOverviewPanelProps): ReactEl
             </section>
 
             <section className="mt-3 space-y-2">
-                <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                     Entry points
                 </p>
                 {metrics.entryPoints.length > 0 ? (
-                    <ul className="space-y-1 text-xs text-slate-700">
+                    <ul className="space-y-1 text-xs text-foreground">
                         {metrics.entryPoints.map(
                             (entryPoint): ReactElement => (
-                                <li className="rounded bg-slate-50 px-2 py-1" key={entryPoint}>
+                                <li className="rounded bg-surface px-2 py-1" key={entryPoint}>
                                     {entryPoint}
                                 </li>
                             ),
                         )}
                     </ul>
                 ) : (
-                    <p className="text-xs text-slate-500">
+                    <p className="text-xs text-muted-foreground">
                         No entry points detected in current scan.
                     </p>
                 )}

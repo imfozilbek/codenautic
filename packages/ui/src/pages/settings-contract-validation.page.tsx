@@ -582,12 +582,12 @@ function buildArchitectureDifferences(
 
 function resolveArchitectureDifferenceBadgeClass(status: TArchitectureDiffStatus): string {
     if (status === "match") {
-        return "border-emerald-300 bg-emerald-50 text-emerald-700"
+        return "border-success/40 bg-success/10 text-success"
     }
     if (status === "missing") {
-        return "border-amber-300 bg-amber-50 text-amber-700"
+        return "border-amber-300 bg-warning/10 text-warning"
     }
-    return "border-rose-300 bg-rose-50 text-rose-700"
+    return "border-danger/40 bg-danger/10 text-danger"
 }
 
 function parseContractEnvelope(rawValue: string): IValidationResult {
@@ -1089,16 +1089,14 @@ export function SettingsContractValidationPage(): ReactElement {
 
     return (
         <section className="space-y-4">
-            <h1 className="text-2xl font-semibold text-[var(--foreground)]">Contract validation</h1>
-            <p className="text-sm text-[var(--foreground)]/70">
+            <h1 className="text-2xl font-semibold text-foreground">Contract validation</h1>
+            <p className="text-sm text-foreground/70">
                 Validate schema/version for import/export payloads and preview before apply.
             </p>
 
             <Card>
                 <CardHeader>
-                    <p className="text-base font-semibold text-[var(--foreground)]">
-                        Contract payload
-                    </p>
+                    <p className="text-base font-semibold text-foreground">Contract payload</p>
                 </CardHeader>
                 <CardBody className="space-y-3">
                     <Textarea
@@ -1118,9 +1116,7 @@ export function SettingsContractValidationPage(): ReactElement {
 
             <Card>
                 <CardHeader>
-                    <p className="text-base font-semibold text-[var(--foreground)]">
-                        Validation result
-                    </p>
+                    <p className="text-base font-semibold text-foreground">Validation result</p>
                 </CardHeader>
                 <CardBody className="space-y-2">
                     {validationResult.errors.length === 0 ? (
@@ -1157,12 +1153,12 @@ export function SettingsContractValidationPage(): ReactElement {
 
             <Card>
                 <CardHeader>
-                    <p className="text-base font-semibold text-[var(--foreground)]">
+                    <p className="text-base font-semibold text-foreground">
                         Architecture blueprint editor
                     </p>
                 </CardHeader>
                 <CardBody className="space-y-3">
-                    <p className="text-sm text-[var(--foreground)]/70">
+                    <p className="text-sm text-foreground/70">
                         Upload and edit architecture blueprint in YAML format with inline syntax
                         highlight and visual preview.
                     </p>
@@ -1173,7 +1169,7 @@ export function SettingsContractValidationPage(): ReactElement {
                         onValueChange={setBlueprintYaml}
                     />
                     <div className="flex flex-wrap gap-2">
-                        <label className="inline-flex items-center gap-2 rounded-md border border-slate-300 px-3 py-2 text-sm font-medium text-slate-700">
+                        <label className="inline-flex items-center gap-2 rounded-md border border-border px-3 py-2 text-sm font-medium text-foreground">
                             Upload blueprint YAML
                             <input
                                 aria-label="Upload blueprint yaml"
@@ -1211,14 +1207,14 @@ export function SettingsContractValidationPage(): ReactElement {
 
             <Card>
                 <CardHeader>
-                    <p className="text-base font-semibold text-[var(--foreground)]">
+                    <p className="text-base font-semibold text-foreground">
                         YAML syntax highlight preview
                     </p>
                 </CardHeader>
                 <CardBody>
                     <pre
                         aria-label="Blueprint syntax highlight preview"
-                        className="overflow-x-auto rounded-md border border-slate-200 bg-slate-950 p-3 text-xs leading-6"
+                        className="overflow-x-auto rounded-md border border-border bg-slate-950 p-3 text-xs leading-6"
                     >
                         {blueprintHighlightLines.map(
                             (line): ReactElement => (
@@ -1233,7 +1229,7 @@ export function SettingsContractValidationPage(): ReactElement {
                                         <span className="text-sky-300">{line.key}</span>
                                     )}
                                     {line.key === undefined ? null : (
-                                        <span className="text-slate-500">: </span>
+                                        <span className="text-muted-foreground">: </span>
                                     )}
                                     {line.value === undefined ? null : (
                                         <span className="text-emerald-300">{line.value}</span>
@@ -1247,7 +1243,7 @@ export function SettingsContractValidationPage(): ReactElement {
 
             <Card>
                 <CardHeader>
-                    <p className="text-base font-semibold text-[var(--foreground)]">
+                    <p className="text-base font-semibold text-foreground">
                         Blueprint visual preview
                     </p>
                 </CardHeader>
@@ -1256,18 +1252,18 @@ export function SettingsContractValidationPage(): ReactElement {
                         {blueprintValidationResult.nodes.map(
                             (node): ReactElement => (
                                 <li
-                                    className="flex items-center gap-2 rounded border border-slate-200 bg-slate-50 px-2 py-1 text-xs"
+                                    className="flex items-center gap-2 rounded border border-border bg-surface px-2 py-1 text-xs"
                                     key={node.id}
                                     style={{ marginLeft: `${String(node.depth * 12)}px` }}
                                 >
-                                    <span className="rounded border border-slate-300 bg-white px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-slate-700">
+                                    <span className="rounded border border-border bg-white px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-foreground">
                                         {node.kind}
                                     </span>
-                                    <span className="font-semibold text-slate-900">
+                                    <span className="font-semibold text-foreground">
                                         {node.label}
                                     </span>
                                     {node.value === undefined ? null : (
-                                        <span className="text-slate-600">{node.value}</span>
+                                        <span className="text-muted-foreground">{node.value}</span>
                                     )}
                                 </li>
                             ),
@@ -1278,21 +1274,19 @@ export function SettingsContractValidationPage(): ReactElement {
 
             <Card>
                 <CardHeader>
-                    <p className="text-base font-semibold text-[var(--foreground)]">
-                        Drift analysis report
-                    </p>
+                    <p className="text-base font-semibold text-foreground">Drift analysis report</p>
                 </CardHeader>
                 <CardBody className="space-y-3">
-                    <p className="text-sm text-[var(--foreground)]/70">
+                    <p className="text-sm text-foreground/70">
                         Review architecture drift violations with severity and affected files. Use
                         filters, sorting and export to share actionable reports.
                     </p>
                     <div className="grid gap-2 md:grid-cols-3">
-                        <label className="space-y-1 text-sm text-[var(--foreground)]/80">
+                        <label className="space-y-1 text-sm text-foreground/80">
                             Search
                             <input
                                 aria-label="Drift report search query"
-                                className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm text-slate-900"
+                                className="w-full rounded-md border border-border px-3 py-2 text-sm text-foreground"
                                 placeholder="Rule, rationale or file"
                                 type="text"
                                 value={driftSearchQuery}
@@ -1301,11 +1295,11 @@ export function SettingsContractValidationPage(): ReactElement {
                                 }}
                             />
                         </label>
-                        <label className="space-y-1 text-sm text-[var(--foreground)]/80">
+                        <label className="space-y-1 text-sm text-foreground/80">
                             Severity filter
                             <select
                                 aria-label="Drift severity filter"
-                                className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm text-slate-900"
+                                className="w-full rounded-md border border-border px-3 py-2 text-sm text-foreground"
                                 value={driftSeverityFilter}
                                 onChange={(event): void => {
                                     const nextValue = event.currentTarget.value
@@ -1327,11 +1321,11 @@ export function SettingsContractValidationPage(): ReactElement {
                                 <option value="low">Low</option>
                             </select>
                         </label>
-                        <label className="space-y-1 text-sm text-[var(--foreground)]/80">
+                        <label className="space-y-1 text-sm text-foreground/80">
                             Sort
                             <select
                                 aria-label="Drift report sort mode"
-                                className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm text-slate-900"
+                                className="w-full rounded-md border border-border px-3 py-2 text-sm text-foreground"
                                 value={driftSortMode}
                                 onChange={(event): void => {
                                     const nextValue = event.currentTarget.value
@@ -1354,7 +1348,7 @@ export function SettingsContractValidationPage(): ReactElement {
                     </div>
                     <div className="flex flex-wrap items-center gap-2">
                         <Button onPress={handleExportDriftReport}>Export drift report</Button>
-                        <span className="text-xs text-[var(--foreground)]/70">
+                        <span className="text-xs text-foreground/70">
                             Filtered violations: {String(filteredSortedDriftViolations.length)}
                         </span>
                     </div>
@@ -1367,19 +1361,19 @@ export function SettingsContractValidationPage(): ReactElement {
                             {filteredSortedDriftViolations.map(
                                 (violation): ReactElement => (
                                     <li
-                                        className="space-y-1 rounded-md border border-slate-200 bg-slate-50 p-3 text-sm"
+                                        className="space-y-1 rounded-md border border-border bg-surface p-3 text-sm"
                                         key={violation.id}
                                     >
                                         <div className="flex flex-wrap items-center gap-2">
-                                            <span className="font-semibold text-slate-900">
+                                            <span className="font-semibold text-foreground">
                                                 {violation.rule}
                                             </span>
-                                            <span className="rounded border border-slate-300 bg-white px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-slate-700">
+                                            <span className="rounded border border-border bg-white px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-foreground">
                                                 {violation.severity}
                                             </span>
                                         </div>
-                                        <p className="text-slate-700">{violation.rationale}</p>
-                                        <p className="text-xs text-slate-600">
+                                        <p className="text-foreground">{violation.rationale}</p>
+                                        <p className="text-xs text-muted-foreground">
                                             Affected files: {violation.affectedFiles.join(", ")}
                                         </p>
                                     </li>
@@ -1392,7 +1386,7 @@ export function SettingsContractValidationPage(): ReactElement {
                     </Alert>
                     <pre
                         aria-label="Drift report export payload"
-                        className="overflow-x-auto rounded-md border border-slate-200 bg-slate-950 p-3 text-xs leading-6 text-emerald-200"
+                        className="overflow-x-auto rounded-md border border-border bg-slate-950 p-3 text-xs leading-6 text-emerald-200"
                     >
                         {driftExportPayload}
                     </pre>
@@ -1401,12 +1395,12 @@ export function SettingsContractValidationPage(): ReactElement {
 
             <Card>
                 <CardHeader>
-                    <p className="text-base font-semibold text-[var(--foreground)]">
+                    <p className="text-base font-semibold text-foreground">
                         Drift overlay CodeCity
                     </p>
                 </CardHeader>
                 <CardBody className="space-y-3">
-                    <p className="text-sm text-[var(--foreground)]/70">
+                    <p className="text-sm text-foreground/70">
                         Files violating architecture blueprint are highlighted in red. Click any
                         highlighted file to inspect related drift violations.
                     </p>
@@ -1478,18 +1472,18 @@ export function SettingsContractValidationPage(): ReactElement {
 
             <Card>
                 <CardHeader>
-                    <p className="text-base font-semibold text-[var(--foreground)]">
+                    <p className="text-base font-semibold text-foreground">
                         Blueprint vs reality view
                     </p>
                 </CardHeader>
                 <CardBody className="space-y-3">
-                    <p className="text-sm text-[var(--foreground)]/70">
+                    <p className="text-sm text-foreground/70">
                         Compare intended architecture from blueprint with actual runtime structure.
                         Differences are color-coded to highlight missing and unexpected modules.
                     </p>
                     <div className="grid gap-3 lg:grid-cols-2">
                         <div>
-                            <p className="mb-2 text-sm font-semibold text-slate-900">
+                            <p className="mb-2 text-sm font-semibold text-foreground">
                                 Intended architecture
                             </p>
                             <ul
@@ -1499,13 +1493,13 @@ export function SettingsContractValidationPage(): ReactElement {
                                 {BLUEPRINT_STRUCTURE_NODES.map(
                                     (node): ReactElement => (
                                         <li
-                                            className="rounded border border-slate-200 bg-slate-50 p-2 text-xs"
+                                            className="rounded border border-border bg-surface p-2 text-xs"
                                             key={node.id}
                                         >
-                                            <p className="font-semibold text-slate-900">
+                                            <p className="font-semibold text-foreground">
                                                 {node.layer} / {node.module}
                                             </p>
-                                            <p className="text-slate-600">
+                                            <p className="text-muted-foreground">
                                                 Depends on:{" "}
                                                 {node.dependsOn.length === 0
                                                     ? "—"
@@ -1517,20 +1511,20 @@ export function SettingsContractValidationPage(): ReactElement {
                             </ul>
                         </div>
                         <div>
-                            <p className="mb-2 text-sm font-semibold text-slate-900">
+                            <p className="mb-2 text-sm font-semibold text-foreground">
                                 Runtime structure
                             </p>
                             <ul aria-label="Reality architecture list" className="space-y-2">
                                 {REALITY_STRUCTURE_NODES.map(
                                     (node): ReactElement => (
                                         <li
-                                            className="rounded border border-slate-200 bg-slate-50 p-2 text-xs"
+                                            className="rounded border border-border bg-surface p-2 text-xs"
                                             key={node.id}
                                         >
-                                            <p className="font-semibold text-slate-900">
+                                            <p className="font-semibold text-foreground">
                                                 {node.layer} / {node.module}
                                             </p>
-                                            <p className="text-slate-600">
+                                            <p className="text-muted-foreground">
                                                 Depends on:{" "}
                                                 {node.dependsOn.length === 0
                                                     ? "—"
@@ -1549,11 +1543,11 @@ export function SettingsContractValidationPage(): ReactElement {
                         {architectureDifferences.map(
                             (difference): ReactElement => (
                                 <li
-                                    className="rounded border border-slate-200 bg-white p-2 text-xs"
+                                    className="rounded border border-border bg-white p-2 text-xs"
                                     key={difference.id}
                                 >
                                     <div className="mb-1 flex flex-wrap items-center gap-2">
-                                        <span className="font-semibold text-slate-900">
+                                        <span className="font-semibold text-foreground">
                                             {difference.layer} / {difference.module}
                                         </span>
                                         <span
@@ -1564,7 +1558,7 @@ export function SettingsContractValidationPage(): ReactElement {
                                             {difference.status}
                                         </span>
                                     </div>
-                                    <p className="text-slate-700">{difference.description}</p>
+                                    <p className="text-foreground">{difference.description}</p>
                                 </li>
                             ),
                         )}
@@ -1574,12 +1568,10 @@ export function SettingsContractValidationPage(): ReactElement {
 
             <Card>
                 <CardHeader>
-                    <p className="text-base font-semibold text-[var(--foreground)]">
-                        Drift trend chart
-                    </p>
+                    <p className="text-base font-semibold text-foreground">Drift trend chart</p>
                 </CardHeader>
                 <CardBody className="space-y-3">
-                    <p className="text-sm text-[var(--foreground)]/70">
+                    <p className="text-sm text-foreground/70">
                         Drift score trend over time with architecture change annotations.
                     </p>
                     <div aria-label="Drift score trend chart" className="h-72 w-full">
@@ -1642,23 +1634,23 @@ export function SettingsContractValidationPage(): ReactElement {
 
             <Card>
                 <CardHeader>
-                    <p className="text-base font-semibold text-[var(--foreground)]">
+                    <p className="text-base font-semibold text-foreground">
                         Drift alert configuration
                     </p>
                 </CardHeader>
                 <CardBody className="space-y-3">
-                    <p className="text-sm text-[var(--foreground)]/70">
+                    <p className="text-sm text-foreground/70">
                         Configure drift alerts by severity threshold, violation count, and delivery
                         channels.
                     </p>
                     <div className="grid gap-3 md:grid-cols-2">
                         <label className="space-y-1 text-sm">
-                            <span className="font-semibold text-[var(--foreground)]">
+                            <span className="font-semibold text-foreground">
                                 Severity threshold
                             </span>
                             <select
                                 aria-label="Drift alert severity threshold"
-                                className="w-full rounded border border-slate-300 bg-white px-2 py-1 text-sm text-slate-900"
+                                className="w-full rounded border border-border bg-white px-2 py-1 text-sm text-foreground"
                                 value={driftAlertSeverityThreshold}
                                 onChange={(event): void => {
                                     const nextValue = event.currentTarget.value
@@ -1679,12 +1671,12 @@ export function SettingsContractValidationPage(): ReactElement {
                             </select>
                         </label>
                         <label className="space-y-1 text-sm">
-                            <span className="font-semibold text-[var(--foreground)]">
+                            <span className="font-semibold text-foreground">
                                 Violation count threshold
                             </span>
                             <input
                                 aria-label="Drift alert violation threshold"
-                                className="w-full rounded border border-slate-300 bg-white px-2 py-1 text-sm text-slate-900"
+                                className="w-full rounded border border-border bg-white px-2 py-1 text-sm text-foreground"
                                 min={0}
                                 type="number"
                                 value={String(driftAlertViolationThreshold)}
@@ -1693,14 +1685,14 @@ export function SettingsContractValidationPage(): ReactElement {
                         </label>
                     </div>
                     <fieldset className="space-y-2">
-                        <legend className="text-sm font-semibold text-[var(--foreground)]">
+                        <legend className="text-sm font-semibold text-foreground">
                             Notification channels
                         </legend>
                         <div className="grid gap-2 sm:grid-cols-2">
                             {DRIFT_ALERT_CHANNEL_OPTIONS.map(
                                 (channel): ReactElement => (
                                     <label
-                                        className="flex items-center gap-2 rounded border border-slate-200 bg-slate-50 px-2 py-1 text-sm text-slate-900"
+                                        className="flex items-center gap-2 rounded border border-border bg-surface px-2 py-1 text-sm text-foreground"
                                         key={channel.id}
                                     >
                                         <input
@@ -1737,12 +1729,12 @@ export function SettingsContractValidationPage(): ReactElement {
 
             <Card>
                 <CardHeader>
-                    <p className="text-base font-semibold text-[var(--foreground)]">
+                    <p className="text-base font-semibold text-foreground">
                         Architecture guardrails
                     </p>
                 </CardHeader>
                 <CardBody className="space-y-3">
-                    <p className="text-sm text-[var(--foreground)]/70">
+                    <p className="text-sm text-foreground/70">
                         Configure allowed and forbidden import rules with YAML and visual rule
                         preview.
                     </p>
@@ -1777,24 +1769,24 @@ export function SettingsContractValidationPage(): ReactElement {
                         {guardrailsValidationResult.rules.map(
                             (rule): ReactElement => (
                                 <li
-                                    className="rounded border border-slate-200 bg-slate-50 p-2 text-xs"
+                                    className="rounded border border-border bg-surface p-2 text-xs"
                                     key={rule.id}
                                 >
                                     <div className="mb-1 flex flex-wrap items-center gap-2">
-                                        <span className="font-semibold text-slate-900">
+                                        <span className="font-semibold text-foreground">
                                             {rule.source} → {rule.target}
                                         </span>
                                         <span
                                             className={`rounded border px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide ${
                                                 rule.mode === "allow"
-                                                    ? "border-emerald-300 bg-emerald-50 text-emerald-700"
-                                                    : "border-rose-300 bg-rose-50 text-rose-700"
+                                                    ? "border-success/40 bg-success/10 text-success"
+                                                    : "border-danger/40 bg-danger/10 text-danger"
                                             }`}
                                         >
                                             {rule.mode}
                                         </span>
                                     </div>
-                                    <p className="text-slate-700">
+                                    <p className="text-foreground">
                                         {rule.mode === "allow"
                                             ? "Import direction is explicitly allowed."
                                             : "Import direction is explicitly forbidden."}

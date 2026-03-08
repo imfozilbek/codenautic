@@ -121,10 +121,8 @@ export function SettingsProviderDegradationPage(): ReactElement {
 
     return (
         <section className="space-y-4">
-            <h1 className="text-2xl font-semibold text-[var(--foreground)]">
-                Provider degradation mode
-            </h1>
-            <p className="text-sm text-[var(--foreground)]/70">
+            <h1 className="text-2xl font-semibold text-foreground">Provider degradation mode</h1>
+            <p className="text-sm text-foreground/70">
                 Monitor affected features, keep critical actions in queue/retry mode and provide
                 quick incident runbook access.
             </p>
@@ -141,9 +139,7 @@ export function SettingsProviderDegradationPage(): ReactElement {
 
             <Card>
                 <CardHeader>
-                    <p className="text-base font-semibold text-[var(--foreground)]">
-                        Incident controls
-                    </p>
+                    <p className="text-base font-semibold text-foreground">Incident controls</p>
                 </CardHeader>
                 <CardBody className="space-y-3">
                     <div className="flex flex-wrap items-center gap-2">
@@ -159,15 +155,12 @@ export function SettingsProviderDegradationPage(): ReactElement {
                         </Chip>
                     </div>
                     {providerState.affectedFeatures.length === 0 ? (
-                        <p className="text-sm text-[var(--foreground)]/70">No affected features.</p>
+                        <p className="text-sm text-foreground/70">No affected features.</p>
                     ) : (
                         <ul aria-label="Affected features list" className="space-y-1">
                             {providerState.affectedFeatures.map(
                                 (feature): ReactElement => (
-                                    <li
-                                        className="text-sm text-[var(--foreground)]/80"
-                                        key={feature}
-                                    >
+                                    <li className="text-sm text-foreground/80" key={feature}>
                                         {feature}
                                     </li>
                                 ),
@@ -180,7 +173,7 @@ export function SettingsProviderDegradationPage(): ReactElement {
                             Mark operational
                         </Button>
                         <a
-                            className="inline-flex items-center rounded-full border border-[var(--border)] px-3 py-1 text-sm text-[var(--foreground)]/80"
+                            className="inline-flex items-center rounded-full border border-border px-3 py-1 text-sm text-foreground/80"
                             href={providerState.runbookUrl}
                             rel="noreferrer"
                             target="_blank"
@@ -193,7 +186,7 @@ export function SettingsProviderDegradationPage(): ReactElement {
 
             <Card>
                 <CardHeader>
-                    <p className="text-base font-semibold text-[var(--foreground)]">
+                    <p className="text-base font-semibold text-foreground">
                         Queue & retry for critical actions
                     </p>
                 </CardHeader>
@@ -214,23 +207,19 @@ export function SettingsProviderDegradationPage(): ReactElement {
                         {queuedActions.map(
                             (action): ReactElement => (
                                 <li
-                                    className="rounded-lg border border-[var(--border)] bg-[var(--surface)] p-3 text-sm"
+                                    className="rounded-lg border border-border bg-surface p-3 text-sm"
                                     key={action.id}
                                 >
-                                    <p className="font-semibold text-[var(--foreground)]">
+                                    <p className="font-semibold text-foreground">
                                         {action.description}
                                     </p>
-                                    <p className="text-[var(--foreground)]/70">
-                                        Status: {action.status}
-                                    </p>
+                                    <p className="text-foreground/70">Status: {action.status}</p>
                                 </li>
                             ),
                         )}
                     </ul>
                     {queuedActions.length === 0 ? (
-                        <p className="text-sm text-[var(--foreground)]/70">
-                            No critical actions in queue.
-                        </p>
+                        <p className="text-sm text-foreground/70">No critical actions in queue.</p>
                     ) : null}
                 </CardBody>
             </Card>

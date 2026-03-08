@@ -272,11 +272,11 @@ export function RechartsChartWrapper<TPoint extends TChartPoint>(
     return (
         <Card>
             <CardHeader>
-                <h3 className="text-base font-semibold text-slate-900">{props.title}</h3>
+                <h3 className="text-base font-semibold text-foreground">{props.title}</h3>
             </CardHeader>
             <CardBody>
                 {props.isLoading === true ? (
-                    <p className="text-sm text-slate-600">
+                    <p className="text-sm text-muted-foreground">
                         {props.loadingText ?? "Loading chart..."}
                     </p>
                 ) : (

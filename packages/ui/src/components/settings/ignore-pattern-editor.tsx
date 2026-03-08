@@ -55,7 +55,7 @@ export function IgnorePatternEditor(props: IIgnorePatternEditorProps): ReactElem
 
     return (
         <form className="space-y-3" onSubmit={applyChanges}>
-            <label className="text-sm font-medium text-slate-700" htmlFor={textareaId}>
+            <label className="text-sm font-medium text-foreground" htmlFor={textareaId}>
                 Ignore patterns
             </label>
             <Textarea
@@ -68,10 +68,10 @@ export function IgnorePatternEditor(props: IIgnorePatternEditorProps): ReactElem
                 }}
             />
             <div className="flex items-center justify-between gap-3">
-                <p className="text-xs text-slate-500">
+                <p className="text-xs text-muted-foreground">
                     {props.helperText ?? "One glob pattern per line."}
                 </p>
-                <p className="text-xs text-slate-600" data-testid="ignore-pattern-count">
+                <p className="text-xs text-muted-foreground" data-testid="ignore-pattern-count">
                     {`Patterns: ${normalizedPatterns.length}`}
                 </p>
             </div>

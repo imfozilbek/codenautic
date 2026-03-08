@@ -128,9 +128,9 @@ export function ImpactAnalysisPanel(props: IImpactAnalysisPanelProps): ReactElem
     const primarySeed = selectedSeeds[0]
 
     return (
-        <section className="rounded-lg border border-slate-200 bg-white p-3 shadow-sm">
-            <p className="text-sm font-semibold text-slate-900">Impact analysis panel</p>
-            <p className="mt-1 text-xs text-slate-500">
+        <section className="rounded-lg border border-border bg-white p-3 shadow-sm">
+            <p className="text-sm font-semibold text-foreground">Impact analysis panel</p>
+            <p className="mt-1 text-xs text-muted-foreground">
                 Select files to inspect blast radius, affected tests/consumers, and aggregated risk
                 score.
             </p>
@@ -139,21 +139,23 @@ export function ImpactAnalysisPanel(props: IImpactAnalysisPanelProps): ReactElem
                 {props.seeds.slice(0, 6).map(
                     (seed): ReactElement => (
                         <li
-                            className="flex items-start gap-2 rounded border border-slate-200 bg-slate-50 p-2"
+                            className="flex items-start gap-2 rounded border border-border bg-surface p-2"
                             key={seed.id}
                         >
                             <input
                                 aria-label={`Select impact file ${seed.label}`}
                                 checked={selectedSeedIds.includes(seed.id)}
-                                className="mt-0.5 h-4 w-4 rounded border-slate-300"
+                                className="mt-0.5 h-4 w-4 rounded border-border"
                                 onChange={(): void => {
                                     toggleSeed(seed.id)
                                 }}
                                 type="checkbox"
                             />
                             <div className="min-w-0">
-                                <p className="text-sm font-semibold text-slate-900">{seed.label}</p>
-                                <p className="text-xs text-slate-600">
+                                <p className="text-sm font-semibold text-foreground">
+                                    {seed.label}
+                                </p>
+                                <p className="text-xs text-muted-foreground">
                                     Individual risk {String(seed.riskScore)}
                                 </p>
                             </div>
@@ -175,31 +177,31 @@ export function ImpactAnalysisPanel(props: IImpactAnalysisPanelProps): ReactElem
             </div>
 
             <div className="mt-3 grid gap-2 md:grid-cols-3">
-                <div className="rounded border border-slate-200 bg-slate-50 p-2">
-                    <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">
+                <div className="rounded border border-border bg-surface p-2">
+                    <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
                         Affected files
                     </p>
-                    <p className="mt-1 text-xs text-slate-700">
+                    <p className="mt-1 text-xs text-foreground">
                         {aggregatedImpact.affectedFiles.length === 0
                             ? "none"
                             : aggregatedImpact.affectedFiles.join(", ")}
                     </p>
                 </div>
-                <div className="rounded border border-slate-200 bg-slate-50 p-2">
-                    <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">
+                <div className="rounded border border-border bg-surface p-2">
+                    <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
                         Affected tests
                     </p>
-                    <p className="mt-1 text-xs text-slate-700">
+                    <p className="mt-1 text-xs text-foreground">
                         {aggregatedImpact.affectedTests.length === 0
                             ? "none"
                             : aggregatedImpact.affectedTests.join(", ")}
                     </p>
                 </div>
-                <div className="rounded border border-slate-200 bg-slate-50 p-2">
-                    <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">
+                <div className="rounded border border-border bg-surface p-2">
+                    <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
                         Consumers
                     </p>
-                    <p className="mt-1 text-xs text-slate-700">
+                    <p className="mt-1 text-xs text-foreground">
                         {aggregatedImpact.affectedConsumers.length === 0
                             ? "none"
                             : aggregatedImpact.affectedConsumers.join(", ")}

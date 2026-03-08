@@ -32,12 +32,12 @@ export interface ICityBusFactorOverlayProps {
 
 function resolveBusFactorBadgeClassName(busFactor: number): string {
     if (busFactor <= 1) {
-        return "border-rose-300 bg-rose-500/20 text-rose-800"
+        return "border-danger/40 bg-danger/20 text-danger"
     }
     if (busFactor === 2) {
-        return "border-amber-300 bg-amber-500/20 text-amber-900"
+        return "border-amber-300 bg-warning/20 text-amber-900"
     }
-    return "border-emerald-300 bg-emerald-500/20 text-emerald-800"
+    return "border-success/40 bg-success/20 text-success"
 }
 
 function resolveBusFactorRiskLabel(busFactor: number): string {
@@ -53,9 +53,7 @@ function resolveBusFactorRiskLabel(busFactor: number): string {
 function resolveEntryClassName(isActive: boolean): string {
     return [
         "w-full rounded-lg border p-2 text-left transition",
-        isActive
-            ? "border-cyan-400 bg-cyan-50"
-            : "border-slate-200 bg-slate-50 hover:border-slate-300",
+        isActive ? "border-cyan-400 bg-cyan-50" : "border-border bg-surface hover:border-border",
     ].join(" ")
 }
 
@@ -67,9 +65,9 @@ function resolveEntryClassName(isActive: boolean): string {
  */
 export function CityBusFactorOverlay(props: ICityBusFactorOverlayProps): ReactElement {
     return (
-        <section className="rounded-lg border border-slate-200 bg-white p-3 shadow-sm">
-            <p className="text-sm font-semibold text-slate-900">Bus factor overlay</p>
-            <p className="mt-1 text-xs text-slate-500">
+        <section className="rounded-lg border border-border bg-white p-3 shadow-sm">
+            <p className="text-sm font-semibold text-foreground">Bus factor overlay</p>
+            <p className="mt-1 text-xs text-muted-foreground">
                 District risk map: red means single owner, green means distributed ownership.
             </p>
 
@@ -90,10 +88,10 @@ export function CityBusFactorOverlay(props: ICityBusFactorOverlayProps): ReactEl
                             >
                                 <div className="flex items-start justify-between gap-2">
                                     <div className="min-w-0">
-                                        <p className="truncate text-sm font-semibold text-slate-900">
+                                        <p className="truncate text-sm font-semibold text-foreground">
                                             {entry.districtLabel}
                                         </p>
-                                        <p className="mt-1 text-xs text-slate-600">
+                                        <p className="mt-1 text-xs text-muted-foreground">
                                             Files: {String(entry.fileCount)} · Bus factor:{" "}
                                             {String(entry.busFactor)}
                                         </p>

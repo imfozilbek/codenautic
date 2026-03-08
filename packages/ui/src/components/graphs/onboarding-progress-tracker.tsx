@@ -44,9 +44,9 @@ function resolveProgressPercent(completedCount: number, totalCount: number): num
  */
 function resolveModuleBadgeClassName(isComplete: boolean): string {
     if (isComplete) {
-        return "border-emerald-300 bg-emerald-500/15 text-emerald-800"
+        return "border-success/40 bg-success/15 text-success"
     }
-    return "border-slate-300 bg-slate-100 text-slate-700"
+    return "border-border bg-surface-muted text-foreground"
 }
 
 /**
@@ -61,12 +61,12 @@ export function OnboardingProgressTracker(props: IOnboardingProgressTrackerProps
     const progressPercent = resolveProgressPercent(completedCount, totalCount)
 
     return (
-        <section className="rounded-lg border border-slate-200 bg-white p-3 shadow-sm">
-            <p className="text-sm font-semibold text-slate-900">Onboarding progress tracker</p>
-            <p className="mt-1 text-xs text-slate-500">
+        <section className="rounded-lg border border-border bg-white p-3 shadow-sm">
+            <p className="text-sm font-semibold text-foreground">Onboarding progress tracker</p>
+            <p className="mt-1 text-xs text-muted-foreground">
                 Track explored dashboard areas and module completion.
             </p>
-            <p className="mt-3 text-xs font-semibold text-slate-700">
+            <p className="mt-3 text-xs font-semibold text-foreground">
                 Explored areas: {String(completedCount)} / {String(totalCount)}
             </p>
             <div className="mt-2 h-2 overflow-hidden rounded-full bg-slate-200">
@@ -83,16 +83,13 @@ export function OnboardingProgressTracker(props: IOnboardingProgressTrackerProps
             <ul className="mt-3 space-y-2">
                 {props.modules.map(
                     (module): ReactElement => (
-                        <li
-                            className="rounded border border-slate-200 bg-slate-50 p-2"
-                            key={module.id}
-                        >
+                        <li className="rounded border border-border bg-surface p-2" key={module.id}>
                             <div className="flex items-start justify-between gap-3">
                                 <div className="min-w-0">
-                                    <p className="text-sm font-semibold text-slate-900">
+                                    <p className="text-sm font-semibold text-foreground">
                                         {module.title}
                                     </p>
-                                    <p className="mt-1 text-xs text-slate-600">
+                                    <p className="mt-1 text-xs text-muted-foreground">
                                         {module.description}
                                     </p>
                                 </div>

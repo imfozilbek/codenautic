@@ -1695,24 +1695,24 @@ function RepositoryHealthScore(props: { score: number }): ReactElement {
     const chipColor = resolveHealthChipColor(score)
     const progressColor =
         chipColor === "success"
-            ? "bg-emerald-500"
+            ? "bg-success"
             : chipColor === "warning"
-              ? "bg-amber-500"
-              : "bg-rose-500"
+              ? "bg-warning"
+              : "bg-danger"
 
     return (
         <section
             aria-label="Repository health score"
-            className="rounded-lg border border-slate-200 p-3"
+            className="rounded-lg border border-border p-3"
         >
             <div className="flex items-end justify-between">
-                <p className="text-sm font-semibold text-slate-700">Health score</p>
+                <p className="text-sm font-semibold text-foreground">Health score</p>
                 <Chip color={chipColor} size="sm">
                     {resolveHealthLabel(score)}
                 </Chip>
             </div>
             <div className="mt-3">
-                <div className="mb-1 text-3xl font-semibold text-slate-900">{score}</div>
+                <div className="mb-1 text-3xl font-semibold text-foreground">{score}</div>
                 <div
                     aria-label={`Health score ${score}`}
                     aria-valuemax={100}
@@ -1735,16 +1735,16 @@ function TechnologyStackList(props: { stack: ReadonlyArray<ITechStackItem> }): R
     return (
         <Card>
             <CardHeader>
-                <p className="text-sm font-semibold text-slate-900">Tech stack</p>
+                <p className="text-sm font-semibold text-foreground">Tech stack</p>
             </CardHeader>
             <CardBody className="space-y-3">
                 {props.stack.map(
                     (entry): ReactElement => (
                         <div className="space-y-0.5" key={`${entry.name}-${entry.version}`}>
-                            <p className="text-sm font-semibold text-slate-900">
+                            <p className="text-sm font-semibold text-foreground">
                                 {entry.name} <span className="font-normal">{entry.version}</span>
                             </p>
-                            <p className="text-sm text-slate-600">{entry.note}</p>
+                            <p className="text-sm text-muted-foreground">{entry.note}</p>
                         </div>
                     ),
                 )}
@@ -1759,20 +1759,20 @@ function ArchitectureSummaryList(props: {
     return (
         <Card>
             <CardHeader>
-                <p className="text-sm font-semibold text-slate-900">Architecture summary</p>
+                <p className="text-sm font-semibold text-foreground">Architecture summary</p>
             </CardHeader>
             <CardBody className="space-y-3">
                 {props.lines.map((line): ReactElement => {
                     const chipColor = mapRiskToChipColor(line.risk)
                     return (
-                        <section className="rounded-lg border border-slate-200 p-3" key={line.area}>
+                        <section className="rounded-lg border border-border p-3" key={line.area}>
                             <div className="mb-1 flex items-center gap-2">
                                 <Chip color={chipColor} size="sm">
                                     {mapRiskToLabel(line.risk)}
                                 </Chip>
-                                <p className="text-sm font-semibold text-slate-900">{line.area}</p>
+                                <p className="text-sm font-semibold text-foreground">{line.area}</p>
                             </div>
-                            <p className="text-sm text-slate-600">{line.summary}</p>
+                            <p className="text-sm text-muted-foreground">{line.summary}</p>
                         </section>
                     )
                 })}
@@ -1785,7 +1785,7 @@ function RepositoryOverviewNotFound(props: { repositoryId: string }): ReactEleme
     return (
         <section className="space-y-3">
             <Alert color="warning">Скан-результат репозитория не найден</Alert>
-            <p className="text-sm text-slate-700">
+            <p className="text-sm text-foreground">
                 Не найдено overview для ID:{" "}
                 <span className="font-semibold">{props.repositoryId}</span>.
             </p>
@@ -1927,11 +1927,11 @@ export function RepositoryOverviewPage(props: IRepositoryOverviewProps): ReactEl
     return (
         <section className="space-y-4">
             <div className="space-y-1">
-                <p className="text-sm text-slate-500">Post-scan dashboard</p>
-                <h1 className="text-2xl font-semibold text-slate-900">
+                <p className="text-sm text-muted-foreground">Post-scan dashboard</p>
+                <h1 className="text-2xl font-semibold text-foreground">
                     {repository.owner}/{repository.name}
                 </h1>
-                <p className="text-sm text-slate-600">
+                <p className="text-sm text-muted-foreground">
                     Отображение health score, архитектуры и ключевых метрик после последнего
                     сканирования.
                 </p>
@@ -1939,24 +1939,24 @@ export function RepositoryOverviewPage(props: IRepositoryOverviewProps): ReactEl
 
             <Card>
                 <CardHeader>
-                    <p className="text-sm font-semibold text-slate-900">Scan snapshot</p>
+                    <p className="text-sm font-semibold text-foreground">Scan snapshot</p>
                 </CardHeader>
                 <CardBody className="grid gap-4 lg:grid-cols-2">
                     <div className="space-y-2">
-                        <p className="text-sm text-slate-700">Branch: {repository.branch}</p>
-                        <p className="text-sm text-slate-700">
+                        <p className="text-sm text-foreground">Branch: {repository.branch}</p>
+                        <p className="text-sm text-foreground">
                             Last scan: {formatOverviewTimestamp(repository.lastScanAt)}
                         </p>
-                        <p className="text-sm text-slate-700">
+                        <p className="text-sm text-foreground">
                             Scanned files: {repository.filesScanned}
                         </p>
-                        <p className="text-sm text-slate-700">
+                        <p className="text-sm text-foreground">
                             Total findings: {repository.totalFindings}
                         </p>
-                        <p className="text-sm text-slate-700">
+                        <p className="text-sm text-foreground">
                             Rescan schedule: {getRescanSummaryLabel(currentReschedule)}
                         </p>
-                        <p className="text-sm font-mono text-slate-700">Cron: {currentCron}</p>
+                        <p className="text-sm font-mono text-foreground">Cron: {currentCron}</p>
                         <Button
                             onPress={openRescheduleDialog}
                             className="mt-1"
@@ -1975,7 +1975,7 @@ export function RepositoryOverviewPage(props: IRepositoryOverviewProps): ReactEl
                     <div
                         aria-labelledby="rescan-schedule-title"
                         aria-modal="true"
-                        className="w-full max-w-lg rounded-lg border border-slate-200 bg-white p-4"
+                        className="w-full max-w-lg rounded-lg border border-border bg-white p-4"
                         role="dialog"
                     >
                         <div className="mb-3 flex items-center justify-between">
@@ -1984,7 +1984,7 @@ export function RepositoryOverviewPage(props: IRepositoryOverviewProps): ReactEl
                             </h2>
                             <button
                                 aria-label="Закрыть"
-                                className="rounded-md border border-slate-200 px-3 py-1 text-sm"
+                                className="rounded-md border border-border px-3 py-1 text-sm"
                                 onClick={closeRescheduleDialog}
                                 type="button"
                             >
@@ -1992,17 +1992,17 @@ export function RepositoryOverviewPage(props: IRepositoryOverviewProps): ReactEl
                             </button>
                         </div>
 
-                        <p className="mb-4 text-sm text-slate-600">
+                        <p className="mb-4 text-sm text-muted-foreground">
                             Последний scan: {formatOverviewTimestamp(repository.lastScanAt)}
                         </p>
 
                         <div className="space-y-2">
-                            <label className="text-sm text-slate-700" htmlFor="rescan-mode">
+                            <label className="text-sm text-foreground" htmlFor="rescan-mode">
                                 Режим
                             </label>
                             <select
                                 aria-label="Режим расписания рескана"
-                                className="w-full rounded-md border border-slate-200 px-3 py-2"
+                                className="w-full rounded-md border border-border px-3 py-2"
                                 id="rescan-mode"
                                 onChange={updateRescheduleMode}
                                 value={draftReschedule.mode}
@@ -2021,14 +2021,14 @@ export function RepositoryOverviewPage(props: IRepositoryOverviewProps): ReactEl
                             <>
                                 <div className="mt-3 space-y-2">
                                     <label
-                                        className="text-sm text-slate-700"
+                                        className="text-sm text-foreground"
                                         htmlFor="rescan-minute"
                                     >
                                         Минуты
                                     </label>
                                     <select
                                         aria-label="Минута"
-                                        className="w-full rounded-md border border-slate-200 px-3 py-2"
+                                        className="w-full rounded-md border border-border px-3 py-2"
                                         id="rescan-minute"
                                         onChange={updateRescheduleMinute}
                                         value={draftReschedule.minute}
@@ -2046,14 +2046,14 @@ export function RepositoryOverviewPage(props: IRepositoryOverviewProps): ReactEl
                                 {draftReschedule.mode !== "hourly" ? (
                                     <div className="mt-3 space-y-2">
                                         <label
-                                            className="text-sm text-slate-700"
+                                            className="text-sm text-foreground"
                                             htmlFor="rescan-hour"
                                         >
                                             Час
                                         </label>
                                         <select
                                             aria-label="Час"
-                                            className="w-full rounded-md border border-slate-200 px-3 py-2"
+                                            className="w-full rounded-md border border-border px-3 py-2"
                                             id="rescan-hour"
                                             onChange={updateRescheduleHour}
                                             value={draftReschedule.hour}
@@ -2073,12 +2073,12 @@ export function RepositoryOverviewPage(props: IRepositoryOverviewProps): ReactEl
 
                         {draftReschedule.mode === "weekly" ? (
                             <div className="mt-3 space-y-2">
-                                <label className="text-sm text-slate-700" htmlFor="rescan-weekday">
+                                <label className="text-sm text-foreground" htmlFor="rescan-weekday">
                                     День недели
                                 </label>
                                 <select
                                     aria-label="День недели"
-                                    className="w-full rounded-md border border-slate-200 px-3 py-2"
+                                    className="w-full rounded-md border border-border px-3 py-2"
                                     id="rescan-weekday"
                                     onChange={updateRescheduleWeekday}
                                     value={draftReschedule.weekday}
@@ -2097,14 +2097,14 @@ export function RepositoryOverviewPage(props: IRepositoryOverviewProps): ReactEl
                         {draftReschedule.mode === "custom" ? (
                             <div className="mt-3 space-y-2">
                                 <label
-                                    className="text-sm text-slate-700"
+                                    className="text-sm text-foreground"
                                     htmlFor="rescan-custom-cron"
                                 >
                                     Cron-выражение
                                 </label>
                                 <input
                                     aria-label="Кастомное cron-выражение"
-                                    className="w-full rounded-md border border-slate-200 px-3 py-2"
+                                    className="w-full rounded-md border border-border px-3 py-2"
                                     id="rescan-custom-cron"
                                     onChange={updateRescheduleCustomCron}
                                     value={draftReschedule.customCron}
@@ -2113,7 +2113,7 @@ export function RepositoryOverviewPage(props: IRepositoryOverviewProps): ReactEl
                             </div>
                         ) : null}
 
-                        <p className="mt-4 rounded bg-slate-50 p-2 text-xs text-slate-700">
+                        <p className="mt-4 rounded bg-surface p-2 text-xs text-foreground">
                             Cron preview: <code>{draftCron}</code>
                         </p>
 

@@ -985,24 +985,24 @@ export function CcrReviewDetailPage(props: ICcrReviewDetailPageProps): ReactElem
                 <CardHeader>
                     <div className="flex items-start justify-between gap-3">
                         <div>
-                            <p className="text-sm text-slate-500">CCR review</p>
-                            <h1 className="text-2xl font-semibold text-slate-900">{ccr.title}</h1>
-                            <p className="text-sm text-slate-700">
+                            <p className="text-sm text-muted-foreground">CCR review</p>
+                            <h1 className="text-2xl font-semibold text-foreground">{ccr.title}</h1>
+                            <p className="text-sm text-foreground">
                                 {ccr.id} · {ccr.repository} · {ccr.team} · {ccr.status}
                             </p>
                             {codeReview.codeReviewQuery.data?.summary === undefined ? null : (
-                                <p className="mt-1 text-xs text-slate-600">
+                                <p className="mt-1 text-xs text-muted-foreground">
                                     {codeReview.codeReviewQuery.data.summary}
                                 </p>
                             )}
                             {codeReview.codeReviewQuery.error === null ||
                             codeReview.codeReviewQuery.error === undefined ? null : (
-                                <p className="mt-1 text-xs text-amber-700">
+                                <p className="mt-1 text-xs text-warning">
                                     Live review summary is unavailable, showing workspace fallback
                                     data.
                                 </p>
                             )}
-                            <p className="mt-2 text-xs uppercase tracking-[0.08em] text-slate-500">
+                            <p className="mt-2 text-xs uppercase tracking-[0.08em] text-muted-foreground">
                                 Review decision: {decisionBadge.label}
                             </p>
                         </div>
@@ -1049,7 +1049,7 @@ export function CcrReviewDetailPage(props: ICcrReviewDetailPageProps): ReactElem
                             )}
                             {reviewFinishPolicy.visibility ===
                             "hidden" ? null : reviewFinishPolicy.visibility === "disabled" ? (
-                                <p className="text-sm text-slate-500">
+                                <p className="text-sm text-muted-foreground">
                                     Finish review unavailable:{" "}
                                     {reviewFinishPolicy.reason ?? "insufficient role permissions"}
                                 </p>
@@ -1071,16 +1071,16 @@ export function CcrReviewDetailPage(props: ICcrReviewDetailPageProps): ReactElem
                             {reviewDecisionPolicy.reason}
                         </Alert>
                     )}
-                    <p className="text-sm text-slate-700">
+                    <p className="text-sm text-foreground">
                         <strong>Assignee:</strong> {ccr.assignee}
                     </p>
-                    <p className="text-sm text-slate-700">
+                    <p className="text-sm text-foreground">
                         <strong>Comments:</strong> {ccr.comments}
                     </p>
-                    <p className="text-sm text-slate-700">
+                    <p className="text-sm text-foreground">
                         <strong>Updated:</strong> {ccr.updatedAt}
                     </p>
-                    <p className="text-sm text-slate-700">
+                    <p className="text-sm text-foreground">
                         <strong>Attached files:</strong> {buildAttachedFilesText(ccr.attachedFiles)}
                     </p>
                 </CardBody>
@@ -1090,11 +1090,13 @@ export function CcrReviewDetailPage(props: ICcrReviewDetailPageProps): ReactElem
                 <aside className="space-y-4">
                     <Card>
                         <CardHeader>
-                            <p className="text-sm font-semibold text-slate-900">Files tree</p>
+                            <p className="text-sm font-semibold text-foreground">Files tree</p>
                         </CardHeader>
                         <CardBody className="space-y-2">
                             {ccrDiffFiles.length === 0 ? (
-                                <p className="text-sm text-slate-600">No diff files attached.</p>
+                                <p className="text-sm text-muted-foreground">
+                                    No diff files attached.
+                                </p>
                             ) : (
                                 ccrDiffFiles.map((file): ReactElement => {
                                     const isActive = file.filePath === activeFilePath
@@ -1102,8 +1104,8 @@ export function CcrReviewDetailPage(props: ICcrReviewDetailPageProps): ReactElem
                                         <button
                                             className={`w-full rounded-lg border px-3 py-2 text-left text-sm ${
                                                 isActive
-                                                    ? "border-blue-200 bg-blue-50 text-blue-900"
-                                                    : "border-slate-200 bg-white text-slate-700"
+                                                    ? "border-primary/30 bg-primary/10 text-blue-900"
+                                                    : "border-border bg-white text-foreground"
                                             }`}
                                             key={file.filePath}
                                             onClick={(): void => {
@@ -1121,7 +1123,7 @@ export function CcrReviewDetailPage(props: ICcrReviewDetailPageProps): ReactElem
                     <Card>
                         <CardHeader>
                             <div className="flex w-full flex-wrap items-center justify-between gap-2">
-                                <p className="text-sm font-semibold text-slate-900">
+                                <p className="text-sm font-semibold text-foreground">
                                     Review context sidebar
                                 </p>
                                 <Button
@@ -1145,7 +1147,7 @@ export function CcrReviewDetailPage(props: ICcrReviewDetailPageProps): ReactElem
                             </div>
                         </CardHeader>
                         <CardBody className="space-y-3">
-                            <p className="text-xs text-slate-600">
+                            <p className="text-xs text-muted-foreground">
                                 CodeCity mini-map highlights CCR context and syncs with active diff
                                 file.
                             </p>
@@ -1163,7 +1165,7 @@ export function CcrReviewDetailPage(props: ICcrReviewDetailPageProps): ReactElem
                             />
                             <p
                                 aria-label="Review context map status"
-                                className="text-xs text-slate-600"
+                                className="text-xs text-muted-foreground"
                             >
                                 {isReviewContextMiniMapExpanded
                                     ? "Expanded CodeCity context map is active."
@@ -1177,12 +1179,12 @@ export function CcrReviewDetailPage(props: ICcrReviewDetailPageProps): ReactElem
                     <CodeDiffViewer files={visibleDiffFiles} />
                     <Card>
                         <CardHeader>
-                            <p className="text-sm font-semibold text-slate-900">
+                            <p className="text-sm font-semibold text-foreground">
                                 CCR impact city view
                             </p>
                         </CardHeader>
                         <CardBody className="space-y-3">
-                            <p className="text-xs text-slate-600">
+                            <p className="text-xs text-muted-foreground">
                                 Full CodeCity view with highlighted CCR files, blast radius
                                 controls, and neighborhood context for focused navigation.
                             </p>
@@ -1216,14 +1218,14 @@ export function CcrReviewDetailPage(props: ICcrReviewDetailPageProps): ReactElem
                                         : "Show review history heatmap"}
                                 </Button>
                                 <label
-                                    className="text-xs text-slate-700"
+                                    className="text-xs text-foreground"
                                     htmlFor="review-history-window"
                                 >
                                     Review history window
                                 </label>
                                 <select
                                     aria-label="Review history window"
-                                    className="rounded border border-slate-300 bg-white px-2 py-1 text-xs text-slate-900"
+                                    className="rounded border border-border bg-white px-2 py-1 text-xs text-foreground"
                                     id="review-history-window"
                                     value={selectedReviewHistoryWindow}
                                     onChange={(event): void => {
@@ -1255,7 +1257,7 @@ export function CcrReviewDetailPage(props: ICcrReviewDetailPageProps): ReactElem
                                 {hottestReviewHistoryEntries.map(
                                     (entry): ReactElement => (
                                         <li
-                                            className="rounded border border-slate-200 bg-white px-2 py-1 text-xs text-slate-700"
+                                            className="rounded border border-border bg-white px-2 py-1 text-xs text-foreground"
                                             key={`review-history-${entry.filePath}`}
                                         >
                                             <span className="font-semibold">{entry.filePath}</span>{" "}
@@ -1275,15 +1277,15 @@ export function CcrReviewDetailPage(props: ICcrReviewDetailPageProps): ReactElem
                             <Alert color="primary" title="Blast radius status" variant="flat">
                                 {impactFocusStatus}
                             </Alert>
-                            <div className="rounded-lg border border-slate-200 bg-slate-50 p-3">
-                                <p className="text-sm font-semibold text-slate-900">
+                            <div className="rounded-lg border border-border bg-surface p-3">
+                                <p className="text-sm font-semibold text-foreground">
                                     File neighborhood panel
                                 </p>
-                                <p className="text-xs text-slate-600">
+                                <p className="text-xs text-muted-foreground">
                                     Focused file: {activeFilePath ?? "none selected"}
                                 </p>
                                 {activeNeighborhoodFiles.length === 0 ? (
-                                    <p className="mt-2 text-xs text-slate-600">
+                                    <p className="mt-2 text-xs text-muted-foreground">
                                         No neighboring files resolved for current selection.
                                     </p>
                                 ) : (
@@ -1296,7 +1298,7 @@ export function CcrReviewDetailPage(props: ICcrReviewDetailPageProps): ReactElem
                                                 <li key={filePath}>
                                                     <button
                                                         aria-label={`Open neighborhood file ${filePath}`}
-                                                        className="w-full rounded border border-slate-200 bg-white px-2 py-1 text-left text-xs text-slate-700 hover:bg-slate-100"
+                                                        className="w-full rounded border border-border bg-white px-2 py-1 text-left text-xs text-foreground hover:bg-surface-muted"
                                                         type="button"
                                                         onClick={(): void => {
                                                             setActiveFilePath(filePath)
@@ -1310,13 +1312,13 @@ export function CcrReviewDetailPage(props: ICcrReviewDetailPageProps): ReactElem
                                     </ul>
                                 )}
                                 <div className="mt-3 grid gap-2 md:grid-cols-2">
-                                    <div className="rounded border border-slate-200 bg-white p-2">
-                                        <p className="text-xs font-semibold text-slate-900">
+                                    <div className="rounded border border-border bg-white p-2">
+                                        <p className="text-xs font-semibold text-foreground">
                                             Dependencies
                                         </p>
                                         <ul
                                             aria-label="Neighborhood dependency list"
-                                            className="mt-1 space-y-1 text-xs text-slate-700"
+                                            className="mt-1 space-y-1 text-xs text-foreground"
                                         >
                                             {(activeNeighborhoodDetails?.dependencies.length ??
                                                 0) === 0 ? (
@@ -1332,13 +1334,13 @@ export function CcrReviewDetailPage(props: ICcrReviewDetailPageProps): ReactElem
                                             )}
                                         </ul>
                                     </div>
-                                    <div className="rounded border border-slate-200 bg-white p-2">
-                                        <p className="text-xs font-semibold text-slate-900">
+                                    <div className="rounded border border-border bg-white p-2">
+                                        <p className="text-xs font-semibold text-foreground">
                                             Recent changes
                                         </p>
                                         <ul
                                             aria-label="Neighborhood recent changes list"
-                                            className="mt-1 space-y-1 text-xs text-slate-700"
+                                            className="mt-1 space-y-1 text-xs text-foreground"
                                         >
                                             {(activeNeighborhoodDetails?.recentChanges.length ??
                                                 0) === 0 ? (
@@ -1372,7 +1374,7 @@ export function CcrReviewDetailPage(props: ICcrReviewDetailPageProps): ReactElem
                 <aside className="min-w-0 space-y-4">
                     <Card>
                         <CardHeader>
-                            <p className="text-sm font-semibold text-slate-900">
+                            <p className="text-sm font-semibold text-foreground">
                                 Review risk indicator
                             </p>
                         </CardHeader>
@@ -1386,13 +1388,13 @@ export function CcrReviewDetailPage(props: ICcrReviewDetailPageProps): ReactElem
                                 >
                                     {reviewRiskIndicator.level.toUpperCase()}
                                 </Chip>
-                                <p className="text-xs text-slate-700">
+                                <p className="text-xs text-foreground">
                                     Risk score: {String(reviewRiskIndicator.score)}
                                 </p>
                             </div>
                             <ul
                                 aria-label="Review risk drivers list"
-                                className="space-y-1 text-xs text-slate-700"
+                                className="space-y-1 text-xs text-foreground"
                             >
                                 {reviewRiskIndicator.reasons.map(
                                     (reason): ReactElement => (
@@ -1408,18 +1410,18 @@ export function CcrReviewDetailPage(props: ICcrReviewDetailPageProps): ReactElem
                     </Alert>
                     <Card>
                         <CardHeader>
-                            <p className="text-sm font-semibold text-slate-900">
+                            <p className="text-sm font-semibold text-foreground">
                                 SafeGuard decision trace
                             </p>
                         </CardHeader>
                         <CardBody className="space-y-3">
-                            <p className="text-sm text-slate-700">
+                            <p className="text-sm text-foreground">
                                 Applied filters:{" "}
                                 {SAFEGUARD_FILTER_SEQUENCE.map((filter): string => {
                                     return SAFEGUARD_FILTER_LABELS[filter]
                                 }).join(", ")}
                             </p>
-                            <div className="flex flex-wrap items-center gap-2 text-xs text-slate-600">
+                            <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
                                 <Chip size="sm" variant="flat">
                                     Visible: {visibleTraceCount}
                                 </Chip>
@@ -1436,8 +1438,8 @@ export function CcrReviewDetailPage(props: ICcrReviewDetailPageProps): ReactElem
                                                 aria-label={`Open trace for ${traceItem.id}`}
                                                 className={`w-full rounded-lg border px-3 py-2 text-left text-xs transition ${
                                                     isActive
-                                                        ? "border-blue-200 bg-blue-50 text-blue-900"
-                                                        : "border-slate-200 bg-white text-slate-700 hover:bg-slate-50"
+                                                        ? "border-primary/30 bg-primary/10 text-blue-900"
+                                                        : "border-border bg-white text-foreground hover:bg-surface"
                                                 }`}
                                                 type="button"
                                                 onClick={(): void => {
@@ -1446,7 +1448,7 @@ export function CcrReviewDetailPage(props: ICcrReviewDetailPageProps): ReactElem
                                             >
                                                 <p className="font-semibold">{traceItem.id}</p>
                                                 <p className="truncate">{traceItem.remark}</p>
-                                                <p className="mt-1 text-[11px] text-slate-500">
+                                                <p className="mt-1 text-[11px] text-muted-foreground">
                                                     {traceItem.filePath}
                                                 </p>
                                             </button>
@@ -1455,30 +1457,30 @@ export function CcrReviewDetailPage(props: ICcrReviewDetailPageProps): ReactElem
                                 })}
                             </ul>
                             {activeSafeGuardTraceItem === undefined ? null : (
-                                <div className="rounded-lg border border-slate-200 bg-slate-50 p-3">
-                                    <p className="text-sm font-semibold text-slate-900">
+                                <div className="rounded-lg border border-border bg-surface p-3">
+                                    <p className="text-sm font-semibold text-foreground">
                                         {activeSafeGuardTraceItem.id}:{" "}
                                         {activeSafeGuardTraceItem.remark}
                                     </p>
-                                    <p className="mt-1 text-xs text-slate-600">
+                                    <p className="mt-1 text-xs text-muted-foreground">
                                         Decision:{" "}
                                         {activeSafeGuardTraceItem.finalDecision === "shown"
                                             ? "shown"
                                             : "filtered out"}
                                     </p>
                                     {activeSafeGuardTraceItem.hiddenReason === undefined ? null : (
-                                        <p className="mt-1 text-xs text-slate-600">
+                                        <p className="mt-1 text-xs text-muted-foreground">
                                             Hidden reason: {activeSafeGuardTraceItem.hiddenReason}
                                         </p>
                                     )}
                                     <ul
                                         aria-label="SafeGuard pipeline details"
-                                        className="mt-2 space-y-2 text-xs text-slate-700"
+                                        className="mt-2 space-y-2 text-xs text-foreground"
                                     >
                                         {activeSafeGuardTraceItem.steps.map(
                                             (step): ReactElement => (
                                                 <li
-                                                    className="rounded-md border border-slate-200 bg-white p-2"
+                                                    className="rounded-md border border-border bg-white p-2"
                                                     key={`${activeSafeGuardTraceItem.id}-${step.filterId}`}
                                                 >
                                                     <p className="font-semibold">
@@ -1496,12 +1498,12 @@ export function CcrReviewDetailPage(props: ICcrReviewDetailPageProps): ReactElem
                     </Card>
                     <Card>
                         <CardHeader>
-                            <p className="text-sm font-semibold text-slate-900">
+                            <p className="text-sm font-semibold text-foreground">
                                 Reviewer feedback learning loop
                             </p>
                         </CardHeader>
                         <CardBody className="space-y-3">
-                            <p className="text-sm text-slate-700">
+                            <p className="text-sm text-foreground">
                                 Submit feedback in two clicks and track whether it was accepted or
                                 rejected.
                             </p>
@@ -1555,7 +1557,7 @@ export function CcrReviewDetailPage(props: ICcrReviewDetailPageProps): ReactElem
                                     Select a reason and submit feedback for current SafeGuard trace.
                                 </Alert>
                             ) : (
-                                <div className="rounded-lg border border-slate-200 bg-slate-50 p-3 text-xs text-slate-700">
+                                <div className="rounded-lg border border-border bg-surface p-3 text-xs text-foreground">
                                     <p>
                                         Feedback status:{" "}
                                         <strong>{latestActiveTraceFeedback.status}</strong>
@@ -1588,7 +1590,7 @@ export function CcrReviewDetailPage(props: ICcrReviewDetailPageProps): ReactElem
                                 {activeTraceFeedbackHistory.map(
                                     (feedbackRecord): ReactElement => (
                                         <li
-                                            className="rounded-md border border-slate-200 bg-white p-2 text-xs text-slate-700"
+                                            className="rounded-md border border-border bg-white p-2 text-xs text-foreground"
                                             key={feedbackRecord.id}
                                         >
                                             <p className="font-semibold">
@@ -1611,7 +1613,7 @@ export function CcrReviewDetailPage(props: ICcrReviewDetailPageProps): ReactElem
                     </Card>
                     <Card>
                         <CardHeader>
-                            <p className="text-sm font-semibold text-slate-900">
+                            <p className="text-sm font-semibold text-foreground">
                                 Conversation threads
                             </p>
                         </CardHeader>
@@ -1628,7 +1630,7 @@ export function CcrReviewDetailPage(props: ICcrReviewDetailPageProps): ReactElem
                     </Card>
                     <ChatPanel
                         activeContextId={contextItem.id}
-                        className="!static !inset-auto !z-auto !w-full !max-w-none !translate-x-0 !transform-none !border !border-slate-200 !shadow-none"
+                        className="!static !inset-auto !z-auto !w-full !max-w-none !translate-x-0 !transform-none !border !border-border !shadow-none"
                         contextItems={[contextItem]}
                         emptyStateText={`Ask anything about ${ccr.id} diff. Quick actions are available below.`}
                         inputAriaLabel="Type a review question"

@@ -28,11 +28,11 @@ export function CCRSummaryPreview(props: ICCRSummaryPreviewProps): ReactElement 
     if (props.settings.enabled !== true) {
         return (
             <article
-                className="space-y-2 rounded-md border border-dashed border-slate-300 bg-slate-50 p-3"
+                className="space-y-2 rounded-md border border-dashed border-border bg-surface p-3"
                 data-testid="ccr-summary-preview"
             >
-                <h3 className="text-sm font-semibold text-slate-900">CCR summary preview</h3>
-                <p className="text-xs text-slate-600">Summary generation is disabled.</p>
+                <h3 className="text-sm font-semibold text-foreground">CCR summary preview</h3>
+                <p className="text-xs text-muted-foreground">Summary generation is disabled.</p>
             </article>
         )
     }
@@ -45,17 +45,23 @@ export function CCRSummaryPreview(props: ICCRSummaryPreviewProps): ReactElement 
 
     return (
         <article
-            className="space-y-2 rounded-md border border-slate-200 bg-slate-50 p-3"
+            className="space-y-2 rounded-md border border-border bg-surface p-3"
             data-testid="ccr-summary-preview"
         >
-            <h3 className="text-sm font-semibold text-slate-900">CCR summary preview</h3>
-            <p className="text-xs text-slate-600" data-testid="ccr-summary-preview-detail-level">
+            <h3 className="text-sm font-semibold text-foreground">CCR summary preview</h3>
+            <p
+                className="text-xs text-muted-foreground"
+                data-testid="ccr-summary-preview-detail-level"
+            >
                 {`Detail level: ${CCR_SUMMARY_DETAIL_LABELS[props.settings.detailLevel]}`}
             </p>
-            <p className="text-xs text-slate-600" data-testid="ccr-summary-preview-max-suggestions">
+            <p
+                className="text-xs text-muted-foreground"
+                data-testid="ccr-summary-preview-max-suggestions"
+            >
                 {`Max suggestions: ${props.settings.maxSuggestions}`}
             </p>
-            <ul className="list-disc space-y-1 pl-5 text-xs text-slate-700">
+            <ul className="list-disc space-y-1 pl-5 text-xs text-foreground">
                 {sections.map(
                     (section): ReactElement => (
                         <li key={section}>{section}</li>

@@ -32,18 +32,18 @@ export interface IMetricCardProps {
 export function MetricCard(props: IMetricCardProps): ReactElement {
     const hasTrend = props.trendDirection !== undefined && props.trendLabel !== undefined
 
-    const trendColor = props.trendDirection === "up" ? "text-emerald-700" : "text-rose-700"
-    const trendLabel = props.trendDirection === "neutral" ? "text-slate-600" : trendColor
+    const trendColor = props.trendDirection === "up" ? "text-success" : "text-danger"
+    const trendLabel = props.trendDirection === "neutral" ? "text-muted-foreground" : trendColor
 
     return (
         <Card className="h-full shadow-sm">
             <CardHeader className="pb-0">
-                <p className="text-sm text-slate-600">{props.label}</p>
+                <p className="text-sm text-muted-foreground">{props.label}</p>
             </CardHeader>
             <CardBody className="pt-2">
-                <p className="text-2xl font-semibold text-slate-900">{props.value}</p>
+                <p className="text-2xl font-semibold text-foreground">{props.value}</p>
                 {props.caption === undefined ? null : (
-                    <p className="mt-1 text-sm text-slate-600">{props.caption}</p>
+                    <p className="mt-1 text-sm text-muted-foreground">{props.caption}</p>
                 )}
                 {hasTrend ? (
                     <Chip className={`mt-3 ${trendLabel}`} color="accent" size="sm" variant="soft">

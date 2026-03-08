@@ -448,7 +448,7 @@ export function EnterpriseDataTable<TRow>(props: IEnterpriseDataTableProps<TRow>
             <div className="flex flex-wrap items-center gap-2">
                 <input
                     aria-label={`${props.ariaLabel} search`}
-                    className="rounded-lg border border-[var(--border)] bg-[var(--surface)] px-3 py-2 text-sm"
+                    className="rounded-lg border border-border bg-surface px-3 py-2 text-sm"
                     placeholder="Search rows"
                     value={globalFilter}
                     onChange={(event): void => {
@@ -496,7 +496,7 @@ export function EnterpriseDataTable<TRow>(props: IEnterpriseDataTableProps<TRow>
 
                     return (
                         <div
-                            className="rounded-lg border border-[var(--border)] bg-[var(--surface)] px-3 py-2"
+                            className="rounded-lg border border-border bg-surface px-3 py-2"
                             key={columnId}
                         >
                             <p className="text-xs font-semibold uppercase tracking-[0.08em]">
@@ -556,7 +556,7 @@ export function EnterpriseDataTable<TRow>(props: IEnterpriseDataTableProps<TRow>
                                 </Button>
                                 <select
                                     aria-label={`Pin ${columnId}`}
-                                    className="rounded border border-[var(--border)] bg-[var(--surface)] px-2 py-1 text-xs"
+                                    className="rounded border border-border bg-surface px-2 py-1 text-xs"
                                     value={
                                         column.getIsPinned() === false
                                             ? "none"
@@ -594,7 +594,7 @@ export function EnterpriseDataTable<TRow>(props: IEnterpriseDataTableProps<TRow>
             </div>
 
             {selectedRows.length > 0 ? (
-                <div className="flex flex-wrap items-center gap-2 rounded-lg border border-[var(--border)] bg-[var(--surface)] px-3 py-2">
+                <div className="flex flex-wrap items-center gap-2 rounded-lg border border-border bg-surface px-3 py-2">
                     <Chip color="primary" size="sm" variant="flat">
                         {selectedRows.length} selected
                     </Chip>
@@ -612,7 +612,7 @@ export function EnterpriseDataTable<TRow>(props: IEnterpriseDataTableProps<TRow>
 
             <div
                 aria-label={props.ariaLabel}
-                className="overflow-auto rounded-lg border border-[var(--border)]"
+                className="overflow-auto rounded-lg border border-border"
                 data-row-height-estimator={rowHeightEstimator === undefined ? "default" : "custom"}
                 data-virtualized="true"
                 role="table"
@@ -620,14 +620,14 @@ export function EnterpriseDataTable<TRow>(props: IEnterpriseDataTableProps<TRow>
                 style={{ minWidth: `${String(totalTableWidth)}px` }}
             >
                 <div
-                    className={`${isStickyHeaderEnabled ? "sticky" : ""} top-0 z-10 border-b border-[var(--border)] bg-[var(--surface)] ${isStickyShadowEnabled && isBodyScrolled ? "shadow-sm" : ""}`}
+                    className={`${isStickyHeaderEnabled ? "sticky" : ""} top-0 z-10 border-b border-border bg-surface ${isStickyShadowEnabled && isBodyScrolled ? "shadow-sm" : ""}`}
                     data-sticky-header={isStickyHeaderEnabled ? "true" : "false"}
                     data-sticky-shadow={isBodyScrolled ? "true" : "false"}
                     role="rowgroup"
                     style={isStickyHeaderEnabled ? { top: stickyHeaderTopOffset } : undefined}
                 >
                     <div
-                        className="grid items-center gap-2 px-2 py-2 text-xs font-semibold uppercase tracking-[0.08em] text-[var(--foreground)]/70"
+                        className="grid items-center gap-2 px-2 py-2 text-xs font-semibold uppercase tracking-[0.08em] text-foreground/70"
                         role="row"
                         style={{ gridTemplateColumns }}
                     >
@@ -658,9 +658,7 @@ export function EnterpriseDataTable<TRow>(props: IEnterpriseDataTableProps<TRow>
                 </div>
 
                 {rowModel.length === 0 ? (
-                    <p className="px-3 py-6 text-sm text-[var(--foreground)]/70">
-                        {props.emptyMessage}
-                    </p>
+                    <p className="px-3 py-6 text-sm text-foreground/70">{props.emptyMessage}</p>
                 ) : (
                     <div
                         ref={parentRef}
@@ -686,7 +684,7 @@ export function EnterpriseDataTable<TRow>(props: IEnterpriseDataTableProps<TRow>
 
                                 return (
                                     <div
-                                        className={`absolute left-0 top-0 grid items-center gap-2 border-b border-[var(--border)] bg-[var(--surface)] px-2 ${rowPadding}`}
+                                        className={`absolute left-0 top-0 grid items-center gap-2 border-b border-border bg-surface px-2 ${rowPadding}`}
                                         key={rowOffset.key}
                                         role="row"
                                         style={{

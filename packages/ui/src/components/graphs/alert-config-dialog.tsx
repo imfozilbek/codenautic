@@ -131,21 +131,21 @@ export function AlertConfigDialog(props: IAlertConfigDialogProps): ReactElement 
     }
 
     return (
-        <section className="rounded-lg border border-slate-200 bg-white p-3 shadow-sm">
-            <p className="text-sm font-semibold text-slate-900">Alert config dialog</p>
-            <p className="mt-1 text-xs text-slate-500">
+        <section className="rounded-lg border border-border bg-white p-3 shadow-sm">
+            <p className="text-sm font-semibold text-foreground">Alert config dialog</p>
+            <p className="mt-1 text-xs text-muted-foreground">
                 Configure prediction alerts by threshold, channel, delivery frequency and module
                 scope.
             </p>
 
             <div className="mt-3 grid gap-2 md:grid-cols-2">
                 <label className="space-y-1">
-                    <span className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                    <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                         Confidence threshold
                     </span>
                     <input
                         aria-label="Alert confidence threshold"
-                        className="w-full rounded border border-slate-300 bg-white px-2 py-1 text-xs"
+                        className="w-full rounded border border-border bg-white px-2 py-1 text-xs"
                         min={1}
                         max={100}
                         onChange={(event: ChangeEvent<HTMLInputElement>): void => {
@@ -157,12 +157,12 @@ export function AlertConfigDialog(props: IAlertConfigDialogProps): ReactElement 
                 </label>
 
                 <label className="space-y-1">
-                    <span className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                    <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                         Issue increase threshold
                     </span>
                     <input
                         aria-label="Alert issue increase threshold"
-                        className="w-full rounded border border-slate-300 bg-white px-2 py-1 text-xs"
+                        className="w-full rounded border border-border bg-white px-2 py-1 text-xs"
                         min={1}
                         max={20}
                         onChange={(event: ChangeEvent<HTMLInputElement>): void => {
@@ -175,13 +175,13 @@ export function AlertConfigDialog(props: IAlertConfigDialogProps): ReactElement 
             </div>
 
             <fieldset aria-label="Alert channels" className="mt-3 space-y-1">
-                <legend className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                <legend className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                     Channels
                 </legend>
                 {(["slack", "email", "webhook"] as const).map((channel): ReactElement => {
                     return (
                         <label
-                            className="flex items-center gap-2 text-xs text-slate-700"
+                            className="flex items-center gap-2 text-xs text-foreground"
                             key={channel}
                         >
                             <input
@@ -198,12 +198,12 @@ export function AlertConfigDialog(props: IAlertConfigDialogProps): ReactElement 
             </fieldset>
 
             <label className="mt-3 block space-y-1">
-                <span className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                     Delivery frequency
                 </span>
                 <select
                     aria-label="Alert frequency"
-                    className="w-full rounded border border-slate-300 bg-white px-2 py-1 text-xs"
+                    className="w-full rounded border border-border bg-white px-2 py-1 text-xs"
                     onChange={(event: ChangeEvent<HTMLSelectElement>): void => {
                         const nextFrequency = event.currentTarget.value
                         if (
@@ -223,13 +223,13 @@ export function AlertConfigDialog(props: IAlertConfigDialogProps): ReactElement 
             </label>
 
             <fieldset aria-label="Alert modules" className="mt-3 space-y-1">
-                <legend className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                <legend className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                     Per-module granularity
                 </legend>
                 {props.modules.map((module): ReactElement => {
                     return (
                         <label
-                            className="flex items-center gap-2 text-xs text-slate-700"
+                            className="flex items-center gap-2 text-xs text-foreground"
                             key={module.moduleId}
                         >
                             <input

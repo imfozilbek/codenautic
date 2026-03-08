@@ -150,14 +150,14 @@ function mapStatusToLabel(status: TRepositoryStatus): string {
 
 function mapStatusClasses(status: TRepositoryStatus): string {
     if (status === "ready") {
-        return "bg-emerald-50 text-emerald-700 border-emerald-200"
+        return "bg-success/10 text-success border-success/30"
     }
 
     if (status === "scanning") {
-        return "bg-blue-50 text-blue-700 border-blue-200"
+        return "bg-primary/10 text-primary border-primary/30"
     }
 
-    return "bg-red-50 text-red-700 border-red-200"
+    return "bg-danger/10 text-danger border-danger/30"
 }
 
 function isMatchSearch(value: string, normalizedQuery: string): boolean {
@@ -226,7 +226,7 @@ function RepositoryStatusBadge(props: { status: TRepositoryStatus }): ReactEleme
 
 function RepositoryCountSummary(props: { label: string; value: number }): ReactElement {
     return (
-        <p className="rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-700">
+        <p className="rounded-lg border border-border px-3 py-2 text-sm text-foreground">
             {props.label}: <span className="font-semibold">{props.value}</span>
         </p>
     )
@@ -247,19 +247,19 @@ function RepositoryScanErrorRecovery(props: {
             : `Проанализировано файлов до ошибки: ${props.scanError.partialFilesScanned} из ${props.scanError.totalFiles}`
 
     return (
-        <section className="mt-2 rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-900">
-            <p className="text-xs font-semibold uppercase tracking-[0.1em] text-rose-600">
+        <section className="mt-2 rounded-lg border border-danger/30 bg-danger/10 px-3 py-2 text-sm text-rose-900">
+            <p className="text-xs font-semibold uppercase tracking-[0.1em] text-danger">
                 Ошибка сканирования
             </p>
             <p className="mt-1 text-sm font-medium">{props.scanError.message}</p>
-            <p className="mt-1 text-sm text-rose-700">{partialSummary}</p>
+            <p className="mt-1 text-sm text-danger">{partialSummary}</p>
             {props.scanError.details === undefined ||
             props.scanError.details.length === 0 ? null : (
                 <details className="mt-2">
-                    <summary className="cursor-pointer text-sm font-semibold text-rose-800">
+                    <summary className="cursor-pointer text-sm font-semibold text-danger">
                         Подробнее об ошибке
                     </summary>
-                    <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-rose-800">
+                    <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-danger">
                         {props.scanError.details.map(
                             (detail, index): ReactElement => (
                                 <li
@@ -290,9 +290,9 @@ function RepositoryScanErrorRecovery(props: {
 
 function RepositoriesEmptyState(): ReactElement {
     return (
-        <section className="rounded-lg border border-dashed border-slate-300 bg-slate-50 p-6 text-center">
-            <p className="text-sm font-semibold text-slate-900">Нет подключенных репозиториев</p>
-            <p className="mt-2 text-sm text-slate-600">
+        <section className="rounded-lg border border-dashed border-border bg-surface p-6 text-center">
+            <p className="text-sm font-semibold text-foreground">Нет подключенных репозиториев</p>
+            <p className="mt-2 text-sm text-muted-foreground">
                 Подключите репозиторий, чтобы начать сканирование и увидеть его прогресс, метрики и
                 архитектурный обзор.
             </p>
@@ -354,8 +354,8 @@ export function RepositoriesListPage(props: IRepositoryListPageProps): ReactElem
     if (repositories.length === 0) {
         return (
             <section className="space-y-4">
-                <h1 className="text-2xl font-semibold text-slate-900">Onboarded repositories</h1>
-                <p className="text-sm text-slate-600">
+                <h1 className="text-2xl font-semibold text-foreground">Onboarded repositories</h1>
+                <p className="text-sm text-muted-foreground">
                     Отслеживайте подключенные репозитории и состояние их сканирования.
                 </p>
                 <RepositoriesEmptyState />
@@ -365,8 +365,8 @@ export function RepositoriesListPage(props: IRepositoryListPageProps): ReactElem
 
     return (
         <section className="space-y-4">
-            <h1 className="text-2xl font-semibold text-slate-900">Onboarded repositories</h1>
-            <p className="text-sm text-slate-600">
+            <h1 className="text-2xl font-semibold text-foreground">Onboarded repositories</h1>
+            <p className="text-sm text-muted-foreground">
                 Отслеживайте подключенные репозитории и состояние их сканирования.
             </p>
 
@@ -375,7 +375,7 @@ export function RepositoriesListPage(props: IRepositoryListPageProps): ReactElem
                     <div className="grid gap-3 md:grid-cols-4">
                         <input
                             aria-label="Поиск репозитория"
-                            className="rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none"
+                            className="rounded-lg border border-border px-3 py-2 text-sm outline-none"
                             name="repository-search"
                             onChange={handleSearch}
                             placeholder="Поиск по названию или владельцу"
@@ -383,7 +383,7 @@ export function RepositoriesListPage(props: IRepositoryListPageProps): ReactElem
                         />
                         <select
                             aria-label="Фильтр по статусу"
-                            className="rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none"
+                            className="rounded-lg border border-border px-3 py-2 text-sm outline-none"
                             onChange={handleStatusFilter}
                             value={status}
                         >
@@ -394,7 +394,7 @@ export function RepositoriesListPage(props: IRepositoryListPageProps): ReactElem
                         </select>
                         <select
                             aria-label="Сортировка"
-                            className="rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none"
+                            className="rounded-lg border border-border px-3 py-2 text-sm outline-none"
                             onChange={handleSortChange}
                             value={sortBy}
                         >
@@ -424,7 +424,7 @@ export function RepositoriesListPage(props: IRepositoryListPageProps): ReactElem
                                     return (
                                         <Link
                                             aria-label={`Открыть обзор репозитория ${item.owner}/${item.name}`}
-                                            className="font-medium text-slate-900 underline-offset-4 hover:underline"
+                                            className="font-medium text-foreground underline-offset-4 hover:underline"
                                             params={{ repositoryId }}
                                             to="/repositories/$repositoryId"
                                         >
@@ -477,7 +477,9 @@ export function RepositoriesListPage(props: IRepositoryListPageProps): ReactElem
                                         : item.scanError.message,
                                 cell: (item): ReactElement => {
                                     if (item.scanError === undefined || item.status !== "error") {
-                                        return <span className="text-xs text-slate-500">—</span>
+                                        return (
+                                            <span className="text-xs text-muted-foreground">—</span>
+                                        )
                                     }
 
                                     return (

@@ -39,10 +39,10 @@ export interface IAchievementsPanelProps {
 
 function resolveBadgeClassName(badge: TAchievementBadge): string {
     if (badge === "gold") {
-        return "border-amber-300 bg-amber-100 text-amber-900"
+        return "border-amber-300 bg-warning/15 text-amber-900"
     }
     if (badge === "silver") {
-        return "border-slate-300 bg-slate-100 text-slate-800"
+        return "border-border bg-surface-muted text-foreground"
     }
     return "border-orange-300 bg-orange-100 text-orange-900"
 }
@@ -60,16 +60,16 @@ function resolveBadgeLabel(badge: TAchievementBadge): string {
 function resolveRowClassName(isActive: boolean): string {
     const baseClassName = isActive
         ? "border-cyan-400 bg-cyan-50"
-        : "border-slate-200 bg-slate-50 hover:border-slate-300"
+        : "border-border bg-surface hover:border-border"
     return `w-full rounded-lg border p-2 text-left transition ${baseClassName}`
 }
 
 function BadgeIcon(props: { readonly badge: TAchievementBadge }): ReactElement {
     const iconColor =
         props.badge === "gold"
-            ? "text-amber-700"
+            ? "text-warning"
             : props.badge === "silver"
-              ? "text-slate-700"
+              ? "text-foreground"
               : "text-orange-700"
 
     return (
@@ -98,9 +98,9 @@ function BadgeIcon(props: { readonly badge: TAchievementBadge }): ReactElement {
  */
 export function AchievementsPanel(props: IAchievementsPanelProps): ReactElement {
     return (
-        <section className="rounded-lg border border-slate-200 bg-white p-3 shadow-sm">
-            <p className="text-sm font-semibold text-slate-900">Achievements panel</p>
-            <p className="mt-1 text-xs text-slate-500">
+        <section className="rounded-lg border border-border bg-white p-3 shadow-sm">
+            <p className="text-sm font-semibold text-foreground">Achievements panel</p>
+            <p className="mt-1 text-xs text-muted-foreground">
                 Sprint achievements show key improvements and badge icons for top wins.
             </p>
 
@@ -120,13 +120,13 @@ export function AchievementsPanel(props: IAchievementsPanelProps): ReactElement 
                             >
                                 <div className="flex items-start justify-between gap-2">
                                     <div className="min-w-0">
-                                        <p className="truncate text-sm font-semibold text-slate-900">
+                                        <p className="truncate text-sm font-semibold text-foreground">
                                             {entry.title}
                                         </p>
-                                        <p className="mt-1 text-xs text-slate-600">
+                                        <p className="mt-1 text-xs text-muted-foreground">
                                             {entry.summary}
                                         </p>
-                                        <p className="mt-1 text-xs font-semibold text-emerald-700">
+                                        <p className="mt-1 text-xs font-semibold text-success">
                                             Improvement {String(entry.improvementPercent)}%
                                         </p>
                                     </div>

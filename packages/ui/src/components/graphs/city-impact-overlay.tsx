@@ -32,12 +32,12 @@ export interface ICityImpactOverlayProps {
  */
 function resolveIntensityClassName(intensity: number): string {
     if (intensity >= 75) {
-        return "border-rose-300 bg-rose-500/20 text-rose-800"
+        return "border-danger/40 bg-danger/20 text-danger"
     }
     if (intensity >= 45) {
-        return "border-amber-300 bg-amber-500/20 text-amber-900"
+        return "border-amber-300 bg-warning/20 text-amber-900"
     }
-    return "border-emerald-300 bg-emerald-500/20 text-emerald-800"
+    return "border-success/40 bg-success/20 text-success"
 }
 
 /**
@@ -48,9 +48,9 @@ function resolveIntensityClassName(intensity: number): string {
  */
 export function CityImpactOverlay(props: ICityImpactOverlayProps): ReactElement {
     return (
-        <section className="rounded-lg border border-slate-200 bg-white p-3 shadow-sm">
-            <p className="text-sm font-semibold text-slate-900">City impact overlay</p>
-            <p className="mt-1 text-xs text-slate-500">
+        <section className="rounded-lg border border-border bg-white p-3 shadow-sm">
+            <p className="text-sm font-semibold text-foreground">City impact overlay</p>
+            <p className="mt-1 text-xs text-muted-foreground">
                 Ripple view for impact propagation where color intensity represents blast radius.
             </p>
 
@@ -58,15 +58,17 @@ export function CityImpactOverlay(props: ICityImpactOverlayProps): ReactElement 
                 {props.entries.map(
                     (entry): ReactElement => (
                         <li
-                            className="rounded border border-slate-200 bg-slate-50 p-2"
+                            className="rounded border border-border bg-surface p-2"
                             key={entry.fileId}
                         >
                             <div className="flex items-start justify-between gap-3">
                                 <div className="min-w-0">
-                                    <p className="text-sm font-semibold text-slate-900">
+                                    <p className="text-sm font-semibold text-foreground">
                                         {entry.label}
                                     </p>
-                                    <p className="mt-1 text-xs text-slate-600">{entry.details}</p>
+                                    <p className="mt-1 text-xs text-muted-foreground">
+                                        {entry.details}
+                                    </p>
                                 </div>
                                 <span
                                     className={`rounded border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide ${resolveIntensityClassName(entry.intensity)}`}

@@ -45,7 +45,7 @@ export interface ITrendTimelineWidgetProps {
 function resolveEntryClassName(isActive: boolean): string {
     const baseClassName = isActive
         ? "border-cyan-400 bg-cyan-50"
-        : "border-slate-200 bg-slate-50 hover:border-slate-300"
+        : "border-border bg-surface hover:border-border"
     return `w-full rounded-lg border p-2 text-left transition ${baseClassName}`
 }
 
@@ -75,9 +75,9 @@ function resolveSparklinePoints(points: ReadonlyArray<number>): string {
  */
 export function TrendTimelineWidget(props: ITrendTimelineWidgetProps): ReactElement {
     return (
-        <section className="rounded-lg border border-slate-200 bg-white p-3 shadow-sm">
-            <p className="text-sm font-semibold text-slate-900">Trend timeline widget</p>
-            <p className="mt-1 text-xs text-slate-500">
+        <section className="rounded-lg border border-border bg-white p-3 shadow-sm">
+            <p className="text-sm font-semibold text-foreground">Trend timeline widget</p>
+            <p className="mt-1 text-xs text-muted-foreground">
                 Sprint-over-sprint trends with sparklines. Click a sprint to open detailed
                 comparison.
             </p>
@@ -97,13 +97,13 @@ export function TrendTimelineWidget(props: ITrendTimelineWidgetProps): ReactElem
                             >
                                 <div className="flex items-start justify-between gap-2">
                                     <div className="min-w-0">
-                                        <p className="truncate text-sm font-semibold text-slate-900">
+                                        <p className="truncate text-sm font-semibold text-foreground">
                                             {entry.sprintLabel}
                                         </p>
-                                        <p className="mt-1 text-xs text-slate-600">
+                                        <p className="mt-1 text-xs text-muted-foreground">
                                             {entry.startedAt}
                                         </p>
-                                        <p className="mt-1 text-xs text-slate-600">
+                                        <p className="mt-1 text-xs text-muted-foreground">
                                             {entry.summary}
                                         </p>
                                     </div>
@@ -113,10 +113,10 @@ export function TrendTimelineWidget(props: ITrendTimelineWidgetProps): ReactElem
                                     {entry.metrics.map((metric): ReactElement => {
                                         return (
                                             <div
-                                                className="rounded border border-slate-200 bg-white p-1.5"
+                                                className="rounded border border-border bg-white p-1.5"
                                                 key={metric.label}
                                             >
-                                                <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-600">
+                                                <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
                                                     {metric.label}
                                                 </p>
                                                 <svg

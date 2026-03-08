@@ -459,15 +459,15 @@ export function CodeCity3DScene(props: ICodeCity3DSceneProps): ReactElement {
         const fallbackFiles = currentSnapshot.files.slice(0, 24)
 
         return (
-            <section className="w-full rounded-lg border border-slate-200 bg-slate-50 p-3">
+            <section className="w-full rounded-lg border border-border bg-surface p-3">
                 <div
-                    className="rounded-lg border border-amber-300 bg-amber-50 px-3 py-2 text-sm text-amber-700"
+                    className="rounded-lg border border-amber-300 bg-warning/10 px-3 py-2 text-sm text-warning"
                     role="status"
                 >
                     {renderCapability.reason}
                 </div>
                 <div className="mt-3">
-                    <p className="text-sm font-semibold text-slate-900">2D treemap fallback</p>
+                    <p className="text-sm font-semibold text-foreground">2D treemap fallback</p>
                     <div className="mt-2 grid auto-rows-[64px] grid-cols-6 gap-2">
                         {fallbackFiles.map((file): ReactElement => {
                             const columnSpan = Math.max(
@@ -481,20 +481,20 @@ export function CodeCity3DScene(props: ICodeCity3DSceneProps): ReactElement {
 
                             return (
                                 <article
-                                    className="rounded border border-slate-300 bg-white px-2 py-1 text-[11px] text-slate-700"
+                                    className="rounded border border-border bg-white px-2 py-1 text-[11px] text-foreground"
                                     key={file.id}
                                     style={{
                                         gridColumn: `span ${String(columnSpan)} / span ${String(columnSpan)}`,
                                         gridRow: `span ${String(rowSpan)} / span ${String(rowSpan)}`,
                                     }}
                                 >
-                                    <p className="truncate font-medium text-slate-900">
+                                    <p className="truncate font-medium text-foreground">
                                         {file.path}
                                     </p>
-                                    <p className="mt-1 text-slate-500">
+                                    <p className="mt-1 text-muted-foreground">
                                         LOC {String(file.loc ?? 0)}
                                     </p>
-                                    <p className="text-slate-500">
+                                    <p className="text-muted-foreground">
                                         Complexity {String(file.complexity ?? 0)}
                                     </p>
                                 </article>
@@ -509,7 +509,7 @@ export function CodeCity3DScene(props: ICodeCity3DSceneProps): ReactElement {
     return (
         <section
             aria-label={props.title}
-            className="relative w-full overflow-hidden rounded-lg border border-slate-200 bg-slate-950/95"
+            className="relative w-full overflow-hidden rounded-lg border border-border bg-slate-950/95"
             style={{ height: `${String(props.height ?? 420)}px` }}
         >
             <div className="absolute left-3 top-3 z-10 flex gap-2">
@@ -521,7 +521,7 @@ export function CodeCity3DScene(props: ICodeCity3DSceneProps): ReactElement {
                             className={`rounded-md border px-2 py-1 text-xs font-medium transition ${
                                 cameraPreset === option.id
                                     ? "border-cyan-300 bg-cyan-500/20 text-cyan-100"
-                                    : "border-slate-500 bg-slate-900/70 text-slate-300 hover:border-slate-300 hover:text-slate-100"
+                                    : "border-slate-500 bg-slate-900/70 text-slate-300 hover:border-border hover:text-slate-100"
                             }`}
                             key={option.id}
                             onClick={(): void => {
@@ -626,7 +626,7 @@ export function CodeCity3DScene(props: ICodeCity3DSceneProps): ReactElement {
                                         className={`rounded border px-2 py-0.5 text-[11px] transition ${
                                             causalReplaySpeed === speed
                                                 ? "border-cyan-300 bg-cyan-500/20 text-cyan-100"
-                                                : "border-slate-500 bg-slate-900/70 text-slate-300 hover:border-slate-300 hover:text-slate-100"
+                                                : "border-slate-500 bg-slate-900/70 text-slate-300 hover:border-border hover:text-slate-100"
                                         }`}
                                         key={speed}
                                         onClick={(): void => {
@@ -664,7 +664,7 @@ export function CodeCity3DScene(props: ICodeCity3DSceneProps): ReactElement {
                         <p className="font-semibold text-cyan-200">File details</p>
                         <button
                             aria-label="Close file details panel"
-                            className="rounded border border-slate-500 px-2 py-0.5 text-xs text-slate-200 hover:border-slate-200"
+                            className="rounded border border-slate-500 px-2 py-0.5 text-xs text-slate-200 hover:border-border"
                             onClick={(): void => {
                                 setSelectedFileId(undefined)
                             }}

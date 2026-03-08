@@ -55,12 +55,12 @@ function resolveHandoffLabel(severity: TOwnershipTransitionHandoffSeverity): str
 
 function resolveHandoffBadgeClassName(severity: TOwnershipTransitionHandoffSeverity): string {
     if (severity === "critical") {
-        return "border-rose-300 bg-rose-500/15 text-rose-800"
+        return "border-danger/40 bg-danger/15 text-danger"
     }
     if (severity === "watch") {
-        return "border-amber-300 bg-amber-500/15 text-amber-900"
+        return "border-amber-300 bg-warning/15 text-amber-900"
     }
-    return "border-emerald-300 bg-emerald-500/15 text-emerald-900"
+    return "border-success/40 bg-success/15 text-emerald-900"
 }
 
 function formatTransitionDate(changedAt: string): string {
@@ -84,9 +84,9 @@ function formatTransitionDate(changedAt: string): string {
  */
 export function OwnershipTransitionWidget(props: IOwnershipTransitionWidgetProps): ReactElement {
     return (
-        <section className="rounded-lg border border-slate-200 bg-white p-3 shadow-sm">
-            <p className="text-sm font-semibold text-slate-900">Ownership transition widget</p>
-            <p className="mt-1 text-xs text-slate-500">
+        <section className="rounded-lg border border-border bg-white p-3 shadow-sm">
+            <p className="text-sm font-semibold text-foreground">Ownership transition widget</p>
+            <p className="mt-1 text-xs text-muted-foreground">
                 Timeline of ownership handoffs for files and modules with risk indicators.
             </p>
             <ul aria-label="Ownership transitions" className="mt-3 space-y-2">
@@ -99,22 +99,22 @@ export function OwnershipTransitionWidget(props: IOwnershipTransitionWidgetProps
                             className={
                                 isActive
                                     ? "rounded border border-cyan-300 bg-cyan-50 p-2"
-                                    : "rounded border border-slate-200 bg-slate-50 p-2"
+                                    : "rounded border border-border bg-surface p-2"
                             }
                             key={event.id}
                         >
                             <div className="flex flex-wrap items-center justify-between gap-2">
-                                <span className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                                <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                                     {scopeLabel}
                                 </span>
-                                <span className="text-xs text-slate-600">
+                                <span className="text-xs text-muted-foreground">
                                     {formatTransitionDate(event.changedAt)}
                                 </span>
                             </div>
-                            <p className="mt-1 text-sm font-semibold text-slate-900">
+                            <p className="mt-1 text-sm font-semibold text-foreground">
                                 {event.scopeLabel}
                             </p>
-                            <p className="mt-1 text-xs text-slate-600">
+                            <p className="mt-1 text-xs text-muted-foreground">
                                 {event.fromOwnerName} → {event.toOwnerName}
                             </p>
                             <div className="mt-2 flex flex-wrap items-center gap-2">
@@ -123,7 +123,9 @@ export function OwnershipTransitionWidget(props: IOwnershipTransitionWidgetProps
                                 >
                                     {resolveHandoffLabel(event.handoffSeverity)}
                                 </span>
-                                <span className="text-xs text-slate-600">{event.reason}</span>
+                                <span className="text-xs text-muted-foreground">
+                                    {event.reason}
+                                </span>
                             </div>
                             <button
                                 aria-label={`Inspect ownership transition ${event.scopeLabel}`}

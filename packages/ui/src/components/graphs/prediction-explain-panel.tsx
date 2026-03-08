@@ -54,9 +54,9 @@ export function PredictionExplainPanel(props: IPredictionExplainPanelProps): Rea
         props.entries[0]
 
     return (
-        <section className="rounded-lg border border-slate-200 bg-white p-3 shadow-sm">
-            <p className="text-sm font-semibold text-slate-900">Prediction explain panel</p>
-            <p className="mt-1 text-xs text-slate-500">
+        <section className="rounded-lg border border-border bg-white p-3 shadow-sm">
+            <p className="text-sm font-semibold text-foreground">Prediction explain panel</p>
+            <p className="mt-1 text-xs text-muted-foreground">
                 Click prediction entries to inspect why this file is forecasted as a hotspot.
             </p>
 
@@ -65,7 +65,7 @@ export function PredictionExplainPanel(props: IPredictionExplainPanelProps): Rea
                     const isActive = selectedEntry?.fileId === entry.fileId
                     const className = isActive
                         ? "border-cyan-400 bg-cyan-50"
-                        : "border-slate-200 bg-slate-50 hover:border-slate-300"
+                        : "border-border bg-surface hover:border-border"
                     return (
                         <button
                             aria-label={`Inspect prediction explanation for ${entry.label}`}
@@ -76,8 +76,8 @@ export function PredictionExplainPanel(props: IPredictionExplainPanelProps): Rea
                             }}
                             type="button"
                         >
-                            <p className="text-sm font-semibold text-slate-900">{entry.label}</p>
-                            <p className="mt-1 text-xs text-slate-600">
+                            <p className="text-sm font-semibold text-foreground">{entry.label}</p>
+                            <p className="mt-1 text-xs text-muted-foreground">
                                 Risk {resolveRiskLabel(entry.riskLevel)} · Confidence{" "}
                                 {String(entry.confidenceScore)}%
                             </p>
@@ -88,12 +88,12 @@ export function PredictionExplainPanel(props: IPredictionExplainPanelProps): Rea
 
             <div
                 aria-label="Prediction explanation details"
-                className="mt-3 rounded border border-slate-200 bg-slate-50 p-2"
+                className="mt-3 rounded border border-border bg-surface p-2"
             >
-                <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                     Why this file is predicted to become a hotspot
                 </p>
-                <p className="mt-1 text-xs text-slate-700">
+                <p className="mt-1 text-xs text-foreground">
                     {selectedEntry === undefined
                         ? "No prediction selected."
                         : `${selectedEntry.reason}. ${selectedEntry.explanation}`}

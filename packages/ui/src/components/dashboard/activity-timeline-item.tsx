@@ -22,18 +22,18 @@ export interface IActivityTimelineItemProps {
  */
 export function ActivityTimelineItem(props: IActivityTimelineItemProps): ReactElement {
     return (
-        <li className="rounded-lg border border-slate-200 bg-slate-50 p-3">
-            <p className="text-xs font-medium uppercase tracking-[0.2em] text-slate-500">
+        <li className="rounded-lg border border-border bg-surface p-3">
+            <p className="text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground">
                 {props.time}
             </p>
-            <p className="mt-1 text-sm font-semibold text-slate-900">{props.title}</p>
-            <p className="mt-1 text-sm text-slate-600">{props.description}</p>
+            <p className="mt-1 text-sm font-semibold text-foreground">{props.title}</p>
+            <p className="mt-1 text-sm text-muted-foreground">{props.description}</p>
             {props.details === undefined ? null : (
                 <details className="mt-2">
-                    <summary className="cursor-pointer text-sm font-medium text-slate-700">
+                    <summary className="cursor-pointer text-sm font-medium text-foreground">
                         View details
                     </summary>
-                    <p className="mt-2 text-sm text-slate-600">{props.details}</p>
+                    <p className="mt-2 text-sm text-muted-foreground">{props.details}</p>
                 </details>
             )}
         </li>

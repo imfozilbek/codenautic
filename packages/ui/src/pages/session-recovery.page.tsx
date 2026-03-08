@@ -13,10 +13,8 @@ export function SessionRecoveryPage(): ReactElement {
 
     return (
         <section className="space-y-4">
-            <h1 className="text-2xl font-semibold text-[var(--foreground)]">
-                Session recovery flow
-            </h1>
-            <p className="text-sm text-[var(--foreground)]/70">
+            <h1 className="text-2xl font-semibold text-foreground">Session recovery flow</h1>
+            <p className="text-sm text-foreground/70">
                 Restore authentication and continue from saved workflow state after session expiry.
             </p>
 
@@ -27,12 +25,10 @@ export function SessionRecoveryPage(): ReactElement {
 
             <Card>
                 <CardHeader>
-                    <p className="text-base font-semibold text-[var(--foreground)]">
-                        Recovery steps
-                    </p>
+                    <p className="text-base font-semibold text-foreground">Recovery steps</p>
                 </CardHeader>
                 <CardBody className="space-y-3">
-                    <ol className="list-decimal space-y-2 pl-5 text-sm text-[var(--foreground)]/85">
+                    <ol className="list-decimal space-y-2 pl-5 text-sm text-foreground/85">
                         <li>
                             Open organization settings and verify active session and tenant context.
                         </li>

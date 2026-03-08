@@ -560,7 +560,7 @@ function renderExploreCard(): ReactElement {
     return (
         <Card>
             <CardHeader>
-                <p className="text-sm font-semibold text-slate-900">Explore</p>
+                <p className="text-sm font-semibold text-foreground">Explore</p>
             </CardHeader>
             <CardBody>
                 <ul className="space-y-2">
@@ -683,10 +683,10 @@ function renderSignalsCard(): ReactElement {
     return (
         <Card>
             <CardHeader>
-                <p className="text-sm font-semibold text-slate-900">Signals</p>
+                <p className="text-sm font-semibold text-foreground">Signals</p>
             </CardHeader>
             <CardBody>
-                <ul className="space-y-2 text-sm text-slate-700">
+                <ul className="space-y-2 text-sm text-foreground">
                     <li>Signals: drift + architecture health warnings.</li>
                     <li>Predictions: release risk elevated in team runtime.</li>
                     <li>Usage: plan for token topup before peak window.</li>
@@ -846,10 +846,10 @@ export function DashboardMissionControlPage(): ReactElement {
         <section className="space-y-4">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                 <div>
-                    <h1 className="text-2xl font-semibold text-slate-900">
+                    <h1 className="text-2xl font-semibold text-foreground">
                         Dashboard Mission Control
                     </h1>
-                    <p className="text-sm text-slate-600">
+                    <p className="text-sm text-muted-foreground">
                         Scope: {orgScope} / {repositoryScope} / {teamScope}. Use quick links for
                         deep navigation.
                     </p>
@@ -857,7 +857,7 @@ export function DashboardMissionControlPage(): ReactElement {
                 <div className="grid gap-2 sm:min-w-[380px] sm:grid-cols-2">
                     <select
                         aria-label="Organization scope"
-                        className="rounded-lg border border-slate-200 px-3 py-2 text-sm"
+                        className="rounded-lg border border-border px-3 py-2 text-sm"
                         value={orgScope}
                         onChange={(event): void => {
                             const nextScope = event.currentTarget.value as TOrgScope
@@ -871,7 +871,7 @@ export function DashboardMissionControlPage(): ReactElement {
                     </select>
                     <select
                         aria-label="Repository scope"
-                        className="rounded-lg border border-slate-200 px-3 py-2 text-sm"
+                        className="rounded-lg border border-border px-3 py-2 text-sm"
                         value={repositoryScope}
                         onChange={(event): void => {
                             const nextScope = event.currentTarget.value as TRepositoryScope
@@ -885,7 +885,7 @@ export function DashboardMissionControlPage(): ReactElement {
                     </select>
                     <select
                         aria-label="Team scope"
-                        className="rounded-lg border border-slate-200 px-3 py-2 text-sm"
+                        className="rounded-lg border border-border px-3 py-2 text-sm"
                         value={teamScope}
                         onChange={(event): void => {
                             const nextScope = event.currentTarget.value as TTeamScope
@@ -909,16 +909,16 @@ export function DashboardMissionControlPage(): ReactElement {
 
             <Card>
                 <CardHeader>
-                    <p className="text-sm font-semibold text-slate-900">
+                    <p className="text-sm font-semibold text-foreground">
                         Workspace personalization
                     </p>
                 </CardHeader>
                 <CardBody className="space-y-3">
-                    <label className="flex flex-col gap-1 text-sm text-slate-700">
+                    <label className="flex flex-col gap-1 text-sm text-foreground">
                         Layout preset
                         <select
                             aria-label="Layout preset"
-                            className="rounded-lg border border-slate-200 px-3 py-2 text-sm"
+                            className="rounded-lg border border-border px-3 py-2 text-sm"
                             value={layoutPreset}
                             onChange={(event): void => {
                                 const nextPreset = event.currentTarget.value
@@ -938,12 +938,12 @@ export function DashboardMissionControlPage(): ReactElement {
                     </label>
 
                     <div className="space-y-1">
-                        <p className="text-sm text-slate-700">Pinned shortcuts</p>
+                        <p className="text-sm text-foreground">Pinned shortcuts</p>
                         <div className="grid gap-2 sm:grid-cols-2">
                             {WORKSPACE_SHORTCUT_OPTIONS.map(
                                 (shortcut): ReactElement => (
                                     <label
-                                        className="inline-flex items-center gap-2 rounded-lg border border-slate-200 px-3 py-2 text-sm"
+                                        className="inline-flex items-center gap-2 rounded-lg border border-border px-3 py-2 text-sm"
                                         key={shortcut}
                                     >
                                         <input
@@ -980,7 +980,7 @@ export function DashboardMissionControlPage(): ReactElement {
                         <input
                             readOnly
                             aria-label="Workspace share link"
-                            className="w-full rounded-lg border border-slate-200 px-3 py-2 text-xs"
+                            className="w-full rounded-lg border border-border px-3 py-2 text-xs"
                             value={shareLink}
                         />
                     ) : null}

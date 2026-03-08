@@ -32,10 +32,10 @@ export interface ICityPredictionOverlayProps {
 
 function resolveRiskBadgeClassName(riskLevel: TCodeCityTreemapPredictionRiskLevel): string {
     if (riskLevel === "high") {
-        return "border-rose-300 bg-rose-500/20 text-rose-800"
+        return "border-danger/40 bg-danger/20 text-danger"
     }
     if (riskLevel === "medium") {
-        return "border-amber-300 bg-amber-500/20 text-amber-900"
+        return "border-amber-300 bg-warning/20 text-amber-900"
     }
     return "border-sky-300 bg-sky-500/20 text-sky-900"
 }
@@ -56,7 +56,7 @@ function resolveRowClassName(
 ): string {
     const baseClassName = isActive
         ? "border-cyan-400 bg-cyan-50"
-        : "border-slate-200 bg-slate-50 hover:border-slate-300"
+        : "border-border bg-surface hover:border-border"
     const dashedClassName = riskLevel === "high" ? "border-dashed" : ""
 
     return ["w-full rounded-lg border p-2 text-left transition", baseClassName, dashedClassName]
@@ -72,9 +72,9 @@ function resolveRowClassName(
  */
 export function CityPredictionOverlay(props: ICityPredictionOverlayProps): ReactElement {
     return (
-        <section className="rounded-lg border border-slate-200 bg-white p-3 shadow-sm">
-            <p className="text-sm font-semibold text-slate-900">Prediction overlay</p>
-            <p className="mt-1 text-xs text-slate-500">
+        <section className="rounded-lg border border-border bg-white p-3 shadow-sm">
+            <p className="text-sm font-semibold text-foreground">Prediction overlay</p>
+            <p className="mt-1 text-xs text-muted-foreground">
                 Predicted hotspots are outlined on buildings. High-risk forecasts use dashed
                 borders.
             </p>
@@ -96,10 +96,10 @@ export function CityPredictionOverlay(props: ICityPredictionOverlayProps): React
                             >
                                 <div className="flex items-start justify-between gap-2">
                                     <div className="min-w-0">
-                                        <p className="truncate text-sm font-semibold text-slate-900">
+                                        <p className="truncate text-sm font-semibold text-foreground">
                                             {entry.label}
                                         </p>
-                                        <p className="mt-1 text-xs text-slate-600">
+                                        <p className="mt-1 text-xs text-muted-foreground">
                                             Confidence {String(entry.confidenceScore)}% ·{" "}
                                             {entry.reason}
                                         </p>

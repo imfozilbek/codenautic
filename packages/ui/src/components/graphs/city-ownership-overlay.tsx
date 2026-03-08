@@ -39,9 +39,7 @@ export interface ICityOwnershipOverlayProps {
 function resolveOwnerItemClassName(isActive: boolean): string {
     return [
         "w-full rounded-lg border p-2 text-left transition",
-        isActive
-            ? "border-cyan-400 bg-cyan-50"
-            : "border-slate-200 bg-slate-50 hover:border-slate-300",
+        isActive ? "border-cyan-400 bg-cyan-50" : "border-border bg-surface hover:border-border",
     ].join(" ")
 }
 
@@ -57,11 +55,11 @@ export function CityOwnershipOverlay(props: ICityOwnershipOverlayProps): ReactEl
         : "Enable ownership colors"
 
     return (
-        <section className="rounded-lg border border-slate-200 bg-white p-3 shadow-sm">
+        <section className="rounded-lg border border-border bg-white p-3 shadow-sm">
             <div className="flex flex-wrap items-center justify-between gap-2">
                 <div>
-                    <p className="text-sm font-semibold text-slate-900">Ownership overlay</p>
-                    <p className="mt-1 text-xs text-slate-500">
+                    <p className="text-sm font-semibold text-foreground">Ownership overlay</p>
+                    <p className="mt-1 text-xs text-muted-foreground">
                         Buildings are colored by primary owner. Select contributor to focus files.
                     </p>
                 </div>
@@ -95,22 +93,22 @@ export function CityOwnershipOverlay(props: ICityOwnershipOverlayProps): ReactEl
                             >
                                 <div className="flex items-center gap-2">
                                     <Avatar
-                                        className="h-7 w-7 shrink-0 bg-slate-100 text-xs text-slate-700"
+                                        className="h-7 w-7 shrink-0 bg-surface-muted text-xs text-foreground"
                                         label={owner.ownerName}
                                         name={owner.ownerName}
                                         src={owner.ownerAvatarUrl}
                                     />
                                     <div className="min-w-0 flex-1">
-                                        <p className="truncate text-sm font-semibold text-slate-900">
+                                        <p className="truncate text-sm font-semibold text-foreground">
                                             {owner.ownerName}
                                         </p>
-                                        <p className="text-xs text-slate-600">
+                                        <p className="text-xs text-muted-foreground">
                                             Files: {String(fileCount)}
                                         </p>
                                     </div>
                                     <span
                                         aria-hidden={true}
-                                        className="inline-flex h-4 w-4 shrink-0 rounded-full border border-slate-300"
+                                        className="inline-flex h-4 w-4 shrink-0 rounded-full border border-border"
                                         style={{ backgroundColor: owner.color }}
                                     />
                                 </div>

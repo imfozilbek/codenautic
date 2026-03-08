@@ -19,12 +19,12 @@ export const Default: Story = {
                 <p className="text-sm font-semibold">CodeNautic</p>
             </CardHeader>
             <CardBody>
-                <p className="text-sm text-slate-600">
+                <p className="text-sm text-muted-foreground">
                     Инструментальные карточки для мониторинга пайплайна ревью.
                 </p>
             </CardBody>
             <CardFooter>
-                <p className="text-xs text-slate-500">Updated 2 min ago</p>
+                <p className="text-xs text-muted-foreground">Updated 2 min ago</p>
             </CardFooter>
         </Card>
     ),

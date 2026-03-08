@@ -111,14 +111,14 @@ export function SettingsGitProvidersPage(): ReactElement {
 
     return (
         <section className="space-y-4">
-            <h1 className="text-2xl font-semibold text-slate-900">Git Providers</h1>
-            <p className="text-sm text-slate-600">
+            <h1 className="text-2xl font-semibold text-foreground">Git Providers</h1>
+            <p className="text-sm text-muted-foreground">
                 Настройка OAuth/чтение репозиториев и webhook-интеграций.
             </p>
             <GitProvidersList providers={providerCards} />
             <Card>
                 <CardBody className="space-y-3">
-                    <p className="text-sm font-medium text-slate-700">Connectivity checks</p>
+                    <p className="text-sm font-medium text-foreground">Connectivity checks</p>
                     <div className="space-y-2">
                         {sourceProviders.map(
                             (provider): ReactElement => (
@@ -148,7 +148,7 @@ export function SettingsGitProvidersPage(): ReactElement {
                             ),
                         )}
                     </div>
-                    <p className="text-xs text-slate-500">
+                    <p className="text-xs text-muted-foreground">
                         {isTokenConfigured
                             ? "At least one token is configured."
                             : "No tokens are configured yet."}

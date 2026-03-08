@@ -228,9 +228,9 @@ export function ContributorCollaborationGraph(
     }
 
     return (
-        <section className="rounded-lg border border-slate-200 bg-white p-3 shadow-sm">
-            <p className="text-sm font-semibold text-slate-900">Contributor collaboration graph</p>
-            <p className="mt-1 text-xs text-slate-500">
+        <section className="rounded-lg border border-border bg-white p-3 shadow-sm">
+            <p className="text-sm font-semibold text-foreground">Contributor collaboration graph</p>
+            <p className="mt-1 text-xs text-muted-foreground">
                 Force-directed view of co-authoring links. Node size reflects commit volume.
             </p>
             <div aria-label="Contributor graph viewport" className="mt-3 overflow-x-auto">

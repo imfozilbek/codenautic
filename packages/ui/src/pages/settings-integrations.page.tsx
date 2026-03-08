@@ -403,26 +403,26 @@ export function SettingsIntegrationsPage(): ReactElement {
 
     return (
         <section className="space-y-4">
-            <h1 className="text-2xl font-semibold text-slate-900">Integrations</h1>
-            <p className="text-sm text-slate-600">
+            <h1 className="text-2xl font-semibold text-foreground">Integrations</h1>
+            <p className="text-sm text-muted-foreground">
                 Configure Jira, Linear, Sentry and Slack connections for issues, alerts and
                 notifications.
             </p>
 
             <Card>
                 <CardHeader>
-                    <p className="text-base font-semibold text-slate-900">
+                    <p className="text-base font-semibold text-foreground">
                         Connection health summary
                     </p>
                 </CardHeader>
                 <CardBody className="grid gap-2 text-sm sm:grid-cols-3">
-                    <p className="rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-emerald-800">
+                    <p className="rounded-lg border border-success/30 bg-success/10 px-3 py-2 text-success">
                         Connected: <span className="font-semibold">{summary.connected}</span>
                     </p>
-                    <p className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-amber-800">
+                    <p className="rounded-lg border border-warning/30 bg-warning/10 px-3 py-2 text-warning">
                         Degraded: <span className="font-semibold">{summary.degraded}</span>
                     </p>
-                    <p className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-slate-700">
+                    <p className="rounded-lg border border-border bg-surface px-3 py-2 text-foreground">
                         Disconnected: <span className="font-semibold">{summary.disconnected}</span>
                     </p>
                 </CardBody>
@@ -434,10 +434,10 @@ export function SettingsIntegrationsPage(): ReactElement {
                         <Card key={integration.provider}>
                             <CardHeader className="flex flex-wrap items-center justify-between gap-2">
                                 <div>
-                                    <p className="text-base font-semibold text-slate-900">
+                                    <p className="text-base font-semibold text-foreground">
                                         {integration.provider}
                                     </p>
-                                    <p className="text-sm text-slate-600">
+                                    <p className="text-sm text-muted-foreground">
                                         {integration.description}
                                     </p>
                                 </div>
@@ -521,7 +521,7 @@ export function SettingsIntegrationsPage(): ReactElement {
                                     </Button>
                                 </div>
 
-                                <p className="text-xs text-slate-500">
+                                <p className="text-xs text-muted-foreground">
                                     Secret/token:{" "}
                                     {integration.secretConfigured === true
                                         ? "configured"
@@ -537,21 +537,21 @@ export function SettingsIntegrationsPage(): ReactElement {
             <Card>
                 <CardHeader>
                     <div>
-                        <p className="text-base font-semibold text-slate-900">
+                        <p className="text-base font-semibold text-foreground">
                             External Context Sources
                         </p>
-                        <p className="text-sm text-slate-600">
+                        <p className="text-sm text-muted-foreground">
                             Manage indexed sources and inspect loaded context snippets.
                         </p>
                     </div>
                 </CardHeader>
                 <CardBody className="space-y-4">
                     {externalContext.sourcesQuery.isPending ? (
-                        <p aria-live="polite" className="text-sm text-slate-500">
+                        <p aria-live="polite" className="text-sm text-muted-foreground">
                             Loading external context sources...
                         </p>
                     ) : externalContext.sourcesQuery.error !== null ? (
-                        <p aria-live="polite" className="text-sm text-red-600">
+                        <p aria-live="polite" className="text-sm text-danger">
                             Failed to load context sources.
                         </p>
                     ) : (

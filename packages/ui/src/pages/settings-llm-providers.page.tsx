@@ -171,7 +171,7 @@ function renderProviderCard(
     return (
         <Card key={provider}>
             <CardHeader>
-                <p className="text-base font-semibold text-slate-900">{provider}</p>
+                <p className="text-base font-semibold text-foreground">{provider}</p>
             </CardHeader>
             <CardBody className="space-y-3">
                 <LlmProviderForm
@@ -258,12 +258,12 @@ export function SettingsLlmProvidersPage(): ReactElement {
 
     return (
         <section className="space-y-4">
-            <h1 className="text-2xl font-semibold text-slate-900">LLM Providers</h1>
-            <p className="text-sm text-slate-600">
+            <h1 className="text-2xl font-semibold text-foreground">LLM Providers</h1>
+            <p className="text-sm text-muted-foreground">
                 Configure provider credentials and model defaults for automated suggestion
                 generation.
             </p>
-            <div className="rounded-md border border-blue-200 bg-blue-50 p-3 text-sm text-blue-800">
+            <div className="rounded-md border border-primary/30 bg-primary/10 p-3 text-sm text-blue-800">
                 BYOK keys are masked in UI. Keep secrets in secure storage on save.
             </div>
 

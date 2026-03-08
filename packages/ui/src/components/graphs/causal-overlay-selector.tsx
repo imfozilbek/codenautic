@@ -52,7 +52,7 @@ function resolveOverlayButtonClass(
         "rounded-md border px-3 py-1.5 text-xs font-semibold transition",
         isActive
             ? "border-cyan-300 bg-cyan-50 text-cyan-700"
-            : "border-slate-200 bg-white text-slate-700 hover:border-slate-300",
+            : "border-border bg-white text-foreground hover:border-border",
     ].join(" ")
 }
 
@@ -74,15 +74,15 @@ export function CausalOverlaySelector(props: ICausalOverlaySelectorProps): React
     }
 
     return (
-        <div className="space-y-2 rounded-lg border border-slate-200 bg-slate-50 p-3">
+        <div className="space-y-2 rounded-lg border border-border bg-surface p-3">
             <div className="grid gap-2 md:grid-cols-[220px_minmax(0,1fr)] md:items-center">
                 <label className="space-y-1" htmlFor="causal-overlay-selector">
-                    <span className="text-xs font-semibold uppercase tracking-wide text-slate-600">
+                    <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                         Causal overlay
                     </span>
                     <select
                         aria-label="Causal overlay"
-                        className="w-full rounded-md border border-slate-200 bg-white px-2.5 py-1.5 text-sm"
+                        className="w-full rounded-md border border-border bg-white px-2.5 py-1.5 text-sm"
                         id="causal-overlay-selector"
                         value={props.value}
                         onChange={handleSelectChange}
@@ -119,10 +119,10 @@ export function CausalOverlaySelector(props: ICausalOverlaySelectorProps): React
                     )}
                 </div>
             </div>
-            <p aria-live="polite" className="text-xs text-slate-600">
+            <p aria-live="polite" className="text-xs text-muted-foreground">
                 {`Active overlay: ${activeLabel}`}
             </p>
-            <p className="text-xs text-slate-500">
+            <p className="text-xs text-muted-foreground">
                 {
                     CAUSAL_OVERLAY_OPTIONS.find((option): boolean => option.value === props.value)
                         ?.description

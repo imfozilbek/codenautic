@@ -55,21 +55,21 @@ export interface ITeamLeaderboardProps {
 function resolveMetricButtonClassName(isActive: boolean): string {
     const baseClassName = isActive
         ? "border-cyan-400 bg-cyan-500/15 text-cyan-900"
-        : "border-slate-300 bg-white text-slate-700 hover:border-slate-400"
+        : "border-border bg-white text-foreground hover:border-slate-400"
     return `rounded border px-2 py-1 text-xs font-semibold transition ${baseClassName}`
 }
 
 function resolvePeriodButtonClassName(isActive: boolean): string {
     const baseClassName = isActive
-        ? "border-emerald-400 bg-emerald-500/15 text-emerald-900"
-        : "border-slate-300 bg-white text-slate-700 hover:border-slate-400"
+        ? "border-emerald-400 bg-success/15 text-emerald-900"
+        : "border-border bg-white text-foreground hover:border-slate-400"
     return `rounded border px-2 py-1 text-xs font-semibold uppercase transition ${baseClassName}`
 }
 
 function resolveRowClassName(isActive: boolean): string {
     const baseClassName = isActive
         ? "border-cyan-400 bg-cyan-50"
-        : "border-slate-200 bg-slate-50 hover:border-slate-300"
+        : "border-border bg-surface hover:border-border"
     return `w-full rounded-lg border p-2 text-left transition ${baseClassName}`
 }
 
@@ -109,9 +109,9 @@ export function TeamLeaderboard(props: ITeamLeaderboardProps): ReactElement {
     }, [activeMetric, activePeriod, props.entries])
 
     return (
-        <section className="rounded-lg border border-slate-200 bg-white p-3 shadow-sm">
-            <p className="text-sm font-semibold text-slate-900">Team leaderboard</p>
-            <p className="mt-1 text-xs text-slate-500">
+        <section className="rounded-lg border border-border bg-white p-3 shadow-sm">
+            <p className="text-sm font-semibold text-foreground">Team leaderboard</p>
+            <p className="mt-1 text-xs text-muted-foreground">
                 Team quality ranking with metric sorting and sprint/month/quarter toggles.
             </p>
 
@@ -191,14 +191,14 @@ export function TeamLeaderboard(props: ITeamLeaderboardProps): ReactElement {
                             >
                                 <div className="flex items-start justify-between gap-3">
                                     <div className="min-w-0">
-                                        <p className="truncate text-sm font-semibold text-slate-900">
+                                        <p className="truncate text-sm font-semibold text-foreground">
                                             {String(index + 1)}. {entry.ownerName}
                                         </p>
-                                        <p className="mt-1 text-xs text-slate-600">
+                                        <p className="mt-1 text-xs text-muted-foreground">
                                             Score {String(score)} · {entry.fileIds.length} files
                                         </p>
                                     </div>
-                                    <span className="rounded border border-slate-300 bg-slate-100 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-slate-700">
+                                    <span className="rounded border border-border bg-surface-muted px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-foreground">
                                         {activeMetric}
                                     </span>
                                 </div>

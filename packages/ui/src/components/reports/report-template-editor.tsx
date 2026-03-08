@@ -141,19 +141,15 @@ export function ReportTemplateEditor(): ReactElement {
     return (
         <Card>
             <CardHeader>
-                <p className="text-base font-semibold text-[var(--foreground)]">
-                    Report template editor
-                </p>
+                <p className="text-base font-semibold text-foreground">Report template editor</p>
             </CardHeader>
             <CardBody className="space-y-3">
                 <div className="grid gap-3 md:grid-cols-3">
                     <label className="space-y-1 text-sm">
-                        <span className="font-semibold text-[var(--foreground)]">
-                            Template name
-                        </span>
+                        <span className="font-semibold text-foreground">Template name</span>
                         <input
                             aria-label="Template name"
-                            className="w-full rounded border border-slate-300 bg-white px-2 py-1 text-sm text-slate-900"
+                            className="w-full rounded border border-border bg-white px-2 py-1 text-sm text-foreground"
                             type="text"
                             value={templateName}
                             onChange={(event: ChangeEvent<HTMLInputElement>): void => {
@@ -162,12 +158,10 @@ export function ReportTemplateEditor(): ReactElement {
                         />
                     </label>
                     <label className="space-y-1 text-sm">
-                        <span className="font-semibold text-[var(--foreground)]">
-                            Brand logo URL
-                        </span>
+                        <span className="font-semibold text-foreground">Brand logo URL</span>
                         <input
                             aria-label="Template brand logo"
-                            className="w-full rounded border border-slate-300 bg-white px-2 py-1 text-sm text-slate-900"
+                            className="w-full rounded border border-border bg-white px-2 py-1 text-sm text-foreground"
                             type="text"
                             value={brandLogoUrl}
                             onChange={(event: ChangeEvent<HTMLInputElement>): void => {
@@ -176,10 +170,10 @@ export function ReportTemplateEditor(): ReactElement {
                         />
                     </label>
                     <label className="space-y-1 text-sm">
-                        <span className="font-semibold text-[var(--foreground)]">Accent color</span>
+                        <span className="font-semibold text-foreground">Accent color</span>
                         <input
                             aria-label="Template accent color"
-                            className="h-9 w-full rounded border border-slate-300 bg-white px-2 py-1"
+                            className="h-9 w-full rounded border border-border bg-white px-2 py-1"
                             type="color"
                             value={brandAccentColor}
                             onChange={(event: ChangeEvent<HTMLInputElement>): void => {
@@ -192,7 +186,7 @@ export function ReportTemplateEditor(): ReactElement {
                     {sections.map(
                         (section): ReactElement => (
                             <li
-                                className="rounded border border-slate-200 bg-slate-50 p-2"
+                                className="rounded border border-border bg-surface p-2"
                                 draggable={true}
                                 key={section.id}
                                 onDragStart={(event): void => {
@@ -214,7 +208,7 @@ export function ReportTemplateEditor(): ReactElement {
                                             handleSectionToggle(section.id)
                                         }}
                                     />
-                                    <span className="text-sm font-semibold text-slate-900">
+                                    <span className="text-sm font-semibold text-foreground">
                                         {section.title}
                                     </span>
                                     <Button

@@ -36,9 +36,7 @@ export function ArchitectureHealthWidget(props: IArchitectureHealthWidgetProps):
     return (
         <Card>
             <CardHeader className="flex flex-wrap items-center justify-between gap-2">
-                <p className="text-base font-semibold text-[var(--foreground)]">
-                    Architecture health
-                </p>
+                <p className="text-base font-semibold text-foreground">Architecture health</p>
                 <div className="flex flex-wrap items-center gap-2">
                     <Chip color="primary" size="sm" variant="flat">
                         {`Health ${String(props.healthScore)}`}
@@ -52,7 +50,7 @@ export function ArchitectureHealthWidget(props: IArchitectureHealthWidgetProps):
                 </div>
             </CardHeader>
             <CardBody className="space-y-2">
-                <p className="text-sm text-[var(--foreground)]/70">
+                <p className="text-sm text-foreground/70">
                     Health score, layer violations and DDD compliance in one architecture widget.
                 </p>
                 <div className="h-60 w-full">

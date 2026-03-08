@@ -379,14 +379,14 @@ export function SettingsWebhooksPage(): ReactElement {
 
     return (
         <section className="space-y-4">
-            <h1 className="text-2xl font-semibold text-slate-900">Webhook Management</h1>
-            <p className="text-sm text-slate-600">
+            <h1 className="text-2xl font-semibold text-foreground">Webhook Management</h1>
+            <p className="text-sm text-muted-foreground">
                 Create, rotate and monitor webhook endpoints with delivery logs.
             </p>
 
             <Card>
                 <CardHeader>
-                    <p className="text-base font-semibold text-slate-900">
+                    <p className="text-base font-semibold text-foreground">
                         Create webhook endpoint
                     </p>
                 </CardHeader>
@@ -433,7 +433,7 @@ export function SettingsWebhooksPage(): ReactElement {
             <div className="grid gap-4 xl:grid-cols-[1.2fr_1fr]">
                 <Card>
                     <CardHeader className="flex flex-wrap items-center justify-between gap-2">
-                        <p className="text-base font-semibold text-slate-900">Webhook endpoints</p>
+                        <p className="text-base font-semibold text-foreground">Webhook endpoints</p>
                         <div className="flex flex-wrap gap-2">
                             <Input
                                 className="min-w-[200px]"
@@ -443,7 +443,7 @@ export function SettingsWebhooksPage(): ReactElement {
                             />
                             <select
                                 aria-label="Filter webhooks by status"
-                                className="rounded-lg border border-slate-200 px-3 py-2 text-sm"
+                                className="rounded-lg border border-border px-3 py-2 text-sm"
                                 value={statusFilter}
                                 onChange={(event): void => {
                                     const nextValue = event.currentTarget.value
@@ -468,7 +468,7 @@ export function SettingsWebhooksPage(): ReactElement {
                     <CardBody>
                         <div
                             ref={endpointsListRef}
-                            className="max-h-[520px] overflow-auto rounded-lg border border-slate-200"
+                            className="max-h-[520px] overflow-auto rounded-lg border border-border"
                         >
                             <div
                                 className="relative"
@@ -487,7 +487,7 @@ export function SettingsWebhooksPage(): ReactElement {
                                         return (
                                             <article
                                                 className={`absolute left-0 top-0 w-full border-b border-slate-100 px-3 py-3 ${
-                                                    isActive ? "bg-blue-50/50" : "bg-white"
+                                                    isActive ? "bg-primary/10/50" : "bg-white"
                                                 }`}
                                                 key={webhook.id}
                                                 style={{
@@ -503,13 +503,13 @@ export function SettingsWebhooksPage(): ReactElement {
                                                         }}
                                                         type="button"
                                                     >
-                                                        <p className="truncate text-sm font-semibold text-slate-900">
+                                                        <p className="truncate text-sm font-semibold text-foreground">
                                                             {webhook.url}
                                                         </p>
-                                                        <p className="mt-1 text-xs text-slate-600">
+                                                        <p className="mt-1 text-xs text-muted-foreground">
                                                             Events: {webhook.eventTypes.join(", ")}
                                                         </p>
-                                                        <p className="text-xs text-slate-500">
+                                                        <p className="text-xs text-muted-foreground">
                                                             Secret: {webhook.secretPreview}
                                                         </p>
                                                     </button>
@@ -560,7 +560,7 @@ export function SettingsWebhooksPage(): ReactElement {
                                                         Delete
                                                     </Button>
                                                 </div>
-                                                <p className="mt-1 text-xs text-slate-500">
+                                                <p className="mt-1 text-xs text-muted-foreground">
                                                     Last delivery:{" "}
                                                     {webhook.lastDeliveryAt ?? "not delivered"}
                                                 </p>
@@ -574,7 +574,7 @@ export function SettingsWebhooksPage(): ReactElement {
 
                 <Card>
                     <CardHeader>
-                        <p className="text-base font-semibold text-slate-900">
+                        <p className="text-base font-semibold text-foreground">
                             Delivery logs{" "}
                             {activeEndpoint === undefined ? "" : `· ${activeEndpoint.id}`}
                         </p>
@@ -585,7 +585,7 @@ export function SettingsWebhooksPage(): ReactElement {
                         ) : null}
                         <div
                             ref={logsListRef}
-                            className="max-h-[520px] overflow-auto rounded-lg border border-slate-200"
+                            className="max-h-[520px] overflow-auto rounded-lg border border-border"
                         >
                             <div
                                 className="relative"
@@ -609,7 +609,7 @@ export function SettingsWebhooksPage(): ReactElement {
                                                 }}
                                             >
                                                 <div className="flex items-start justify-between gap-2">
-                                                    <p className="text-xs text-slate-500">
+                                                    <p className="text-xs text-muted-foreground">
                                                         {log.timestamp}
                                                     </p>
                                                     <Chip
@@ -620,10 +620,10 @@ export function SettingsWebhooksPage(): ReactElement {
                                                         {mapWebhookStatusText(log.status)}
                                                     </Chip>
                                                 </div>
-                                                <p className="mt-1 text-sm text-slate-800">
+                                                <p className="mt-1 text-sm text-foreground">
                                                     {log.message}
                                                 </p>
-                                                <p className="text-xs text-slate-500">
+                                                <p className="text-xs text-muted-foreground">
                                                     HTTP status: {log.httpStatus}
                                                 </p>
                                             </article>

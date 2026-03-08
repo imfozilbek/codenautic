@@ -149,7 +149,7 @@ const DEFAULT_SETTINGS_NAV_ITEMS = [
 export function SettingsNav(props: ISettingsNavProps): ReactElement {
     return (
         <div className="mt-4">
-            <p className="px-2 pb-2 text-xs font-semibold uppercase tracking-[0.2em] text-[var(--foreground)]/60">
+            <p className="px-2 pb-2 text-xs font-semibold uppercase tracking-[0.2em] text-foreground/60">
                 Settings
             </p>
             <SidebarNav items={DEFAULT_SETTINGS_NAV_ITEMS} onNavigate={props.onNavigate} />

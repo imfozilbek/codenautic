@@ -493,17 +493,15 @@ export function SettingsJobsPage(): ReactElement {
 
     return (
         <section className="space-y-4">
-            <h1 className="text-2xl font-semibold text-[var(--foreground)]">
-                Operations jobs monitor
-            </h1>
-            <p className="text-sm text-[var(--foreground)]/70">
+            <h1 className="text-2xl font-semibold text-foreground">Operations jobs monitor</h1>
+            <p className="text-sm text-foreground/70">
                 Track review, scan and analytics jobs with ETA, retries, paused/stuck states,
                 operator recovery actions and audit history.
             </p>
 
             <Card>
                 <CardHeader>
-                    <p className="text-base font-semibold text-[var(--foreground)]">Live summary</p>
+                    <p className="text-base font-semibold text-foreground">Live summary</p>
                 </CardHeader>
                 <CardBody className="flex flex-wrap gap-2">
                     <Chip size="sm" variant="flat">
@@ -520,17 +518,17 @@ export function SettingsJobsPage(): ReactElement {
 
             <Card>
                 <CardHeader>
-                    <p className="text-base font-semibold text-[var(--foreground)]">
+                    <p className="text-base font-semibold text-foreground">
                         Timezone + schedule preview
                     </p>
                 </CardHeader>
                 <CardBody className="space-y-3">
                     <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
-                        <label className="flex flex-col gap-1 text-sm text-[var(--foreground)]/80">
+                        <label className="flex flex-col gap-1 text-sm text-foreground/80">
                             Schedule target
                             <select
                                 aria-label="Schedule target"
-                                className="rounded-lg border border-[var(--border)] bg-[var(--surface)] px-3 py-2 text-sm text-[var(--foreground)]"
+                                className="rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground"
                                 value={scheduleTarget}
                                 onChange={(event): void => {
                                     const value = event.currentTarget.value
@@ -543,11 +541,11 @@ export function SettingsJobsPage(): ReactElement {
                                 <option value="report">Report schedule</option>
                             </select>
                         </label>
-                        <label className="flex flex-col gap-1 text-sm text-[var(--foreground)]/80">
+                        <label className="flex flex-col gap-1 text-sm text-foreground/80">
                             User timezone
                             <select
                                 aria-label="User timezone"
-                                className="rounded-lg border border-[var(--border)] bg-[var(--surface)] px-3 py-2 text-sm text-[var(--foreground)]"
+                                className="rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground"
                                 value={userTimezone}
                                 onChange={(event): void => {
                                     const value = event.currentTarget.value
@@ -570,11 +568,11 @@ export function SettingsJobsPage(): ReactElement {
                                 )}
                             </select>
                         </label>
-                        <label className="flex flex-col gap-1 text-sm text-[var(--foreground)]/80">
+                        <label className="flex flex-col gap-1 text-sm text-foreground/80">
                             Org timezone override
                             <select
                                 aria-label="Organization timezone override"
-                                className="rounded-lg border border-[var(--border)] bg-[var(--surface)] px-3 py-2 text-sm text-[var(--foreground)]"
+                                className="rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground"
                                 value={orgTimezoneOverride}
                                 onChange={(event): void => {
                                     const value = event.currentTarget.value
@@ -602,11 +600,11 @@ export function SettingsJobsPage(): ReactElement {
                                 )}
                             </select>
                         </label>
-                        <label className="flex flex-col gap-1 text-sm text-[var(--foreground)]/80">
+                        <label className="flex flex-col gap-1 text-sm text-foreground/80">
                             Schedule frequency
                             <select
                                 aria-label="Schedule frequency"
-                                className="rounded-lg border border-[var(--border)] bg-[var(--surface)] px-3 py-2 text-sm text-[var(--foreground)]"
+                                className="rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground"
                                 value={activeSchedule.mode}
                                 onChange={(event): void => {
                                     const value = event.currentTarget.value
@@ -623,11 +621,11 @@ export function SettingsJobsPage(): ReactElement {
 
                     <div className="grid gap-3 md:grid-cols-3">
                         {activeSchedule.mode === "hourly" ? (
-                            <label className="flex flex-col gap-1 text-sm text-[var(--foreground)]/80">
+                            <label className="flex flex-col gap-1 text-sm text-foreground/80">
                                 Interval hours
                                 <select
                                     aria-label="Interval hours"
-                                    className="rounded-lg border border-[var(--border)] bg-[var(--surface)] px-3 py-2 text-sm text-[var(--foreground)]"
+                                    className="rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground"
                                     value={String(activeSchedule.intervalHours)}
                                     onChange={(event): void => {
                                         handleIntervalChange(event.currentTarget.value)
@@ -641,11 +639,11 @@ export function SettingsJobsPage(): ReactElement {
                                 </select>
                             </label>
                         ) : (
-                            <label className="flex flex-col gap-1 text-sm text-[var(--foreground)]/80">
+                            <label className="flex flex-col gap-1 text-sm text-foreground/80">
                                 Weekday
                                 <select
                                     aria-label="Schedule weekday"
-                                    className="rounded-lg border border-[var(--border)] bg-[var(--surface)] px-3 py-2 text-sm text-[var(--foreground)]"
+                                    className="rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground"
                                     value={String(activeSchedule.weekday)}
                                     onChange={(event): void => {
                                         handleWeekdayChange(event.currentTarget.value)
@@ -664,11 +662,11 @@ export function SettingsJobsPage(): ReactElement {
                                 </select>
                             </label>
                         )}
-                        <label className="flex flex-col gap-1 text-sm text-[var(--foreground)]/80">
+                        <label className="flex flex-col gap-1 text-sm text-foreground/80">
                             Hour
                             <select
                                 aria-label="Schedule hour"
-                                className="rounded-lg border border-[var(--border)] bg-[var(--surface)] px-3 py-2 text-sm text-[var(--foreground)]"
+                                className="rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground"
                                 value={String(activeSchedule.hour)}
                                 onChange={(event): void => {
                                     handleHourChange(event.currentTarget.value)
@@ -683,11 +681,11 @@ export function SettingsJobsPage(): ReactElement {
                                 )}
                             </select>
                         </label>
-                        <label className="flex flex-col gap-1 text-sm text-[var(--foreground)]/80">
+                        <label className="flex flex-col gap-1 text-sm text-foreground/80">
                             Minute
                             <select
                                 aria-label="Schedule minute"
-                                className="rounded-lg border border-[var(--border)] bg-[var(--surface)] px-3 py-2 text-sm text-[var(--foreground)]"
+                                className="rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground"
                                 value={String(activeSchedule.minute)}
                                 onChange={(event): void => {
                                     handleMinuteChange(event.currentTarget.value)
@@ -709,7 +707,7 @@ export function SettingsJobsPage(): ReactElement {
                     </Alert>
 
                     <div className="flex flex-wrap items-center justify-between gap-2">
-                        <p className="text-sm text-[var(--foreground)]/80">{scheduleDescription}</p>
+                        <p className="text-sm text-foreground/80">{scheduleDescription}</p>
                         <Button size="sm" variant="flat" onPress={handleSaveSchedule}>
                             Save schedule
                         </Button>
@@ -725,13 +723,13 @@ export function SettingsJobsPage(): ReactElement {
                         {schedulePreview.map(
                             (nextRun, index): ReactElement => (
                                 <li
-                                    className="rounded-lg border border-[var(--border)] bg-[var(--surface)] px-3 py-2 text-sm text-[var(--foreground)]"
+                                    className="rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground"
                                     key={`preview-${scheduleTarget}-${String(index)}`}
                                 >
                                     <p className="font-semibold">
                                         {formatTimezoneDate(nextRun, effectiveTimezone)}
                                     </p>
-                                    <p className="text-xs text-[var(--foreground)]/70">
+                                    <p className="text-xs text-foreground/70">
                                         {formatRelativeTime(nextRun)}
                                     </p>
                                 </li>
@@ -744,14 +742,14 @@ export function SettingsJobsPage(): ReactElement {
             <div className="grid gap-4 xl:grid-cols-[1.2fr_1fr]">
                 <Card>
                     <CardHeader>
-                        <p className="text-base font-semibold text-[var(--foreground)]">Jobs</p>
+                        <p className="text-base font-semibold text-foreground">Jobs</p>
                     </CardHeader>
                     <CardBody className="space-y-2">
                         <ul aria-label="Operations jobs list" className="space-y-2">
                             {jobs.map(
                                 (job): ReactElement => (
                                     <li
-                                        className="rounded-lg border border-[var(--border)] bg-[var(--surface)] p-3"
+                                        className="rounded-lg border border-border bg-surface p-3"
                                         key={job.id}
                                     >
                                         <div className="flex flex-wrap items-center justify-between gap-2">
@@ -763,10 +761,10 @@ export function SettingsJobsPage(): ReactElement {
                                                     setActiveJobId(job.id)
                                                 }}
                                             >
-                                                <p className="text-sm font-semibold text-[var(--foreground)]">
+                                                <p className="text-sm font-semibold text-foreground">
                                                     {job.id} · {job.kind}
                                                 </p>
-                                                <p className="text-xs text-[var(--foreground)]/70">
+                                                <p className="text-xs text-foreground/70">
                                                     {job.scope}
                                                 </p>
                                             </button>
@@ -778,7 +776,7 @@ export function SettingsJobsPage(): ReactElement {
                                                 {job.status}
                                             </Chip>
                                         </div>
-                                        <p className="mt-1 text-xs text-[var(--foreground)]/70">
+                                        <p className="mt-1 text-xs text-foreground/70">
                                             ETA: {job.etaLabel} · retries {job.retryCount}/
                                             {job.retryLimit}
                                         </p>
@@ -824,7 +822,7 @@ export function SettingsJobsPage(): ReactElement {
                 <div className="space-y-4">
                     <Card>
                         <CardHeader>
-                            <p className="text-base font-semibold text-[var(--foreground)]">
+                            <p className="text-base font-semibold text-foreground">
                                 Error drill-down
                             </p>
                         </CardHeader>
@@ -837,10 +835,10 @@ export function SettingsJobsPage(): ReactElement {
                                 />
                             ) : (
                                 <>
-                                    <p className="text-sm text-[var(--foreground)]">
+                                    <p className="text-sm text-foreground">
                                         Active: <strong>{activeJob.id}</strong> ({activeJob.kind})
                                     </p>
-                                    <p className="text-xs text-[var(--foreground)]/70">
+                                    <p className="text-xs text-foreground/70">
                                         Scope: {activeJob.scope}
                                     </p>
                                     {activeJob.errorDetails === undefined ? (
@@ -867,7 +865,7 @@ export function SettingsJobsPage(): ReactElement {
 
                     <Card>
                         <CardHeader>
-                            <p className="text-base font-semibold text-[var(--foreground)]">
+                            <p className="text-base font-semibold text-foreground">
                                 Recovery audit trail
                             </p>
                         </CardHeader>
@@ -876,16 +874,14 @@ export function SettingsJobsPage(): ReactElement {
                                 {audit.map(
                                     (entry): ReactElement => (
                                         <li
-                                            className="rounded-lg border border-[var(--border)] bg-[var(--surface)] p-3 text-xs"
+                                            className="rounded-lg border border-border bg-surface p-3 text-xs"
                                             key={entry.id}
                                         >
-                                            <p className="font-semibold text-[var(--foreground)]">
+                                            <p className="font-semibold text-foreground">
                                                 {entry.jobId} · {entry.action} · {entry.actor}
                                             </p>
-                                            <p className="text-[var(--foreground)]/80">
-                                                {entry.outcome}
-                                            </p>
-                                            <p className="text-[var(--foreground)]/70">
+                                            <p className="text-foreground/80">{entry.outcome}</p>
+                                            <p className="text-foreground/70">
                                                 {formatTimestamp(entry.occurredAt)}
                                             </p>
                                         </li>

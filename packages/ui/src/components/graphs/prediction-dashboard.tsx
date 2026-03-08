@@ -78,7 +78,7 @@ function resolveHotspotClassName(
 ): string {
     const baseClassName = isActive
         ? "border-cyan-400 bg-cyan-50"
-        : "border-slate-200 bg-slate-50 hover:border-slate-300"
+        : "border-border bg-surface hover:border-border"
     const highRiskClassName = riskLevel === "high" ? "border-dashed" : ""
 
     return ["w-full rounded-lg border p-2 text-left transition", baseClassName, highRiskClassName]
@@ -94,9 +94,9 @@ function resolveHotspotClassName(
  */
 export function PredictionDashboard(props: IPredictionDashboardProps): ReactElement {
     return (
-        <section className="rounded-lg border border-slate-200 bg-white p-3 shadow-sm">
-            <p className="text-sm font-semibold text-slate-900">Prediction dashboard</p>
-            <p className="mt-1 text-xs text-slate-500">
+        <section className="rounded-lg border border-border bg-white p-3 shadow-sm">
+            <p className="text-sm font-semibold text-foreground">Prediction dashboard</p>
+            <p className="mt-1 text-xs text-muted-foreground">
                 Predicted hotspots, quality trend forecast, and bug-prone files with confidence
                 scores.
             </p>
@@ -114,8 +114,8 @@ export function PredictionDashboard(props: IPredictionDashboardProps): ReactElem
                             }}
                             type="button"
                         >
-                            <p className="text-sm font-semibold text-slate-900">{entry.label}</p>
-                            <p className="mt-1 text-xs text-slate-600">
+                            <p className="text-sm font-semibold text-foreground">{entry.label}</p>
+                            <p className="mt-1 text-xs text-muted-foreground">
                                 Risk {resolveRiskLabel(entry.riskLevel)} · Confidence{" "}
                                 {String(entry.confidenceScore)}% · Forecast +
                                 {String(entry.predictedIssueIncrease)} issues
@@ -127,15 +127,15 @@ export function PredictionDashboard(props: IPredictionDashboardProps): ReactElem
 
             <div
                 aria-label="Prediction quality trend"
-                className="mt-3 rounded border border-slate-200 bg-slate-50 p-2"
+                className="mt-3 rounded border border-border bg-surface p-2"
             >
-                <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                     Quality trend forecast
                 </p>
                 <ul className="mt-1 space-y-1">
                     {props.qualityTrendPoints.map((point): ReactElement => {
                         return (
-                            <li className="text-xs text-slate-700" key={point.timestamp}>
+                            <li className="text-xs text-foreground" key={point.timestamp}>
                                 {point.timestamp}: {String(point.qualityScore)} →{" "}
                                 {String(point.forecastQualityScore)}
                             </li>
@@ -146,15 +146,15 @@ export function PredictionDashboard(props: IPredictionDashboardProps): ReactElem
 
             <div
                 aria-label="Prediction bug-prone files"
-                className="mt-2 rounded border border-slate-200 bg-slate-50 p-2"
+                className="mt-2 rounded border border-border bg-surface p-2"
             >
-                <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                     Bug-prone files
                 </p>
                 <ul className="mt-1 space-y-1">
                     {props.bugProneFiles.slice(0, 4).map((entry): ReactElement => {
                         return (
-                            <li className="text-xs text-slate-700" key={entry.fileId}>
+                            <li className="text-xs text-foreground" key={entry.fileId}>
                                 {entry.label} · bugs 30d {String(entry.bugIntroductions30d)} ·
                                 confidence {String(entry.confidenceScore)}%
                             </li>

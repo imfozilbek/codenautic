@@ -200,9 +200,7 @@ export function ActivationChecklist(props: IActivationChecklistProps): ReactElem
     return (
         <Card>
             <CardHeader className="flex flex-wrap items-center justify-between gap-2">
-                <p className="text-base font-semibold text-[var(--foreground)]">
-                    Activation checklist
-                </p>
+                <p className="text-base font-semibold text-foreground">Activation checklist</p>
                 <Chip size="sm" variant="flat">
                     Progress: {progressPercent}%
                 </Chip>
@@ -217,15 +215,15 @@ export function ActivationChecklist(props: IActivationChecklistProps): ReactElem
 
                         return (
                             <li
-                                className="rounded-lg border border-[var(--border)] bg-[var(--surface)] p-3"
+                                className="rounded-lg border border-border bg-surface p-3"
                                 key={step.id}
                             >
                                 <div className="flex flex-wrap items-center justify-between gap-2">
                                     <div>
-                                        <p className="text-sm font-semibold text-[var(--foreground)]">
+                                        <p className="text-sm font-semibold text-foreground">
                                             {step.title}
                                         </p>
-                                        <p className="text-xs text-[var(--foreground)]/70">
+                                        <p className="text-xs text-foreground/70">
                                             {step.description}
                                         </p>
                                     </div>
@@ -239,7 +237,7 @@ export function ActivationChecklist(props: IActivationChecklistProps): ReactElem
                                 </div>
                                 <div className="mt-2 flex flex-wrap gap-2">
                                     <Link
-                                        className="rounded-full border border-[var(--border)] px-3 py-1 text-xs text-[var(--foreground)]/80"
+                                        className="rounded-full border border-border px-3 py-1 text-xs text-foreground/80"
                                         to={step.path}
                                     >
                                         Open step

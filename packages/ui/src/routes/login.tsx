@@ -42,7 +42,7 @@ function LoginRedirectContent(props: ILoginRedirectContentProps): ReactElement {
             aria-busy="true"
             className="mx-auto flex min-h-screen w-full max-w-3xl flex-col items-center justify-center p-8"
         >
-            <p className="text-base text-slate-600">{t("auth:checkingSession")}</p>
+            <p className="text-base text-muted-foreground">{t("auth:checkingSession")}</p>
         </section>
     )
 }

@@ -92,13 +92,13 @@ export function Input(props: InputProps): ReactElement {
             )}
             <div className="relative">
                 {startContent === undefined ? null : (
-                    <span className="pointer-events-none absolute left-2 top-1/2 inline-flex -translate-y-1/2 text-slate-500">
+                    <span className="pointer-events-none absolute left-2 top-1/2 inline-flex -translate-y-1/2 text-muted-foreground">
                         {startContent}
                     </span>
                 )}
                 {input}
                 {endContent === undefined ? null : (
-                    <span className="pointer-events-none absolute right-2 top-1/2 inline-flex -translate-y-1/2 text-slate-500">
+                    <span className="pointer-events-none absolute right-2 top-1/2 inline-flex -translate-y-1/2 text-muted-foreground">
                         {endContent}
                     </span>
                 )}

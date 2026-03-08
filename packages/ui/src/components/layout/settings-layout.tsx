@@ -158,12 +158,12 @@ export function SettingsLayout(props: ISettingsLayoutProps): ReactElement {
     return (
         <div className="grid gap-4 md:grid-cols-[230px_1fr]">
             <aside className="rounded-lg bg-[color:color-mix(in_oklab,var(--surface)_84%,transparent)] p-2 shadow-sm">
-                <p className="px-2 pb-2 text-xs font-semibold uppercase tracking-[0.2em] text-[var(--foreground)]/60">
+                <p className="px-2 pb-2 text-xs font-semibold uppercase tracking-[0.2em] text-foreground/60">
                     {title}
                 </p>
                 <SidebarNav items={SETTINGS_NAV} />
             </aside>
-            <main className="rounded-lg border border-[var(--border)] bg-[var(--surface)] p-4 shadow-sm">
+            <main className="rounded-lg border border-border bg-surface p-4 shadow-sm">
                 {props.children === undefined ? <Outlet /> : props.children}
             </main>
         </div>

@@ -148,16 +148,19 @@ export function ImpactGraphView(props: IImpactGraphViewProps): ReactElement {
     }
 
     return (
-        <section className="rounded-lg border border-slate-200 bg-white p-3 shadow-sm">
-            <p className="text-sm font-semibold text-slate-900">Impact graph view</p>
-            <p className="mt-1 text-xs text-slate-500">
+        <section className="rounded-lg border border-border bg-white p-3 shadow-sm">
+            <p className="text-sm font-semibold text-foreground">Impact graph view</p>
+            <p className="mt-1 text-xs text-muted-foreground">
                 Dependency graph for impact propagation with animated edges and collapsible nodes.
             </p>
 
-            <ul className="mt-3 space-y-1 rounded border border-slate-200 bg-slate-50 p-2">
+            <ul className="mt-3 space-y-1 rounded border border-border bg-surface p-2">
                 {visibleEdges.map(
                     (edge): ReactElement => (
-                        <li className="text-[11px] text-slate-600 animate-pulse" key={edge.id}>
+                        <li
+                            className="text-[11px] text-muted-foreground animate-pulse"
+                            key={edge.id}
+                        >
                             {edge.sourceId} → {edge.targetId}
                         </li>
                     ),
@@ -169,7 +172,7 @@ export function ImpactGraphView(props: IImpactGraphViewProps): ReactElement {
                     const isCollapsed = collapsedNodeIds.includes(node.id)
                     return (
                         <li
-                            className="rounded border border-slate-200 bg-slate-50 p-2"
+                            className="rounded border border-border bg-surface p-2"
                             key={node.id}
                             style={{
                                 marginLeft: `${String(node.depth * 12)}px`,
@@ -177,17 +180,17 @@ export function ImpactGraphView(props: IImpactGraphViewProps): ReactElement {
                         >
                             <div className="flex items-center justify-between gap-2">
                                 <div>
-                                    <p className="text-sm font-semibold text-slate-900">
+                                    <p className="text-sm font-semibold text-foreground">
                                         {node.label}
                                     </p>
-                                    <p className="text-xs text-slate-600">
+                                    <p className="text-xs text-muted-foreground">
                                         Impact score {String(node.impactScore)}
                                     </p>
                                 </div>
                                 <div className="flex items-center gap-1">
                                     <button
                                         aria-label={`Toggle impact node ${node.label}`}
-                                        className="rounded border border-slate-300 px-2 py-1 text-xs font-semibold text-slate-700"
+                                        className="rounded border border-border px-2 py-1 text-xs font-semibold text-foreground"
                                         onClick={(): void => {
                                             toggleCollapse(node.id)
                                         }}

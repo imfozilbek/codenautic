@@ -126,10 +126,8 @@ export function SettingsSsoPage(): ReactElement {
 
     return (
         <section className="space-y-4">
-            <h1 className="text-2xl font-semibold text-[var(--foreground)]">
-                SSO provider management
-            </h1>
-            <p className="text-sm text-[var(--foreground)]/70">
+            <h1 className="text-2xl font-semibold text-foreground">SSO provider management</h1>
+            <p className="text-sm text-foreground/70">
                 Configure SAML and OIDC providers, validate required fields, and run test SSO checks
                 before rollout.
             </p>
@@ -137,7 +135,7 @@ export function SettingsSsoPage(): ReactElement {
             <div className="grid gap-4 xl:grid-cols-2">
                 <Card>
                     <CardHeader>
-                        <p className="text-base font-semibold text-[var(--foreground)]">
+                        <p className="text-base font-semibold text-foreground">
                             SAML configuration
                         </p>
                     </CardHeader>
@@ -203,7 +201,7 @@ export function SettingsSsoPage(): ReactElement {
 
                 <Card>
                     <CardHeader>
-                        <p className="text-base font-semibold text-[var(--foreground)]">
+                        <p className="text-base font-semibold text-foreground">
                             OIDC configuration
                         </p>
                     </CardHeader>
@@ -248,7 +246,7 @@ export function SettingsSsoPage(): ReactElement {
                                 )
                             }}
                         />
-                        <p className="text-xs text-[var(--foreground)]/70">
+                        <p className="text-xs text-foreground/70">
                             Secret preview in UI: {getMaskedSecret(oidcConfig.clientSecret)}
                         </p>
                         <div className="flex flex-wrap items-center gap-2">

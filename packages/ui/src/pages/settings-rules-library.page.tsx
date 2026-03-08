@@ -216,8 +216,8 @@ export function SettingsRulesLibraryPage(): ReactElement {
 
     return (
         <section className="space-y-4">
-            <h1 className="text-2xl font-semibold text-[var(--foreground)]">Rules library</h1>
-            <p className="text-sm text-[var(--foreground)]/70">
+            <h1 className="text-2xl font-semibold text-foreground">Rules library</h1>
+            <p className="text-sm text-foreground/70">
                 Browse pre-built rules, import to your workspace, create custom policies and test
                 them on sample snippets.
             </p>
@@ -225,46 +225,38 @@ export function SettingsRulesLibraryPage(): ReactElement {
             <div className="grid gap-4 md:grid-cols-3">
                 <Card>
                     <CardHeader>
-                        <p className="text-sm font-semibold text-[var(--foreground)]">Catalog</p>
+                        <p className="text-sm font-semibold text-foreground">Catalog</p>
                     </CardHeader>
                     <CardBody>
-                        <p className="text-2xl font-semibold text-[var(--foreground)]">
-                            {rules.length}
-                        </p>
-                        <p className="text-xs text-[var(--foreground)]/70">Total rules</p>
+                        <p className="text-2xl font-semibold text-foreground">{rules.length}</p>
+                        <p className="text-xs text-foreground/70">Total rules</p>
                     </CardBody>
                 </Card>
                 <Card>
                     <CardHeader>
-                        <p className="text-sm font-semibold text-[var(--foreground)]">Imported</p>
+                        <p className="text-sm font-semibold text-foreground">Imported</p>
                     </CardHeader>
                     <CardBody>
-                        <p className="text-2xl font-semibold text-[var(--foreground)]">
-                            {importedCount}
-                        </p>
-                        <p className="text-xs text-[var(--foreground)]/70">
-                            Rules in active profile
-                        </p>
+                        <p className="text-2xl font-semibold text-foreground">{importedCount}</p>
+                        <p className="text-xs text-foreground/70">Rules in active profile</p>
                     </CardBody>
                 </Card>
                 <Card>
                     <CardHeader>
-                        <p className="text-sm font-semibold text-[var(--foreground)]">Custom</p>
+                        <p className="text-sm font-semibold text-foreground">Custom</p>
                     </CardHeader>
                     <CardBody>
-                        <p className="text-2xl font-semibold text-[var(--foreground)]">
+                        <p className="text-2xl font-semibold text-foreground">
                             {rules.filter((rule): boolean => rule.source === "custom").length}
                         </p>
-                        <p className="text-xs text-[var(--foreground)]/70">
-                            Team-defined policy rules
-                        </p>
+                        <p className="text-xs text-foreground/70">Team-defined policy rules</p>
                     </CardBody>
                 </Card>
             </div>
 
             <Card>
                 <CardHeader>
-                    <p className="text-base font-semibold text-[var(--foreground)]">
+                    <p className="text-base font-semibold text-foreground">
                         Browse pre-built rules
                     </p>
                 </CardHeader>
@@ -278,13 +270,13 @@ export function SettingsRulesLibraryPage(): ReactElement {
                         />
                         <div className="flex flex-col gap-1">
                             <label
-                                className="text-sm text-[var(--foreground)]/80"
+                                className="text-sm text-foreground/80"
                                 htmlFor="rules-category-filter"
                             >
                                 Category
                             </label>
                             <select
-                                className="rounded-lg border border-[var(--border)] bg-[var(--surface)] px-3 py-2 text-sm"
+                                className="rounded-lg border border-border bg-surface px-3 py-2 text-sm"
                                 id="rules-category-filter"
                                 value={selectedCategory}
                                 onChange={(event): void => {
@@ -319,14 +311,14 @@ export function SettingsRulesLibraryPage(): ReactElement {
                             return (
                                 <li
                                     key={rule.id}
-                                    className="rounded-lg border border-[var(--border)] bg-[var(--surface)] p-3"
+                                    className="rounded-lg border border-border bg-surface p-3"
                                 >
                                     <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
                                         <div className="space-y-1">
-                                            <p className="text-sm font-semibold text-[var(--foreground)]">
+                                            <p className="text-sm font-semibold text-foreground">
                                                 {rule.name}
                                             </p>
-                                            <p className="text-xs text-[var(--foreground)]/70">
+                                            <p className="text-xs text-foreground/70">
                                                 {rule.description}
                                             </p>
                                             <div className="flex items-center gap-2">
@@ -341,7 +333,7 @@ export function SettingsRulesLibraryPage(): ReactElement {
                                                     {rule.source}
                                                 </Chip>
                                             </div>
-                                            <p className="font-mono text-xs text-[var(--foreground)]/70">
+                                            <p className="font-mono text-xs text-foreground/70">
                                                 {rule.expression}
                                             </p>
                                         </div>
@@ -366,7 +358,7 @@ export function SettingsRulesLibraryPage(): ReactElement {
             <div className="grid gap-4 xl:grid-cols-2">
                 <Card>
                     <CardHeader>
-                        <p className="text-base font-semibold text-[var(--foreground)]">
+                        <p className="text-base font-semibold text-foreground">
                             Create custom rule
                         </p>
                     </CardHeader>
@@ -385,13 +377,13 @@ export function SettingsRulesLibraryPage(): ReactElement {
                         />
                         <div className="flex flex-col gap-1">
                             <label
-                                className="text-sm text-[var(--foreground)]/80"
+                                className="text-sm text-foreground/80"
                                 htmlFor="custom-rule-category"
                             >
                                 Category
                             </label>
                             <select
-                                className="rounded-lg border border-[var(--border)] bg-[var(--surface)] px-3 py-2 text-sm"
+                                className="rounded-lg border border-border bg-surface px-3 py-2 text-sm"
                                 id="custom-rule-category"
                                 value={customCategory}
                                 onChange={(event): void => {
@@ -426,21 +418,19 @@ export function SettingsRulesLibraryPage(): ReactElement {
 
                 <Card>
                     <CardHeader>
-                        <p className="text-base font-semibold text-[var(--foreground)]">
-                            Test rules
-                        </p>
+                        <p className="text-base font-semibold text-foreground">Test rules</p>
                     </CardHeader>
                     <CardBody className="space-y-3">
                         <div className="flex flex-col gap-1">
                             <label
-                                className="text-sm text-[var(--foreground)]/80"
+                                className="text-sm text-foreground/80"
                                 htmlFor="rule-test-target"
                             >
                                 Rule to test
                             </label>
                             <select
                                 aria-label="Rule to test"
-                                className="rounded-lg border border-[var(--border)] bg-[var(--surface)] px-3 py-2 text-sm"
+                                className="rounded-lg border border-border bg-surface px-3 py-2 text-sm"
                                 id="rule-test-target"
                                 value={testRuleId}
                                 onChange={(event): void => {
@@ -458,14 +448,14 @@ export function SettingsRulesLibraryPage(): ReactElement {
                         </div>
                         <div className="flex flex-col gap-1">
                             <label
-                                className="text-sm text-[var(--foreground)]/80"
+                                className="text-sm text-foreground/80"
                                 htmlFor="rule-test-sample-input"
                             >
                                 Sample input
                             </label>
                             <textarea
                                 aria-label="Sample input"
-                                className="min-h-28 rounded-lg border border-[var(--border)] bg-[var(--surface)] p-3 text-sm"
+                                className="min-h-28 rounded-lg border border-border bg-surface p-3 text-sm"
                                 id="rule-test-sample-input"
                                 value={testInput}
                                 onChange={(event): void => {

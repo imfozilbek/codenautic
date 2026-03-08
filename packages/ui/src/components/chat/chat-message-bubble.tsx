@@ -137,7 +137,7 @@ function renderCodeReferenceLink(
     if (reference === undefined) {
         return (
             <a
-                className="text-[var(--primary)] underline underline-offset-4"
+                className="text-primary underline underline-offset-4"
                 href={href}
                 onClick={(event: MouseEvent<HTMLAnchorElement>): void => {
                     const isInternalHref = href.startsWith("/")
@@ -168,7 +168,7 @@ function renderCodeReferenceLink(
     return (
         <a
             aria-label={`Code reference ${buildReferenceLabel(reference)}`}
-            className="text-[var(--primary)] underline underline-offset-4"
+            className="text-primary underline underline-offset-4"
             href={shouldHandle ? "#" : href}
             onClick={(event: MouseEvent<HTMLAnchorElement>): void => {
                 if (onCodeReferenceClick === undefined) {
@@ -238,7 +238,7 @@ function parseMessageCodeBlock(
 ): ReactElement {
     const className = isExpanded ? "max-h-none" : "max-h-36 overflow-hidden"
     const blockClassName = [
-        "overflow-x-auto rounded-md border border-[var(--border)] bg-[var(--background)]",
+        "overflow-x-auto rounded-md border border-border bg-background",
         "p-3 text-sm transition-[max-height]",
         className,
     ].join(" ")
@@ -250,9 +250,7 @@ function parseMessageCodeBlock(
     return (
         <section aria-label={`Code block ${keyPrefix}`} className="space-y-2" key={keyPrefix}>
             <div className="flex items-center justify-between gap-2">
-                <p className="text-xs uppercase tracking-wide text-[var(--foreground)]/70">
-                    {language}
-                </p>
+                <p className="text-xs uppercase tracking-wide text-foreground/70">{language}</p>
                 <div className="flex items-center gap-2">
                     <Button
                         aria-label={`Copy code block ${keyPrefix}`}
@@ -337,7 +335,7 @@ export function ChatMessageBubble(props: IChatMessageBubbleProps): ReactElement 
         h5: ({ children }): ReactElement => <h6 className="text-xs font-semibold">{children}</h6>,
         h6: ({ children }): ReactElement => <h6 className="text-xs font-semibold">{children}</h6>,
         p: ({ children }): ReactElement => (
-            <p className="leading-relaxed text-[var(--foreground)]">{children}</p>
+            <p className="leading-relaxed text-foreground">{children}</p>
         ),
         ul: ({ children }): ReactElement => (
             <ul className="list-disc space-y-1 pl-6">{children}</ul>
@@ -348,7 +346,7 @@ export function ChatMessageBubble(props: IChatMessageBubbleProps): ReactElement 
                 markdownCodeProps.className === undefined && sourceValue.includes("\n") === false
             if (isInline === true) {
                 return (
-                    <code className="rounded bg-[var(--surface-muted)] px-1 py-0.5 font-mono text-sm">
+                    <code className="rounded bg-surface-muted px-1 py-0.5 font-mono text-sm">
                         {markdownCodeProps.children}
                     </code>
                 )
@@ -391,15 +389,15 @@ export function ChatMessageBubble(props: IChatMessageBubbleProps): ReactElement 
                 aria-label={`Сообщение от ${sender}`}
                 className={`flex min-w-0 flex-col gap-2 rounded-xl border p-3 text-sm ${compactClass} ${
                     isUser
-                        ? "border-[var(--primary)] bg-[color:color-mix(in oklab, var(--primary) 12%, var(--surface))]"
-                        : "border-[var(--border)] bg-[var(--surface)]"
+                        ? "border-primary bg-[color:color-mix(in oklab, var(--primary) 12%, var(--surface))]"
+                        : "border-border bg-surface"
                 }`}
             >
                 <header className="mb-0.5 flex items-start gap-2">
                     <Avatar fallback={avatarLabel} name={sender} size="sm" />
                     <div className="min-w-0 flex-1">
-                        <p className="text-xs font-semibold text-[var(--foreground)]">{sender}</p>
-                        <p className="text-xs text-[var(--foreground)]/70">{formattedTime}</p>
+                        <p className="text-xs font-semibold text-foreground">{sender}</p>
+                        <p className="text-xs text-foreground/70">{formattedTime}</p>
                     </div>
                     <Button
                         aria-label={`Copy message ${sender}`}
@@ -417,7 +415,7 @@ export function ChatMessageBubble(props: IChatMessageBubbleProps): ReactElement 
 
                 <div className="space-y-2">
                     {messageContent.length === 0 ? (
-                        <p className="text-sm text-[var(--foreground)]/60">—</p>
+                        <p className="text-sm text-foreground/60">—</p>
                     ) : (
                         <ReactMarkdown components={markdownComponents}>
                             {messageContent}

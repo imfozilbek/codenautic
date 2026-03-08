@@ -50,7 +50,7 @@ export function DashboardContent(props: IDashboardContentProps): ReactElement {
             <div className="space-y-4">
                 <Card>
                     <CardHeader>
-                        <h3 className="text-base font-semibold text-slate-900">
+                        <h3 className="text-base font-semibold text-foreground">
                             Signals & Work Queue
                         </h3>
                     </CardHeader>
@@ -70,14 +70,16 @@ export function DashboardContent(props: IDashboardContentProps): ReactElement {
                                 (item): ReactElement => (
                                     <li
                                         key={item.id}
-                                        className="rounded-lg border border-slate-200 bg-slate-50 p-3"
+                                        className="rounded-lg border border-border bg-surface p-3"
                                     >
-                                        <p className="text-sm font-semibold text-slate-900">
+                                        <p className="text-sm font-semibold text-foreground">
                                             {item.title}
                                         </p>
-                                        <p className="text-sm text-slate-600">{item.description}</p>
+                                        <p className="text-sm text-muted-foreground">
+                                            {item.description}
+                                        </p>
                                         <Link
-                                            className="mt-2 inline-block text-sm text-slate-900 underline underline-offset-4"
+                                            className="mt-2 inline-block text-sm text-foreground underline underline-offset-4"
                                             to={item.route}
                                         >
                                             Open {item.id}

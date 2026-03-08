@@ -354,20 +354,20 @@ export function ScanProgressPage(props: IScanProgressPageProps): ReactElement {
     const progressState = useMemo(() => buildProgressState(state), [state])
     const progressClass =
         progressState.percent < 50
-            ? "bg-blue-500"
+            ? "bg-primary"
             : progressState.percent < 90
-              ? "bg-emerald-500"
+              ? "bg-success"
               : "bg-purple-500"
     const batchRepositoriesCount = props.targetRepositories?.length ?? 0
 
     return (
         <section className="space-y-4">
-            <h1 className="text-2xl font-semibold text-slate-900">Scan Progress</h1>
-            <p className="text-sm text-slate-600">
+            <h1 className="text-2xl font-semibold text-foreground">Scan Progress</h1>
+            <p className="text-sm text-muted-foreground">
                 Отслеживайте жизненный цикл скана "{jobId}" в реальном времени.
             </p>
             {batchRepositoriesCount > 1 ? (
-                <p className="text-sm text-slate-600">
+                <p className="text-sm text-muted-foreground">
                     Batch onboarding: {String(batchRepositoriesCount)} repositories are tracked in
                     this run.
                 </p>
@@ -375,11 +375,11 @@ export function ScanProgressPage(props: IScanProgressPageProps): ReactElement {
 
             <Card>
                 <CardHeader>
-                    <p className="text-sm font-semibold text-slate-900">Текущий статус</p>
+                    <p className="text-sm font-semibold text-foreground">Текущий статус</p>
                 </CardHeader>
                 <CardBody className="space-y-4">
-                    <div className="rounded-lg border border-slate-200 bg-slate-50 p-3">
-                        <p className="mb-2 text-sm font-semibold text-slate-700">
+                    <div className="rounded-lg border border-border bg-surface p-3">
+                        <p className="mb-2 text-sm font-semibold text-foreground">
                             {progressState.currentMessage}
                         </p>
                         <div className="h-3 w-full rounded-full bg-slate-200">
@@ -393,7 +393,7 @@ export function ScanProgressPage(props: IScanProgressPageProps): ReactElement {
                                 style={{ width: formatProgressLabel(progressState.percent) }}
                             />
                         </div>
-                        <div className="mt-2 flex items-center justify-between text-sm text-slate-600">
+                        <div className="mt-2 flex items-center justify-between text-sm text-muted-foreground">
                             <span>Прогресс: {formatProgressLabel(progressState.percent)}</span>
                             <span>
                                 ETA:{" "}
@@ -410,24 +410,24 @@ export function ScanProgressPage(props: IScanProgressPageProps): ReactElement {
                                 <article
                                     className={`rounded-lg border px-3 py-2 ${
                                         phase.isCompleted
-                                            ? "border-emerald-200 bg-emerald-50"
+                                            ? "border-success/30 bg-success/10"
                                             : phase.isActive
-                                              ? "border-blue-200 bg-blue-50"
-                                              : "border-slate-200 bg-white"
+                                              ? "border-primary/30 bg-primary/10"
+                                              : "border-border bg-white"
                                     }`}
                                     key={phase.phase}
                                 >
-                                    <p className="text-xs uppercase tracking-wider text-slate-500">
+                                    <p className="text-xs uppercase tracking-wider text-muted-foreground">
                                         {phase.phase}
                                     </p>
-                                    <p className="text-sm font-semibold text-slate-900">
+                                    <p className="text-sm font-semibold text-foreground">
                                         {phase.isCompleted
                                             ? "Готово"
                                             : phase.isActive
                                               ? "Выполняется"
                                               : "Ожидает"}
                                     </p>
-                                    <p className="text-xs text-slate-600">{phase.message}</p>
+                                    <p className="text-xs text-muted-foreground">{phase.message}</p>
                                 </article>
                             ),
                         )}
@@ -464,9 +464,9 @@ export function ScanProgressPage(props: IScanProgressPageProps): ReactElement {
             <Card>
                 <CardHeader>
                     <div className="flex items-center justify-between">
-                        <p className="text-sm font-semibold text-slate-900">Логи этапов</p>
+                        <p className="text-sm font-semibold text-foreground">Логи этапов</p>
                         <p
-                            className={`text-xs ${progressState.isDone ? "text-emerald-700" : "text-slate-500"}`}
+                            className={`text-xs ${progressState.isDone ? "text-success" : "text-muted-foreground"}`}
                         >
                             {progressState.isDone
                                 ? "Завершено"
@@ -483,7 +483,7 @@ export function ScanProgressPage(props: IScanProgressPageProps): ReactElement {
 
                     <ul aria-label="Scan logs" className="space-y-2 text-sm" role="log">
                         {state.events.length === 0 ? (
-                            <li className="rounded-md border border-slate-200 p-3 text-slate-500">
+                            <li className="rounded-md border border-border p-3 text-muted-foreground">
                                 Пока нет событий сканирования.
                             </li>
                         ) : null}
@@ -491,14 +491,14 @@ export function ScanProgressPage(props: IScanProgressPageProps): ReactElement {
                             (event): ReactElement => (
                                 <li
                                     key={`${event.timestamp}-${event.phase}-${event.message}`}
-                                    className="rounded-md border border-slate-200 bg-slate-50 p-3"
+                                    className="rounded-md border border-border bg-surface p-3"
                                 >
-                                    <p className="text-xs text-slate-500">
+                                    <p className="text-xs text-muted-foreground">
                                         {formatLogTime(event.timestamp)}
                                     </p>
                                     <p>{event.message}</p>
                                     {event.log === undefined ? null : (
-                                        <p className="mt-1 text-xs text-slate-700">{event.log}</p>
+                                        <p className="mt-1 text-xs text-foreground">{event.log}</p>
                                     )}
                                 </li>
                             ),

@@ -52,7 +52,7 @@ export function InfiniteScrollContainer(props: IInfiniteScrollContainerProps): R
             <div ref={setLoadMoreRef} aria-hidden="true" className="h-1" />
             <div
                 aria-live="polite"
-                className="mt-2 flex justify-center py-2 text-sm text-slate-600"
+                className="mt-2 flex justify-center py-2 text-sm text-muted-foreground"
             >
                 {props.isLoading === true ? (props.loadingText ?? "Загружаем...") : null}
             </div>

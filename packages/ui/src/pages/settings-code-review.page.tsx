@@ -337,8 +337,8 @@ export function SettingsCodeReviewPage(): ReactElement {
 
     return (
         <section className="space-y-4">
-            <h1 className="text-2xl font-semibold text-slate-900">Code Review Configuration</h1>
-            <p className="text-sm text-slate-600">
+            <h1 className="text-2xl font-semibold text-foreground">Code Review Configuration</h1>
+            <p className="text-sm text-muted-foreground">
                 Configure repository YAML, cadence, severity threshold and ignore paths for
                 automated review.
             </p>
@@ -368,12 +368,12 @@ export function SettingsCodeReviewPage(): ReactElement {
                 onApply={handleCadenceSave}
                 onModeChange={handleCadenceModeChange}
             />
-            <section className="space-y-3 rounded-xl border border-slate-200 bg-white p-4">
-                <h2 className="text-base font-semibold text-slate-900">CCR summary settings</h2>
-                <p className="text-sm text-slate-600">
+            <section className="space-y-3 rounded-xl border border-border bg-white p-4">
+                <h2 className="text-base font-semibold text-foreground">CCR summary settings</h2>
+                <p className="text-sm text-muted-foreground">
                     Configure how CCR summary cards are generated and what sections they include.
                 </p>
-                <label className="flex items-center gap-2 text-sm text-slate-700">
+                <label className="flex items-center gap-2 text-sm text-foreground">
                     <input
                         checked={ccrSummarySettings.enabled}
                         type="checkbox"
@@ -388,7 +388,7 @@ export function SettingsCodeReviewPage(): ReactElement {
                     />
                     Enable CCR summary generation
                 </label>
-                <label className="flex items-center gap-2 text-sm text-slate-700">
+                <label className="flex items-center gap-2 text-sm text-foreground">
                     <input
                         checked={ccrSummarySettings.includeRiskOverview}
                         type="checkbox"
@@ -403,7 +403,7 @@ export function SettingsCodeReviewPage(): ReactElement {
                     />
                     Include risk overview section
                 </label>
-                <label className="flex items-center gap-2 text-sm text-slate-700">
+                <label className="flex items-center gap-2 text-sm text-foreground">
                     <input
                         checked={ccrSummarySettings.includeTimeline}
                         type="checkbox"
@@ -419,13 +419,13 @@ export function SettingsCodeReviewPage(): ReactElement {
                     Include timeline highlights
                 </label>
                 <label
-                    className="space-y-1 text-sm text-slate-700"
+                    className="space-y-1 text-sm text-foreground"
                     htmlFor="ccr-summary-detail-level"
                 >
-                    <span className="block font-medium text-slate-900">Summary detail level</span>
+                    <span className="block font-medium text-foreground">Summary detail level</span>
                     <select
                         id="ccr-summary-detail-level"
-                        className="w-full rounded-md border border-slate-300 px-3 py-2"
+                        className="w-full rounded-md border border-border px-3 py-2"
                         value={ccrSummarySettings.detailLevel}
                         onChange={(event): void => {
                             const nextLevel = event.currentTarget.value as TCcrSummaryDetailLevel
@@ -453,7 +453,7 @@ export function SettingsCodeReviewPage(): ReactElement {
                         )
                     }}
                 />
-                <p className="text-xs text-slate-500" data-testid="ccr-summary-state">
+                <p className="text-xs text-muted-foreground" data-testid="ccr-summary-state">
                     {ccrSummaryState}
                 </p>
                 <Button type="button" variant="solid" onPress={handleSummarySettingsSave}>
@@ -479,7 +479,10 @@ export function SettingsCodeReviewPage(): ReactElement {
                 />
                 {ccrSummary.summaryQuery.data === undefined ||
                 ccrSummary.summaryQuery.data === null ? (
-                    <p className="text-xs text-slate-500" data-testid="ccr-summary-output-empty">
+                    <p
+                        className="text-xs text-muted-foreground"
+                        data-testid="ccr-summary-output-empty"
+                    >
                         Generate summary preview to inspect current output.
                     </p>
                 ) : (
@@ -487,16 +490,16 @@ export function SettingsCodeReviewPage(): ReactElement {
                         const generatedSummary = ccrSummary.summaryQuery.data
                         return (
                             <article
-                                className="space-y-2 rounded-md border border-slate-200 bg-slate-50 p-3"
+                                className="space-y-2 rounded-md border border-border bg-surface p-3"
                                 data-testid="ccr-summary-output"
                             >
-                                <p className="text-xs text-slate-500">
+                                <p className="text-xs text-muted-foreground">
                                     {`Generated at: ${generatedSummary.result.generatedAt}`}
                                 </p>
-                                <p className="text-sm text-slate-700">
+                                <p className="text-sm text-foreground">
                                     {generatedSummary.result.summary}
                                 </p>
-                                <ul className="list-disc space-y-1 pl-5 text-xs text-slate-600">
+                                <ul className="list-disc space-y-1 pl-5 text-xs text-muted-foreground">
                                     {generatedSummary.result.highlights.map(
                                         (highlight): ReactElement => (
                                             <li key={highlight}>{highlight}</li>
@@ -508,12 +511,12 @@ export function SettingsCodeReviewPage(): ReactElement {
                     })()
                 )}
             </section>
-            <section className="space-y-3 rounded-xl border border-slate-200 bg-white p-4">
-                <h2 className="text-base font-semibold text-slate-900">IDE sync settings</h2>
-                <p className="text-sm text-slate-600">
+            <section className="space-y-3 rounded-xl border border-border bg-white p-4">
+                <h2 className="text-base font-semibold text-foreground">IDE sync settings</h2>
+                <p className="text-sm text-muted-foreground">
                     Configure how CCR decisions and code insights are synced to IDE plugins.
                 </p>
-                <label className="flex items-center gap-2 text-sm text-slate-700">
+                <label className="flex items-center gap-2 text-sm text-foreground">
                     <input
                         checked={ideSyncSettings.enabled}
                         type="checkbox"
@@ -528,11 +531,11 @@ export function SettingsCodeReviewPage(): ReactElement {
                     />
                     Enable IDE plugin sync
                 </label>
-                <label className="space-y-1 text-sm text-slate-700" htmlFor="ide-sync-provider">
-                    <span className="block font-medium text-slate-900">IDE provider scope</span>
+                <label className="space-y-1 text-sm text-foreground" htmlFor="ide-sync-provider">
+                    <span className="block font-medium text-foreground">IDE provider scope</span>
                     <select
                         id="ide-sync-provider"
-                        className="w-full rounded-md border border-slate-300 px-3 py-2"
+                        className="w-full rounded-md border border-border px-3 py-2"
                         value={ideSyncSettings.provider}
                         onChange={(event): void => {
                             const nextProvider = event.currentTarget.value as TIdeSyncProvider
@@ -549,7 +552,7 @@ export function SettingsCodeReviewPage(): ReactElement {
                         <option value={IDE_SYNC_PROVIDER.both}>Both</option>
                     </select>
                 </label>
-                <label className="flex items-center gap-2 text-sm text-slate-700">
+                <label className="flex items-center gap-2 text-sm text-foreground">
                     <input
                         checked={ideSyncSettings.syncOnPush}
                         type="checkbox"
@@ -564,7 +567,7 @@ export function SettingsCodeReviewPage(): ReactElement {
                     />
                     Sync decisions on every push
                 </label>
-                <label className="flex items-center gap-2 text-sm text-slate-700">
+                <label className="flex items-center gap-2 text-sm text-foreground">
                     <input
                         checked={ideSyncSettings.autoOpenDiffOnSync}
                         type="checkbox"
@@ -579,48 +582,50 @@ export function SettingsCodeReviewPage(): ReactElement {
                     />
                     Auto-open affected diffs after sync
                 </label>
-                <p className="text-xs text-slate-500" data-testid="ide-sync-state">
+                <p className="text-xs text-muted-foreground" data-testid="ide-sync-state">
                     {ideSyncState}
                 </p>
                 <Button type="button" variant="solid" onPress={handleIdeSyncSave}>
                     Save IDE sync settings
                 </Button>
             </section>
-            <section className="space-y-3 rounded-xl border border-slate-200 bg-white p-4">
-                <h2 className="text-base font-semibold text-slate-900">MCP server control panel</h2>
-                <p className="text-sm text-slate-600">
+            <section className="space-y-3 rounded-xl border border-border bg-white p-4">
+                <h2 className="text-base font-semibold text-foreground">
+                    MCP server control panel
+                </h2>
+                <p className="text-sm text-muted-foreground">
                     Review MCP tool usage and runtime quality to spot unstable tools before they
                     impact CCR generation.
                 </p>
                 <div className="grid gap-3 sm:grid-cols-3">
-                    <article className="rounded-md border border-slate-200 bg-slate-50 p-3">
-                        <p className="text-xs font-medium uppercase tracking-wide text-slate-500">
+                    <article className="rounded-md border border-border bg-surface p-3">
+                        <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
                             Total tool calls
                         </p>
                         <p
-                            className="text-xl font-semibold text-slate-900"
+                            className="text-xl font-semibold text-foreground"
                             data-testid="mcp-total-calls"
                         >
                             {mcpTotalCalls}
                         </p>
                     </article>
-                    <article className="rounded-md border border-slate-200 bg-slate-50 p-3">
-                        <p className="text-xs font-medium uppercase tracking-wide text-slate-500">
+                    <article className="rounded-md border border-border bg-surface p-3">
+                        <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
                             Success rate
                         </p>
                         <p
-                            className="text-xl font-semibold text-slate-900"
+                            className="text-xl font-semibold text-foreground"
                             data-testid="mcp-success-rate"
                         >
                             {mcpSuccessRate}%
                         </p>
                     </article>
-                    <article className="rounded-md border border-slate-200 bg-slate-50 p-3">
-                        <p className="text-xs font-medium uppercase tracking-wide text-slate-500">
+                    <article className="rounded-md border border-border bg-surface p-3">
+                        <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
                             Avg latency
                         </p>
                         <p
-                            className="text-xl font-semibold text-slate-900"
+                            className="text-xl font-semibold text-foreground"
                             data-testid="mcp-avg-latency"
                         >
                             {mcpAverageLatencyMs} ms

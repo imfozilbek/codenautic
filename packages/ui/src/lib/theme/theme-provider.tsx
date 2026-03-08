@@ -33,6 +33,8 @@ export interface IThemePalette {
     readonly background: string
     /** Основной текст. */
     readonly foreground: string
+    /** Вторичный/приглушённый текст (метки, подписи, secondary UI). */
+    readonly mutedForeground: string
     /** Фон поверхностей. */
     readonly surface: string
     /** Поверхность с пониженной контрастностью. */
@@ -408,36 +410,38 @@ export const THEME_PRESETS = [
     {
         id: "moonstone",
         label: "Moonstone",
-        description: "Нежный фиолетовый акцент с холодной base-палитрой.",
+        description: "HeroUI-совместимая teal-палитра с тёплым акцентом.",
         light: {
-            background: "oklch(0.985 0.01 275)",
-            foreground: "oklch(0.235 0.02 257)",
-            surface: "oklch(0.988 0.008 275)",
-            surfaceMuted: "oklch(0.95 0.015 262)",
-            border: "oklch(0.887 0.012 263)",
-            ring: "oklch(0.676 0.172 243)",
-            primary: "oklch(0.66 0.17 267)",
-            primaryForeground: "oklch(0.985 0.014 272)",
-            accent: "oklch(0.82 0.09 176)",
-            accentForeground: "oklch(0.25 0.03 178)",
-            success: "oklch(0.74 0.14 149)",
-            warning: "oklch(0.8 0.15 83)",
-            danger: "oklch(0.66 0.22 26)",
+            background: "oklch(0.9702 0.002 148.67)",
+            foreground: "oklch(0.2103 0.002 148.67)",
+            mutedForeground: "oklch(0.5517 0.004 148.67)",
+            surface: "oklch(1.0 0.001 148.67)",
+            surfaceMuted: "oklch(0.94 0.002 148.67)",
+            border: "oklch(0.9 0.002 148.67)",
+            ring: "oklch(0.7697 0.2124 148.67)",
+            primary: "oklch(0.7697 0.2124 148.67)",
+            primaryForeground: "oklch(0.15 0.03 148.67)",
+            accent: "oklch(0.75 0.15 45)",
+            accentForeground: "oklch(0.2 0.03 45)",
+            success: "oklch(0.6072 0.1647 149.02)",
+            warning: "oklch(0.6972 0.1687 54.22)",
+            danger: "oklch(0.5509 0.2166 25.29)",
         },
         dark: {
-            background: "oklch(0.22 0.03 261)",
-            foreground: "oklch(0.94 0.012 257)",
-            surface: "oklch(0.26 0.03 256)",
-            surfaceMuted: "oklch(0.33 0.028 255)",
-            border: "oklch(0.42 0.036 260)",
-            ring: "oklch(0.75 0.13 249)",
-            primary: "oklch(0.79 0.18 267)",
-            primaryForeground: "oklch(0.22 0.03 264)",
-            accent: "oklch(0.77 0.1 174)",
-            accentForeground: "oklch(0.24 0.03 171)",
-            success: "oklch(0.76 0.135 149)",
-            warning: "oklch(0.83 0.13 78)",
-            danger: "oklch(0.73 0.2 25)",
+            background: "oklch(0.12 0.002 148.67)",
+            foreground: "oklch(0.9911 0.002 148.67)",
+            mutedForeground: "oklch(0.705 0.004 148.67)",
+            surface: "oklch(0.2103 0.004 148.67)",
+            surfaceMuted: "oklch(0.274 0.002 148.67)",
+            border: "oklch(0.28 0.002 148.67)",
+            ring: "oklch(0.7697 0.2124 148.67)",
+            primary: "oklch(0.7697 0.2124 148.67)",
+            primaryForeground: "oklch(0.15 0.03 148.67)",
+            accent: "oklch(0.78 0.14 45)",
+            accentForeground: "oklch(0.2 0.03 45)",
+            success: "oklch(0.7697 0.2124 148.67)",
+            warning: "oklch(0.7921 0.1626 67.42)",
+            danger: "oklch(0.5931 0.2338 25.42)",
         },
     },
     {
@@ -447,6 +451,7 @@ export const THEME_PRESETS = [
         light: {
             background: "oklch(0.987 0.008 258)",
             foreground: "oklch(0.235 0.02 252)",
+            mutedForeground: "oklch(0.55 0.015 252)",
             surface: "oklch(0.99 0.004 257)",
             surfaceMuted: "oklch(0.954 0.01 257)",
             border: "oklch(0.878 0.01 252)",
@@ -462,6 +467,7 @@ export const THEME_PRESETS = [
         dark: {
             background: "oklch(0.2 0.03 255)",
             foreground: "oklch(0.94 0.012 250)",
+            mutedForeground: "oklch(0.65 0.015 250)",
             surface: "oklch(0.26 0.03 255)",
             surfaceMuted: "oklch(0.31 0.028 254)",
             border: "oklch(0.43 0.034 252)",
@@ -482,6 +488,7 @@ export const THEME_PRESETS = [
         light: {
             background: "oklch(0.985 0.012 136)",
             foreground: "oklch(0.242 0.025 136)",
+            mutedForeground: "oklch(0.55 0.015 136)",
             surface: "oklch(0.99 0.008 136)",
             surfaceMuted: "oklch(0.948 0.014 141)",
             border: "oklch(0.88 0.01 142)",
@@ -497,6 +504,7 @@ export const THEME_PRESETS = [
         dark: {
             background: "oklch(0.198 0.028 151)",
             foreground: "oklch(0.945 0.012 132)",
+            mutedForeground: "oklch(0.65 0.015 132)",
             surface: "oklch(0.262 0.03 144)",
             surfaceMuted: "oklch(0.324 0.028 141)",
             border: "oklch(0.44 0.026 144)",
@@ -517,6 +525,7 @@ export const THEME_PRESETS = [
         light: {
             background: "oklch(0.99 0.01 68)",
             foreground: "oklch(0.245 0.02 61)",
+            mutedForeground: "oklch(0.55 0.015 61)",
             surface: "oklch(0.995 0.008 66)",
             surfaceMuted: "oklch(0.956 0.015 73)",
             border: "oklch(0.886 0.01 70)",
@@ -532,6 +541,7 @@ export const THEME_PRESETS = [
         dark: {
             background: "oklch(0.208 0.028 58)",
             foreground: "oklch(0.94 0.012 66)",
+            mutedForeground: "oklch(0.65 0.015 66)",
             surface: "oklch(0.26 0.027 64)",
             surfaceMuted: "oklch(0.32 0.026 67)",
             border: "oklch(0.415 0.03 64)",
@@ -552,6 +562,7 @@ export const THEME_PRESETS = [
         light: {
             background: "oklch(0.985 0.004 240)",
             foreground: "oklch(0.236 0.02 255)",
+            mutedForeground: "oklch(0.55 0.01 255)",
             surface: "oklch(0.992 0.004 241)",
             surfaceMuted: "oklch(0.95 0.008 240)",
             border: "oklch(0.885 0.008 244)",
@@ -567,6 +578,7 @@ export const THEME_PRESETS = [
         dark: {
             background: "oklch(0.18 0.01 236)",
             foreground: "oklch(0.94 0.008 252)",
+            mutedForeground: "oklch(0.65 0.01 252)",
             surface: "oklch(0.26 0.014 241)",
             surfaceMuted: "oklch(0.32 0.018 242)",
             border: "oklch(0.44 0.03 244)",
@@ -587,6 +599,7 @@ export const THEME_PRESETS = [
         light: {
             background: "oklch(0.986 0.01 194)",
             foreground: "oklch(0.24 0.02 204)",
+            mutedForeground: "oklch(0.55 0.015 204)",
             surface: "oklch(0.992 0.006 197)",
             surfaceMuted: "oklch(0.956 0.01 197)",
             border: "oklch(0.88 0.008 195)",
@@ -602,6 +615,7 @@ export const THEME_PRESETS = [
         dark: {
             background: "oklch(0.197 0.028 204)",
             foreground: "oklch(0.94 0.01 205)",
+            mutedForeground: "oklch(0.65 0.012 205)",
             surface: "oklch(0.262 0.032 205)",
             surfaceMuted: "oklch(0.323 0.032 204)",
             border: "oklch(0.44 0.033 205)",
@@ -625,6 +639,7 @@ export type ThemePresetId = (typeof THEME_PRESETS)[number]["id"]
 const THEME_CSS_VARIABLES: ReadonlyArray<keyof IThemePalette> = [
     "background",
     "foreground",
+    "mutedForeground",
     "surface",
     "surfaceMuted",
     "border",
@@ -709,6 +724,15 @@ function getPresetById(presetId: ThemePresetId): IThemePreset {
     return preset
 }
 
+/**
+ * Конвертирует camelCase ключ палитры в kebab-case CSS-переменную.
+ *
+ * @example camelToKebab("surfaceMuted") → "surface-muted"
+ */
+function camelToKebab(str: string): string {
+    return str.replace(/[A-Z]/g, (letter): string => `-${letter.toLowerCase()}`)
+}
+
 function applyThemeTokens(resolvedMode: ThemeResolvedMode, presetId: ThemePresetId): void {
     const root = document.documentElement
     const preset = getPresetById(presetId)
@@ -716,7 +740,7 @@ function applyThemeTokens(resolvedMode: ThemeResolvedMode, presetId: ThemePreset
 
     THEME_CSS_VARIABLES.forEach((cssVariable): void => {
         const value = palette[cssVariable]
-        root.style.setProperty(`--${cssVariable}`, value)
+        root.style.setProperty(`--${camelToKebab(cssVariable)}`, value)
     })
 
     root.classList.toggle("dark", resolvedMode === "dark")

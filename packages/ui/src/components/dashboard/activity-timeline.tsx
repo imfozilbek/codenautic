@@ -57,13 +57,13 @@ export function ActivityTimeline(props: IActivityTimelineProps): ReactElement {
     return (
         <Card>
             <CardHeader>
-                <h2 className="text-base font-semibold text-slate-900">Recent activity</h2>
+                <h2 className="text-base font-semibold text-foreground">Recent activity</h2>
             </CardHeader>
             <CardBody>
                 {Object.entries(groupedEntries).map(
                     ([group, items]): ReactElement => (
                         <section key={group} className="space-y-2">
-                            <h3 className="mt-2 text-sm font-semibold text-slate-700">{group}</h3>
+                            <h3 className="mt-2 text-sm font-semibold text-foreground">{group}</h3>
                             <ul className="space-y-2" aria-label={`Timeline ${group}`}>
                                 {items.map(
                                     (item): ReactElement => (

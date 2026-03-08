@@ -173,7 +173,7 @@ export function ChatPanel(props: IChatPanelProps): ReactElement {
             setSelectedContextId(availableContextId)
         }
     }, [availableContextId, inputContextOptions, props.activeContextId, selectedContextId])
-    const wrapperClassName = `fixed inset-y-0 right-0 z-40 flex w-full transform flex-col border-l border-[var(--border)] bg-[var(--surface)] shadow-2xl transition-transform duration-200 sm:max-w-[420px] ${
+    const wrapperClassName = `fixed inset-y-0 right-0 z-40 flex w-full transform flex-col border-l border-border bg-surface shadow-2xl transition-transform duration-200 sm:max-w-[420px] ${
         isPanelOpen ? "translate-x-0" : "translate-x-full"
     } ${props.className ?? ""}`
 
@@ -208,7 +208,7 @@ export function ChatPanel(props: IChatPanelProps): ReactElement {
     return (
         <aside aria-label={panelAriaLabel} className={wrapperClassName} role="complementary">
             <Card className="min-h-full rounded-none border-0 shadow-none">
-                <CardHeader className="flex items-center justify-between border-b border-[var(--border)] bg-[var(--surface)]">
+                <CardHeader className="flex items-center justify-between border-b border-border bg-surface">
                     <h2 className="text-sm font-semibold">{title}</h2>
                     {props.onClose === undefined ? null : (
                         <Button
@@ -224,7 +224,7 @@ export function ChatPanel(props: IChatPanelProps): ReactElement {
                     )}
                 </CardHeader>
 
-                <CardBody className="flex min-h-0 flex-1 flex-col gap-3 bg-[var(--surface-muted)] p-0">
+                <CardBody className="flex min-h-0 flex-1 flex-col gap-3 bg-surface-muted p-0">
                     {normalizedContextItems.length === 0 ? null : (
                         <div className="px-3 pt-2">
                             <ChatContextIndicator
@@ -243,7 +243,7 @@ export function ChatPanel(props: IChatPanelProps): ReactElement {
                         role="log"
                     >
                         {props.messages.length === 0 ? (
-                            <li className="text-sm text-[var(--foreground)]/70" role="status">
+                            <li className="text-sm text-foreground/70" role="status">
                                 {emptyText}
                             </li>
                         ) : (

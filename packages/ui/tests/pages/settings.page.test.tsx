@@ -19,8 +19,7 @@ describe("SettingsPage", (): void => {
         const heading = screen.getByRole("heading", { level: 1, name: "Settings" })
 
         expect(heading).not.toBeNull()
-        expect(heading.className).toContain("text-[var(--foreground)]")
-        expect(heading.className).not.toContain("text-slate-900")
+        expect(heading.className).toContain("text-foreground")
         expect(
             screen.getByText(
                 "Configure providers, onboarding defaults, governance rules, and operational controls for your workspace.",

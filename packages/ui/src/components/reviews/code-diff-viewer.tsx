@@ -49,23 +49,23 @@ interface ICodeLineProps {
 
 function getTokenClass(token: string): string {
     if (token.trim().length === 0) {
-        return "text-slate-900"
+        return "text-foreground"
     }
 
     if (token.startsWith('"') && token.endsWith('"')) {
-        return "text-emerald-700"
+        return "text-success"
     }
 
     if (token.startsWith("'") && token.endsWith("'")) {
-        return "text-emerald-700"
+        return "text-success"
     }
 
     if (token.startsWith("`") && token.endsWith("`")) {
-        return "text-emerald-700"
+        return "text-success"
     }
 
     if (token.startsWith("//")) {
-        return "text-slate-500 italic"
+        return "text-muted-foreground italic"
     }
 
     if (/^\d+$/.test(token)) {
@@ -73,10 +73,10 @@ function getTokenClass(token: string): string {
     }
 
     if (DIFF_KEYWORDS.has(token)) {
-        return "text-blue-700 font-semibold"
+        return "text-primary font-semibold"
     }
 
-    return "text-slate-900"
+    return "text-foreground"
 }
 
 function renderHighlightedCode(code: string): ReactElement {
@@ -97,11 +97,11 @@ function renderHighlightedCode(code: string): ReactElement {
 
 function getLineStyleByType(type: TCcrDiffLineType): string {
     if (type === "removed") {
-        return "bg-rose-50 border-l-4 border-rose-300"
+        return "bg-danger/10 border-l-4 border-danger/40"
     }
 
     if (type === "added") {
-        return "bg-emerald-50 border-l-4 border-emerald-300"
+        return "bg-success/10 border-l-4 border-success/40"
     }
 
     return "bg-white"
@@ -120,21 +120,19 @@ function CodeDiffLine(props: ICodeLineProps): ReactElement {
     const lineNumber = isLeft ? props.line.leftLine : props.line.rightLine
     const lineClassName = isLeft
         ? props.diffType === "added"
-            ? "bg-slate-100 text-slate-300"
-            : "bg-white text-slate-700"
+            ? "bg-surface-muted text-slate-300"
+            : "bg-white text-foreground"
         : props.diffType === "removed"
-          ? "bg-slate-100 text-slate-300"
-          : "bg-white text-slate-700"
+          ? "bg-surface-muted text-slate-300"
+          : "bg-white text-foreground"
 
     const code = shouldRenderCode ? renderHighlightedCode(text) : null
 
     return (
         <div
-            className={`grid ${isLeft ? "grid-cols-[3rem_1fr]" : "grid-cols-[3rem_1fr]"} items-stretch border-r border-slate-200`}
+            className={`grid ${isLeft ? "grid-cols-[3rem_1fr]" : "grid-cols-[3rem_1fr]"} items-stretch border-r border-border`}
         >
-            <div
-                className={`border-r border-slate-200 px-2 py-1 text-right text-xs ${lineClassName}`}
-            >
+            <div className={`border-r border-border px-2 py-1 text-right text-xs ${lineClassName}`}>
                 {getLineNumber(lineNumber)}
             </div>
             <div className={`px-2 py-1 text-[11px] leading-5 font-mono ${lineClassName}`}>
@@ -170,18 +168,18 @@ function CodeDiffFilePanel(props: ICcrDiffFile): ReactElement {
     })
 
     return (
-        <section className="rounded-lg border border-slate-200">
-            <header className="flex flex-wrap items-center gap-2 border-b border-slate-200 bg-slate-50 px-3 py-2">
-                <h3 className="text-sm font-semibold text-slate-900">{fileData.filePath}</h3>
-                <span className="rounded bg-slate-100 px-2 py-0.5 text-[11px] text-slate-700">
+        <section className="rounded-lg border border-border">
+            <header className="flex flex-wrap items-center gap-2 border-b border-border bg-surface px-3 py-2">
+                <h3 className="text-sm font-semibold text-foreground">{fileData.filePath}</h3>
+                <span className="rounded bg-surface-muted px-2 py-0.5 text-[11px] text-foreground">
                     +{String(lineCounts.added)} / -{String(lineCounts.removed)}
                 </span>
-                <span className="text-xs text-slate-500">Язык: {fileData.language}</span>
+                <span className="text-xs text-muted-foreground">Язык: {fileData.language}</span>
             </header>
             <div className="overflow-x-auto">
                 <div
                     aria-label={`Diff lines for ${fileData.filePath}`}
-                    className="relative max-h-96 overflow-auto border-b border-slate-200"
+                    className="relative max-h-96 overflow-auto border-b border-border"
                     ref={virtualizer.parentRef}
                 >
                     <div
@@ -202,7 +200,7 @@ function CodeDiffFilePanel(props: ICcrDiffFile): ReactElement {
                                     key={`diff-line-${String(virtualItem.index)}`}
                                     role="row"
                                     style={virtualizer.getItemStyle(virtualItem)}
-                                    className={`border-b border-slate-200 ${lineStyle}`}
+                                    className={`border-b border-border ${lineStyle}`}
                                 >
                                     <div className="grid w-full min-w-[56rem] grid-cols-[1fr_1fr]">
                                         <CodeDiffLine
@@ -222,7 +220,7 @@ function CodeDiffFilePanel(props: ICcrDiffFile): ReactElement {
                                                 (comment: ICcrDiffComment): ReactElement => (
                                                     <li
                                                         key={`${comment.author}-${String(comment.line)}-${comment.side}`}
-                                                        className="mt-1 rounded border border-slate-200 bg-slate-50 px-2 py-1 text-xs text-slate-700"
+                                                        className="mt-1 rounded border border-border bg-surface px-2 py-1 text-xs text-foreground"
                                                     >
                                                         <p className="font-medium">
                                                             {comment.author} ({comment.side}:
@@ -248,7 +246,7 @@ function CodeDiffFilePanel(props: ICcrDiffFile): ReactElement {
 export function CodeDiffViewer(props: ICodeDiffViewerProps): ReactElement {
     if (props.files.length === 0) {
         return (
-            <div className="rounded-lg border border-slate-200 bg-slate-50 p-4 text-sm text-slate-600">
+            <div className="rounded-lg border border-border bg-surface p-4 text-sm text-muted-foreground">
                 No available diff content for this CCR.
             </div>
         )
@@ -256,7 +254,7 @@ export function CodeDiffViewer(props: ICodeDiffViewerProps): ReactElement {
 
     return (
         <section className="space-y-4" aria-label="Code diff viewer">
-            <h2 className="text-xl font-semibold text-slate-900">Code diff</h2>
+            <h2 className="text-xl font-semibold text-foreground">Code diff</h2>
             {props.files.map(
                 (file): ReactElement => (
                     <CodeDiffFilePanel {...file} key={file.filePath} />

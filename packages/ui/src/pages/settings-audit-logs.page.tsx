@@ -279,28 +279,28 @@ export function SettingsAuditLogsPage(props: ISettingsAuditLogsPageProps = {}): 
 
     return (
         <section className="space-y-4">
-            <h1 className="text-2xl font-semibold text-[var(--foreground)]">Audit logs</h1>
-            <p className="text-sm text-[var(--foreground)]/70">
+            <h1 className="text-2xl font-semibold text-foreground">Audit logs</h1>
+            <p className="text-sm text-foreground/70">
                 Review change history, filter by actor and action, inspect selected date range, and
                 export filtered results.
             </p>
 
             <Card>
                 <CardHeader>
-                    <p className="text-base font-semibold text-[var(--foreground)]">Filters</p>
+                    <p className="text-base font-semibold text-foreground">Filters</p>
                 </CardHeader>
                 <CardBody className="space-y-3">
                     <div className="grid gap-3 md:grid-cols-[1fr_1fr_180px_180px_auto]">
                         <div className="flex flex-col gap-1">
                             <label
-                                className="text-sm text-[var(--foreground)]/80"
+                                className="text-sm text-foreground/80"
                                 htmlFor="audit-filter-actor"
                             >
                                 Filter by actor
                             </label>
                             <select
                                 aria-label="Filter by actor"
-                                className="rounded-lg border border-[var(--border)] bg-[var(--surface)] px-3 py-2 text-sm"
+                                className="rounded-lg border border-border bg-surface px-3 py-2 text-sm"
                                 id="audit-filter-actor"
                                 value={filters.actor}
                                 onChange={(event): void => {
@@ -324,14 +324,14 @@ export function SettingsAuditLogsPage(props: ISettingsAuditLogsPageProps = {}): 
                         </div>
                         <div className="flex flex-col gap-1">
                             <label
-                                className="text-sm text-[var(--foreground)]/80"
+                                className="text-sm text-foreground/80"
                                 htmlFor="audit-filter-action"
                             >
                                 Filter by action
                             </label>
                             <select
                                 aria-label="Filter by action"
-                                className="rounded-lg border border-[var(--border)] bg-[var(--surface)] px-3 py-2 text-sm"
+                                className="rounded-lg border border-border bg-surface px-3 py-2 text-sm"
                                 id="audit-filter-action"
                                 value={filters.action}
                                 onChange={(event): void => {
@@ -363,14 +363,14 @@ export function SettingsAuditLogsPage(props: ISettingsAuditLogsPageProps = {}): 
                         </div>
                         <div className="flex flex-col gap-1">
                             <label
-                                className="text-sm text-[var(--foreground)]/80"
+                                className="text-sm text-foreground/80"
                                 htmlFor="audit-filter-date-from"
                             >
                                 Date from
                             </label>
                             <input
                                 aria-label="Date from"
-                                className="rounded-lg border border-[var(--border)] bg-[var(--surface)] px-3 py-2 text-sm"
+                                className="rounded-lg border border-border bg-surface px-3 py-2 text-sm"
                                 id="audit-filter-date-from"
                                 type="date"
                                 value={filters.dateFrom}
@@ -387,14 +387,14 @@ export function SettingsAuditLogsPage(props: ISettingsAuditLogsPageProps = {}): 
                         </div>
                         <div className="flex flex-col gap-1">
                             <label
-                                className="text-sm text-[var(--foreground)]/80"
+                                className="text-sm text-foreground/80"
                                 htmlFor="audit-filter-date-to"
                             >
                                 Date to
                             </label>
                             <input
                                 aria-label="Date to"
-                                className="rounded-lg border border-[var(--border)] bg-[var(--surface)] px-3 py-2 text-sm"
+                                className="rounded-lg border border-border bg-surface px-3 py-2 text-sm"
                                 id="audit-filter-date-to"
                                 type="date"
                                 value={filters.dateTo}
@@ -419,7 +419,7 @@ export function SettingsAuditLogsPage(props: ISettingsAuditLogsPageProps = {}): 
                             </Button>
                         </div>
                     </div>
-                    <p className="text-sm text-[var(--foreground)]/70">
+                    <p className="text-sm text-foreground/70">
                         Showing {filteredLogs.length} of {sourceLogs.length} entries.
                     </p>
                     {exportMessage.length > 0 ? (
@@ -432,7 +432,7 @@ export function SettingsAuditLogsPage(props: ISettingsAuditLogsPageProps = {}): 
 
             <Card>
                 <CardHeader className="flex items-center justify-between">
-                    <p className="text-base font-semibold text-[var(--foreground)]">Changes list</p>
+                    <p className="text-base font-semibold text-foreground">Changes list</p>
                     <Chip size="sm" variant="flat">
                         {filteredLogs.length} entries
                     </Chip>

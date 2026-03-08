@@ -173,7 +173,7 @@ export function RuleEditor(props: IRuleEditorProps): ReactElement {
     return (
         <Card>
             <CardHeader>
-                <h2 className="text-sm font-semibold text-slate-900">{label}</h2>
+                <h2 className="text-sm font-semibold text-foreground">{label}</h2>
             </CardHeader>
             <CardBody className="space-y-3">
                 <div className="flex flex-wrap gap-2">
@@ -199,7 +199,7 @@ export function RuleEditor(props: IRuleEditorProps): ReactElement {
                         {isPreviewVisible === true ? "Hide preview" : "Show preview"}
                     </Button>
                 </div>
-                <p className="text-xs text-slate-600">
+                <p className="text-xs text-muted-foreground">
                     TipTap mode:{" "}
                     {tipTapLoadState === "loading"
                         ? "loading"
@@ -221,19 +221,19 @@ export function RuleEditor(props: IRuleEditorProps): ReactElement {
                     value={value}
                     placeholder={placeholder}
                 />
-                <p id={characterCountId} className="text-xs text-slate-600">
+                <p id={characterCountId} className="text-xs text-muted-foreground">
                     {String(value.length)} symbols
                 </p>
                 {maxLength === undefined ? null : (
                     <p
                         id={maxLengthId}
-                        className={`text-xs ${value.length > maxLength ? "text-red-700" : "text-slate-600"}`}
+                        className={`text-xs ${value.length > maxLength ? "text-danger" : "text-muted-foreground"}`}
                     >
                         Max {String(maxLength)} symbols
                     </p>
                 )}
                 {isPreviewVisible === false ? (
-                    <p className="text-sm text-slate-600">Preview is hidden</p>
+                    <p className="text-sm text-muted-foreground">Preview is hidden</p>
                 ) : (
                     <section aria-live="polite" aria-label="Rule preview" id={previewId}>
                         <Suspense fallback={<p>Loading preview...</p>}>

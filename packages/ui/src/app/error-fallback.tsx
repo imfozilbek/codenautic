@@ -47,7 +47,7 @@ export function NotFoundFallback(): ReactElement {
     return (
         <section className="mx-auto flex min-h-screen w-full max-w-3xl flex-col items-center justify-center p-8">
             <h1 className="text-3xl font-semibold tracking-tight">Страница не найдена</h1>
-            <p className="mt-4 text-base text-slate-600">
+            <p className="mt-4 text-base text-muted-foreground">
                 Запрошенный маршрут отсутствует или был перемещён.
             </p>
         </section>
@@ -68,7 +68,7 @@ function ErrorFallback(props: IErrorFallbackProps): ReactElement {
         return (
             <section className="mx-auto flex min-h-screen w-full max-w-3xl flex-col items-center justify-center p-8">
                 <h1 className="text-3xl font-semibold tracking-tight">{props.scopeLabel}</h1>
-                <p className="mt-4 text-base text-slate-600">
+                <p className="mt-4 text-base text-muted-foreground">
                     Сессия истекла, перенаправляем на страницу входа...
                 </p>
             </section>
@@ -79,7 +79,7 @@ function ErrorFallback(props: IErrorFallbackProps): ReactElement {
         return (
             <section className="mx-auto flex min-h-screen w-full max-w-3xl flex-col items-center justify-center p-8">
                 <h1 className="text-3xl font-semibold tracking-tight">{props.scopeLabel}</h1>
-                <p className="mt-4 text-base text-amber-700">
+                <p className="mt-4 text-base text-warning">
                     Доступ запрещён для текущего пользователя.
                 </p>
                 <div className="mt-6 flex flex-wrap items-center gap-2">
@@ -111,7 +111,7 @@ function ErrorFallback(props: IErrorFallbackProps): ReactElement {
         return (
             <section className="mx-auto flex min-h-screen w-full max-w-3xl flex-col items-center justify-center p-8">
                 <h1 className="text-3xl font-semibold tracking-tight">{props.scopeLabel}</h1>
-                <p className="mt-4 text-base text-rose-700">{resolvedError.message}</p>
+                <p className="mt-4 text-base text-danger">{resolvedError.message}</p>
                 <div className="mt-6 flex flex-wrap items-center gap-2">
                     <Button
                         className="rounded-full bg-slate-900 px-5 py-2 text-sm font-medium text-white transition hover:bg-slate-700"
@@ -135,7 +135,7 @@ function ErrorFallback(props: IErrorFallbackProps): ReactElement {
     return (
         <section className="mx-auto flex min-h-screen w-full max-w-3xl flex-col items-center justify-center p-8">
             <h1 className="text-3xl font-semibold tracking-tight">{props.scopeLabel}</h1>
-            <p className="mt-4 text-base text-slate-700">{resolvedError.message}</p>
+            <p className="mt-4 text-base text-foreground">{resolvedError.message}</p>
         </section>
     )
 }

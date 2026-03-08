@@ -48,12 +48,10 @@ export function TokenUsageDashboardWidget(props: ITokenUsageDashboardWidgetProps
     return (
         <Card>
             <CardHeader>
-                <p className="text-base font-semibold text-[var(--foreground)]">
-                    Token usage dashboard
-                </p>
+                <p className="text-base font-semibold text-foreground">Token usage dashboard</p>
             </CardHeader>
             <CardBody className="space-y-3">
-                <p className="text-sm text-[var(--foreground)]/70">
+                <p className="text-sm text-foreground/70">
                     Usage by model, cost breakdown and trend chart for selected range.
                 </p>
                 <div className="grid gap-3 lg:grid-cols-2">

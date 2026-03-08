@@ -84,7 +84,7 @@ export function ReviewsContent(props: IReviewsContentProps): ReactElement {
 
     return (
         <section className="space-y-4">
-            <h2 className="text-xl font-semibold text-slate-900">CCR Management</h2>
+            <h2 className="text-xl font-semibold text-foreground">CCR Management</h2>
             {showInlineFilters === true ? (
                 <ReviewsFilters
                     assignee={assigneeFilter}
@@ -103,7 +103,7 @@ export function ReviewsContent(props: IReviewsContentProps): ReactElement {
                 />
             ) : null}
             {hasActiveFilter ? (
-                <p className="text-sm text-slate-600">
+                <p className="text-sm text-muted-foreground">
                     Showing {filteredRows.length} from {props.rows.length} CCR entries.
                 </p>
             ) : null}
@@ -120,7 +120,7 @@ export function ReviewsContent(props: IReviewsContentProps): ReactElement {
                             accessor: (row): string => row.id,
                             cell: (row): ReactElement => (
                                 <Link
-                                    className="text-sm font-semibold text-slate-900 underline underline-offset-4"
+                                    className="text-sm font-semibold text-foreground underline underline-offset-4"
                                     params={{ reviewId: row.id }}
                                     to="/reviews/$reviewId"
                                 >

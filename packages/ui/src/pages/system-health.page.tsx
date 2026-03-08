@@ -29,7 +29,7 @@ export function SystemHealthPage(): ReactElement {
                 className="mx-auto flex min-h-screen w-full max-w-3xl flex-col items-center justify-center p-8"
             >
                 <h1 className="text-3xl font-semibold tracking-tight">{t("common:appTitle")}</h1>
-                <p className="mt-4 text-base text-slate-600">{t("common:loading")}</p>
+                <p className="mt-4 text-base text-muted-foreground">{t("common:loading")}</p>
             </section>
         )
     }
@@ -38,7 +38,7 @@ export function SystemHealthPage(): ReactElement {
         return (
             <section className="mx-auto flex min-h-screen w-full max-w-3xl flex-col items-center justify-center p-8">
                 <h1 className="text-3xl font-semibold tracking-tight">{t("common:appTitle")}</h1>
-                <p aria-live="assertive" className="mt-4 text-base text-rose-700" role="alert">
+                <p aria-live="assertive" className="mt-4 text-base text-danger" role="alert">
                     {t("system:unavailable")}
                 </p>
                 <Button
@@ -60,28 +60,28 @@ export function SystemHealthPage(): ReactElement {
     return (
         <section className="mx-auto flex min-h-screen w-full max-w-3xl flex-col items-center justify-center p-8">
             <h1 className="text-3xl font-semibold tracking-tight">{t("common:appTitle")}</h1>
-            <p className="mt-3 text-sm uppercase tracking-[0.2em] text-slate-500">
+            <p className="mt-3 text-sm uppercase tracking-[0.2em] text-muted-foreground">
                 {t("system:healthStatus")}
             </p>
-            <p className="mt-2 text-4xl font-bold text-emerald-700">{healthData.status}</p>
-            <p className="mt-4 text-sm text-slate-600">
+            <p className="mt-2 text-4xl font-bold text-success">{healthData.status}</p>
+            <p className="mt-4 text-sm text-muted-foreground">
                 {t("system:service")}:{" "}
-                <span className="font-medium text-slate-900">{healthData.service}</span>
+                <span className="font-medium text-foreground">{healthData.service}</span>
             </p>
-            <p className="mt-1 text-sm text-slate-600">
+            <p className="mt-1 text-sm text-muted-foreground">
                 {t("system:timestamp")}:{" "}
-                <span className="font-medium text-slate-900">{localizedTimestamp}</span>
+                <span className="font-medium text-foreground">{localizedTimestamp}</span>
             </p>
             <section
                 aria-label={t("system:premiumSectionTitle")}
-                className="mt-8 w-full rounded-2xl border border-slate-200 bg-white/80 p-5 text-left shadow-sm backdrop-blur"
+                className="mt-8 w-full rounded-2xl border border-border bg-white/80 p-5 text-left shadow-sm backdrop-blur"
             >
-                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
+                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground">
                     {t("system:premiumSectionTitle")}
                 </p>
                 <p
                     className={`mt-2 text-base font-semibold ${
-                        isPremiumDashboardEnabled === true ? "text-emerald-700" : "text-amber-700"
+                        isPremiumDashboardEnabled === true ? "text-success" : "text-warning"
                     }`}
                 >
                     {isPremiumDashboardEnabled === true
@@ -89,11 +89,11 @@ export function SystemHealthPage(): ReactElement {
                         : t("system:premiumDisabled")}
                 </p>
                 {isPremiumDashboardEnabled === true ? (
-                    <p className="mt-1 text-sm text-slate-600">
+                    <p className="mt-1 text-sm text-muted-foreground">
                         {t("system:premiumEnabledDescription")}
                     </p>
                 ) : (
-                    <p className="mt-1 text-sm text-slate-600">
+                    <p className="mt-1 text-sm text-muted-foreground">
                         {t("system:premiumDisabledDescription")}
                     </p>
                 )}

@@ -37,10 +37,10 @@ export interface ICityRefactoringOverlayProps {
  */
 function resolvePriorityClassName(priority: TCityRefactoringPriority): string {
     if (priority === "critical") {
-        return "border-rose-300 bg-rose-500/15 text-rose-800"
+        return "border-danger/40 bg-danger/15 text-danger"
     }
     if (priority === "high") {
-        return "border-amber-300 bg-amber-500/15 text-amber-900"
+        return "border-amber-300 bg-warning/15 text-amber-900"
     }
     return "border-sky-300 bg-sky-500/15 text-sky-800"
 }
@@ -53,9 +53,9 @@ function resolvePriorityClassName(priority: TCityRefactoringPriority): string {
  */
 export function CityRefactoringOverlay(props: ICityRefactoringOverlayProps): ReactElement {
     return (
-        <section className="rounded-lg border border-slate-200 bg-white p-3 shadow-sm">
-            <p className="text-sm font-semibold text-slate-900">City refactoring overlay</p>
-            <p className="mt-1 text-xs text-slate-500">
+        <section className="rounded-lg border border-border bg-white p-3 shadow-sm">
+            <p className="text-sm font-semibold text-foreground">City refactoring overlay</p>
+            <p className="mt-1 text-xs text-muted-foreground">
                 Buildings prioritized by refactoring score. Click entry to inspect details.
             </p>
 
@@ -63,15 +63,17 @@ export function CityRefactoringOverlay(props: ICityRefactoringOverlayProps): Rea
                 {props.entries.map(
                     (entry): ReactElement => (
                         <li
-                            className="rounded border border-slate-200 bg-slate-50 p-2"
+                            className="rounded border border-border bg-surface p-2"
                             key={entry.fileId}
                         >
                             <div className="flex items-start justify-between gap-3">
                                 <div>
-                                    <p className="text-sm font-semibold text-slate-900">
+                                    <p className="text-sm font-semibold text-foreground">
                                         {entry.label}
                                     </p>
-                                    <p className="mt-1 text-xs text-slate-600">{entry.details}</p>
+                                    <p className="mt-1 text-xs text-muted-foreground">
+                                        {entry.details}
+                                    </p>
                                 </div>
                                 <span
                                     className={`rounded border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide ${resolvePriorityClassName(entry.priority)}`}

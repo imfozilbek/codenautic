@@ -249,18 +249,14 @@ export function SettingsConcurrencyPage(): ReactElement {
 
     return (
         <section className="space-y-4">
-            <h1 className="text-2xl font-semibold text-[var(--foreground)]">
-                Concurrent config resolver
-            </h1>
-            <p className="text-sm text-[var(--foreground)]/70">
+            <h1 className="text-2xl font-semibold text-foreground">Concurrent config resolver</h1>
+            <p className="text-sm text-foreground/70">
                 Optimistic concurrency flow for admin settings with explicit conflict outcomes.
             </p>
 
             <Card>
                 <CardHeader className="flex flex-wrap items-center justify-between gap-2">
-                    <p className="text-base font-semibold text-[var(--foreground)]">
-                        Snapshot versions
-                    </p>
+                    <p className="text-base font-semibold text-foreground">Snapshot versions</p>
                     <div className="flex gap-2">
                         <Chip size="sm" variant="flat">
                             Local etag: {localDraft.etag}
@@ -288,14 +284,14 @@ export function SettingsConcurrencyPage(): ReactElement {
                     />
                     <div className="space-y-1">
                         <label
-                            className="text-sm text-[var(--foreground)]/80"
+                            className="text-sm text-foreground/80"
                             htmlFor="concurrency-severity"
                         >
                             Severity threshold
                         </label>
                         <select
                             aria-label="Concurrency severity threshold"
-                            className="w-full rounded-lg border border-[var(--border)] bg-[var(--surface)] px-3 py-2 text-sm"
+                            className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm"
                             id="concurrency-severity"
                             value={localDraft.values.severityThreshold}
                             onChange={(event): void => {
@@ -350,7 +346,7 @@ export function SettingsConcurrencyPage(): ReactElement {
 
             <Card>
                 <CardHeader>
-                    <p className="text-base font-semibold text-[var(--foreground)]">
+                    <p className="text-base font-semibold text-foreground">
                         Conflict resolution audit
                     </p>
                 </CardHeader>
@@ -364,16 +360,14 @@ export function SettingsConcurrencyPage(): ReactElement {
                             {audit.map(
                                 (entry): ReactElement => (
                                     <li
-                                        className="rounded-lg border border-[var(--border)] bg-[var(--surface)] p-3 text-sm"
+                                        className="rounded-lg border border-border bg-surface p-3 text-sm"
                                         key={entry.id}
                                     >
-                                        <p className="font-semibold text-[var(--foreground)]">
+                                        <p className="font-semibold text-foreground">
                                             {entry.decision} · etag {entry.resultingEtag}
                                         </p>
-                                        <p className="text-[var(--foreground)]/80">
-                                            {entry.summary}
-                                        </p>
-                                        <p className="text-xs text-[var(--foreground)]/70">
+                                        <p className="text-foreground/80">{entry.summary}</p>
+                                        <p className="text-xs text-foreground/70">
                                             {formatTimestamp(entry.occurredAt)}
                                         </p>
                                     </li>
@@ -395,7 +389,7 @@ export function SettingsConcurrencyPage(): ReactElement {
                 <ModalContent>
                     <ModalHeader>Config conflict detected</ModalHeader>
                     <ModalBody>
-                        <p className="text-sm text-[var(--foreground)]/80">
+                        <p className="text-sm text-foreground/80">
                             Server ETag changed while you were editing. Choose deterministic
                             conflict strategy.
                         </p>
@@ -403,12 +397,10 @@ export function SettingsConcurrencyPage(): ReactElement {
                             {diffRows.map(
                                 (row): ReactElement => (
                                     <li
-                                        className="rounded-md border border-[var(--border)] bg-[var(--surface)] p-2 text-xs"
+                                        className="rounded-md border border-border bg-surface p-2 text-xs"
                                         key={row.field}
                                     >
-                                        <p className="font-semibold text-[var(--foreground)]">
-                                            {row.field}
-                                        </p>
+                                        <p className="font-semibold text-foreground">{row.field}</p>
                                         <p>Local: {row.localValue}</p>
                                         <p>Remote: {row.remoteValue}</p>
                                     </li>

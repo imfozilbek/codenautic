@@ -11,7 +11,7 @@ export interface IRuleEditorMarkdownPreviewProps {
 
 function CodeBlock(props: { readonly children?: ReactNode }): ReactElement {
     return (
-        <pre className="overflow-x-auto rounded-md border border-slate-200 bg-slate-900 p-3 text-sm text-slate-100">
+        <pre className="overflow-x-auto rounded-md border border-border bg-slate-900 p-3 text-sm text-slate-100">
             {props.children}
         </pre>
     )
@@ -36,7 +36,7 @@ export default function RuleEditorMarkdownPreview(
     }
 
     return (
-        <article className="prose prose-slate max-w-none rounded-md border border-slate-200 bg-slate-50 p-3 text-sm">
+        <article className="prose prose-slate max-w-none rounded-md border border-border bg-surface p-3 text-sm">
             <ReactMarkdown components={components}>{props.content}</ReactMarkdown>
         </article>
     )

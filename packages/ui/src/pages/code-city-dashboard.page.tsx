@@ -3171,7 +3171,7 @@ export function CodeCityDashboardPage(props: ICodeCityDashboardPageProps = {}): 
             />
             <Card>
                 <CardHeader>
-                    <p className="text-sm font-semibold text-slate-900">Tour customizer</p>
+                    <p className="text-sm font-semibold text-foreground">Tour customizer</p>
                 </CardHeader>
                 <CardBody>
                     <TourCustomizer
@@ -3183,18 +3183,18 @@ export function CodeCityDashboardPage(props: ICodeCityDashboardPageProps = {}): 
             </Card>
             <Card className={resolveTourCardClassName("controls")}>
                 <CardHeader>
-                    <p className="text-sm font-semibold text-slate-900">CodeCity dashboard</p>
+                    <p className="text-sm font-semibold text-foreground">CodeCity dashboard</p>
                 </CardHeader>
                 <CardBody className="space-y-3">
-                    <p className="text-sm text-slate-600">{currentProfile.description}</p>
+                    <p className="text-sm text-muted-foreground">{currentProfile.description}</p>
                     <div className="grid gap-3 md:grid-cols-2">
                         <label className="space-y-1" htmlFor="dashboard-repository">
-                            <span className="text-sm font-semibold text-slate-900">
+                            <span className="text-sm font-semibold text-foreground">
                                 Repository filter
                             </span>
                             <select
                                 aria-label="Repository"
-                                className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm"
+                                className="w-full rounded-lg border border-border px-3 py-2 text-sm"
                                 id="dashboard-repository"
                                 value={repositoryId}
                                 onChange={handleRepositoryChange}
@@ -3209,12 +3209,12 @@ export function CodeCityDashboardPage(props: ICodeCityDashboardPageProps = {}): 
                             </select>
                         </label>
                         <label className="space-y-1" htmlFor="dashboard-metric">
-                            <span className="text-sm font-semibold text-slate-900">
+                            <span className="text-sm font-semibold text-foreground">
                                 Metric selector
                             </span>
                             <select
                                 aria-label="Metric"
-                                className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm"
+                                className="w-full rounded-lg border border-border px-3 py-2 text-sm"
                                 id="dashboard-metric"
                                 value={metric}
                                 onChange={handleMetricChange}
@@ -3235,7 +3235,7 @@ export function CodeCityDashboardPage(props: ICodeCityDashboardPageProps = {}): 
 
             <Card>
                 <CardHeader>
-                    <p className="text-sm font-semibold text-slate-900">Project overview panel</p>
+                    <p className="text-sm font-semibold text-foreground">Project overview panel</p>
                 </CardHeader>
                 <CardBody>
                     <ProjectOverviewPanel
@@ -3248,7 +3248,7 @@ export function CodeCityDashboardPage(props: ICodeCityDashboardPageProps = {}): 
 
             <Card>
                 <CardHeader>
-                    <p className="text-sm font-semibold text-slate-900">Explore mode sidebar</p>
+                    <p className="text-sm font-semibold text-foreground">Explore mode sidebar</p>
                 </CardHeader>
                 <CardBody>
                     <ExploreModeSidebar
@@ -3268,7 +3268,7 @@ export function CodeCityDashboardPage(props: ICodeCityDashboardPageProps = {}): 
 
             <Card>
                 <CardHeader>
-                    <p className="text-sm font-semibold text-slate-900">Hot area highlights</p>
+                    <p className="text-sm font-semibold text-foreground">Hot area highlights</p>
                 </CardHeader>
                 <CardBody>
                     <HotAreaHighlights
@@ -3289,7 +3289,7 @@ export function CodeCityDashboardPage(props: ICodeCityDashboardPageProps = {}): 
 
             <Card>
                 <CardHeader>
-                    <p className="text-sm font-semibold text-slate-900">
+                    <p className="text-sm font-semibold text-foreground">
                         Onboarding progress tracker
                     </p>
                 </CardHeader>
@@ -3300,7 +3300,7 @@ export function CodeCityDashboardPage(props: ICodeCityDashboardPageProps = {}): 
 
             <Card>
                 <CardHeader>
-                    <p className="text-sm font-semibold text-slate-900">Refactoring dashboard</p>
+                    <p className="text-sm font-semibold text-foreground">Refactoring dashboard</p>
                 </CardHeader>
                 <CardBody>
                     <RefactoringDashboard
@@ -3320,7 +3320,7 @@ export function CodeCityDashboardPage(props: ICodeCityDashboardPageProps = {}): 
 
             <Card>
                 <CardHeader>
-                    <p className="text-sm font-semibold text-slate-900">ROI calculator widget</p>
+                    <p className="text-sm font-semibold text-foreground">ROI calculator widget</p>
                 </CardHeader>
                 <CardBody>
                     <ROICalculatorWidget
@@ -3343,7 +3343,9 @@ export function CodeCityDashboardPage(props: ICodeCityDashboardPageProps = {}): 
 
             <Card>
                 <CardHeader>
-                    <p className="text-sm font-semibold text-slate-900">City refactoring overlay</p>
+                    <p className="text-sm font-semibold text-foreground">
+                        City refactoring overlay
+                    </p>
                 </CardHeader>
                 <CardBody>
                     <CityRefactoringOverlay
@@ -3363,7 +3365,7 @@ export function CodeCityDashboardPage(props: ICodeCityDashboardPageProps = {}): 
 
             <Card>
                 <CardHeader>
-                    <p className="text-sm font-semibold text-slate-900">Simulation panel</p>
+                    <p className="text-sm font-semibold text-foreground">Simulation panel</p>
                 </CardHeader>
                 <CardBody>
                     <SimulationPanel
@@ -3389,7 +3391,7 @@ export function CodeCityDashboardPage(props: ICodeCityDashboardPageProps = {}): 
 
             <Card>
                 <CardHeader>
-                    <p className="text-sm font-semibold text-slate-900">Refactoring timeline</p>
+                    <p className="text-sm font-semibold text-foreground">Refactoring timeline</p>
                 </CardHeader>
                 <CardBody>
                     <RefactoringTimeline
@@ -3409,7 +3411,7 @@ export function CodeCityDashboardPage(props: ICodeCityDashboardPageProps = {}): 
 
             <Card>
                 <CardHeader>
-                    <p className="text-sm font-semibold text-slate-900">
+                    <p className="text-sm font-semibold text-foreground">
                         Refactoring export dialog
                     </p>
                 </CardHeader>
@@ -3434,7 +3436,7 @@ export function CodeCityDashboardPage(props: ICodeCityDashboardPageProps = {}): 
 
             <Card>
                 <CardHeader>
-                    <p className="text-sm font-semibold text-slate-900">Impact analysis panel</p>
+                    <p className="text-sm font-semibold text-foreground">Impact analysis panel</p>
                 </CardHeader>
                 <CardBody>
                     <ImpactAnalysisPanel
@@ -3459,7 +3461,7 @@ export function CodeCityDashboardPage(props: ICodeCityDashboardPageProps = {}): 
 
             <Card>
                 <CardHeader>
-                    <p className="text-sm font-semibold text-slate-900">City impact overlay</p>
+                    <p className="text-sm font-semibold text-foreground">City impact overlay</p>
                 </CardHeader>
                 <CardBody>
                     <CityImpactOverlay
@@ -3479,7 +3481,7 @@ export function CodeCityDashboardPage(props: ICodeCityDashboardPageProps = {}): 
 
             <Card>
                 <CardHeader>
-                    <p className="text-sm font-semibold text-slate-900">Prediction overlay</p>
+                    <p className="text-sm font-semibold text-foreground">Prediction overlay</p>
                 </CardHeader>
                 <CardBody>
                     <CityPredictionOverlay
@@ -3503,7 +3505,7 @@ export function CodeCityDashboardPage(props: ICodeCityDashboardPageProps = {}): 
 
             <Card>
                 <CardHeader>
-                    <p className="text-sm font-semibold text-slate-900">Prediction dashboard</p>
+                    <p className="text-sm font-semibold text-foreground">Prediction dashboard</p>
                 </CardHeader>
                 <CardBody>
                     <PredictionDashboard
@@ -3529,7 +3531,9 @@ export function CodeCityDashboardPage(props: ICodeCityDashboardPageProps = {}): 
 
             <Card>
                 <CardHeader>
-                    <p className="text-sm font-semibold text-slate-900">Prediction explain panel</p>
+                    <p className="text-sm font-semibold text-foreground">
+                        Prediction explain panel
+                    </p>
                 </CardHeader>
                 <CardBody>
                     <PredictionExplainPanel
@@ -3553,7 +3557,7 @@ export function CodeCityDashboardPage(props: ICodeCityDashboardPageProps = {}): 
 
             <Card>
                 <CardHeader>
-                    <p className="text-sm font-semibold text-slate-900">Trend forecast chart</p>
+                    <p className="text-sm font-semibold text-foreground">Trend forecast chart</p>
                 </CardHeader>
                 <CardBody>
                     <TrendForecastChart
@@ -3580,7 +3584,7 @@ export function CodeCityDashboardPage(props: ICodeCityDashboardPageProps = {}): 
 
             <Card>
                 <CardHeader>
-                    <p className="text-sm font-semibold text-slate-900">
+                    <p className="text-sm font-semibold text-foreground">
                         Prediction accuracy widget
                     </p>
                 </CardHeader>
@@ -3609,7 +3613,7 @@ export function CodeCityDashboardPage(props: ICodeCityDashboardPageProps = {}): 
 
             <Card>
                 <CardHeader>
-                    <p className="text-sm font-semibold text-slate-900">Alert config dialog</p>
+                    <p className="text-sm font-semibold text-foreground">Alert config dialog</p>
                 </CardHeader>
                 <CardBody>
                     <AlertConfigDialog
@@ -3639,7 +3643,7 @@ export function CodeCityDashboardPage(props: ICodeCityDashboardPageProps = {}): 
 
             <Card>
                 <CardHeader>
-                    <p className="text-sm font-semibold text-slate-900">
+                    <p className="text-sm font-semibold text-foreground">
                         Prediction comparison view
                     </p>
                 </CardHeader>
@@ -3669,7 +3673,7 @@ export function CodeCityDashboardPage(props: ICodeCityDashboardPageProps = {}): 
 
             <Card>
                 <CardHeader>
-                    <p className="text-sm font-semibold text-slate-900">Sprint comparison view</p>
+                    <p className="text-sm font-semibold text-foreground">Sprint comparison view</p>
                 </CardHeader>
                 <CardBody>
                     <SprintComparisonView
@@ -3697,7 +3701,7 @@ export function CodeCityDashboardPage(props: ICodeCityDashboardPageProps = {}): 
 
             <Card>
                 <CardHeader>
-                    <p className="text-sm font-semibold text-slate-900">
+                    <p className="text-sm font-semibold text-foreground">
                         District trend indicators
                     </p>
                 </CardHeader>
@@ -3724,7 +3728,7 @@ export function CodeCityDashboardPage(props: ICodeCityDashboardPageProps = {}): 
 
             <Card>
                 <CardHeader>
-                    <p className="text-sm font-semibold text-slate-900">Achievements panel</p>
+                    <p className="text-sm font-semibold text-foreground">Achievements panel</p>
                 </CardHeader>
                 <CardBody>
                     <AchievementsPanel
@@ -3749,7 +3753,7 @@ export function CodeCityDashboardPage(props: ICodeCityDashboardPageProps = {}): 
 
             <Card>
                 <CardHeader>
-                    <p className="text-sm font-semibold text-slate-900">Team leaderboard</p>
+                    <p className="text-sm font-semibold text-foreground">Team leaderboard</p>
                 </CardHeader>
                 <CardBody>
                     <TeamLeaderboard
@@ -3774,7 +3778,7 @@ export function CodeCityDashboardPage(props: ICodeCityDashboardPageProps = {}): 
 
             <Card>
                 <CardHeader>
-                    <p className="text-sm font-semibold text-slate-900">Sprint summary card</p>
+                    <p className="text-sm font-semibold text-foreground">Sprint summary card</p>
                 </CardHeader>
                 <CardBody>
                     <SprintSummaryCard
@@ -3801,7 +3805,7 @@ export function CodeCityDashboardPage(props: ICodeCityDashboardPageProps = {}): 
 
             <Card>
                 <CardHeader>
-                    <p className="text-sm font-semibold text-slate-900">Trend timeline widget</p>
+                    <p className="text-sm font-semibold text-foreground">Trend timeline widget</p>
                 </CardHeader>
                 <CardBody>
                     <TrendTimelineWidget
@@ -3828,7 +3832,7 @@ export function CodeCityDashboardPage(props: ICodeCityDashboardPageProps = {}): 
 
             <Card>
                 <CardHeader>
-                    <p className="text-sm font-semibold text-slate-900">Ownership overlay</p>
+                    <p className="text-sm font-semibold text-foreground">Ownership overlay</p>
                 </CardHeader>
                 <CardBody>
                     <CityOwnershipOverlay
@@ -3860,7 +3864,7 @@ export function CodeCityDashboardPage(props: ICodeCityDashboardPageProps = {}): 
 
             <Card>
                 <CardHeader>
-                    <p className="text-sm font-semibold text-slate-900">Bus factor overlay</p>
+                    <p className="text-sm font-semibold text-foreground">Bus factor overlay</p>
                 </CardHeader>
                 <CardBody>
                     <CityBusFactorOverlay
@@ -3883,7 +3887,7 @@ export function CodeCityDashboardPage(props: ICodeCityDashboardPageProps = {}): 
 
             <Card>
                 <CardHeader>
-                    <p className="text-sm font-semibold text-slate-900">Bus factor trend chart</p>
+                    <p className="text-sm font-semibold text-foreground">Bus factor trend chart</p>
                 </CardHeader>
                 <CardBody>
                     <BusFactorTrendChart
@@ -3907,7 +3911,7 @@ export function CodeCityDashboardPage(props: ICodeCityDashboardPageProps = {}): 
 
             <Card>
                 <CardHeader>
-                    <p className="text-sm font-semibold text-slate-900">Knowledge silo panel</p>
+                    <p className="text-sm font-semibold text-foreground">Knowledge silo panel</p>
                 </CardHeader>
                 <CardBody>
                     <KnowledgeSiloPanel
@@ -3930,7 +3934,7 @@ export function CodeCityDashboardPage(props: ICodeCityDashboardPageProps = {}): 
 
             <Card>
                 <CardHeader>
-                    <p className="text-sm font-semibold text-slate-900">Knowledge map export</p>
+                    <p className="text-sm font-semibold text-foreground">Knowledge map export</p>
                 </CardHeader>
                 <CardBody>
                     <KnowledgeMapExportWidget
@@ -3955,7 +3959,7 @@ export function CodeCityDashboardPage(props: ICodeCityDashboardPageProps = {}): 
 
             <Card>
                 <CardHeader>
-                    <p className="text-sm font-semibold text-slate-900">
+                    <p className="text-sm font-semibold text-foreground">
                         Contributor collaboration graph
                     </p>
                 </CardHeader>
@@ -3990,7 +3994,7 @@ export function CodeCityDashboardPage(props: ICodeCityDashboardPageProps = {}): 
 
             <Card>
                 <CardHeader>
-                    <p className="text-sm font-semibold text-slate-900">
+                    <p className="text-sm font-semibold text-foreground">
                         Ownership transition widget
                     </p>
                 </CardHeader>
@@ -4018,7 +4022,7 @@ export function CodeCityDashboardPage(props: ICodeCityDashboardPageProps = {}): 
 
             <Card>
                 <CardHeader>
-                    <p className="text-sm font-semibold text-slate-900">Change risk gauge</p>
+                    <p className="text-sm font-semibold text-foreground">Change risk gauge</p>
                 </CardHeader>
                 <CardBody>
                     <ChangeRiskGauge
@@ -4046,7 +4050,7 @@ export function CodeCityDashboardPage(props: ICodeCityDashboardPageProps = {}): 
 
             <Card>
                 <CardHeader>
-                    <p className="text-sm font-semibold text-slate-900">Impact graph view</p>
+                    <p className="text-sm font-semibold text-foreground">Impact graph view</p>
                 </CardHeader>
                 <CardBody>
                     <ImpactGraphView
@@ -4067,7 +4071,7 @@ export function CodeCityDashboardPage(props: ICodeCityDashboardPageProps = {}): 
 
             <Card>
                 <CardHeader>
-                    <p className="text-sm font-semibold text-slate-900">What-if panel</p>
+                    <p className="text-sm font-semibold text-foreground">What-if panel</p>
                 </CardHeader>
                 <CardBody>
                     <WhatIfPanel
@@ -4090,7 +4094,7 @@ export function CodeCityDashboardPage(props: ICodeCityDashboardPageProps = {}): 
 
             <Card>
                 <CardHeader>
-                    <p className="text-sm font-semibold text-slate-900">
+                    <p className="text-sm font-semibold text-foreground">
                         Cross-repository dependencies
                     </p>
                 </CardHeader>
@@ -4108,7 +4112,7 @@ export function CodeCityDashboardPage(props: ICodeCityDashboardPageProps = {}): 
 
             <Card className={resolveTourCardClassName("city-3d")}>
                 <CardHeader>
-                    <p className="text-sm font-semibold text-slate-900">CodeCity 3D preview</p>
+                    <p className="text-sm font-semibold text-foreground">CodeCity 3D preview</p>
                 </CardHeader>
                 <CardBody>
                     <CodeCity3DScene
@@ -4137,7 +4141,7 @@ export function CodeCityDashboardPage(props: ICodeCityDashboardPageProps = {}): 
 
             <Card>
                 <CardHeader>
-                    <p className="text-sm font-semibold text-slate-900">
+                    <p className="text-sm font-semibold text-foreground">
                         Churn vs complexity side panel
                     </p>
                 </CardHeader>
@@ -4152,7 +4156,7 @@ export function CodeCityDashboardPage(props: ICodeCityDashboardPageProps = {}): 
 
             <Card>
                 <CardHeader>
-                    <p className="text-sm font-semibold text-slate-900">Health trend timeline</p>
+                    <p className="text-sm font-semibold text-foreground">Health trend timeline</p>
                 </CardHeader>
                 <CardBody>
                     <HealthTrendChart points={currentProfile.healthTrend} />
@@ -4161,7 +4165,7 @@ export function CodeCityDashboardPage(props: ICodeCityDashboardPageProps = {}): 
 
             <Card className={resolveTourCardClassName("root-cause")}>
                 <CardHeader>
-                    <p className="text-sm font-semibold text-slate-900">Root cause chain viewer</p>
+                    <p className="text-sm font-semibold text-foreground">Root cause chain viewer</p>
                 </CardHeader>
                 <CardBody>
                     <RootCauseChainViewer

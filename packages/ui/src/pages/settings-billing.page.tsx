@@ -255,8 +255,8 @@ export function SettingsBillingPage(): ReactElement {
 
     return (
         <section className="space-y-4">
-            <h1 className="text-2xl font-semibold text-[var(--foreground)]">Billing lifecycle</h1>
-            <p className="text-sm text-[var(--foreground)]/70">
+            <h1 className="text-2xl font-semibold text-foreground">Billing lifecycle</h1>
+            <p className="text-sm text-foreground/70">
                 Manage trial/active/past-due/canceled states, feature entitlements, and plan
                 transitions with explicit outcomes.
             </p>
@@ -273,7 +273,7 @@ export function SettingsBillingPage(): ReactElement {
 
             <Card>
                 <CardHeader className="flex flex-wrap items-center justify-between gap-2">
-                    <p className="text-base font-semibold text-[var(--foreground)]">
+                    <p className="text-base font-semibold text-foreground">
                         Current billing snapshot
                     </p>
                     <Chip
@@ -285,20 +285,20 @@ export function SettingsBillingPage(): ReactElement {
                     </Chip>
                 </CardHeader>
                 <CardBody className="space-y-3">
-                    <p className="text-sm text-[var(--foreground)]/80">
+                    <p className="text-sm text-foreground/80">
                         Current plan: <strong>{billingSnapshot.plan}</strong>
                     </p>
                     <div className="grid gap-3 md:grid-cols-2">
                         <div className="space-y-1">
                             <label
-                                className="text-sm text-[var(--foreground)]/80"
+                                className="text-sm text-foreground/80"
                                 htmlFor="billing-plan-select"
                             >
                                 Plan
                             </label>
                             <select
                                 aria-label="Billing plan"
-                                className="w-full rounded-lg border border-[var(--border)] bg-[var(--surface)] px-3 py-2 text-sm"
+                                className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm"
                                 id="billing-plan-select"
                                 value={draftPlan}
                                 onChange={(event): void => {
@@ -319,14 +319,14 @@ export function SettingsBillingPage(): ReactElement {
                         </div>
                         <div className="space-y-1">
                             <label
-                                className="text-sm text-[var(--foreground)]/80"
+                                className="text-sm text-foreground/80"
                                 htmlFor="billing-status-select"
                             >
                                 Billing status
                             </label>
                             <select
                                 aria-label="Billing status"
-                                className="w-full rounded-lg border border-[var(--border)] bg-[var(--surface)] px-3 py-2 text-sm"
+                                className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm"
                                 id="billing-status-select"
                                 value={draftStatus}
                                 onChange={(event): void => {
@@ -364,7 +364,7 @@ export function SettingsBillingPage(): ReactElement {
 
             <Card>
                 <CardHeader>
-                    <p className="text-base font-semibold text-[var(--foreground)]">
+                    <p className="text-base font-semibold text-foreground">
                         Premium feature lock/unlock state
                     </p>
                 </CardHeader>
@@ -373,11 +373,11 @@ export function SettingsBillingPage(): ReactElement {
                         {entitledFeatures.map(
                             (feature): ReactElement => (
                                 <li
-                                    className="rounded-lg border border-[var(--border)] bg-[var(--surface)] p-3"
+                                    className="rounded-lg border border-border bg-surface p-3"
                                     key={feature.id}
                                 >
                                     <div className="flex flex-wrap items-center justify-between gap-2">
-                                        <p className="text-sm font-semibold text-[var(--foreground)]">
+                                        <p className="text-sm font-semibold text-foreground">
                                             {feature.label}
                                         </p>
                                         <Chip
@@ -389,7 +389,7 @@ export function SettingsBillingPage(): ReactElement {
                                         </Chip>
                                     </div>
                                     {feature.lockReason === undefined ? null : (
-                                        <p className="mt-1 text-xs text-[var(--foreground)]/70">
+                                        <p className="mt-1 text-xs text-foreground/70">
                                             {feature.lockReason}
                                         </p>
                                     )}
@@ -402,23 +402,21 @@ export function SettingsBillingPage(): ReactElement {
 
             <Card>
                 <CardHeader>
-                    <p className="text-base font-semibold text-[var(--foreground)]">
-                        Plan change history
-                    </p>
+                    <p className="text-base font-semibold text-foreground">Plan change history</p>
                 </CardHeader>
                 <CardBody className="space-y-2">
                     <ul aria-label="Billing history list" className="space-y-2">
                         {history.map(
                             (entry): ReactElement => (
                                 <li
-                                    className="rounded-lg border border-[var(--border)] bg-[var(--surface)] p-3 text-sm"
+                                    className="rounded-lg border border-border bg-surface p-3 text-sm"
                                     key={entry.id}
                                 >
-                                    <p className="font-semibold text-[var(--foreground)]">
+                                    <p className="font-semibold text-foreground">
                                         {entry.action} · {entry.actor}
                                     </p>
-                                    <p className="text-[var(--foreground)]/80">{entry.outcome}</p>
-                                    <p className="text-xs text-[var(--foreground)]/70">
+                                    <p className="text-foreground/80">{entry.outcome}</p>
+                                    <p className="text-xs text-foreground/70">
                                         {formatTimestamp(entry.occurredAt)}
                                     </p>
                                 </li>

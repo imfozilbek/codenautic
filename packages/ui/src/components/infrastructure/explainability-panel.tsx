@@ -67,13 +67,11 @@ export function ExplainabilityPanel(props: IExplainabilityPanelProps): ReactElem
 
     return (
         <>
-            <section className="rounded-xl border border-[var(--border)] bg-[var(--surface)] p-3">
+            <section className="rounded-xl border border-border bg-surface p-3">
                 <div className="flex flex-wrap items-start justify-between gap-2">
                     <div className="space-y-1">
-                        <p className="text-sm font-semibold text-[var(--foreground)]">
-                            {props.title}
-                        </p>
-                        <p className="text-xs text-[var(--foreground)]/70">
+                        <p className="text-sm font-semibold text-foreground">{props.title}</p>
+                        <p className="text-xs text-foreground/70">
                             {`${props.signalLabel}: ${props.signalValue} · threshold ${props.threshold} · confidence ${props.confidence}`}
                         </p>
                     </div>
@@ -90,42 +88,38 @@ export function ExplainabilityPanel(props: IExplainabilityPanelProps): ReactElem
             </section>
 
             <Drawer isOpen={isDrawerOpen} onOpenChange={setIsDrawerOpen}>
-                <DrawerContent className="!m-0 !ml-auto !h-full !w-[min(92vw,460px)] !rounded-none bg-[var(--surface)] text-[var(--foreground)]">
-                    <DrawerHeader className="border-b border-[var(--border)] px-4 py-3">
-                        <h2 className="text-base font-semibold text-[var(--foreground)]">
-                            Explainability
-                        </h2>
+                <DrawerContent className="!m-0 !ml-auto !h-full !w-[min(92vw,460px)] !rounded-none bg-surface text-foreground">
+                    <DrawerHeader className="border-b border-border px-4 py-3">
+                        <h2 className="text-base font-semibold text-foreground">Explainability</h2>
                     </DrawerHeader>
                     <DrawerBody className="space-y-3 px-4 py-3">
                         <dl className="grid grid-cols-[130px_1fr] gap-x-2 gap-y-2 text-sm">
-                            <dt className="text-[var(--foreground)]/60">Signal</dt>
+                            <dt className="text-foreground/60">Signal</dt>
                             <dd>{`${props.signalLabel}: ${props.signalValue}`}</dd>
-                            <dt className="text-[var(--foreground)]/60">Threshold</dt>
+                            <dt className="text-foreground/60">Threshold</dt>
                             <dd>{props.threshold}</dd>
-                            <dt className="text-[var(--foreground)]/60">Confidence</dt>
+                            <dt className="text-foreground/60">Confidence</dt>
                             <dd>{props.confidence}</dd>
-                            <dt className="text-[var(--foreground)]/60">Data window</dt>
+                            <dt className="text-foreground/60">Data window</dt>
                             <dd>{props.dataWindow}</dd>
                         </dl>
 
                         <section className="space-y-2">
-                            <p className="text-sm font-semibold text-[var(--foreground)]">
-                                Top factors
-                            </p>
+                            <p className="text-sm font-semibold text-foreground">Top factors</p>
                             <ul aria-label="Explainability factors" className="space-y-2">
                                 {props.factors.map(
                                     (factor): ReactElement => (
                                         <li
-                                            className="rounded-lg border border-[var(--border)] bg-[var(--surface)] px-3 py-2"
+                                            className="rounded-lg border border-border bg-surface px-3 py-2"
                                             key={factor.label}
                                         >
-                                            <p className="text-sm font-semibold text-[var(--foreground)]">
+                                            <p className="text-sm font-semibold text-foreground">
                                                 {factor.label}
                                             </p>
-                                            <p className="text-xs text-[var(--foreground)]/70">
+                                            <p className="text-xs text-foreground/70">
                                                 {formatImpactLabel(factor.impact)}
                                             </p>
-                                            <p className="text-sm text-[var(--foreground)]/80">
+                                            <p className="text-sm text-foreground/80">
                                                 {factor.value}
                                             </p>
                                         </li>
@@ -135,12 +129,12 @@ export function ExplainabilityPanel(props: IExplainabilityPanelProps): ReactElem
                         </section>
 
                         <section className="space-y-2">
-                            <p className="text-sm font-semibold text-[var(--foreground)]">
+                            <p className="text-sm font-semibold text-foreground">
                                 Known limitations
                             </p>
                             <ul
                                 aria-label="Explainability limitations"
-                                className="list-disc space-y-1 pl-5 text-sm text-[var(--foreground)]/80"
+                                className="list-disc space-y-1 pl-5 text-sm text-foreground/80"
                             >
                                 {props.limitations.map(
                                     (limitation): ReactElement => (

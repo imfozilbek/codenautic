@@ -274,10 +274,10 @@ function CcrFiltersPanel(props: ICcrFiltersPanelProps): ReactElement {
     }
 
     return (
-        <div className="grid gap-3 rounded-lg border border-slate-200 bg-white p-3 md:grid-cols-4">
+        <div className="grid gap-3 rounded-lg border border-border bg-white p-3 md:grid-cols-4">
             <input
                 aria-label="Search CCR"
-                className="rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none"
+                className="rounded-lg border border-border px-3 py-2 text-sm outline-none"
                 name="search"
                 placeholder="Search title / id / repo / assignee"
                 value={props.filterState.search}
@@ -285,7 +285,7 @@ function CcrFiltersPanel(props: ICcrFiltersPanelProps): ReactElement {
             />
             <select
                 aria-label="Filter by team"
-                className="rounded-lg border border-slate-200 px-3 py-2 text-sm"
+                className="rounded-lg border border-border px-3 py-2 text-sm"
                 name="team"
                 value={props.filterState.team}
                 onChange={handleSelectChange}
@@ -301,7 +301,7 @@ function CcrFiltersPanel(props: ICcrFiltersPanelProps): ReactElement {
             </select>
             <select
                 aria-label="Filter by repository"
-                className="rounded-lg border border-slate-200 px-3 py-2 text-sm"
+                className="rounded-lg border border-border px-3 py-2 text-sm"
                 name="repository"
                 value={props.filterState.repository}
                 onChange={handleSelectChange}
@@ -317,7 +317,7 @@ function CcrFiltersPanel(props: ICcrFiltersPanelProps): ReactElement {
             </select>
             <select
                 aria-label="Filter by status"
-                className="rounded-lg border border-slate-200 px-3 py-2 text-sm"
+                className="rounded-lg border border-border px-3 py-2 text-sm"
                 name="status"
                 value={props.filterState.status}
                 onChange={handleSelectChange}
@@ -339,10 +339,10 @@ function CcrFilterPresetsPanel(props: ICcrFilterPresetsPanelProps): ReactElement
     const hasSelectedPreset = props.selectedPresetId.length > 0
 
     return (
-        <div className="grid gap-3 rounded-lg border border-slate-200 bg-white p-3 md:grid-cols-6">
+        <div className="grid gap-3 rounded-lg border border-border bg-white p-3 md:grid-cols-6">
             <input
                 aria-label="Filter preset name"
-                className="rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none md:col-span-2"
+                className="rounded-lg border border-border px-3 py-2 text-sm outline-none md:col-span-2"
                 placeholder="Preset name"
                 value={props.presetName}
                 onChange={(event): void => {
@@ -351,7 +351,7 @@ function CcrFilterPresetsPanel(props: ICcrFilterPresetsPanelProps): ReactElement
             />
             <select
                 aria-label="Saved filter presets"
-                className="rounded-lg border border-slate-200 px-3 py-2 text-sm md:col-span-2"
+                className="rounded-lg border border-border px-3 py-2 text-sm md:col-span-2"
                 value={props.selectedPresetId}
                 onChange={(event): void => {
                     props.onFieldChange("selected", event.currentTarget.value)
@@ -367,7 +367,7 @@ function CcrFilterPresetsPanel(props: ICcrFilterPresetsPanelProps): ReactElement
                 )}
             </select>
             <button
-                className="rounded-lg border border-slate-300 px-3 py-2 text-sm font-medium text-slate-700"
+                className="rounded-lg border border-border px-3 py-2 text-sm font-medium text-foreground"
                 type="button"
                 onClick={props.onSavePreset}
             >
@@ -375,7 +375,7 @@ function CcrFilterPresetsPanel(props: ICcrFilterPresetsPanelProps): ReactElement
             </button>
             <div className="grid grid-cols-3 gap-2 md:col-span-6">
                 <button
-                    className="rounded-lg border border-slate-300 px-3 py-2 text-sm font-medium text-slate-700 disabled:cursor-not-allowed disabled:opacity-60"
+                    className="rounded-lg border border-border px-3 py-2 text-sm font-medium text-foreground disabled:cursor-not-allowed disabled:opacity-60"
                     disabled={hasSelectedPreset === false}
                     type="button"
                     onClick={props.onApplyPreset}
@@ -383,7 +383,7 @@ function CcrFilterPresetsPanel(props: ICcrFilterPresetsPanelProps): ReactElement
                     Apply preset
                 </button>
                 <button
-                    className="rounded-lg border border-slate-300 px-3 py-2 text-sm font-medium text-slate-700 disabled:cursor-not-allowed disabled:opacity-60"
+                    className="rounded-lg border border-border px-3 py-2 text-sm font-medium text-foreground disabled:cursor-not-allowed disabled:opacity-60"
                     disabled={hasSelectedPreset === false}
                     type="button"
                     onClick={props.onUpdatePreset}
@@ -391,7 +391,7 @@ function CcrFilterPresetsPanel(props: ICcrFilterPresetsPanelProps): ReactElement
                     Update preset
                 </button>
                 <button
-                    className="rounded-lg border border-rose-300 px-3 py-2 text-sm font-medium text-rose-700 disabled:cursor-not-allowed disabled:opacity-60"
+                    className="rounded-lg border border-danger/40 px-3 py-2 text-sm font-medium text-danger disabled:cursor-not-allowed disabled:opacity-60"
                     disabled={hasSelectedPreset === false}
                     type="button"
                     onClick={props.onDeletePreset}
@@ -605,14 +605,14 @@ export function CcrManagementPage(props: ICcrManagementPageProps): ReactElement 
 
     return (
         <section className="space-y-4">
-            <h1 className="text-2xl font-semibold text-slate-900">CCR Management</h1>
-            <p className="text-sm text-slate-600">
+            <h1 className="text-2xl font-semibold text-foreground">CCR Management</h1>
+            <p className="text-sm text-muted-foreground">
                 Filters are synced with URL. Shareable state for search, status, team and
                 repository.
             </p>
             {ccrWorkspace.ccrListQuery.error === null ||
             ccrWorkspace.ccrListQuery.error === undefined ? null : (
-                <p className="text-xs text-amber-700">
+                <p className="text-xs text-warning">
                     Workspace API unavailable, fallback dataset is shown.
                 </p>
             )}

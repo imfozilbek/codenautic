@@ -31,12 +31,12 @@ export interface ISprintComparisonViewProps {
 
 function resolveDeltaClassName(delta: number): string {
     if (delta < 0) {
-        return "border-emerald-200 bg-emerald-50 text-emerald-800"
+        return "border-success/30 bg-success/10 text-success"
     }
     if (delta > 0) {
-        return "border-rose-200 bg-rose-50 text-rose-800"
+        return "border-danger/30 bg-danger/10 text-danger"
     }
-    return "border-slate-200 bg-slate-100 text-slate-700"
+    return "border-border bg-surface-muted text-foreground"
 }
 
 /**
@@ -51,9 +51,9 @@ export function SprintComparisonView(props: ISprintComparisonViewProps): ReactEl
         props.snapshots[0]
 
     return (
-        <section className="rounded-lg border border-slate-200 bg-white p-3 shadow-sm">
-            <p className="text-sm font-semibold text-slate-900">Sprint comparison view</p>
-            <p className="mt-1 text-xs text-slate-500">
+        <section className="rounded-lg border border-border bg-white p-3 shadow-sm">
+            <p className="text-sm font-semibold text-foreground">Sprint comparison view</p>
+            <p className="mt-1 text-xs text-muted-foreground">
                 Side-by-side before/after sprint comparison with metric deltas and improvement
                 score.
             </p>
@@ -67,7 +67,7 @@ export function SprintComparisonView(props: ISprintComparisonViewProps): ReactEl
                             className={`w-full rounded border p-2 text-left text-xs transition ${
                                 isActive
                                     ? "border-cyan-400 bg-cyan-50 text-cyan-900"
-                                    : "border-slate-200 bg-slate-50 text-slate-700 hover:border-slate-300"
+                                    : "border-border bg-surface text-foreground hover:border-border"
                             }`}
                             key={snapshot.id}
                             onClick={(): void => {
@@ -83,9 +83,9 @@ export function SprintComparisonView(props: ISprintComparisonViewProps): ReactEl
 
             <div
                 aria-label="Sprint comparison metrics"
-                className="mt-3 rounded border border-slate-200 bg-slate-50 p-2"
+                className="mt-3 rounded border border-border bg-surface p-2"
             >
-                <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                     Before vs after metrics
                 </p>
                 <div className="mt-2 space-y-2">
@@ -103,7 +103,7 @@ export function SprintComparisonView(props: ISprintComparisonViewProps): ReactEl
                         return (
                             <div key={metric.label}>
                                 <div className="flex items-center justify-between gap-2 text-xs">
-                                    <p className="font-semibold text-slate-800">{metric.label}</p>
+                                    <p className="font-semibold text-foreground">{metric.label}</p>
                                     <p
                                         className={`rounded border px-1 py-0.5 ${resolveDeltaClassName(delta)}`}
                                     >
@@ -111,7 +111,7 @@ export function SprintComparisonView(props: ISprintComparisonViewProps): ReactEl
                                         {String(delta)}
                                     </p>
                                 </div>
-                                <p className="mt-1 text-xs text-slate-600">
+                                <p className="mt-1 text-xs text-muted-foreground">
                                     before {String(metric.beforeValue)} to after{" "}
                                     {String(metric.afterValue)}
                                 </p>

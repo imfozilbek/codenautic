@@ -98,18 +98,16 @@ export function ChatStreamingResponse(props: IChatStreamingResponseProps): React
     const typingDots: ReactNode = (
         <span
             aria-label={props.typingAriaLabel ?? "Assistant is typing"}
-            className="mt-1 inline-flex items-center gap-1 text-xs text-[var(--foreground)]/70"
+            className="mt-1 inline-flex items-center gap-1 text-xs text-foreground/70"
         >
-            <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-[var(--foreground)]/50" />
-            <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-[var(--foreground)]/50" />
-            <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-[var(--foreground)]/50" />
+            <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-foreground/50" />
+            <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-foreground/50" />
+            <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-foreground/50" />
         </span>
     )
 
     return (
-        <li
-            className={`rounded-lg border border-[var(--border)] bg-[var(--surface)] p-3 ${props.className ?? ""}`}
-        >
+        <li className={`rounded-lg border border-border bg-surface p-3 ${props.className ?? ""}`}>
             <div className="mb-2 flex items-center justify-between gap-2">
                 <div className="font-medium">{senderLabel}</div>
                 <div className="flex items-center gap-2">
@@ -124,7 +122,7 @@ export function ChatStreamingResponse(props: IChatStreamingResponseProps): React
                     </Button>
                 </div>
             </div>
-            <div className="text-sm leading-relaxed text-[var(--foreground)]">
+            <div className="text-sm leading-relaxed text-foreground">
                 <p aria-live="polite" className="whitespace-pre-wrap break-words">
                     {renderedText}
                 </p>

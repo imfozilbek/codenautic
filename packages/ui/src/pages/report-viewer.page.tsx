@@ -111,8 +111,8 @@ export function ReportViewerPage(): ReactElement {
 
     return (
         <section className="space-y-4">
-            <h1 className="text-2xl font-semibold text-[var(--foreground)]">Report viewer</h1>
-            <p className="text-sm text-[var(--foreground)]/70">
+            <h1 className="text-2xl font-semibold text-foreground">Report viewer</h1>
+            <p className="text-sm text-foreground/70">
                 View generated reports in-browser, inspect interactive charts, and export/share
                 report artifacts.
             </p>
@@ -143,9 +143,7 @@ export function ReportViewerPage(): ReactElement {
 
             <Card>
                 <CardHeader>
-                    <p className="text-base font-semibold text-[var(--foreground)]">
-                        Generated report
-                    </p>
+                    <p className="text-base font-semibold text-foreground">Generated report</p>
                 </CardHeader>
                 <CardBody className="space-y-3">
                     <Alert color="success" title="Report summary" variant="flat">
@@ -153,12 +151,10 @@ export function ReportViewerPage(): ReactElement {
                     </Alert>
                     <div className="grid gap-3 md:grid-cols-2">
                         <label className="space-y-1 text-sm">
-                            <span className="font-semibold text-[var(--foreground)]">
-                                Chart metric
-                            </span>
+                            <span className="font-semibold text-foreground">Chart metric</span>
                             <select
                                 aria-label="Report chart metric"
-                                className="w-full rounded border border-slate-300 bg-white px-2 py-1 text-sm text-slate-900"
+                                className="w-full rounded border border-border bg-white px-2 py-1 text-sm text-foreground"
                                 value={selectedMetric}
                                 onChange={(event): void => {
                                     const nextValue = event.currentTarget.value

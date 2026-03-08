@@ -3,7 +3,7 @@
 exports[`visual regression contract > фиксирует визуальный shell для chat panel 1`] = `
 <aside
   aria-label="Conversation panel"
-  class="fixed inset-y-0 right-0 z-40 flex w-full transform flex-col border-l border-[var(--border)] bg-[var(--surface)] shadow-2xl transition-transform duration-200 sm:max-w-[420px] translate-x-0 "
+  class="fixed inset-y-0 right-0 z-40 flex w-full transform flex-col border-l border-border bg-surface shadow-2xl transition-transform duration-200 sm:max-w-[420px] translate-x-0 "
   role="complementary"
 >
   <div
@@ -11,7 +11,7 @@ exports[`visual regression contract > фиксирует визуальный sh
     data-slot="card"
   >
     <div
-      class="card__header flex items-center justify-between border-b border-[var(--border)] bg-[var(--surface)]"
+      class="card__header flex items-center justify-between border-b border-border bg-surface"
       data-slot="card-header"
     >
       <h2
@@ -21,7 +21,7 @@ exports[`visual regression contract > фиксирует визуальный sh
       </h2>
     </div>
     <div
-      class="card__content flex min-h-0 flex-1 flex-col gap-3 bg-[var(--surface-muted)] p-0"
+      class="card__content flex min-h-0 flex-1 flex-col gap-3 bg-surface-muted p-0"
       data-slot="card-content"
     >
       <ul
@@ -36,7 +36,7 @@ exports[`visual regression contract > фиксирует визуальный sh
         >
           <article
             aria-label="Сообщение от System"
-            class="flex min-w-0 flex-col gap-2 rounded-xl border p-3 text-sm max-w-[82%] border-[var(--border)] bg-[var(--surface)]"
+            class="flex min-w-0 flex-col gap-2 rounded-xl border p-3 text-sm max-w-[82%] border-border bg-surface"
           >
             <header
               class="mb-0.5 flex items-start gap-2"
@@ -55,12 +55,12 @@ exports[`visual regression contract > фиксирует визуальный sh
                 class="min-w-0 flex-1"
               >
                 <p
-                  class="text-xs font-semibold text-[var(--foreground)]"
+                  class="text-xs font-semibold text-foreground"
                 >
                   System
                 </p>
                 <p
-                  class="text-xs text-[var(--foreground)]/70"
+                  class="text-xs text-foreground/70"
                 >
                   01:00 PM
                 </p>
@@ -110,7 +110,7 @@ exports[`visual regression contract > фиксирует визуальный sh
               class="space-y-2"
             >
               <p
-                class="leading-relaxed text-[var(--foreground)]"
+                class="leading-relaxed text-foreground"
               >
                 Critical path review started
               </p>
@@ -123,7 +123,7 @@ exports[`visual regression contract > фиксирует визуальный sh
         >
           <article
             aria-label="Сообщение от AI"
-            class="flex min-w-0 flex-col gap-2 rounded-xl border p-3 text-sm max-w-[82%] border-[var(--border)] bg-[var(--surface)]"
+            class="flex min-w-0 flex-col gap-2 rounded-xl border p-3 text-sm max-w-[82%] border-border bg-surface"
           >
             <header
               class="mb-0.5 flex items-start gap-2"
@@ -142,12 +142,12 @@ exports[`visual regression contract > фиксирует визуальный sh
                 class="min-w-0 flex-1"
               >
                 <p
-                  class="text-xs font-semibold text-[var(--foreground)]"
+                  class="text-xs font-semibold text-foreground"
                 >
                   AI
                 </p>
                 <p
-                  class="text-xs text-[var(--foreground)]/70"
+                  class="text-xs text-foreground/70"
                 >
                   01:00 PM
                 </p>
@@ -197,12 +197,12 @@ exports[`visual regression contract > фиксирует визуальный sh
               class="space-y-2"
             >
               <p
-                class="leading-relaxed text-[var(--foreground)]"
+                class="leading-relaxed text-foreground"
               >
                 Проверь 
                 <a
                   aria-label="Code reference src/routes/reviews.tsx:42"
-                  class="text-[var(--primary)] underline underline-offset-4"
+                  class="text-primary underline underline-offset-4"
                   href="src/routes/reviews.tsx:42"
                 >
                   src/routes/reviews.tsx:42
@@ -213,7 +213,7 @@ exports[`visual regression contract > фиксирует визуальный sh
         </li>
       </ul>
       <form
-        class="border-t border-[var(--border)]"
+        class="border-t border-border"
       >
         <div
           class="p-3"
@@ -227,7 +227,7 @@ exports[`visual regression contract > фиксирует визуальный sh
           <textarea
             aria-label="Message input"
             autocomplete="off"
-            class="textarea textarea--primary min-h-20 rounded-lg bg-[var(--surface)]"
+            class="textarea textarea--primary min-h-20 rounded-lg bg-surface"
             data-rac=""
             data-slot="textarea"
             id="conversation-input"
@@ -240,7 +240,7 @@ exports[`visual regression contract > фиксирует визуальный sh
           >
             <p
               aria-label="Message character count"
-              class="text-xs text-[var(--foreground)]/70"
+              class="text-xs text-foreground/70"
             >
               0/4000
             </p>
@@ -273,12 +273,12 @@ exports[`visual regression contract > фиксирует визуальный sh
   class="space-y-4"
 >
   <h1
-    class="text-2xl font-semibold text-[var(--foreground)]"
+    class="text-2xl font-semibold text-foreground"
   >
     Help & diagnostics center
   </h1>
   <p
-    class="text-sm text-[var(--foreground)]/70"
+    class="text-sm text-foreground/70"
   >
     Search help knowledge base, run diagnostics checks, and generate a redacted support bundle without losing workflow context.
   </p>
@@ -291,7 +291,7 @@ exports[`visual regression contract > фиксирует визуальный sh
       data-slot="card-header"
     >
       <p
-        class="text-base font-semibold text-[var(--foreground)]"
+        class="text-base font-semibold text-foreground"
       >
         Knowledge base search
       </p>
@@ -304,23 +304,23 @@ exports[`visual regression contract > фиксирует визуальный sh
         class="grid gap-3 md:grid-cols-[1fr_220px]"
       >
         <label
-          class="flex flex-col gap-1 text-sm text-[var(--foreground)]/80"
+          class="flex flex-col gap-1 text-sm text-foreground/80"
         >
           Search
           <input
             aria-label="Help search"
-            class="rounded-lg border border-[var(--border)] bg-[var(--surface)] px-3 py-2 text-sm text-[var(--foreground)]"
+            class="rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground"
             placeholder="Find article or issue type"
             value=""
           />
         </label>
         <label
-          class="flex flex-col gap-1 text-sm text-[var(--foreground)]/80"
+          class="flex flex-col gap-1 text-sm text-foreground/80"
         >
           Category
           <select
             aria-label="Help category"
-            class="rounded-lg border border-[var(--border)] bg-[var(--surface)] px-3 py-2 text-sm text-[var(--foreground)]"
+            class="rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground"
           >
             <option
               value="all"
@@ -360,15 +360,15 @@ exports[`visual regression contract > фиксирует визуальный sh
         class="space-y-2"
       >
         <li
-          class="rounded-lg border border-[var(--border)] bg-[var(--surface)] px-3 py-2"
+          class="rounded-lg border border-border bg-surface px-3 py-2"
         >
           <p
-            class="text-sm font-semibold text-[var(--foreground)]"
+            class="text-sm font-semibold text-foreground"
           >
             Auth session recovery
           </p>
           <p
-            class="text-xs text-[var(--foreground)]/70"
+            class="text-xs text-foreground/70"
           >
             Что проверить при истекшей сессии и ошибках доступа 401/403.
           </p>
@@ -380,15 +380,15 @@ exports[`visual regression contract > фиксирует визуальный sh
           </a>
         </li>
         <li
-          class="rounded-lg border border-[var(--border)] bg-[var(--surface)] px-3 py-2"
+          class="rounded-lg border border-border bg-surface px-3 py-2"
         >
           <p
-            class="text-sm font-semibold text-[var(--foreground)]"
+            class="text-sm font-semibold text-foreground"
           >
             Network timeout diagnostics
           </p>
           <p
-            class="text-xs text-[var(--foreground)]/70"
+            class="text-xs text-foreground/70"
           >
             Диагностика сетевых таймаутов и проблем с API недоступностью.
           </p>
@@ -400,15 +400,15 @@ exports[`visual regression contract > фиксирует визуальный sh
           </a>
         </li>
         <li
-          class="rounded-lg border border-[var(--border)] bg-[var(--surface)] px-3 py-2"
+          class="rounded-lg border border-border bg-surface px-3 py-2"
         >
           <p
-            class="text-sm font-semibold text-[var(--foreground)]"
+            class="text-sm font-semibold text-foreground"
           >
             Provider outage playbook
           </p>
           <p
-            class="text-xs text-[var(--foreground)]/70"
+            class="text-xs text-foreground/70"
           >
             Проверка деградации LLM/Git провайдеров и fallback стратегий.
           </p>
@@ -420,15 +420,15 @@ exports[`visual regression contract > фиксирует визуальный sh
           </a>
         </li>
         <li
-          class="rounded-lg border border-[var(--border)] bg-[var(--surface)] px-3 py-2"
+          class="rounded-lg border border-border bg-surface px-3 py-2"
         >
           <p
-            class="text-sm font-semibold text-[var(--foreground)]"
+            class="text-sm font-semibold text-foreground"
           >
             Scan failure triage
           </p>
           <p
-            class="text-xs text-[var(--foreground)]/70"
+            class="text-xs text-foreground/70"
           >
             Как расследовать scan/review worker failures и перезапустить jobs.
           </p>
@@ -440,15 +440,15 @@ exports[`visual regression contract > фиксирует визуальный sh
           </a>
         </li>
         <li
-          class="rounded-lg border border-[var(--border)] bg-[var(--surface)] px-3 py-2"
+          class="rounded-lg border border-border bg-surface px-3 py-2"
         >
           <p
-            class="text-sm font-semibold text-[var(--foreground)]"
+            class="text-sm font-semibold text-foreground"
           >
             WebGL readiness and fallback
           </p>
           <p
-            class="text-xs text-[var(--foreground)]/70"
+            class="text-xs text-foreground/70"
           >
             Проверка readiness браузера и WebGL для CodeCity экранов.
           </p>
@@ -471,7 +471,7 @@ exports[`visual regression contract > фиксирует визуальный sh
       data-slot="card-header"
     >
       <p
-        class="text-base font-semibold text-[var(--foreground)]"
+        class="text-base font-semibold text-foreground"
       >
         Diagnostics checks
       </p>
@@ -484,7 +484,7 @@ exports[`visual regression contract > фиксирует визуальный sh
         class="flex flex-wrap items-center justify-between gap-2"
       >
         <p
-          class="text-sm text-[var(--foreground)]/80"
+          class="text-sm text-foreground/80"
         >
           Checks: auth/session, network, provider connectivity, feature flags, browser/webgl readiness.
         </p>
@@ -575,13 +575,13 @@ exports[`visual regression contract > фиксирует визуальный sh
         class="space-y-2"
       >
         <li
-          class="rounded-lg border border-[var(--border)] bg-[var(--surface)] px-3 py-2"
+          class="rounded-lg border border-border bg-surface px-3 py-2"
         >
           <div
             class="flex flex-wrap items-center gap-2"
           >
             <p
-              class="text-sm font-semibold text-[var(--foreground)]"
+              class="text-sm font-semibold text-foreground"
             >
               Auth/session state
             </p>
@@ -598,7 +598,7 @@ exports[`visual regression contract > фиксирует визуальный sh
             </span>
           </div>
           <p
-            class="text-xs text-[var(--foreground)]/70"
+            class="text-xs text-foreground/70"
           >
             No session token found. Re-authentication may be required.
           </p>
@@ -610,13 +610,13 @@ exports[`visual regression contract > фиксирует визуальный sh
           </a>
         </li>
         <li
-          class="rounded-lg border border-[var(--border)] bg-[var(--surface)] px-3 py-2"
+          class="rounded-lg border border-border bg-surface px-3 py-2"
         >
           <div
             class="flex flex-wrap items-center gap-2"
           >
             <p
-              class="text-sm font-semibold text-[var(--foreground)]"
+              class="text-sm font-semibold text-foreground"
             >
               Network availability
             </p>
@@ -633,7 +633,7 @@ exports[`visual regression contract > фиксирует визуальный sh
             </span>
           </div>
           <p
-            class="text-xs text-[var(--foreground)]/70"
+            class="text-xs text-foreground/70"
           >
             Network looks reachable from browser context.
           </p>
@@ -645,13 +645,13 @@ exports[`visual regression contract > фиксирует визуальный sh
           </a>
         </li>
         <li
-          class="rounded-lg border border-[var(--border)] bg-[var(--surface)] px-3 py-2"
+          class="rounded-lg border border-border bg-surface px-3 py-2"
         >
           <div
             class="flex flex-wrap items-center gap-2"
           >
             <p
-              class="text-sm font-semibold text-[var(--foreground)]"
+              class="text-sm font-semibold text-foreground"
             >
               Provider connectivity
             </p>
@@ -668,7 +668,7 @@ exports[`visual regression contract > фиксирует визуальный sh
             </span>
           </div>
           <p
-            class="text-xs text-[var(--foreground)]/70"
+            class="text-xs text-foreground/70"
           >
             Detected degraded providers: 1.
           </p>
@@ -680,13 +680,13 @@ exports[`visual regression contract > фиксирует визуальный sh
           </a>
         </li>
         <li
-          class="rounded-lg border border-[var(--border)] bg-[var(--surface)] px-3 py-2"
+          class="rounded-lg border border-border bg-surface px-3 py-2"
         >
           <div
             class="flex flex-wrap items-center gap-2"
           >
             <p
-              class="text-sm font-semibold text-[var(--foreground)]"
+              class="text-sm font-semibold text-foreground"
             >
               Feature flags state
             </p>
@@ -703,7 +703,7 @@ exports[`visual regression contract > фиксирует визуальный sh
             </span>
           </div>
           <p
-            class="text-xs text-[var(--foreground)]/70"
+            class="text-xs text-foreground/70"
           >
             Feature flags loaded and evaluated.
           </p>
@@ -715,13 +715,13 @@ exports[`visual regression contract > фиксирует визуальный sh
           </a>
         </li>
         <li
-          class="rounded-lg border border-[var(--border)] bg-[var(--surface)] px-3 py-2"
+          class="rounded-lg border border-border bg-surface px-3 py-2"
         >
           <div
             class="flex flex-wrap items-center gap-2"
           >
             <p
-              class="text-sm font-semibold text-[var(--foreground)]"
+              class="text-sm font-semibold text-foreground"
             >
               Browser/WebGL readiness
             </p>
@@ -738,7 +738,7 @@ exports[`visual regression contract > фиксирует визуальный sh
             </span>
           </div>
           <p
-            class="text-xs text-[var(--foreground)]/70"
+            class="text-xs text-foreground/70"
           >
             WebGL context unavailable, fallback renderer recommended.
           </p>
@@ -751,10 +751,10 @@ exports[`visual regression contract > фиксирует визуальный sh
         </li>
       </ul>
       <div
-        class="rounded-lg border border-[var(--border)] bg-[var(--surface)] px-3 py-2"
+        class="rounded-lg border border-border bg-surface px-3 py-2"
       >
         <p
-          class="text-sm font-semibold text-[var(--foreground)]"
+          class="text-sm font-semibold text-foreground"
         >
           Suggested actions
         </p>
@@ -763,15 +763,15 @@ exports[`visual regression contract > фиксирует визуальный sh
           class="mt-2 space-y-2"
         >
           <li
-            class="rounded border border-[var(--border)] bg-[var(--surface)] px-2 py-2"
+            class="rounded border border-border bg-surface px-2 py-2"
           >
             <p
-              class="text-sm font-semibold text-[var(--foreground)]"
+              class="text-sm font-semibold text-foreground"
             >
               Open session recovery
             </p>
             <p
-              class="text-xs text-[var(--foreground)]/70"
+              class="text-xs text-foreground/70"
             >
               Re-authenticate and restore draft/session state before retrying.
             </p>
@@ -792,15 +792,15 @@ exports[`visual regression contract > фиксирует визуальный sh
             </button>
           </li>
           <li
-            class="rounded border border-[var(--border)] bg-[var(--surface)] px-2 py-2"
+            class="rounded border border-border bg-surface px-2 py-2"
           >
             <p
-              class="text-sm font-semibold text-[var(--foreground)]"
+              class="text-sm font-semibold text-foreground"
             >
               Open degradation console
             </p>
             <p
-              class="text-xs text-[var(--foreground)]/70"
+              class="text-xs text-foreground/70"
             >
               Switch provider fallback and inspect degradation timeline.
             </p>
@@ -821,15 +821,15 @@ exports[`visual regression contract > фиксирует визуальный sh
             </button>
           </li>
           <li
-            class="rounded border border-[var(--border)] bg-[var(--surface)] px-2 py-2"
+            class="rounded border border-border bg-surface px-2 py-2"
           >
             <p
-              class="text-sm font-semibold text-[var(--foreground)]"
+              class="text-sm font-semibold text-foreground"
             >
               Open CodeCity fallback check
             </p>
             <p
-              class="text-xs text-[var(--foreground)]/70"
+              class="text-xs text-foreground/70"
             >
               Use safe fallback renderer or validate browser WebGL support.
             </p>
@@ -862,7 +862,7 @@ exports[`visual regression contract > фиксирует визуальный sh
       data-slot="card-header"
     >
       <p
-        class="text-base font-semibold text-[var(--foreground)]"
+        class="text-base font-semibold text-foreground"
       >
         Support bundle
       </p>

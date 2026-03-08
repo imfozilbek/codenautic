@@ -68,7 +68,7 @@ export function GuidedTourOverlay(props: IGuidedTourOverlayProps): ReactElement 
                 </div>
                 <button
                     aria-label="Skip guided tour"
-                    className="rounded border border-slate-500 px-2 py-0.5 text-xs text-slate-200 hover:border-slate-200"
+                    className="rounded border border-slate-500 px-2 py-0.5 text-xs text-slate-200 hover:border-border"
                     onClick={props.onSkip}
                     type="button"
                 >
@@ -80,7 +80,7 @@ export function GuidedTourOverlay(props: IGuidedTourOverlayProps): ReactElement 
             <div className="mt-3 flex items-center justify-between gap-2">
                 <button
                     aria-label="Previous tour step"
-                    className="rounded border border-slate-500 px-2 py-1 text-xs text-slate-200 hover:border-slate-300 disabled:cursor-not-allowed disabled:opacity-50"
+                    className="rounded border border-slate-500 px-2 py-1 text-xs text-slate-200 hover:border-border disabled:cursor-not-allowed disabled:opacity-50"
                     disabled={isFirstStep}
                     onClick={props.onPrevious}
                     type="button"

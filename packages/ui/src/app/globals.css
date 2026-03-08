@@ -43,53 +43,98 @@
     --radius-md: 0.625rem;
     --radius-lg: 0.875rem;
 
-    --color-cn-background: oklch(0.989 0.008 218);
-    --color-cn-foreground: oklch(0.238 0.026 256);
-    --color-cn-surface: oklch(0.998 0.004 220);
-    --color-cn-surface-muted: oklch(0.965 0.014 225);
-    --color-cn-border: oklch(0.905 0.014 234);
-    --color-cn-ring: oklch(0.673 0.171 243);
-    --color-cn-primary: oklch(0.653 0.181 253);
-    --color-cn-primary-foreground: oklch(0.982 0.01 253);
-    --color-cn-accent: oklch(0.838 0.129 175);
-    --color-cn-accent-foreground: oklch(0.274 0.033 186);
-    --color-cn-success: oklch(0.702 0.164 151);
-    --color-cn-warning: oklch(0.809 0.145 83);
-    --color-cn-danger: oklch(0.646 0.214 24);
+    /*
+     * Theme-aware color tokens.
+     * Reference runtime CSS variables so Tailwind utilities (bg-background,
+     * text-foreground, border-border, etc.) automatically follow the active
+     * theme preset set by theme-provider.tsx.
+     */
+    --color-background: var(--background);
+    --color-foreground: var(--foreground);
+    --color-muted-foreground: var(--muted-foreground);
+    --color-surface: var(--surface);
+    --color-surface-muted: var(--surface-muted);
+    --color-border: var(--border);
+    --color-ring: var(--ring);
+    --color-primary: var(--primary);
+    --color-primary-foreground: var(--primary-foreground);
+    --color-accent: var(--accent);
+    --color-accent-foreground: var(--accent-foreground);
+    --color-success: var(--success);
+    --color-warning: var(--warning);
+    --color-danger: var(--danger);
 }
 
+/* Moonstone light defaults — source of truth: theme-provider.tsx THEME_PRESETS[0].light */
 :root {
     color-scheme: light;
-    --background: var(--color-cn-background);
-    --foreground: var(--color-cn-foreground);
-    --surface: var(--color-cn-surface);
-    --surface-muted: var(--color-cn-surface-muted);
-    --border: var(--color-cn-border);
-    --ring: var(--color-cn-ring);
-    --primary: var(--color-cn-primary);
-    --primary-foreground: var(--color-cn-primary-foreground);
-    --accent: var(--color-cn-accent);
-    --accent-foreground: var(--color-cn-accent-foreground);
-    --success: var(--color-cn-success);
-    --warning: var(--color-cn-warning);
-    --danger: var(--color-cn-danger);
+    --background: oklch(0.9702 0.002 148.67);
+    --foreground: oklch(0.2103 0.002 148.67);
+    --muted-foreground: oklch(0.5517 0.004 148.67);
+    --surface: oklch(1.0 0.001 148.67);
+    --surface-muted: oklch(0.94 0.002 148.67);
+    --border: oklch(0.9 0.002 148.67);
+    --ring: oklch(0.7697 0.2124 148.67);
+    --primary: oklch(0.7697 0.2124 148.67);
+    --primary-foreground: oklch(0.15 0.03 148.67);
+    --accent: oklch(0.75 0.15 45);
+    --accent-foreground: oklch(0.2 0.03 45);
+    --success: oklch(0.6072 0.1647 149.02);
+    --warning: oklch(0.6972 0.1687 54.22);
+    --danger: oklch(0.5509 0.2166 25.29);
+
+    /*
+     * HeroUI v3 compatibility layer.
+     * Maps HeroUI internal variables to our core tokens so all HeroUI
+     * components (Button, Modal, Select, Input…) follow the active theme.
+     * @see https://v3.heroui.com/docs/react/getting-started/theming
+     */
+    --default: var(--surface-muted);
+    --default-foreground: var(--foreground);
+    --field-background: var(--surface);
+    --field-foreground: var(--foreground);
+    --field-placeholder: var(--muted-foreground);
+    --focus: var(--ring);
+    --muted: var(--muted-foreground);
+    --overlay: var(--surface);
+    --overlay-foreground: var(--foreground);
+    --scrollbar: var(--border);
+    --segment: var(--surface);
+    --segment-foreground: var(--foreground);
+    --separator: var(--border);
+    --success-foreground: oklch(0.98 0.0165 149.02);
+    --warning-foreground: oklch(0.15 0.05 54.22);
+    --danger-foreground: oklch(0.98 0.02 25.29);
+    --surface-foreground: var(--foreground);
+    --surface-secondary: var(--surface-muted);
+    --surface-secondary-foreground: var(--foreground);
+    --surface-tertiary: var(--surface-muted);
+    --surface-tertiary-foreground: var(--foreground);
+    --radius: 0.5rem;
+    --field-radius: 0.125rem;
 }
 
+/* Moonstone dark defaults — source of truth: theme-provider.tsx THEME_PRESETS[0].dark */
 .dark {
     color-scheme: dark;
-    --background: oklch(0.2 0.03 256);
-    --foreground: oklch(0.94 0.012 230);
-    --surface: oklch(0.27 0.03 252);
-    --surface-muted: oklch(0.33 0.028 247);
-    --border: oklch(0.44 0.03 245);
-    --ring: oklch(0.76 0.128 232);
-    --primary: oklch(0.774 0.134 243);
-    --primary-foreground: oklch(0.248 0.03 252);
-    --accent: oklch(0.785 0.101 173);
-    --accent-foreground: oklch(0.236 0.03 181);
-    --success: oklch(0.784 0.109 154);
-    --warning: oklch(0.81 0.132 80);
-    --danger: oklch(0.73 0.172 25);
+    --background: oklch(0.12 0.002 148.67);
+    --foreground: oklch(0.9911 0.002 148.67);
+    --muted-foreground: oklch(0.705 0.004 148.67);
+    --surface: oklch(0.2103 0.004 148.67);
+    --surface-muted: oklch(0.274 0.002 148.67);
+    --border: oklch(0.28 0.002 148.67);
+    --ring: oklch(0.7697 0.2124 148.67);
+    --primary: oklch(0.7697 0.2124 148.67);
+    --primary-foreground: oklch(0.15 0.03 148.67);
+    --accent: oklch(0.78 0.14 45);
+    --accent-foreground: oklch(0.2 0.03 45);
+    --success: oklch(0.7697 0.2124 148.67);
+    --warning: oklch(0.7921 0.1626 67.42);
+    --danger: oklch(0.5931 0.2338 25.42);
+
+    --success-foreground: oklch(0.15 0.03 148.67);
+    --warning-foreground: oklch(0.98 0.02 67.42);
+    --danger-foreground: oklch(0.98 0.02 25.42);
 }
 
 *,

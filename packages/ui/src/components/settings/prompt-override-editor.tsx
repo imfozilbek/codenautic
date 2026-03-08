@@ -25,9 +25,9 @@ export function PromptOverrideEditor(props: IPromptOverrideEditorProps): ReactEl
     const [isPreviewVisible, setIsPreviewVisible] = useState<boolean>(false)
 
     return (
-        <section className="space-y-3 rounded-md border border-slate-200 bg-slate-50 p-3">
-            <h3 className="text-sm font-semibold text-slate-900">Prompt override editor</h3>
-            <p className="text-xs text-slate-600">
+        <section className="space-y-3 rounded-md border border-border bg-surface p-3">
+            <h3 className="text-sm font-semibold text-foreground">Prompt override editor</h3>
+            <p className="text-xs text-muted-foreground">
                 Override default summary prompt for repository-specific output structure.
             </p>
             <Textarea
@@ -54,7 +54,9 @@ export function PromptOverrideEditor(props: IPromptOverrideEditorProps): ReactEl
             {isPreviewVisible === false ? null : (
                 <section aria-label="Prompt override preview" className="space-y-2">
                     <Suspense
-                        fallback={<p className="text-xs text-slate-600">Loading preview...</p>}
+                        fallback={
+                            <p className="text-xs text-muted-foreground">Loading preview...</p>
+                        }
                     >
                         <LazyPromptOverridePreview content={props.value} />
                     </Suspense>

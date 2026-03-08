@@ -26,10 +26,10 @@ export function TeamActivityWidget(props: ITeamActivityWidgetProps): ReactElemen
     return (
         <Card>
             <CardHeader>
-                <p className="text-base font-semibold text-[var(--foreground)]">Team activity</p>
+                <p className="text-base font-semibold text-foreground">Team activity</p>
             </CardHeader>
             <CardBody className="space-y-2">
-                <p className="text-sm text-[var(--foreground)]/70">
+                <p className="text-sm text-foreground/70">
                     CCRs merged by developer in selected date range.
                 </p>
                 <div className="h-64 w-full">

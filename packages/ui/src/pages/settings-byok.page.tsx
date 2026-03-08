@@ -257,27 +257,24 @@ export function SettingsByokPage(): ReactElement {
 
     return (
         <section className="space-y-4">
-            <h1 className="text-2xl font-semibold text-[var(--foreground)]">BYOK management</h1>
-            <p className="text-sm text-[var(--foreground)]/70">
+            <h1 className="text-2xl font-semibold text-foreground">BYOK management</h1>
+            <p className="text-sm text-foreground/70">
                 Add provider keys, keep secrets masked in UI, rotate safely and monitor usage.
             </p>
 
             <Card>
                 <CardHeader>
-                    <p className="text-base font-semibold text-[var(--foreground)]">Add API key</p>
+                    <p className="text-base font-semibold text-foreground">Add API key</p>
                 </CardHeader>
                 <CardBody className="space-y-3">
                     <div className="grid gap-3 md:grid-cols-[180px_1fr_1fr_auto]">
                         <div className="flex flex-col gap-1">
-                            <label
-                                className="text-sm text-[var(--foreground)]/80"
-                                htmlFor="byok-provider"
-                            >
+                            <label className="text-sm text-foreground/80" htmlFor="byok-provider">
                                 Provider
                             </label>
                             <select
                                 aria-label="Provider"
-                                className="rounded-lg border border-[var(--border)] bg-[var(--surface)] px-3 py-2 text-sm"
+                                className="rounded-lg border border-border bg-surface px-3 py-2 text-sm"
                                 id="byok-provider"
                                 value={form.provider}
                                 onChange={(event): void => {
@@ -345,46 +342,36 @@ export function SettingsByokPage(): ReactElement {
             <div className="grid gap-4 md:grid-cols-4">
                 <Card>
                     <CardHeader>
-                        <p className="text-sm font-semibold text-[var(--foreground)]">Total keys</p>
+                        <p className="text-sm font-semibold text-foreground">Total keys</p>
                     </CardHeader>
                     <CardBody>
-                        <p className="text-2xl font-semibold text-[var(--foreground)]">
-                            {stats.totalKeys}
-                        </p>
+                        <p className="text-2xl font-semibold text-foreground">{stats.totalKeys}</p>
                     </CardBody>
                 </Card>
                 <Card>
                     <CardHeader>
-                        <p className="text-sm font-semibold text-[var(--foreground)]">
-                            Active keys
-                        </p>
+                        <p className="text-sm font-semibold text-foreground">Active keys</p>
                     </CardHeader>
                     <CardBody>
-                        <p className="text-2xl font-semibold text-[var(--foreground)]">
-                            {stats.activeKeys}
-                        </p>
+                        <p className="text-2xl font-semibold text-foreground">{stats.activeKeys}</p>
                     </CardBody>
                 </Card>
                 <Card>
                     <CardHeader>
-                        <p className="text-sm font-semibold text-[var(--foreground)]">
-                            Usage requests
-                        </p>
+                        <p className="text-sm font-semibold text-foreground">Usage requests</p>
                     </CardHeader>
                     <CardBody>
-                        <p className="text-2xl font-semibold text-[var(--foreground)]">
+                        <p className="text-2xl font-semibold text-foreground">
                             {stats.totalRequests}
                         </p>
                     </CardBody>
                 </Card>
                 <Card>
                     <CardHeader>
-                        <p className="text-sm font-semibold text-[var(--foreground)]">
-                            Usage tokens
-                        </p>
+                        <p className="text-sm font-semibold text-foreground">Usage tokens</p>
                     </CardHeader>
                     <CardBody>
-                        <p className="text-2xl font-semibold text-[var(--foreground)]">
+                        <p className="text-2xl font-semibold text-foreground">
                             {stats.totalTokens}
                         </p>
                     </CardBody>
@@ -393,21 +380,19 @@ export function SettingsByokPage(): ReactElement {
 
             <Card>
                 <CardHeader>
-                    <p className="text-base font-semibold text-[var(--foreground)]">
-                        Provider usage stats
-                    </p>
+                    <p className="text-base font-semibold text-foreground">Provider usage stats</p>
                 </CardHeader>
                 <CardBody className="space-y-2">
                     {providerUsage.map(
                         (entry): ReactElement => (
                             <div
                                 key={entry.provider}
-                                className="flex items-center justify-between rounded-lg border border-[var(--border)] bg-[var(--surface)] px-3 py-2 text-sm"
+                                className="flex items-center justify-between rounded-lg border border-border bg-surface px-3 py-2 text-sm"
                             >
-                                <p className="font-semibold text-[var(--foreground)]">
+                                <p className="font-semibold text-foreground">
                                     {formatProviderLabel(entry.provider)}
                                 </p>
-                                <p className="text-[var(--foreground)]/70">
+                                <p className="text-foreground/70">
                                     Keys: {entry.keys} • Requests: {entry.requests} • Tokens:{" "}
                                     {entry.tokens}
                                 </p>
@@ -419,9 +404,7 @@ export function SettingsByokPage(): ReactElement {
 
             <Card>
                 <CardHeader>
-                    <p className="text-base font-semibold text-[var(--foreground)]">
-                        Configured keys
-                    </p>
+                    <p className="text-base font-semibold text-foreground">Configured keys</p>
                 </CardHeader>
                 <CardBody className="space-y-3">
                     {keys.length === 0 ? (
@@ -433,27 +416,27 @@ export function SettingsByokPage(): ReactElement {
                             (entry): ReactElement => (
                                 <article
                                     key={entry.id}
-                                    className="rounded-lg border border-[var(--border)] bg-[var(--surface)] p-3"
+                                    className="rounded-lg border border-border bg-surface p-3"
                                 >
                                     <div className="flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
                                         <div className="space-y-1">
-                                            <p className="text-sm font-semibold text-[var(--foreground)]">
+                                            <p className="text-sm font-semibold text-foreground">
                                                 {entry.label}
                                             </p>
-                                            <p className="text-xs text-[var(--foreground)]/70">
+                                            <p className="text-xs text-foreground/70">
                                                 Provider: {formatProviderLabel(entry.provider)}
                                             </p>
-                                            <p className="font-mono text-xs text-[var(--foreground)]/70">
+                                            <p className="font-mono text-xs text-foreground/70">
                                                 {entry.maskedSecret}
                                             </p>
-                                            <p className="text-xs text-[var(--foreground)]/70">
+                                            <p className="text-xs text-foreground/70">
                                                 Rotation: {entry.rotationCount}
                                             </p>
-                                            <p className="text-xs text-[var(--foreground)]/70">
+                                            <p className="text-xs text-foreground/70">
                                                 Usage: {entry.usageRequests} requests •{" "}
                                                 {entry.usageTokens} tokens
                                             </p>
-                                            <p className="text-xs text-[var(--foreground)]/70">
+                                            <p className="text-xs text-foreground/70">
                                                 Last used: {formatLastUsed(entry.lastUsedAt)}
                                             </p>
                                         </div>

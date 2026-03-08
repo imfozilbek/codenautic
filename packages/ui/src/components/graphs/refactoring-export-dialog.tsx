@@ -76,9 +76,9 @@ export function RefactoringExportDialog(props: IRefactoringExportDialogProps): R
     }
 
     return (
-        <section className="rounded-lg border border-slate-200 bg-white p-3 shadow-sm">
-            <p className="text-sm font-semibold text-slate-900">Refactoring export dialog</p>
-            <p className="mt-1 text-xs text-slate-500">
+        <section className="rounded-lg border border-border bg-white p-3 shadow-sm">
+            <p className="text-sm font-semibold text-foreground">Refactoring export dialog</p>
+            <p className="mt-1 text-xs text-muted-foreground">
                 Export selected refactoring tasks as Jira tickets or GitHub issues with editable
                 templates.
             </p>
@@ -95,14 +95,14 @@ export function RefactoringExportDialog(props: IRefactoringExportDialogProps): R
             </button>
 
             {isDialogOpen ? (
-                <div className="mt-3 rounded border border-slate-200 bg-slate-50 p-3">
+                <div className="mt-3 rounded border border-border bg-surface p-3">
                     <label className="block space-y-1" htmlFor="refactor-export-destination">
-                        <span className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                        <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                             Destination
                         </span>
                         <select
                             aria-label="Refactoring export destination"
-                            className="w-full rounded border border-slate-200 px-2 py-1.5 text-sm"
+                            className="w-full rounded border border-border px-2 py-1.5 text-sm"
                             id="refactor-export-destination"
                             onChange={handleDestinationChange}
                             value={destination}
@@ -113,12 +113,12 @@ export function RefactoringExportDialog(props: IRefactoringExportDialogProps): R
                     </label>
 
                     <label className="mt-2 block space-y-1" htmlFor="refactor-export-title">
-                        <span className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                        <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                             Template title
                         </span>
                         <input
                             aria-label="Refactoring export template title"
-                            className="w-full rounded border border-slate-200 px-2 py-1.5 text-sm"
+                            className="w-full rounded border border-border px-2 py-1.5 text-sm"
                             id="refactor-export-title"
                             onChange={handleTemplateTitleChange}
                             type="text"
@@ -127,12 +127,12 @@ export function RefactoringExportDialog(props: IRefactoringExportDialogProps): R
                     </label>
 
                     <label className="mt-2 block space-y-1" htmlFor="refactor-export-body">
-                        <span className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                        <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                             Template body
                         </span>
                         <textarea
                             aria-label="Refactoring export template body"
-                            className="min-h-[88px] w-full rounded border border-slate-200 px-2 py-1.5 text-sm"
+                            className="min-h-[88px] w-full rounded border border-border px-2 py-1.5 text-sm"
                             id="refactor-export-body"
                             onChange={handleTemplateBodyChange}
                             value={templateBody}
@@ -143,23 +143,23 @@ export function RefactoringExportDialog(props: IRefactoringExportDialogProps): R
                         {props.targets.slice(0, 6).map(
                             (target): ReactElement => (
                                 <li
-                                    className="flex items-start gap-2 rounded border border-slate-200 bg-white p-2"
+                                    className="flex items-start gap-2 rounded border border-border bg-white p-2"
                                     key={target.id}
                                 >
                                     <input
                                         aria-label={`Select export target ${target.title}`}
                                         checked={selectedTargetIds.includes(target.id)}
-                                        className="mt-0.5 h-4 w-4 rounded border-slate-300"
+                                        className="mt-0.5 h-4 w-4 rounded border-border"
                                         onChange={(): void => {
                                             toggleTarget(target.id)
                                         }}
                                         type="checkbox"
                                     />
                                     <div className="min-w-0">
-                                        <p className="text-sm font-semibold text-slate-900">
+                                        <p className="text-sm font-semibold text-foreground">
                                             {target.title}
                                         </p>
-                                        <p className="text-xs text-slate-600">
+                                        <p className="text-xs text-muted-foreground">
                                             Module {target.module} · ROI {String(target.roiScore)}
                                         </p>
                                     </div>
@@ -192,7 +192,7 @@ export function RefactoringExportDialog(props: IRefactoringExportDialogProps): R
             ) : null}
 
             {lastExportLabel.length > 0 ? (
-                <p className="mt-2 text-xs font-semibold text-emerald-700">{lastExportLabel}</p>
+                <p className="mt-2 text-xs font-semibold text-success">{lastExportLabel}</p>
             ) : null}
         </section>
     )

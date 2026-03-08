@@ -132,14 +132,14 @@ export function SseStreamViewer(props: ISSEStreamViewerProps): ReactElement {
     }, [events, maxEvents])
 
     const stateText = buildStateText(state)
-    const statusClass = state === "error" ? "text-red-700" : "text-slate-700"
+    const statusClass = state === "error" ? "text-danger" : "text-foreground"
 
     return (
         <Card>
             <CardHeader>
                 <div className="flex items-start justify-between gap-3">
                     <div>
-                        <p className="text-sm font-semibold text-slate-900">{title}</p>
+                        <p className="text-sm font-semibold text-foreground">{title}</p>
                         <p className={`text-xs ${statusClass}`}>Статус: {stateText}</p>
                     </div>
                     <div className="flex gap-2">
@@ -172,10 +172,10 @@ export function SseStreamViewer(props: ISSEStreamViewerProps): ReactElement {
                 {error === undefined ? null : <Alert color="danger">{error}</Alert>}
 
                 {isProgressVisible === false ? (
-                    <p className="text-sm text-slate-600">Нет данных о прогрессе.</p>
+                    <p className="text-sm text-muted-foreground">Нет данных о прогрессе.</p>
                 ) : (
                     <div className="space-y-2">
-                        <p className="text-sm text-slate-700">
+                        <p className="text-sm text-foreground">
                             Progress: {formatProgressLabel(progressCurrent, progressTotal)}
                         </p>
                         <div className="h-2 rounded-full bg-slate-200">
@@ -184,7 +184,7 @@ export function SseStreamViewer(props: ISSEStreamViewerProps): ReactElement {
                                 aria-valuemax={100}
                                 aria-valuemin={0}
                                 aria-valuenow={clampedProgressPercent}
-                                className="h-2 rounded-full bg-blue-500 transition-[width]"
+                                className="h-2 rounded-full bg-primary transition-[width]"
                                 role="progressbar"
                                 style={{ width: `${clampedProgressPercent}%` }}
                             />
@@ -193,18 +193,18 @@ export function SseStreamViewer(props: ISSEStreamViewerProps): ReactElement {
                 )}
 
                 <div>
-                    <p className="mb-2 text-sm text-slate-700">Event log</p>
+                    <p className="mb-2 text-sm text-foreground">Event log</p>
                     <ul aria-label="stream events" className="space-y-2" role="log">
                         {recentEvents.length === 0 ? (
-                            <li className="text-sm text-slate-600">Ожидание событий</li>
+                            <li className="text-sm text-muted-foreground">Ожидание событий</li>
                         ) : null}
                         {recentEvents.map(
                             (event): ReactElement => (
                                 <li
-                                    className="rounded-md border border-slate-200 bg-slate-50 p-2 text-sm text-slate-800"
+                                    className="rounded-md border border-border bg-surface p-2 text-sm text-foreground"
                                     key={createEventItemKey(event)}
                                 >
-                                    <p className="text-xs uppercase tracking-wider text-slate-500">
+                                    <p className="text-xs uppercase tracking-wider text-muted-foreground">
                                         {getStatusLabel(event.type)}
                                     </p>
                                     <p>{buildEventLabel(event)}</p>

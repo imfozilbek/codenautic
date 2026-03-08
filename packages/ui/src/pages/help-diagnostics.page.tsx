@@ -458,10 +458,8 @@ export function HelpDiagnosticsPage(): ReactElement {
 
     return (
         <section className="space-y-4">
-            <h1 className="text-2xl font-semibold text-[var(--foreground)]">
-                Help & diagnostics center
-            </h1>
-            <p className="text-sm text-[var(--foreground)]/70">
+            <h1 className="text-2xl font-semibold text-foreground">Help & diagnostics center</h1>
+            <p className="text-sm text-foreground/70">
                 Search help knowledge base, run diagnostics checks, and generate a redacted support
                 bundle without losing workflow context.
             </p>
@@ -474,17 +472,15 @@ export function HelpDiagnosticsPage(): ReactElement {
 
             <Card>
                 <CardHeader>
-                    <p className="text-base font-semibold text-[var(--foreground)]">
-                        Knowledge base search
-                    </p>
+                    <p className="text-base font-semibold text-foreground">Knowledge base search</p>
                 </CardHeader>
                 <CardBody className="space-y-3">
                     <div className="grid gap-3 md:grid-cols-[1fr_220px]">
-                        <label className="flex flex-col gap-1 text-sm text-[var(--foreground)]/80">
+                        <label className="flex flex-col gap-1 text-sm text-foreground/80">
                             Search
                             <input
                                 aria-label="Help search"
-                                className="rounded-lg border border-[var(--border)] bg-[var(--surface)] px-3 py-2 text-sm text-[var(--foreground)]"
+                                className="rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground"
                                 placeholder="Find article or issue type"
                                 value={search}
                                 onChange={(event): void => {
@@ -492,11 +488,11 @@ export function HelpDiagnosticsPage(): ReactElement {
                                 }}
                             />
                         </label>
-                        <label className="flex flex-col gap-1 text-sm text-[var(--foreground)]/80">
+                        <label className="flex flex-col gap-1 text-sm text-foreground/80">
                             Category
                             <select
                                 aria-label="Help category"
-                                className="rounded-lg border border-[var(--border)] bg-[var(--surface)] px-3 py-2 text-sm text-[var(--foreground)]"
+                                className="rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground"
                                 value={category}
                                 onChange={(event): void => {
                                     const value = event.currentTarget.value
@@ -537,13 +533,13 @@ export function HelpDiagnosticsPage(): ReactElement {
                             {filteredArticles.map(
                                 (article): ReactElement => (
                                     <li
-                                        className="rounded-lg border border-[var(--border)] bg-[var(--surface)] px-3 py-2"
+                                        className="rounded-lg border border-border bg-surface px-3 py-2"
                                         key={article.id}
                                     >
-                                        <p className="text-sm font-semibold text-[var(--foreground)]">
+                                        <p className="text-sm font-semibold text-foreground">
                                             {article.title}
                                         </p>
-                                        <p className="text-xs text-[var(--foreground)]/70">
+                                        <p className="text-xs text-foreground/70">
                                             {article.summary}
                                         </p>
                                         <a
@@ -562,13 +558,11 @@ export function HelpDiagnosticsPage(): ReactElement {
 
             <Card>
                 <CardHeader>
-                    <p className="text-base font-semibold text-[var(--foreground)]">
-                        Diagnostics checks
-                    </p>
+                    <p className="text-base font-semibold text-foreground">Diagnostics checks</p>
                 </CardHeader>
                 <CardBody className="space-y-3">
                     <div className="flex flex-wrap items-center justify-between gap-2">
-                        <p className="text-sm text-[var(--foreground)]/80">
+                        <p className="text-sm text-foreground/80">
                             Checks: auth/session, network, provider connectivity, feature flags,
                             browser/webgl readiness.
                         </p>
@@ -618,11 +612,11 @@ export function HelpDiagnosticsPage(): ReactElement {
                         {checks.map(
                             (check): ReactElement => (
                                 <li
-                                    className="rounded-lg border border-[var(--border)] bg-[var(--surface)] px-3 py-2"
+                                    className="rounded-lg border border-border bg-surface px-3 py-2"
                                     key={check.id}
                                 >
                                     <div className="flex flex-wrap items-center gap-2">
-                                        <p className="text-sm font-semibold text-[var(--foreground)]">
+                                        <p className="text-sm font-semibold text-foreground">
                                             {check.label}
                                         </p>
                                         <Chip
@@ -633,9 +627,7 @@ export function HelpDiagnosticsPage(): ReactElement {
                                             {check.status}
                                         </Chip>
                                     </div>
-                                    <p className="text-xs text-[var(--foreground)]/70">
-                                        {check.details}
-                                    </p>
+                                    <p className="text-xs text-foreground/70">{check.details}</p>
                                     <a
                                         className="inline-flex text-xs underline underline-offset-4"
                                         href={check.articleHref}
@@ -646,21 +638,19 @@ export function HelpDiagnosticsPage(): ReactElement {
                             ),
                         )}
                     </ul>
-                    <div className="rounded-lg border border-[var(--border)] bg-[var(--surface)] px-3 py-2">
-                        <p className="text-sm font-semibold text-[var(--foreground)]">
-                            Suggested actions
-                        </p>
+                    <div className="rounded-lg border border-border bg-surface px-3 py-2">
+                        <p className="text-sm font-semibold text-foreground">Suggested actions</p>
                         <ul aria-label="Diagnostics suggested actions" className="mt-2 space-y-2">
                             {suggestedActions.map(
                                 (action): ReactElement => (
                                     <li
-                                        className="rounded border border-[var(--border)] bg-[var(--surface)] px-2 py-2"
+                                        className="rounded border border-border bg-surface px-2 py-2"
                                         key={action.id}
                                     >
-                                        <p className="text-sm font-semibold text-[var(--foreground)]">
+                                        <p className="text-sm font-semibold text-foreground">
                                             {action.label}
                                         </p>
-                                        <p className="text-xs text-[var(--foreground)]/70">
+                                        <p className="text-xs text-foreground/70">
                                             {action.description}
                                         </p>
                                         {action.path !== undefined ? (
@@ -691,9 +681,7 @@ export function HelpDiagnosticsPage(): ReactElement {
 
             <Card>
                 <CardHeader>
-                    <p className="text-base font-semibold text-[var(--foreground)]">
-                        Support bundle
-                    </p>
+                    <p className="text-base font-semibold text-foreground">Support bundle</p>
                 </CardHeader>
                 <CardBody className="space-y-3">
                     <Button size="sm" variant="flat" onPress={handleGenerateSupportBundle}>

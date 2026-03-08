@@ -77,7 +77,7 @@ function XYFlowViewportControls(): ReactElement {
             <div className="flex gap-1">
                 <button
                     aria-label="Zoom in"
-                    className="rounded border border-slate-300 px-2 py-1 text-sm"
+                    className="rounded border border-border px-2 py-1 text-sm"
                     onClick={(): void => {
                         void flowInstance.zoomIn({ duration: 180 })
                     }}
@@ -87,7 +87,7 @@ function XYFlowViewportControls(): ReactElement {
                 </button>
                 <button
                     aria-label="Zoom out"
-                    className="rounded border border-slate-300 px-2 py-1 text-sm"
+                    className="rounded border border-border px-2 py-1 text-sm"
                     onClick={(): void => {
                         void flowInstance.zoomOut({ duration: 180 })
                     }}
@@ -97,7 +97,7 @@ function XYFlowViewportControls(): ReactElement {
                 </button>
                 <button
                     aria-label="Reset zoom"
-                    className="rounded border border-slate-300 px-2 py-1 text-xs"
+                    className="rounded border border-border px-2 py-1 text-xs"
                     onClick={(): void => {
                         void flowInstance.fitView({ padding: 0.15, duration: 220 })
                     }}
@@ -110,7 +110,7 @@ function XYFlowViewportControls(): ReactElement {
                 <span />
                 <button
                     aria-label="Pan up"
-                    className="rounded border border-slate-300 px-2 py-1 text-sm"
+                    className="rounded border border-border px-2 py-1 text-sm"
                     onClick={(): void => {
                         moveViewport(0, VIEWPORT_PAN_STEP)
                     }}
@@ -121,7 +121,7 @@ function XYFlowViewportControls(): ReactElement {
                 <span />
                 <button
                     aria-label="Pan left"
-                    className="rounded border border-slate-300 px-2 py-1 text-sm"
+                    className="rounded border border-border px-2 py-1 text-sm"
                     onClick={(): void => {
                         moveViewport(VIEWPORT_PAN_STEP, 0)
                     }}
@@ -132,7 +132,7 @@ function XYFlowViewportControls(): ReactElement {
                 <span />
                 <button
                     aria-label="Pan right"
-                    className="rounded border border-slate-300 px-2 py-1 text-sm"
+                    className="rounded border border-border px-2 py-1 text-sm"
                     onClick={(): void => {
                         moveViewport(-VIEWPORT_PAN_STEP, 0)
                     }}
@@ -143,7 +143,7 @@ function XYFlowViewportControls(): ReactElement {
                 <span />
                 <button
                     aria-label="Pan down"
-                    className="rounded border border-slate-300 px-2 py-1 text-sm"
+                    className="rounded border border-border px-2 py-1 text-sm"
                     onClick={(): void => {
                         moveViewport(0, -VIEWPORT_PAN_STEP)
                     }}
@@ -171,7 +171,7 @@ function XYFlowExportControls(props: {
         <Panel className="flex flex-col gap-2 rounded border bg-white/95 p-2" position="top-right">
             <button
                 aria-label="Export graph as SVG"
-                className="rounded border border-slate-300 px-2 py-1 text-xs"
+                className="rounded border border-border px-2 py-1 text-xs"
                 disabled={canExport !== true}
                 onClick={(): void => {
                     if (canExport !== true) {
@@ -185,7 +185,7 @@ function XYFlowExportControls(props: {
             </button>
             <button
                 aria-label="Export graph as PNG"
-                className="rounded border border-slate-300 px-2 py-1 text-xs disabled:opacity-50"
+                className="rounded border border-border px-2 py-1 text-xs disabled:opacity-50"
                 disabled={canExport !== true || isExportingPng === true}
                 onClick={(): void => {
                     if (canExport !== true || isExportingPng === true) {

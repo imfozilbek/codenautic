@@ -130,17 +130,17 @@ export function SimulationPanel(props: ISimulationPanelProps): ReactElement {
     }
 
     return (
-        <section className="rounded-lg border border-slate-200 bg-white p-3 shadow-sm">
-            <p className="text-sm font-semibold text-slate-900">Simulation panel</p>
-            <p className="mt-1 text-xs text-slate-500">
+        <section className="rounded-lg border border-border bg-white p-3 shadow-sm">
+            <p className="text-sm font-semibold text-foreground">Simulation panel</p>
+            <p className="mt-1 text-xs text-muted-foreground">
                 Toggle before/after state and compare projected CodeCity metrics for selected
                 refactoring targets.
             </p>
 
-            <div className="mt-3 inline-flex rounded-lg border border-slate-200 bg-slate-50 p-1">
+            <div className="mt-3 inline-flex rounded-lg border border-border bg-surface p-1">
                 <button
                     aria-pressed={mode === "before"}
-                    className={`rounded px-2 py-1 text-xs font-semibold ${mode === "before" ? "bg-white text-slate-900 shadow-sm" : "text-slate-600"}`}
+                    className={`rounded px-2 py-1 text-xs font-semibold ${mode === "before" ? "bg-white text-foreground shadow-sm" : "text-muted-foreground"}`}
                     onClick={(): void => {
                         setMode("before")
                     }}
@@ -150,7 +150,7 @@ export function SimulationPanel(props: ISimulationPanelProps): ReactElement {
                 </button>
                 <button
                     aria-pressed={mode === "after"}
-                    className={`rounded px-2 py-1 text-xs font-semibold ${mode === "after" ? "bg-cyan-500/20 text-cyan-900 shadow-sm" : "text-slate-600"}`}
+                    className={`rounded px-2 py-1 text-xs font-semibold ${mode === "after" ? "bg-cyan-500/20 text-cyan-900 shadow-sm" : "text-muted-foreground"}`}
                     onClick={(): void => {
                         setMode("after")
                     }}
@@ -160,7 +160,7 @@ export function SimulationPanel(props: ISimulationPanelProps): ReactElement {
                 </button>
             </div>
 
-            <p className="mt-2 text-xs font-semibold uppercase tracking-wide text-slate-500">
+            <p className="mt-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                 Simulation mode: {mode}
             </p>
 
@@ -168,23 +168,23 @@ export function SimulationPanel(props: ISimulationPanelProps): ReactElement {
                 {props.targets.slice(0, 5).map(
                     (target): ReactElement => (
                         <li
-                            className="flex items-start gap-2 rounded border border-slate-200 bg-slate-50 p-2"
+                            className="flex items-start gap-2 rounded border border-border bg-surface p-2"
                             key={target.id}
                         >
                             <input
                                 aria-label={`Select simulation target ${target.title}`}
                                 checked={selectedTargetIds.includes(target.id)}
-                                className="mt-0.5 h-4 w-4 rounded border-slate-300"
+                                className="mt-0.5 h-4 w-4 rounded border-border"
                                 onChange={(): void => {
                                     toggleTarget(target.id)
                                 }}
                                 type="checkbox"
                             />
                             <div className="min-w-0">
-                                <p className="text-sm font-semibold text-slate-900">
+                                <p className="text-sm font-semibold text-foreground">
                                     {target.title}
                                 </p>
-                                <p className="text-xs text-slate-600">
+                                <p className="text-xs text-muted-foreground">
                                     ROI {String(target.roiScore)} · Risk {String(target.riskScore)}{" "}
                                     · Effort {String(target.effortScore)}
                                 </p>
@@ -195,36 +195,36 @@ export function SimulationPanel(props: ISimulationPanelProps): ReactElement {
             </ul>
 
             <div className="mt-3 grid gap-2 md:grid-cols-3">
-                <div className="rounded border border-slate-200 bg-slate-50 p-2">
-                    <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">
+                <div className="rounded border border-border bg-surface p-2">
+                    <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
                         Complexity
                     </p>
-                    <p className="text-base font-semibold text-slate-900">
+                    <p className="text-base font-semibold text-foreground">
                         {String(activeMetrics.complexity)}
                     </p>
-                    <p className="text-[11px] text-slate-600">
+                    <p className="text-[11px] text-muted-foreground">
                         Delta {formatDelta(afterMetrics.complexity - beforeMetrics.complexity)}
                     </p>
                 </div>
-                <div className="rounded border border-slate-200 bg-slate-50 p-2">
-                    <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">
+                <div className="rounded border border-border bg-surface p-2">
+                    <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
                         Risk
                     </p>
-                    <p className="text-base font-semibold text-slate-900">
+                    <p className="text-base font-semibold text-foreground">
                         {String(activeMetrics.risk)}
                     </p>
-                    <p className="text-[11px] text-slate-600">
+                    <p className="text-[11px] text-muted-foreground">
                         Delta {formatDelta(afterMetrics.risk - beforeMetrics.risk)}
                     </p>
                 </div>
-                <div className="rounded border border-slate-200 bg-slate-50 p-2">
-                    <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">
+                <div className="rounded border border-border bg-surface p-2">
+                    <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
                         Maintainability
                     </p>
-                    <p className="text-base font-semibold text-slate-900">
+                    <p className="text-base font-semibold text-foreground">
                         {String(activeMetrics.maintainability)}
                     </p>
-                    <p className="text-[11px] text-slate-600">
+                    <p className="text-[11px] text-muted-foreground">
                         Delta{" "}
                         {formatDelta(afterMetrics.maintainability - beforeMetrics.maintainability)}
                     </p>

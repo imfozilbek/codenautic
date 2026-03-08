@@ -202,7 +202,7 @@ function OrganizationProfileCard(props: {
     return (
         <Card>
             <CardHeader>
-                <p className="text-base font-semibold text-slate-900">Organization profile</p>
+                <p className="text-base font-semibold text-foreground">Organization profile</p>
             </CardHeader>
             <CardBody className="space-y-3">
                 <div className="grid gap-3 md:grid-cols-3">
@@ -256,7 +256,7 @@ function BillingCard(props: {
     return (
         <Card>
             <CardHeader className="flex items-center justify-between">
-                <p className="text-base font-semibold text-slate-900">Billing</p>
+                <p className="text-base font-semibold text-foreground">Billing</p>
                 <Chip color={mapBillingStatusColor(props.billing.status)} size="sm" variant="flat">
                     {props.billing.status}
                 </Chip>
@@ -282,11 +282,11 @@ function BillingCard(props: {
                     </p>
                 </div>
                 <div className="flex flex-wrap items-center gap-2">
-                    <label className="text-sm text-slate-700" htmlFor="billing-plan-select">
+                    <label className="text-sm text-foreground" htmlFor="billing-plan-select">
                         Plan
                     </label>
                     <select
-                        className="rounded-lg border border-slate-200 px-3 py-2 text-sm"
+                        className="rounded-lg border border-border px-3 py-2 text-sm"
                         id="billing-plan-select"
                         value={props.billing.plan}
                         onChange={(event): void => {
@@ -330,7 +330,7 @@ function MembersCard(props: {
     return (
         <Card>
             <CardHeader>
-                <p className="text-base font-semibold text-slate-900">Members</p>
+                <p className="text-base font-semibold text-foreground">Members</p>
             </CardHeader>
             <CardBody className="space-y-3">
                 <div className="grid gap-3 md:grid-cols-[1fr_180px_auto]">
@@ -341,11 +341,11 @@ function MembersCard(props: {
                         value={props.inviteEmail}
                     />
                     <div className="flex flex-col gap-1">
-                        <label className="text-sm text-slate-700" htmlFor="invite-role-select">
+                        <label className="text-sm text-foreground" htmlFor="invite-role-select">
                             Role
                         </label>
                         <select
-                            className="rounded-lg border border-slate-200 px-3 py-2 text-sm"
+                            className="rounded-lg border border-border px-3 py-2 text-sm"
                             id="invite-role-select"
                             value={props.inviteRole}
                             onChange={(event): void => {
@@ -394,7 +394,7 @@ function MembersCard(props: {
                                                 {member.role}
                                             </Chip>
                                             <select
-                                                className="rounded border border-slate-200 px-2 py-1 text-xs"
+                                                className="rounded border border-border px-2 py-1 text-xs"
                                                 value={member.role}
                                                 onChange={(event): void => {
                                                     const role = event.currentTarget.value
@@ -446,10 +446,10 @@ function ByokCard(props: {
     return (
         <Card>
             <CardHeader>
-                <p className="text-base font-semibold text-slate-900">BYOK</p>
+                <p className="text-base font-semibold text-foreground">BYOK</p>
             </CardHeader>
             <CardBody className="space-y-3">
-                <p className="text-sm text-slate-600">
+                <p className="text-sm text-muted-foreground">
                     Manage secure provider keys used by integrations and LLM runtime.
                 </p>
                 <div className="flex flex-wrap items-center gap-4">
@@ -466,7 +466,9 @@ function ByokCard(props: {
                         LLM key configured
                     </Switch>
                 </div>
-                <p className="text-xs text-slate-500">Active key ref: {props.byok.maskedKeyRef}</p>
+                <p className="text-xs text-muted-foreground">
+                    Active key ref: {props.byok.maskedKeyRef}
+                </p>
                 <div>
                     <Button onPress={props.onRotate} size="sm" variant="light">
                         Rotate BYOK secret
@@ -481,7 +483,7 @@ function AuditLogsCard(props: { readonly logs: ReadonlyArray<IAuditLogEntry> }):
     return (
         <Card>
             <CardHeader>
-                <p className="text-base font-semibold text-slate-900">Audit logs (latest)</p>
+                <p className="text-base font-semibold text-foreground">Audit logs (latest)</p>
             </CardHeader>
             <CardBody>
                 <Table aria-label="Organization audit logs">
@@ -637,8 +639,8 @@ export function SettingsOrganizationPage(): ReactElement {
 
     return (
         <section className="space-y-4">
-            <h1 className="text-2xl font-semibold text-slate-900">Organization Settings</h1>
-            <p className="text-sm text-slate-600">
+            <h1 className="text-2xl font-semibold text-foreground">Organization Settings</h1>
+            <p className="text-sm text-muted-foreground">
                 Manage organization profile, billing, members, BYOK and audit history.
             </p>
 

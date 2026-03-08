@@ -290,7 +290,7 @@ export function XyFlowGraph(props: IXYFlowGraphProps): ReactElement {
             {budgetedGraphSlice.isOverBudget === true ? (
                 <div
                     aria-live="polite"
-                    className="rounded-lg border border-slate-300 bg-slate-50 px-3 py-2 text-xs text-slate-700"
+                    className="rounded-lg border border-border bg-surface px-3 py-2 text-xs text-foreground"
                 >
                     {`Graph is too large. Showing ${budgetedGraphSlice.nodes.length}/${props.nodes.length} nodes and ${budgetedGraphSlice.edges.length}/${props.edges.length} edges (trimmed ${budgetedGraphSlice.droppedNodes} nodes, ${budgetedGraphSlice.droppedEdges} edges). Use filters, reduce depth, or wait for clustering.`}
                 </div>
@@ -298,7 +298,7 @@ export function XyFlowGraph(props: IXYFlowGraphProps): ReactElement {
             {progressiveRenderEnabled === true && isProgressiveRenderReady !== true ? (
                 <div
                     aria-live="polite"
-                    className="flex items-center rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-700"
+                    className="flex items-center rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground"
                     style={{ height: graphHeight }}
                 >
                     Rendering graph with scale budget...

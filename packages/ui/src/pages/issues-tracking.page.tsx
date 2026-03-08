@@ -69,15 +69,15 @@ const ISSUE_STATUS_LABELS: Record<TIssueTrackingStatus, string> = {
 }
 
 const ISSUE_STATUS_STYLES: Record<TIssueTrackingStatus, string> = {
-    dismissed: "bg-slate-100 text-slate-700",
-    fixed: "bg-emerald-100 text-emerald-700",
-    in_progress: "bg-blue-100 text-blue-700",
-    open: "bg-rose-100 text-rose-700",
+    dismissed: "bg-surface-muted text-foreground",
+    fixed: "bg-success/15 text-success",
+    in_progress: "bg-blue-100 text-primary",
+    open: "bg-danger/15 text-danger",
 }
 
 const ISSUE_SEVERITY_STYLES: Record<TIssueTrackingSeverity, string> = {
-    critical: "bg-rose-100 text-rose-700 border border-rose-200",
-    high: "bg-amber-100 text-amber-700 border border-amber-200",
+    critical: "bg-danger/15 text-danger border border-danger/30",
+    high: "bg-warning/15 text-warning border border-warning/30",
     low: "bg-sky-100 text-sky-700 border border-sky-200",
     medium: "bg-violet-100 text-violet-700 border border-violet-200",
 }
@@ -359,23 +359,23 @@ export function IssuesTrackingPage(props: IIssueTrackingPageProps = {}): ReactEl
 
     return (
         <section className="space-y-4">
-            <h1 className="text-2xl font-semibold text-slate-900">Issues tracking</h1>
+            <h1 className="text-2xl font-semibold text-foreground">Issues tracking</h1>
             <Card>
                 <CardHeader>
-                    <p className="text-sm font-semibold text-slate-900">Issues tracking</p>
+                    <p className="text-sm font-semibold text-foreground">Issues tracking</p>
                 </CardHeader>
                 <CardBody className="space-y-3">
                     <div className="grid gap-3 md:grid-cols-4">
                         <input
                             aria-label="Search issues"
-                            className="rounded-lg border border-slate-200 px-3 py-2 text-sm"
+                            className="rounded-lg border border-border px-3 py-2 text-sm"
                             placeholder="Search by id, title, repo or file"
                             value={filters.search}
                             onChange={handleSearchChange}
                         />
                         <select
                             aria-label="Filter by status"
-                            className="rounded-lg border border-slate-200 px-3 py-2 text-sm"
+                            className="rounded-lg border border-border px-3 py-2 text-sm"
                             name="status"
                             value={filters.status}
                             onChange={handleSelectChange}
@@ -391,7 +391,7 @@ export function IssuesTrackingPage(props: IIssueTrackingPageProps = {}): ReactEl
                         </select>
                         <select
                             aria-label="Filter by severity"
-                            className="rounded-lg border border-slate-200 px-3 py-2 text-sm"
+                            className="rounded-lg border border-border px-3 py-2 text-sm"
                             name="severity"
                             value={filters.severity}
                             onChange={handleSelectChange}
@@ -405,7 +405,7 @@ export function IssuesTrackingPage(props: IIssueTrackingPageProps = {}): ReactEl
                                 ),
                             )}
                         </select>
-                        <p className="rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-700">
+                        <p className="rounded-lg border border-border px-3 py-2 text-sm text-foreground">
                             {String(filteredIssues.length)} of {String(sourceIssues.length)} issues
                         </p>
                     </div>
@@ -414,7 +414,7 @@ export function IssuesTrackingPage(props: IIssueTrackingPageProps = {}): ReactEl
 
             <Card>
                 <CardBody className="space-y-2">
-                    <h2 className="text-sm font-semibold text-slate-900">Issue list</h2>
+                    <h2 className="text-sm font-semibold text-foreground">Issue list</h2>
                     <InfiniteScrollContainer
                         hasMore={hasMoreIssues}
                         isLoading={false}

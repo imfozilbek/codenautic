@@ -75,7 +75,7 @@ export function ChatContextIndicator(props: IChatContextIndicatorProps): ReactEl
     const renderContextItem = (context: IChatPanelContextInfo): ReactNode => (
         <div className="flex min-w-0 flex-col gap-1 text-left">
             <span className="text-xs font-medium sm:text-sm">{formatContextSummary(context)}</span>
-            <span className="truncate text-xs text-[var(--foreground)]/70">
+            <span className="truncate text-xs text-foreground/70">
                 Files: {formatAttachedFiles(context.attachedFiles)}
             </span>
         </div>
@@ -94,20 +94,18 @@ export function ChatContextIndicator(props: IChatContextIndicatorProps): ReactEl
     if (props.contexts.length === 0) {
         return (
             <div
-                className={`rounded-md border border-[var(--border)] bg-[var(--surface)] p-2 ${
+                className={`rounded-md border border-border bg-surface p-2 ${
                     props.className ?? ""
                 }`}
             >
-                <p className="text-sm text-[var(--foreground)]/70">
-                    No conversation contexts available
-                </p>
+                <p className="text-sm text-foreground/70">No conversation contexts available</p>
             </div>
         )
     }
 
     return (
         <div
-            className={`rounded-md border border-[var(--border)] bg-[var(--surface)] px-3 py-2 ${
+            className={`rounded-md border border-border bg-surface px-3 py-2 ${
                 props.className ?? ""
             }`}
         >
@@ -117,7 +115,7 @@ export function ChatContextIndicator(props: IChatContextIndicatorProps): ReactEl
                         {contextTitle}
                     </Chip>
                     <p className="mt-1 text-xs font-semibold sm:text-sm">{contextSummary}</p>
-                    <p className="mt-1 text-xs text-[var(--foreground)]/70">{filesText}</p>
+                    <p className="mt-1 text-xs text-foreground/70">{filesText}</p>
                 </div>
                 <Button
                     aria-controls="chat-context-indicator-listbox"
@@ -145,7 +143,7 @@ export function ChatContextIndicator(props: IChatContextIndicatorProps): ReactEl
                                 <button
                                     aria-label={`${actionLabel} to ${formatContextSummary(context)}`}
                                     aria-selected={context.id === props.activeContextId}
-                                    className="w-full rounded-md border border-[var(--border)] bg-[var(--surface-muted)] p-2 text-left transition hover:bg-[var(--surface-hover)]"
+                                    className="w-full rounded-md border border-border bg-surface-muted p-2 text-left transition hover:bg-surface-hover"
                                     role="option"
                                     type="button"
                                     onClick={(): void => {

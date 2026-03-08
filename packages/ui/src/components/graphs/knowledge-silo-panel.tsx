@@ -34,20 +34,18 @@ export interface IKnowledgeSiloPanelProps {
 
 function resolveRiskClassName(riskScore: number): string {
     if (riskScore >= 75) {
-        return "border-rose-300 bg-rose-500/20 text-rose-800"
+        return "border-danger/40 bg-danger/20 text-danger"
     }
     if (riskScore >= 45) {
-        return "border-amber-300 bg-amber-500/20 text-amber-900"
+        return "border-amber-300 bg-warning/20 text-amber-900"
     }
-    return "border-emerald-300 bg-emerald-500/20 text-emerald-800"
+    return "border-success/40 bg-success/20 text-success"
 }
 
 function resolveEntryClassName(isActive: boolean): string {
     return [
         "w-full rounded-lg border p-2 text-left transition",
-        isActive
-            ? "border-cyan-400 bg-cyan-50"
-            : "border-slate-200 bg-slate-50 hover:border-slate-300",
+        isActive ? "border-cyan-400 bg-cyan-50" : "border-border bg-surface hover:border-border",
     ].join(" ")
 }
 
@@ -59,9 +57,9 @@ function resolveEntryClassName(isActive: boolean): string {
  */
 export function KnowledgeSiloPanel(props: IKnowledgeSiloPanelProps): ReactElement {
     return (
-        <section className="rounded-lg border border-slate-200 bg-white p-3 shadow-sm">
-            <p className="text-sm font-semibold text-slate-900">Knowledge silo panel</p>
-            <p className="mt-1 text-xs text-slate-500">
+        <section className="rounded-lg border border-border bg-white p-3 shadow-sm">
+            <p className="text-sm font-semibold text-foreground">Knowledge silo panel</p>
+            <p className="mt-1 text-xs text-muted-foreground">
                 High-risk ownership silos. Select a silo to focus related files in CodeCity.
             </p>
 
@@ -81,10 +79,10 @@ export function KnowledgeSiloPanel(props: IKnowledgeSiloPanelProps): ReactElemen
                             >
                                 <div className="flex items-start justify-between gap-2">
                                     <div className="min-w-0">
-                                        <p className="truncate text-sm font-semibold text-slate-900">
+                                        <p className="truncate text-sm font-semibold text-foreground">
                                             {entry.siloLabel}
                                         </p>
-                                        <p className="mt-1 text-xs text-slate-600">
+                                        <p className="mt-1 text-xs text-muted-foreground">
                                             Contributors: {String(entry.contributorCount)} · Files:{" "}
                                             {String(entry.fileCount)}
                                         </p>

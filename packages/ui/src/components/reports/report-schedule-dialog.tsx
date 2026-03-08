@@ -39,7 +39,7 @@ export function ReportScheduleDialog(): ReactElement {
     return (
         <Card>
             <CardHeader>
-                <p className="text-base font-semibold text-[var(--foreground)]">Report schedule</p>
+                <p className="text-base font-semibold text-foreground">Report schedule</p>
             </CardHeader>
             <CardBody className="space-y-3">
                 <div className="flex gap-2">
@@ -55,40 +55,34 @@ export function ReportScheduleDialog(): ReactElement {
                 {isOpen === false ? null : (
                     <div
                         aria-label="Report schedule dialog"
-                        className="space-y-3 rounded border border-slate-200 bg-slate-50 p-3"
+                        className="space-y-3 rounded border border-border bg-surface p-3"
                         role="dialog"
                     >
                         <label className="space-y-1 text-sm">
-                            <span className="font-semibold text-[var(--foreground)]">
-                                Recipients
-                            </span>
+                            <span className="font-semibold text-foreground">Recipients</span>
                             <input
                                 aria-label="Schedule recipients"
-                                className="w-full rounded border border-slate-300 bg-white px-2 py-1 text-sm text-slate-900"
+                                className="w-full rounded border border-border bg-white px-2 py-1 text-sm text-foreground"
                                 type="text"
                                 value={recipients}
                                 onChange={handleRecipientsChange}
                             />
                         </label>
                         <label className="space-y-1 text-sm">
-                            <span className="font-semibold text-[var(--foreground)]">
-                                Cron expression
-                            </span>
+                            <span className="font-semibold text-foreground">Cron expression</span>
                             <input
                                 aria-label="Schedule cron expression"
-                                className="w-full rounded border border-slate-300 bg-white px-2 py-1 text-sm text-slate-900"
+                                className="w-full rounded border border-border bg-white px-2 py-1 text-sm text-foreground"
                                 type="text"
                                 value={cronExpression}
                                 onChange={handleCronChange}
                             />
                         </label>
                         <label className="space-y-1 text-sm">
-                            <span className="font-semibold text-[var(--foreground)]">
-                                Delivery format
-                            </span>
+                            <span className="font-semibold text-foreground">Delivery format</span>
                             <select
                                 aria-label="Schedule format"
-                                className="w-full rounded border border-slate-300 bg-white px-2 py-1 text-sm text-slate-900"
+                                className="w-full rounded border border-border bg-white px-2 py-1 text-sm text-foreground"
                                 value={format}
                                 onChange={(event): void => {
                                     const nextValue = event.currentTarget.value

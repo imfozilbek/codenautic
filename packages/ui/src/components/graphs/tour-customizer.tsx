@@ -125,9 +125,9 @@ export function TourCustomizer(props: ITourCustomizerProps): ReactElement {
 
     if (props.isAdmin === false) {
         return (
-            <section className="rounded-lg border border-slate-200 bg-white p-3 shadow-sm">
-                <p className="text-sm font-semibold text-slate-900">Tour customizer</p>
-                <p className="mt-1 text-xs text-slate-500">
+            <section className="rounded-lg border border-border bg-white p-3 shadow-sm">
+                <p className="text-sm font-semibold text-foreground">Tour customizer</p>
+                <p className="mt-1 text-xs text-muted-foreground">
                     Admin access is required to create and reorder custom tour steps.
                 </p>
             </section>
@@ -135,19 +135,19 @@ export function TourCustomizer(props: ITourCustomizerProps): ReactElement {
     }
 
     return (
-        <section className="rounded-lg border border-slate-200 bg-white p-3 shadow-sm">
-            <p className="text-sm font-semibold text-slate-900">Tour customizer</p>
-            <p className="mt-1 text-xs text-slate-500">
+        <section className="rounded-lg border border-border bg-white p-3 shadow-sm">
+            <p className="text-sm font-semibold text-foreground">Tour customizer</p>
+            <p className="mt-1 text-xs text-muted-foreground">
                 Drag and drop step cards, edit stop descriptions, and add custom stops.
             </p>
 
             <label className="mt-3 block space-y-1" htmlFor="tour-stop-title">
-                <span className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                     Stop title
                 </span>
                 <input
                     aria-label="Tour stop title"
-                    className="w-full rounded-lg border border-slate-200 px-2 py-1.5 text-sm"
+                    className="w-full rounded-lg border border-border px-2 py-1.5 text-sm"
                     id="tour-stop-title"
                     onChange={(event): void => {
                         setDraftTitle(event.currentTarget.value)
@@ -158,12 +158,12 @@ export function TourCustomizer(props: ITourCustomizerProps): ReactElement {
             </label>
 
             <label className="mt-2 block space-y-1" htmlFor="tour-stop-description">
-                <span className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                     Stop description
                 </span>
                 <textarea
                     aria-label="Tour stop description"
-                    className="min-h-20 w-full rounded-lg border border-slate-200 px-2 py-1.5 text-sm"
+                    className="min-h-20 w-full rounded-lg border border-border px-2 py-1.5 text-sm"
                     id="tour-stop-description"
                     onChange={(event): void => {
                         setDraftDescription(event.currentTarget.value)
@@ -186,7 +186,7 @@ export function TourCustomizer(props: ITourCustomizerProps): ReactElement {
                 {props.steps.map(
                     (step): ReactElement => (
                         <li
-                            className="rounded border border-slate-200 bg-slate-50 p-2"
+                            className="rounded border border-border bg-surface p-2"
                             draggable={true}
                             key={step.id}
                             onDragOver={(event): void => {
@@ -199,17 +199,17 @@ export function TourCustomizer(props: ITourCustomizerProps): ReactElement {
                                 handleDropOnStep(step.id, event)
                             }}
                         >
-                            <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">
+                            <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
                                 Step ID: {step.id}
                             </p>
                             <label
                                 className="mt-1 block space-y-1"
                                 htmlFor={`step-title-${step.id}`}
                             >
-                                <span className="text-xs text-slate-500">Title</span>
+                                <span className="text-xs text-muted-foreground">Title</span>
                                 <input
                                     aria-label={`Tour step title ${step.id}`}
-                                    className="w-full rounded border border-slate-200 px-2 py-1 text-sm"
+                                    className="w-full rounded border border-border px-2 py-1 text-sm"
                                     id={`step-title-${step.id}`}
                                     onChange={(event): void => {
                                         handleTitleChange(step.id, event)
@@ -221,10 +221,10 @@ export function TourCustomizer(props: ITourCustomizerProps): ReactElement {
                                 className="mt-1 block space-y-1"
                                 htmlFor={`step-description-${step.id}`}
                             >
-                                <span className="text-xs text-slate-500">Description</span>
+                                <span className="text-xs text-muted-foreground">Description</span>
                                 <textarea
                                     aria-label={`Tour step description ${step.id}`}
-                                    className="min-h-16 w-full rounded border border-slate-200 px-2 py-1 text-sm"
+                                    className="min-h-16 w-full rounded border border-border px-2 py-1 text-sm"
                                     id={`step-description-${step.id}`}
                                     onChange={(event): void => {
                                         handleDescriptionChange(step.id, event)

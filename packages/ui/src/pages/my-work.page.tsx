@@ -509,15 +509,15 @@ export function MyWorkPage(): ReactElement {
 
     return (
         <section className="space-y-4">
-            <h1 className="text-2xl font-semibold text-[var(--foreground)]">My Work / Triage</h1>
-            <p className="text-sm text-[var(--foreground)]/70">
+            <h1 className="text-2xl font-semibold text-foreground">My Work / Triage</h1>
+            <p className="text-sm text-foreground/70">
                 Unified hub for assigned CCRs, critical issues, inbox notifications, stuck jobs and
                 pending approvals with ownership + escalation model.
             </p>
 
             <Card>
                 <CardHeader className="flex flex-wrap items-center justify-between gap-2">
-                    <p className="text-base font-semibold text-[var(--foreground)]">
+                    <p className="text-base font-semibold text-foreground">
                         Scope and ownership controls
                     </p>
                     <Chip size="sm" variant="flat">
@@ -528,7 +528,7 @@ export function MyWorkPage(): ReactElement {
                     <div className="flex flex-wrap gap-2">
                         <select
                             aria-label="Triage scope"
-                            className="w-full rounded-lg border border-[var(--border)] bg-[var(--surface)] px-3 py-2 text-sm md:max-w-[220px]"
+                            className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm md:max-w-[220px]"
                             value={scope}
                             onChange={(event): void => {
                                 const nextScope = event.currentTarget.value
@@ -548,7 +548,7 @@ export function MyWorkPage(): ReactElement {
 
                         <select
                             aria-label="Reviewer role"
-                            className="w-full rounded-lg border border-[var(--border)] bg-[var(--surface)] px-3 py-2 text-sm md:max-w-[220px]"
+                            className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm md:max-w-[220px]"
                             value={reviewerRole}
                             onChange={(event): void => {
                                 const nextRole = event.currentTarget.value
@@ -582,9 +582,7 @@ export function MyWorkPage(): ReactElement {
 
             <Card>
                 <CardHeader>
-                    <p className="text-base font-semibold text-[var(--foreground)]">
-                        Unified triage list
-                    </p>
+                    <p className="text-base font-semibold text-foreground">Unified triage list</p>
                 </CardHeader>
                 <CardBody className="space-y-2">
                     {filteredItems.length === 0 ? (
@@ -603,11 +601,11 @@ export function MyWorkPage(): ReactElement {
                                 const slaState = getSlaState(item, nowTimestamp)
                                 return (
                                     <li
-                                        className="rounded-lg border border-[var(--border)] bg-[var(--surface)] p-3"
+                                        className="rounded-lg border border-border bg-surface p-3"
                                         key={item.id}
                                     >
                                         <div className="flex flex-wrap items-center gap-2">
-                                            <p className="text-sm font-semibold text-[var(--foreground)]">
+                                            <p className="text-sm font-semibold text-foreground">
                                                 {item.title}
                                             </p>
                                             <Chip size="sm" variant="flat">
@@ -651,7 +649,7 @@ export function MyWorkPage(): ReactElement {
                                                 {getSlaLabel(slaState)}
                                             </Chip>
                                         </div>
-                                        <p className="mt-1 text-xs text-[var(--foreground)]/70">
+                                        <p className="mt-1 text-xs text-foreground/70">
                                             {item.repository} · created{" "}
                                             {formatTimestamp(item.timestamp)} · due{" "}
                                             {formatTimestamp(item.dueAt)} · sla {item.slaMinutes}m
@@ -745,7 +743,7 @@ export function MyWorkPage(): ReactElement {
                                                 Open review
                                             </Button>
                                             <a
-                                                className="inline-flex items-center rounded-full border border-[var(--border)] px-3 py-1 text-xs text-[var(--foreground)]/80"
+                                                className="inline-flex items-center rounded-full border border-border px-3 py-1 text-xs text-foreground/80"
                                                 href={item.deepLink}
                                             >
                                                 Deep-link
@@ -761,21 +759,17 @@ export function MyWorkPage(): ReactElement {
 
             <Card>
                 <CardHeader>
-                    <p className="text-base font-semibold text-[var(--foreground)]">
-                        Ownership audit trail
-                    </p>
+                    <p className="text-base font-semibold text-foreground">Ownership audit trail</p>
                 </CardHeader>
                 <CardBody className="space-y-2">
                     {auditTrail.length === 0 ? (
-                        <p className="text-sm text-[var(--foreground)]/70">
-                            No ownership changes yet.
-                        </p>
+                        <p className="text-sm text-foreground/70">No ownership changes yet.</p>
                     ) : (
                         <ul aria-label="Ownership audit trail" className="space-y-1">
                             {auditTrail.map(
                                 (entry): ReactElement => (
                                     <li
-                                        className="text-xs text-[var(--foreground)]/80"
+                                        className="text-xs text-foreground/80"
                                         key={entry.id}
                                     >{`${entry.itemId} ${formatAuditAction(entry.action)} at ${formatTimestamp(entry.timestamp)}`}</li>
                                 ),

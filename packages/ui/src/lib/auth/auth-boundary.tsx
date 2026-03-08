@@ -462,7 +462,7 @@ function renderAuthLoadingState(appTitle: string, message: string): ReactElement
             className="mx-auto flex min-h-screen w-full max-w-3xl flex-col items-center justify-center p-8"
         >
             <h1 className="text-3xl font-semibold tracking-tight">{appTitle}</h1>
-            <p className="mt-4 text-base text-slate-600">{message}</p>
+            <p className="mt-4 text-base text-muted-foreground">{message}</p>
         </section>
     )
 }
@@ -501,16 +501,16 @@ function AuthLoginPanel(props: IAuthLoginPanelProps): ReactElement {
     return (
         <section className="mx-auto flex min-h-screen w-full max-w-3xl flex-col items-center justify-center p-8">
             <h1 className="text-3xl font-semibold tracking-tight">{props.appTitle}</h1>
-            <p className="mt-4 text-base text-slate-600">{props.description}</p>
+            <p className="mt-4 text-base text-muted-foreground">{props.description}</p>
             {props.statusMessage !== undefined ? (
-                <p aria-live="polite" className="mt-3 text-sm text-amber-700" role="status">
+                <p aria-live="polite" className="mt-3 text-sm text-warning" role="status">
                     {props.statusMessage}
                 </p>
             ) : null}
             <div className="mt-8 grid w-full max-w-sm gap-3">
                 {OAUTH_PROVIDERS.map((provider) => (
                     <Button
-                        className="rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm font-semibold text-slate-900 transition hover:border-slate-400 hover:bg-slate-100"
+                        className="rounded-xl border border-border bg-white px-4 py-3 text-sm font-semibold text-foreground transition hover:border-slate-400 hover:bg-surface-muted"
                         key={provider}
                         onPress={(): void => {
                             void props.onOAuthSignIn(provider)
@@ -521,7 +521,7 @@ function AuthLoginPanel(props: IAuthLoginPanelProps): ReactElement {
                 ))}
             </div>
             {props.interactionError !== null ? (
-                <p aria-live="assertive" className="mt-4 text-sm text-rose-700" role="alert">
+                <p aria-live="assertive" className="mt-4 text-sm text-danger" role="alert">
                     {props.interactionError}
                 </p>
             ) : null}
@@ -546,11 +546,7 @@ function renderAuthLoginShell(props: IAuthAuthenticatedShellRenderProps): ReactE
         >
             <>
                 {props.interactionError !== null ? (
-                    <p
-                        aria-live="assertive"
-                        className="px-6 pb-2 text-sm text-rose-700"
-                        role="alert"
-                    >
+                    <p aria-live="assertive" className="px-6 pb-2 text-sm text-danger" role="alert">
                         {props.interactionError}
                     </p>
                 ) : null}
@@ -583,11 +579,11 @@ function AuthenticatedShell(props: IAuthenticatedShellProps): ReactElement {
         <div className="min-h-screen">
             <header className="mx-auto flex w-full max-w-5xl items-center justify-between px-6 pt-6">
                 <div>
-                    <p className="text-sm text-slate-500">{props.appTitle}</p>
-                    <h2 className="text-lg font-semibold text-slate-900">
+                    <p className="text-sm text-muted-foreground">{props.appTitle}</p>
+                    <h2 className="text-lg font-semibold text-foreground">
                         {props.userDisplayName}
                     </h2>
-                    <p className="text-sm text-slate-600">{props.userEmail}</p>
+                    <p className="text-sm text-muted-foreground">{props.userEmail}</p>
                 </div>
                 <Button
                     className="rounded-full bg-slate-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-slate-700"
