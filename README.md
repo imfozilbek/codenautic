@@ -89,13 +89,13 @@ flowchart LR
 
 ## Integrations
 
-| Category      | Available                                                     | Planned                           |
-|---------------|---------------------------------------------------------------|-----------------------------------|
-| Git Platforms | GitHub, GitLab, Azure DevOps, Bitbucket                       | —                                 |
-| LLM Providers | OpenAI, Anthropic, Google, Groq, OpenRouter, Cerebras, Novita | —                                 |
+| Category      | Available                                                     | Planned                                   |
+| ------------- | ------------------------------------------------------------- | ----------------------------------------- |
+| Git Platforms | GitHub, GitLab, Azure DevOps, Bitbucket                       | —                                         |
+| LLM Providers | OpenAI, Anthropic, Google, Groq, OpenRouter, Cerebras, Novita | —                                         |
 | Context       | Jira, Linear, Sentry, Asana, ClickUp                          | Datadog, Bugsnag, PostHog, Trello, Notion |
-| Notifications | Slack, Discord, Teams                                         | —                                 |
-| AST Parsers   | TypeScript, JavaScript, Python, Go, Java, Rust, PHP, C#, Ruby | Kotlin                            |
+| Notifications | Slack, Discord, Teams                                         | —                                         |
+| AST Parsers   | TypeScript, JavaScript, Python, Go, Java, Rust, PHP, C#, Ruby | Kotlin                                    |
 
 ---
 
@@ -140,21 +140,21 @@ flowchart TD
     end
 
     subgraph SERVER["@codenautic/runtime — 10 processes"]
-        API["api :3000\nNestJS 11"]
-        SS["settings-service :3040\nNestJS 11\nconfig registry"]
-        WH["webhooks :3001\nverify + route"]
+        API["api :7120\nNestJS 11"]
+        SS["settings-service :7130\nNestJS 11\nconfig registry"]
+        WH["webhooks :7140\nverify + route"]
         RW["review-worker\nversioned pipeline execution"]
         SW["scan-worker\nAST + Code Graph"]
         AW["agent-worker\n@mention + CCR summary"]
         NW["notification-worker\nSlack / Discord / Teams"]
         ANW["analytics-worker\nmetrics + drift"]
         SCH["scheduler\ncron producer"]
-        MCP_SRV["mcp\nstdio / SSE"]
+        MCP_SRV["mcp :7210\nstdio / SSE"]
     end
 
     INFRA["@codenautic/adapters\ngit · llm · context · notifications\nast · messaging · worker · database"]
     CORE["@codenautic/core\nDomain + Application + Ports"]
-    WEB["@codenautic/ui :3002\nVite + React 19"]
+    WEB["@codenautic/ui :7110\nVite + React 19"]
 
     subgraph STORAGE["Data Storage"]
         direction LR
@@ -187,6 +187,9 @@ flowchart TD
     style STORAGE fill:#1a2332,stroke:#334155,color:#94a3b8
 ```
 
+Сетевые порты централизованы в [`config/service-ports.json`](./config/service-ports.json): `ui=7110`, `api=7120`,
+`settings-service=7130`, `webhooks=7140`, `mcp-sse=7210`, `ui-preview=7220`, `storybook=7230`.
+
 ### Package Dependency Graph
 
 ```mermaid
@@ -214,18 +217,18 @@ For more on the architecture, see [PRODUCT.md](./PRODUCT.md).
 
 ## Tech Stack
 
-| Category    | Technologies                                                                                 |
-|-------------|----------------------------------------------------------------------------------------------|
-| Runtime     | Bun 1.2, TypeScript 5.7                                                                      |
-| Backend     | NestJS 11, Pino, PM2                                                                         |
+| Category    | Technologies                                                                                      |
+| ----------- | ------------------------------------------------------------------------------------------------- |
+| Runtime     | Bun 1.2, TypeScript 5.7                                                                           |
+| Backend     | NestJS 11, Pino, PM2                                                                              |
 | Frontend    | Vite 7, React 19, TanStack Router, Tailwind CSS 4, HeroUI v3 (migration target), Recharts, Sonner |
-| Database    | MongoDB 8 (mongoose), Qdrant 1.13                                                            |
-| Queue/Cache | Redis 7.4 (Redis Streams), BullMQ                                                            |
-| Validation  | Zod                                                                                          |
-| Security    | Helmet, CORS, CASL, AES-GCM                                                                  |
-| LLM         | openai, @anthropic-ai/sdk, @google/genai, Vercel AI SDK                                      |
-| Git         | @octokit/rest, @gitbeaker/rest                                                               |
-| AST         | tree-sitter                                                                                  |
+| Database    | MongoDB 8 (mongoose), Qdrant 1.13                                                                 |
+| Queue/Cache | Redis 7.4 (Redis Streams), BullMQ                                                                 |
+| Validation  | Zod                                                                                               |
+| Security    | Helmet, CORS, CASL, AES-GCM                                                                       |
+| LLM         | openai, @anthropic-ai/sdk, @google/genai, Vercel AI SDK                                           |
+| Git         | @octokit/rest, @gitbeaker/rest                                                                    |
+| AST         | tree-sitter                                                                                       |
 
 ---
 
@@ -361,12 +364,12 @@ The project is planned for 33+ versions. Current progress: **0%** (0 of 1112 tas
 This reflects implementation status by package TODOs; structural product coverage is tracked separately in
 [PRODUCT_COVERAGE.md](./PRODUCT_COVERAGE.md).
 
-| Phase | Packages                                                   | Status |
-|-------|------------------------------------------------------------|--------|
-| 1     | core                                                       | 0%     |
-| 2     | adapters (providers, ast, messaging, worker-infra)        | 0%     |
-| 3     | runtime (api, webhooks, workers, scheduler, mcp)          | 0%     |
-| 4     | ui                                                         | 0%     |
+| Phase | Packages                                           | Status |
+| ----- | -------------------------------------------------- | ------ |
+| 1     | core                                               | 0%     |
+| 2     | adapters (providers, ast, messaging, worker-infra) | 0%     |
+| 3     | runtime (api, webhooks, workers, scheduler, mcp)   | 0%     |
+| 4     | ui                                                 | 0%     |
 
 Current priorities:
 
@@ -385,13 +388,13 @@ Full roadmap per package is split into:
 
 ## Documentation
 
-| Document                                      | Description                             |
-|-----------------------------------------------|-----------------------------------------|
-| [PRODUCT.md](./PRODUCT.md)                    | Full product description                |
-| [ROADMAP.md](./ROADMAP.md)                    | Strategic roadmap and milestone order   |
-| [PRODUCT_COVERAGE.md](./PRODUCT_COVERAGE.md)  | Product-to-task coverage and risk gates |
-| [CONTRIBUTING.md](./CONTRIBUTING.md)          | Contribution guide                      |
-| `packages/<name>/TODO.md` + `todo/*.md`       | Per-package task index and split tasks  |
+| Document                                     | Description                             |
+| -------------------------------------------- | --------------------------------------- |
+| [PRODUCT.md](./PRODUCT.md)                   | Full product description                |
+| [ROADMAP.md](./ROADMAP.md)                   | Strategic roadmap and milestone order   |
+| [PRODUCT_COVERAGE.md](./PRODUCT_COVERAGE.md) | Product-to-task coverage and risk gates |
+| [CONTRIBUTING.md](./CONTRIBUTING.md)         | Contribution guide                      |
+| `packages/<name>/TODO.md` + `todo/*.md`      | Per-package task index and split tasks  |
 
 ---
 
