@@ -14,6 +14,12 @@ export {
     type GitProviderFactoryErrorCode,
 } from "./git-provider-factory.error"
 export {
+    GitHubProvider,
+    type IGitHubOctokitClient,
+    type IGitHubProviderOptions,
+} from "./github-provider"
+export {GitHubProviderError} from "./github-provider.error"
+export {
     GIT_ACL_ERROR_KIND,
     GitDiffFilesAcl,
     GitErrorAcl,

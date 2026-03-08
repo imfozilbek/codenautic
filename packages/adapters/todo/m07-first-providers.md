@@ -15,7 +15,7 @@
 | ID | Задача | Статус | Результат | Acceptance Criteria |
 |----------|--------------------|--------|-----------|---------------------|
 | GIT-001 | Реализовать GitProviderFactory | DONE | Реализовано | Реализация: Создает провайдер по типу. Возвращает IGitProvider. Инъекция токена. Готово, если: factory выбирает провайдера строго по конфигурации, неизвестный тип возвращает типизированную ошибку, контракт IGitProvider идентичен для всех поддерживаемых платформ; DoD: `cd packages/adapters && bun run lint && bun run typecheck && bun test`. |
-| GIT-002 | Реализовать GitHubProvider | TODO | Не начато | Реализация: Интеграция через Octokit SDK. Check Runs API. \`\`\`suggestion format. HMAC-SHA256 verify. Готово, если: GitHub adapter корректно обрабатывает happy-path и API ошибки (401/403/404/429/5xx), signature verification блокирует spoofed webhook, retry выполняется только для retryable статусов; DoD: `cd packages/adapters && bun run lint && bun run typecheck && bun test`. |
+| GIT-002 | Реализовать GitHubProvider | DONE | Реализовано | Реализация: Интеграция через Octokit SDK. Check Runs API. \`\`\`suggestion format. HMAC-SHA256 verify. Готово, если: GitHub adapter корректно обрабатывает happy-path и API ошибки (401/403/404/429/5xx), signature verification блокирует spoofed webhook, retry выполняется только для retryable статусов; DoD: `cd packages/adapters && bun run lint && bun run typecheck && bun test`. |
 
 ---
 
