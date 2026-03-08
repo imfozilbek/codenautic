@@ -1,6 +1,7 @@
 import {Container, type ILLMProvider} from "@codenautic/core"
 
 import {bindConstantSingleton} from "../shared/bind-constant-singleton"
+import type {ILlmProviderFactory} from "./llm-provider.factory"
 import {LLM_TOKENS} from "./llm.tokens"
 
 /**
@@ -11,6 +12,11 @@ export interface IRegisterLlmModuleOptions {
      * LLM provider implementation.
      */
     readonly provider: ILLMProvider
+
+    /**
+     * Optional LLM provider factory.
+     */
+    readonly providerFactory?: ILlmProviderFactory
 }
 
 /**
@@ -21,4 +27,12 @@ export interface IRegisterLlmModuleOptions {
  */
 export function registerLlmModule(container: Container, options: IRegisterLlmModuleOptions): void {
     bindConstantSingleton(container, LLM_TOKENS.Provider, options.provider)
+
+    if (options.providerFactory !== undefined) {
+        bindConstantSingleton(
+            container,
+            LLM_TOKENS.ProviderFactory,
+            options.providerFactory,
+        )
+    }
 }

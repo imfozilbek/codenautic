@@ -3,7 +3,7 @@ import {describe, expect, test} from "bun:test"
 import {Container, TOKENS} from "@codenautic/core"
 
 import {GIT_TOKENS, GitProviderFactory, registerGitModule} from "../../src/git"
-import {LLM_TOKENS, registerLlmModule} from "../../src/llm"
+import {LLM_TOKENS, LlmProviderFactory, registerLlmModule} from "../../src/llm"
 import {registerReviewModule} from "../../src/review"
 import {registerRuleModule} from "../../src/rule"
 import {
@@ -35,6 +35,26 @@ describe("Provider modules registration", () => {
         const resolved = container.resolve(LLM_TOKENS.Provider)
 
         expect(resolved).toBe(provider)
+    })
+
+    test("registerLlmModule binds optional provider factory token", () => {
+        const container = new Container()
+        const provider = createLlmProviderMock()
+        const providerFactory = new LlmProviderFactory({
+            openai: {
+                provider,
+                supportedModels: ["gpt-4o"],
+            },
+        })
+
+        registerLlmModule(container, {
+            provider,
+            providerFactory,
+        })
+
+        const resolvedFactory = container.resolve(LLM_TOKENS.ProviderFactory)
+
+        expect(resolvedFactory).toBe(providerFactory)
     })
 
     test("registerGitModule binds optional provider factory token", () => {
