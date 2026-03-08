@@ -48,6 +48,7 @@ export {
     type PipelineCheckpointStatus,
 } from "./application/ports/outbound/review/pipeline-checkpoint-store.port"
 export {type IRepositoryConfigLoader} from "./application/ports/outbound/review/repository-config-loader.port"
+export {type IReviewIssueTicketRepository} from "./application/ports/outbound/review/review-issue-ticket-repository.port"
 export {type IReviewRepository} from "./application/ports/outbound/review/review-repository.port"
 export {type IRuleRepository} from "./application/ports/outbound/rule/rule-repository.port"
 export {
@@ -322,6 +323,7 @@ export {
     type IDiscardedSuggestionDTO,
     type IReviewConfigDTO,
     type IReviewIssueDTO,
+    type IReviewRuleSelectionDTO,
     type IReviewPromptOverridesDTO,
     type IReviewPromptOverrideCategoriesDTO,
     type IReviewPromptOverrideCategoryDescriptionsDTO,
@@ -406,6 +408,16 @@ export {
     CreateCheckStageUseCase,
     type ICreateCheckStageDependencies,
 } from "./application/use-cases/review/create-check-stage.use-case"
+export {
+    CreateIssueFromSuggestionUseCase,
+    ISSUE_TICKET_ACTION,
+    ISSUE_TICKET_SKIP_REASON,
+    type ICreateIssueFromSuggestionInput,
+    type ICreateIssueFromSuggestionOutput,
+    type ICreateIssueFromSuggestionUseCaseDependencies,
+    type IssueTicketAction,
+    type IssueTicketSkipReason,
+} from "./application/use-cases/review/create-issue-from-suggestion.use-case"
 export {
     EmitEventsStageUseCase,
     type IEmitEventsStageDependencies,
@@ -782,6 +794,11 @@ export {
     type IReconstituteReviewIssueProps,
     ReviewIssueFactory,
 } from "./domain/factories/review-issue.factory"
+export {
+    type ICreateReviewIssueTicketProps,
+    type IReconstituteReviewIssueTicketProps,
+    ReviewIssueTicketFactory,
+} from "./domain/factories/review-issue-ticket.factory"
 export {
     type ICreateReviewProps,
     type IReconstituteReviewProps,

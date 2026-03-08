@@ -24,6 +24,7 @@ export interface IReviewIssueTicketProps {
     sourceReviewId: string
     sourceSuggestionIds: readonly string[]
     filePath: FilePath
+    category: string
     occurrenceCount: number
     status: ReviewIssueTicketStatus
 }
@@ -40,17 +41,19 @@ export class ReviewIssueTicket extends Entity<IReviewIssueTicketProps> {
      */
     public constructor(id: UniqueId, props: IReviewIssueTicketProps) {
         const sourceSuggestionIds = normalizeSuggestionIds(props.sourceSuggestionIds)
-        const occurrenceCount = normalizeOccurrenceCount(props.occurrenceCount)
+        const occurrenceCount = normalizeOccurrenceCount(
+            props.occurrenceCount,
+            sourceSuggestionIds.length,
+        )
 
         super(id, {
             sourceReviewId: normalizeReviewId(props.sourceReviewId),
             sourceSuggestionIds,
             filePath: props.filePath,
+            category: normalizeCategory(props.category),
             occurrenceCount,
             status: normalizeStatus(props.status),
         })
-
-        this.ensureStateIsValid()
     }
 
     /**
@@ -90,6 +93,15 @@ export class ReviewIssueTicket extends Entity<IReviewIssueTicketProps> {
     }
 
     /**
+     * Stable category for repeated issue matching.
+     *
+     * @returns Issue category.
+     */
+    public get category(): string {
+        return this.props.category
+    }
+
+    /**
      * Number of occurrences for the issue ticket.
      *
      * @returns Occurrence count.
@@ -123,22 +135,10 @@ export class ReviewIssueTicket extends Entity<IReviewIssueTicketProps> {
         this.ensureInProgress("add occurrence to")
 
         const normalizedId = normalizeSuggestionId(suggestionId)
-        if (this.props.sourceSuggestionIds.includes(normalizedId)) {
-            throw new Error(`Suggestion id already tracked: ${normalizedId}`)
+        if (this.props.sourceSuggestionIds.includes(normalizedId) === false) {
+            this.props.sourceSuggestionIds = [...this.props.sourceSuggestionIds, normalizedId]
         }
-
-        this.props.sourceSuggestionIds = [...this.props.sourceSuggestionIds, normalizedId]
-        this.props.occurrenceCount = this.props.sourceSuggestionIds.length
-        this.ensureStateIsValid()
-    }
-
-    /**
-     * Ensures entity invariants.
-     */
-    private ensureStateIsValid(): void {
-        if (this.props.occurrenceCount !== this.props.sourceSuggestionIds.length) {
-            throw new Error("ReviewIssueTicket occurrenceCount must match suggestionIds length")
-        }
+        this.props.occurrenceCount += 1
     }
 
     /**
@@ -185,6 +185,21 @@ function normalizeStatus(value: ReviewIssueTicketStatus): ReviewIssueTicketStatu
 }
 
 /**
+ * Normalizes repeated issue category.
+ *
+ * @param value Raw category.
+ * @returns Validated category.
+ */
+function normalizeCategory(value: string): string {
+    const normalized = value.trim().toLowerCase()
+    if (normalized.length === 0) {
+        throw new Error("ReviewIssueTicket category cannot be empty")
+    }
+
+    return normalized
+}
+
+/**
  * Normalizes suggestion identifier.
  *
  * @param value Raw suggestion id.
@@ -228,12 +243,15 @@ function normalizeSuggestionIds(values: readonly string[]): string[] {
  * Normalizes occurrence count value.
  *
  * @param value Raw occurrence count.
- * @param expected Expected count based on suggestion ids.
+ * @param minimumValue Minimum count based on unique suggestion ids.
  * @returns Validated count.
  */
-function normalizeOccurrenceCount(value: number): number {
+function normalizeOccurrenceCount(value: number, minimumValue: number): number {
     if (!Number.isInteger(value) || value < 1) {
         throw new Error("ReviewIssueTicket occurrenceCount must be a positive integer")
+    }
+    if (value < minimumValue) {
+        throw new Error("ReviewIssueTicket occurrenceCount cannot be less than suggestionIds length")
     }
 
     return value

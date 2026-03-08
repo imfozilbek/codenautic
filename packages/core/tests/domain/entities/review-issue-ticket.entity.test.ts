@@ -14,6 +14,7 @@ describe("ReviewIssueTicket", () => {
             sourceReviewId: " review-1 ",
             sourceSuggestionIds: [" suggestion-1 ", "suggestion-2"],
             filePath: FilePath.create("src/app.ts"),
+            category: " Security ",
             occurrenceCount: 2,
             status: REVIEW_ISSUE_TICKET_STATUS.IN_PROGRESS,
         })
@@ -22,6 +23,7 @@ describe("ReviewIssueTicket", () => {
         expect(ticket.sourceReviewId).toBe("review-1")
         expect(ticket.sourceSuggestionIds).toEqual(["suggestion-1", "suggestion-2"])
         expect(ticket.filePath.toString()).toBe("src/app.ts")
+        expect(ticket.category).toBe("security")
         expect(ticket.occurrenceCount).toBe(2)
         expect(ticket.status).toBe(REVIEW_ISSUE_TICKET_STATUS.IN_PROGRESS)
     })
@@ -31,6 +33,7 @@ describe("ReviewIssueTicket", () => {
             sourceReviewId: "review-2",
             sourceSuggestionIds: ["suggestion-1"],
             filePath: FilePath.create("src/index.ts"),
+            category: "bug",
             occurrenceCount: 1,
             status: REVIEW_ISSUE_TICKET_STATUS.IN_PROGRESS,
         })
@@ -41,18 +44,20 @@ describe("ReviewIssueTicket", () => {
         expect(ticket.occurrenceCount).toBe(2)
     })
 
-    test("throws when adding duplicate occurrence", () => {
+    test("counts repeated occurrence without duplicating suggestion ids", () => {
         const ticket = new ReviewIssueTicket(UniqueId.create("ticket-dup"), {
             sourceReviewId: "review-dup",
             sourceSuggestionIds: ["suggestion-1"],
             filePath: FilePath.create("src/index.ts"),
+            category: "bug",
             occurrenceCount: 1,
             status: REVIEW_ISSUE_TICKET_STATUS.IN_PROGRESS,
         })
 
-        expect(() => {
-            ticket.addOccurrence("suggestion-1")
-        }).toThrow("Suggestion id already tracked: suggestion-1")
+        ticket.addOccurrence("suggestion-1")
+
+        expect(ticket.sourceSuggestionIds).toEqual(["suggestion-1"])
+        expect(ticket.occurrenceCount).toBe(2)
     })
 
     test("resolves and dismisses only in progress tickets", () => {
@@ -60,6 +65,7 @@ describe("ReviewIssueTicket", () => {
             sourceReviewId: "review-3",
             sourceSuggestionIds: ["suggestion-1"],
             filePath: FilePath.create("src/index.ts"),
+            category: "maintainability",
             occurrenceCount: 1,
             status: REVIEW_ISSUE_TICKET_STATUS.IN_PROGRESS,
         })
@@ -72,11 +78,27 @@ describe("ReviewIssueTicket", () => {
         }).toThrow("Cannot dismiss review issue ticket in status RESOLVED")
     })
 
+    test("dismisses in progress ticket", () => {
+        const ticket = new ReviewIssueTicket(UniqueId.create("ticket-3a"), {
+            sourceReviewId: "review-3a",
+            sourceSuggestionIds: ["suggestion-1"],
+            filePath: FilePath.create("src/index.ts"),
+            category: "maintainability",
+            occurrenceCount: 1,
+            status: REVIEW_ISSUE_TICKET_STATUS.IN_PROGRESS,
+        })
+
+        ticket.dismiss()
+
+        expect(ticket.status).toBe(REVIEW_ISSUE_TICKET_STATUS.DISMISSED)
+    })
+
     test("throws when adding occurrence to non-active ticket", () => {
         const ticket = new ReviewIssueTicket(UniqueId.create("ticket-4"), {
             sourceReviewId: "review-4",
             sourceSuggestionIds: ["suggestion-1"],
             filePath: FilePath.create("src/index.ts"),
+            category: "security",
             occurrenceCount: 1,
             status: REVIEW_ISSUE_TICKET_STATUS.DISMISSED,
         })
@@ -86,16 +108,31 @@ describe("ReviewIssueTicket", () => {
         }).toThrow("Cannot add occurrence to review issue ticket in status DISMISSED")
     })
 
-    test("throws when occurrence count does not match suggestions", () => {
+    test("allows occurrence count to exceed unique suggestion ids", () => {
+        const ticket = new ReviewIssueTicket(UniqueId.create("ticket-5"), {
+            sourceReviewId: "review-5",
+            sourceSuggestionIds: ["suggestion-1"],
+            filePath: FilePath.create("src/index.ts"),
+            category: "other",
+            occurrenceCount: 2,
+            status: REVIEW_ISSUE_TICKET_STATUS.IN_PROGRESS,
+        })
+
+        expect(ticket.occurrenceCount).toBe(2)
+        expect(ticket.sourceSuggestionIds).toEqual(["suggestion-1"])
+    })
+
+    test("throws when occurrence count is less than unique suggestion ids", () => {
         expect(() => {
             return new ReviewIssueTicket(UniqueId.create("ticket-5"), {
                 sourceReviewId: "review-5",
-                sourceSuggestionIds: ["suggestion-1"],
+                sourceSuggestionIds: ["suggestion-1", "suggestion-2"],
                 filePath: FilePath.create("src/index.ts"),
-                occurrenceCount: 2,
+                category: "other",
+                occurrenceCount: 1,
                 status: REVIEW_ISSUE_TICKET_STATUS.IN_PROGRESS,
             })
-        }).toThrow("ReviewIssueTicket occurrenceCount must match suggestionIds length")
+        }).toThrow("ReviewIssueTicket occurrenceCount cannot be less than suggestionIds length")
     })
 
     test("throws when occurrence count is not a positive integer", () => {
@@ -104,6 +141,7 @@ describe("ReviewIssueTicket", () => {
                 sourceReviewId: "review-5a",
                 sourceSuggestionIds: ["suggestion-1"],
                 filePath: FilePath.create("src/index.ts"),
+                category: "style",
                 occurrenceCount: 0,
                 status: REVIEW_ISSUE_TICKET_STATUS.IN_PROGRESS,
             })
@@ -114,6 +152,7 @@ describe("ReviewIssueTicket", () => {
                 sourceReviewId: "review-5b",
                 sourceSuggestionIds: ["suggestion-1"],
                 filePath: FilePath.create("src/index.ts"),
+                category: "style",
                 occurrenceCount: 1.5,
                 status: REVIEW_ISSUE_TICKET_STATUS.IN_PROGRESS,
             })
@@ -126,6 +165,7 @@ describe("ReviewIssueTicket", () => {
                 sourceReviewId: "review-6",
                 sourceSuggestionIds: ["suggestion-1", "suggestion-1"],
                 filePath: FilePath.create("src/index.ts"),
+                category: "bug",
                 occurrenceCount: 2,
                 status: REVIEW_ISSUE_TICKET_STATUS.IN_PROGRESS,
             })
@@ -136,6 +176,7 @@ describe("ReviewIssueTicket", () => {
                 sourceReviewId: "review-7",
                 sourceSuggestionIds: ["   "],
                 filePath: FilePath.create("src/index.ts"),
+                category: "bug",
                 occurrenceCount: 1,
                 status: REVIEW_ISSUE_TICKET_STATUS.IN_PROGRESS,
             })
@@ -146,6 +187,7 @@ describe("ReviewIssueTicket", () => {
                 sourceReviewId: "review-7a",
                 sourceSuggestionIds: [],
                 filePath: FilePath.create("src/index.ts"),
+                category: "bug",
                 occurrenceCount: 1,
                 status: REVIEW_ISSUE_TICKET_STATUS.IN_PROGRESS,
             })
@@ -158,6 +200,7 @@ describe("ReviewIssueTicket", () => {
                 sourceReviewId: "   ",
                 sourceSuggestionIds: ["suggestion-1"],
                 filePath: FilePath.create("src/index.ts"),
+                category: "performance",
                 occurrenceCount: 1,
                 status: REVIEW_ISSUE_TICKET_STATUS.IN_PROGRESS,
             })
@@ -170,9 +213,23 @@ describe("ReviewIssueTicket", () => {
                 sourceReviewId: "review-9",
                 sourceSuggestionIds: ["suggestion-1"],
                 filePath: FilePath.create("src/index.ts"),
+                category: "performance",
                 occurrenceCount: 1,
                 status: "UNKNOWN" as ReviewIssueTicketStatus,
             })
         }).toThrow("Unknown review issue ticket status")
+    })
+
+    test("throws when category is empty", () => {
+        expect(() => {
+            return new ReviewIssueTicket(UniqueId.create("ticket-10"), {
+                sourceReviewId: "review-10",
+                sourceSuggestionIds: ["suggestion-1"],
+                filePath: FilePath.create("src/index.ts"),
+                category: "   ",
+                occurrenceCount: 1,
+                status: REVIEW_ISSUE_TICKET_STATUS.IN_PROGRESS,
+            })
+        }).toThrow("ReviewIssueTicket category cannot be empty")
     })
 })

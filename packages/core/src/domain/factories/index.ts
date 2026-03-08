@@ -5,6 +5,11 @@ export {
     ReviewIssueFactory,
 } from "./review-issue.factory"
 export {
+    type ICreateReviewIssueTicketProps,
+    type IReconstituteReviewIssueTicketProps,
+    ReviewIssueTicketFactory,
+} from "./review-issue-ticket.factory"
+export {
     type ICreateReviewProps,
     type IReconstituteReviewProps,
     ReviewFactory,

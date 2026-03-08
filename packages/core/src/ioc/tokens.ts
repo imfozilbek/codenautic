@@ -27,6 +27,7 @@ import type {IExternalContextProvider} from "../application/ports/outbound/revie
 import type {IIssueAggregationProvider} from "../application/ports/outbound/review/issue-aggregation-provider"
 import type {IPipelineCheckpointStore} from "../application/ports/outbound/review/pipeline-checkpoint-store.port"
 import type {IRepositoryConfigLoader} from "../application/ports/outbound/review/repository-config-loader.port"
+import type {IReviewIssueTicketRepository} from "../application/ports/outbound/review/review-issue-ticket-repository.port"
 import type {IReviewRepository} from "../application/ports/outbound/review/review-repository.port"
 import type {ICustomRuleAstEvaluator} from "../application/ports/outbound/rule/custom-rule-ast-evaluator.port"
 import type {ICategoryWeightProvider} from "../application/ports/outbound/rule/category-weight-provider.port"
@@ -117,6 +118,9 @@ export const TOKENS = {
         ),
         IssueAggregationProvider: createToken<IIssueAggregationProvider>(
             "core.review.issue-aggregation-provider",
+        ),
+        IssueTicketRepository: createToken<IReviewIssueTicketRepository>(
+            "core.review.issue-ticket-repository",
         ),
         PipelineCheckpointStore: createToken<IPipelineCheckpointStore>(
             "core.review.pipeline-checkpoint-store",

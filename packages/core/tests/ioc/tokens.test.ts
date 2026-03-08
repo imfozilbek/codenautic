@@ -25,6 +25,7 @@ import type {IExternalContextProvider} from "../../src/application/ports/outboun
 import type {IIssueAggregationProvider} from "../../src/application/ports/outbound/review/issue-aggregation-provider"
 import type {IPipelineCheckpointStore} from "../../src/application/ports/outbound/review/pipeline-checkpoint-store.port"
 import type {IRepositoryConfigLoader} from "../../src/application/ports/outbound/review/repository-config-loader.port"
+import type {IReviewIssueTicketRepository} from "../../src/application/ports/outbound/review/review-issue-ticket-repository.port"
 import type {IReviewRepository} from "../../src/application/ports/outbound/review/review-repository.port"
 import type {ICustomRuleAstEvaluator} from "../../src/application/ports/outbound/rule/custom-rule-ast-evaluator.port"
 import type {ICategoryWeightProvider} from "../../src/application/ports/outbound/rule/category-weight-provider.port"
@@ -134,6 +135,8 @@ describe("TOKENS", () => {
             TOKENS.Review.ExternalContextProvider
         const issueAggregationProviderToken: InjectionToken<IIssueAggregationProvider> =
             TOKENS.Review.IssueAggregationProvider
+        const issueTicketRepositoryToken: InjectionToken<IReviewIssueTicketRepository> =
+            TOKENS.Review.IssueTicketRepository
         const pipelineCheckpointStoreToken: InjectionToken<IPipelineCheckpointStore> =
             TOKENS.Review.PipelineCheckpointStore
         const reviewRepositoryToken: InjectionToken<IReviewRepository> = TOKENS.Review.Repository
@@ -186,6 +189,7 @@ describe("TOKENS", () => {
             promptTemplateRepositoryToken,
             externalContextProviderToken,
             issueAggregationProviderToken,
+            issueTicketRepositoryToken,
             pipelineCheckpointStoreToken,
             reviewRepositoryToken,
             repositoryConfigLoaderToken,
