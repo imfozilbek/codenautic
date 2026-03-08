@@ -57,6 +57,16 @@ export interface IThemePalette {
     readonly warning: string
     /** Ошибка. */
     readonly danger: string
+    /** Фон code-блоков. */
+    readonly codeSurface: string
+    /** Текст на success-tinted поверхностях (bg-success/10). */
+    readonly onSuccess: string
+    /** Текст на warning-tinted поверхностях (bg-warning/10). */
+    readonly onWarning: string
+    /** Текст на danger-tinted поверхностях (bg-danger/10). */
+    readonly onDanger: string
+    /** Текст на primary-tinted поверхностях (bg-primary/10). */
+    readonly onPrimary: string
 }
 
 /**
@@ -426,6 +436,11 @@ export const THEME_PRESETS = [
             success: "oklch(0.6072 0.1647 149.02)",
             warning: "oklch(0.6972 0.1687 54.22)",
             danger: "oklch(0.5509 0.2166 25.29)",
+            codeSurface: "oklch(0.16 0.005 148.67)",
+            onSuccess: "oklch(0.35 0.08 149)",
+            onWarning: "oklch(0.35 0.08 54)",
+            onDanger: "oklch(0.35 0.08 25)",
+            onPrimary: "oklch(0.35 0.08 148)",
         },
         dark: {
             background: "oklch(0.12 0.002 148.67)",
@@ -442,6 +457,11 @@ export const THEME_PRESETS = [
             success: "oklch(0.7697 0.2124 148.67)",
             warning: "oklch(0.7921 0.1626 67.42)",
             danger: "oklch(0.5931 0.2338 25.42)",
+            codeSurface: "oklch(0.16 0.005 148.67)",
+            onSuccess: "oklch(0.88 0.06 149)",
+            onWarning: "oklch(0.88 0.06 54)",
+            onDanger: "oklch(0.88 0.06 25)",
+            onPrimary: "oklch(0.88 0.06 148)",
         },
     },
     {
@@ -463,6 +483,11 @@ export const THEME_PRESETS = [
             success: "oklch(0.74 0.147 151)",
             warning: "oklch(0.82 0.142 84)",
             danger: "oklch(0.66 0.215 24)",
+            codeSurface: "oklch(0.16 0.02 255)",
+            onSuccess: "oklch(0.35 0.08 151)",
+            onWarning: "oklch(0.35 0.08 84)",
+            onDanger: "oklch(0.35 0.08 24)",
+            onPrimary: "oklch(0.35 0.08 268)",
         },
         dark: {
             background: "oklch(0.2 0.03 255)",
@@ -479,6 +504,11 @@ export const THEME_PRESETS = [
             success: "oklch(0.76 0.132 149)",
             warning: "oklch(0.83 0.135 78)",
             danger: "oklch(0.73 0.2 25)",
+            codeSurface: "oklch(0.16 0.02 255)",
+            onSuccess: "oklch(0.88 0.06 149)",
+            onWarning: "oklch(0.88 0.06 78)",
+            onDanger: "oklch(0.88 0.06 25)",
+            onPrimary: "oklch(0.88 0.06 268)",
         },
     },
     {
@@ -500,6 +530,11 @@ export const THEME_PRESETS = [
             success: "oklch(0.72 0.16 149)",
             warning: "oklch(0.8 0.14 82)",
             danger: "oklch(0.67 0.21 24)",
+            codeSurface: "oklch(0.16 0.02 146)",
+            onSuccess: "oklch(0.35 0.08 149)",
+            onWarning: "oklch(0.35 0.08 82)",
+            onDanger: "oklch(0.35 0.08 24)",
+            onPrimary: "oklch(0.35 0.08 146)",
         },
         dark: {
             background: "oklch(0.198 0.028 151)",
@@ -516,6 +551,11 @@ export const THEME_PRESETS = [
             success: "oklch(0.77 0.16 149)",
             warning: "oklch(0.82 0.135 82)",
             danger: "oklch(0.73 0.19 25)",
+            codeSurface: "oklch(0.16 0.02 146)",
+            onSuccess: "oklch(0.88 0.06 149)",
+            onWarning: "oklch(0.88 0.06 82)",
+            onDanger: "oklch(0.88 0.06 25)",
+            onPrimary: "oklch(0.88 0.06 146)",
         },
     },
     {
@@ -537,6 +577,11 @@ export const THEME_PRESETS = [
             success: "oklch(0.72 0.14 149)",
             warning: "oklch(0.81 0.15 63)",
             danger: "oklch(0.64 0.2 24)",
+            codeSurface: "oklch(0.16 0.015 68)",
+            onSuccess: "oklch(0.35 0.08 149)",
+            onWarning: "oklch(0.35 0.08 63)",
+            onDanger: "oklch(0.35 0.08 24)",
+            onPrimary: "oklch(0.35 0.08 74)",
         },
         dark: {
             background: "oklch(0.208 0.028 58)",
@@ -553,6 +598,11 @@ export const THEME_PRESETS = [
             success: "oklch(0.77 0.132 149)",
             warning: "oklch(0.83 0.14 62)",
             danger: "oklch(0.74 0.2 26)",
+            codeSurface: "oklch(0.16 0.015 68)",
+            onSuccess: "oklch(0.88 0.06 149)",
+            onWarning: "oklch(0.88 0.06 62)",
+            onDanger: "oklch(0.88 0.06 26)",
+            onPrimary: "oklch(0.88 0.06 74)",
         },
     },
     {
@@ -574,6 +624,11 @@ export const THEME_PRESETS = [
             success: "oklch(0.72 0.12 150)",
             warning: "oklch(0.8 0.12 85)",
             danger: "oklch(0.66 0.19 24)",
+            codeSurface: "oklch(0.16 0.008 240)",
+            onSuccess: "oklch(0.35 0.08 150)",
+            onWarning: "oklch(0.35 0.08 85)",
+            onDanger: "oklch(0.35 0.08 24)",
+            onPrimary: "oklch(0.35 0.08 250)",
         },
         dark: {
             background: "oklch(0.18 0.01 236)",
@@ -590,6 +645,11 @@ export const THEME_PRESETS = [
             success: "oklch(0.76 0.108 151)",
             warning: "oklch(0.82 0.11 84)",
             danger: "oklch(0.73 0.182 25)",
+            codeSurface: "oklch(0.16 0.008 240)",
+            onSuccess: "oklch(0.88 0.06 151)",
+            onWarning: "oklch(0.88 0.06 84)",
+            onDanger: "oklch(0.88 0.06 25)",
+            onPrimary: "oklch(0.88 0.06 250)",
         },
     },
     {
@@ -611,6 +671,11 @@ export const THEME_PRESETS = [
             success: "oklch(0.71 0.128 149)",
             warning: "oklch(0.82 0.14 84)",
             danger: "oklch(0.68 0.215 23)",
+            codeSurface: "oklch(0.16 0.02 204)",
+            onSuccess: "oklch(0.35 0.08 149)",
+            onWarning: "oklch(0.35 0.08 84)",
+            onDanger: "oklch(0.35 0.08 23)",
+            onPrimary: "oklch(0.35 0.08 205)",
         },
         dark: {
             background: "oklch(0.197 0.028 204)",
@@ -627,6 +692,11 @@ export const THEME_PRESETS = [
             success: "oklch(0.77 0.142 152)",
             warning: "oklch(0.82 0.14 83)",
             danger: "oklch(0.72 0.19 24)",
+            codeSurface: "oklch(0.16 0.02 204)",
+            onSuccess: "oklch(0.88 0.06 152)",
+            onWarning: "oklch(0.88 0.06 83)",
+            onDanger: "oklch(0.88 0.06 24)",
+            onPrimary: "oklch(0.88 0.06 205)",
         },
     },
 ] as const
@@ -651,6 +721,11 @@ const THEME_CSS_VARIABLES: ReadonlyArray<keyof IThemePalette> = [
     "success",
     "warning",
     "danger",
+    "codeSurface",
+    "onSuccess",
+    "onWarning",
+    "onDanger",
+    "onPrimary",
 ]
 
 interface IThemeContext {
@@ -994,28 +1069,22 @@ function useThemeSyncFromApiEffect(args: {
             return undefined
         }
 
-        const localSyncState = readThemeProfileSyncState()
-        const localUpdatedAtMs =
-            pendingLocalProfileUpdatedAtRef.current ??
-            localSyncState?.updatedAtMs ??
-            profileUpdatedAtRef.current
-        const localProfile = toThemeProfile(
-            {
-                mode,
-                preset,
-            },
-            {
-                mode,
-                preset,
-                updatedAtMs: localUpdatedAtMs,
-            },
-        )
         const abortController = new AbortController()
         const timeoutHandle = window.setTimeout((): void => {
             abortController.abort()
         }, THEME_SETTINGS_TIMEOUT_MS)
 
         const syncFromProfile = async (): Promise<void> => {
+            const localSyncState = readThemeProfileSyncState()
+            const localUpdatedAtMs =
+                pendingLocalProfileUpdatedAtRef.current ??
+                localSyncState?.updatedAtMs ??
+                profileUpdatedAtRef.current
+            const localProfile = toThemeProfile(
+                { mode, preset },
+                { mode, preset, updatedAtMs: localUpdatedAtMs },
+            )
+
             let selectedThemeProfile: TThemeSyncSelection = {
                 profile: localProfile,
                 source: "local",
@@ -1033,6 +1102,11 @@ function useThemeSyncFromApiEffect(args: {
             }
 
             if (abortController.signal.aborted) {
+                return
+            }
+
+            if (pendingLocalProfileUpdatedAtRef.current !== undefined) {
+                shouldSyncProfileRef.current = true
                 return
             }
 
@@ -1062,7 +1136,7 @@ function useThemeSyncFromApiEffect(args: {
             shouldSyncProfileRef.current = true
         }
 
-        void syncFromProfile().catch((): void => {
+        void syncFromProfile().catch((_error: unknown): void => {
             shouldSyncProfileRef.current = true
         })
 
