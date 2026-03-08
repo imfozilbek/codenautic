@@ -1,0 +1,11 @@
+{
+  "services": {
+    "ui": 7110,
+    "api": 7120,
+    "settingsService": 7130,
+    "webhooks": 7140,
+    "mcpSse": 7210,
+    "uiPreview": 7220,
+    "storybook": 7230
+  }
+}

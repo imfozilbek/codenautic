@@ -1,4 +1,4 @@
-import {describe, expect, test} from "bun:test"
+import { describe, expect, test } from "bun:test"
 
 import {
     API_NODE_ENV,
@@ -21,7 +21,7 @@ describe("parseApiEnvironment", () => {
             mongodbUri: "mongodb://localhost:27017/codenautic",
             redisUrl: "redis://localhost:6379",
             host: "0.0.0.0",
-            port: 3000,
+            port: 7120,
             healthcheckEnabled: true,
         })
     })

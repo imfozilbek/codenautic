@@ -1,4 +1,6 @@
-import {z} from "zod"
+import { z } from "zod"
+
+import { resolveDefaultApiPort } from "../../config/service-ports"
 
 /**
  * Supported runtime environment modes for API process.
@@ -22,17 +24,11 @@ export interface IApiEnvironment {
     healthcheckEnabled: boolean
 }
 
-const booleanFromStringSchema = z
-    .enum(["true", "false"])
-    .transform((value) => {
-        return value === "true"
-    })
+const booleanFromStringSchema = z.enum(["true", "false"]).transform((value) => {
+    return value === "true"
+})
 
-const portSchema = z.coerce
-    .number()
-    .int()
-    .min(1)
-    .max(65535)
+const portSchema = z.coerce.number().int().min(1).max(65535)
 
 const apiEnvironmentSchema = z.object({
     NODE_ENV: z.enum([API_NODE_ENV.DEVELOPMENT, API_NODE_ENV.TEST, API_NODE_ENV.PRODUCTION]),
@@ -40,7 +36,7 @@ const apiEnvironmentSchema = z.object({
     MONGODB_URI: z.string().min(1),
     REDIS_URL: z.string().min(1),
     API_HOST: z.string().min(1).optional().default("0.0.0.0"),
-    API_PORT: portSchema.optional().default(3000),
+    API_PORT: portSchema.optional().default(resolveDefaultApiPort()),
     API_HEALTHCHECK_ENABLED: booleanFromStringSchema.optional().default(true),
 })
 
@@ -81,9 +77,7 @@ export function parseApiEnvironment(input: Record<string, string | undefined>): 
             })
             .join("; ")
 
-        throw new ApiEnvironmentValidationError(
-            `API environment validation failed: ${diagnostics}`,
-        )
+        throw new ApiEnvironmentValidationError(`API environment validation failed: ${diagnostics}`)
     }
 
     return {
