@@ -157,8 +157,8 @@ export function SettingsLayout(props: ISettingsLayoutProps): ReactElement {
 
     return (
         <div className="grid gap-4 md:grid-cols-[230px_1fr]">
-            <aside className="rounded-lg bg-[color:color-mix(in_oklab,var(--surface)_84%,transparent)] p-2 shadow-sm">
-                <p className="px-2 pb-2 text-xs font-semibold uppercase tracking-[0.2em] text-foreground/60">
+            <aside className="rounded-lg bg-sidebar-bg p-2 shadow-sm">
+                <p className="px-2 pb-2 text-xs font-semibold uppercase tracking-[0.2em] text-text-subtle">
                     {title}
                 </p>
                 <SidebarNav items={SETTINGS_NAV} />

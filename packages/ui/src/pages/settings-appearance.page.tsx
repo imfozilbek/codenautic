@@ -1202,7 +1202,7 @@ export function SettingsAppearancePage(): ReactElement {
     return (
         <section className="space-y-4">
             <h1 className="text-2xl font-semibold text-foreground">Appearance settings</h1>
-            <p className="text-sm text-foreground/70">
+            <p className="text-sm text-text-secondary">
                 Switch theme mode and presets in one place. All changes are applied immediately
                 without page reload.
             </p>
@@ -1216,7 +1216,7 @@ export function SettingsAppearancePage(): ReactElement {
                 </CardHeader>
                 <CardBody className="space-y-3">
                     <ThemeToggle />
-                    <div className="flex flex-wrap items-center gap-2 text-xs text-foreground/70">
+                    <div className="flex flex-wrap items-center gap-2 text-xs text-text-secondary">
                         <Chip size="sm" variant="flat">
                             mode: {mode}
                         </Chip>
@@ -1233,7 +1233,7 @@ export function SettingsAppearancePage(): ReactElement {
                         ) : null}
                     </div>
                     <div className="space-y-2 rounded-lg border border-border bg-surface p-3">
-                        <p className="text-xs uppercase tracking-[0.12em] text-foreground/60">
+                        <p className="text-xs uppercase tracking-[0.12em] text-text-subtle">
                             Quick presets
                         </p>
                         <div className="flex flex-wrap gap-2">
@@ -1280,7 +1280,7 @@ export function SettingsAppearancePage(): ReactElement {
                                 <p className="text-sm font-semibold text-foreground">
                                     Preview preset: {pendingRandomPreset.label}
                                 </p>
-                                <p className="mt-1 text-xs text-foreground/70">
+                                <p className="mt-1 text-xs text-text-secondary">
                                     Apply to switch immediately or cancel to keep current theme.
                                 </p>
                                 <div className="mt-2 flex flex-wrap gap-2">
@@ -1321,12 +1321,12 @@ export function SettingsAppearancePage(): ReactElement {
                                         setAccentColor(event.currentTarget.value)
                                     }}
                                 />
-                                <p className="text-xs font-mono text-foreground/70">
+                                <p className="text-xs font-mono text-text-secondary">
                                     {effectiveAccentColor}
                                 </p>
                             </div>
                             <label
-                                className="text-xs uppercase tracking-[0.12em] text-foreground/60"
+                                className="text-xs uppercase tracking-[0.12em] text-text-subtle"
                                 htmlFor="accent-intensity-slider"
                             >
                                 Accent intensity: {accentIntensity}
@@ -1371,7 +1371,7 @@ export function SettingsAppearancePage(): ReactElement {
                                     ),
                                 )}
                             </div>
-                            <p className="text-xs text-foreground/70">
+                            <p className="text-xs text-text-secondary">
                                 {getPaletteDefinition(basePaletteId).description}
                             </p>
                         </div>
@@ -1380,7 +1380,7 @@ export function SettingsAppearancePage(): ReactElement {
                     <div className="grid gap-4 xl:grid-cols-2">
                         <div className="space-y-2 rounded-lg border border-border bg-surface p-3">
                             <label
-                                className="text-xs uppercase tracking-[0.12em] text-foreground/60"
+                                className="text-xs uppercase tracking-[0.12em] text-text-subtle"
                                 htmlFor="global-radius-slider"
                             >
                                 Global radius: {globalRadius}px
@@ -1400,7 +1400,7 @@ export function SettingsAppearancePage(): ReactElement {
                         </div>
                         <div className="space-y-2 rounded-lg border border-border bg-surface p-3">
                             <label
-                                className="text-xs uppercase tracking-[0.12em] text-foreground/60"
+                                className="text-xs uppercase tracking-[0.12em] text-text-subtle"
                                 htmlFor="form-radius-slider"
                             >
                                 Form radius: {formRadius}px
@@ -1420,7 +1420,7 @@ export function SettingsAppearancePage(): ReactElement {
                         </div>
                     </div>
 
-                    <div className="flex flex-wrap items-center gap-2 text-xs text-foreground/70">
+                    <div className="flex flex-wrap items-center gap-2 text-xs text-text-secondary">
                         <Chip size="sm" variant="flat">
                             base: {basePaletteId}
                         </Chip>
@@ -1462,7 +1462,7 @@ export function SettingsAppearancePage(): ReactElement {
                 <CardBody className="space-y-4">
                     <div className="rounded-lg border border-border bg-surface p-3">
                         <p className="text-sm font-semibold text-foreground">Favorite preset</p>
-                        <p className="mt-1 text-xs text-foreground/70">
+                        <p className="mt-1 text-xs text-text-secondary">
                             pinned: {favoritePresetLabel}
                         </p>
                         <div className="mt-2 flex flex-wrap gap-2">
@@ -1489,7 +1489,7 @@ export function SettingsAppearancePage(): ReactElement {
                         />
                         <div className="flex flex-col gap-1">
                             <label
-                                className="text-sm text-foreground/80"
+                                className="text-sm text-text-tertiary"
                                 htmlFor="theme-library-selected"
                             >
                                 Library themes
@@ -1586,7 +1586,7 @@ export function SettingsAppearancePage(): ReactElement {
                 <CardBody className="space-y-3">
                     <div className="grid gap-3 md:grid-cols-3">
                         <div className="rounded-lg border border-border bg-surface p-3">
-                            <p className="text-xs uppercase tracking-[0.14em] text-foreground/60">
+                            <p className="text-xs uppercase tracking-[0.14em] text-text-subtle">
                                 Primary action
                             </p>
                             <button
@@ -1605,7 +1605,7 @@ export function SettingsAppearancePage(): ReactElement {
                             </button>
                         </div>
                         <div className="rounded-lg border border-border bg-surface p-3">
-                            <p className="text-xs uppercase tracking-[0.14em] text-foreground/60">
+                            <p className="text-xs uppercase tracking-[0.14em] text-text-subtle">
                                 Accent & surface
                             </p>
                             <div className="mt-2 flex gap-2">
@@ -1614,7 +1614,7 @@ export function SettingsAppearancePage(): ReactElement {
                             </div>
                         </div>
                         <div className="rounded-lg border border-border bg-surface p-3">
-                            <p className="text-xs uppercase tracking-[0.14em] text-foreground/60">
+                            <p className="text-xs uppercase tracking-[0.14em] text-text-subtle">
                                 Form controls
                             </p>
                             <Input
@@ -1627,7 +1627,7 @@ export function SettingsAppearancePage(): ReactElement {
                             />
                         </div>
                     </div>
-                    <p className="text-xs text-foreground/70">
+                    <p className="text-xs text-text-secondary">
                         Preset options:{" "}
                         {presets.map((themePreset): string => themePreset.label).join(", ")}
                     </p>

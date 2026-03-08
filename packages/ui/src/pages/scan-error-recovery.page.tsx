@@ -14,7 +14,7 @@ export function ScanErrorRecoveryPage(): ReactElement {
     return (
         <section className="space-y-4">
             <h1 className="text-2xl font-semibold text-foreground">Scan error recovery</h1>
-            <p className="text-sm text-foreground/70">
+            <p className="text-sm text-text-secondary">
                 Recover failed repository scans using safe retry steps and diagnostics links.
             </p>
 

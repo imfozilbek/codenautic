@@ -250,7 +250,7 @@ function parseMessageCodeBlock(
     return (
         <section aria-label={`Code block ${keyPrefix}`} className="space-y-2" key={keyPrefix}>
             <div className="flex items-center justify-between gap-2">
-                <p className="text-xs uppercase tracking-wide text-foreground/70">{language}</p>
+                <p className="text-xs uppercase tracking-wide text-text-secondary">{language}</p>
                 <div className="flex items-center gap-2">
                     <Button
                         aria-label={`Copy code block ${keyPrefix}`}
@@ -397,7 +397,7 @@ export function ChatMessageBubble(props: IChatMessageBubbleProps): ReactElement 
                     <Avatar fallback={avatarLabel} name={sender} size="sm" />
                     <div className="min-w-0 flex-1">
                         <p className="text-xs font-semibold text-foreground">{sender}</p>
-                        <p className="text-xs text-foreground/70">{formattedTime}</p>
+                        <p className="text-xs text-text-secondary">{formattedTime}</p>
                     </div>
                     <Button
                         aria-label={`Copy message ${sender}`}
@@ -415,7 +415,7 @@ export function ChatMessageBubble(props: IChatMessageBubbleProps): ReactElement 
 
                 <div className="space-y-2">
                     {messageContent.length === 0 ? (
-                        <p className="text-sm text-foreground/60">—</p>
+                        <p className="text-sm text-text-subtle">—</p>
                     ) : (
                         <ReactMarkdown components={markdownComponents}>
                             {messageContent}

@@ -25,11 +25,13 @@ import {
 import { SidebarNav } from "./sidebar-nav"
 
 /**
- * Свойства блока настроек sidebar.
+ * Settings navigation block props.
  */
 export interface ISettingsNavProps {
-    /** Коллбэк при выборе пункта меню. */
+    /** Callback when a menu item is selected. */
     readonly onNavigate?: (to?: string) => void
+    /** Whether the sidebar is collapsed. */
+    readonly isCollapsed?: boolean
 }
 
 const DEFAULT_SETTINGS_NAV_ITEMS = [
@@ -141,18 +143,26 @@ const DEFAULT_SETTINGS_NAV_ITEMS = [
 ] as const
 
 /**
- * Блок ссылок настроек с заголовком.
+ * Settings section navigation with header.
  *
- * @param props Свойства блока.
- * @returns Секция меню "Settings" для sidebar.
+ * @param props Block configuration.
+ * @returns Settings menu section for sidebar.
  */
 export function SettingsNav(props: ISettingsNavProps): ReactElement {
+    const isCollapsed = props.isCollapsed === true
+
     return (
-        <div className="mt-4">
-            <p className="px-2 pb-2 text-xs font-semibold uppercase tracking-[0.2em] text-foreground/60">
-                Settings
-            </p>
-            <SidebarNav items={DEFAULT_SETTINGS_NAV_ITEMS} onNavigate={props.onNavigate} />
+        <div className="mt-1">
+            {isCollapsed ? null : (
+                <p className="px-2 pb-2 text-xs font-semibold uppercase tracking-[0.2em] text-text-subtle">
+                    Settings
+                </p>
+            )}
+            <SidebarNav
+                isCollapsed={isCollapsed}
+                items={DEFAULT_SETTINGS_NAV_ITEMS}
+                onNavigate={props.onNavigate}
+            />
         </div>
     )
 }

@@ -243,7 +243,7 @@ export function ChatPanel(props: IChatPanelProps): ReactElement {
                         role="log"
                     >
                         {props.messages.length === 0 ? (
-                            <li className="text-sm text-foreground/70" role="status">
+                            <li className="text-sm text-text-secondary" role="status">
                                 {emptyText}
                             </li>
                         ) : (

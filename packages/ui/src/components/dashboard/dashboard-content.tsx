@@ -1,7 +1,10 @@
 import type { ReactElement } from "react"
+import { motion } from "motion/react"
 
 import { Link } from "@tanstack/react-router"
 import { Alert, Card, CardBody, CardHeader } from "@/components/ui"
+import { StaggerContainer, STAGGER_ITEM_VARIANTS } from "@/lib/motion"
+import { EmptyState } from "@/components/states/empty-state"
 import { ActivityTimeline, type IActivityTimelineEntry } from "./activity-timeline"
 import { StatusDistributionChart, type IStatusDistributionPoint } from "./status-distribution-chart"
 
@@ -65,29 +68,41 @@ export function DashboardContent(props: IDashboardContentProps): ReactElement {
                                 </p>
                             </Alert>
                         ) : null}
-                        <ul className="space-y-2" aria-label="Work queue">
-                            {props.workQueue.map(
-                                (item): ReactElement => (
-                                    <li
-                                        key={item.id}
-                                        className="rounded-lg border border-border bg-surface p-3"
-                                    >
-                                        <p className="text-sm font-semibold text-foreground">
-                                            {item.title}
-                                        </p>
-                                        <p className="text-sm text-muted-foreground">
-                                            {item.description}
-                                        </p>
-                                        <Link
-                                            className="mt-2 inline-block text-sm text-foreground underline underline-offset-4"
-                                            to={item.route}
+                        {props.workQueue.length === 0 ? (
+                            <EmptyState
+                                description="No items in the work queue right now."
+                                title="Queue is empty"
+                            />
+                        ) : (
+                            <StaggerContainer
+                                ariaLabel="Work queue"
+                                as="ul"
+                                className="space-y-2"
+                            >
+                                {props.workQueue.map(
+                                    (item): ReactElement => (
+                                        <motion.li
+                                            key={item.id}
+                                            className="rounded-lg border border-border bg-surface p-3 transition-colors duration-150 hover:bg-surface-muted"
+                                            variants={STAGGER_ITEM_VARIANTS}
                                         >
-                                            Open {item.id}
-                                        </Link>
-                                    </li>
-                                ),
-                            )}
-                        </ul>
+                                            <p className="text-sm font-semibold text-foreground">
+                                                {item.title}
+                                            </p>
+                                            <p className="text-sm text-muted-foreground">
+                                                {item.description}
+                                            </p>
+                                            <Link
+                                                className="mt-2 inline-block text-sm text-foreground underline underline-offset-4"
+                                                to={item.route}
+                                            >
+                                                Open {item.id}
+                                            </Link>
+                                        </motion.li>
+                                    ),
+                                )}
+                            </StaggerContainer>
+                        )}
                     </CardBody>
                 </Card>
                 <StatusDistributionChart data={props.statusDistribution} />

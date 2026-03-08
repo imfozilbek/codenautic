@@ -19,7 +19,7 @@ export function SettingsPage(): ReactElement {
         <section className="space-y-4">
             <header className="space-y-1">
                 <h1 className="text-2xl font-semibold text-foreground">Settings</h1>
-                <p className="text-sm text-foreground/70">
+                <p className="text-sm text-text-secondary">
                     Configure providers, onboarding defaults, governance rules, and operational
                     controls for your workspace.
                 </p>
@@ -29,7 +29,7 @@ export function SettingsPage(): ReactElement {
                 <CardHeader>
                     <p className="text-base font-semibold text-foreground">Quick setup</p>
                 </CardHeader>
-                <CardBody className="space-y-2 text-sm text-foreground/80">
+                <CardBody className="space-y-2 text-sm text-text-tertiary">
                     <p>
                         Настройте review-политику, провайдеров и подключения через быстрые страницы
                         ниже.

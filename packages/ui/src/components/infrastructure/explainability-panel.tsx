@@ -71,7 +71,7 @@ export function ExplainabilityPanel(props: IExplainabilityPanelProps): ReactElem
                 <div className="flex flex-wrap items-start justify-between gap-2">
                     <div className="space-y-1">
                         <p className="text-sm font-semibold text-foreground">{props.title}</p>
-                        <p className="text-xs text-foreground/70">
+                        <p className="text-xs text-text-secondary">
                             {`${props.signalLabel}: ${props.signalValue} · threshold ${props.threshold} · confidence ${props.confidence}`}
                         </p>
                     </div>
@@ -94,13 +94,13 @@ export function ExplainabilityPanel(props: IExplainabilityPanelProps): ReactElem
                     </DrawerHeader>
                     <DrawerBody className="space-y-3 px-4 py-3">
                         <dl className="grid grid-cols-[130px_1fr] gap-x-2 gap-y-2 text-sm">
-                            <dt className="text-foreground/60">Signal</dt>
+                            <dt className="text-text-subtle">Signal</dt>
                             <dd>{`${props.signalLabel}: ${props.signalValue}`}</dd>
-                            <dt className="text-foreground/60">Threshold</dt>
+                            <dt className="text-text-subtle">Threshold</dt>
                             <dd>{props.threshold}</dd>
-                            <dt className="text-foreground/60">Confidence</dt>
+                            <dt className="text-text-subtle">Confidence</dt>
                             <dd>{props.confidence}</dd>
-                            <dt className="text-foreground/60">Data window</dt>
+                            <dt className="text-text-subtle">Data window</dt>
                             <dd>{props.dataWindow}</dd>
                         </dl>
 
@@ -116,10 +116,10 @@ export function ExplainabilityPanel(props: IExplainabilityPanelProps): ReactElem
                                             <p className="text-sm font-semibold text-foreground">
                                                 {factor.label}
                                             </p>
-                                            <p className="text-xs text-foreground/70">
+                                            <p className="text-xs text-text-secondary">
                                                 {formatImpactLabel(factor.impact)}
                                             </p>
-                                            <p className="text-sm text-foreground/80">
+                                            <p className="text-sm text-text-tertiary">
                                                 {factor.value}
                                             </p>
                                         </li>
@@ -134,7 +134,7 @@ export function ExplainabilityPanel(props: IExplainabilityPanelProps): ReactElem
                             </p>
                             <ul
                                 aria-label="Explainability limitations"
-                                className="list-disc space-y-1 pl-5 text-sm text-foreground/80"
+                                className="list-disc space-y-1 pl-5 text-sm text-text-tertiary"
                             >
                                 {props.limitations.map(
                                     (limitation): ReactElement => (

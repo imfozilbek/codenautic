@@ -510,7 +510,7 @@ export function MyWorkPage(): ReactElement {
     return (
         <section className="space-y-4">
             <h1 className="text-2xl font-semibold text-foreground">My Work / Triage</h1>
-            <p className="text-sm text-foreground/70">
+            <p className="text-sm text-text-secondary">
                 Unified hub for assigned CCRs, critical issues, inbox notifications, stuck jobs and
                 pending approvals with ownership + escalation model.
             </p>
@@ -649,7 +649,7 @@ export function MyWorkPage(): ReactElement {
                                                 {getSlaLabel(slaState)}
                                             </Chip>
                                         </div>
-                                        <p className="mt-1 text-xs text-foreground/70">
+                                        <p className="mt-1 text-xs text-text-secondary">
                                             {item.repository} · created{" "}
                                             {formatTimestamp(item.timestamp)} · due{" "}
                                             {formatTimestamp(item.dueAt)} · sla {item.slaMinutes}m
@@ -743,7 +743,7 @@ export function MyWorkPage(): ReactElement {
                                                 Open review
                                             </Button>
                                             <a
-                                                className="inline-flex items-center rounded-full border border-border px-3 py-1 text-xs text-foreground/80"
+                                                className="inline-flex items-center rounded-full border border-border px-3 py-1 text-xs text-text-tertiary"
                                                 href={item.deepLink}
                                             >
                                                 Deep-link
@@ -763,13 +763,13 @@ export function MyWorkPage(): ReactElement {
                 </CardHeader>
                 <CardBody className="space-y-2">
                     {auditTrail.length === 0 ? (
-                        <p className="text-sm text-foreground/70">No ownership changes yet.</p>
+                        <p className="text-sm text-text-secondary">No ownership changes yet.</p>
                     ) : (
                         <ul aria-label="Ownership audit trail" className="space-y-1">
                             {auditTrail.map(
                                 (entry): ReactElement => (
                                     <li
-                                        className="text-xs text-foreground/80"
+                                        className="text-xs text-text-tertiary"
                                         key={entry.id}
                                     >{`${entry.itemId} ${formatAuditAction(entry.action)} at ${formatTimestamp(entry.timestamp)}`}</li>
                                 ),

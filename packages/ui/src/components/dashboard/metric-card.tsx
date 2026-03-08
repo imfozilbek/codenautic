@@ -36,12 +36,12 @@ export function MetricCard(props: IMetricCardProps): ReactElement {
     const trendLabel = props.trendDirection === "neutral" ? "text-muted-foreground" : trendColor
 
     return (
-        <Card className="h-full shadow-sm">
+        <Card className="h-full shadow-sm transition-shadow duration-200 hover:shadow-md">
             <CardHeader className="pb-0">
                 <p className="text-sm text-muted-foreground">{props.label}</p>
             </CardHeader>
             <CardBody className="pt-2">
-                <p className="text-2xl font-semibold text-foreground">{props.value}</p>
+                <p className="text-3xl font-bold text-foreground">{props.value}</p>
                 {props.caption === undefined ? null : (
                     <p className="mt-1 text-sm text-muted-foreground">{props.caption}</p>
                 )}

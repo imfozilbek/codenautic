@@ -69,6 +69,25 @@
     --color-on-danger: var(--on-danger);
     --color-on-primary: var(--on-primary);
 
+    /* Semantic text hierarchy */
+    --color-text-subtle: var(--text-subtle);
+    --color-text-secondary: var(--text-secondary);
+    --color-text-tertiary: var(--text-tertiary);
+
+    /* Chart palette */
+    --color-chart-primary: var(--chart-primary);
+    --color-chart-primary-light: var(--chart-primary-light);
+    --color-chart-secondary: var(--chart-secondary);
+    --color-chart-tertiary: var(--chart-tertiary);
+    --color-chart-quaternary: var(--chart-quaternary);
+    --color-chart-danger: var(--chart-danger);
+    --color-chart-grid: var(--chart-grid);
+
+    /* Layout surface tokens */
+    --color-header-bg: var(--header-bg);
+    --color-sidebar-bg: var(--sidebar-bg);
+    --color-content-bg: var(--content-bg);
+
     /* HUD palette for always-dark overlays (CodeCity, Guided Tour) */
     --color-hud-surface: var(--hud-surface, var(--code-surface));
     --color-hud-border: var(--hud-border, oklch(0.28 0.002 0 / 0.5));
@@ -99,6 +118,25 @@
     --on-warning: oklch(0.35 0.08 54);
     --on-danger: oklch(0.35 0.08 25);
     --on-primary: oklch(0.35 0.08 148);
+
+    /* Semantic text hierarchy */
+    --text-subtle: oklch(0.52 0.003 148.67);
+    --text-secondary: oklch(0.44 0.003 148.67);
+    --text-tertiary: oklch(0.36 0.003 148.67);
+
+    /* Chart palette */
+    --chart-primary: oklch(0.55 0.22 260);
+    --chart-primary-light: oklch(0.78 0.10 260);
+    --chart-secondary: oklch(0.60 0.18 160);
+    --chart-tertiary: oklch(0.72 0.18 85);
+    --chart-quaternary: oklch(0.52 0.22 295);
+    --chart-danger: oklch(0.55 0.22 25);
+    --chart-grid: oklch(0.85 0.002 0);
+
+    /* Layout surface tokens */
+    --header-bg: color-mix(in oklch, var(--surface) 88%, transparent);
+    --sidebar-bg: color-mix(in oklch, var(--surface) 84%, transparent);
+    --content-bg: color-mix(in oklch, var(--surface) 88%, transparent);
 
     /*
      * HeroUI v3 compatibility layer.
@@ -154,6 +192,25 @@
     --on-danger: oklch(0.88 0.06 25);
     --on-primary: oklch(0.88 0.06 148);
 
+    /* Semantic text hierarchy */
+    --text-subtle: oklch(0.64 0.003 148.67);
+    --text-secondary: oklch(0.73 0.003 148.67);
+    --text-tertiary: oklch(0.82 0.003 148.67);
+
+    /* Chart palette */
+    --chart-primary: oklch(0.65 0.20 260);
+    --chart-primary-light: oklch(0.55 0.12 260);
+    --chart-secondary: oklch(0.70 0.18 160);
+    --chart-tertiary: oklch(0.78 0.16 85);
+    --chart-quaternary: oklch(0.62 0.20 295);
+    --chart-danger: oklch(0.62 0.20 25);
+    --chart-grid: oklch(0.30 0.002 0);
+
+    /* Layout surface tokens */
+    --header-bg: color-mix(in oklch, var(--surface) 88%, transparent);
+    --sidebar-bg: color-mix(in oklch, var(--surface) 84%, transparent);
+    --content-bg: color-mix(in oklch, var(--surface) 88%, transparent);
+
     --success-foreground: oklch(0.15 0.03 148.67);
     --warning-foreground: oklch(0.98 0.02 67.42);
     --danger-foreground: oklch(0.98 0.02 25.42);
@@ -208,17 +265,37 @@ body {
     background:
         radial-gradient(
             circle at 15% 15%,
-            color-mix(in oklch, var(--accent) 16%, transparent),
+            color-mix(in oklch, var(--accent) 28%, transparent),
             transparent 36%
         ),
         radial-gradient(
             circle at 85% 10%,
-            color-mix(in oklch, var(--primary) 14%, transparent),
+            color-mix(in oklch, var(--primary) 25%, transparent),
             transparent 32%
         ),
         radial-gradient(
             circle at 60% 90%,
-            color-mix(in oklch, var(--success) 10%, transparent),
+            color-mix(in oklch, var(--success) 20%, transparent),
+            transparent 40%
+        ),
+        var(--background);
+}
+
+.dark body {
+    background:
+        radial-gradient(
+            circle at 15% 15%,
+            color-mix(in oklch, var(--accent) 22%, transparent),
+            transparent 36%
+        ),
+        radial-gradient(
+            circle at 85% 10%,
+            color-mix(in oklch, var(--primary) 20%, transparent),
+            transparent 32%
+        ),
+        radial-gradient(
+            circle at 60% 90%,
+            color-mix(in oklch, var(--success) 16%, transparent),
             transparent 40%
         ),
         var(--background);
@@ -244,4 +321,36 @@ a {
     --hud-text: var(--foreground);
     --hud-text-muted: var(--muted-foreground);
     --hud-accent: var(--primary);
+}
+
+/* Shimmer animation for skeleton loading states */
+@keyframes shimmer {
+    0% {
+        background-position: -200% 0;
+    }
+    100% {
+        background-position: 200% 0;
+    }
+}
+
+.shimmer {
+    background: linear-gradient(
+        90deg,
+        transparent 0%,
+        color-mix(in oklch, var(--surface) 60%, transparent) 50%,
+        transparent 100%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 1.5s ease-in-out infinite;
+}
+
+/* Respect reduced motion preferences */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
 }

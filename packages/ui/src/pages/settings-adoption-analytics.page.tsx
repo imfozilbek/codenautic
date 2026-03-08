@@ -146,7 +146,7 @@ export function SettingsAdoptionAnalyticsPage(): ReactElement {
     return (
         <section className="space-y-4">
             <h1 className="text-2xl font-semibold text-foreground">Usage & adoption analytics</h1>
-            <p className="text-sm text-foreground/70">
+            <p className="text-sm text-text-secondary">
                 Understand time-to-first-value funnel, drop-offs, active users, and workflow health
                 by transparent event definitions.
             </p>
@@ -182,7 +182,7 @@ export function SettingsAdoptionAnalyticsPage(): ReactElement {
                         <p className="text-sm text-foreground">
                             Median time to first value: <strong>{timeToFirstValue}</strong>
                         </p>
-                        <p className="text-xs text-foreground/70">
+                        <p className="text-xs text-text-secondary">
                             First value = first successful scan + first visible insights.
                         </p>
                     </CardBody>
@@ -212,7 +212,7 @@ export function SettingsAdoptionAnalyticsPage(): ReactElement {
                                                 {item.health}
                                             </Chip>
                                         </div>
-                                        <p className="text-xs text-foreground/70">{item.summary}</p>
+                                        <p className="text-xs text-text-secondary">{item.summary}</p>
                                     </li>
                                 ),
                             )}
@@ -249,7 +249,7 @@ export function SettingsAdoptionAnalyticsPage(): ReactElement {
                                             {stage.count}
                                         </Chip>
                                     </div>
-                                    <p className="text-xs text-foreground/70">
+                                    <p className="text-xs text-text-secondary">
                                         {`Conversion from previous stage: ${String(conversion)}% · Drop-off: ${String(dropOff)}`}
                                     </p>
                                 </li>

@@ -155,8 +155,8 @@ function TeamDirectoryCard(props: {
                             }}
                         >
                             <p className="text-sm font-semibold text-foreground">{team.name}</p>
-                            <p className="text-xs text-foreground/70">{team.description}</p>
-                            <p className="mt-1 text-xs text-foreground/70">
+                            <p className="text-xs text-text-secondary">{team.description}</p>
+                            <p className="mt-1 text-xs text-text-secondary">
                                 {team.members.length} members • {team.repositories.length} repos
                             </p>
                         </button>
@@ -196,7 +196,7 @@ function TeamMembersCard(props: {
                         onValueChange={props.onInviteEmailChange}
                     />
                     <div className="flex flex-col gap-1">
-                        <label className="text-sm text-foreground/80" htmlFor="team-invite-role">
+                        <label className="text-sm text-text-tertiary" htmlFor="team-invite-role">
                             Invite role
                         </label>
                         <select
@@ -235,7 +235,7 @@ function TeamMembersCard(props: {
                     </div>
                 </div>
                 {props.invitePolicy.reason === undefined || isInviteDisabled === false ? null : (
-                    <p className="text-xs text-foreground/70">
+                    <p className="text-xs text-text-secondary">
                         Invite policy: {props.invitePolicy.reason}
                     </p>
                 )}
@@ -252,7 +252,7 @@ function TeamMembersCard(props: {
                                         <p className="text-sm font-semibold text-foreground">
                                             {member.name}
                                         </p>
-                                        <p className="text-xs text-foreground/70">{member.email}</p>
+                                        <p className="text-xs text-text-secondary">{member.email}</p>
                                     </div>
                                     <div className="flex items-center gap-2">
                                         <Chip
@@ -265,7 +265,7 @@ function TeamMembersCard(props: {
                                         {isRoleManagementHidden ? null : (
                                             <>
                                                 <label
-                                                    className="text-xs text-foreground/70"
+                                                    className="text-xs text-text-secondary"
                                                     htmlFor={`member-role-${member.id}`}
                                                 >
                                                     Role
@@ -306,7 +306,7 @@ function TeamMembersCard(props: {
                 </ul>
                 {props.roleManagementPolicy.reason === undefined ||
                 isRoleManagementHidden ? null : (
-                    <p className="text-xs text-foreground/70">
+                    <p className="text-xs text-text-secondary">
                         Role policy: {props.roleManagementPolicy.reason}
                     </p>
                 )}
@@ -355,7 +355,7 @@ function TeamRepositoriesCard(props: {
                 })}
                 {props.assignmentPolicy.reason === undefined ||
                 isAssignmentDisabled === false ? null : (
-                    <p className="text-xs text-foreground/70">
+                    <p className="text-xs text-text-secondary">
                         Repository policy: {props.assignmentPolicy.reason}
                     </p>
                 )}
@@ -544,7 +544,7 @@ export function SettingsTeamPage(): ReactElement {
     return (
         <section className="space-y-4">
             <h1 className="text-2xl font-semibold text-foreground">Team management</h1>
-            <p className="text-sm text-foreground/70">
+            <p className="text-sm text-text-secondary">
                 Create teams, add members, assign repositories and control roles in one place.
             </p>
             <Alert color="primary" title={`RBAC preview role: ${activeUiRole}`} variant="flat">
@@ -583,7 +583,7 @@ export function SettingsTeamPage(): ReactElement {
             </Card>
             {createTeamPolicy.reason === undefined ||
             createTeamPolicy.visibility === "enabled" ? null : (
-                <p className="text-xs text-foreground/70">
+                <p className="text-xs text-text-secondary">
                     Create team policy: {createTeamPolicy.reason}
                 </p>
             )}

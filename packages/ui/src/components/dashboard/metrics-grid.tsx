@@ -1,41 +1,52 @@
 import type { ReactElement } from "react"
+import { motion } from "motion/react"
+
+import { StaggerContainer, STAGGER_ITEM_VARIANTS } from "@/lib/motion"
 
 import { MetricCard, type IMetricCardProps, type TMetricTrendDirection } from "./metric-card"
 
 /**
- * Метрика для сетки dashboard.
+ * Metric for the dashboard grid.
  */
 export interface IMetricGridMetric extends IMetricCardProps {
-    /** Идентификатор метрики. */
+    /** Metric identifier. */
     readonly id: string
 }
 
 /**
- * Пропсы сетки KPI.
+ * KPI grid props.
  */
 export interface IMetricsGridProps {
-    /** Набор метрик для отображения. */
+    /** Metrics to display. */
     readonly metrics: ReadonlyArray<IMetricGridMetric>
 }
 
 /**
- * Рендерит сетку KPI-карточек.
+ * Renders a staggered KPI card grid.
  *
- * @param props Конфигурация.
- * @returns Гибкая grid-сетка метрик.
+ * @param props Configuration.
+ * @returns Animated grid of metric cards.
  */
 export function MetricsGrid(props: IMetricsGridProps): ReactElement {
     return (
-        <section aria-label="KPI metrics" className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+        <StaggerContainer
+            ariaLabel="KPI metrics"
+            as="section"
+            className="grid gap-4 md:grid-cols-2 xl:grid-cols-4"
+        >
             {props.metrics.map((metric): ReactElement => {
                 const { id, ...cardProps } = metric
-                return <MetricCard key={id} {...cardProps} />
+                return (
+                    <motion.div key={id} variants={STAGGER_ITEM_VARIANTS}>
+                        <MetricCard {...cardProps} />
+                    </motion.div>
+                )
             })}
-        </section>
+        </StaggerContainer>
     )
 }
 
 /**
- * Доступные направления тренда метрики.
+ * Available metric trend directions.
  */
 export type { TMetricTrendDirection }

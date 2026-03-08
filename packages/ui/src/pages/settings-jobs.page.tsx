@@ -494,7 +494,7 @@ export function SettingsJobsPage(): ReactElement {
     return (
         <section className="space-y-4">
             <h1 className="text-2xl font-semibold text-foreground">Operations jobs monitor</h1>
-            <p className="text-sm text-foreground/70">
+            <p className="text-sm text-text-secondary">
                 Track review, scan and analytics jobs with ETA, retries, paused/stuck states,
                 operator recovery actions and audit history.
             </p>
@@ -524,7 +524,7 @@ export function SettingsJobsPage(): ReactElement {
                 </CardHeader>
                 <CardBody className="space-y-3">
                     <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
-                        <label className="flex flex-col gap-1 text-sm text-foreground/80">
+                        <label className="flex flex-col gap-1 text-sm text-text-tertiary">
                             Schedule target
                             <select
                                 aria-label="Schedule target"
@@ -541,7 +541,7 @@ export function SettingsJobsPage(): ReactElement {
                                 <option value="report">Report schedule</option>
                             </select>
                         </label>
-                        <label className="flex flex-col gap-1 text-sm text-foreground/80">
+                        <label className="flex flex-col gap-1 text-sm text-text-tertiary">
                             User timezone
                             <select
                                 aria-label="User timezone"
@@ -568,7 +568,7 @@ export function SettingsJobsPage(): ReactElement {
                                 )}
                             </select>
                         </label>
-                        <label className="flex flex-col gap-1 text-sm text-foreground/80">
+                        <label className="flex flex-col gap-1 text-sm text-text-tertiary">
                             Org timezone override
                             <select
                                 aria-label="Organization timezone override"
@@ -600,7 +600,7 @@ export function SettingsJobsPage(): ReactElement {
                                 )}
                             </select>
                         </label>
-                        <label className="flex flex-col gap-1 text-sm text-foreground/80">
+                        <label className="flex flex-col gap-1 text-sm text-text-tertiary">
                             Schedule frequency
                             <select
                                 aria-label="Schedule frequency"
@@ -621,7 +621,7 @@ export function SettingsJobsPage(): ReactElement {
 
                     <div className="grid gap-3 md:grid-cols-3">
                         {activeSchedule.mode === "hourly" ? (
-                            <label className="flex flex-col gap-1 text-sm text-foreground/80">
+                            <label className="flex flex-col gap-1 text-sm text-text-tertiary">
                                 Interval hours
                                 <select
                                     aria-label="Interval hours"
@@ -639,7 +639,7 @@ export function SettingsJobsPage(): ReactElement {
                                 </select>
                             </label>
                         ) : (
-                            <label className="flex flex-col gap-1 text-sm text-foreground/80">
+                            <label className="flex flex-col gap-1 text-sm text-text-tertiary">
                                 Weekday
                                 <select
                                     aria-label="Schedule weekday"
@@ -662,7 +662,7 @@ export function SettingsJobsPage(): ReactElement {
                                 </select>
                             </label>
                         )}
-                        <label className="flex flex-col gap-1 text-sm text-foreground/80">
+                        <label className="flex flex-col gap-1 text-sm text-text-tertiary">
                             Hour
                             <select
                                 aria-label="Schedule hour"
@@ -681,7 +681,7 @@ export function SettingsJobsPage(): ReactElement {
                                 )}
                             </select>
                         </label>
-                        <label className="flex flex-col gap-1 text-sm text-foreground/80">
+                        <label className="flex flex-col gap-1 text-sm text-text-tertiary">
                             Minute
                             <select
                                 aria-label="Schedule minute"
@@ -707,7 +707,7 @@ export function SettingsJobsPage(): ReactElement {
                     </Alert>
 
                     <div className="flex flex-wrap items-center justify-between gap-2">
-                        <p className="text-sm text-foreground/80">{scheduleDescription}</p>
+                        <p className="text-sm text-text-tertiary">{scheduleDescription}</p>
                         <Button size="sm" variant="flat" onPress={handleSaveSchedule}>
                             Save schedule
                         </Button>
@@ -729,7 +729,7 @@ export function SettingsJobsPage(): ReactElement {
                                     <p className="font-semibold">
                                         {formatTimezoneDate(nextRun, effectiveTimezone)}
                                     </p>
-                                    <p className="text-xs text-foreground/70">
+                                    <p className="text-xs text-text-secondary">
                                         {formatRelativeTime(nextRun)}
                                     </p>
                                 </li>
@@ -764,7 +764,7 @@ export function SettingsJobsPage(): ReactElement {
                                                 <p className="text-sm font-semibold text-foreground">
                                                     {job.id} · {job.kind}
                                                 </p>
-                                                <p className="text-xs text-foreground/70">
+                                                <p className="text-xs text-text-secondary">
                                                     {job.scope}
                                                 </p>
                                             </button>
@@ -776,7 +776,7 @@ export function SettingsJobsPage(): ReactElement {
                                                 {job.status}
                                             </Chip>
                                         </div>
-                                        <p className="mt-1 text-xs text-foreground/70">
+                                        <p className="mt-1 text-xs text-text-secondary">
                                             ETA: {job.etaLabel} · retries {job.retryCount}/
                                             {job.retryLimit}
                                         </p>
@@ -838,7 +838,7 @@ export function SettingsJobsPage(): ReactElement {
                                     <p className="text-sm text-foreground">
                                         Active: <strong>{activeJob.id}</strong> ({activeJob.kind})
                                     </p>
-                                    <p className="text-xs text-foreground/70">
+                                    <p className="text-xs text-text-secondary">
                                         Scope: {activeJob.scope}
                                     </p>
                                     {activeJob.errorDetails === undefined ? (
@@ -880,8 +880,8 @@ export function SettingsJobsPage(): ReactElement {
                                             <p className="font-semibold text-foreground">
                                                 {entry.jobId} · {entry.action} · {entry.actor}
                                             </p>
-                                            <p className="text-foreground/80">{entry.outcome}</p>
-                                            <p className="text-foreground/70">
+                                            <p className="text-text-tertiary">{entry.outcome}</p>
+                                            <p className="text-text-secondary">
                                                 {formatTimestamp(entry.occurredAt)}
                                             </p>
                                         </li>

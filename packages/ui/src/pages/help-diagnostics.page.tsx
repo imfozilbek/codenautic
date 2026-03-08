@@ -459,7 +459,7 @@ export function HelpDiagnosticsPage(): ReactElement {
     return (
         <section className="space-y-4">
             <h1 className="text-2xl font-semibold text-foreground">Help & diagnostics center</h1>
-            <p className="text-sm text-foreground/70">
+            <p className="text-sm text-text-secondary">
                 Search help knowledge base, run diagnostics checks, and generate a redacted support
                 bundle without losing workflow context.
             </p>
@@ -476,7 +476,7 @@ export function HelpDiagnosticsPage(): ReactElement {
                 </CardHeader>
                 <CardBody className="space-y-3">
                     <div className="grid gap-3 md:grid-cols-[1fr_220px]">
-                        <label className="flex flex-col gap-1 text-sm text-foreground/80">
+                        <label className="flex flex-col gap-1 text-sm text-text-tertiary">
                             Search
                             <input
                                 aria-label="Help search"
@@ -488,7 +488,7 @@ export function HelpDiagnosticsPage(): ReactElement {
                                 }}
                             />
                         </label>
-                        <label className="flex flex-col gap-1 text-sm text-foreground/80">
+                        <label className="flex flex-col gap-1 text-sm text-text-tertiary">
                             Category
                             <select
                                 aria-label="Help category"
@@ -539,7 +539,7 @@ export function HelpDiagnosticsPage(): ReactElement {
                                         <p className="text-sm font-semibold text-foreground">
                                             {article.title}
                                         </p>
-                                        <p className="text-xs text-foreground/70">
+                                        <p className="text-xs text-text-secondary">
                                             {article.summary}
                                         </p>
                                         <a
@@ -562,7 +562,7 @@ export function HelpDiagnosticsPage(): ReactElement {
                 </CardHeader>
                 <CardBody className="space-y-3">
                     <div className="flex flex-wrap items-center justify-between gap-2">
-                        <p className="text-sm text-foreground/80">
+                        <p className="text-sm text-text-tertiary">
                             Checks: auth/session, network, provider connectivity, feature flags,
                             browser/webgl readiness.
                         </p>
@@ -627,7 +627,7 @@ export function HelpDiagnosticsPage(): ReactElement {
                                             {check.status}
                                         </Chip>
                                     </div>
-                                    <p className="text-xs text-foreground/70">{check.details}</p>
+                                    <p className="text-xs text-text-secondary">{check.details}</p>
                                     <a
                                         className="inline-flex text-xs underline underline-offset-4"
                                         href={check.articleHref}
@@ -650,7 +650,7 @@ export function HelpDiagnosticsPage(): ReactElement {
                                         <p className="text-sm font-semibold text-foreground">
                                             {action.label}
                                         </p>
-                                        <p className="text-xs text-foreground/70">
+                                        <p className="text-xs text-text-secondary">
                                             {action.description}
                                         </p>
                                         {action.path !== undefined ? (

@@ -60,7 +60,7 @@ exports[`visual regression contract > фиксирует визуальный sh
                   System
                 </p>
                 <p
-                  class="text-xs text-foreground/70"
+                  class="text-xs text-text-secondary"
                 >
                   01:00 PM
                 </p>
@@ -147,7 +147,7 @@ exports[`visual regression contract > фиксирует визуальный sh
                   AI
                 </p>
                 <p
-                  class="text-xs text-foreground/70"
+                  class="text-xs text-text-secondary"
                 >
                   01:00 PM
                 </p>
@@ -240,7 +240,7 @@ exports[`visual regression contract > фиксирует визуальный sh
           >
             <p
               aria-label="Message character count"
-              class="text-xs text-foreground/70"
+              class="text-xs text-text-secondary"
             >
               0/4000
             </p>
@@ -278,7 +278,7 @@ exports[`visual regression contract > фиксирует визуальный sh
     Help & diagnostics center
   </h1>
   <p
-    class="text-sm text-foreground/70"
+    class="text-sm text-text-secondary"
   >
     Search help knowledge base, run diagnostics checks, and generate a redacted support bundle without losing workflow context.
   </p>
@@ -304,7 +304,7 @@ exports[`visual regression contract > фиксирует визуальный sh
         class="grid gap-3 md:grid-cols-[1fr_220px]"
       >
         <label
-          class="flex flex-col gap-1 text-sm text-foreground/80"
+          class="flex flex-col gap-1 text-sm text-text-tertiary"
         >
           Search
           <input
@@ -315,7 +315,7 @@ exports[`visual regression contract > фиксирует визуальный sh
           />
         </label>
         <label
-          class="flex flex-col gap-1 text-sm text-foreground/80"
+          class="flex flex-col gap-1 text-sm text-text-tertiary"
         >
           Category
           <select
@@ -368,7 +368,7 @@ exports[`visual regression contract > фиксирует визуальный sh
             Auth session recovery
           </p>
           <p
-            class="text-xs text-foreground/70"
+            class="text-xs text-text-secondary"
           >
             Что проверить при истекшей сессии и ошибках доступа 401/403.
           </p>
@@ -388,7 +388,7 @@ exports[`visual regression contract > фиксирует визуальный sh
             Network timeout diagnostics
           </p>
           <p
-            class="text-xs text-foreground/70"
+            class="text-xs text-text-secondary"
           >
             Диагностика сетевых таймаутов и проблем с API недоступностью.
           </p>
@@ -408,7 +408,7 @@ exports[`visual regression contract > фиксирует визуальный sh
             Provider outage playbook
           </p>
           <p
-            class="text-xs text-foreground/70"
+            class="text-xs text-text-secondary"
           >
             Проверка деградации LLM/Git провайдеров и fallback стратегий.
           </p>
@@ -428,7 +428,7 @@ exports[`visual regression contract > фиксирует визуальный sh
             Scan failure triage
           </p>
           <p
-            class="text-xs text-foreground/70"
+            class="text-xs text-text-secondary"
           >
             Как расследовать scan/review worker failures и перезапустить jobs.
           </p>
@@ -448,7 +448,7 @@ exports[`visual regression contract > фиксирует визуальный sh
             WebGL readiness and fallback
           </p>
           <p
-            class="text-xs text-foreground/70"
+            class="text-xs text-text-secondary"
           >
             Проверка readiness браузера и WebGL для CodeCity экранов.
           </p>
@@ -484,7 +484,7 @@ exports[`visual regression contract > фиксирует визуальный sh
         class="flex flex-wrap items-center justify-between gap-2"
       >
         <p
-          class="text-sm text-foreground/80"
+          class="text-sm text-text-tertiary"
         >
           Checks: auth/session, network, provider connectivity, feature flags, browser/webgl readiness.
         </p>
@@ -598,7 +598,7 @@ exports[`visual regression contract > фиксирует визуальный sh
             </span>
           </div>
           <p
-            class="text-xs text-foreground/70"
+            class="text-xs text-text-secondary"
           >
             No session token found. Re-authentication may be required.
           </p>
@@ -633,7 +633,7 @@ exports[`visual regression contract > фиксирует визуальный sh
             </span>
           </div>
           <p
-            class="text-xs text-foreground/70"
+            class="text-xs text-text-secondary"
           >
             Network looks reachable from browser context.
           </p>
@@ -668,7 +668,7 @@ exports[`visual regression contract > фиксирует визуальный sh
             </span>
           </div>
           <p
-            class="text-xs text-foreground/70"
+            class="text-xs text-text-secondary"
           >
             Detected degraded providers: 1.
           </p>
@@ -703,7 +703,7 @@ exports[`visual regression contract > фиксирует визуальный sh
             </span>
           </div>
           <p
-            class="text-xs text-foreground/70"
+            class="text-xs text-text-secondary"
           >
             Feature flags loaded and evaluated.
           </p>
@@ -738,7 +738,7 @@ exports[`visual regression contract > фиксирует визуальный sh
             </span>
           </div>
           <p
-            class="text-xs text-foreground/70"
+            class="text-xs text-text-secondary"
           >
             WebGL context unavailable, fallback renderer recommended.
           </p>
@@ -771,7 +771,7 @@ exports[`visual regression contract > фиксирует визуальный sh
               Open session recovery
             </p>
             <p
-              class="text-xs text-foreground/70"
+              class="text-xs text-text-secondary"
             >
               Re-authenticate and restore draft/session state before retrying.
             </p>
@@ -800,7 +800,7 @@ exports[`visual regression contract > фиксирует визуальный sh
               Open degradation console
             </p>
             <p
-              class="text-xs text-foreground/70"
+              class="text-xs text-text-secondary"
             >
               Switch provider fallback and inspect degradation timeline.
             </p>
@@ -829,7 +829,7 @@ exports[`visual regression contract > фиксирует визуальный sh
               Open CodeCity fallback check
             </p>
             <p
-              class="text-xs text-foreground/70"
+              class="text-xs text-text-secondary"
             >
               Use safe fallback renderer or validate browser WebGL support.
             </p>

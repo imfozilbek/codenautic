@@ -1090,7 +1090,7 @@ export function SettingsContractValidationPage(): ReactElement {
     return (
         <section className="space-y-4">
             <h1 className="text-2xl font-semibold text-foreground">Contract validation</h1>
-            <p className="text-sm text-foreground/70">
+            <p className="text-sm text-text-secondary">
                 Validate schema/version for import/export payloads and preview before apply.
             </p>
 
@@ -1158,7 +1158,7 @@ export function SettingsContractValidationPage(): ReactElement {
                     </p>
                 </CardHeader>
                 <CardBody className="space-y-3">
-                    <p className="text-sm text-foreground/70">
+                    <p className="text-sm text-text-secondary">
                         Upload and edit architecture blueprint in YAML format with inline syntax
                         highlight and visual preview.
                     </p>
@@ -1277,12 +1277,12 @@ export function SettingsContractValidationPage(): ReactElement {
                     <p className="text-base font-semibold text-foreground">Drift analysis report</p>
                 </CardHeader>
                 <CardBody className="space-y-3">
-                    <p className="text-sm text-foreground/70">
+                    <p className="text-sm text-text-secondary">
                         Review architecture drift violations with severity and affected files. Use
                         filters, sorting and export to share actionable reports.
                     </p>
                     <div className="grid gap-2 md:grid-cols-3">
-                        <label className="space-y-1 text-sm text-foreground/80">
+                        <label className="space-y-1 text-sm text-text-tertiary">
                             Search
                             <input
                                 aria-label="Drift report search query"
@@ -1295,7 +1295,7 @@ export function SettingsContractValidationPage(): ReactElement {
                                 }}
                             />
                         </label>
-                        <label className="space-y-1 text-sm text-foreground/80">
+                        <label className="space-y-1 text-sm text-text-tertiary">
                             Severity filter
                             <select
                                 aria-label="Drift severity filter"
@@ -1321,7 +1321,7 @@ export function SettingsContractValidationPage(): ReactElement {
                                 <option value="low">Low</option>
                             </select>
                         </label>
-                        <label className="space-y-1 text-sm text-foreground/80">
+                        <label className="space-y-1 text-sm text-text-tertiary">
                             Sort
                             <select
                                 aria-label="Drift report sort mode"
@@ -1348,7 +1348,7 @@ export function SettingsContractValidationPage(): ReactElement {
                     </div>
                     <div className="flex flex-wrap items-center gap-2">
                         <Button onPress={handleExportDriftReport}>Export drift report</Button>
-                        <span className="text-xs text-foreground/70">
+                        <span className="text-xs text-text-secondary">
                             Filtered violations: {String(filteredSortedDriftViolations.length)}
                         </span>
                     </div>
@@ -1400,7 +1400,7 @@ export function SettingsContractValidationPage(): ReactElement {
                     </p>
                 </CardHeader>
                 <CardBody className="space-y-3">
-                    <p className="text-sm text-foreground/70">
+                    <p className="text-sm text-text-secondary">
                         Files violating architecture blueprint are highlighted in red. Click any
                         highlighted file to inspect related drift violations.
                     </p>
@@ -1477,7 +1477,7 @@ export function SettingsContractValidationPage(): ReactElement {
                     </p>
                 </CardHeader>
                 <CardBody className="space-y-3">
-                    <p className="text-sm text-foreground/70">
+                    <p className="text-sm text-text-secondary">
                         Compare intended architecture from blueprint with actual runtime structure.
                         Differences are color-coded to highlight missing and unexpected modules.
                     </p>
@@ -1571,7 +1571,7 @@ export function SettingsContractValidationPage(): ReactElement {
                     <p className="text-base font-semibold text-foreground">Drift trend chart</p>
                 </CardHeader>
                 <CardBody className="space-y-3">
-                    <p className="text-sm text-foreground/70">
+                    <p className="text-sm text-text-secondary">
                         Drift score trend over time with architecture change annotations.
                     </p>
                     <div aria-label="Drift score trend chart" className="h-72 w-full">
@@ -1639,7 +1639,7 @@ export function SettingsContractValidationPage(): ReactElement {
                     </p>
                 </CardHeader>
                 <CardBody className="space-y-3">
-                    <p className="text-sm text-foreground/70">
+                    <p className="text-sm text-text-secondary">
                         Configure drift alerts by severity threshold, violation count, and delivery
                         channels.
                     </p>
@@ -1734,7 +1734,7 @@ export function SettingsContractValidationPage(): ReactElement {
                     </p>
                 </CardHeader>
                 <CardBody className="space-y-3">
-                    <p className="text-sm text-foreground/70">
+                    <p className="text-sm text-text-secondary">
                         Configure allowed and forbidden import rules with YAML and visual rule
                         preview.
                     </p>

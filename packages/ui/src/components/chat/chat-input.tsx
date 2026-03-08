@@ -230,7 +230,7 @@ export function ChatInput(props: IChatInputProps): ReactElement {
                 <div className="mt-2 flex items-center justify-between gap-2">
                     <p
                         aria-label={props.counterAriaLabel ?? "Message character count"}
-                        className="text-xs text-foreground/70"
+                        className="text-xs text-text-secondary"
                     >
                         {maxLengthLabel}
                     </p>

@@ -10,6 +10,7 @@ import {
 } from "recharts"
 
 import { Card, CardBody, CardHeader, Chip } from "@/components/ui"
+import { EmptyState } from "@/components/states/empty-state"
 
 interface IArchitectureHealthWidgetProps {
     /** Общий health score. */
@@ -50,25 +51,37 @@ export function ArchitectureHealthWidget(props: IArchitectureHealthWidgetProps):
                 </div>
             </CardHeader>
             <CardBody className="space-y-2">
-                <p className="text-sm text-foreground/70">
+                <p className="text-sm text-text-secondary">
                     Health score, layer violations and DDD compliance in one architecture widget.
                 </p>
-                <div className="h-60 w-full">
-                    <ResponsiveContainer height="100%" minHeight={1} minWidth={1} width="100%">
-                        <RadarChart data={radarData}>
-                            <PolarGrid />
-                            <PolarAngleAxis dataKey="metric" />
-                            <PolarRadiusAxis angle={30} domain={[0, 100]} />
-                            <Radar
-                                dataKey="value"
-                                fill="#2563eb"
-                                fillOpacity={0.35}
-                                name="Architecture"
-                                stroke="#1d4ed8"
-                            />
-                        </RadarChart>
-                    </ResponsiveContainer>
-                </div>
+                {radarData.length === 0 ? (
+                    <EmptyState
+                        description="No architecture health data available."
+                        title="No data"
+                    />
+                ) : (
+                    <div className="h-60 w-full">
+                        <ResponsiveContainer
+                            height="100%"
+                            minHeight={1}
+                            minWidth={1}
+                            width="100%"
+                        >
+                            <RadarChart data={radarData}>
+                                <PolarGrid />
+                                <PolarAngleAxis dataKey="metric" />
+                                <PolarRadiusAxis angle={30} domain={[0, 100]} />
+                                <Radar
+                                    dataKey="value"
+                                    fill="var(--chart-primary)"
+                                    fillOpacity={0.35}
+                                    name="Architecture"
+                                    stroke="var(--chart-primary)"
+                                />
+                            </RadarChart>
+                        </ResponsiveContainer>
+                    </div>
+                )}
             </CardBody>
         </Card>
     )

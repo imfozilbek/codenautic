@@ -445,7 +445,7 @@ export function SettingsNotificationsPage(): ReactElement {
     return (
         <section className="space-y-4">
             <h1 className="text-2xl font-semibold text-foreground">Notification center</h1>
-            <p className="text-sm text-foreground/70">
+            <p className="text-sm text-text-secondary">
                 Unified inbox for review, drift and prediction events with channel-level delivery
                 controls.
             </p>
@@ -463,7 +463,7 @@ export function SettingsNotificationsPage(): ReactElement {
                     </Button>
                 </CardHeader>
                 <CardBody className="space-y-3">
-                    <div className="flex flex-wrap items-center gap-2 text-xs text-foreground/70">
+                    <div className="flex flex-wrap items-center gap-2 text-xs text-text-secondary">
                         <Chip size="sm" variant="flat">
                             Total: {notifications.length}
                         </Chip>
@@ -513,7 +513,7 @@ export function SettingsNotificationsPage(): ReactElement {
                     )}
                     <div className="flex flex-col gap-1 md:max-w-[260px]">
                         <label
-                            className="text-sm text-foreground/80"
+                            className="text-sm text-text-tertiary"
                             htmlFor="notifications-event-type-filter"
                         >
                             Filter event type
@@ -574,11 +574,11 @@ export function SettingsNotificationsPage(): ReactElement {
                                         <Chip size="sm" variant="flat">
                                             {EVENT_TYPE_LABELS[notification.type]}
                                         </Chip>
-                                        <p className="text-xs text-foreground/70">
+                                        <p className="text-xs text-text-secondary">
                                             {formatNotificationTime(notification.occurredAt)}
                                         </p>
                                     </div>
-                                    <p className="mt-1 text-sm text-foreground/80">
+                                    <p className="mt-1 text-sm text-text-tertiary">
                                         {notification.message}
                                     </p>
                                     <div className="mt-2 flex flex-wrap items-center gap-2">
@@ -684,7 +684,7 @@ export function SettingsNotificationsPage(): ReactElement {
                     <p className="text-base font-semibold text-foreground">In-app mute rules</p>
                 </CardHeader>
                 <CardBody className="space-y-3">
-                    <div className="flex flex-wrap items-center gap-2 text-xs text-foreground/70">
+                    <div className="flex flex-wrap items-center gap-2 text-xs text-text-secondary">
                         <Chip size="sm" variant="flat">
                             Enabled rules: {enabledMuteRulesCount}
                         </Chip>
@@ -757,7 +757,7 @@ export function SettingsNotificationsPage(): ReactElement {
                 </CardHeader>
                 <CardBody className="space-y-2">
                     {bulkAudit.length === 0 ? (
-                        <p className="text-sm text-foreground/70">
+                        <p className="text-sm text-text-secondary">
                             No bulk operations executed yet.
                         </p>
                     ) : (
@@ -771,8 +771,8 @@ export function SettingsNotificationsPage(): ReactElement {
                                         <p className="font-semibold text-foreground">
                                             {entry.status}
                                         </p>
-                                        <p className="text-foreground/80">{entry.summary}</p>
-                                        <p className="text-foreground/70">
+                                        <p className="text-text-tertiary">{entry.summary}</p>
+                                        <p className="text-text-secondary">
                                             Notifications: {entry.notificationIds.join(", ")}
                                         </p>
                                     </li>

@@ -75,7 +75,7 @@ export function ChatContextIndicator(props: IChatContextIndicatorProps): ReactEl
     const renderContextItem = (context: IChatPanelContextInfo): ReactNode => (
         <div className="flex min-w-0 flex-col gap-1 text-left">
             <span className="text-xs font-medium sm:text-sm">{formatContextSummary(context)}</span>
-            <span className="truncate text-xs text-foreground/70">
+            <span className="truncate text-xs text-text-secondary">
                 Files: {formatAttachedFiles(context.attachedFiles)}
             </span>
         </div>
@@ -98,7 +98,7 @@ export function ChatContextIndicator(props: IChatContextIndicatorProps): ReactEl
                     props.className ?? ""
                 }`}
             >
-                <p className="text-sm text-foreground/70">No conversation contexts available</p>
+                <p className="text-sm text-text-secondary">No conversation contexts available</p>
             </div>
         )
     }
@@ -115,7 +115,7 @@ export function ChatContextIndicator(props: IChatContextIndicatorProps): ReactEl
                         {contextTitle}
                     </Chip>
                     <p className="mt-1 text-xs font-semibold sm:text-sm">{contextSummary}</p>
-                    <p className="mt-1 text-xs text-foreground/70">{filesText}</p>
+                    <p className="mt-1 text-xs text-text-secondary">{filesText}</p>
                 </div>
                 <Button
                     aria-controls="chat-context-indicator-listbox"

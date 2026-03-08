@@ -217,7 +217,7 @@ export function SettingsRulesLibraryPage(): ReactElement {
     return (
         <section className="space-y-4">
             <h1 className="text-2xl font-semibold text-foreground">Rules library</h1>
-            <p className="text-sm text-foreground/70">
+            <p className="text-sm text-text-secondary">
                 Browse pre-built rules, import to your workspace, create custom policies and test
                 them on sample snippets.
             </p>
@@ -229,7 +229,7 @@ export function SettingsRulesLibraryPage(): ReactElement {
                     </CardHeader>
                     <CardBody>
                         <p className="text-2xl font-semibold text-foreground">{rules.length}</p>
-                        <p className="text-xs text-foreground/70">Total rules</p>
+                        <p className="text-xs text-text-secondary">Total rules</p>
                     </CardBody>
                 </Card>
                 <Card>
@@ -238,7 +238,7 @@ export function SettingsRulesLibraryPage(): ReactElement {
                     </CardHeader>
                     <CardBody>
                         <p className="text-2xl font-semibold text-foreground">{importedCount}</p>
-                        <p className="text-xs text-foreground/70">Rules in active profile</p>
+                        <p className="text-xs text-text-secondary">Rules in active profile</p>
                     </CardBody>
                 </Card>
                 <Card>
@@ -249,7 +249,7 @@ export function SettingsRulesLibraryPage(): ReactElement {
                         <p className="text-2xl font-semibold text-foreground">
                             {rules.filter((rule): boolean => rule.source === "custom").length}
                         </p>
-                        <p className="text-xs text-foreground/70">Team-defined policy rules</p>
+                        <p className="text-xs text-text-secondary">Team-defined policy rules</p>
                     </CardBody>
                 </Card>
             </div>
@@ -270,7 +270,7 @@ export function SettingsRulesLibraryPage(): ReactElement {
                         />
                         <div className="flex flex-col gap-1">
                             <label
-                                className="text-sm text-foreground/80"
+                                className="text-sm text-text-tertiary"
                                 htmlFor="rules-category-filter"
                             >
                                 Category
@@ -318,7 +318,7 @@ export function SettingsRulesLibraryPage(): ReactElement {
                                             <p className="text-sm font-semibold text-foreground">
                                                 {rule.name}
                                             </p>
-                                            <p className="text-xs text-foreground/70">
+                                            <p className="text-xs text-text-secondary">
                                                 {rule.description}
                                             </p>
                                             <div className="flex items-center gap-2">
@@ -333,7 +333,7 @@ export function SettingsRulesLibraryPage(): ReactElement {
                                                     {rule.source}
                                                 </Chip>
                                             </div>
-                                            <p className="font-mono text-xs text-foreground/70">
+                                            <p className="font-mono text-xs text-text-secondary">
                                                 {rule.expression}
                                             </p>
                                         </div>
@@ -377,7 +377,7 @@ export function SettingsRulesLibraryPage(): ReactElement {
                         />
                         <div className="flex flex-col gap-1">
                             <label
-                                className="text-sm text-foreground/80"
+                                className="text-sm text-text-tertiary"
                                 htmlFor="custom-rule-category"
                             >
                                 Category
@@ -423,7 +423,7 @@ export function SettingsRulesLibraryPage(): ReactElement {
                     <CardBody className="space-y-3">
                         <div className="flex flex-col gap-1">
                             <label
-                                className="text-sm text-foreground/80"
+                                className="text-sm text-text-tertiary"
                                 htmlFor="rule-test-target"
                             >
                                 Rule to test
@@ -448,7 +448,7 @@ export function SettingsRulesLibraryPage(): ReactElement {
                         </div>
                         <div className="flex flex-col gap-1">
                             <label
-                                className="text-sm text-foreground/80"
+                                className="text-sm text-text-tertiary"
                                 htmlFor="rule-test-sample-input"
                             >
                                 Sample input

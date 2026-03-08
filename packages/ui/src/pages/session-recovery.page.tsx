@@ -14,7 +14,7 @@ export function SessionRecoveryPage(): ReactElement {
     return (
         <section className="space-y-4">
             <h1 className="text-2xl font-semibold text-foreground">Session recovery flow</h1>
-            <p className="text-sm text-foreground/70">
+            <p className="text-sm text-text-secondary">
                 Restore authentication and continue from saved workflow state after session expiry.
             </p>
 

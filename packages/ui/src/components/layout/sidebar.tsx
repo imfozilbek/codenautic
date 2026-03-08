@@ -1,46 +1,52 @@
 import type { ReactElement, ReactNode } from "react"
+import { motion, AnimatePresence } from "motion/react"
 
 import { ChevronLeft, ChevronRight } from "@/components/icons/app-icons"
 import { Button } from "@/components/ui"
+import { DURATION, EASING, useReducedMotion } from "@/lib/motion"
+
 import { SidebarNav } from "./sidebar-nav"
 import { SettingsNav } from "./settings-nav"
 
 /**
- * Свойства sidebar компонента.
+ * Sidebar component props.
  */
 export interface ISidebarProps {
-    /** Дополнительный класс для контейнера. */
+    /** Additional class for the container. */
     readonly className?: string
-    /** Заголовок блока навигации. */
+    /** Navigation block title. */
     readonly title?: string
-    /** Свернут ли сайдбар. */
+    /** Whether the sidebar is collapsed. */
     readonly isCollapsed?: boolean
-    /** Содержимое слева от основного меню (если нужно). */
+    /** Content before main menu. */
     readonly headerSlot?: ReactNode
-    /** Коллбэк при выборе пункта (close mobile sidebar). */
+    /** Callback when a nav item is selected (close mobile sidebar). */
     readonly onNavigate?: (to?: string) => void
-    /** Коллбэк переключения состояния сворачивания. */
+    /** Callback to toggle collapse state. */
     readonly onSidebarToggle?: () => void
 }
 
 /**
- * Базовый sidebar для desktop-макета dashboard.
+ * Desktop sidebar with sticky positioning, collapse animation, and icon-only mode.
  *
- * @param props Конфигурация.
- * @returns Боковая колонка навигации.
+ * @param props Configuration.
+ * @returns Sticky sidebar navigation.
  */
 export function Sidebar(props: ISidebarProps): ReactElement {
     const isCollapsed = props.isCollapsed === true
-    const widthClass = isCollapsed ? "w-12" : "w-full"
+    const prefersReducedMotion = useReducedMotion()
+    const targetWidth = isCollapsed ? 48 : 240
 
-    return (
-        <aside
-            className={`h-full rounded-lg bg-[color:color-mix(in_oklab,var(--surface)_84%,transparent)] p-2 shadow-sm ${widthClass} ${props.className ?? ""}`}
-        >
+    const sidebarContent = (
+        <>
             <div className="mb-2 flex items-center justify-between px-2">
-                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-foreground/60">
-                    {isCollapsed ? " " : (props.title ?? "Navigation")}
-                </p>
+                {isCollapsed ? (
+                    <span className="w-0 overflow-hidden" />
+                ) : (
+                    <p className="text-xs font-semibold uppercase tracking-[0.2em] text-text-subtle">
+                        {props.title ?? "Navigation"}
+                    </p>
+                )}
                 <Button
                     aria-label={isCollapsed ? "Expand navigation" : "Collapse navigation"}
                     className="h-7 min-h-7 w-7 rounded-full px-0"
@@ -60,8 +66,43 @@ export function Sidebar(props: ISidebarProps): ReactElement {
             {props.headerSlot !== undefined ? (
                 <div className="mb-3 px-2">{props.headerSlot}</div>
             ) : null}
-            {isCollapsed ? null : <SidebarNav onNavigate={props.onNavigate} />}
-            {isCollapsed ? null : <SettingsNav onNavigate={props.onNavigate} />}
-        </aside>
+            <SidebarNav isCollapsed={isCollapsed} onNavigate={props.onNavigate} />
+            <hr className="my-3 border-border" />
+            <SettingsNav isCollapsed={isCollapsed} onNavigate={props.onNavigate} />
+        </>
+    )
+
+    if (prefersReducedMotion) {
+        return (
+            <aside
+                className={`sticky top-20 max-h-[calc(100vh-5rem)] self-start overflow-y-auto rounded-lg bg-sidebar-bg p-2 shadow-sm ${props.className ?? ""}`}
+                style={{ width: targetWidth }}
+            >
+                {sidebarContent}
+            </aside>
+        )
+    }
+
+    return (
+        <motion.aside
+            animate={{ width: targetWidth }}
+            className={`sticky top-20 max-h-[calc(100vh-5rem)] self-start overflow-y-auto rounded-lg bg-sidebar-bg p-2 shadow-sm ${props.className ?? ""}`}
+            transition={{
+                duration: DURATION.normal,
+                ease: EASING.move,
+            }}
+        >
+            <AnimatePresence mode="wait">
+                <motion.div
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    initial={{ opacity: 0 }}
+                    key={isCollapsed ? "collapsed" : "expanded"}
+                    transition={{ duration: DURATION.fast }}
+                >
+                    {sidebarContent}
+                </motion.div>
+            </AnimatePresence>
+        </motion.aside>
     )
 }

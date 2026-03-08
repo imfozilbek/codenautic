@@ -258,7 +258,7 @@ export function SettingsByokPage(): ReactElement {
     return (
         <section className="space-y-4">
             <h1 className="text-2xl font-semibold text-foreground">BYOK management</h1>
-            <p className="text-sm text-foreground/70">
+            <p className="text-sm text-text-secondary">
                 Add provider keys, keep secrets masked in UI, rotate safely and monitor usage.
             </p>
 
@@ -269,7 +269,7 @@ export function SettingsByokPage(): ReactElement {
                 <CardBody className="space-y-3">
                     <div className="grid gap-3 md:grid-cols-[180px_1fr_1fr_auto]">
                         <div className="flex flex-col gap-1">
-                            <label className="text-sm text-foreground/80" htmlFor="byok-provider">
+                            <label className="text-sm text-text-tertiary" htmlFor="byok-provider">
                                 Provider
                             </label>
                             <select
@@ -392,7 +392,7 @@ export function SettingsByokPage(): ReactElement {
                                 <p className="font-semibold text-foreground">
                                     {formatProviderLabel(entry.provider)}
                                 </p>
-                                <p className="text-foreground/70">
+                                <p className="text-text-secondary">
                                     Keys: {entry.keys} • Requests: {entry.requests} • Tokens:{" "}
                                     {entry.tokens}
                                 </p>
@@ -423,20 +423,20 @@ export function SettingsByokPage(): ReactElement {
                                             <p className="text-sm font-semibold text-foreground">
                                                 {entry.label}
                                             </p>
-                                            <p className="text-xs text-foreground/70">
+                                            <p className="text-xs text-text-secondary">
                                                 Provider: {formatProviderLabel(entry.provider)}
                                             </p>
-                                            <p className="font-mono text-xs text-foreground/70">
+                                            <p className="font-mono text-xs text-text-secondary">
                                                 {entry.maskedSecret}
                                             </p>
-                                            <p className="text-xs text-foreground/70">
+                                            <p className="text-xs text-text-secondary">
                                                 Rotation: {entry.rotationCount}
                                             </p>
-                                            <p className="text-xs text-foreground/70">
+                                            <p className="text-xs text-text-secondary">
                                                 Usage: {entry.usageRequests} requests •{" "}
                                                 {entry.usageTokens} tokens
                                             </p>
-                                            <p className="text-xs text-foreground/70">
+                                            <p className="text-xs text-text-secondary">
                                                 Last used: {formatLastUsed(entry.lastUsedAt)}
                                             </p>
                                         </div>

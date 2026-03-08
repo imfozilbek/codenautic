@@ -280,7 +280,7 @@ export function SettingsAuditLogsPage(props: ISettingsAuditLogsPageProps = {}): 
     return (
         <section className="space-y-4">
             <h1 className="text-2xl font-semibold text-foreground">Audit logs</h1>
-            <p className="text-sm text-foreground/70">
+            <p className="text-sm text-text-secondary">
                 Review change history, filter by actor and action, inspect selected date range, and
                 export filtered results.
             </p>
@@ -293,7 +293,7 @@ export function SettingsAuditLogsPage(props: ISettingsAuditLogsPageProps = {}): 
                     <div className="grid gap-3 md:grid-cols-[1fr_1fr_180px_180px_auto]">
                         <div className="flex flex-col gap-1">
                             <label
-                                className="text-sm text-foreground/80"
+                                className="text-sm text-text-tertiary"
                                 htmlFor="audit-filter-actor"
                             >
                                 Filter by actor
@@ -324,7 +324,7 @@ export function SettingsAuditLogsPage(props: ISettingsAuditLogsPageProps = {}): 
                         </div>
                         <div className="flex flex-col gap-1">
                             <label
-                                className="text-sm text-foreground/80"
+                                className="text-sm text-text-tertiary"
                                 htmlFor="audit-filter-action"
                             >
                                 Filter by action
@@ -363,7 +363,7 @@ export function SettingsAuditLogsPage(props: ISettingsAuditLogsPageProps = {}): 
                         </div>
                         <div className="flex flex-col gap-1">
                             <label
-                                className="text-sm text-foreground/80"
+                                className="text-sm text-text-tertiary"
                                 htmlFor="audit-filter-date-from"
                             >
                                 Date from
@@ -387,7 +387,7 @@ export function SettingsAuditLogsPage(props: ISettingsAuditLogsPageProps = {}): 
                         </div>
                         <div className="flex flex-col gap-1">
                             <label
-                                className="text-sm text-foreground/80"
+                                className="text-sm text-text-tertiary"
                                 htmlFor="audit-filter-date-to"
                             >
                                 Date to
@@ -419,7 +419,7 @@ export function SettingsAuditLogsPage(props: ISettingsAuditLogsPageProps = {}): 
                             </Button>
                         </div>
                     </div>
-                    <p className="text-sm text-foreground/70">
+                    <p className="text-sm text-text-secondary">
                         Showing {filteredLogs.length} of {sourceLogs.length} entries.
                     </p>
                     {exportMessage.length > 0 ? (

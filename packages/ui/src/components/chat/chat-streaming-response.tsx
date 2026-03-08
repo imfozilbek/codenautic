@@ -98,7 +98,7 @@ export function ChatStreamingResponse(props: IChatStreamingResponseProps): React
     const typingDots: ReactNode = (
         <span
             aria-label={props.typingAriaLabel ?? "Assistant is typing"}
-            className="mt-1 inline-flex items-center gap-1 text-xs text-foreground/70"
+            className="mt-1 inline-flex items-center gap-1 text-xs text-text-secondary"
         >
             <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-foreground/50" />
             <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-foreground/50" />

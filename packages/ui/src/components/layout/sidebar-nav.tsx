@@ -16,27 +16,29 @@ import {
 import { Button } from "@/components/ui"
 
 /**
- * Навигационный элемент сайдбара.
+ * Sidebar navigation item.
  */
 export interface ISidebarItem {
-    /** Отображаемый лейбл пункта. */
+    /** Display label. */
     readonly label: string
-    /** Маршрут. Не указывается для disabled-состояния. */
+    /** Route path. Undefined for disabled state. */
     readonly to?: string
-    /** Иконка пункта меню. */
+    /** Menu item icon. */
     readonly icon?: ReactElement
-    /** Доступен ли пункт для перехода. */
+    /** Whether the item is disabled. */
     readonly isDisabled?: boolean
 }
 
 /**
- * Свойства навигационного списка сайдбара.
+ * Sidebar nav list props.
  */
 export interface ISidebarNavProps {
-    /** Список элементов меню. */
+    /** Menu items. */
     readonly items?: ReadonlyArray<ISidebarItem>
-    /** Коллбэк при выборе элемента, полезен для закрытия mobile-drawer. */
+    /** Callback when item is selected (for closing mobile drawer). */
     readonly onNavigate?: (to?: string) => void
+    /** Whether the sidebar is in collapsed icon-only mode. */
+    readonly isCollapsed?: boolean
 }
 
 const DEFAULT_SIDEBAR_ITEMS: readonly ISidebarItem[] = [
@@ -98,15 +100,17 @@ const DEFAULT_SIDEBAR_ITEMS: readonly ISidebarItem[] = [
 ] as const
 
 /**
- * Навигационный список для sidebar.
+ * Sidebar navigation list with icon-only collapsed mode and tooltip.
  *
- * @param props Список ссылок.
- * @returns Список доступных route-переходов.
+ * @param props List of route links.
+ * @returns Navigation item list.
  */
 export function SidebarNav(props: ISidebarNavProps): ReactElement {
     const currentLocation = useLocation()
     const navigate = useNavigate()
     const items = props.items ?? DEFAULT_SIDEBAR_ITEMS
+    const isCollapsed = props.isCollapsed === true
+
     const isItemActive = (to: string): boolean => {
         if (to === "/") {
             return currentLocation.pathname === "/"
@@ -159,8 +163,32 @@ export function SidebarNav(props: ISidebarNavProps): ReactElement {
                             </span>
                         )
 
+                    if (isCollapsed) {
+                        return (
+                            <li key={item.label} title={item.label}>
+                                <Button
+                                    aria-current={isActive ? "page" : undefined}
+                                    aria-label={item.label}
+                                    className="w-full justify-center"
+                                    fullWidth
+                                    isDisabled={item.isDisabled}
+                                    isIconOnly
+                                    variant={isActive ? "solid" : "light"}
+                                    onPress={handlePress}
+                                >
+                                    <span
+                                        aria-hidden="true"
+                                        className="inline-flex items-center justify-center"
+                                    >
+                                        {item.icon}
+                                    </span>
+                                </Button>
+                            </li>
+                        )
+                    }
+
                     return (
-                        <li key={item.label}>
+                        <li key={item.label} className="transition-colors duration-150">
                             <Button
                                 aria-current={isActive ? "page" : undefined}
                                 className="w-full justify-start"

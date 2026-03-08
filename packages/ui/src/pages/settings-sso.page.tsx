@@ -127,7 +127,7 @@ export function SettingsSsoPage(): ReactElement {
     return (
         <section className="space-y-4">
             <h1 className="text-2xl font-semibold text-foreground">SSO provider management</h1>
-            <p className="text-sm text-foreground/70">
+            <p className="text-sm text-text-secondary">
                 Configure SAML and OIDC providers, validate required fields, and run test SSO checks
                 before rollout.
             </p>
@@ -246,7 +246,7 @@ export function SettingsSsoPage(): ReactElement {
                                 )
                             }}
                         />
-                        <p className="text-xs text-foreground/70">
+                        <p className="text-xs text-text-secondary">
                             Secret preview in UI: {getMaskedSecret(oidcConfig.clientSecret)}
                         </p>
                         <div className="flex flex-wrap items-center gap-2">

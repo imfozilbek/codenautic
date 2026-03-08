@@ -122,7 +122,7 @@ export function SettingsProviderDegradationPage(): ReactElement {
     return (
         <section className="space-y-4">
             <h1 className="text-2xl font-semibold text-foreground">Provider degradation mode</h1>
-            <p className="text-sm text-foreground/70">
+            <p className="text-sm text-text-secondary">
                 Monitor affected features, keep critical actions in queue/retry mode and provide
                 quick incident runbook access.
             </p>
@@ -155,12 +155,12 @@ export function SettingsProviderDegradationPage(): ReactElement {
                         </Chip>
                     </div>
                     {providerState.affectedFeatures.length === 0 ? (
-                        <p className="text-sm text-foreground/70">No affected features.</p>
+                        <p className="text-sm text-text-secondary">No affected features.</p>
                     ) : (
                         <ul aria-label="Affected features list" className="space-y-1">
                             {providerState.affectedFeatures.map(
                                 (feature): ReactElement => (
-                                    <li className="text-sm text-foreground/80" key={feature}>
+                                    <li className="text-sm text-text-tertiary" key={feature}>
                                         {feature}
                                     </li>
                                 ),
@@ -173,7 +173,7 @@ export function SettingsProviderDegradationPage(): ReactElement {
                             Mark operational
                         </Button>
                         <a
-                            className="inline-flex items-center rounded-full border border-border px-3 py-1 text-sm text-foreground/80"
+                            className="inline-flex items-center rounded-full border border-border px-3 py-1 text-sm text-text-tertiary"
                             href={providerState.runbookUrl}
                             rel="noreferrer"
                             target="_blank"
@@ -213,13 +213,13 @@ export function SettingsProviderDegradationPage(): ReactElement {
                                     <p className="font-semibold text-foreground">
                                         {action.description}
                                     </p>
-                                    <p className="text-foreground/70">Status: {action.status}</p>
+                                    <p className="text-text-secondary">Status: {action.status}</p>
                                 </li>
                             ),
                         )}
                     </ul>
                     {queuedActions.length === 0 ? (
-                        <p className="text-sm text-foreground/70">No critical actions in queue.</p>
+                        <p className="text-sm text-text-secondary">No critical actions in queue.</p>
                     ) : null}
                 </CardBody>
             </Card>

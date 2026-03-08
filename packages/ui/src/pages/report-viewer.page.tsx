@@ -112,7 +112,7 @@ export function ReportViewerPage(): ReactElement {
     return (
         <section className="space-y-4">
             <h1 className="text-2xl font-semibold text-foreground">Report viewer</h1>
-            <p className="text-sm text-foreground/70">
+            <p className="text-sm text-text-secondary">
                 View generated reports in-browser, inspect interactive charts, and export/share
                 report artifacts.
             </p>

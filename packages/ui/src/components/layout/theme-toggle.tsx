@@ -68,7 +68,7 @@ export function ThemeToggle(props: IThemeToggleProps): ReactElement {
                     }}
                     presets={presets}
                 />
-                <p className="px-1 text-xs text-foreground/70">
+                <p className="px-1 text-xs text-text-secondary">
                     Preset: {getPresetLabel(presets, preset)}
                 </p>
                 <p className="sr-only" aria-live="polite">

@@ -49,6 +49,7 @@ import {
     ModalFooter,
     ModalHeader,
 } from "@/components/ui"
+import { AnimatedAlert, AnimatedMount } from "@/lib/motion"
 
 import { Header } from "./header"
 import type { IHeaderOrganizationOption } from "./header"
@@ -614,8 +615,8 @@ export function DashboardLayout(props: IDashboardLayoutProps): ReactElement {
                 onOpenChange={setIsMobileSidebarOpen}
                 title="Menu"
             />
-            <div className="mx-auto flex w-full max-w-screen-xl gap-4 px-4 py-4 sm:px-6">
-                <div className="hidden min-h-0 flex-shrink-0 md:block">
+            <div className="mx-auto flex w-full max-w-screen-xl gap-4 px-4 py-4 sm:px-6 2xl:max-w-screen-2xl">
+                <div className="hidden flex-shrink-0 self-start md:block">
                     <Sidebar
                         isCollapsed={isSidebarCollapsed}
                         onNavigate={(): void => {
@@ -627,11 +628,13 @@ export function DashboardLayout(props: IDashboardLayoutProps): ReactElement {
                         title="Menu"
                     />
                 </div>
-                <div className="min-h-0 flex-1 rounded-lg border border-border bg-[color:color-mix(in_oklab,var(--surface)_88%,transparent)] p-4 shadow-sm">
-                    <p className="mb-2 text-xs text-foreground/60">
+                <div className="flex-1 rounded-lg border border-border bg-content-bg p-4 shadow-sm">
+                    <p className="mb-2 text-xs text-text-subtle">
                         Press ? for keyboard shortcuts.
                     </p>
-                    {keyboardShortcuts.conflicts.length === 0 ? null : (
+                    <AnimatedAlert
+                        isVisible={keyboardShortcuts.conflicts.length > 0}
+                    >
                         <Alert
                             color="warning"
                             title="Keyboard shortcut conflicts detected"
@@ -643,38 +646,42 @@ export function DashboardLayout(props: IDashboardLayoutProps): ReactElement {
                                 })
                                 .join(" | ")}
                         </Alert>
-                    )}
-                    {multiTabNotice === undefined ? null : (
+                    </AnimatedAlert>
+                    <AnimatedAlert isVisible={multiTabNotice !== undefined}>
                         <Alert color="primary" title="Multi-tab sync applied" variant="flat">
                             {multiTabNotice}
                         </Alert>
-                    )}
-                    {providerDegradation === undefined ? null : (
-                        <Alert color="danger" title="Provider degradation mode" variant="flat">
-                            {providerDegradation.provider} degraded. Affected:{" "}
-                            {providerDegradation.affectedFeatures.join(", ")}. ETA:{" "}
-                            {providerDegradation.eta}.{" "}
-                            <a
-                                className="underline underline-offset-4"
-                                href={providerDegradation.runbookUrl}
-                                rel="noreferrer"
-                                target="_blank"
-                            >
-                                Open runbook
-                            </a>
-                        </Alert>
-                    )}
-                    {policyDriftNotice === undefined ? null : (
+                    </AnimatedAlert>
+                    <AnimatedAlert isVisible={providerDegradation !== undefined}>
+                        {providerDegradation !== undefined ? (
+                            <Alert color="danger" title="Provider degradation mode" variant="flat">
+                                {providerDegradation.provider} degraded. Affected:{" "}
+                                {providerDegradation.affectedFeatures.join(", ")}. ETA:{" "}
+                                {providerDegradation.eta}.{" "}
+                                <a
+                                    className="underline underline-offset-4"
+                                    href={providerDegradation.runbookUrl}
+                                    rel="noreferrer"
+                                    target="_blank"
+                                >
+                                    Open runbook
+                                </a>
+                            </Alert>
+                        ) : null}
+                    </AnimatedAlert>
+                    <AnimatedAlert isVisible={policyDriftNotice !== undefined}>
                         <Alert color="warning" title="Runtime policy drift detected" variant="flat">
                             {policyDriftNotice}
                         </Alert>
-                    )}
-                    {restoredDraftMessage === undefined ? null : (
+                    </AnimatedAlert>
+                    <AnimatedAlert isVisible={restoredDraftMessage !== undefined}>
                         <Alert color="success" title="Session recovered" variant="flat">
                             {restoredDraftMessage}
                         </Alert>
-                    )}
-                    {props.children}
+                    </AnimatedAlert>
+                    <AnimatedMount motionKey={location.pathname}>
+                        {props.children}
+                    </AnimatedMount>
                 </div>
             </div>
             <Modal
@@ -699,7 +706,7 @@ export function DashboardLayout(props: IDashboardLayoutProps): ReactElement {
                                 setShortcutsHelpQuery(event.currentTarget.value)
                             }}
                         />
-                        <p className="text-xs text-foreground/60">Press ? for help.</p>
+                        <p className="text-xs text-text-subtle">Press ? for help.</p>
                         <ul
                             aria-label="Shortcuts list"
                             className="max-h-72 space-y-2 overflow-y-auto"
@@ -713,7 +720,7 @@ export function DashboardLayout(props: IDashboardLayoutProps): ReactElement {
                                         <span className="text-sm text-foreground">
                                             {shortcut.label}
                                         </span>
-                                        <span className="flex items-center gap-2 text-xs text-foreground/70">
+                                        <span className="flex items-center gap-2 text-xs text-text-secondary">
                                             <span className="rounded border border-border px-2 py-0.5">
                                                 {shortcut.scope}
                                             </span>
@@ -732,11 +739,11 @@ export function DashboardLayout(props: IDashboardLayoutProps): ReactElement {
                 <ModalContent>
                     <ModalHeader>Session expired</ModalHeader>
                     <ModalBody>
-                        <p className="text-sm text-foreground/80">
+                        <p className="text-sm text-text-tertiary">
                             Authentication failed with {sessionFailureCode}. Re-authentication is
                             required to continue safely.
                         </p>
-                        <p className="text-xs text-foreground/70">
+                        <p className="text-xs text-text-secondary">
                             Drafts and pending intent were autosaved and will be restored after
                             successful sign-in.
                         </p>

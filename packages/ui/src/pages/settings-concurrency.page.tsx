@@ -250,7 +250,7 @@ export function SettingsConcurrencyPage(): ReactElement {
     return (
         <section className="space-y-4">
             <h1 className="text-2xl font-semibold text-foreground">Concurrent config resolver</h1>
-            <p className="text-sm text-foreground/70">
+            <p className="text-sm text-text-secondary">
                 Optimistic concurrency flow for admin settings with explicit conflict outcomes.
             </p>
 
@@ -284,7 +284,7 @@ export function SettingsConcurrencyPage(): ReactElement {
                     />
                     <div className="space-y-1">
                         <label
-                            className="text-sm text-foreground/80"
+                            className="text-sm text-text-tertiary"
                             htmlFor="concurrency-severity"
                         >
                             Severity threshold
@@ -366,8 +366,8 @@ export function SettingsConcurrencyPage(): ReactElement {
                                         <p className="font-semibold text-foreground">
                                             {entry.decision} · etag {entry.resultingEtag}
                                         </p>
-                                        <p className="text-foreground/80">{entry.summary}</p>
-                                        <p className="text-xs text-foreground/70">
+                                        <p className="text-text-tertiary">{entry.summary}</p>
+                                        <p className="text-xs text-text-secondary">
                                             {formatTimestamp(entry.occurredAt)}
                                         </p>
                                     </li>
@@ -389,7 +389,7 @@ export function SettingsConcurrencyPage(): ReactElement {
                 <ModalContent>
                     <ModalHeader>Config conflict detected</ModalHeader>
                     <ModalBody>
-                        <p className="text-sm text-foreground/80">
+                        <p className="text-sm text-text-tertiary">
                             Server ETag changed while you were editing. Choose deterministic
                             conflict strategy.
                         </p>

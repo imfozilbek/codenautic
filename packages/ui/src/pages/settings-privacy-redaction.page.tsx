@@ -116,7 +116,7 @@ export function SettingsPrivacyRedactionPage(): ReactElement {
     return (
         <section className="space-y-4">
             <h1 className="text-2xl font-semibold text-foreground">Privacy-safe export</h1>
-            <p className="text-sm text-foreground/70">
+            <p className="text-sm text-text-secondary">
                 Detect and redact secrets/PII before copy, export or share operations.
             </p>
 
@@ -164,13 +164,13 @@ export function SettingsPrivacyRedactionPage(): ReactElement {
                                         key={`${hit.type}-${String(index)}`}
                                     >
                                         <p className="font-semibold text-foreground">{hit.type}</p>
-                                        <p className="text-foreground/70">{hit.value}</p>
+                                        <p className="text-text-secondary">{hit.value}</p>
                                     </li>
                                 ),
                             )}
                         </ul>
                     ) : (
-                        <p className="text-sm text-foreground/70">
+                        <p className="text-sm text-text-secondary">
                             No hits. You can export directly.
                         </p>
                     )}

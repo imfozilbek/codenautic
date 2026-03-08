@@ -256,7 +256,7 @@ export function SettingsBillingPage(): ReactElement {
     return (
         <section className="space-y-4">
             <h1 className="text-2xl font-semibold text-foreground">Billing lifecycle</h1>
-            <p className="text-sm text-foreground/70">
+            <p className="text-sm text-text-secondary">
                 Manage trial/active/past-due/canceled states, feature entitlements, and plan
                 transitions with explicit outcomes.
             </p>
@@ -285,13 +285,13 @@ export function SettingsBillingPage(): ReactElement {
                     </Chip>
                 </CardHeader>
                 <CardBody className="space-y-3">
-                    <p className="text-sm text-foreground/80">
+                    <p className="text-sm text-text-tertiary">
                         Current plan: <strong>{billingSnapshot.plan}</strong>
                     </p>
                     <div className="grid gap-3 md:grid-cols-2">
                         <div className="space-y-1">
                             <label
-                                className="text-sm text-foreground/80"
+                                className="text-sm text-text-tertiary"
                                 htmlFor="billing-plan-select"
                             >
                                 Plan
@@ -319,7 +319,7 @@ export function SettingsBillingPage(): ReactElement {
                         </div>
                         <div className="space-y-1">
                             <label
-                                className="text-sm text-foreground/80"
+                                className="text-sm text-text-tertiary"
                                 htmlFor="billing-status-select"
                             >
                                 Billing status
@@ -389,7 +389,7 @@ export function SettingsBillingPage(): ReactElement {
                                         </Chip>
                                     </div>
                                     {feature.lockReason === undefined ? null : (
-                                        <p className="mt-1 text-xs text-foreground/70">
+                                        <p className="mt-1 text-xs text-text-secondary">
                                             {feature.lockReason}
                                         </p>
                                     )}
@@ -415,8 +415,8 @@ export function SettingsBillingPage(): ReactElement {
                                     <p className="font-semibold text-foreground">
                                         {entry.action} · {entry.actor}
                                     </p>
-                                    <p className="text-foreground/80">{entry.outcome}</p>
-                                    <p className="text-xs text-foreground/70">
+                                    <p className="text-text-tertiary">{entry.outcome}</p>
+                                    <p className="text-xs text-text-secondary">
                                         {formatTimestamp(entry.occurredAt)}
                                     </p>
                                 </li>

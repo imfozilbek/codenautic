@@ -116,7 +116,7 @@ export function ChatThreadList(props: IChatThreadListProps): ReactElement {
                 role="list"
             >
                 {visibleThreads.length === 0 ? (
-                    <li className="text-sm text-foreground/70" role="status">
+                    <li className="text-sm text-text-secondary" role="status">
                         No threads found
                     </li>
                 ) : (
@@ -145,8 +145,8 @@ export function ChatThreadList(props: IChatThreadListProps): ReactElement {
                                         <p className="truncate text-sm font-medium">
                                             {thread.title}
                                         </p>
-                                        <p className="text-xs text-foreground/70">{thread.repo}</p>
-                                        <p className="text-xs text-foreground/70">
+                                        <p className="text-xs text-text-secondary">{thread.repo}</p>
+                                        <p className="text-xs text-text-secondary">
                                             CCR: {thread.ccr}
                                         </p>
                                     </button>

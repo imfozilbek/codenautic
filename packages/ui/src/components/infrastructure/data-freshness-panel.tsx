@@ -145,7 +145,7 @@ export function DataFreshnessPanel(props: IDataFreshnessPanelProps): ReactElemen
                             >
                                 {getFreshnessChipLabel(freshnessState)}
                             </Chip>
-                            <p className="text-xs text-foreground/70">
+                            <p className="text-xs text-text-secondary">
                                 {`Last updated ${formatRelativeTimestamp(props.lastUpdatedAt)} (${formatAbsoluteTimestamp(props.lastUpdatedAt)})`}
                             </p>
                         </div>
@@ -195,21 +195,21 @@ export function DataFreshnessPanel(props: IDataFreshnessPanelProps): ReactElemen
                     </DrawerHeader>
                     <DrawerBody className="space-y-3 px-4 py-3">
                         <dl className="grid grid-cols-[130px_1fr] gap-x-2 gap-y-2 text-sm">
-                            <dt className="text-foreground/60">Source</dt>
+                            <dt className="text-text-subtle">Source</dt>
                             <dd>{props.provenance.source}</dd>
-                            <dt className="text-foreground/60">Job ID</dt>
+                            <dt className="text-text-subtle">Job ID</dt>
                             <dd>{props.provenance.jobId}</dd>
-                            <dt className="text-foreground/60">Repository</dt>
+                            <dt className="text-text-subtle">Repository</dt>
                             <dd>{props.provenance.repository}</dd>
-                            <dt className="text-foreground/60">Branch</dt>
+                            <dt className="text-text-subtle">Branch</dt>
                             <dd>{props.provenance.branch}</dd>
-                            <dt className="text-foreground/60">Commit</dt>
+                            <dt className="text-text-subtle">Commit</dt>
                             <dd>{props.provenance.commit}</dd>
-                            <dt className="text-foreground/60">Data window</dt>
+                            <dt className="text-text-subtle">Data window</dt>
                             <dd>{props.provenance.dataWindow}</dd>
-                            <dt className="text-foreground/60">Partial data</dt>
+                            <dt className="text-text-subtle">Partial data</dt>
                             <dd>{props.provenance.isPartial ? "yes" : "no"}</dd>
-                            <dt className="text-foreground/60">Failure flags</dt>
+                            <dt className="text-text-subtle">Failure flags</dt>
                             <dd>{props.provenance.hasFailures ? "present" : "none"}</dd>
                         </dl>
                         <div className="flex flex-wrap gap-2">

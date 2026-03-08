@@ -152,7 +152,7 @@ export function ReportGeneratorPage(): ReactElement {
     return (
         <section className="space-y-4">
             <h1 className="text-2xl font-semibold text-foreground">Report generator</h1>
-            <p className="text-sm text-foreground/70">
+            <p className="text-sm text-text-secondary">
                 Configure report type, sections, date range and output format before generation.
             </p>
             <div className="flex flex-wrap gap-2">

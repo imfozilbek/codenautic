@@ -130,7 +130,7 @@ export function ReportListPage(): ReactElement {
     return (
         <section className="space-y-4">
             <h1 className="text-2xl font-semibold text-foreground">Report list</h1>
-            <p className="text-sm text-foreground/70">
+            <p className="text-sm text-text-secondary">
                 Browse generated reports, apply filters, and trigger lifecycle actions.
             </p>
             <div className="flex flex-wrap gap-2">

@@ -12,6 +12,7 @@ import {
 } from "recharts"
 
 import { Card, CardBody, CardHeader, Chip } from "@/components/ui"
+import { EmptyState } from "@/components/states/empty-state"
 
 interface IFlowMetricsPoint {
     /** Метка периода. */
@@ -52,34 +53,46 @@ export function FlowMetricsWidget(props: IFlowMetricsWidgetProps): ReactElement 
                 </div>
             </CardHeader>
             <CardBody className="space-y-2">
-                <p className="text-sm text-foreground/70">
+                <p className="text-sm text-text-secondary">
                     Track flow efficiency and delivery capacity dynamics across recent windows.
                 </p>
-                <div className="h-64 w-full">
-                    <ResponsiveContainer height="100%" minHeight={1} minWidth={1} width="100%">
-                        <LineChart data={props.points}>
-                            <CartesianGrid strokeDasharray="3 3" />
-                            <XAxis dataKey="window" />
-                            <YAxis />
-                            <Tooltip />
-                            <Legend />
-                            <Line
-                                dataKey="flowEfficiency"
-                                name="Flow efficiency"
-                                stroke="#2563eb"
-                                strokeWidth={2}
-                                type="monotone"
-                            />
-                            <Line
-                                dataKey="deliveryCapacity"
-                                name="Delivery capacity"
-                                stroke="#059669"
-                                strokeWidth={2}
-                                type="monotone"
-                            />
-                        </LineChart>
-                    </ResponsiveContainer>
-                </div>
+                {props.points.length === 0 ? (
+                    <EmptyState
+                        description="No flow metrics data available for this period."
+                        title="No data"
+                    />
+                ) : (
+                    <div className="h-64 w-full">
+                        <ResponsiveContainer
+                            height="100%"
+                            minHeight={1}
+                            minWidth={1}
+                            width="100%"
+                        >
+                            <LineChart data={props.points}>
+                                <CartesianGrid strokeDasharray="3 3" />
+                                <XAxis dataKey="window" />
+                                <YAxis />
+                                <Tooltip />
+                                <Legend />
+                                <Line
+                                    dataKey="flowEfficiency"
+                                    name="Flow efficiency"
+                                    stroke="var(--chart-primary)"
+                                    strokeWidth={2}
+                                    type="monotone"
+                                />
+                                <Line
+                                    dataKey="deliveryCapacity"
+                                    name="Delivery capacity"
+                                    stroke="var(--chart-secondary)"
+                                    strokeWidth={2}
+                                    type="monotone"
+                                />
+                            </LineChart>
+                        </ResponsiveContainer>
+                    </div>
+                )}
             </CardBody>
         </Card>
     )

@@ -11,19 +11,19 @@ export function DashboardSkeleton(): ReactElement {
     return (
         <div className="space-y-4">
             <div className="flex flex-wrap gap-2">
-                <Skeleton className="h-8 w-24 rounded-lg" />
-                <Skeleton className="h-8 w-40 rounded-lg" />
+                <Skeleton className="shimmer h-8 w-24 rounded-lg" />
+                <Skeleton className="shimmer h-8 w-40 rounded-lg" />
             </div>
             <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
                 {Array.from({ length: 4 }).map(
                     (_, index): ReactElement => (
                         <Card key={`metric-${String(index)}`}>
                             <CardHeader>
-                                <Skeleton className="h-4 w-24" />
+                                <Skeleton className="shimmer h-4 w-24" />
                             </CardHeader>
                             <CardBody>
                                 <Skeleton className="mb-2 h-8 w-20" />
-                                <Skeleton className="h-4 w-32" />
+                                <Skeleton className="shimmer h-4 w-32" />
                                 <Skeleton className="mt-4 h-4 w-16" />
                             </CardBody>
                         </Card>
@@ -33,7 +33,7 @@ export function DashboardSkeleton(): ReactElement {
             <div className="grid gap-4 lg:grid-cols-[2fr_1fr]">
                 <Card>
                     <CardHeader>
-                        <Skeleton className="h-4 w-40" />
+                        <Skeleton className="shimmer h-4 w-40" />
                     </CardHeader>
                     <CardBody className="space-y-2">
                         {Array.from({ length: 4 }).map(
@@ -48,7 +48,7 @@ export function DashboardSkeleton(): ReactElement {
                 </Card>
                 <Card>
                     <CardHeader>
-                        <Skeleton className="h-4 w-32" />
+                        <Skeleton className="shimmer h-4 w-32" />
                     </CardHeader>
                     <CardBody className="space-y-2">
                         {Array.from({ length: 3 }).map(

@@ -627,7 +627,7 @@ export function EnterpriseDataTable<TRow>(props: IEnterpriseDataTableProps<TRow>
                     style={isStickyHeaderEnabled ? { top: stickyHeaderTopOffset } : undefined}
                 >
                     <div
-                        className="grid items-center gap-2 px-2 py-2 text-xs font-semibold uppercase tracking-[0.08em] text-foreground/70"
+                        className="grid items-center gap-2 px-2 py-2 text-xs font-semibold uppercase tracking-[0.08em] text-text-secondary"
                         role="row"
                         style={{ gridTemplateColumns }}
                     >
@@ -658,7 +658,7 @@ export function EnterpriseDataTable<TRow>(props: IEnterpriseDataTableProps<TRow>
                 </div>
 
                 {rowModel.length === 0 ? (
-                    <p className="px-3 py-6 text-sm text-foreground/70">{props.emptyMessage}</p>
+                    <p className="px-3 py-6 text-sm text-text-secondary">{props.emptyMessage}</p>
                 ) : (
                     <div
                         ref={parentRef}

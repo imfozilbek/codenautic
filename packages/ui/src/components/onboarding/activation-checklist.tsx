@@ -223,7 +223,7 @@ export function ActivationChecklist(props: IActivationChecklistProps): ReactElem
                                         <p className="text-sm font-semibold text-foreground">
                                             {step.title}
                                         </p>
-                                        <p className="text-xs text-foreground/70">
+                                        <p className="text-xs text-text-secondary">
                                             {step.description}
                                         </p>
                                     </div>
@@ -237,7 +237,7 @@ export function ActivationChecklist(props: IActivationChecklistProps): ReactElem
                                 </div>
                                 <div className="mt-2 flex flex-wrap gap-2">
                                     <Link
-                                        className="rounded-full border border-border px-3 py-1 text-xs text-foreground/80"
+                                        className="rounded-full border border-border px-3 py-1 text-xs text-text-tertiary"
                                         to={step.path}
                                     >
                                         Open step

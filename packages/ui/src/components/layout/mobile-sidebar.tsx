@@ -27,7 +27,7 @@ export function MobileSidebar(props: IMobileSidebarProps): ReactElement {
         <Drawer isOpen={props.isOpen} onOpenChange={props.onOpenChange}>
             <DrawerContent className="!m-0 !h-full !w-72 !rounded-none bg-surface text-foreground">
                 <DrawerHeader className="border-b border-border px-4 py-3">
-                    <p className="text-xs font-semibold uppercase tracking-[0.2em] text-foreground/60">
+                    <p className="text-xs font-semibold uppercase tracking-[0.2em] text-text-subtle">
                         {props.title ?? "Navigation"}
                     </p>
                 </DrawerHeader>
