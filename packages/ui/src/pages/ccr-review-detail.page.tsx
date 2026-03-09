@@ -1,5 +1,4 @@
 import { useMemo, useRef, useState, type ReactElement } from "react"
-import { Link } from "@tanstack/react-router"
 
 import {
     ChatPanel,
@@ -19,7 +18,7 @@ import {
 } from "@/components/graphs/impact-analysis-panel"
 import { ReviewCommentThread } from "@/components/reviews/review-comment-thread"
 import { CodeDiffViewer } from "@/components/reviews/code-diff-viewer"
-import { Alert, Button, Card, CardBody, CardHeader, Chip } from "@/components/ui"
+import { Alert, Button, Card, CardBody, CardHeader, Chip, StyledLink } from "@/components/ui"
 import { SseStreamViewer } from "@/components/streaming/sse-stream-viewer"
 import type {
     ICcrWorkspaceContextResponse,
@@ -1054,12 +1053,12 @@ export function CcrReviewDetailPage(props: ICcrReviewDetailPageProps): ReactElem
                                     {reviewFinishPolicy.reason ?? "insufficient role permissions"}
                                 </p>
                             ) : (
-                                <Link
-                                    className="text-sm underline underline-offset-4"
+                                <StyledLink
+                                    className="text-sm"
                                     to="/reviews"
                                 >
                                     Finish review
-                                </Link>
+                                </StyledLink>
                             )}
                         </div>
                     </div>

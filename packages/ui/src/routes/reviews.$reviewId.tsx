@@ -1,9 +1,10 @@
 import type { ReactElement } from "react"
 import { Suspense, lazy } from "react"
 
-import { Link, createFileRoute } from "@tanstack/react-router"
+import { createFileRoute } from "@tanstack/react-router"
 
 import { RouteSuspenseFallback } from "@/app/route-suspense-fallback"
+import { StyledLink } from "@/components/ui"
 import { AuthBoundary } from "@/lib/auth/auth-boundary"
 import { DashboardLayout } from "@/components/layout"
 import type {
@@ -70,9 +71,9 @@ function ReviewRouteFallback(): ReactElement {
             <p className="mt-1 text-sm text-danger">
                 Review not found. Open available CCR list to pick active review.
             </p>
-            <Link className="mt-3 inline-block text-sm underline underline-offset-4" to="/reviews">
+            <StyledLink className="mt-3 inline-block text-sm" to="/reviews">
                 Back to reviews
-            </Link>
+            </StyledLink>
         </div>
     )
 }

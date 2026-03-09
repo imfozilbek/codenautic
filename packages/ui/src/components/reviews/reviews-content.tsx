@@ -1,6 +1,6 @@
 import { type ReactElement, useMemo, useState } from "react"
-import { Link } from "@tanstack/react-router"
 
+import { StyledLink } from "@/components/ui"
 import { useDebounce } from "@/lib/hooks/use-debounce"
 import { EnterpriseDataTable } from "@/components/infrastructure/enterprise-data-table"
 import { InfiniteScrollContainer } from "@/components/infrastructure/infinite-scroll-container"
@@ -119,13 +119,13 @@ export function ReviewsContent(props: IReviewsContentProps): ReactElement {
                         {
                             accessor: (row): string => row.id,
                             cell: (row): ReactElement => (
-                                <Link
-                                    className="text-sm font-semibold text-foreground underline underline-offset-4"
+                                <StyledLink
+                                    className="text-sm font-semibold text-foreground"
                                     params={{ reviewId: row.id }}
                                     to="/reviews/$reviewId"
                                 >
                                     {row.id}
-                                </Link>
+                                </StyledLink>
                             ),
                             header: "CCR ID",
                             id: "id",

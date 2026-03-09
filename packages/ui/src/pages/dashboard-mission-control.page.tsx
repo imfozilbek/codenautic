@@ -1,9 +1,12 @@
-import { type ReactElement, Suspense, lazy, useMemo, useState } from "react"
+import { type ReactElement, Suspense, lazy, useEffect, useMemo, useState } from "react"
 
-import { Alert, Button, Card, CardBody, CardHeader } from "@/components/ui"
+import { Alert, Button, Card, CardBody, CardHeader, StyledLink } from "@/components/ui"
 import { ActivationChecklist } from "@/components/onboarding/activation-checklist"
 import { type IProvenanceContext } from "@/components/infrastructure/data-freshness-panel"
 import { DashboardCriticalSignals } from "@/components/dashboard/dashboard-critical-signals"
+import { DashboardHeroMetric } from "@/components/dashboard/dashboard-hero-metric"
+import { DashboardZone } from "@/components/dashboard/dashboard-zone"
+import { resolveDashboardLayoutPreset } from "@/components/dashboard/dashboard-layouts"
 import { FlowMetricsWidget } from "@/components/dashboard/flow-metrics-widget"
 import { TeamActivityWidget } from "@/components/dashboard/team-activity-widget"
 import { ArchitectureHealthWidget } from "@/components/dashboard/architecture-health-widget"
@@ -17,22 +20,12 @@ import {
     type TTeamScope,
 } from "@/components/dashboard/dashboard-scope-filters"
 import { useUiRole } from "@/lib/permissions/ui-policy"
+import { TYPOGRAPHY } from "@/lib/constants/typography"
 import { AnimatedAlert, AnimatedMount } from "@/lib/motion"
-import { Link } from "@tanstack/react-router"
 
 import { DashboardSkeleton } from "@/components/skeletons/dashboard-skeleton"
-import {
-    getDashboardMetrics,
-    getStatusDistribution,
-    getOpsBanner,
-    getTeamActivity,
-    getFlowMetrics,
-    getTokenUsageByModel,
-    getTokenUsageTrend,
-    getArchitectureHealth,
-    WORK_QUEUE_ENTRIES,
-    TIMELINE_ENTRIES,
-} from "./dashboard-mock-data"
+
+type TMockDataModule = typeof import("./dashboard-mock-data")
 
 const DashboardContent = lazy(async () => {
     const module = await import("@/components/dashboard/dashboard-content")
@@ -173,15 +166,50 @@ export function DashboardMissionControlPage(): ReactElement {
     const [isRefreshing, setIsRefreshing] = useState<boolean>(false)
     const [freshnessActionMessage, setFreshnessActionMessage] = useState<string>("")
     const [isPersonalizationOpen, setIsPersonalizationOpen] = useState<boolean>(true)
+    const [mockModule, setMockModule] = useState<TMockDataModule | null>(null)
 
-    const metrics = useMemo(() => getDashboardMetrics(range), [range])
-    const statusDistribution = useMemo(() => getStatusDistribution(range), [range])
-    const opsBanner = useMemo(() => getOpsBanner(range), [range])
-    const teamActivity = useMemo(() => getTeamActivity(range), [range])
-    const flowMetrics = useMemo(() => getFlowMetrics(range), [range])
-    const tokenUsageByModel = useMemo(() => getTokenUsageByModel(range), [range])
-    const tokenUsageTrend = useMemo(() => getTokenUsageTrend(range), [range])
-    const architectureHealth = useMemo(() => getArchitectureHealth(range), [range])
+    useEffect((): void => {
+        void import("./dashboard-mock-data").then(setMockModule)
+    }, [])
+
+    const metrics = useMemo(
+        () => (mockModule !== null ? mockModule.getDashboardMetrics(range) : []),
+        [mockModule, range],
+    )
+    const statusDistribution = useMemo(
+        () => (mockModule !== null ? mockModule.getStatusDistribution(range) : []),
+        [mockModule, range],
+    )
+    const opsBanner = useMemo(
+        () =>
+            mockModule !== null
+                ? mockModule.getOpsBanner(range)
+                : { isDegraded: false, message: "" },
+        [mockModule, range],
+    )
+    const teamActivity = useMemo(
+        () => (mockModule !== null ? mockModule.getTeamActivity(range) : []),
+        [mockModule, range],
+    )
+    const flowMetrics = useMemo(
+        () => (mockModule !== null ? mockModule.getFlowMetrics(range) : []),
+        [mockModule, range],
+    )
+    const tokenUsageByModel = useMemo(
+        () => (mockModule !== null ? mockModule.getTokenUsageByModel(range) : []),
+        [mockModule, range],
+    )
+    const tokenUsageTrend = useMemo(
+        () => (mockModule !== null ? mockModule.getTokenUsageTrend(range) : []),
+        [mockModule, range],
+    )
+    const architectureHealth = useMemo(
+        () =>
+            mockModule !== null
+                ? mockModule.getArchitectureHealth(range)
+                : { dddCompliance: 0, healthScore: 0, layerViolations: 0 },
+        [mockModule, range],
+    )
     const provenance = useMemo(
         (): IProvenanceContext => ({
             branch: "main",
@@ -221,6 +249,15 @@ export function DashboardMissionControlPage(): ReactElement {
         ],
         [opsBanner.isDegraded, range],
     )
+
+    const activePreset = useMemo(
+        () => resolveDashboardLayoutPreset(layoutPreset),
+        [layoutPreset],
+    )
+
+    if (mockModule === null) {
+        return <DashboardSkeleton />
+    }
 
     const handleRefresh = (): void => {
         setIsRefreshing(true)
@@ -274,9 +311,7 @@ export function DashboardMissionControlPage(): ReactElement {
             {/* Header + Scope filters */}
             <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                 <div>
-                    <h1 className="text-2xl font-semibold text-foreground">
-                        Dashboard Mission Control
-                    </h1>
+                    <h1 className={TYPOGRAPHY.pageTitle}>Dashboard Mission Control</h1>
                     <p className="text-sm text-muted-foreground">
                         Scope: {orgScope} / {repositoryScope} / {teamScope}
                     </p>
@@ -295,7 +330,7 @@ export function DashboardMissionControlPage(): ReactElement {
                 </div>
             </div>
 
-            {/* Zone A: Critical signals — ops + freshness + explainability */}
+            {/* Zone A: Critical signals — always visible */}
             <DashboardCriticalSignals
                 confidence="0.82"
                 dataWindow={`mission-control:${range}`}
@@ -316,64 +351,80 @@ export function DashboardMissionControlPage(): ReactElement {
 
             <ActivationChecklist role={checklistRole} />
 
-            {/* Zone B: KPI metrics — animated on range change */}
-            <AnimatedMount motionKey={`metrics-${range}`}>
-                <MetricsGrid metrics={metrics} />
-            </AnimatedMount>
-
-            {/* Zone C: Primary charts — side by side */}
-            <AnimatedMount motionKey={`charts-primary-${range}`}>
-                <div className="grid gap-4 lg:grid-cols-2">
-                    <FlowMetricsWidget
-                        capacityTrendLabel="+6%"
-                        flowTrendLabel="+4%"
-                        points={flowMetrics}
+            {/* Zone A': Hero metric + KPI grid — always visible */}
+            <AnimatedMount motionKey={`hero-metrics-${range}`}>
+                <div className="grid gap-6 lg:grid-cols-[auto_1fr]">
+                    <DashboardHeroMetric
+                        color="var(--primary)"
+                        label="Release health"
+                        subtitle={`${String(architectureHealth.layerViolations)} violations`}
+                        value={architectureHealth.healthScore}
                     />
-                    <TeamActivityWidget points={teamActivity} />
+                    <MetricsGrid metrics={metrics} />
                 </div>
             </AnimatedMount>
 
-            {/* Zone D: Secondary charts — side by side, lighter weight */}
-            <AnimatedMount motionKey={`charts-secondary-${range}`}>
-                <div className="grid gap-4 lg:grid-cols-2">
-                    <TokenUsageDashboardWidget
-                        byModel={tokenUsageByModel}
-                        costTrend={tokenUsageTrend}
-                    />
-                    <ArchitectureHealthWidget
-                        dddCompliance={architectureHealth.dddCompliance}
-                        healthScore={architectureHealth.healthScore}
-                        layerViolations={architectureHealth.layerViolations}
-                    />
-                </div>
-            </AnimatedMount>
+            {/* Zone B: Primary charts — collapsible */}
+            <DashboardZone isVisible={activePreset.showZoneB} title="Primary charts">
+                <AnimatedMount motionKey={`charts-primary-${range}`}>
+                    <div className="grid gap-4 lg:grid-cols-2">
+                        <FlowMetricsWidget
+                            capacityTrendLabel="+6%"
+                            flowTrendLabel="+4%"
+                            points={flowMetrics}
+                        />
+                        <TeamActivityWidget points={teamActivity} />
+                    </div>
+                </AnimatedMount>
+            </DashboardZone>
 
-            {/* Zone E: Work queue + timeline */}
-            <Suspense fallback={<DashboardSkeleton />}>
-                <DashboardContent
-                    statusDistribution={statusDistribution}
-                    timeline={TIMELINE_ENTRIES}
-                    workQueue={WORK_QUEUE_ENTRIES}
-                />
-            </Suspense>
+            {/* Zone C: Operations — work queue + timeline */}
+            <DashboardZone isVisible={activePreset.showZoneC} title="Operations">
+                <Suspense fallback={<DashboardSkeleton />}>
+                    <DashboardContent
+                        statusDistribution={statusDistribution}
+                        timeline={mockModule.TIMELINE_ENTRIES}
+                        workQueue={mockModule.WORK_QUEUE_ENTRIES}
+                    />
+                </Suspense>
+            </DashboardZone>
 
-            {/* Zone F: Explore + Signals — minimal weight */}
-            <div className="grid gap-4 md:grid-cols-2">
-                <div className="space-y-2">
-                    <p className="text-sm font-semibold text-foreground">Explore</p>
-                    <ul className="space-y-1.5">
-                        {renderExploreLinks()}
-                    </ul>
+            {/* Zone D: Analytics — secondary charts */}
+            <DashboardZone isVisible={activePreset.showZoneD} title="Analytics">
+                <AnimatedMount motionKey={`charts-secondary-${range}`}>
+                    <div className="grid gap-4 lg:grid-cols-2">
+                        <TokenUsageDashboardWidget
+                            byModel={tokenUsageByModel}
+                            costTrend={tokenUsageTrend}
+                        />
+                        <ArchitectureHealthWidget
+                            dddCompliance={architectureHealth.dddCompliance}
+                            healthScore={architectureHealth.healthScore}
+                            layerViolations={architectureHealth.layerViolations}
+                        />
+                    </div>
+                </AnimatedMount>
+            </DashboardZone>
+
+            {/* Zone E: Explore + Signals */}
+            <DashboardZone isVisible={activePreset.showZoneE} title="Explore">
+                <div className="grid gap-4 md:grid-cols-2">
+                    <div className="space-y-2">
+                        <p className={TYPOGRAPHY.sectionTitle}>Explore</p>
+                        <ul className="space-y-1.5">
+                            {renderExploreLinks()}
+                        </ul>
+                    </div>
+                    <div className="space-y-2">
+                        <p className={TYPOGRAPHY.sectionTitle}>Signals</p>
+                        <ul className="space-y-1.5 text-sm text-text-secondary">
+                            <li>Signals: drift + architecture health warnings.</li>
+                            <li>Predictions: release risk elevated in team runtime.</li>
+                            <li>Usage: plan for token topup before peak window.</li>
+                        </ul>
+                    </div>
                 </div>
-                <div className="space-y-2">
-                    <p className="text-sm font-semibold text-foreground">Signals</p>
-                    <ul className="space-y-1.5 text-sm text-text-secondary">
-                        <li>Signals: drift + architecture health warnings.</li>
-                        <li>Predictions: release risk elevated in team runtime.</li>
-                        <li>Usage: plan for token topup before peak window.</li>
-                    </ul>
-                </div>
-            </div>
+            </DashboardZone>
 
             {/* Personalization — collapsible */}
             <div>
@@ -504,17 +555,17 @@ function renderExploreLinks(): ReadonlyArray<ReactElement> {
         { to: "/settings-code-review", label: "Code review config" },
         { to: "/settings-llm-providers", label: "LLM provider config" },
         { to: "/settings-git-providers", label: "Git provider config" },
-    ]
+    ] as const
 
     return links.map(
         (link): ReactElement => (
             <li key={link.to}>
-                <Link
-                    className="text-sm text-foreground underline underline-offset-4 transition-colors duration-150 hover:text-primary"
+                <StyledLink
+                    className="text-sm text-foreground transition-colors duration-150 hover:text-primary"
                     to={link.to}
                 >
                     {link.label}
-                </Link>
+                </StyledLink>
             </li>
         ),
     )

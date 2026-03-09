@@ -4,7 +4,6 @@ import {
     Line,
     LineChart,
     ReferenceDot,
-    ResponsiveContainer,
     Tooltip,
     XAxis,
     YAxis,
@@ -16,6 +15,8 @@ import {
     type ICodeCityTreemapImpactedFileDescriptor,
 } from "@/components/graphs/codecity-treemap"
 import { Alert, Button, Card, CardBody, CardHeader, Textarea } from "@/components/ui"
+import { ChartContainer } from "@/components/charts/chart-container"
+import { CHART_GRID_DASH, CHART_STROKE_WIDTH } from "@/lib/constants/chart-constants"
 import { showToastError, showToastInfo, showToastSuccess } from "@/lib/notifications/toast"
 
 type TContractType = "rules-library" | "theme-library"
@@ -1574,45 +1575,43 @@ export function SettingsContractValidationPage(): ReactElement {
                     <p className="text-sm text-text-secondary">
                         Drift score trend over time with architecture change annotations.
                     </p>
-                    <div aria-label="Drift score trend chart" className="h-72 w-full">
-                        <ResponsiveContainer height="100%" minHeight={1} minWidth={1} width="100%">
-                            <LineChart
-                                data={DRIFT_TREND_POINTS}
-                                margin={{ bottom: 8, left: 8, right: 12, top: 12 }}
-                            >
-                                <CartesianGrid strokeDasharray="3 3" />
-                                <XAxis dataKey="period" />
-                                <YAxis domain={[0, 100]} />
-                                <Tooltip />
-                                <Line
-                                    activeDot={{ r: 6 }}
-                                    dataKey="driftScore"
-                                    dot={{
-                                        fill: "#2563eb",
-                                        r: 3,
-                                        stroke: "#ffffff",
-                                        strokeWidth: 1,
-                                    }}
-                                    stroke="#2563eb"
-                                    strokeWidth={2.5}
-                                    type="monotone"
-                                />
-                                {driftTrendAnnotations.map(
-                                    (point): ReactElement => (
-                                        <ReferenceDot
-                                            fill="#dc2626"
-                                            key={`${point.period}-annotation`}
-                                            r={5}
-                                            stroke="#ffffff"
-                                            strokeWidth={1}
-                                            x={point.period}
-                                            y={point.driftScore}
-                                        />
-                                    ),
-                                )}
-                            </LineChart>
-                        </ResponsiveContainer>
-                    </div>
+                    <ChartContainer aria-label="Drift score trend chart" height="xl">
+                        <LineChart
+                            data={DRIFT_TREND_POINTS}
+                            margin={{ bottom: 8, left: 8, right: 12, top: 12 }}
+                        >
+                            <CartesianGrid strokeDasharray={CHART_GRID_DASH} />
+                            <XAxis dataKey="period" />
+                            <YAxis domain={[0, 100]} />
+                            <Tooltip />
+                            <Line
+                                activeDot={{ r: 6 }}
+                                dataKey="driftScore"
+                                dot={{
+                                    fill: "var(--chart-primary)",
+                                    r: 3,
+                                    stroke: "var(--background)",
+                                    strokeWidth: 1,
+                                }}
+                                stroke="var(--chart-primary)"
+                                strokeWidth={CHART_STROKE_WIDTH}
+                                type="monotone"
+                            />
+                            {driftTrendAnnotations.map(
+                                (point): ReactElement => (
+                                    <ReferenceDot
+                                        fill="var(--chart-danger)"
+                                        key={`${point.period}-annotation`}
+                                        r={5}
+                                        stroke="var(--background)"
+                                        strokeWidth={1}
+                                        x={point.period}
+                                        y={point.driftScore}
+                                    />
+                                ),
+                            )}
+                        </LineChart>
+                    </ChartContainer>
                     <Alert color="primary" title="Trend summary" variant="flat">
                         {driftTrendSummary}
                     </Alert>

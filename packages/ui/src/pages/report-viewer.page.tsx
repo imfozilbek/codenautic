@@ -7,7 +7,6 @@ import {
     Cell,
     Line,
     LineChart,
-    ResponsiveContainer,
     Tooltip,
     XAxis,
     YAxis,
@@ -15,6 +14,8 @@ import {
 
 import { AiSummaryWidget } from "@/components/reports/ai-summary-widget"
 import { Alert, Button, Card, CardBody, CardHeader } from "@/components/ui"
+import { ChartContainer } from "@/components/charts/chart-container"
+import { CHART_GRID_DASH, CHART_STROKE_WIDTH } from "@/lib/constants/chart-constants"
 import { showToastInfo, showToastSuccess } from "@/lib/notifications/toast"
 
 type TViewerMetric = "riskScore" | "deliveryVelocity"
@@ -179,56 +180,52 @@ export function ReportViewerPage(): ReactElement {
                             </Button>
                         </div>
                     </div>
-                    <div aria-label="Report trend chart" className="h-72 w-full">
-                        <ResponsiveContainer height="100%" minHeight={1} minWidth={1} width="100%">
-                            <LineChart
-                                data={REPORT_TREND_POINTS}
-                                margin={{ bottom: 8, left: 8, right: 12, top: 12 }}
-                            >
-                                <CartesianGrid strokeDasharray="3 3" />
-                                <XAxis dataKey="period" />
-                                <YAxis domain={[0, 100]} />
-                                <Tooltip />
-                                <Line
-                                    activeDot={{ r: 6 }}
-                                    dataKey={selectedMetric}
-                                    dot={{
-                                        fill: "#2563eb",
-                                        r: 3,
-                                        stroke: "#ffffff",
-                                        strokeWidth: 1,
-                                    }}
-                                    name={metricLabel}
-                                    stroke="#2563eb"
-                                    strokeWidth={2.5}
+                    <ChartContainer aria-label="Report trend chart" height="xl">
+                        <LineChart
+                            data={REPORT_TREND_POINTS}
+                            margin={{ bottom: 8, left: 8, right: 12, top: 12 }}
+                        >
+                            <CartesianGrid strokeDasharray={CHART_GRID_DASH} />
+                            <XAxis dataKey="period" />
+                            <YAxis domain={[0, 100]} />
+                            <Tooltip />
+                            <Line
+                                activeDot={{ r: 6 }}
+                                dataKey={selectedMetric}
+                                dot={{
+                                    fill: "var(--chart-primary)",
+                                    r: 3,
+                                    stroke: "var(--background)",
+                                    strokeWidth: 1,
+                                }}
+                                name={metricLabel}
+                                stroke="var(--chart-primary)"
+                                strokeWidth={CHART_STROKE_WIDTH}
                                     type="monotone"
                                 />
                             </LineChart>
-                        </ResponsiveContainer>
-                    </div>
-                    <div aria-label="Report sections distribution chart" className="h-72 w-full">
-                        <ResponsiveContainer height="100%" minHeight={1} minWidth={1} width="100%">
-                            <BarChart
-                                data={SECTION_DISTRIBUTION_POINTS}
-                                margin={{ bottom: 8, left: 8, right: 12, top: 12 }}
-                            >
-                                <CartesianGrid strokeDasharray="3 3" />
-                                <XAxis dataKey="section" />
-                                <YAxis domain={[0, 40]} />
-                                <Tooltip />
-                                <Bar dataKey="value" name="Section contribution">
-                                    {SECTION_DISTRIBUTION_POINTS.map(
-                                        (entry, index): ReactElement => (
-                                            <Cell
-                                                fill={SECTION_COLORS[index % SECTION_COLORS.length]}
-                                                key={`${entry.section}-${String(index)}`}
-                                            />
-                                        ),
-                                    )}
-                                </Bar>
-                            </BarChart>
-                        </ResponsiveContainer>
-                    </div>
+                    </ChartContainer>
+                    <ChartContainer aria-label="Report sections distribution chart" height="xl">
+                        <BarChart
+                            data={SECTION_DISTRIBUTION_POINTS}
+                            margin={{ bottom: 8, left: 8, right: 12, top: 12 }}
+                        >
+                            <CartesianGrid strokeDasharray={CHART_GRID_DASH} />
+                            <XAxis dataKey="section" />
+                            <YAxis domain={[0, 40]} />
+                            <Tooltip />
+                            <Bar dataKey="value" name="Section contribution">
+                                {SECTION_DISTRIBUTION_POINTS.map(
+                                    (entry, index): ReactElement => (
+                                        <Cell
+                                            fill={SECTION_COLORS[index % SECTION_COLORS.length]}
+                                            key={`${entry.section}-${String(index)}`}
+                                        />
+                                    ),
+                                )}
+                            </Bar>
+                        </BarChart>
+                    </ChartContainer>
                     <Alert color="primary" title="Download status" variant="flat">
                         {downloadStatus}
                     </Alert>

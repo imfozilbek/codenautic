@@ -1,6 +1,7 @@
 import { type ChangeEvent, type DragEvent, type ReactElement, useMemo, useState } from "react"
 
 import { Alert, Button, Card, CardBody, CardHeader } from "@/components/ui"
+import { REPORT_DEFAULT_ACCENT_COLOR } from "@/lib/constants/graph-colors"
 import { showToastInfo, showToastSuccess } from "@/lib/notifications/toast"
 
 interface ITemplateSection {
@@ -62,7 +63,7 @@ export function ReportTemplateEditor(): ReactElement {
     const [brandLogoUrl, setBrandLogoUrl] = useState<string>(
         "https://assets.codenautic.app/logo.svg",
     )
-    const [brandAccentColor, setBrandAccentColor] = useState<string>("#2563eb")
+    const [brandAccentColor, setBrandAccentColor] = useState<string>(REPORT_DEFAULT_ACCENT_COLOR)
     const [sections, setSections] =
         useState<ReadonlyArray<ITemplateSection>>(DEFAULT_TEMPLATE_SECTIONS)
     const [draggedSectionId, setDraggedSectionId] = useState<string | undefined>()

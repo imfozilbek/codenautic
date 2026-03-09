@@ -1,7 +1,14 @@
 import type { ReactElement } from "react"
 
-import { Table, TableBody, TableCell, TableColumn, TableHeader, TableRow } from "@/components/ui"
-import { Link } from "@tanstack/react-router"
+import {
+    StyledLink,
+    Table,
+    TableBody,
+    TableCell,
+    TableColumn,
+    TableHeader,
+    TableRow,
+} from "@/components/ui"
 import { ReviewStatusBadge, type TReviewStatus } from "./review-status-badge"
 
 /**
@@ -52,13 +59,13 @@ export function ReviewsTable(props: IReviewsTableProps): ReactElement {
                     (row): ReactElement => (
                         <TableRow key={row.id}>
                             <TableCell>
-                                <Link
-                                    className="text-sm font-semibold text-foreground underline underline-offset-4"
+                                <StyledLink
+                                    className="text-sm font-semibold text-foreground"
                                     params={{ reviewId: row.id }}
                                     to="/reviews/$reviewId"
                                 >
                                     {row.id}
-                                </Link>
+                                </StyledLink>
                             </TableCell>
                             <TableCell>{row.title}</TableCell>
                             <TableCell>{row.repository}</TableCell>

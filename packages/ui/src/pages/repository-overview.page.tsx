@@ -1,7 +1,5 @@
 import { type ChangeEvent, type ReactElement, useEffect, useState } from "react"
 
-import { Link } from "@tanstack/react-router"
-
 import {
     FileDependencyGraph,
     type IFileDependencyNode,
@@ -18,7 +16,7 @@ import {
     type IPackageDependencyNode,
     type IPackageDependencyRelation,
 } from "@/components/graphs/package-dependency-graph"
-import { Alert, Button, Card, CardBody, CardHeader, Chip } from "@/components/ui"
+import { Alert, Button, Card, CardBody, CardHeader, Chip, StyledLink } from "@/components/ui"
 import { type IMetricGridMetric, MetricsGrid } from "@/components/dashboard/metrics-grid"
 
 type TRepositoryRisk = "critical" | "high" | "low"
@@ -1789,9 +1787,9 @@ function RepositoryOverviewNotFound(props: { repositoryId: string }): ReactEleme
                 Не найдено overview для ID:{" "}
                 <span className="font-semibold">{props.repositoryId}</span>.
             </p>
-            <Link className="text-sm underline underline-offset-4" to="/repositories">
+            <StyledLink className="text-sm" to="/repositories">
                 К списку репозиториев
-            </Link>
+            </StyledLink>
         </section>
     )
 }

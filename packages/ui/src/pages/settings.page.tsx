@@ -1,8 +1,6 @@
 import { type ReactElement } from "react"
 
-import { Link } from "@tanstack/react-router"
-
-import { Card, CardBody, CardHeader } from "@/components/ui"
+import { Card, CardBody, CardHeader, StyledLink } from "@/components/ui"
 import { ActivationChecklist } from "@/components/onboarding/activation-checklist"
 import { useUiRole } from "@/lib/permissions/ui-policy"
 
@@ -36,180 +34,180 @@ export function SettingsPage(): ReactElement {
                     </p>
                     <ul className="space-y-1">
                         <li>
-                            <Link
-                                className="font-medium text-foreground underline underline-offset-4"
+                            <StyledLink
+                                className="font-medium text-foreground"
                                 to="/settings-code-review"
                             >
                                 Code Review configuration
-                            </Link>
+                            </StyledLink>
                         </li>
                         <li>
-                            <Link
-                                className="font-medium text-foreground underline underline-offset-4"
+                            <StyledLink
+                                className="font-medium text-foreground"
                                 to="/settings-appearance"
                             >
                                 Appearance settings
-                            </Link>
+                            </StyledLink>
                         </li>
                         <li>
-                            <Link
-                                className="font-medium text-foreground underline underline-offset-4"
+                            <StyledLink
+                                className="font-medium text-foreground"
                                 to="/settings-notifications"
                             >
                                 Notification center
-                            </Link>
+                            </StyledLink>
                         </li>
                         <li>
-                            <Link
-                                className="font-medium text-foreground underline underline-offset-4"
+                            <StyledLink
+                                className="font-medium text-foreground"
                                 to="/settings-llm-providers"
                             >
                                 LLM providers
-                            </Link>
+                            </StyledLink>
                         </li>
                         <li>
-                            <Link
-                                className="font-medium text-foreground underline underline-offset-4"
+                            <StyledLink
+                                className="font-medium text-foreground"
                                 to="/settings-git-providers"
                             >
                                 Git providers
-                            </Link>
+                            </StyledLink>
                         </li>
                         <li>
-                            <Link
-                                className="font-medium text-foreground underline underline-offset-4"
+                            <StyledLink
+                                className="font-medium text-foreground"
                                 to="/settings-integrations"
                             >
                                 Integrations
-                            </Link>
+                            </StyledLink>
                         </li>
                         <li>
-                            <Link
-                                className="font-medium text-foreground underline underline-offset-4"
+                            <StyledLink
+                                className="font-medium text-foreground"
                                 to="/settings-webhooks"
                             >
                                 Webhook management
-                            </Link>
+                            </StyledLink>
                         </li>
                         <li>
-                            <Link
-                                className="font-medium text-foreground underline underline-offset-4"
+                            <StyledLink
+                                className="font-medium text-foreground"
                                 to="/settings-token-usage"
                             >
                                 Token usage
-                            </Link>
+                            </StyledLink>
                         </li>
                         <li>
-                            <Link
-                                className="font-medium text-foreground underline underline-offset-4"
+                            <StyledLink
+                                className="font-medium text-foreground"
                                 to="/settings-adoption-analytics"
                             >
                                 Usage & adoption analytics
-                            </Link>
+                            </StyledLink>
                         </li>
                         <li>
-                            <Link
-                                className="font-medium text-foreground underline underline-offset-4"
+                            <StyledLink
+                                className="font-medium text-foreground"
                                 to="/settings-organization"
                             >
                                 Organization settings
-                            </Link>
+                            </StyledLink>
                         </li>
                         <li>
-                            <Link
-                                className="font-medium text-foreground underline underline-offset-4"
+                            <StyledLink
+                                className="font-medium text-foreground"
                                 to="/settings-contract-validation"
                             >
                                 Import/export contract validation
-                            </Link>
+                            </StyledLink>
                         </li>
                         <li>
-                            <Link
-                                className="font-medium text-foreground underline underline-offset-4"
+                            <StyledLink
+                                className="font-medium text-foreground"
                                 to="/settings-privacy-redaction"
                             >
                                 Privacy-safe export
-                            </Link>
+                            </StyledLink>
                         </li>
                         <li>
-                            <Link
-                                className="font-medium text-foreground underline underline-offset-4"
+                            <StyledLink
+                                className="font-medium text-foreground"
                                 to="/settings-provider-degradation"
                             >
                                 Provider degradation mode
-                            </Link>
+                            </StyledLink>
                         </li>
                         <li>
-                            <Link
-                                className="font-medium text-foreground underline underline-offset-4"
+                            <StyledLink
+                                className="font-medium text-foreground"
                                 to="/settings-concurrency"
                             >
                                 Concurrent config resolver
-                            </Link>
+                            </StyledLink>
                         </li>
                         <li>
-                            <Link
-                                className="font-medium text-foreground underline underline-offset-4"
+                            <StyledLink
+                                className="font-medium text-foreground"
                                 to="/settings-jobs"
                             >
                                 Operations jobs monitor
-                            </Link>
+                            </StyledLink>
                         </li>
                         <li>
-                            <Link
-                                className="font-medium text-foreground underline underline-offset-4"
+                            <StyledLink
+                                className="font-medium text-foreground"
                                 to="/settings-billing"
                             >
                                 Billing lifecycle
-                            </Link>
+                            </StyledLink>
                         </li>
                         <li>
-                            <Link
-                                className="font-medium text-foreground underline underline-offset-4"
+                            <StyledLink
+                                className="font-medium text-foreground"
                                 to="/settings-team"
                             >
                                 Team management
-                            </Link>
+                            </StyledLink>
                         </li>
                         <li>
-                            <Link
-                                className="font-medium text-foreground underline underline-offset-4"
+                            <StyledLink
+                                className="font-medium text-foreground"
                                 to="/settings-rules-library"
                             >
                                 Rules library
-                            </Link>
+                            </StyledLink>
                         </li>
                         <li>
-                            <Link
-                                className="font-medium text-foreground underline underline-offset-4"
+                            <StyledLink
+                                className="font-medium text-foreground"
                                 to="/settings-audit-logs"
                             >
                                 Audit logs
-                            </Link>
+                            </StyledLink>
                         </li>
                         <li>
-                            <Link
-                                className="font-medium text-foreground underline underline-offset-4"
+                            <StyledLink
+                                className="font-medium text-foreground"
                                 to="/settings-sso"
                             >
                                 SSO provider management
-                            </Link>
+                            </StyledLink>
                         </li>
                         <li>
-                            <Link
-                                className="font-medium text-foreground underline underline-offset-4"
+                            <StyledLink
+                                className="font-medium text-foreground"
                                 to="/settings-byok"
                             >
                                 BYOK management
-                            </Link>
+                            </StyledLink>
                         </li>
                         <li>
-                            <Link
-                                className="font-medium text-foreground underline underline-offset-4"
+                            <StyledLink
+                                className="font-medium text-foreground"
                                 to="/onboarding"
                             >
                                 Start repository onboarding
-                            </Link>
+                            </StyledLink>
                         </li>
                     </ul>
                 </CardBody>

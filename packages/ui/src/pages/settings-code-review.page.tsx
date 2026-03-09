@@ -1,6 +1,9 @@
 import { type ChangeEvent, type FormEvent, type ReactElement, useEffect, useState } from "react"
 
 import { Button } from "@/components/ui"
+import { FormLayout } from "@/components/forms/form-layout"
+import { FormSection } from "@/components/forms/form-section"
+import { FormGroup } from "@/components/forms/form-group"
 import { CCRSummaryPreview } from "@/components/settings/ccr-summary-preview"
 import { CodeReviewForm } from "@/components/settings/code-review-form"
 import { ConfigurationEditor } from "@/components/settings/configuration-editor"
@@ -336,12 +339,10 @@ export function SettingsCodeReviewPage(): ReactElement {
     }
 
     return (
-        <section className="space-y-4">
-            <h1 className="text-2xl font-semibold text-foreground">Code Review Configuration</h1>
-            <p className="text-sm text-muted-foreground">
-                Configure repository YAML, cadence, severity threshold and ignore paths for
-                automated review.
-            </p>
+        <FormLayout
+            description="Configure repository YAML, cadence, severity threshold and ignore paths for automated review."
+            title="Code Review Configuration"
+        >
             <ConfigurationEditor
                 configYaml={configYaml}
                 hasLoadError={repoConfig.repoConfigQuery.error !== null}
@@ -368,91 +369,97 @@ export function SettingsCodeReviewPage(): ReactElement {
                 onApply={handleCadenceSave}
                 onModeChange={handleCadenceModeChange}
             />
-            <section className="space-y-3 rounded-xl border border-border bg-surface p-4">
-                <h2 className="text-base font-semibold text-foreground">CCR summary settings</h2>
-                <p className="text-sm text-muted-foreground">
-                    Configure how CCR summary cards are generated and what sections they include.
-                </p>
-                <label className="flex items-center gap-2 text-sm text-foreground">
-                    <input
-                        checked={ccrSummarySettings.enabled}
-                        type="checkbox"
-                        onChange={(event): void => {
-                            setCcrSummarySettings(
-                                (prev): ICcrSummarySettings => ({
-                                    ...prev,
-                                    enabled: event.currentTarget.checked,
-                                }),
-                            )
-                        }}
-                    />
-                    Enable CCR summary generation
-                </label>
-                <label className="flex items-center gap-2 text-sm text-foreground">
-                    <input
-                        checked={ccrSummarySettings.includeRiskOverview}
-                        type="checkbox"
-                        onChange={(event): void => {
-                            setCcrSummarySettings(
-                                (prev): ICcrSummarySettings => ({
-                                    ...prev,
-                                    includeRiskOverview: event.currentTarget.checked,
-                                }),
-                            )
-                        }}
-                    />
-                    Include risk overview section
-                </label>
-                <label className="flex items-center gap-2 text-sm text-foreground">
-                    <input
-                        checked={ccrSummarySettings.includeTimeline}
-                        type="checkbox"
-                        onChange={(event): void => {
-                            setCcrSummarySettings(
-                                (prev): ICcrSummarySettings => ({
-                                    ...prev,
-                                    includeTimeline: event.currentTarget.checked,
-                                }),
-                            )
-                        }}
-                    />
-                    Include timeline highlights
-                </label>
-                <label
-                    className="space-y-1 text-sm text-foreground"
-                    htmlFor="ccr-summary-detail-level"
-                >
-                    <span className="block font-medium text-foreground">Summary detail level</span>
-                    <select
-                        id="ccr-summary-detail-level"
-                        className="w-full rounded-md border border-border px-3 py-2"
-                        value={ccrSummarySettings.detailLevel}
-                        onChange={(event): void => {
-                            const nextLevel = event.currentTarget.value as TCcrSummaryDetailLevel
-                            setCcrSummarySettings(
-                                (prev): ICcrSummarySettings => ({
-                                    ...prev,
-                                    detailLevel: nextLevel,
-                                }),
-                            )
-                        }}
+            <FormSection
+                description="Configure how CCR summary cards are generated and what sections they include."
+                heading="CCR summary settings"
+            >
+                <FormGroup withDivider>
+                    <label className="flex items-center gap-2 text-sm text-foreground">
+                        <input
+                            checked={ccrSummarySettings.enabled}
+                            type="checkbox"
+                            onChange={(event): void => {
+                                setCcrSummarySettings(
+                                    (prev): ICcrSummarySettings => ({
+                                        ...prev,
+                                        enabled: event.currentTarget.checked,
+                                    }),
+                                )
+                            }}
+                        />
+                        Enable CCR summary generation
+                    </label>
+                    <label className="flex items-center gap-2 text-sm text-foreground">
+                        <input
+                            checked={ccrSummarySettings.includeRiskOverview}
+                            type="checkbox"
+                            onChange={(event): void => {
+                                setCcrSummarySettings(
+                                    (prev): ICcrSummarySettings => ({
+                                        ...prev,
+                                        includeRiskOverview: event.currentTarget.checked,
+                                    }),
+                                )
+                            }}
+                        />
+                        Include risk overview section
+                    </label>
+                    <label className="flex items-center gap-2 text-sm text-foreground">
+                        <input
+                            checked={ccrSummarySettings.includeTimeline}
+                            type="checkbox"
+                            onChange={(event): void => {
+                                setCcrSummarySettings(
+                                    (prev): ICcrSummarySettings => ({
+                                        ...prev,
+                                        includeTimeline: event.currentTarget.checked,
+                                    }),
+                                )
+                            }}
+                        />
+                        Include timeline highlights
+                    </label>
+                </FormGroup>
+                <FormGroup>
+                    <label
+                        className="space-y-1 text-sm text-foreground"
+                        htmlFor="ccr-summary-detail-level"
                     >
-                        <option value={CCR_SUMMARY_DETAIL_LEVEL.concise}>Concise</option>
-                        <option value={CCR_SUMMARY_DETAIL_LEVEL.standard}>Standard</option>
-                        <option value={CCR_SUMMARY_DETAIL_LEVEL.deep}>Deep</option>
-                    </select>
-                </label>
-                <SuggestionLimitConfig
-                    value={ccrSummarySettings.maxSuggestions}
-                    onChange={(nextValue): void => {
-                        setCcrSummarySettings(
-                            (prev): ICcrSummarySettings => ({
-                                ...prev,
-                                maxSuggestions: nextValue,
-                            }),
-                        )
-                    }}
-                />
+                        <span className="block font-medium text-foreground">
+                            Summary detail level
+                        </span>
+                        <select
+                            id="ccr-summary-detail-level"
+                            className="w-full rounded-md border border-border px-3 py-2"
+                            value={ccrSummarySettings.detailLevel}
+                            onChange={(event): void => {
+                                const nextLevel =
+                                    event.currentTarget.value as TCcrSummaryDetailLevel
+                                setCcrSummarySettings(
+                                    (prev): ICcrSummarySettings => ({
+                                        ...prev,
+                                        detailLevel: nextLevel,
+                                    }),
+                                )
+                            }}
+                        >
+                            <option value={CCR_SUMMARY_DETAIL_LEVEL.concise}>Concise</option>
+                            <option value={CCR_SUMMARY_DETAIL_LEVEL.standard}>Standard</option>
+                            <option value={CCR_SUMMARY_DETAIL_LEVEL.deep}>Deep</option>
+                        </select>
+                    </label>
+                    <SuggestionLimitConfig
+                        value={ccrSummarySettings.maxSuggestions}
+                        onChange={(nextValue): void => {
+                            setCcrSummarySettings(
+                                (prev): ICcrSummarySettings => ({
+                                    ...prev,
+                                    maxSuggestions: nextValue,
+                                }),
+                            )
+                        }}
+                    />
+                </FormGroup>
                 <p className="text-xs text-muted-foreground" data-testid="ccr-summary-state">
                     {ccrSummaryState}
                 </p>
@@ -510,93 +517,98 @@ export function SettingsCodeReviewPage(): ReactElement {
                         )
                     })()
                 )}
-            </section>
-            <section className="space-y-3 rounded-xl border border-border bg-surface p-4">
-                <h2 className="text-base font-semibold text-foreground">IDE sync settings</h2>
-                <p className="text-sm text-muted-foreground">
-                    Configure how CCR decisions and code insights are synced to IDE plugins.
-                </p>
-                <label className="flex items-center gap-2 text-sm text-foreground">
-                    <input
-                        checked={ideSyncSettings.enabled}
-                        type="checkbox"
-                        onChange={(event): void => {
-                            setIdeSyncSettings(
-                                (prev): IIdeSyncSettings => ({
-                                    ...prev,
-                                    enabled: event.currentTarget.checked,
-                                }),
-                            )
-                        }}
-                    />
-                    Enable IDE plugin sync
-                </label>
-                <label className="space-y-1 text-sm text-foreground" htmlFor="ide-sync-provider">
-                    <span className="block font-medium text-foreground">IDE provider scope</span>
-                    <select
-                        id="ide-sync-provider"
-                        className="w-full rounded-md border border-border px-3 py-2"
-                        value={ideSyncSettings.provider}
-                        onChange={(event): void => {
-                            const nextProvider = event.currentTarget.value as TIdeSyncProvider
-                            setIdeSyncSettings(
-                                (prev): IIdeSyncSettings => ({
-                                    ...prev,
-                                    provider: nextProvider,
-                                }),
-                            )
-                        }}
+            </FormSection>
+            <FormSection
+                description="Configure how CCR decisions and code insights are synced to IDE plugins."
+                heading="IDE sync settings"
+            >
+                <FormGroup withDivider>
+                    <label className="flex items-center gap-2 text-sm text-foreground">
+                        <input
+                            checked={ideSyncSettings.enabled}
+                            type="checkbox"
+                            onChange={(event): void => {
+                                setIdeSyncSettings(
+                                    (prev): IIdeSyncSettings => ({
+                                        ...prev,
+                                        enabled: event.currentTarget.checked,
+                                    }),
+                                )
+                            }}
+                        />
+                        Enable IDE plugin sync
+                    </label>
+                    <label
+                        className="space-y-1 text-sm text-foreground"
+                        htmlFor="ide-sync-provider"
                     >
-                        <option value={IDE_SYNC_PROVIDER.vscode}>VS Code</option>
-                        <option value={IDE_SYNC_PROVIDER.jetbrains}>JetBrains</option>
-                        <option value={IDE_SYNC_PROVIDER.both}>Both</option>
-                    </select>
-                </label>
-                <label className="flex items-center gap-2 text-sm text-foreground">
-                    <input
-                        checked={ideSyncSettings.syncOnPush}
-                        type="checkbox"
-                        onChange={(event): void => {
-                            setIdeSyncSettings(
-                                (prev): IIdeSyncSettings => ({
-                                    ...prev,
-                                    syncOnPush: event.currentTarget.checked,
-                                }),
-                            )
-                        }}
-                    />
-                    Sync decisions on every push
-                </label>
-                <label className="flex items-center gap-2 text-sm text-foreground">
-                    <input
-                        checked={ideSyncSettings.autoOpenDiffOnSync}
-                        type="checkbox"
-                        onChange={(event): void => {
-                            setIdeSyncSettings(
-                                (prev): IIdeSyncSettings => ({
-                                    ...prev,
-                                    autoOpenDiffOnSync: event.currentTarget.checked,
-                                }),
-                            )
-                        }}
-                    />
-                    Auto-open affected diffs after sync
-                </label>
+                        <span className="block font-medium text-foreground">
+                            IDE provider scope
+                        </span>
+                        <select
+                            id="ide-sync-provider"
+                            className="w-full rounded-md border border-border px-3 py-2"
+                            value={ideSyncSettings.provider}
+                            onChange={(event): void => {
+                                const nextProvider =
+                                    event.currentTarget.value as TIdeSyncProvider
+                                setIdeSyncSettings(
+                                    (prev): IIdeSyncSettings => ({
+                                        ...prev,
+                                        provider: nextProvider,
+                                    }),
+                                )
+                            }}
+                        >
+                            <option value={IDE_SYNC_PROVIDER.vscode}>VS Code</option>
+                            <option value={IDE_SYNC_PROVIDER.jetbrains}>JetBrains</option>
+                            <option value={IDE_SYNC_PROVIDER.both}>Both</option>
+                        </select>
+                    </label>
+                </FormGroup>
+                <FormGroup>
+                    <label className="flex items-center gap-2 text-sm text-foreground">
+                        <input
+                            checked={ideSyncSettings.syncOnPush}
+                            type="checkbox"
+                            onChange={(event): void => {
+                                setIdeSyncSettings(
+                                    (prev): IIdeSyncSettings => ({
+                                        ...prev,
+                                        syncOnPush: event.currentTarget.checked,
+                                    }),
+                                )
+                            }}
+                        />
+                        Sync decisions on every push
+                    </label>
+                    <label className="flex items-center gap-2 text-sm text-foreground">
+                        <input
+                            checked={ideSyncSettings.autoOpenDiffOnSync}
+                            type="checkbox"
+                            onChange={(event): void => {
+                                setIdeSyncSettings(
+                                    (prev): IIdeSyncSettings => ({
+                                        ...prev,
+                                        autoOpenDiffOnSync: event.currentTarget.checked,
+                                    }),
+                                )
+                            }}
+                        />
+                        Auto-open affected diffs after sync
+                    </label>
+                </FormGroup>
                 <p className="text-xs text-muted-foreground" data-testid="ide-sync-state">
                     {ideSyncState}
                 </p>
                 <Button type="button" variant="solid" onPress={handleIdeSyncSave}>
                     Save IDE sync settings
                 </Button>
-            </section>
-            <section className="space-y-3 rounded-xl border border-border bg-surface p-4">
-                <h2 className="text-base font-semibold text-foreground">
-                    MCP server control panel
-                </h2>
-                <p className="text-sm text-muted-foreground">
-                    Review MCP tool usage and runtime quality to spot unstable tools before they
-                    impact CCR generation.
-                </p>
+            </FormSection>
+            <FormSection
+                description="Review MCP tool usage and runtime quality to spot unstable tools before they impact CCR generation."
+                heading="MCP server control panel"
+            >
                 <div className="grid gap-3 sm:grid-cols-3">
                     <article className="rounded-md border border-border bg-surface p-3">
                         <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
@@ -633,7 +645,7 @@ export function SettingsCodeReviewPage(): ReactElement {
                     </article>
                 </div>
                 <MCPToolList items={DEFAULT_MCP_TOOL_USAGE_STATS} />
-            </section>
+            </FormSection>
             <DryRunResultViewer
                 isRunning={dryRun.runDryRun.isPending}
                 result={dryRunResult}
@@ -660,6 +672,6 @@ export function SettingsCodeReviewPage(): ReactElement {
                     Reset ignore paths
                 </Button>
             </form>
-        </section>
+        </FormLayout>
     )
 }
