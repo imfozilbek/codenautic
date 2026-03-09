@@ -10,6 +10,19 @@ export {
     type IAstLanguageDetectionService,
 } from "./ast-language-detection.service"
 export {
+    AST_CODE_GRAPH_BUILDER_ERROR_CODE,
+    AstCodeGraphBuilderError,
+    type AstCodeGraphBuilderErrorCode,
+    type IAstCodeGraphBuilderErrorDetails,
+} from "./ast-code-graph-builder.error"
+export {
+    AstCodeGraphBuilder,
+    type IAstCodeGraphBuilder,
+    type IAstCodeGraphBuilderBuildInput,
+    type IAstCodeGraphBuilderOptions,
+    type IAstCodeGraphBuildResult,
+} from "./ast-code-graph.builder"
+export {
     assertJavaScriptParserLanguage,
     JavaScriptSourceCodeParser,
     type IJavaScriptSourceCodeParserOptions,
