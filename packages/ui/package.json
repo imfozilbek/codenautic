@@ -18,7 +18,7 @@
         "perf:check": "bun run build:analyze && bun ./scripts/check-performance-budgets.mjs",
         "preview": "vite preview",
         "storybook": "bun ./scripts/run-storybook.mjs",
-        "test": "vitest run",
+        "test": "vitest run --no-file-parallelism",
         "typecheck": "tsc --noEmit"
     },
     "dependencies": {
