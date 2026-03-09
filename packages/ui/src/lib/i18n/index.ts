@@ -1,6 +1,6 @@
 /**
  * Internationalization utilities: locale resolution, i18n initialization,
- * and localized date/number formatting.
+ * localized date/number formatting, locale hook, and type definitions.
  */
 export {
     SUPPORTED_LOCALES,
@@ -13,3 +13,5 @@ export {
     formatLocalizedDateTime,
     formatLocalizedNumber,
 } from "./i18n"
+export { I18N_RESOURCES, I18N_NAMESPACES } from "./i18n-resources"
+export { type IUseLocaleReturn, useLocale, syncHtmlLangAttribute } from "./use-locale"

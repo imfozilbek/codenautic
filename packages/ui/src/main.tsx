@@ -4,6 +4,7 @@ import { createRoot } from "react-dom/client"
 import { App } from "@/app/app"
 import "@/app/globals.css"
 import { initializeI18n } from "@/lib/i18n/i18n"
+import { syncHtmlLangAttribute } from "@/lib/i18n/use-locale"
 import { initializeTheme } from "@/lib/theme/theme-provider"
 import { initializeSentryBrowser } from "@/lib/monitoring/sentry"
 import { initializeWebVitalsMonitoring } from "@/lib/monitoring/web-vitals"
@@ -13,7 +14,9 @@ const isSentryInitialized = initializeSentryBrowser(import.meta.env)
 void initializeWebVitalsMonitoring({
     enabled: isSentryInitialized,
 })
-void initializeI18n()
+void initializeI18n().then((): void => {
+    syncHtmlLangAttribute()
+})
 
 const rootElement = document.getElementById("root")
 if (rootElement === null) {
