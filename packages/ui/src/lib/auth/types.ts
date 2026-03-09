@@ -26,8 +26,6 @@ export interface IAuthUser {
  */
 export interface IAuthSession {
     readonly provider: TOAuthProvider
-    readonly accessToken?: string
-    readonly refreshToken?: string
     readonly expiresAt: string
     readonly user: IAuthUser
 }
