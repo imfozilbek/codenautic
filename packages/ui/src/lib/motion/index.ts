@@ -15,3 +15,5 @@ export {
     type IAnimatedAlertProps,
     type IAnimatedMountProps,
 } from "./animated-presence"
+export { useCountUp, type IUseCountUpOptions } from "./use-count-up"
+export { CHART_DATA_TRANSITION, CHART_DATA_TRANSITION_NONE } from "./data-transition"
