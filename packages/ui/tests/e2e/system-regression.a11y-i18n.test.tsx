@@ -20,7 +20,7 @@ describe("system e2e regression suite: a11y + i18n", (): void => {
 
         renderWithProviders(<DashboardMissionControlPage />)
         expect(
-            screen.getByRole("heading", { level: 1, name: "Dashboard Mission Control" }),
+            await screen.findByRole("heading", { level: 1, name: "Dashboard Mission Control" }),
         ).not.toBeNull()
         await user.tab()
         expect(document.activeElement).not.toBe(document.body)

@@ -14,7 +14,7 @@ describe("DashboardMissionControlPage", (): void => {
         const user = userEvent.setup()
         renderWithProviders(<DashboardMissionControlPage />)
 
-        expect(screen.getByText("Dashboard Mission Control")).not.toBeNull()
+        expect(await screen.findByText("Dashboard Mission Control")).not.toBeNull()
         expect(screen.getByText("Dashboard data freshness")).not.toBeNull()
         expect(screen.getByText("Explainability for release risk")).not.toBeNull()
         expect(screen.getByText("Flow metrics")).not.toBeNull()
@@ -51,7 +51,7 @@ describe("DashboardMissionControlPage", (): void => {
         const user = userEvent.setup()
         renderWithProviders(<DashboardMissionControlPage />)
 
-        await user.click(screen.getByRole("button", { name: "Why this score?" }))
+        await user.click(await screen.findByRole("button", { name: "Why this score?" }))
         expect(await screen.findByText("Explainability")).not.toBeNull()
         await user.click(screen.getByRole("button", { name: "Export explanation snippet" }))
         expect(await screen.findByLabelText("Explainability export snippet")).not.toBeNull()
@@ -61,7 +61,7 @@ describe("DashboardMissionControlPage", (): void => {
         const user = userEvent.setup()
         renderWithProviders(<DashboardMissionControlPage />)
 
-        await user.click(screen.getByRole("button", { name: "Refresh" }))
+        await user.click(await screen.findByRole("button", { name: "Refresh" }))
         expect(screen.getByText("Dashboard refresh requested.")).not.toBeNull()
 
         await user.click(screen.getByRole("button", { name: "Rescan" }))
@@ -72,7 +72,10 @@ describe("DashboardMissionControlPage", (): void => {
         const user = userEvent.setup()
         renderWithProviders(<DashboardMissionControlPage />)
 
-        await user.selectOptions(screen.getByRole("combobox", { name: "Layout preset" }), "ops")
+        await user.selectOptions(
+            await screen.findByRole("combobox", { name: "Layout preset" }),
+            "ops",
+        )
         await user.click(screen.getByRole("checkbox", { name: "Pin /issues" }))
         await user.click(screen.getByRole("button", { name: "Save personalization" }))
 
