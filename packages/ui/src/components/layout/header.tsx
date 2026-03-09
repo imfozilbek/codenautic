@@ -6,16 +6,10 @@ import {
     ChevronDown,
     ChevronRight,
     Menu,
-    Rocket,
     Search,
 } from "@/components/icons/app-icons"
-import {
-    Button,
-    Dropdown,
-    DropdownItem,
-    DropdownMenu,
-    DropdownTrigger,
-} from "@/components/ui"
+import { TYPOGRAPHY } from "@/lib/constants/typography"
+import { Button, Dropdown, DropdownItem, DropdownMenu, DropdownTrigger } from "@/components/ui"
 import { OPEN_COMMAND_PALETTE_EVENT } from "@/lib/keyboard/shortcut-registry"
 import type { IBreadcrumbSegment } from "@/lib/navigation/route-guard-map"
 
@@ -70,9 +64,8 @@ export interface IHeaderProps {
 }
 
 /**
- * Application header with 3-zone layout: brand, breadcrumbs, and controls.
- * Search is unified through Command Palette (Ctrl+K).
- * Workspace switching uses HeroUI Dropdown instead of native select.
+ * @deprecated Use ContentToolbar + SidebarFooter instead.
+ * Kept for backward compatibility during migration.
  *
  * @param props Header configuration.
  * @returns Sticky navbar with breadcrumbs, workspace switcher, and user controls.
@@ -81,8 +74,7 @@ export function Header(props: IHeaderProps): ReactElement {
     const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false)
     const commandPaletteInvokerRef = useRef<HTMLElement | null>(null)
 
-    const hasNotifications =
-        props.notificationCount !== undefined && props.notificationCount > 0
+    const hasNotifications = props.notificationCount !== undefined && props.notificationCount > 0
 
     const activeOrganization = props.organizations?.find(
         (organization): boolean => organization.id === props.activeOrganizationId,
@@ -151,78 +143,60 @@ export function Header(props: IHeaderProps): ReactElement {
             : undefined
 
     return (
-        <header className="sticky top-0 z-40 border-b border-border bg-header-bg backdrop-blur">
+        <header className="sticky top-2 z-40 mx-2 rounded-lg bg-sidebar-bg shadow-sm backdrop-blur sm:mx-3">
             <div className="mx-auto flex h-16 items-center gap-3 px-4">
                 {/* Zone 1: Brand */}
-                <div className="flex shrink-0 items-center gap-2">
-                    <div className="md:hidden">
-                        <Button
-                            isIconOnly
-                            radius="full"
-                            variant="light"
-                            aria-label="Open navigation menu"
-                            onPress={props.onMobileMenuOpen}
-                        >
-                            <Menu size={20} />
-                        </Button>
-                    </div>
-                    <div className="flex items-center gap-2">
-                        <Rocket
-                            aria-hidden="true"
-                            className="text-primary"
-                            size={20}
-                        />
-                        <p className="hidden font-display text-sm font-semibold tracking-tight text-foreground sm:block">
-                            CodeNautic
-                        </p>
-                    </div>
+                <div className="flex shrink-0 items-center gap-2 md:hidden">
+                    <Button
+                        isIconOnly
+                        radius="full"
+                        variant="light"
+                        aria-label="Open navigation menu"
+                        onPress={props.onMobileMenuOpen}
+                    >
+                        <Menu size={20} />
+                    </Button>
                 </div>
 
                 {/* Zone 2: Breadcrumbs */}
                 {props.breadcrumbs !== undefined && props.breadcrumbs.length > 0 ? (
-                    <nav
-                        aria-label="Breadcrumb"
-                        className="hidden min-w-0 flex-1 md:flex"
-                    >
+                    <nav aria-label="Breadcrumb" className="hidden min-w-0 flex-1 md:flex">
                         <ol className="flex items-center gap-1.5 text-sm">
-                            {props.breadcrumbs.map(
-                                (segment, index): ReactElement => {
-                                    const isLast =
-                                        index === (props.breadcrumbs?.length ?? 0) - 1
+                            {props.breadcrumbs.map((segment, index): ReactElement => {
+                                const isLast = index === (props.breadcrumbs?.length ?? 0) - 1
 
-                                    return (
-                                        <li
-                                            key={`${segment.label}-${String(index)}`}
-                                            className="flex items-center gap-1.5"
-                                        >
-                                            {index > 0 ? (
-                                                <ChevronRight
-                                                    aria-hidden="true"
-                                                    className="text-text-subtle"
-                                                    size={14}
-                                                />
-                                            ) : null}
-                                            {segment.path !== undefined && !isLast ? (
-                                                <button
-                                                    className="text-text-secondary transition-colors duration-150 hover:text-foreground"
-                                                    type="button"
-                                                    onClick={(): void => {
-                                                        props.onBreadcrumbNavigate?.(
-                                                            segment.path as string,
-                                                        )
-                                                    }}
-                                                >
-                                                    {segment.label}
-                                                </button>
-                                            ) : (
-                                                <span className="font-medium text-foreground">
-                                                    {segment.label}
-                                                </span>
-                                            )}
-                                        </li>
-                                    )
-                                },
-                            )}
+                                return (
+                                    <li
+                                        key={`${segment.label}-${String(index)}`}
+                                        className="flex items-center gap-1.5"
+                                    >
+                                        {index > 0 ? (
+                                            <ChevronRight
+                                                aria-hidden="true"
+                                                className="text-text-subtle"
+                                                size={14}
+                                            />
+                                        ) : null}
+                                        {segment.path !== undefined && !isLast ? (
+                                            <button
+                                                className="text-text-secondary transition-colors duration-150 hover:text-foreground"
+                                                type="button"
+                                                onClick={(): void => {
+                                                    props.onBreadcrumbNavigate?.(
+                                                        segment.path as string,
+                                                    )
+                                                }}
+                                            >
+                                                {segment.label}
+                                            </button>
+                                        ) : (
+                                            <span className="font-medium text-foreground">
+                                                {segment.label}
+                                            </span>
+                                        )}
+                                    </li>
+                                )
+                            })}
                         </ol>
                     </nav>
                 ) : (
@@ -241,7 +215,9 @@ export function Header(props: IHeaderProps): ReactElement {
                         onPress={openCommandPalette}
                     >
                         <Search size={15} />
-                        <kbd className="pointer-events-none rounded border border-border bg-surface px-1.5 py-0.5 text-[11px] font-medium text-text-subtle">
+                        <kbd
+                            className={`pointer-events-none rounded border border-border bg-surface px-1.5 py-0.5 ${TYPOGRAPHY.microHint} font-medium`}
+                        >
                             ⌘K
                         </kbd>
                     </Button>
@@ -297,10 +273,7 @@ export function Header(props: IHeaderProps): ReactElement {
                     ) : null}
 
                     {/* Divider between actions and controls */}
-                    <div
-                        aria-hidden="true"
-                        className="mx-1 hidden h-5 w-px bg-border sm:block"
-                    />
+                    <div aria-hidden="true" className="mx-1 hidden h-5 w-px bg-border sm:block" />
 
                     {/* Notification bell */}
                     <Button
@@ -339,9 +312,7 @@ export function Header(props: IHeaderProps): ReactElement {
             {/* Mobile breadcrumb (last segment only) */}
             {lastBreadcrumb !== undefined ? (
                 <div className="border-t border-border px-4 py-2 md:hidden">
-                    <p className="text-sm text-text-secondary">
-                        {lastBreadcrumb.label}
-                    </p>
+                    <p className="text-sm text-text-secondary">{lastBreadcrumb.label}</p>
                 </div>
             ) : null}
 
