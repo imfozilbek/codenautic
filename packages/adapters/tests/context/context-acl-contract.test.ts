@@ -33,6 +33,7 @@ describe("Context ACL contract", () => {
             key: "PRJ-101",
             summary: "Fix auth bug",
             status: "In Progress",
+            sprint: "Sprint 42",
         })
     })
 
@@ -56,6 +57,7 @@ describe("Context ACL contract", () => {
             key: "99",
             summary: "(no summary)",
             status: "unknown",
+            sprint: "Sprint Board",
         })
     })
 
@@ -136,6 +138,7 @@ describe("Context ACL contract", () => {
             key: "PRJ-200",
             summary: "Align ACL",
             status: "Open",
+            sprint: "Sprint Direct",
         })
         expect((context.data as {sprint?: string}).sprint).toBe("Sprint Direct")
     })
@@ -256,11 +259,276 @@ describe("Context ACL contract", () => {
                     key: "PRJ-9",
                     summary: "Investigate",
                     status: "Todo",
+                    sprint: "Board Sprint",
                 },
                 sprint: "Board Sprint",
             },
             fetchedAt: new Date(0),
         })
+    })
+
+    test("maps Jira description and acceptance criteria from Atlassian document fields", () => {
+        const ticket = mapExternalJiraTicket({
+            key: "PRJ-303",
+            fields: {
+                summary: "Normalize Jira rich text",
+                status: {
+                    name: "Todo",
+                },
+                sprint: {
+                    name: "Sprint Rich Text",
+                },
+                description: {
+                    type: "doc",
+                    content: [
+                        {
+                            type: "paragraph",
+                            content: [
+                                {
+                                    type: "text",
+                                    text: "Review adapter should expose normalized context.",
+                                },
+                            ],
+                        },
+                        {
+                            type: "heading",
+                            content: [
+                                {
+                                    type: "text",
+                                    text: "Acceptance Criteria",
+                                },
+                            ],
+                        },
+                        {
+                            type: "bulletList",
+                            content: [
+                                {
+                                    type: "listItem",
+                                    content: [
+                                        {
+                                            type: "paragraph",
+                                            content: [
+                                                {
+                                                    type: "text",
+                                                    text: "Map description to plain text",
+                                                },
+                                            ],
+                                        },
+                                    ],
+                                },
+                                {
+                                    type: "listItem",
+                                    content: [
+                                        {
+                                            type: "paragraph",
+                                            content: [
+                                                {
+                                                    type: "text",
+                                                    text: "Preserve sprint metadata",
+                                                },
+                                            ],
+                                        },
+                                    ],
+                                },
+                            ],
+                        },
+                    ],
+                },
+            },
+        })
+
+        expect(ticket).toEqual({
+            key: "PRJ-303",
+            summary: "Normalize Jira rich text",
+            status: "Todo",
+            description:
+                "Review adapter should expose normalized context.\n"
+                + "Acceptance Criteria\nMap description to plain text\nPreserve sprint metadata",
+            acceptanceCriteria: [
+                "Map description to plain text",
+                "Preserve sprint metadata",
+            ],
+            sprint: "Sprint Rich Text",
+        })
+    })
+
+    test("prefers explicit Jira acceptance criteria field over description section", () => {
+        const context = mapJiraContext({
+            key: "PRJ-404",
+            fields: {
+                summary: "Support explicit checklist field",
+                status: {
+                    name: "Ready",
+                },
+                acceptanceCriteria: [
+                    "Use explicit field",
+                    "Ignore duplicate values",
+                    "Use explicit field",
+                ],
+                description: "Acceptance Criteria:\n- Fallback should not win",
+            },
+        })
+
+        expect(context).toEqual({
+            source: "JIRA",
+            data: {
+                ticket: {
+                    key: "PRJ-404",
+                    summary: "Support explicit checklist field",
+                    status: "Ready",
+                    description: "Acceptance Criteria:\n- Fallback should not win",
+                    acceptanceCriteria: [
+                        "Use explicit field",
+                        "Ignore duplicate values",
+                    ],
+                },
+                acceptanceCriteria: [
+                    "Use explicit field",
+                    "Ignore duplicate values",
+                ],
+            },
+            fetchedAt: new Date(0),
+        })
+    })
+
+    test("keeps Jira description without inferring acceptance criteria when heading is absent", () => {
+        const ticket = mapExternalJiraTicket({
+            key: "PRJ-405",
+            fields: {
+                summary: "Plain description",
+                status: {
+                    name: "Open",
+                },
+                description: "<p>Rendered HTML description</p>",
+                acceptanceCriteria: 42,
+            },
+        })
+
+        expect(ticket).toEqual({
+            key: "PRJ-405",
+            summary: "Plain description",
+            status: "Open",
+            description: "Rendered HTML description",
+        })
+    })
+
+    test("parses inline Jira acceptance criteria from description heading", () => {
+        const ticket = mapExternalJiraTicket({
+            key: "PRJ-406",
+            fields: {
+                summary: "Inline criteria",
+                status: {
+                    name: "Ready",
+                },
+                description: "Acceptance Criteria: - First item\n- Second item",
+            },
+        })
+
+        expect(ticket.acceptanceCriteria).toEqual([
+            "First item",
+            "Second item",
+        ])
+    })
+
+    test("parses array-based Jira description and task-item checklist payload", () => {
+        const ticket = mapExternalJiraTicket({
+            key: "PRJ-407",
+            fields: {
+                summary: "Array description",
+                status: {
+                    name: "Open",
+                },
+                description: [
+                    {
+                        type: "paragraph",
+                        content: [
+                            {
+                                type: "text",
+                                text: "Array part",
+                            },
+                        ],
+                    },
+                    "Tail text",
+                ],
+                acceptanceCriteria: {
+                    type: "taskItem",
+                    content: [
+                        {
+                            type: "paragraph",
+                            content: [
+                                {
+                                    type: "text",
+                                    text: "Line one",
+                                },
+                                {
+                                    type: "hardBreak",
+                                },
+                                {
+                                    type: "text",
+                                    text: "Line two",
+                                },
+                            ],
+                        },
+                    ],
+                },
+            },
+        })
+
+        expect(ticket).toEqual({
+            key: "PRJ-407",
+            summary: "Array description",
+            status: "Open",
+            description: "Array part\nTail text",
+            acceptanceCriteria: [
+                "Line one\nLine two",
+            ],
+        })
+    })
+
+    test("parses nested Jira acceptance criteria values from generic content nodes", () => {
+        const ticket = mapExternalJiraTicket({
+            key: "PRJ-408",
+            fields: {
+                summary: "Nested criteria",
+                status: {
+                    name: "Open",
+                },
+                acceptanceCriteria: [
+                    {
+                        content: [
+                            {
+                                value: "Nested criteria item",
+                            },
+                        ],
+                    },
+                    {
+                        value: "Direct value item",
+                    },
+                ],
+            },
+        })
+
+        expect(ticket.acceptanceCriteria).toEqual([
+            "Nested criteria item",
+            "Direct value item",
+        ])
+    })
+
+    test("stops description-based Jira acceptance criteria parsing on empty bullet marker", () => {
+        const ticket = mapExternalJiraTicket({
+            key: "PRJ-409",
+            fields: {
+                summary: "Stop criteria section",
+                status: {
+                    name: "Open",
+                },
+                description: "Acceptance Criteria\n- First item\n-\n- Ignored item",
+            },
+        })
+
+        expect(ticket.acceptanceCriteria).toEqual([
+            "First item",
+        ])
     })
 
     test("builds normalized Linear context with parsed fetchedAt", () => {
@@ -349,7 +617,6 @@ describe("Context ACL contract", () => {
         })
 
         expect(Object.keys(jira.data as Record<string, unknown>).sort()).toEqual([
-            "sprint",
             "ticket",
         ])
         expect(Object.keys(linear.data as Record<string, unknown>).sort()).toEqual([

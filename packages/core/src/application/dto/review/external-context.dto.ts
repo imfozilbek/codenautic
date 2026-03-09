@@ -33,9 +33,35 @@ export interface IExternalContext {
  * External issue model for Jira platform.
  */
 export interface IJiraTicket {
+    /**
+     * Jira issue key.
+     */
     readonly key: string
+
+    /**
+     * Human-readable issue summary.
+     */
     readonly summary: string
+
+    /**
+     * Current workflow status.
+     */
     readonly status: string
+
+    /**
+     * Optional normalized issue description.
+     */
+    readonly description?: string
+
+    /**
+     * Optional normalized acceptance-criteria checklist.
+     */
+    readonly acceptanceCriteria?: readonly string[]
+
+    /**
+     * Optional active sprint name.
+     */
+    readonly sprint?: string
 }
 
 /**

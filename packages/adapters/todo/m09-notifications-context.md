@@ -27,7 +27,7 @@
 
 | ID | Задача | Статус | Результат | Acceptance Criteria |
 |----------|--------------------|--------|-----------|---------------------|
-| CTX-001 | Реализовать JiraProvider | TODO | Не начато | Реализация: Интеграция через REST API. Ticket description, acceptance criteria, sprint context. Готово, если: Jira ACL маппит поля issue/sprint/acceptance criteria в доменные DTO без потери обязательных данных, покрыты сценарии pagination/rate-limit/permission denied; DoD: `cd packages/adapters && bun run lint && bun run typecheck && bun test`. |
+| CTX-001 | Реализовать JiraProvider | DONE | Реализовано | Реализация: Интеграция через REST API. Ticket description, acceptance criteria, sprint context. Готово, если: Jira ACL маппит поля issue/sprint/acceptance criteria в доменные DTO без потери обязательных данных, покрыты сценарии pagination/rate-limit/permission denied; DoD: `cd packages/adapters && bun run lint && bun run typecheck && bun test`. |
 | CTX-002 | Реализовать LinearProvider | TODO | Не начато | Реализация: Интеграция через GraphQL. Issue description, sub-issues, project context. Готово, если: Linear ACL корректно обрабатывает GraphQL ошибки и partial data, маппинг статусов/приоритетов в доменные поля детерминирован и протестирован; DoD: `cd packages/adapters && bun run lint && bun run typecheck && bun test`. |
 | CTX-003 | Реализовать SentryProvider | TODO | Не начато | Реализация: Интеграция через REST API. Stack traces, error frequency, affected users. Готово, если: Sentry ACL нормализует stack trace/error frequency/affected users в единый доменный формат, обработаны 404/429/5xx и pagination; DoD: `cd packages/adapters && bun run lint && bun run typecheck && bun test`. |
 
