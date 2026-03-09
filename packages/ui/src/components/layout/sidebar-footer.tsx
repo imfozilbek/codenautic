@@ -1,9 +1,10 @@
 import { type ReactElement } from "react"
+import { useTranslation } from "react-i18next"
 
 import { Building2, ChevronDown } from "@/components/icons/app-icons"
+import { LocaleSwitcher } from "@/components/layout/locale-switcher"
 import {
     Avatar,
-    Button,
     Dropdown,
     DropdownItem,
     DropdownMenu,
@@ -47,13 +48,14 @@ export interface ISidebarFooterProps {
 }
 
 /**
- * Sidebar footer with workspace switcher and user avatar.
+ * Sidebar footer with workspace switcher, locale toggle, and user avatar.
  * Renders compact (icon-only) or expanded depending on sidebar state.
  *
  * @param props Footer configuration.
  * @returns Sidebar footer element.
  */
 export function SidebarFooter(props: ISidebarFooterProps): ReactElement {
+    const { t } = useTranslation(["navigation"])
     const isCollapsed = props.isCollapsed === true
 
     const activeOrganization = props.organizations?.find(
@@ -65,6 +67,9 @@ export function SidebarFooter(props: ISidebarFooterProps): ReactElement {
         props.userName !== undefined
             ? props.userName.slice(0, 2).toUpperCase()
             : "CN"
+
+    const defaultName = t("navigation:userMenu.defaultName")
+    const defaultEmail = t("navigation:userMenu.defaultEmail")
 
     return (
         <div className="mt-auto border-t border-border pt-2">
@@ -86,7 +91,7 @@ export function SidebarFooter(props: ISidebarFooterProps): ReactElement {
                                 <>
                                     <span className="truncate text-sm text-foreground">
                                         {activeOrganization?.label ??
-                                            "Workspace"}
+                                            t("navigation:userMenu.workspace")}
                                     </span>
                                     <ChevronDown
                                         aria-hidden="true"
@@ -98,7 +103,7 @@ export function SidebarFooter(props: ISidebarFooterProps): ReactElement {
                         </span>
                     </DropdownTrigger>
                     <DropdownMenu
-                        aria-label="Workspace switcher"
+                        aria-label={t("navigation:userMenu.workspace")}
                         selectedKeys={
                             props.activeOrganizationId !== undefined
                                 ? new Set([props.activeOrganizationId])
@@ -123,6 +128,11 @@ export function SidebarFooter(props: ISidebarFooterProps): ReactElement {
                 </Dropdown>
             ) : null}
 
+            {/* Locale switcher */}
+            <div className={`px-2 py-1 ${isCollapsed ? "flex justify-center" : ""}`}>
+                <LocaleSwitcher />
+            </div>
+
             {/* User avatar + menu */}
             <Dropdown>
                 <DropdownTrigger
@@ -133,23 +143,23 @@ export function SidebarFooter(props: ISidebarFooterProps): ReactElement {
                     <span className="inline-flex items-center gap-2 truncate">
                         <Avatar
                             className="shrink-0"
-                            label={props.userName ?? "User"}
+                            label={props.userName ?? defaultName}
                             size="sm"
                         />
                         {isCollapsed ? null : (
                             <span className="truncate text-sm text-foreground">
-                                {props.userName ?? "User"}
+                                {props.userName ?? defaultName}
                             </span>
                         )}
                         <span className="sr-only">{initials}</span>
                     </span>
                 </DropdownTrigger>
-                <DropdownMenu aria-label="User menu">
+                <DropdownMenu aria-label={t("navigation:userMenu.defaultName")}>
                     <DropdownItem key="name">
-                        {props.userName ?? "User"}
+                        {props.userName ?? defaultName}
                     </DropdownItem>
                     <DropdownItem key="email">
-                        {props.userEmail ?? "user@example.com"}
+                        {props.userEmail ?? defaultEmail}
                     </DropdownItem>
                     <DropdownItem
                         key="settings"
@@ -157,7 +167,7 @@ export function SidebarFooter(props: ISidebarFooterProps): ReactElement {
                             props.onOpenSettings?.()
                         }}
                     >
-                        Open settings
+                        {t("navigation:userMenu.openSettings")}
                     </DropdownItem>
                     <DropdownItem
                         key="billing"
@@ -165,7 +175,7 @@ export function SidebarFooter(props: ISidebarFooterProps): ReactElement {
                             props.onOpenBilling?.()
                         }}
                     >
-                        Open billing
+                        {t("navigation:userMenu.openBilling")}
                     </DropdownItem>
                     <DropdownItem
                         key="help"
@@ -173,7 +183,7 @@ export function SidebarFooter(props: ISidebarFooterProps): ReactElement {
                             props.onOpenHelp?.()
                         }}
                     >
-                        Help & diagnostics
+                        {t("navigation:userMenu.helpDiagnostics")}
                     </DropdownItem>
                     {props.onSignOut === undefined ? null : (
                         <DropdownItem
@@ -188,7 +198,7 @@ export function SidebarFooter(props: ISidebarFooterProps): ReactElement {
                                 void signOut()
                             }}
                         >
-                            Sign out
+                            {t("navigation:userMenu.signOut")}
                         </DropdownItem>
                     )}
                 </DropdownMenu>

@@ -1,10 +1,12 @@
 import { type ReactElement, type ReactNode, useCallback, useEffect, useMemo, useRef, useState } from "react"
+import { useTranslation } from "react-i18next"
 import { useLocation, useNavigate } from "@tanstack/react-router"
 
 import {
     getBreadcrumbsWithPaths,
     isRouteAccessible,
     searchAccessibleRoutes,
+    translateRouteLabelKey,
 } from "@/lib/navigation/route-guard-map"
 import { useOrganizationSwitcher } from "@/lib/hooks/use-organization-switcher"
 import { useSessionRecovery } from "@/lib/hooks/use-session-recovery"
@@ -56,6 +58,7 @@ export function DashboardLayout(props: IDashboardLayoutProps): ReactElement {
     const navigate = useNavigate()
     const location = useLocation()
 
+    const { t } = useTranslation(["navigation"])
     const orgSwitcher = useOrganizationSwitcher()
     const sessionRecovery = useSessionRecovery()
     const policyDrift = usePolicyDrift()
@@ -76,17 +79,17 @@ export function DashboardLayout(props: IDashboardLayoutProps): ReactElement {
     )
 
     const breadcrumbs = useMemo(
-        () => getBreadcrumbsWithPaths(location.pathname),
-        [location.pathname],
+        () => getBreadcrumbsWithPaths(location.pathname, t),
+        [location.pathname, t],
     )
 
     const commandPaletteRoutes = useMemo(
         () =>
             searchAccessibleRoutes("", routeGuardContext).map((route) => ({
-                label: route.label,
+                label: translateRouteLabelKey(route.labelKey, t),
                 path: route.path,
             })),
-        [routeGuardContext],
+        [routeGuardContext, t],
     )
 
     useEffect((): void => {

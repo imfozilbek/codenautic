@@ -1,5 +1,8 @@
 import type { ReactElement } from "react"
+import type { TFunction } from "i18next"
+import { useTranslation } from "react-i18next"
 import { useLocation, useNavigate } from "@tanstack/react-router"
+
 import {
     Bug,
     Building2,
@@ -41,63 +44,73 @@ export interface ISidebarNavProps {
     readonly isCollapsed?: boolean
 }
 
-const DEFAULT_SIDEBAR_ITEMS: readonly ISidebarItem[] = [
-    {
-        icon: <House aria-hidden="true" size={16} />,
-        label: "Dashboard",
-        to: "/",
-    },
-    {
-        icon: <Building2 aria-hidden="true" size={16} />,
-        label: "CodeCity",
-        to: "/dashboard/code-city",
-    },
-    {
-        icon: <Inbox aria-hidden="true" size={16} />,
-        label: "My Work",
-        to: "/my-work",
-    },
-    {
-        icon: <GitPullRequest aria-hidden="true" size={16} />,
-        label: "CCR Management",
-        to: "/reviews",
-    },
-    {
-        icon: <Bug aria-hidden="true" size={16} />,
-        label: "Issues",
-        to: "/issues",
-    },
-    {
-        icon: <Rocket aria-hidden="true" size={16} />,
-        label: "Onboarding",
-        to: "/onboarding",
-    },
-    {
-        icon: <ChartNoAxesColumn aria-hidden="true" size={16} />,
-        label: "Scan Progress",
-        to: "/scan-progress",
-    },
-    {
-        icon: <FolderKanban aria-hidden="true" size={16} />,
-        label: "Repositories",
-        to: "/repositories",
-    },
-    {
-        icon: <ChartPie aria-hidden="true" size={16} />,
-        label: "Reports",
-        to: "/reports",
-    },
-    {
-        icon: <Settings aria-hidden="true" size={16} />,
-        label: "Settings",
-        to: "/settings",
-    },
-    {
-        icon: <LifeBuoy aria-hidden="true" size={16} />,
-        label: "Help",
-        to: "/help-diagnostics",
-    },
-] as const
+/**
+ * Создаёт список навигационных элементов sidebar с переведёнными метками.
+ *
+ * @param t Функция перевода из react-i18next.
+ * @returns Массив элементов навигации.
+ */
+function createDefaultSidebarItems(
+    t: TFunction<ReadonlyArray<"navigation">>,
+): ReadonlyArray<ISidebarItem> {
+    return [
+        {
+            icon: <House aria-hidden="true" size={16} />,
+            label: t("navigation:sidebar.dashboard"),
+            to: "/",
+        },
+        {
+            icon: <Building2 aria-hidden="true" size={16} />,
+            label: t("navigation:sidebar.codeCity"),
+            to: "/dashboard/code-city",
+        },
+        {
+            icon: <Inbox aria-hidden="true" size={16} />,
+            label: t("navigation:sidebar.myWork"),
+            to: "/my-work",
+        },
+        {
+            icon: <GitPullRequest aria-hidden="true" size={16} />,
+            label: t("navigation:sidebar.ccrManagement"),
+            to: "/reviews",
+        },
+        {
+            icon: <Bug aria-hidden="true" size={16} />,
+            label: t("navigation:sidebar.issues"),
+            to: "/issues",
+        },
+        {
+            icon: <Rocket aria-hidden="true" size={16} />,
+            label: t("navigation:sidebar.onboarding"),
+            to: "/onboarding",
+        },
+        {
+            icon: <ChartNoAxesColumn aria-hidden="true" size={16} />,
+            label: t("navigation:sidebar.scanProgress"),
+            to: "/scan-progress",
+        },
+        {
+            icon: <FolderKanban aria-hidden="true" size={16} />,
+            label: t("navigation:sidebar.repositories"),
+            to: "/repositories",
+        },
+        {
+            icon: <ChartPie aria-hidden="true" size={16} />,
+            label: t("navigation:sidebar.reports"),
+            to: "/reports",
+        },
+        {
+            icon: <Settings aria-hidden="true" size={16} />,
+            label: t("navigation:sidebar.settings"),
+            to: "/settings",
+        },
+        {
+            icon: <LifeBuoy aria-hidden="true" size={16} />,
+            label: t("navigation:sidebar.help"),
+            to: "/help-diagnostics",
+        },
+    ]
+}
 
 /**
  * Sidebar navigation list with icon-only collapsed mode and tooltip.
@@ -106,9 +119,10 @@ const DEFAULT_SIDEBAR_ITEMS: readonly ISidebarItem[] = [
  * @returns Navigation item list.
  */
 export function SidebarNav(props: ISidebarNavProps): ReactElement {
+    const { t } = useTranslation(["navigation"])
     const currentLocation = useLocation()
     const navigate = useNavigate()
-    const items = props.items ?? DEFAULT_SIDEBAR_ITEMS
+    const items = props.items ?? createDefaultSidebarItems(t)
     const isCollapsed = props.isCollapsed === true
 
     const isItemActive = (to: string): boolean => {

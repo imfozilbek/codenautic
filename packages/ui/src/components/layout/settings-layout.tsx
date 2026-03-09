@@ -1,7 +1,8 @@
 import { Outlet } from "@tanstack/react-router"
 import type { ReactElement, ReactNode } from "react"
+import { useTranslation } from "react-i18next"
 
-import { SETTINGS_NAV_ITEMS } from "@/lib/navigation/settings-nav-items"
+import { createSettingsNavItems } from "@/lib/navigation/settings-nav-items"
 
 import { SidebarNav } from "./sidebar-nav"
 
@@ -19,7 +20,9 @@ export interface ISettingsLayoutProps {
  * Layout для раздела настроек с локальной навигацией.
  */
 export function SettingsLayout(props: ISettingsLayoutProps): ReactElement {
-    const title = props.title ?? "Settings"
+    const { t } = useTranslation(["navigation"])
+    const title = props.title ?? t("navigation:sidebar.settings")
+    const settingsItems = createSettingsNavItems(t)
 
     return (
         <div className="grid gap-4 md:grid-cols-[230px_1fr]">
@@ -27,7 +30,7 @@ export function SettingsLayout(props: ISettingsLayoutProps): ReactElement {
                 <p className="px-2 pb-2 text-xs font-semibold uppercase tracking-[0.2em] text-text-subtle">
                     {title}
                 </p>
-                <SidebarNav items={SETTINGS_NAV_ITEMS} />
+                <SidebarNav items={settingsItems} />
             </aside>
             <main className="rounded-lg border border-border bg-surface p-4 shadow-sm">
                 {props.children === undefined ? <Outlet /> : props.children}
