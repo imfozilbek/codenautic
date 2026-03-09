@@ -1,11 +1,7 @@
 import type { ReactElement } from "react"
 
 import { Chip } from "@/components/ui"
-
-/**
- * Статусы CCR для бейджа.
- */
-export type TReviewStatus = "new" | "queued" | "in_progress" | "approved" | "rejected"
+import { type TReviewStatus } from "@/lib/types/ccr-types"
 
 /**
  * Параметры бейджа статуса.

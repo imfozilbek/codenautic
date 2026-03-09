@@ -34,9 +34,7 @@ export function createToggleWrapper<THeroProps extends object>(
 ): (props: Omit<THeroProps, "onChange"> & IToggleBaseProps) => ReactElement {
     const { Component, invalidAsDataAttr = false } = config
 
-    function ToggleWrapper(
-        props: Omit<THeroProps, "onChange"> & IToggleBaseProps,
-    ): ReactElement {
+    function ToggleWrapper(props: Omit<THeroProps, "onChange"> & IToggleBaseProps): ReactElement {
         const { children, isInvalid, onValueChange, ...restProps } = props
 
         const componentProps = {

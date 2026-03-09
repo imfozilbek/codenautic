@@ -1,4 +1,4 @@
-import { type ChangeEvent, type FormEvent, type ReactElement } from "react"
+import { type FormEvent, type ReactElement } from "react"
 
 import { Button } from "@/components/ui"
 import { REPO_REVIEW_MODE, type TRepoReviewMode } from "@/lib/api/endpoints/repo-config.endpoint"
@@ -26,7 +26,7 @@ export interface IConfigurationEditorProps {
     /** Изменение repository id. */
     readonly onRepositoryIdChange: (value: string) => void
     /** Изменение review mode. */
-    readonly onReviewModeChange: (event: ChangeEvent<HTMLSelectElement>) => void
+    readonly onReviewModeChange: (value: TRepoReviewMode) => void
     /** Сохранение конфига. */
     readonly onSave: (event: FormEvent) => void
 }
@@ -94,11 +94,20 @@ export function ConfigurationEditor(props: IConfigurationEditorProps): ReactElem
                     <span className="font-medium text-foreground">Review mode</span>
                     <select
                         aria-label="Repository review mode"
-                        className="w-full rounded-lg border border-border px-3 py-2"
+                        className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground"
                         data-testid="repo-review-mode"
                         id="repo-review-mode"
                         value={props.reviewMode}
-                        onChange={props.onReviewModeChange}
+                        onChange={(event): void => {
+                            const nextValue = event.currentTarget.value
+                            if (
+                                nextValue === REPO_REVIEW_MODE.manual ||
+                                nextValue === REPO_REVIEW_MODE.auto ||
+                                nextValue === REPO_REVIEW_MODE.autoPause
+                            ) {
+                                props.onReviewModeChange(nextValue)
+                            }
+                        }}
                     >
                         <option value={REPO_REVIEW_MODE.manual}>Manual</option>
                         <option value={REPO_REVIEW_MODE.auto}>Auto</option>

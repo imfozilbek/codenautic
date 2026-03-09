@@ -556,7 +556,7 @@ export function EnterpriseDataTable<TRow>(props: IEnterpriseDataTableProps<TRow>
                                 </Button>
                                 <select
                                     aria-label={`Pin ${columnId}`}
-                                    className="rounded border border-border bg-surface px-2 py-1 text-xs"
+                                    className="w-28 rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground"
                                     value={
                                         column.getIsPinned() === false
                                             ? "none"

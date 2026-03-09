@@ -9,7 +9,8 @@ import {
     TableHeader,
     TableRow,
 } from "@/components/ui"
-import { ReviewStatusBadge, type TReviewStatus } from "./review-status-badge"
+import { type TReviewStatus } from "@/lib/types/ccr-types"
+import { ReviewStatusBadge } from "./review-status-badge"
 
 /**
  * Тип строки CCR review.
