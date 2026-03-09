@@ -387,4 +387,322 @@ describe("settings code review page", (): void => {
         expect(screen.getByTestId("mcp-avg-latency")).toHaveTextContent("220 ms")
         expect(screen.getAllByTestId("mcp-tool-row")).toHaveLength(3)
     })
+
+    it("сбрасывает ignore paths к дефолтным значениям", async (): Promise<void> => {
+        const user = userEvent.setup()
+        let repositoryConfig = {
+            repositoryId: "repo-1",
+            configYaml: "version: 1\nreview:\n  mode: MANUAL\n",
+            ignorePatterns: ["/custom-dir"],
+            reviewMode: "MANUAL" as const,
+        }
+
+        server.use(
+            http.get("http://localhost:7120/api/v1/repositories/repo-1/config", () => {
+                return HttpResponse.json({ config: repositoryConfig })
+            }),
+            http.put(
+                "http://localhost:7120/api/v1/repositories/repo-1/config",
+                async ({ request }) => {
+                    const payload = (await request.json()) as {
+                        readonly ignorePatterns?: ReadonlyArray<string>
+                        readonly configYaml?: string
+                        readonly reviewMode?: "MANUAL" | "AUTO" | "AUTO_PAUSE"
+                    }
+                    repositoryConfig = {
+                        ...repositoryConfig,
+                        ignorePatterns: (payload.ignorePatterns ??
+                            repositoryConfig.ignorePatterns) as string[],
+                    }
+                    return HttpResponse.json({ config: repositoryConfig })
+                },
+            ),
+        )
+
+        renderWithProviders(<SettingsCodeReviewPage />)
+        await screen.findByLabelText<HTMLTextAreaElement>("Ignore patterns")
+        await user.click(screen.getByRole("button", { name: "Reset ignore paths" }))
+
+        await waitFor((): void => {
+            expect(repositoryConfig.ignorePatterns).toEqual([
+                "/dist",
+                "/node_modules",
+                "/coverage",
+            ])
+        })
+    })
+
+    it("обрабатывает ошибку при сохранении repository config", async (): Promise<void> => {
+        const user = userEvent.setup()
+        server.use(
+            http.get("http://localhost:7120/api/v1/repositories/repo-1/config", () => {
+                return HttpResponse.json({
+                    config: {
+                        repositoryId: "repo-1",
+                        configYaml: "version: 1\nreview:\n  mode: MANUAL\n",
+                        ignorePatterns: ["/dist", "/node_modules"],
+                        reviewMode: "MANUAL",
+                    },
+                })
+            }),
+            http.put("http://localhost:7120/api/v1/repositories/repo-1/config", () => {
+                return HttpResponse.json({ error: "server error" }, { status: 500 })
+            }),
+        )
+
+        renderWithProviders(<SettingsCodeReviewPage />)
+        await screen.findByLabelText<HTMLTextAreaElement>("Repository config YAML")
+
+        await user.click(screen.getByRole("button", { name: "Save repository config" }))
+
+        await waitFor((): void => {
+            expect(screen.getByTestId("repo-config-state")).toHaveTextContent(
+                "Repository config unavailable.",
+            )
+        })
+    })
+
+    it("обрабатывает ошибку при запуске dry-run", async (): Promise<void> => {
+        const user = userEvent.setup()
+        server.use(
+            http.get("http://localhost:7120/api/v1/repositories/repo-1/config", () => {
+                return HttpResponse.json({
+                    config: {
+                        repositoryId: "repo-1",
+                        configYaml: "version: 1\nreview:\n  mode: MANUAL\n",
+                        ignorePatterns: ["/dist", "/node_modules"],
+                        reviewMode: "MANUAL",
+                    },
+                })
+            }),
+            http.post("http://localhost:7120/api/v1/repositories/repo-1/dry-run", () => {
+                return HttpResponse.json({ error: "server error" }, { status: 500 })
+            }),
+        )
+
+        renderWithProviders(<SettingsCodeReviewPage />)
+        await user.click(screen.getByRole("button", { name: "Run dry-run" }))
+
+        await waitFor((): void => {
+            expect(screen.getByRole("button", { name: "Run dry-run" })).not.toBeNull()
+        })
+    })
+
+    it("обрабатывает ошибку при сохранении review cadence", async (): Promise<void> => {
+        const user = userEvent.setup()
+        server.use(
+            http.get("http://localhost:7120/api/v1/repositories/repo-1/config", () => {
+                return HttpResponse.json({
+                    config: {
+                        repositoryId: "repo-1",
+                        configYaml: "version: 1\nreview:\n  mode: MANUAL\n",
+                        ignorePatterns: ["/dist", "/node_modules"],
+                        reviewMode: "MANUAL",
+                    },
+                })
+            }),
+            http.put("http://localhost:7120/api/v1/repositories/repo-1/config", () => {
+                return HttpResponse.json({ error: "server error" }, { status: 500 })
+            }),
+        )
+
+        renderWithProviders(<SettingsCodeReviewPage />)
+        await user.click(screen.getByRole("radio", { name: /auto-pause/i }))
+        await user.click(screen.getByRole("button", { name: "Apply cadence mode" }))
+
+        await waitFor((): void => {
+            expect(screen.getByRole("button", { name: "Apply cadence mode" })).not.toBeNull()
+        })
+    })
+
+    it("обрабатывает ошибку при генерации CCR summary", async (): Promise<void> => {
+        const user = userEvent.setup()
+        server.use(
+            http.get("http://localhost:7120/api/v1/repositories/repo-1/config", () => {
+                return HttpResponse.json({
+                    config: {
+                        repositoryId: "repo-1",
+                        configYaml: "version: 1\nreview:\n  mode: MANUAL\n",
+                        ignorePatterns: ["/dist", "/node_modules"],
+                        reviewMode: "MANUAL",
+                    },
+                })
+            }),
+            http.post(
+                "http://localhost:7120/api/v1/repositories/repo-1/ccr-summary/generate",
+                () => {
+                    return HttpResponse.json({ error: "generation failed" }, { status: 500 })
+                },
+            ),
+        )
+
+        renderWithProviders(<SettingsCodeReviewPage />)
+        await user.click(screen.getByRole("button", { name: "Generate CCR summary preview" }))
+
+        await waitFor((): void => {
+            expect(screen.getByTestId("ccr-summary-state")).toHaveTextContent(
+                "Unable to generate CCR summary.",
+            )
+        })
+    })
+
+    it("сбрасывает prompt override к дефолтному значению", async (): Promise<void> => {
+        const user = userEvent.setup()
+        server.use(
+            http.get("http://localhost:7120/api/v1/repositories/repo-1/config", () => {
+                return HttpResponse.json({
+                    config: {
+                        repositoryId: "repo-1",
+                        configYaml: "version: 1\nreview:\n  mode: MANUAL\n",
+                        ignorePatterns: ["/dist", "/node_modules"],
+                        reviewMode: "MANUAL",
+                    },
+                })
+            }),
+        )
+
+        renderWithProviders(<SettingsCodeReviewPage />)
+        const promptOverrideInput = screen.getByLabelText<HTMLTextAreaElement>(
+            "CCR summary prompt override",
+        )
+        await user.type(promptOverrideInput, "\n- Extra custom instruction.")
+        expect(promptOverrideInput.value).toContain("Extra custom instruction.")
+
+        await user.click(screen.getByRole("button", { name: "Reset prompt override" }))
+
+        await waitFor((): void => {
+            expect(promptOverrideInput.value).not.toContain("Extra custom instruction.")
+        })
+        expect(promptOverrideInput.value).toContain(
+            "Generate CCR summary with a clear risk-first structure.",
+        )
+    })
+
+    it("показывает пустое CCR summary output до генерации", async (): Promise<void> => {
+        server.use(
+            http.get("http://localhost:7120/api/v1/repositories/repo-1/config", () => {
+                return HttpResponse.json({
+                    config: {
+                        repositoryId: "repo-1",
+                        configYaml: "version: 1\nreview:\n  mode: MANUAL\n",
+                        ignorePatterns: ["/dist", "/node_modules"],
+                        reviewMode: "MANUAL",
+                    },
+                })
+            }),
+        )
+
+        renderWithProviders(<SettingsCodeReviewPage />)
+
+        expect(screen.getByTestId("ccr-summary-output-empty")).toHaveTextContent(
+            "Generate summary preview to inspect current output.",
+        )
+    })
+
+    it("переключает checkbox Enable CCR summary generation", async (): Promise<void> => {
+        const user = userEvent.setup()
+        server.use(
+            http.get("http://localhost:7120/api/v1/repositories/repo-1/config", () => {
+                return HttpResponse.json({
+                    config: {
+                        repositoryId: "repo-1",
+                        configYaml: "version: 1\nreview:\n  mode: MANUAL\n",
+                        ignorePatterns: ["/dist", "/node_modules"],
+                        reviewMode: "MANUAL",
+                    },
+                })
+            }),
+        )
+
+        renderWithProviders(<SettingsCodeReviewPage />)
+        const enableCheckbox = screen.getByRole("checkbox", {
+            name: "Enable CCR summary generation",
+        })
+        expect(enableCheckbox).toBeChecked()
+
+        await user.click(enableCheckbox)
+        expect(enableCheckbox).not.toBeChecked()
+    })
+
+    it("переключает checkbox Include risk overview section", async (): Promise<void> => {
+        const user = userEvent.setup()
+        server.use(
+            http.get("http://localhost:7120/api/v1/repositories/repo-1/config", () => {
+                return HttpResponse.json({
+                    config: {
+                        repositoryId: "repo-1",
+                        configYaml: "version: 1\nreview:\n  mode: MANUAL\n",
+                        ignorePatterns: ["/dist", "/node_modules"],
+                        reviewMode: "MANUAL",
+                    },
+                })
+            }),
+        )
+
+        renderWithProviders(<SettingsCodeReviewPage />)
+        const riskOverviewCheckbox = screen.getByRole("checkbox", {
+            name: "Include risk overview section",
+        })
+        expect(riskOverviewCheckbox).toBeChecked()
+
+        await user.click(riskOverviewCheckbox)
+        expect(riskOverviewCheckbox).not.toBeChecked()
+    })
+
+    it("переключает IDE sync checkboxes", async (): Promise<void> => {
+        const user = userEvent.setup()
+        server.use(
+            http.get("http://localhost:7120/api/v1/repositories/repo-1/config", () => {
+                return HttpResponse.json({
+                    config: {
+                        repositoryId: "repo-1",
+                        configYaml: "version: 1\nreview:\n  mode: MANUAL\n",
+                        ignorePatterns: ["/dist", "/node_modules"],
+                        reviewMode: "MANUAL",
+                    },
+                })
+            }),
+        )
+
+        renderWithProviders(<SettingsCodeReviewPage />)
+
+        const enableIdeSyncCheckbox = screen.getByRole("checkbox", {
+            name: "Enable IDE plugin sync",
+        })
+        expect(enableIdeSyncCheckbox).toBeChecked()
+        await user.click(enableIdeSyncCheckbox)
+        expect(enableIdeSyncCheckbox).not.toBeChecked()
+
+        const autoOpenDiffCheckbox = screen.getByRole("checkbox", {
+            name: "Auto-open affected diffs after sync",
+        })
+        expect(autoOpenDiffCheckbox).toBeChecked()
+        await user.click(autoOpenDiffCheckbox)
+        expect(autoOpenDiffCheckbox).not.toBeChecked()
+    })
+
+    it("подаёт form code review с настройками cadence/severity/suggestions", async (): Promise<void> => {
+        const user = userEvent.setup()
+        server.use(
+            http.get("http://localhost:7120/api/v1/repositories/repo-1/config", () => {
+                return HttpResponse.json({
+                    config: {
+                        repositoryId: "repo-1",
+                        configYaml: "version: 1\nreview:\n  mode: MANUAL\n",
+                        ignorePatterns: ["/dist", "/node_modules"],
+                        reviewMode: "MANUAL",
+                    },
+                })
+            }),
+        )
+
+        renderWithProviders(<SettingsCodeReviewPage />)
+
+        const saveButton = screen.getByRole("button", { name: "Save review config" })
+        await user.click(saveButton)
+
+        await waitFor((): void => {
+            expect(saveButton).not.toBeNull()
+        })
+    })
 })

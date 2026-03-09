@@ -156,4 +156,140 @@ describe("repository overview page", (): void => {
             repositoryId: "frontend-team/ui-dashboard",
         })
     })
+
+    it("закрывает диалог расписания без сохранения", async (): Promise<void> => {
+        const onRescanScheduleChange = vi.fn()
+        const user = userEvent.setup()
+
+        renderWithProviders(
+            <RepositoryOverviewPage
+                onRescanScheduleChange={onRescanScheduleChange}
+                repositoryId="frontend-team/ui-dashboard"
+            />,
+        )
+
+        await user.click(screen.getByRole("button", { name: "Настроить расписание рескана" }))
+        expect(screen.getByRole("dialog")).not.toBeNull()
+
+        await user.click(screen.getByRole("button", { name: "Закрыть" }))
+        expect(screen.queryByRole("dialog")).toBeNull()
+        expect(onRescanScheduleChange).not.toHaveBeenCalled()
+    })
+
+    it("сохраняет weekly расписание с днём недели", async (): Promise<void> => {
+        const onRescanScheduleChange = vi.fn()
+        const user = userEvent.setup()
+
+        renderWithProviders(
+            <RepositoryOverviewPage
+                onRescanScheduleChange={onRescanScheduleChange}
+                repositoryId="frontend-team/ui-dashboard"
+            />,
+        )
+
+        await user.click(screen.getByRole("button", { name: "Настроить расписание рескана" }))
+        await user.selectOptions(
+            screen.getByRole("combobox", { name: "Режим расписания рескана" }),
+            "weekly",
+        )
+        await user.selectOptions(screen.getByRole("combobox", { name: "Минута" }), "15")
+        await user.selectOptions(screen.getByRole("combobox", { name: "Час" }), "9")
+        await user.selectOptions(screen.getByRole("combobox", { name: "День недели" }), "1")
+        await user.click(screen.getByRole("button", { name: "Сохранить расписание" }))
+
+        expect(onRescanScheduleChange).toHaveBeenCalledWith({
+            cronExpression: "15 9 * * 1",
+            mode: "weekly",
+            repositoryId: "frontend-team/ui-dashboard",
+        })
+    })
+
+    it("настраивает hourly расписание (без поля час)", async (): Promise<void> => {
+        const onRescanScheduleChange = vi.fn()
+        const user = userEvent.setup()
+
+        renderWithProviders(
+            <RepositoryOverviewPage
+                onRescanScheduleChange={onRescanScheduleChange}
+                repositoryId="frontend-team/ui-dashboard"
+            />,
+        )
+
+        await user.click(screen.getByRole("button", { name: "Настроить расписание рескана" }))
+        await user.selectOptions(
+            screen.getByRole("combobox", { name: "Режим расписания рескана" }),
+            "hourly",
+        )
+        expect(screen.queryByRole("combobox", { name: "Час" })).toBeNull()
+        await user.selectOptions(screen.getByRole("combobox", { name: "Минута" }), "45")
+        await user.click(screen.getByRole("button", { name: "Сохранить расписание" }))
+
+        expect(onRescanScheduleChange).toHaveBeenCalledWith({
+            cronExpression: "45 * * * *",
+            mode: "hourly",
+            repositoryId: "frontend-team/ui-dashboard",
+        })
+    })
+
+    it("настраивает manual режим (без временных полей)", async (): Promise<void> => {
+        const onRescanScheduleChange = vi.fn()
+        const user = userEvent.setup()
+
+        renderWithProviders(
+            <RepositoryOverviewPage
+                onRescanScheduleChange={onRescanScheduleChange}
+                repositoryId="frontend-team/ui-dashboard"
+            />,
+        )
+
+        await user.click(screen.getByRole("button", { name: "Настроить расписание рескана" }))
+        await user.selectOptions(
+            screen.getByRole("combobox", { name: "Режим расписания рескана" }),
+            "manual",
+        )
+        expect(screen.queryByRole("combobox", { name: "Минута" })).toBeNull()
+        expect(screen.queryByRole("combobox", { name: "Час" })).toBeNull()
+        await user.click(screen.getByRole("button", { name: "Сохранить расписание" }))
+
+        expect(onRescanScheduleChange).toHaveBeenCalledWith(
+            expect.objectContaining({ mode: "manual" }),
+        )
+    })
+
+    it("настраивает custom cron и блокирует кнопку при пустом вводе", async (): Promise<void> => {
+        const user = userEvent.setup()
+
+        renderWithProviders(
+            <RepositoryOverviewPage repositoryId="frontend-team/ui-dashboard" />,
+        )
+
+        await user.click(screen.getByRole("button", { name: "Настроить расписание рескана" }))
+        await user.selectOptions(
+            screen.getByRole("combobox", { name: "Режим расписания рескана" }),
+            "custom",
+        )
+
+        const cronInput = screen.getByRole("textbox", { name: "Кастомное cron-выражение" })
+        expect(cronInput).not.toBeNull()
+
+        const saveButtonBefore: HTMLButtonElement = screen.getByRole("button", {
+            name: "Сохранить расписание",
+        })
+        expect(saveButtonBefore.disabled).toBe(true)
+
+        await user.type(cronInput, "*/5 * * * *")
+        const saveButtonAfter: HTMLButtonElement = screen.getByRole("button", {
+            name: "Сохранить расписание",
+        })
+        expect(saveButtonAfter.disabled).toBe(false)
+    })
+
+    it("рендерит health score meter для репозитория", (): void => {
+        renderWithProviders(<RepositoryOverviewPage repositoryId="frontend-team/ui-dashboard" />)
+
+        const meter = screen.getByRole("meter")
+        expect(meter).not.toBeNull()
+        expect(meter.getAttribute("aria-valuemin")).toBe("0")
+        expect(meter.getAttribute("aria-valuemax")).toBe("100")
+    })
 })

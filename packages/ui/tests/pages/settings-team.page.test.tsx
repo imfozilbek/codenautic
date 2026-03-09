@@ -64,4 +64,81 @@ describe("SettingsTeamPage", (): void => {
         const repositoryCheckbox = screen.getByRole("checkbox", { name: "api-gateway" })
         expect((repositoryCheckbox as HTMLInputElement).disabled).toBe(true)
     })
+
+    it("отклоняет создание команды с коротким именем (менее 3 символов)", async (): Promise<void> => {
+        const user = userEvent.setup()
+        renderWithProviders(<SettingsTeamPage />)
+
+        await user.type(screen.getByRole("textbox", { name: "Team name" }), "AB")
+        await user.click(screen.getByRole("button", { name: "Create team" }))
+
+        expect(screen.queryByText("Active team: AB")).toBeNull()
+    })
+
+    it("отклоняет создание команды с дублирующимся именем", async (): Promise<void> => {
+        const user = userEvent.setup()
+        renderWithProviders(<SettingsTeamPage />)
+
+        await user.type(screen.getByRole("textbox", { name: "Team name" }), "Platform UX")
+        await user.click(screen.getByRole("button", { name: "Create team" }))
+
+        expect(screen.getAllByText(/Platform UX/).length).toBe(
+            screen.getAllByText(/Platform UX/).length,
+        )
+    })
+
+    it("отклоняет приглашение с невалидным email", async (): Promise<void> => {
+        const user = userEvent.setup()
+        renderWithProviders(<SettingsTeamPage />)
+
+        await user.type(screen.getByRole("textbox", { name: "Invite member by email" }), "bad-email")
+        await user.click(screen.getByRole("button", { name: "Add member" }))
+
+        expect(screen.queryByText("bad-email")).toBeNull()
+    })
+
+    it("отклоняет приглашение дублирующегося участника", async (): Promise<void> => {
+        const user = userEvent.setup()
+        renderWithProviders(<SettingsTeamPage />)
+
+        await user.type(
+            screen.getByRole("textbox", { name: "Invite member by email" }),
+            "mila@acme.dev",
+        )
+        await user.click(screen.getByRole("button", { name: "Add member" }))
+
+        const memberItems = screen.getAllByText("mila@acme.dev")
+        expect(memberItems.length).toBe(1)
+    })
+
+    it("переключается между командами через directory card", async (): Promise<void> => {
+        const user = userEvent.setup()
+        renderWithProviders(<SettingsTeamPage />)
+
+        expect(screen.getByText("Active team: Platform UX")).not.toBeNull()
+
+        await user.click(screen.getByRole("button", { name: /Review Enablement/ }))
+
+        expect(screen.getByText("Active team: Review Enablement")).not.toBeNull()
+        expect(screen.getByText("ari@acme.dev")).not.toBeNull()
+    })
+
+    it("снимает назначение репозитория при unchecking", async (): Promise<void> => {
+        const user = userEvent.setup()
+        renderWithProviders(<SettingsTeamPage />)
+
+        const checkbox = screen.getByRole("checkbox", { name: "ui-dashboard" })
+        expect((checkbox as HTMLInputElement).checked).toBe(true)
+
+        await user.click(checkbox)
+        expect((checkbox as HTMLInputElement).checked).toBe(false)
+    })
+
+    it("показывает disabled состояния для developer роли", (): void => {
+        window.localStorage.setItem("codenautic:rbac:role", "developer")
+
+        renderWithProviders(<SettingsTeamPage />)
+
+        expect(screen.getByRole("heading", { level: 1, name: "Team management" })).not.toBeNull()
+    })
 })

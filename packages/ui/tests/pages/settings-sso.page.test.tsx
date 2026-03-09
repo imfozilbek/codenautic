@@ -38,4 +38,120 @@ describe("SettingsSsoPage", (): void => {
         await user.click(screen.getByRole("button", { name: "Test SSO (OIDC)" }))
         expect(screen.getByText("SSO test passed for oidc.")).not.toBeNull()
     })
+
+    it("заполняет и сохраняет OIDC конфигурацию", async (): Promise<void> => {
+        const user = userEvent.setup()
+        renderWithProviders(<SettingsSsoPage />)
+
+        await user.clear(screen.getByRole("textbox", { name: "OIDC issuer URL" }))
+        await user.type(
+            screen.getByRole("textbox", { name: "OIDC issuer URL" }),
+            "https://auth.enterprise.dev/realms/main",
+        )
+        await user.clear(screen.getByRole("textbox", { name: "OIDC client ID" }))
+        await user.type(screen.getByRole("textbox", { name: "OIDC client ID" }), "enterprise-app")
+        await user.clear(screen.getByLabelText("OIDC client secret"))
+        await user.type(screen.getByLabelText("OIDC client secret"), "longsecret123")
+
+        await user.click(screen.getByRole("button", { name: "Save OIDC config" }))
+
+        expect(screen.getByText("OIDC configuration saved")).not.toBeNull()
+        expect(
+            screen.getByText(
+                "OIDC settings passed local validation and are ready for secure sync.",
+            ),
+        ).not.toBeNull()
+    })
+
+    it("показывает ошибку валидации при сохранении SAML с пустым Entity ID", async (): Promise<void> => {
+        const user = userEvent.setup()
+        renderWithProviders(<SettingsSsoPage />)
+
+        await user.clear(screen.getByRole("textbox", { name: "SAML Entity ID" }))
+        await user.click(screen.getByRole("button", { name: "Save SAML config" }))
+
+        expect(screen.queryByText("SAML configuration saved")).toBeNull()
+    })
+
+    it("показывает ошибку валидации при сохранении OIDC с коротким client secret", async (): Promise<void> => {
+        const user = userEvent.setup()
+        renderWithProviders(<SettingsSsoPage />)
+
+        await user.clear(screen.getByLabelText("OIDC client secret"))
+        await user.type(screen.getByLabelText("OIDC client secret"), "short")
+
+        await user.click(screen.getByRole("button", { name: "Save OIDC config" }))
+
+        expect(screen.queryByText("OIDC configuration saved")).toBeNull()
+    })
+
+    it("показывает ошибку валидации при сохранении OIDC с пустым client secret", async (): Promise<void> => {
+        const user = userEvent.setup()
+        renderWithProviders(<SettingsSsoPage />)
+
+        await user.click(screen.getByRole("button", { name: "Save OIDC config" }))
+
+        expect(screen.queryByText("OIDC configuration saved")).toBeNull()
+    })
+
+    it("тест подключения OIDC проваливается при невалидной конфигурации", async (): Promise<void> => {
+        const user = userEvent.setup()
+        renderWithProviders(<SettingsSsoPage />)
+
+        await user.click(screen.getByRole("button", { name: "Test SSO (OIDC)" }))
+
+        expect(screen.getByText("SSO connectivity check failed")).not.toBeNull()
+        expect(
+            screen.getByText("SSO test failed for oidc. Check required fields and try again."),
+        ).not.toBeNull()
+    })
+
+    it("тест подключения SAML проходит с валидной начальной конфигурацией", async (): Promise<void> => {
+        const user = userEvent.setup()
+        renderWithProviders(<SettingsSsoPage />)
+
+        await user.click(screen.getByRole("button", { name: "Test SSO (SAML)" }))
+
+        expect(screen.getByText("SSO connectivity check passed")).not.toBeNull()
+        expect(screen.getByText("SSO test passed for saml.")).not.toBeNull()
+    })
+
+    it("показывает маскированный секрет после ввода и 'Not configured' при пустом", (): void => {
+        renderWithProviders(<SettingsSsoPage />)
+
+        expect(screen.getByText(/Not configured/)).not.toBeNull()
+    })
+
+    it("показывает маскированный секрет после ввода значения", async (): Promise<void> => {
+        const user = userEvent.setup()
+        renderWithProviders(<SettingsSsoPage />)
+
+        await user.clear(screen.getByLabelText("OIDC client secret"))
+        await user.type(screen.getByLabelText("OIDC client secret"), "mysecretvalue")
+
+        expect(screen.getByText(/••••••••/)).not.toBeNull()
+    })
+
+    it("сохранённые значения SAML остаются после сохранения", async (): Promise<void> => {
+        const user = userEvent.setup()
+        renderWithProviders(<SettingsSsoPage />)
+
+        const entityIdInput = screen.getByRole("textbox", { name: "SAML Entity ID" })
+        const ssoUrlInput = screen.getByRole("textbox", { name: "SAML SSO URL" })
+
+        await user.clear(entityIdInput)
+        await user.type(entityIdInput, "urn:codenautic:sp:custom")
+        await user.clear(ssoUrlInput)
+        await user.type(ssoUrlInput, "https://custom-idp.dev/sso")
+
+        await user.click(screen.getByRole("button", { name: "Save SAML config" }))
+        expect(screen.getByText("SAML configuration saved")).not.toBeNull()
+
+        expect(screen.getByRole("textbox", { name: "SAML Entity ID" })).toHaveValue(
+            "urn:codenautic:sp:custom",
+        )
+        expect(screen.getByRole("textbox", { name: "SAML SSO URL" })).toHaveValue(
+            "https://custom-idp.dev/sso",
+        )
+    })
 })

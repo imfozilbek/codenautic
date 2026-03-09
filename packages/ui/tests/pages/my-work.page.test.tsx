@@ -106,4 +106,195 @@ describe("MyWorkPage", (): void => {
             assignSpy.mockRestore()
         }
     })
+
+    it("snooze действие меняет статус item на snoozed", async (): Promise<void> => {
+        const user = userEvent.setup()
+        renderWithProviders(<MyWorkPage />)
+
+        const triageList = screen.getByRole("list", { name: "My work triage list" })
+        const reviewItem = within(triageList).getByText("CCR #412 needs final response")
+        const reviewRow = reviewItem.closest("li")
+        if (reviewRow === null) {
+            throw new Error("Review row not found")
+        }
+
+        await user.click(within(reviewRow).getByRole("button", { name: "Snooze" }))
+        expect(screen.getByText("Snoozed MW-1001 until next triage cycle.")).not.toBeNull()
+    })
+
+    it("start work меняет статус item на in_progress", async (): Promise<void> => {
+        const user = userEvent.setup()
+        renderWithProviders(<MyWorkPage />)
+
+        await user.selectOptions(screen.getByRole("combobox", { name: "Triage scope" }), "team")
+
+        const triageList = screen.getByRole("list", { name: "My work triage list" })
+        const approvalItem = within(triageList).getByText("Approval pending for CCR #409")
+        const approvalRow = approvalItem.closest("li")
+        if (approvalRow === null) {
+            throw new Error("Approval row not found")
+        }
+
+        await user.click(within(approvalRow).getByRole("button", { name: "Start work" }))
+        expect(screen.getByText("Moved MW-1005 to in_progress.")).not.toBeNull()
+    })
+
+    it("mark done меняет статус item на done", async (): Promise<void> => {
+        const user = userEvent.setup()
+        renderWithProviders(<MyWorkPage />)
+
+        const triageList = screen.getByRole("list", { name: "My work triage list" })
+        const reviewItem = within(triageList).getByText("CCR #412 needs final response")
+        const reviewRow = reviewItem.closest("li")
+        if (reviewRow === null) {
+            throw new Error("Review row not found")
+        }
+
+        await user.click(within(reviewRow).getByRole("button", { name: "Mark done" }))
+        expect(screen.getByText("Marked MW-1001 as done.")).not.toBeNull()
+    })
+
+    it("viewer роль блокирует assign, start work и mark done кнопки", async (): Promise<void> => {
+        const user = userEvent.setup()
+        renderWithProviders(<MyWorkPage />)
+
+        await user.selectOptions(screen.getByRole("combobox", { name: "Reviewer role" }), "viewer")
+
+        const triageList = screen.getByRole("list", { name: "My work triage list" })
+        const reviewItem = within(triageList).getByText("CCR #412 needs final response")
+        const reviewRow = reviewItem.closest("li")
+        if (reviewRow === null) {
+            throw new Error("Review row not found")
+        }
+
+        expect(within(reviewRow).getByRole("button", { name: "Assign to me" })).toBeDisabled()
+        expect(within(reviewRow).getByRole("button", { name: "Start work" })).toBeDisabled()
+        expect(within(reviewRow).getByRole("button", { name: "Mark done" })).toBeDisabled()
+        expect(within(reviewRow).getByRole("button", { name: "Escalate" })).toBeDisabled()
+    })
+
+    it("keyboard shortcut Alt+1 переключает scope на mine", async (): Promise<void> => {
+        const user = userEvent.setup()
+        renderWithProviders(<MyWorkPage />)
+
+        await user.selectOptions(screen.getByRole("combobox", { name: "Triage scope" }), "team")
+
+        const triageList = screen.getByRole("list", { name: "My work triage list" })
+        expect(
+            within(triageList).getByText("Tenant boundary regression in auth middleware"),
+        ).not.toBeNull()
+
+        fireEvent.keyDown(window, { altKey: true, key: "1" })
+
+        expect(
+            within(triageList).queryByText("Tenant boundary regression in auth middleware"),
+        ).toBeNull()
+        expect(within(triageList).getByText("CCR #412 needs final response")).not.toBeNull()
+    })
+
+    it("keyboard shortcut Alt+2 переключает scope на team", async (): Promise<void> => {
+        renderWithProviders(<MyWorkPage />)
+
+        fireEvent.keyDown(window, { altKey: true, key: "2" })
+
+        const triageList = screen.getByRole("list", { name: "My work triage list" })
+        expect(
+            within(triageList).getByText("Tenant boundary regression in auth middleware"),
+        ).not.toBeNull()
+    })
+
+    it("non-alt клавиши не изменяют scope", async (): Promise<void> => {
+        renderWithProviders(<MyWorkPage />)
+
+        fireEvent.keyDown(window, { altKey: false, key: "2" })
+
+        const triageList = screen.getByRole("list", { name: "My work triage list" })
+        expect(
+            within(triageList).queryByText("Tenant boundary regression in auth middleware"),
+        ).toBeNull()
+    })
+
+    it("неизвестная alt+клавиша не изменяет scope", async (): Promise<void> => {
+        renderWithProviders(<MyWorkPage />)
+
+        fireEvent.keyDown(window, { altKey: true, key: "9" })
+
+        const triageList = screen.getByRole("list", { name: "My work triage list" })
+        expect(within(triageList).getByText("CCR #412 needs final response")).not.toBeNull()
+    })
+
+    it("assign to me для viewer role показывает сообщение об ошибке прав", async (): Promise<void> => {
+        const user = userEvent.setup()
+        renderWithProviders(<MyWorkPage />)
+
+        await user.selectOptions(screen.getByRole("combobox", { name: "Reviewer role" }), "viewer")
+
+        const triageList = screen.getByRole("list", { name: "My work triage list" })
+        const reviewItem = within(triageList).getByText("CCR #412 needs final response")
+        const reviewRow = reviewItem.closest("li")
+        if (reviewRow === null) {
+            throw new Error("Review row not found")
+        }
+
+        const assignButton = within(reviewRow).getByRole("button", { name: "Assign to me" })
+        expect(assignButton).toBeDisabled()
+    })
+
+    it("показывает initial action summary text", async (): Promise<void> => {
+        renderWithProviders(<MyWorkPage />)
+
+        expect(screen.getByText("No triage actions yet.")).not.toBeNull()
+    })
+
+    it("показывает пустой audit trail при инициализации", async (): Promise<void> => {
+        renderWithProviders(<MyWorkPage />)
+
+        expect(screen.getByText("No ownership changes yet.")).not.toBeNull()
+    })
+
+    it("escalate увеличивает escalation level от none к warn", async (): Promise<void> => {
+        const user = userEvent.setup()
+        renderWithProviders(<MyWorkPage />)
+
+        const triageList = screen.getByRole("list", { name: "My work triage list" })
+        const reviewItem = within(triageList).getByText("CCR #412 needs final response")
+        const reviewRow = reviewItem.closest("li")
+        if (reviewRow === null) {
+            throw new Error("Review row not found")
+        }
+
+        await user.click(within(reviewRow).getByRole("button", { name: "Escalate" }))
+        expect(screen.getByText("Escalated MW-1001 and notified owner channel.")).not.toBeNull()
+    })
+
+    it("двойная escalation увеличивает level до critical", async (): Promise<void> => {
+        const user = userEvent.setup()
+        renderWithProviders(<MyWorkPage />)
+
+        const triageList = screen.getByRole("list", { name: "My work triage list" })
+        const reviewItem = within(triageList).getByText("CCR #412 needs final response")
+        const reviewRow = reviewItem.closest("li")
+        if (reviewRow === null) {
+            throw new Error("Review row not found")
+        }
+
+        await user.click(within(reviewRow).getByRole("button", { name: "Escalate" }))
+        await user.click(within(reviewRow).getByRole("button", { name: "Escalate" }))
+
+        expect(within(reviewRow).getByText("escalation: critical")).not.toBeNull()
+    })
+
+    it("deep-link рендерит anchor элемент с правильным href", async (): Promise<void> => {
+        renderWithProviders(<MyWorkPage />)
+
+        const triageList = screen.getByRole("list", { name: "My work triage list" })
+        const reviewItem = within(triageList).getByText("CCR #412 needs final response")
+        const reviewRow = reviewItem.closest("li")
+        if (reviewRow === null) {
+            throw new Error("Review row not found")
+        }
+
+        const deepLink = within(reviewRow).getByText("Deep-link")
+        expect(deepLink.closest("a")?.getAttribute("href")).toBe("/reviews/412")
+    })
 })

@@ -16,6 +16,9 @@ import {
     resolveHealthChipColor,
     resolveHealthLabel,
     isRescanScheduleMode,
+    getRepositoryOverviewById,
+    getRepositoryDefaultSchedule,
+    resolveCodeCityTreemapFiles,
 } from "@/pages/repository-overview/repository-overview-utils"
 
 describe("clampScore", (): void => {
@@ -338,5 +341,99 @@ describe("isRescanScheduleMode", (): void => {
 
     it("when value is unknown, then returns false", (): void => {
         expect(isRescanScheduleMode("biweekly")).toBe(false)
+    })
+})
+
+describe("getRepositoryOverviewById", (): void => {
+    it("when given known id, then returns profile", (): void => {
+        const result = getRepositoryOverviewById("frontend-team/ui-dashboard")
+
+        expect(result).not.toBeUndefined()
+        expect(result?.id).toBe("frontend-team/ui-dashboard")
+    })
+
+    it("when given unknown id, then returns undefined", (): void => {
+        expect(getRepositoryOverviewById("unknown/repo")).toBeUndefined()
+    })
+})
+
+describe("getRepositoryDefaultSchedule", (): void => {
+    it("when given known repository, then returns cron string", (): void => {
+        const result = getRepositoryDefaultSchedule("frontend-team/ui-dashboard")
+
+        expect(result.length).toBeGreaterThan(0)
+    })
+
+    it("when given unknown repository, then returns manual", (): void => {
+        expect(getRepositoryDefaultSchedule("unknown/repo")).toBe("manual")
+    })
+})
+
+describe("resolveCodeCityTreemapFiles", (): void => {
+    it("when given files, then adds issueCount to each", (): void => {
+        const files = [
+            { id: "test-file-1", label: "test.ts", path: "src/test.ts", weight: 10 },
+        ]
+        const result = resolveCodeCityTreemapFiles(files)
+
+        expect(result).toHaveLength(1)
+        expect(result[0]).toHaveProperty("issueCount")
+        expect(typeof result[0]?.issueCount).toBe("number")
+    })
+
+    it("when given empty array, then returns empty array", (): void => {
+        expect(resolveCodeCityTreemapFiles([])).toEqual([])
+    })
+})
+
+describe("getRescanSummaryLabel — extended modes", (): void => {
+    it("when mode is daily, then returns label with hour and minute", (): void => {
+        const result = getRescanSummaryLabel({
+            mode: "daily",
+            minute: 30,
+            hour: 8,
+            weekday: 0,
+            customCron: "",
+        })
+
+        expect(result).toContain("Ежедневно")
+        expect(result).toContain("08:30")
+    })
+
+    it("when mode is weekly, then returns label with weekday", (): void => {
+        const result = getRescanSummaryLabel({
+            mode: "weekly",
+            minute: 0,
+            hour: 9,
+            weekday: 1,
+            customCron: "",
+        })
+
+        expect(result).toContain("Еженедельно")
+    })
+
+    it("when mode is custom with cron, then returns cron string", (): void => {
+        const result = getRescanSummaryLabel({
+            mode: "custom",
+            minute: 0,
+            hour: 0,
+            weekday: 0,
+            customCron: "*/5 * * * *",
+        })
+
+        expect(result).toContain("Кастомный cron")
+        expect(result).toContain("*/5 * * * *")
+    })
+
+    it("when mode is custom with empty cron, then returns 'not set' message", (): void => {
+        const result = getRescanSummaryLabel({
+            mode: "custom",
+            minute: 0,
+            hour: 0,
+            weekday: 0,
+            customCron: "",
+        })
+
+        expect(result).toContain("Кастомный cron не задан")
     })
 })
