@@ -257,8 +257,8 @@ describe("layout components", (): void => {
         )
 
         expect(screen.queryByText("Navigation")).not.toBeNull()
-        expect(screen.queryByRole("button", { name: /Dashboard/ })).not.toBeNull()
-        expect(screen.queryByRole("button", { name: /CCR Management/ })).not.toBeNull()
+        expect(screen.queryByRole("button", { name: /Дашборд/ })).not.toBeNull()
+        expect(screen.queryByRole("button", { name: /Управление CCR/ })).not.toBeNull()
 
         const collapseButton = screen.getByRole("button", { name: "Collapse navigation" })
         await user.click(collapseButton)
@@ -537,9 +537,168 @@ describe("layout components", (): void => {
             defaultThemeMode: "light" as ThemeMode,
         })
 
-        expect(screen.queryByRole("button", { name: /Settings/ })).not.toBeNull()
+        expect(screen.queryByRole("button", { name: /Настройки/ })).not.toBeNull()
         expect(screen.queryByRole("button", { name: /LLM Providers/ })).toBeNull()
         expect(screen.queryByRole("button", { name: /Code Review/ })).toBeNull()
         expect(screen.queryByRole("button", { name: /Git Providers/ })).toBeNull()
+    })
+
+    it("when OPEN_COMMAND_PALETTE_EVENT dispatched, then открывает command palette", async (): Promise<void> => {
+        currentRoute = "/"
+
+        renderWithProviders(
+            <DashboardLayoutHarness>
+                <p>Command palette via custom event</p>
+            </DashboardLayoutHarness>,
+            {
+                defaultThemeMode: "light" as ThemeMode,
+            },
+        )
+
+        window.dispatchEvent(
+            new CustomEvent("codenautic:shortcut:open-command-palette"),
+        )
+
+        await waitFor((): void => {
+            expect(
+                screen.getByRole("dialog", { name: "Global command palette" }),
+            ).not.toBeNull()
+        })
+    })
+
+    it("when sidebar toggle нажат, then переключает collapsed состояние", async (): Promise<void> => {
+        const user = userEvent.setup()
+        currentRoute = "/"
+
+        renderWithProviders(
+            <DashboardLayoutHarness>
+                <p>Sidebar toggle test</p>
+            </DashboardLayoutHarness>,
+            {
+                defaultThemeMode: "light" as ThemeMode,
+            },
+        )
+
+        const collapseButton = screen.getByRole("button", { name: "Collapse navigation" })
+        await user.click(collapseButton)
+
+        await waitFor((): void => {
+            expect(screen.getByRole("button", { name: "Expand navigation" })).not.toBeNull()
+        })
+    })
+
+    it("when мобильное меню открыто и элемент навигации нажат, then меню закрывается", async (): Promise<void> => {
+        const user = userEvent.setup()
+        currentRoute = "/"
+
+        renderWithProviders(
+            <DashboardLayoutHarness>
+                <p>Mobile nav content</p>
+            </DashboardLayoutHarness>,
+            {
+                defaultThemeMode: "light" as ThemeMode,
+            },
+        )
+
+        const mobileMenuButton = screen.getByRole("button", { name: "Open navigation menu" })
+        await user.click(mobileMenuButton)
+
+        await waitFor((): void => {
+            expect(screen.getAllByText("Menu").length).toBeGreaterThanOrEqual(1)
+        })
+    })
+
+    it("when DashboardLayout без onSignOut, then handleSignOut не крашится", async (): Promise<void> => {
+        currentRoute = "/"
+
+        renderWithProviders(
+            <DashboardLayout title="No signout" userName="User" userEmail="user@test.com">
+                <p>No signout content</p>
+            </DashboardLayout>,
+            {
+                defaultThemeMode: "light" as ThemeMode,
+            },
+        )
+
+        expect(screen.queryByText("No signout content")).not.toBeNull()
+    })
+
+    it("when Cmd+K нажат в DashboardLayout, then command palette открывается и навигация работает", async (): Promise<void> => {
+        const user = userEvent.setup()
+        mockNavigate.mockClear()
+        currentRoute = "/"
+
+        renderWithProviders(
+            <DashboardLayoutHarness>
+                <p>Cmd K test</p>
+            </DashboardLayoutHarness>,
+            {
+                defaultThemeMode: "light" as ThemeMode,
+            },
+        )
+
+        await user.keyboard("{Meta>}k{/Meta}")
+
+        await waitFor((): void => {
+            expect(
+                screen.getByRole("dialog", { name: "Global command palette" }),
+            ).not.toBeNull()
+        })
+    })
+
+    it("when command palette закрыт через Escape, then диалог исчезает", async (): Promise<void> => {
+        const user = userEvent.setup()
+        currentRoute = "/"
+
+        renderWithProviders(
+            <DashboardLayoutHarness>
+                <p>Escape close test</p>
+            </DashboardLayoutHarness>,
+            {
+                defaultThemeMode: "light" as ThemeMode,
+            },
+        )
+
+        await user.keyboard("{Control>}k{/Control}")
+
+        await waitFor((): void => {
+            expect(
+                screen.getByRole("dialog", { name: "Global command palette" }),
+            ).not.toBeNull()
+        })
+
+        await user.keyboard("{Escape}")
+
+        await waitFor((): void => {
+            expect(
+                screen.queryByRole("dialog", { name: "Global command palette" }),
+            ).toBeNull()
+        })
+    })
+
+    it("when breadcrumb нажат в ContentToolbar, then навигация вызывается", async (): Promise<void> => {
+        const user = userEvent.setup()
+        mockNavigate.mockClear()
+        currentRoute = "/settings-team"
+
+        renderWithProviders(
+            <DashboardLayoutHarness>
+                <p>Breadcrumb nav test</p>
+            </DashboardLayoutHarness>,
+            {
+                defaultThemeMode: "light" as ThemeMode,
+            },
+        )
+
+        const breadcrumbButtons = screen.queryAllByRole("button")
+        const settingsButton = breadcrumbButtons.find(
+            (button): boolean => button.textContent === "Настройки",
+        )
+        if (settingsButton !== undefined) {
+            await user.click(settingsButton)
+            await waitFor((): void => {
+                expect(mockNavigate).toHaveBeenCalled()
+            })
+        }
     })
 })

@@ -5,7 +5,6 @@ import {
     buildGraphSvg,
     resolveGraphPngCanvasSize,
     exportGraphAsSvg,
-    exportGraphAsPng,
     exportGraphAsJson,
 } from "@/components/graphs/graph-export"
 import type { IGraphLayoutNode, IGraphEdge } from "@/components/graphs/xyflow-graph-layout"

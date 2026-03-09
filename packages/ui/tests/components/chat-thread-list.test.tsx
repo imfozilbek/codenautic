@@ -146,4 +146,200 @@ describe("chat thread list", (): void => {
         await user.type(repoFilter, "not-existing")
         expect(screen.getByText("No threads found")).not.toBeNull()
     })
+
+    it("показывает пустой список, когда threads пуст", (): void => {
+        renderWithProviders(
+            <ChatThreadList
+                onArchiveThread={vi.fn()}
+                onCloseThread={vi.fn()}
+                onNewThread={vi.fn()}
+                onSelectThread={vi.fn()}
+                threads={[]}
+            />,
+        )
+
+        expect(screen.getByText("No threads found")).not.toBeNull()
+    })
+
+    it("фильтрует треды только по ccr, оставляя repo незаполненным", async (): Promise<void> => {
+        const user = userEvent.setup()
+        renderWithProviders(
+            <ChatThreadList
+                onArchiveThread={vi.fn()}
+                onCloseThread={vi.fn()}
+                onNewThread={vi.fn()}
+                onSelectThread={vi.fn()}
+                threads={threads}
+            />,
+        )
+
+        const ccrFilter = screen.getByLabelText("Filter by CCR")
+        await user.type(ccrFilter, "1201")
+        expect(screen.getByText("Alpha review")).not.toBeNull()
+        expect(screen.queryByText("Beta review")).toBeNull()
+    })
+
+    it("очистка repo фильтра восстанавливает все треды", async (): Promise<void> => {
+        const user = userEvent.setup()
+        renderWithProviders(
+            <ChatThreadList
+                onArchiveThread={vi.fn()}
+                onCloseThread={vi.fn()}
+                onNewThread={vi.fn()}
+                onSelectThread={vi.fn()}
+                threads={threads}
+            />,
+        )
+
+        const repoFilter = screen.getByLabelText("Filter by repo")
+        await user.type(repoFilter, "alpha")
+        expect(screen.queryByText("Beta review")).toBeNull()
+
+        await user.clear(repoFilter)
+        expect(screen.getByText("Alpha review")).not.toBeNull()
+        expect(screen.getByText("Beta review")).not.toBeNull()
+    })
+
+    it("не подсвечивает треды, когда activeThreadId не задан", (): void => {
+        renderWithProviders(
+            <ChatThreadList
+                onArchiveThread={vi.fn()}
+                onCloseThread={vi.fn()}
+                onNewThread={vi.fn()}
+                onSelectThread={vi.fn()}
+                threads={threads}
+            />,
+        )
+
+        const allPressedButtons = screen
+            .getAllByRole("button", { name: /Open thread/ })
+            .filter(
+                (button): boolean => button.getAttribute("aria-pressed") === "true",
+            )
+        expect(allPressedButtons.length).toBe(0)
+    })
+
+    it("рендерит repo и ccr info в каждом thread item", (): void => {
+        renderWithProviders(
+            <ChatThreadList
+                onArchiveThread={vi.fn()}
+                onCloseThread={vi.fn()}
+                onNewThread={vi.fn()}
+                onSelectThread={vi.fn()}
+                threads={threads}
+            />,
+        )
+
+        expect(screen.getByText("repo-alpha")).not.toBeNull()
+        expect(screen.getByText("CCR: 1201")).not.toBeNull()
+        expect(screen.getByText("repo-beta")).not.toBeNull()
+        expect(screen.getByText("CCR: 1202")).not.toBeNull()
+    })
+
+    it("вызывает close и archive для второго треда", async (): Promise<void> => {
+        const user = userEvent.setup()
+        const onCloseThread = vi.fn()
+        const onArchiveThread = vi.fn()
+        renderWithProviders(
+            <ChatThreadList
+                onArchiveThread={onArchiveThread}
+                onCloseThread={onCloseThread}
+                onNewThread={vi.fn()}
+                onSelectThread={vi.fn()}
+                threads={threads}
+            />,
+        )
+
+        const closeButton = screen.getByRole("button", {
+            name: "Close thread Beta review",
+        })
+        await user.click(closeButton)
+        expect(onCloseThread).toHaveBeenCalledWith("thread-2")
+
+        const archiveButton = screen.getByRole("button", {
+            name: "Archive thread Beta review",
+        })
+        await user.click(archiveButton)
+        expect(onArchiveThread).toHaveBeenCalledWith("thread-2")
+    })
+
+    it("фильтрует case-insensitive по repo", async (): Promise<void> => {
+        const user = userEvent.setup()
+        renderWithProviders(
+            <ChatThreadList
+                onArchiveThread={vi.fn()}
+                onCloseThread={vi.fn()}
+                onNewThread={vi.fn()}
+                onSelectThread={vi.fn()}
+                threads={threads}
+            />,
+        )
+
+        const repoFilter = screen.getByLabelText("Filter by repo")
+        await user.type(repoFilter, "ALPHA")
+        expect(screen.getByText("Alpha review")).not.toBeNull()
+        expect(screen.queryByText("Beta review")).toBeNull()
+    })
+
+    it("рендерит aria-label 'Conversation threads' для списка", (): void => {
+        renderWithProviders(
+            <ChatThreadList
+                onArchiveThread={vi.fn()}
+                onCloseThread={vi.fn()}
+                onNewThread={vi.fn()}
+                onSelectThread={vi.fn()}
+                threads={threads}
+            />,
+        )
+
+        expect(screen.getByRole("list", { name: "Conversation threads" })).not.toBeNull()
+    })
+
+    it("рендерит aside с aria-label 'Chat threads'", (): void => {
+        renderWithProviders(
+            <ChatThreadList
+                onArchiveThread={vi.fn()}
+                onCloseThread={vi.fn()}
+                onNewThread={vi.fn()}
+                onSelectThread={vi.fn()}
+                threads={threads}
+            />,
+        )
+
+        expect(screen.getByRole("complementary", { name: "Chat threads" })).not.toBeNull()
+    })
+
+    it("комбинированный фильтр repo + ccr сужает результаты", async (): Promise<void> => {
+        const user = userEvent.setup()
+        const extendedThreads: ReadonlyArray<IChatThread> = [
+            ...threads,
+            {
+                ccr: "1201",
+                id: "thread-3",
+                isArchived: false,
+                repo: "repo-gamma",
+                title: "Gamma review",
+            },
+        ]
+
+        renderWithProviders(
+            <ChatThreadList
+                onArchiveThread={vi.fn()}
+                onCloseThread={vi.fn()}
+                onNewThread={vi.fn()}
+                onSelectThread={vi.fn()}
+                threads={extendedThreads}
+            />,
+        )
+
+        const repoFilter = screen.getByLabelText("Filter by repo")
+        await user.type(repoFilter, "alpha")
+        expect(screen.getByText("Alpha review")).not.toBeNull()
+        expect(screen.queryByText("Beta review")).toBeNull()
+        expect(screen.queryByText("Gamma review")).toBeNull()
+
+        const ccrFilter = screen.getByLabelText("Filter by CCR")
+        await user.type(ccrFilter, "1201")
+        expect(screen.getByText("Alpha review")).not.toBeNull()
+    })
 })

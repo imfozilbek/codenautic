@@ -59,7 +59,7 @@ describe("ReviewsFilters", (): void => {
         const props = { ...createDefaultProps(), search: "my-repo" }
         renderWithProviders(<ReviewsFilters {...props} />)
 
-        const searchInput = screen.getByLabelText("Search CCR")
+        const searchInput: HTMLInputElement = screen.getByLabelText("Search CCR")
         expect(searchInput.value).toBe("my-repo")
     })
 

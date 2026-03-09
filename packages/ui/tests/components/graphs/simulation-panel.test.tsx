@@ -164,7 +164,11 @@ describe("SimulationPanel (extended)", (): void => {
     })
 
     it("when only one target is provided, then shows it checked by default", (): void => {
-        const singleTarget: ReadonlyArray<IRefactoringTargetDescriptor> = [TEST_TARGETS[0]!]
+        const firstTarget = TEST_TARGETS[0]
+        if (firstTarget === undefined) {
+            throw new Error("TEST_TARGETS must have at least one entry")
+        }
+        const singleTarget: ReadonlyArray<IRefactoringTargetDescriptor> = [firstTarget]
         renderWithProviders(<SimulationPanel targets={singleTarget} />)
 
         const checkbox = screen.getByRole("checkbox", {
