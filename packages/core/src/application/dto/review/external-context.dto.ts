@@ -168,7 +168,28 @@ export interface ILinearIssue {
  * External error model for Sentry platform.
  */
 export interface ISentryError {
+    /**
+     * Stable Sentry issue identifier.
+     */
     readonly id: string
+
+    /**
+     * Human-readable issue title.
+     */
     readonly title: string
+
+    /**
+     * Normalized stack trace lines.
+     */
     readonly stackTrace: readonly string[]
+
+    /**
+     * Optional normalized issue frequency.
+     */
+    readonly frequency?: number
+
+    /**
+     * Optional normalized number of affected users.
+     */
+    readonly affectedUsers?: number
 }

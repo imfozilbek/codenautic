@@ -4,6 +4,7 @@ import type {
     ILinearIssue,
     ILinearProjectContext,
     ILinearSubIssue,
+    ISentryError,
 } from "@codenautic/core"
 
 const DEFAULT_FETCHED_AT = new Date(0)
@@ -65,6 +66,31 @@ export function mapExternalLinearIssue(payload: unknown): ILinearIssue {
 }
 
 /**
+ * Normalizes external Sentry payload to shared error DTO.
+ *
+ * @param payload External Sentry payload.
+ * @returns Normalized Sentry error DTO.
+ */
+export function mapExternalSentryError(payload: unknown): ISentryError {
+    const root = toRecord(payload) ?? EMPTY_RECORD
+    const stackTrace = resolveSentryStackTrace(root)
+    const frequency = resolveOptionalSentryMetric(root, ["frequency", "count", "eventCount"])
+    const affectedUsers = resolveOptionalSentryMetric(root, [
+        "affectedUsers",
+        "userCount",
+        "users",
+    ])
+
+    return {
+        id: readIdentifier(root, ["id", "issueId", "shortId"], "UNKNOWN"),
+        title: resolveSentryTitle(root),
+        stackTrace,
+        ...(frequency !== undefined ? {frequency} : {}),
+        ...(affectedUsers !== undefined ? {affectedUsers} : {}),
+    }
+}
+
+/**
  * Normalizes external Jira context payload.
  *
  * @param payload External Jira payload.
@@ -105,6 +131,27 @@ export function mapLinearContext(payload: unknown): IExternalContext {
             ...(cycle !== undefined ? {cycle} : {}),
             ...(issue.project !== undefined ? {project: issue.project} : {}),
             ...(issue.subIssues !== undefined ? {subIssues: issue.subIssues} : {}),
+        },
+        fetchedAt: resolveFetchedAt(root),
+    }
+}
+
+/**
+ * Normalizes external Sentry context payload.
+ *
+ * @param payload External Sentry payload.
+ * @returns Shared external context.
+ */
+export function mapSentryContext(payload: unknown): IExternalContext {
+    const root = toRecord(payload) ?? EMPTY_RECORD
+    const error = mapExternalSentryError(payload)
+
+    return {
+        source: "SENTRY",
+        data: {
+            error,
+            ...(error.frequency !== undefined ? {frequency: error.frequency} : {}),
+            ...(error.affectedUsers !== undefined ? {affectedUsers: error.affectedUsers} : {}),
         },
         fetchedAt: resolveFetchedAt(root),
     }
@@ -404,6 +451,428 @@ function normalizeLinearPriority(value: unknown): string | undefined {
         default:
             return undefined
     }
+}
+
+/**
+ * Resolves human-readable Sentry error title.
+ *
+ * @param root Sentry root payload.
+ * @returns Title with deterministic fallback.
+ */
+function resolveSentryTitle(root: Readonly<Record<string, unknown>>): string {
+    const exceptionTitle = resolveSentryExceptionTitle(root)
+    if (exceptionTitle !== undefined) {
+        return exceptionTitle
+    }
+
+    const metadata = toRecord(root["metadata"])
+
+    return readText(metadata, ["title"], readText(root, ["title", "culprit", "message"], "(no title)"))
+}
+
+/**
+ * Resolves exception-based title from nested Sentry payloads.
+ *
+ * @param root Sentry root payload.
+ * @returns Title when exception payload is present.
+ */
+function resolveSentryExceptionTitle(
+    root: Readonly<Record<string, unknown>>,
+): string | undefined {
+    const events = resolveSentryEventCandidates(root)
+
+    for (const event of events) {
+        const exception = resolveSentryEventException(event)
+        if (exception === null) {
+            continue
+        }
+
+        const type = readText(exception, ["type"])
+        const value = readText(exception, ["value"])
+
+        if (type.length > 0 && value.length > 0) {
+            return `${type}: ${value}`
+        }
+
+        if (value.length > 0) {
+            return value
+        }
+
+        if (type.length > 0) {
+            return type
+        }
+    }
+
+    return undefined
+}
+
+/**
+ * Resolves normalized stack trace lines from common Sentry payload shapes.
+ *
+ * @param root Sentry root payload.
+ * @returns Stack trace lines.
+ */
+function resolveSentryStackTrace(root: Readonly<Record<string, unknown>>): readonly string[] {
+    const directCandidates: readonly unknown[] = [
+        root["stackTrace"],
+        root["stacktrace"],
+        root["stack"],
+    ]
+
+    for (const candidate of directCandidates) {
+        const directLines = extractNormalizedStackTraceLines(candidate)
+        if (directLines.length > 0) {
+            return directLines
+        }
+    }
+
+    for (const event of resolveSentryEventCandidates(root)) {
+        const eventStackTrace = extractSentryEventStackTrace(event)
+        if (eventStackTrace.length > 0) {
+            return eventStackTrace
+        }
+    }
+
+    return []
+}
+
+/**
+ * Resolves optional Sentry metric from common payload keys.
+ *
+ * @param root Sentry root payload.
+ * @param keys Candidate metric keys.
+ * @returns Positive integer metric when available.
+ */
+function resolveOptionalSentryMetric(
+    root: Readonly<Record<string, unknown>>,
+    keys: readonly string[],
+): number | undefined {
+    for (const key of keys) {
+        const metric = readPositiveInteger(root[key])
+        if (metric !== undefined) {
+            return metric
+        }
+    }
+
+    return undefined
+}
+
+/**
+ * Collects Sentry event candidates from direct and nested payloads.
+ *
+ * @param root Sentry root payload.
+ * @returns Event candidate list.
+ */
+function resolveSentryEventCandidates(
+    root: Readonly<Record<string, unknown>>,
+): readonly Readonly<Record<string, unknown>>[] {
+    const candidates: readonly unknown[] = [
+        root["event"],
+        root["latestEvent"],
+        ...toArray(root["events"]),
+    ]
+
+    return candidates.flatMap((candidate) => {
+        const event = toRecord(candidate)
+        return event === null ? [] : [event]
+    })
+}
+
+/**
+ * Extracts stack trace from a single Sentry event payload.
+ *
+ * @param event Sentry event payload.
+ * @returns Normalized stack trace lines.
+ */
+function extractSentryEventStackTrace(
+    event: Readonly<Record<string, unknown>>,
+): readonly string[] {
+    const primaryException = resolveSentryEventException(event)
+    if (primaryException !== null) {
+        const exceptionStackTrace = extractNormalizedStackTraceLines(
+            primaryException["stacktrace"] ?? primaryException["rawStacktrace"] ?? primaryException["stack"],
+        )
+        if (exceptionStackTrace.length > 0) {
+            return exceptionStackTrace
+        }
+    }
+
+    const entryStackTrace = extractStackTraceFromEntries(event)
+    if (entryStackTrace.length > 0) {
+        return entryStackTrace
+    }
+
+    return extractNormalizedStackTraceLines(event["stacktrace"] ?? event["stack"])
+}
+
+/**
+ * Resolves primary exception record from direct or entry-based Sentry event payload.
+ *
+ * @param event Sentry event payload.
+ * @returns Primary exception record or null.
+ */
+function resolveSentryEventException(
+    event: Readonly<Record<string, unknown>>,
+): Readonly<Record<string, unknown>> | null {
+    return resolveSentryPrimaryException(event) ?? resolveSentryExceptionFromEntries(event)
+}
+
+/**
+ * Resolves primary exception record from direct Sentry event payload.
+ *
+ * @param event Sentry event payload.
+ * @returns Primary exception record or null.
+ */
+function resolveSentryPrimaryException(
+    event: Readonly<Record<string, unknown>>,
+): Readonly<Record<string, unknown>> | null {
+    const exception = toRecord(event["exception"])
+    const values = toArray(exception?.["values"])
+
+    for (const value of values) {
+        const record = toRecord(value)
+        if (record !== null) {
+            return record
+        }
+    }
+
+    return null
+}
+
+/**
+ * Resolves primary exception record from Sentry entry payloads.
+ *
+ * @param event Sentry event payload.
+ * @returns Primary exception record or null.
+ */
+function resolveSentryExceptionFromEntries(
+    event: Readonly<Record<string, unknown>>,
+): Readonly<Record<string, unknown>> | null {
+    for (const entryCandidate of toArray(event["entries"])) {
+        const entry = toRecord(entryCandidate)
+        if (entry === null) {
+            continue
+        }
+
+        const data = toRecord(entry["data"])
+        const exception = resolveSentryPrimaryException({
+            exception: {
+                values: toArray(data?.["values"]),
+            },
+        })
+
+        if (exception !== null) {
+            return exception
+        }
+    }
+
+    return null
+}
+
+/**
+ * Extracts stack trace from Sentry entry payloads.
+ *
+ * @param event Sentry event payload.
+ * @returns Normalized stack trace lines.
+ */
+function extractStackTraceFromEntries(
+    event: Readonly<Record<string, unknown>>,
+): readonly string[] {
+    for (const entryCandidate of toArray(event["entries"])) {
+        const entry = toRecord(entryCandidate)
+        if (entry === null) {
+            continue
+        }
+
+        const data = toRecord(entry["data"])
+        if (data === null) {
+            continue
+        }
+
+        const fromExceptionValues = extractStackTraceFromExceptionValues(data["values"])
+        if (fromExceptionValues.length > 0) {
+            return fromExceptionValues
+        }
+
+        const directStackTrace = extractNormalizedStackTraceLines(
+            data["stacktrace"] ?? data["rawStacktrace"] ?? data["stack"],
+        )
+        if (directStackTrace.length > 0) {
+            return directStackTrace
+        }
+    }
+
+    return []
+}
+
+/**
+ * Extracts stack trace from exception values array.
+ *
+ * @param values Exception values candidate.
+ * @returns Normalized stack trace lines.
+ */
+function extractStackTraceFromExceptionValues(values: unknown): readonly string[] {
+    for (const valueCandidate of toArray(values)) {
+        const value = toRecord(valueCandidate)
+        if (value === null) {
+            continue
+        }
+
+        const stackTrace = extractNormalizedStackTraceLines(
+            value["stacktrace"] ?? value["rawStacktrace"] ?? value["stack"],
+        )
+        if (stackTrace.length > 0) {
+            return stackTrace
+        }
+    }
+
+    return []
+}
+
+/**
+ * Extracts normalized stack trace lines from strings, arrays, or frame payloads.
+ *
+ * @param value Stack trace candidate.
+ * @returns Normalized stack trace lines.
+ */
+function extractNormalizedStackTraceLines(value: unknown): readonly string[] {
+    if (typeof value === "string") {
+        return splitStackTraceText(value)
+    }
+
+    if (Array.isArray(value)) {
+        const lines = value.flatMap((item) => {
+            return [...extractNormalizedStackTraceLines(item)]
+        })
+
+        return deduplicateSequentialLines(lines)
+    }
+
+    const record = toRecord(value)
+    if (record === null) {
+        return []
+    }
+
+    const directStack = splitStackTraceText(
+        readText(record, ["stack", "value", "message"]),
+    )
+    if (directStack.length > 0) {
+        return directStack
+    }
+
+    const valuesStack = extractStackTraceFromExceptionValues(record["values"])
+    if (valuesStack.length > 0) {
+        return valuesStack
+    }
+
+    const frames = toArray(record["frames"])
+    if (frames.length > 0) {
+        return mapSentryFramesToLines(frames)
+    }
+
+    return extractNormalizedStackTraceLines(record["stacktrace"] ?? record["rawStacktrace"])
+}
+
+/**
+ * Maps Sentry stack-trace frames to deterministic text lines.
+ *
+ * @param frames Stack frame payloads.
+ * @returns Normalized stack trace lines.
+ */
+function mapSentryFramesToLines(frames: readonly unknown[]): readonly string[] {
+    const lines = frames
+        .flatMap((frameCandidate) => {
+            const frame = toRecord(frameCandidate)
+            if (frame === null) {
+                return []
+            }
+
+            const line = formatSentryFrame(frame)
+            return line === undefined ? [] : [line]
+        })
+
+    return deduplicateSequentialLines(lines)
+}
+
+/**
+ * Formats a single Sentry frame into readable stack line.
+ *
+ * @param frame Frame payload.
+ * @returns Stack line when frame contains enough data.
+ */
+function formatSentryFrame(
+    frame: Readonly<Record<string, unknown>>,
+): string | undefined {
+    const functionName = readText(frame, ["function"])
+    const fileName = readText(frame, ["filename", "absPath", "module"])
+    const lineNumber = readPositiveInteger(frame["lineNo"] ?? frame["lineno"])
+    const columnNumber = readPositiveInteger(frame["colNo"] ?? frame["colno"])
+
+    if (functionName.length === 0 && fileName.length === 0) {
+        return undefined
+    }
+
+    const location = formatSentryFrameLocation(fileName, lineNumber, columnNumber)
+    if (location !== undefined && functionName.length > 0) {
+        return `at ${functionName} (${location})`
+    }
+
+    if (location !== undefined) {
+        return `at ${location}`
+    }
+
+    return `at ${functionName}`
+}
+
+/**
+ * Formats frame location tuple into stable `file:line:column` text.
+ *
+ * @param fileName Frame file name.
+ * @param lineNumber Optional line number.
+ * @param columnNumber Optional column number.
+ * @returns Formatted location or undefined.
+ */
+function formatSentryFrameLocation(
+    fileName: string,
+    lineNumber: number | undefined,
+    columnNumber: number | undefined,
+): string | undefined {
+    const segments: string[] = []
+
+    if (fileName.length > 0) {
+        segments.push(fileName)
+    }
+
+    if (lineNumber !== undefined) {
+        segments.push(String(lineNumber))
+    }
+
+    if (columnNumber !== undefined) {
+        segments.push(String(columnNumber))
+    }
+
+    if (segments.length === 0) {
+        return undefined
+    }
+
+    return segments.join(":")
+}
+
+/**
+ * Splits stack trace text into normalized lines.
+ *
+ * @param value Raw stack text.
+ * @returns Non-empty normalized lines.
+ */
+function splitStackTraceText(value: string): readonly string[] {
+    return value
+        .split("\n")
+        .map((line) => {
+            return normalizeSingleLineText(line)
+        })
+        .filter((line) => {
+            return line.length > 0
+        })
 }
 
 /**
@@ -795,6 +1264,9 @@ function resolveFetchedAt(root: Readonly<Record<string, unknown>>): Date {
         root["fetchedAt"],
         root["updatedAt"],
         root["updated_at"],
+        root["lastSeen"],
+        root["last_seen"],
+        root["dateCreated"],
         root["timestamp"],
     ]
 
@@ -897,6 +1369,32 @@ function readIdentifier(
     }
 
     return fallback
+}
+
+/**
+ * Reads positive integer metric from unknown value.
+ *
+ * @param value Candidate metric value.
+ * @returns Positive integer when value is finite and greater than zero or zero.
+ */
+function readPositiveInteger(value: unknown): number | undefined {
+    if (typeof value === "number" && Number.isInteger(value) && value >= 0) {
+        return value
+    }
+
+    if (typeof value === "string") {
+        const trimmed = value.trim()
+        if (trimmed.length === 0) {
+            return undefined
+        }
+
+        const parsed = Number(trimmed)
+        if (Number.isInteger(parsed) && parsed >= 0) {
+            return parsed
+        }
+    }
+
+    return undefined
 }
 
 /**

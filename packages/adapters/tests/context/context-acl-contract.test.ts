@@ -5,10 +5,14 @@ import {
     JiraTicketAcl,
     LinearContextAcl,
     LinearIssueAcl,
+    SentryContextAcl,
+    SentryErrorAcl,
     mapExternalJiraTicket,
     mapExternalLinearIssue,
+    mapExternalSentryError,
     mapJiraContext,
     mapLinearContext,
+    mapSentryContext,
 } from "../../src/context"
 
 describe("Context ACL contract", () => {
@@ -778,11 +782,112 @@ describe("Context ACL contract", () => {
         })
     })
 
-    test("exposes class-based ACL wrappers for Jira and Linear", () => {
+    test("maps Sentry error stack trace, frequency and affected users into deterministic DTO", () => {
+        const error = mapExternalSentryError({
+            id: "issue-7788",
+            title: "   ",
+            count: "31",
+            userCount: 7,
+            latestEvent: {
+                exception: {
+                    values: [
+                        {
+                            type: "TypeError",
+                            value: "Cannot read properties of undefined (reading 'id')",
+                            stacktrace: {
+                                frames: [
+                                    {
+                                        function: "ReviewPipelineStage.execute",
+                                        filename: "/app/src/review/pipeline-stage.ts",
+                                        lineNo: 81,
+                                        colNo: 17,
+                                    },
+                                    {
+                                        function: "ReviewWorker.handle",
+                                        filename: "/app/src/review/review-worker.ts",
+                                        lineNo: 44,
+                                        colNo: 9,
+                                    },
+                                ],
+                            },
+                        },
+                    ],
+                },
+            },
+        })
+
+        expect(error).toEqual({
+            id: "issue-7788",
+            title: "TypeError: Cannot read properties of undefined (reading 'id')",
+            stackTrace: [
+                "at ReviewPipelineStage.execute (/app/src/review/pipeline-stage.ts:81:17)",
+                "at ReviewWorker.handle (/app/src/review/review-worker.ts:44:9)",
+            ],
+            frequency: 31,
+            affectedUsers: 7,
+        })
+    })
+
+    test("normalizes malformed Sentry payload into safe domain DTO", () => {
+        const error = mapExternalSentryError({
+            issueId: 404,
+            culprit: 500,
+            stackTrace: [
+                "  TypeError: broken  ",
+                "",
+                " at handler (/srv/app.ts:10:2) ",
+            ],
+            frequency: "not-a-number",
+            affectedUsers: -1,
+        })
+
+        expect(error).toEqual({
+            id: "404",
+            title: "(no title)",
+            stackTrace: [
+                "TypeError: broken",
+                "at handler (/srv/app.ts:10:2)",
+            ],
+        })
+    })
+
+    test("builds normalized Sentry context with parsed fetchedAt", () => {
+        const context = mapSentryContext({
+            id: "issue-1",
+            title: "Queue stalled",
+            count: 9,
+            userCount: "3",
+            updatedAt: "2026-03-09T08:30:00.000Z",
+            stackTrace: "Error: Queue stalled\nat Worker.process (/srv/worker.ts:18:4)",
+        })
+
+        expect(context).toEqual({
+            source: "SENTRY",
+            data: {
+                error: {
+                    id: "issue-1",
+                    title: "Queue stalled",
+                    stackTrace: [
+                        "Error: Queue stalled",
+                        "at Worker.process (/srv/worker.ts:18:4)",
+                    ],
+                    frequency: 9,
+                    affectedUsers: 3,
+                },
+                frequency: 9,
+                affectedUsers: 3,
+            },
+            fetchedAt: new Date("2026-03-09T08:30:00.000Z"),
+        })
+    })
+
+    test("exposes class-based ACL wrappers for Jira, Linear and Sentry", () => {
         const jiraTicketAcl = new JiraTicketAcl()
         const linearIssueAcl = new LinearIssueAcl()
+        const sentryErrorAcl = new SentryErrorAcl()
         const jiraContextAcl = new JiraContextAcl()
         const linearContextAcl = new LinearContextAcl()
+        const sentryContextAcl = new SentryContextAcl()
 
         const jiraTicket = jiraTicketAcl.toDomain({
             key: "PRJ-7",
@@ -793,6 +898,11 @@ describe("Context ACL contract", () => {
             id: "LIN-3",
             title: "Issue",
             state: "Todo",
+        })
+        const sentryError = sentryErrorAcl.toDomain({
+            id: "issue-5",
+            title: "Worker exploded",
+            stackTrace: "Error: Worker exploded\nat Worker.run (/srv/worker.ts:4:2)",
         })
         const jiraContext = jiraContextAcl.toDomain({
             key: "PRJ-7",
@@ -806,6 +916,12 @@ describe("Context ACL contract", () => {
             state: "Todo",
             timestamp: 0,
         })
+        const sentryContext = sentryContextAcl.toDomain({
+            id: "issue-5",
+            title: "Worker exploded",
+            stackTrace: "Error: Worker exploded\nat Worker.run (/srv/worker.ts:4:2)",
+            fetchedAt: new Date("2026-03-07T16:00:00.000Z"),
+        })
 
         expect(jiraTicket).toEqual({
             key: "PRJ-7",
@@ -817,8 +933,17 @@ describe("Context ACL contract", () => {
             title: "Issue",
             state: "Todo",
         })
+        expect(sentryError).toEqual({
+            id: "issue-5",
+            title: "Worker exploded",
+            stackTrace: [
+                "Error: Worker exploded",
+                "at Worker.run (/srv/worker.ts:4:2)",
+            ],
+        })
         expect(jiraContext.source).toBe("JIRA")
         expect(linearContext.source).toBe("LINEAR")
+        expect(sentryContext.source).toBe("SENTRY")
     })
 
     test("keeps context payload free from raw sdk-specific root fields", () => {
@@ -839,12 +964,21 @@ describe("Context ACL contract", () => {
             state: "Done",
             sdkRootField: "must-not-leak",
         })
+        const sentry = mapSentryContext({
+            id: "issue-1",
+            title: "C",
+            stackTrace: "Error: C",
+            sdkRootField: "must-not-leak",
+        })
 
         expect(Object.keys(jira.data as Record<string, unknown>).sort()).toEqual([
             "ticket",
         ])
         expect(Object.keys(linear.data as Record<string, unknown>).sort()).toEqual([
             "issue",
+        ])
+        expect(Object.keys(sentry.data as Record<string, unknown>).sort()).toEqual([
+            "error",
         ])
     })
 })

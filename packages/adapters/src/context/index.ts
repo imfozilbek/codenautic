@@ -3,10 +3,14 @@ export {
     JiraTicketAcl,
     LinearContextAcl,
     LinearIssueAcl,
+    SentryContextAcl,
+    SentryErrorAcl,
     mapExternalJiraTicket,
     mapExternalLinearIssue,
+    mapExternalSentryError,
     mapJiraContext,
     mapLinearContext,
+    mapSentryContext,
 } from "./acl"
 export {
     JiraProvider,
@@ -32,6 +36,15 @@ export {
     type ILinearSearchIssuesRequest,
 } from "./linear-provider"
 export {
+    SentryProvider,
+    type ISentryApiClient,
+    type ISentryApiResponse,
+    type ISentryGetIssueRequest,
+    type ISentryListIssueEventsRequest,
+    type ISentryProviderOptions,
+    type ISentryResponseHeaders,
+} from "./sentry-provider"
+export {
     JiraProviderError,
     type IJiraProviderErrorDetails,
 } from "./jira-provider.error"
@@ -39,3 +52,7 @@ export {
     LinearProviderError,
     type ILinearProviderErrorDetails,
 } from "./linear-provider.error"
+export {
+    SentryProviderError,
+    type ISentryProviderErrorDetails,
+} from "./sentry-provider.error"

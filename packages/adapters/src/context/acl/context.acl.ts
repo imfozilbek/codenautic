@@ -1,10 +1,18 @@
-import type {IAntiCorruptionLayer, IExternalContext, IJiraTicket, ILinearIssue} from "@codenautic/core"
+import type {
+    IAntiCorruptionLayer,
+    IExternalContext,
+    IJiraTicket,
+    ILinearIssue,
+    ISentryError,
+} from "@codenautic/core"
 
 import {
     mapExternalJiraTicket,
     mapExternalLinearIssue,
+    mapExternalSentryError,
     mapJiraContext,
     mapLinearContext,
+    mapSentryContext,
 } from "./context-acl-mapper"
 
 /**
@@ -84,5 +92,45 @@ export class LinearContextAcl implements IAntiCorruptionLayer<unknown, IExternal
      */
     public toDomain(external: unknown): IExternalContext {
         return mapLinearContext(external)
+    }
+}
+
+/**
+ * Sentry error ACL adapter.
+ */
+export class SentryErrorAcl implements IAntiCorruptionLayer<unknown, ISentryError> {
+    /**
+     * Creates Sentry error ACL adapter.
+     */
+    public constructor() {}
+
+    /**
+     * Converts external Sentry error payload to domain DTO.
+     *
+     * @param external External Sentry payload.
+     * @returns Domain Sentry error DTO.
+     */
+    public toDomain(external: unknown): ISentryError {
+        return mapExternalSentryError(external)
+    }
+}
+
+/**
+ * Sentry context ACL adapter.
+ */
+export class SentryContextAcl implements IAntiCorruptionLayer<unknown, IExternalContext> {
+    /**
+     * Creates Sentry context ACL adapter.
+     */
+    public constructor() {}
+
+    /**
+     * Converts external Sentry payload to shared external context.
+     *
+     * @param external External Sentry payload.
+     * @returns Shared external context.
+     */
+    public toDomain(external: unknown): IExternalContext {
+        return mapSentryContext(external)
     }
 }

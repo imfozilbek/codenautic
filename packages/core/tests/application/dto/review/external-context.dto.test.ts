@@ -4,6 +4,7 @@ import type {
     IExternalContext,
     IJiraTicket,
     ILinearIssue,
+    ISentryError,
 } from "../../../../src/application/dto/review/external-context.dto"
 
 describe("IExternalContext review DTO", () => {
@@ -82,5 +83,37 @@ describe("IExternalContext review DTO", () => {
             },
         ])
         expect(payload.source).toBe("LINEAR")
+    })
+
+    test("supports enriched Sentry error payload with stack trace and volume indicators", () => {
+        const error: ISentryError = {
+            id: "issue-7788",
+            title: "NullReferenceException in review worker",
+            stackTrace: [
+                "TypeError: Cannot read properties of undefined (reading 'id')",
+                "at ReviewPipelineStage.execute (/app/src/review/pipeline-stage.ts:81:17)",
+                "at async ReviewWorker.handle (/app/src/review/review-worker.ts:44:9)",
+            ],
+            frequency: 31,
+            affectedUsers: 7,
+        }
+        const payload: IExternalContext = {
+            source: "SENTRY",
+            data: {
+                error,
+                frequency: error.frequency,
+                affectedUsers: error.affectedUsers,
+            },
+            fetchedAt: new Date("2026-03-09T14:00:00.000Z"),
+        }
+
+        expect(error.stackTrace).toEqual([
+            "TypeError: Cannot read properties of undefined (reading 'id')",
+            "at ReviewPipelineStage.execute (/app/src/review/pipeline-stage.ts:81:17)",
+            "at async ReviewWorker.handle (/app/src/review/review-worker.ts:44:9)",
+        ])
+        expect(error.frequency).toBe(31)
+        expect(error.affectedUsers).toBe(7)
+        expect(payload.source).toBe("SENTRY")
     })
 })

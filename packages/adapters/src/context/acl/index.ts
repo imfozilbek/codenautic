@@ -1,7 +1,16 @@
 export {
     mapExternalJiraTicket,
     mapExternalLinearIssue,
+    mapExternalSentryError,
     mapJiraContext,
     mapLinearContext,
+    mapSentryContext,
 } from "./context-acl-mapper"
-export {JiraTicketAcl, LinearIssueAcl, JiraContextAcl, LinearContextAcl} from "./context.acl"
+export {
+    JiraTicketAcl,
+    LinearIssueAcl,
+    SentryErrorAcl,
+    JiraContextAcl,
+    LinearContextAcl,
+    SentryContextAcl,
+} from "./context.acl"
