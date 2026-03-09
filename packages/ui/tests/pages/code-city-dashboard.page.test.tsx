@@ -2,7 +2,7 @@ import { screen } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
-import { CodeCityDashboardPage } from "@/pages/code-city-dashboard.page"
+import { CodeCityDashboardPage } from "@/pages/code-city-dashboard"
 import { renderWithProviders } from "../utils/render"
 
 const { mockCodeCityTreemap } = vi.hoisted(() => ({

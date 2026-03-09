@@ -2,7 +2,7 @@ import { screen } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { describe, expect, it, vi } from "vitest"
 
-import { OnboardingWizardPage } from "@/pages/onboarding-wizard.page"
+import { OnboardingWizardPage } from "@/pages/onboarding-wizard"
 import { renderWithProviders } from "../utils/render"
 
 async function moveToRepositoryStep(user: ReturnType<typeof userEvent.setup>): Promise<void> {

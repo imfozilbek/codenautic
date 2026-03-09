@@ -13,8 +13,6 @@ import type { IAuthSession } from "@/lib/auth/types"
 function createSession(expiresAt: string): IAuthSession {
     return {
         provider: "github",
-        accessToken: "access-token",
-        refreshToken: "refresh-token",
         expiresAt,
         user: {
             id: "u-1",
@@ -43,20 +41,10 @@ describe("auth-session helpers", (): void => {
         expect(shouldRefreshAuthSession(validForLong, nowMs, 60_000)).toBe(false)
     })
 
-    it("сохраняет snapshot без токенов в sessionStorage", (): void => {
+    it("сохраняет snapshot в sessionStorage", (): void => {
         const session = createSession("2030-03-03T10:10:00.000Z")
 
         persistAuthSession(sessionStorage, session)
-
-        const raw = sessionStorage.getItem(AUTH_SESSION_STORAGE_KEY)
-        expect(raw).not.toBeNull()
-
-        if (raw === null) {
-            throw new Error("Ожидался сохранённый auth snapshot")
-        }
-
-        expect(raw.includes("accessToken")).toBe(false)
-        expect(raw.includes("refreshToken")).toBe(false)
 
         const restored = loadPersistedAuthSession(sessionStorage)
         expect(restored).toEqual({

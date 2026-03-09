@@ -2,7 +2,7 @@ import { fireEvent, screen, waitFor } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { describe, expect, it } from "vitest"
 
-import { SettingsContractValidationPage } from "@/pages/settings-contract-validation.page"
+import { SettingsContractValidationPage } from "@/pages/settings-contract-validation"
 import { renderWithProviders } from "../utils/render"
 
 describe("SettingsContractValidationPage", (): void => {

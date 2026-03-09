@@ -7,7 +7,6 @@ describe("App bootstrap", (): void => {
     it("поднимает router и рендерит главную страницу", async (): Promise<void> => {
         render(<App />)
 
-        expect(await screen.findByText("CodeNautic")).not.toBeNull()
-        expect(screen.queryAllByText("Dashboard").length).toBeGreaterThan(0)
+        expect((await screen.findAllByText("Dashboard")).length).toBeGreaterThan(0)
     })
 })

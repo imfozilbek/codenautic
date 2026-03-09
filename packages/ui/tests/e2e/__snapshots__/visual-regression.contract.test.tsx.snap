@@ -273,7 +273,7 @@ exports[`visual regression contract > фиксирует визуальный sh
   class="space-y-4"
 >
   <h1
-    class="text-2xl font-semibold text-foreground"
+    class="font-display text-2xl font-semibold text-foreground"
   >
     Help & diagnostics center
   </h1>
@@ -291,7 +291,7 @@ exports[`visual regression contract > фиксирует визуальный sh
       data-slot="card-header"
     >
       <p
-        class="text-base font-semibold text-foreground"
+        class="font-display text-base font-semibold text-foreground"
       >
         Knowledge base search
       </p>
@@ -320,7 +320,7 @@ exports[`visual regression contract > фиксирует визуальный sh
           Category
           <select
             aria-label="Help category"
-            class="rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground"
+            class="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground"
           >
             <option
               value="all"
@@ -471,7 +471,7 @@ exports[`visual regression contract > фиксирует визуальный sh
       data-slot="card-header"
     >
       <p
-        class="text-base font-semibold text-foreground"
+        class="font-display text-base font-semibold text-foreground"
       >
         Diagnostics checks
       </p>
@@ -862,7 +862,7 @@ exports[`visual regression contract > фиксирует визуальный sh
       data-slot="card-header"
     >
       <p
-        class="text-base font-semibold text-foreground"
+        class="font-display text-base font-semibold text-foreground"
       >
         Support bundle
       </p>

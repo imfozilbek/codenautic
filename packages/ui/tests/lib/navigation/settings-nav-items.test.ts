@@ -1,9 +1,6 @@
 import { describe, expect, it } from "vitest"
 
-import {
-    SETTINGS_NAV_GROUPS,
-    SETTINGS_NAV_ITEMS,
-} from "@/lib/navigation/settings-nav-items"
+import { SETTINGS_NAV_GROUPS, SETTINGS_NAV_ITEMS } from "@/lib/navigation/settings-nav-items"
 
 describe("settings-nav-items", (): void => {
     it("SETTINGS_NAV_GROUPS has 7 groups", (): void => {

@@ -1,10 +1,10 @@
-import type { ChangeEvent, FormEvent } from "react"
+import type { FormEvent } from "react"
 import { screen } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { describe, expect, it, vi } from "vitest"
 
 import { ConfigurationEditor } from "@/components/settings/configuration-editor"
-import { REPO_REVIEW_MODE } from "@/lib/api/endpoints/repo-config.endpoint"
+import { REPO_REVIEW_MODE, type TRepoReviewMode } from "@/lib/api/endpoints/repo-config.endpoint"
 import { renderWithProviders } from "../../utils/render"
 
 describe("ConfigurationEditor", (): void => {
@@ -21,7 +21,7 @@ describe("ConfigurationEditor", (): void => {
                 reviewMode={REPO_REVIEW_MODE.manual}
                 onConfigYamlChange={(_value: string): void => {}}
                 onRepositoryIdChange={(_value: string): void => {}}
-                onReviewModeChange={(_event: ChangeEvent<HTMLSelectElement>): void => {}}
+                onReviewModeChange={(_value: TRepoReviewMode): void => {}}
                 onSave={(_event: FormEvent): void => {}}
             />,
         )
@@ -38,7 +38,7 @@ describe("ConfigurationEditor", (): void => {
         const user = userEvent.setup()
         const onRepositoryIdChange = vi.fn((_value: string): void => {})
         const onConfigYamlChange = vi.fn((_value: string): void => {})
-        const onReviewModeChange = vi.fn((_event: ChangeEvent<HTMLSelectElement>): void => {})
+        const onReviewModeChange = vi.fn((_value: TRepoReviewMode): void => {})
         const onSave = vi.fn((_event: FormEvent): void => {})
 
         renderWithProviders(
@@ -82,7 +82,7 @@ describe("ConfigurationEditor", (): void => {
                 reviewMode={REPO_REVIEW_MODE.manual}
                 onConfigYamlChange={(_value: string): void => {}}
                 onRepositoryIdChange={(_value: string): void => {}}
-                onReviewModeChange={(_event: ChangeEvent<HTMLSelectElement>): void => {}}
+                onReviewModeChange={(_value: TRepoReviewMode): void => {}}
                 onSave={(_event: FormEvent): void => {}}
             />,
         )

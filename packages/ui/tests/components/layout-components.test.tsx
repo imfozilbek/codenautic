@@ -51,10 +51,7 @@ describe("layout components", (): void => {
         renderWithProviders(
             <Header
                 activeOrganizationId="platform-team"
-                breadcrumbs={[
-                    { label: "Dashboard", path: "/" },
-                    { label: "Reviews" },
-                ]}
+                breadcrumbs={[{ label: "Dashboard", path: "/" }, { label: "Reviews" }]}
                 commandPaletteRoutes={[
                     { label: "Dashboard", path: "/" },
                     { label: "Settings home", path: "/settings" },
@@ -83,7 +80,6 @@ describe("layout components", (): void => {
             },
         )
 
-        expect(screen.queryByText("CodeNautic")).not.toBeNull()
         expect(screen.getAllByText("Reviews").length).toBeGreaterThanOrEqual(1)
         expect(screen.queryByRole("button", { name: "Open navigation menu" })).not.toBeNull()
         expect(screen.queryByRole("button", { name: "Notifications (3)" })).not.toBeNull()
@@ -204,13 +200,7 @@ describe("layout components", (): void => {
     it("возвращает фокус на инициатор после закрытия command palette по Escape", async (): Promise<void> => {
         const user = userEvent.setup()
 
-        renderWithProviders(
-            <Header
-                commandPaletteRoutes={[
-                    { label: "Dashboard", path: "/" },
-                ]}
-            />,
-        )
+        renderWithProviders(<Header commandPaletteRoutes={[{ label: "Dashboard", path: "/" }]} />)
 
         const trigger = screen.getByRole("button", { name: "Open navigation menu" })
         trigger.focus()
@@ -543,15 +533,9 @@ describe("layout components", (): void => {
     })
 
     it("глобальный sidebar не содержит settings sub-navigation", (): void => {
-        renderWithProviders(
-            <Sidebar
-                isCollapsed={false}
-                title="Navigation"
-            />,
-            {
-                defaultThemeMode: "light" as ThemeMode,
-            },
-        )
+        renderWithProviders(<Sidebar isCollapsed={false} title="Navigation" />, {
+            defaultThemeMode: "light" as ThemeMode,
+        })
 
         expect(screen.queryByRole("button", { name: /Settings/ })).not.toBeNull()
         expect(screen.queryByRole("button", { name: /LLM Providers/ })).toBeNull()

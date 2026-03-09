@@ -30,7 +30,6 @@ export default defineConfig({
                 "**/dist/**",
                 "**/node_modules/**",
                 "**/tests/**",
-                "**/sign-in/page.tsx",
                 "**/components/ui/**",
                 "**/messages/**",
                 "**/mock-data/**",

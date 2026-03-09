@@ -13,23 +13,25 @@ import {
 import { PERMISSION_KEYS } from "@/lib/permissions/permissions"
 
 function PermissionsProbe({ roles }: { readonly roles: ReadonlyArray<string> }): React.JSX.Element {
-    const query = usePermissionsQuery({
+    const { permissionsQuery } = usePermissionsQuery({
         roles,
     })
 
-    if (query.isPending === true) {
+    if (permissionsQuery.isPending === true) {
         return <div data-testid="permissions-status">pending</div>
     }
 
-    if (query.error !== null) {
+    if (permissionsQuery.error !== null) {
         return <div data-testid="permissions-status">error</div>
     }
 
     return (
         <div>
-            <div data-testid="permissions">{query.data?.permissions.join(",") ?? "empty"}</div>
+            <div data-testid="permissions">
+                {permissionsQuery.data?.permissions.join(",") ?? "empty"}
+            </div>
             <div data-testid="review-read-enabled">
-                {isPermissionEnabled(query, PERMISSION_KEYS.reviewRead).toString()}
+                {isPermissionEnabled(permissionsQuery, PERMISSION_KEYS.reviewRead).toString()}
             </div>
             <div data-testid="admin-permissions">{DEFAULT_ADMIN_PERMISSIONS.join(",")}</div>
         </div>

@@ -2,7 +2,7 @@ import { screen } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
-import { RepositoryOverviewPage } from "@/pages/repository-overview.page"
+import { RepositoryOverviewPage } from "@/pages/repository-overview"
 import { renderWithProviders } from "../utils/render"
 
 const {

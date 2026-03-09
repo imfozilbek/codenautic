@@ -25,35 +25,35 @@
 
 ### 1.1a Typography Scale (`src/lib/constants/typography.ts`)
 
-| Token | Classes | Usage |
-|-------|---------|-------|
-| `pageTitle` | `font-display text-2xl font-semibold text-foreground` | Заголовок страницы |
+| Token          | Classes                                                | Usage                     |
+| -------------- | ------------------------------------------------------ | ------------------------- |
+| `pageTitle`    | `font-display text-2xl font-semibold text-foreground`  | Заголовок страницы        |
 | `sectionTitle` | `font-display text-base font-semibold text-foreground` | Заголовок секции/карточки |
-| `body` | `text-sm text-foreground` | Основной текст |
-| `bodyMuted` | `text-sm text-text-secondary` | Вторичный текст |
-| `caption` | `text-xs text-text-subtle` | Подписи, timestamps |
-| `label` | `text-sm font-medium text-foreground` | Labels для form-полей |
+| `body`         | `text-sm text-foreground`                              | Основной текст            |
+| `bodyMuted`    | `text-sm text-text-secondary`                          | Вторичный текст           |
+| `caption`      | `text-xs text-text-subtle`                             | Подписи, timestamps       |
+| `label`        | `text-sm font-medium text-foreground`                  | Labels для form-полей     |
 
 ### 1.1b Spacing Tokens
 
-| Token | Value | Usage |
-|-------|-------|-------|
-| `--spacing-xs` | `0.25rem` (4px) | Micro gaps |
-| `--spacing-sm` | `0.5rem` (8px) | Element gaps |
-| `--spacing-md` | `0.75rem` (12px) | Component internal padding |
-| `--spacing-lg` | `1rem` (16px) | Card padding |
-| `--spacing-xl` | `1.5rem` (24px) | Section spacing |
-| `--spacing-2xl` | `2rem` (32px) | Page-level spacing |
-| `--spacing-section` | `1.5rem` | Between sections |
-| `--spacing-card` | `1rem` | Inside cards |
+| Token               | Value            | Usage                      |
+| ------------------- | ---------------- | -------------------------- |
+| `--spacing-xs`      | `0.25rem` (4px)  | Micro gaps                 |
+| `--spacing-sm`      | `0.5rem` (8px)   | Element gaps               |
+| `--spacing-md`      | `0.75rem` (12px) | Component internal padding |
+| `--spacing-lg`      | `1rem` (16px)    | Card padding               |
+| `--spacing-xl`      | `1.5rem` (24px)  | Section spacing            |
+| `--spacing-2xl`     | `2rem` (32px)    | Page-level spacing         |
+| `--spacing-section` | `1.5rem`         | Between sections           |
+| `--spacing-card`    | `1rem`           | Inside cards               |
 
 ### 1.1c Shadow Tokens
 
-| Token | Value | Usage |
-|-------|-------|-------|
-| `--shadow-card` | `0 1px 3px oklch(0 0 0 / 0.06)` | Card elevation |
-| `--shadow-dropdown` | `0 4px 12px oklch(0 0 0 / 0.1)` | Dropdowns, popovers |
-| `--shadow-modal` | `0 8px 24px oklch(0 0 0 / 0.14)` | Modal overlays |
+| Token               | Value                            | Usage               |
+| ------------------- | -------------------------------- | ------------------- |
+| `--shadow-card`     | `0 1px 3px oklch(0 0 0 / 0.06)`  | Card elevation      |
+| `--shadow-dropdown` | `0 4px 12px oklch(0 0 0 / 0.1)`  | Dropdowns, popovers |
+| `--shadow-modal`    | `0 8px 24px oklch(0 0 0 / 0.14)` | Modal overlays      |
 
 ### 1.2 Семантическая палитра (базовый light)
 
@@ -136,13 +136,14 @@
 
 Each HeroUI component is wrapped with a specific strategy depending on the value we add:
 
-| Strategy | Components | Description |
-|----------|-----------|-------------|
-| **Passthrough** | Card, Tooltip, Avatar, Chip, Skeleton | Raw re-export, no custom logic |
-| **Adapter** | Checkbox, Switch, Modal | Thin legacy bridge (`onValueChange` → `onChange`, `isInvalid` data-attr). Built via `createToggleWrapper` factory |
-| **Extended** | Button, Input, Table | Value-add beyond HeroUI: additional variants, compound patterns |
+| Strategy        | Components                            | Description                                                                                                       |
+| --------------- | ------------------------------------- | ----------------------------------------------------------------------------------------------------------------- |
+| **Passthrough** | Card, Tooltip, Avatar, Chip, Skeleton | Raw re-export, no custom logic                                                                                    |
+| **Adapter**     | Checkbox, Switch, Modal               | Thin legacy bridge (`onValueChange` → `onChange`, `isInvalid` data-attr). Built via `createToggleWrapper` factory |
+| **Extended**    | Button, Input, Table                  | Value-add beyond HeroUI: additional variants, compound patterns                                                   |
 
 **Deprecated props migration:**
+
 - `disabled` → `isDisabled` (HeroUI v3 convention)
 - `onValueChange` → `onChange` (adapter bridge handles backwards compat)
 
@@ -150,11 +151,11 @@ Each HeroUI component is wrapped with a specific strategy depending on the value
 
 ### Variant Selection
 
-| Variant | When to use |
-|---------|-------------|
-| `FADE_VARIANTS` | Alerts, toasts, notification banners — appear/disappear without spatial movement |
-| `SCALE_FADE_VARIANTS` | Modals, popovers — content that "grows" into view from a focal point |
-| `PAGE_TRANSITION_VARIANTS` | Route transitions (via `AnimatedMount`) — subtle horizontal slide + fade |
+| Variant                    | When to use                                                                      |
+| -------------------------- | -------------------------------------------------------------------------------- |
+| `FADE_VARIANTS`            | Alerts, toasts, notification banners — appear/disappear without spatial movement |
+| `SCALE_FADE_VARIANTS`      | Modals, popovers — content that "grows" into view from a focal point             |
+| `PAGE_TRANSITION_VARIANTS` | Route transitions (via `AnimatedMount`) — subtle horizontal slide + fade         |
 
 ### Duration Selection
 
@@ -166,14 +167,15 @@ Each HeroUI component is wrapped with a specific strategy depending on the value
 ### `useReducedMotion` Requirements
 
 All animated components MUST respect `prefers-reduced-motion`. When reduced motion is preferred:
+
 - Replace movement with opacity-only transitions
 - Use `AnimatedMount` and `AnimatedAlert` which handle this automatically
 
 ### Component Usage
 
-| Component | Purpose |
-|-----------|---------|
-| `AnimatedMount` | Route-level page transition wrapper (keyed by `location.pathname`) |
+| Component       | Purpose                                                                    |
+| --------------- | -------------------------------------------------------------------------- |
+| `AnimatedMount` | Route-level page transition wrapper (keyed by `location.pathname`)         |
 | `AnimatedAlert` | Notification banners with enter/exit animation (controlled by `isVisible`) |
 
 ## 7. Правила использования в Stitch

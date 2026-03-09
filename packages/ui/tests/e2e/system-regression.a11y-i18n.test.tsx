@@ -5,7 +5,7 @@ import { describe, expect, it } from "vitest"
 import { CcrManagementPage } from "@/pages/ccr-management.page"
 import { DashboardMissionControlPage } from "@/pages/dashboard-mission-control.page"
 import { HelpDiagnosticsPage } from "@/pages/help-diagnostics.page"
-import { SettingsContractValidationPage } from "@/pages/settings-contract-validation.page"
+import { SettingsContractValidationPage } from "@/pages/settings-contract-validation"
 import { SettingsPage } from "@/pages/settings.page"
 import { renderWithProviders } from "../utils/render"
 
