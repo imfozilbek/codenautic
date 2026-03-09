@@ -9,6 +9,13 @@ import {
     Chip,
     Input,
 } from "@/components/ui"
+import {
+    type SupportedLocale,
+    SUPPORTED_LOCALES,
+    formatLocalizedDateTime,
+    formatLocalizedNumber,
+    useLocale,
+} from "@/lib/i18n"
 import { NATIVE_FORM } from "@/lib/constants/spacing"
 import { TYPOGRAPHY } from "@/lib/constants/typography"
 import {
@@ -558,6 +565,77 @@ function triggerJsonDownload(fileName: string, jsonPayload: string): void {
     anchor.click()
     anchor.remove()
     URL.revokeObjectURL(objectUrl)
+}
+
+const LOCALE_LABELS: Readonly<Record<SupportedLocale, string>> = {
+    en: "English",
+    ru: "Русский",
+}
+
+const LOCALE_DATE_PREVIEW = new Date("2026-03-09T14:30:00")
+const LOCALE_NUMBER_PREVIEW = 1234567.89
+
+/**
+ * Секция выбора языка интерфейса с preview форматирования.
+ *
+ * @returns Карточка выбора языка.
+ */
+function LanguageSection(): ReactElement {
+    const { locale, setLocale } = useLocale()
+
+    return (
+        <Card>
+            <CardHeader>
+                <p className={TYPOGRAPHY.sectionTitle}>Language / Язык</p>
+            </CardHeader>
+            <CardBody className="space-y-3">
+                <div
+                    aria-label="Language selection"
+                    className="flex gap-2"
+                    role="radiogroup"
+                >
+                    {SUPPORTED_LOCALES.map(
+                        (localeOption): ReactElement => (
+                            <Button
+                                key={localeOption}
+                                aria-pressed={localeOption === locale}
+                                aria-selected={localeOption === locale}
+                                size="sm"
+                                variant={
+                                    localeOption === locale ? "solid" : "flat"
+                                }
+                                onPress={(): void => {
+                                    void setLocale(localeOption)
+                                }}
+                            >
+                                {LOCALE_LABELS[localeOption]}
+                            </Button>
+                        ),
+                    )}
+                </div>
+                <div className="rounded-lg border border-border bg-surface p-3 text-sm text-text-secondary">
+                    <p>
+                        Date preview:{" "}
+                        <span className="font-medium text-foreground">
+                            {formatLocalizedDateTime(
+                                LOCALE_DATE_PREVIEW,
+                                locale,
+                            )}
+                        </span>
+                    </p>
+                    <p>
+                        Number preview:{" "}
+                        <span className="font-medium text-foreground">
+                            {formatLocalizedNumber(
+                                LOCALE_NUMBER_PREVIEW,
+                                locale,
+                            )}
+                        </span>
+                    </p>
+                </div>
+            </CardBody>
+        </Card>
+    )
 }
 
 /**
@@ -1149,6 +1227,8 @@ export function SettingsAppearancePage(): ReactElement {
                 Switch theme mode and presets in one place. All changes are applied immediately
                 without page reload.
             </p>
+
+            <LanguageSection />
 
             <Card>
                 <CardHeader className="flex flex-wrap items-center justify-between gap-2">
