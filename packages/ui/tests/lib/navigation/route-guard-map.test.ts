@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest"
 
 import {
     getBreadcrumbs,
+    getBreadcrumbsWithPaths,
     isRouteAccessible,
     searchAccessibleRoutes,
 } from "@/lib/navigation/route-guard-map"
@@ -18,6 +19,24 @@ describe("route guard map", (): void => {
         ])
         expect(getBreadcrumbs("/settings-team")).toEqual(["Settings", "Team"])
         expect(getBreadcrumbs("/reviews/ccr-101")).toEqual(["Dashboard", "Reviews"])
+    })
+
+    it("строит кликабельные breadcrumbs с путями для известных маршрутов", (): void => {
+        expect(getBreadcrumbsWithPaths("/settings-team")).toEqual([
+            { label: "Settings", path: "/settings" },
+            { label: "Team" },
+        ])
+        expect(getBreadcrumbsWithPaths("/reviews/ccr-101")).toEqual([
+            { label: "Dashboard", path: "/" },
+            { label: "Reviews" },
+        ])
+    })
+
+    it("возвращает fallback breadcrumbs для неизвестного маршрута", (): void => {
+        expect(getBreadcrumbsWithPaths("/unknown/path")).toEqual([
+            { label: "Dashboard", path: "/" },
+            { label: "Unknown route" },
+        ])
     })
 
     it("блокирует route при tenant mismatch", (): void => {
