@@ -188,7 +188,13 @@ export function SidebarNav(props: ISidebarNavProps): ReactElement {
                     }
 
                     return (
-                        <li key={item.label} className="transition-colors duration-150">
+                        <li
+                            key={item.label}
+                            className="relative flex items-stretch transition-colors duration-150"
+                        >
+                            {isActive ? (
+                                <span className="nav-active-indicator absolute left-0 top-1 bottom-1" />
+                            ) : null}
                             <Button
                                 aria-current={isActive ? "page" : undefined}
                                 className="w-full justify-start"

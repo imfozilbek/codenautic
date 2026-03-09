@@ -5,6 +5,7 @@ import { ChevronLeft, ChevronRight } from "@/components/icons/app-icons"
 import { Button } from "@/components/ui"
 import { DURATION, EASING, useReducedMotion } from "@/lib/motion"
 
+import { BrandMark } from "./brand-mark"
 import { SidebarNav } from "./sidebar-nav"
 import { SettingsNav } from "./settings-nav"
 
@@ -39,6 +40,7 @@ export function Sidebar(props: ISidebarProps): ReactElement {
 
     const sidebarContent = (
         <>
+            <BrandMark isCompact={isCollapsed} />
             <div className="mb-2 flex items-center justify-between px-2">
                 {isCollapsed ? (
                     <span className="w-0 overflow-hidden" />
@@ -88,8 +90,8 @@ export function Sidebar(props: ISidebarProps): ReactElement {
             animate={{ width: targetWidth }}
             className={`sticky top-20 max-h-[calc(100vh-5rem)] self-start overflow-y-auto rounded-lg bg-sidebar-bg p-2 shadow-sm ${props.className ?? ""}`}
             transition={{
-                duration: DURATION.normal,
-                ease: EASING.move,
+                duration: DURATION.slow,
+                ease: EASING.spring,
             }}
         >
             <AnimatePresence mode="wait">
