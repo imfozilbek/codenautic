@@ -24,6 +24,7 @@ import {
 import { useVirtualizer } from "@tanstack/react-virtual"
 
 import { Button, Chip } from "@/components/ui"
+import { NATIVE_FORM } from "@/lib/constants/spacing"
 
 type TDensity = "comfortable" | "compact"
 
@@ -556,7 +557,7 @@ export function EnterpriseDataTable<TRow>(props: IEnterpriseDataTableProps<TRow>
                                 </Button>
                                 <select
                                     aria-label={`Pin ${columnId}`}
-                                    className="w-28 rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground"
+                                    className={`w-28 ${NATIVE_FORM.select}`}
                                     value={
                                         column.getIsPinned() === false
                                             ? "none"

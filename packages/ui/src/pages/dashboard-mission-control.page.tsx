@@ -20,6 +20,7 @@ import {
     type TTeamScope,
 } from "@/components/dashboard/dashboard-scope-filters"
 import { useUiRole } from "@/lib/permissions/ui-policy"
+import { NATIVE_FORM } from "@/lib/constants/spacing"
 import { TYPOGRAPHY } from "@/lib/constants/typography"
 import { AnimatedAlert, AnimatedMount } from "@/lib/motion"
 
@@ -444,7 +445,7 @@ export function DashboardMissionControlPage(): ReactElement {
                                 Layout preset
                                 <select
                                     aria-label="Layout preset"
-                                    className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground"
+                                    className={NATIVE_FORM.select}
                                     value={layoutPreset}
                                     onChange={(event): void => {
                                         const nextPreset = event.currentTarget.value

@@ -4,6 +4,7 @@ import { useVirtualizer } from "@tanstack/react-virtual"
 
 import { Alert, Button, Card, CardBody, CardHeader, Chip, Input, Switch } from "@/components/ui"
 import { TestConnectionButton } from "@/components/settings/test-connection-button"
+import { NATIVE_FORM } from "@/lib/constants/spacing"
 import { TYPOGRAPHY } from "@/lib/constants/typography"
 import {
     showToastError,
@@ -442,7 +443,7 @@ export function SettingsWebhooksPage(): ReactElement {
                             />
                             <select
                                 aria-label="Filter webhooks by status"
-                                className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground"
+                                className={NATIVE_FORM.select}
                                 value={statusFilter}
                                 onChange={(event): void => {
                                     const nextValue = event.currentTarget.value

@@ -2,6 +2,7 @@ import { type ChangeEvent, type ReactElement, useMemo, useState } from "react"
 import { useNavigate } from "@tanstack/react-router"
 
 import { Alert, Button, Card, CardBody, CardHeader } from "@/components/ui"
+import { NATIVE_FORM } from "@/lib/constants/spacing"
 import { TYPOGRAPHY } from "@/lib/constants/typography"
 import { showToastInfo, showToastSuccess } from "@/lib/notifications/toast"
 
@@ -153,7 +154,7 @@ export function ReportListPage(): ReactElement {
                             <span className="font-semibold text-foreground">Report type</span>
                             <select
                                 aria-label="Report list type filter"
-                                className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground"
+                                className={NATIVE_FORM.select}
                                 value={reportTypeFilter}
                                 onChange={(event): void => {
                                     const nextValue = event.currentTarget.value

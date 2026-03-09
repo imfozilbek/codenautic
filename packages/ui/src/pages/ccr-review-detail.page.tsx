@@ -25,6 +25,7 @@ import type {
     ICcrWorkspaceDiffFile,
     ICcrWorkspaceReviewCommentThread,
 } from "@/lib/api/endpoints/ccr-workspace.endpoint"
+import { NATIVE_FORM } from "@/lib/constants/spacing"
 import { TYPOGRAPHY } from "@/lib/constants/typography"
 import { useCodeReview } from "@/lib/hooks/queries"
 import { getUiActionPolicy, useUiRole } from "@/lib/permissions/ui-policy"
@@ -1222,7 +1223,7 @@ export function CcrReviewDetailPage(props: ICcrReviewDetailPageProps): ReactElem
                                 </label>
                                 <select
                                     aria-label="Review history window"
-                                    className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground"
+                                    className={NATIVE_FORM.select}
                                     id="review-history-window"
                                     value={selectedReviewHistoryWindow}
                                     onChange={(event): void => {

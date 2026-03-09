@@ -1,6 +1,8 @@
 import type { ReactElement } from "react"
 import { useMemo, useState } from "react"
 
+import { NATIVE_FORM } from "@/lib/constants/spacing"
+
 const PERIOD_OPTIONS = [
     { label: "30d", value: "30d", days: 30 },
     { label: "90d", value: "90d", days: 90 },
@@ -171,7 +173,7 @@ export function HealthTrendChart(props: IHealthTrendChartProps): ReactElement {
                 </label>
                 <select
                     aria-label="Health trend period"
-                    className="w-28 rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground"
+                    className={`w-28 ${NATIVE_FORM.select}`}
                     id="health-trend-period"
                     value={period}
                     onChange={(event): void => {

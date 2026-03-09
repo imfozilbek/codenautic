@@ -14,6 +14,7 @@ import {
 
 import { AiSummaryWidget } from "@/components/reports/ai-summary-widget"
 import { Alert, Button, Card, CardBody, CardHeader } from "@/components/ui"
+import { NATIVE_FORM } from "@/lib/constants/spacing"
 import { TYPOGRAPHY } from "@/lib/constants/typography"
 import { ChartContainer } from "@/components/charts/chart-container"
 import { CHART_GRID_DASH, CHART_STROKE_WIDTH } from "@/lib/constants/chart-constants"
@@ -156,7 +157,7 @@ export function ReportViewerPage(): ReactElement {
                             <span className="font-semibold text-foreground">Chart metric</span>
                             <select
                                 aria-label="Report chart metric"
-                                className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground"
+                                className={NATIVE_FORM.select}
                                 value={selectedMetric}
                                 onChange={(event): void => {
                                     const nextValue = event.currentTarget.value

@@ -2,6 +2,7 @@ import { type FormEvent, type ReactElement } from "react"
 
 import { Button } from "@/components/ui"
 import { REPO_REVIEW_MODE, type TRepoReviewMode } from "@/lib/api/endpoints/repo-config.endpoint"
+import { NATIVE_FORM } from "@/lib/constants/spacing"
 
 /** Параметры визуального редактора `codenautic-config.yml`. */
 export interface IConfigurationEditorProps {
@@ -94,7 +95,7 @@ export function ConfigurationEditor(props: IConfigurationEditorProps): ReactElem
                     <span className="font-medium text-foreground">Review mode</span>
                     <select
                         aria-label="Repository review mode"
-                        className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground"
+                        className={NATIVE_FORM.select}
                         data-testid="repo-review-mode"
                         id="repo-review-mode"
                         value={props.reviewMode}

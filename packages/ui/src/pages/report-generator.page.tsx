@@ -4,6 +4,7 @@ import { useNavigate } from "@tanstack/react-router"
 import { ReportScheduleDialog } from "@/components/reports/report-schedule-dialog"
 import { ReportTemplateEditor } from "@/components/reports/report-template-editor"
 import { Alert, Button, Card, CardBody, CardHeader } from "@/components/ui"
+import { NATIVE_FORM } from "@/lib/constants/spacing"
 import { TYPOGRAPHY } from "@/lib/constants/typography"
 import { showToastError, showToastInfo, showToastSuccess } from "@/lib/notifications/toast"
 
@@ -191,7 +192,7 @@ export function ReportGeneratorPage(): ReactElement {
                             <span className="font-semibold text-foreground">Report type</span>
                             <select
                                 aria-label="Report type"
-                                className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground"
+                                className={NATIVE_FORM.select}
                                 value={reportType}
                                 onChange={(event): void => {
                                     const nextValue = event.currentTarget.value
@@ -213,7 +214,7 @@ export function ReportGeneratorPage(): ReactElement {
                             <span className="font-semibold text-foreground">Output format</span>
                             <select
                                 aria-label="Report format"
-                                className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground"
+                                className={NATIVE_FORM.select}
                                 value={reportFormat}
                                 onChange={(event): void => {
                                     const nextValue = event.currentTarget.value

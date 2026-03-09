@@ -1,6 +1,7 @@
 import { useMemo, useState, type ChangeEvent, type ReactElement } from "react"
 
 import type { IRefactoringTargetDescriptor } from "@/components/graphs/refactoring-dashboard"
+import { NATIVE_FORM } from "@/lib/constants/spacing"
 
 /**
  * Канал экспорта refactoring плана.
@@ -95,7 +96,7 @@ export function RefactoringExportDialog(props: IRefactoringExportDialogProps): R
                         </span>
                         <select
                             aria-label="Refactoring export destination"
-                            className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground"
+                            className={NATIVE_FORM.select}
                             id="refactor-export-destination"
                             value={destination}
                             onChange={(event): void => {

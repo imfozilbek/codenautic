@@ -1,5 +1,7 @@
 import type { ReactElement } from "react"
 
+import { NATIVE_FORM } from "@/lib/constants/spacing"
+
 export type TCausalOverlayMode = "impact" | "temporal-coupling" | "root-cause"
 
 interface ICausalOverlayOption {
@@ -74,7 +76,7 @@ export function CausalOverlaySelector(props: ICausalOverlaySelectorProps): React
                     </span>
                     <select
                         aria-label="Causal overlay"
-                        className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground"
+                        className={NATIVE_FORM.select}
                         id="causal-overlay-selector"
                         value={props.value}
                         onChange={(event): void => {

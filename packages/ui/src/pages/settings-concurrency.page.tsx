@@ -15,6 +15,7 @@ import {
     ModalHeader,
     Switch,
 } from "@/components/ui"
+import { NATIVE_FORM } from "@/lib/constants/spacing"
 import { TYPOGRAPHY } from "@/lib/constants/typography"
 import { showToastInfo, showToastSuccess } from "@/lib/notifications/toast"
 
@@ -285,7 +286,7 @@ export function SettingsConcurrencyPage(): ReactElement {
                     />
                     <select
                         aria-label="Concurrency severity threshold"
-                        className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground"
+                        className={NATIVE_FORM.select}
                         id="concurrency-severity"
                         value={localDraft.values.severityThreshold}
                         onChange={(event): void => {

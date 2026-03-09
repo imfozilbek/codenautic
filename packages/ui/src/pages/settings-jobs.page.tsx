@@ -2,6 +2,7 @@ import { type ReactElement, useMemo, useState } from "react"
 
 import { Alert, Button, Card, CardBody, CardHeader, Chip } from "@/components/ui"
 import { SystemStateCard } from "@/components/infrastructure/system-state-card"
+import { NATIVE_FORM } from "@/lib/constants/spacing"
 import { TYPOGRAPHY } from "@/lib/constants/typography"
 import { showToastInfo, showToastSuccess } from "@/lib/notifications/toast"
 
@@ -525,7 +526,7 @@ export function SettingsJobsPage(): ReactElement {
                     <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
                         <select
                             aria-label="Schedule target"
-                            className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground"
+                            className={NATIVE_FORM.select}
                             value={scheduleTarget}
                             onChange={(event): void => {
                                 const value = event.currentTarget.value
@@ -539,7 +540,7 @@ export function SettingsJobsPage(): ReactElement {
                         </select>
                         <select
                             aria-label="User timezone"
-                            className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground"
+                            className={NATIVE_FORM.select}
                             value={userTimezone}
                             onChange={(event): void => {
                                 const value = event.currentTarget.value
@@ -563,7 +564,7 @@ export function SettingsJobsPage(): ReactElement {
                         </select>
                         <select
                             aria-label="Organization timezone override"
-                            className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground"
+                            className={NATIVE_FORM.select}
                             value={orgTimezoneOverride}
                             onChange={(event): void => {
                                 const value = event.currentTarget.value
@@ -592,7 +593,7 @@ export function SettingsJobsPage(): ReactElement {
                         </select>
                         <select
                             aria-label="Schedule frequency"
-                            className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground"
+                            className={NATIVE_FORM.select}
                             value={activeSchedule.mode}
                             onChange={(event): void => {
                                 const value = event.currentTarget.value
@@ -610,7 +611,7 @@ export function SettingsJobsPage(): ReactElement {
                         {activeSchedule.mode === "hourly" ? (
                             <select
                                 aria-label="Interval hours"
-                                className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground"
+                                className={NATIVE_FORM.select}
                                 value={String(activeSchedule.intervalHours)}
                                 onChange={(event): void => {
                                     const value = event.currentTarget.value
@@ -629,7 +630,7 @@ export function SettingsJobsPage(): ReactElement {
                         ) : (
                             <select
                                 aria-label="Schedule weekday"
-                                className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground"
+                                className={NATIVE_FORM.select}
                                 value={String(activeSchedule.weekday)}
                                 onChange={(event): void => {
                                     const value = event.currentTarget.value
@@ -653,7 +654,7 @@ export function SettingsJobsPage(): ReactElement {
                         )}
                         <select
                             aria-label="Schedule hour"
-                            className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground"
+                            className={NATIVE_FORM.select}
                             value={String(activeSchedule.hour)}
                             onChange={(event): void => {
                                 const value = event.currentTarget.value
@@ -673,7 +674,7 @@ export function SettingsJobsPage(): ReactElement {
                         </select>
                         <select
                             aria-label="Schedule minute"
-                            className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground"
+                            className={NATIVE_FORM.select}
                             value={String(activeSchedule.minute)}
                             onChange={(event): void => {
                                 const value = event.currentTarget.value

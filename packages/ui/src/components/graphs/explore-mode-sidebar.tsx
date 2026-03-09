@@ -1,5 +1,7 @@
 import { useMemo, useState, type ReactElement } from "react"
 
+import { NATIVE_FORM } from "@/lib/constants/spacing"
+
 /**
  * Рекомендованный exploration path для навигации по CodeCity.
  */
@@ -65,7 +67,7 @@ export function ExploreModeSidebar(props: IExploreModeSidebarProps): ReactElemen
                 </span>
                 <select
                     aria-label="Explore role filter"
-                    className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground"
+                    className={NATIVE_FORM.select}
                     id="explore-role-filter"
                     value={roleFilter}
                     onChange={(event): void => {

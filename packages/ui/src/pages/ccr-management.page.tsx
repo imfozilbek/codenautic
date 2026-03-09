@@ -2,6 +2,7 @@ import { type ChangeEvent, type ReactElement, useEffect, useMemo, useState } fro
 import type React from "react"
 
 import type { ICcrWorkspaceRow } from "@/lib/api/endpoints/ccr-workspace.endpoint"
+import { NATIVE_FORM } from "@/lib/constants/spacing"
 import { TYPOGRAPHY } from "@/lib/constants/typography"
 import { FOCUS_REVIEWS_FILTERS_EVENT } from "@/lib/keyboard/shortcut-registry"
 import { useCcrWorkspace } from "@/lib/hooks/queries"
@@ -65,10 +66,6 @@ interface ICcrFilterPresetsState {
     readonly applyPreset: () => void
     readonly updatePreset: () => void
     readonly deletePreset: () => void
-}
-
-function isCcrFilterField(value: string): value is TCcrFilterField {
-    return value === "search" || value === "status" || value === "team" || value === "repository"
 }
 
 function toFilterMatch(fieldValue: string, filterValue: string): boolean {
@@ -287,7 +284,7 @@ function CcrFiltersPanel(props: ICcrFiltersPanelProps): ReactElement {
             />
             <select
                 aria-label="Filter by team"
-                className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground"
+                className={NATIVE_FORM.select}
                 value={props.filterState.team}
                 onChange={handleSelectChange("team")}
             >
@@ -302,7 +299,7 @@ function CcrFiltersPanel(props: ICcrFiltersPanelProps): ReactElement {
             </select>
             <select
                 aria-label="Filter by repository"
-                className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground"
+                className={NATIVE_FORM.select}
                 value={props.filterState.repository}
                 onChange={handleSelectChange("repository")}
             >
@@ -317,7 +314,7 @@ function CcrFiltersPanel(props: ICcrFiltersPanelProps): ReactElement {
             </select>
             <select
                 aria-label="Filter by status"
-                className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground"
+                className={NATIVE_FORM.select}
                 value={props.filterState.status}
                 onChange={handleSelectChange("status")}
             >

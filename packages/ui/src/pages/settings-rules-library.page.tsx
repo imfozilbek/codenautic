@@ -1,6 +1,7 @@
 import { type ReactElement, useMemo, useState } from "react"
 
 import { Alert, Button, Card, CardBody, CardHeader, Chip, Input } from "@/components/ui"
+import { NATIVE_FORM } from "@/lib/constants/spacing"
 import { TYPOGRAPHY } from "@/lib/constants/typography"
 import { showToastError, showToastInfo, showToastSuccess } from "@/lib/notifications/toast"
 
@@ -269,7 +270,7 @@ export function SettingsRulesLibraryPage(): ReactElement {
                         />
                         <select
                             aria-label="Category"
-                            className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground"
+                            className={NATIVE_FORM.select}
                             id="rules-category-filter"
                             value={selectedCategory}
                             onChange={(event): void => {
@@ -367,7 +368,7 @@ export function SettingsRulesLibraryPage(): ReactElement {
                         />
                         <select
                             aria-label="Category"
-                            className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground"
+                            className={NATIVE_FORM.select}
                             id="custom-rule-category"
                             value={customCategory}
                             onChange={(event): void => {
@@ -406,7 +407,7 @@ export function SettingsRulesLibraryPage(): ReactElement {
                     <CardBody className="space-y-3">
                         <select
                             aria-label="Rule to test"
-                            className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground"
+                            className={NATIVE_FORM.select}
                             id="rule-test-target"
                             value={testRuleId}
                             onChange={(event): void => {

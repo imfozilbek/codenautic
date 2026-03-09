@@ -2,6 +2,7 @@ import type { ReactElement } from "react"
 
 import { CausalOverlaySelector } from "@/components/graphs/causal-overlay-selector"
 import { Card, CardBody, CardHeader } from "@/components/ui"
+import { NATIVE_FORM } from "@/lib/constants/spacing"
 
 import { CODE_CITY_DASHBOARD_METRICS } from "../code-city-dashboard-mock-data"
 import type { ICodeCityDashboardState } from "../use-code-city-dashboard-state"
@@ -35,7 +36,7 @@ export function ControlsSection({ state }: IControlsSectionProps): ReactElement 
                         </span>
                         <select
                             aria-label="Repository"
-                            className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground"
+                            className={NATIVE_FORM.select}
                             id="dashboard-repository"
                             value={state.repositoryId}
                             onChange={state.handleRepositoryChange}
@@ -55,7 +56,7 @@ export function ControlsSection({ state }: IControlsSectionProps): ReactElement 
                         </span>
                         <select
                             aria-label="Metric"
-                            className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground"
+                            className={NATIVE_FORM.select}
                             id="dashboard-metric"
                             value={state.metric}
                             onChange={state.handleMetricChange}

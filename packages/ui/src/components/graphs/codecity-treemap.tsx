@@ -1,6 +1,7 @@
 import { type KeyboardEvent, type ReactElement, useMemo, useState } from "react"
 
 import { Button, Card, CardBody, CardHeader } from "@/components/ui"
+import { NATIVE_FORM } from "@/lib/constants/spacing"
 import { ResponsiveContainer, Treemap } from "recharts"
 
 const DEFAULT_HEIGHT = "420px"
@@ -1409,7 +1410,7 @@ export function CodeCityTreemap(props: ICodeCityTreemapProps): ReactElement {
                         </label>
                         <select
                             aria-label="Metric"
-                            className="w-36 rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground"
+                            className={`w-36 ${NATIVE_FORM.select}`}
                             id={selectorId}
                             value={metric}
                             onChange={handleMetricChange}
@@ -1429,7 +1430,7 @@ export function CodeCityTreemap(props: ICodeCityTreemapProps): ReactElement {
                                 </label>
                                 <select
                                     aria-label="Bug heat range"
-                                    className="w-32 rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground"
+                                    className={`w-32 ${NATIVE_FORM.select}`}
                                     id={bugHeatSelectorId}
                                     value={bugHeatRange}
                                     onChange={handleBugHeatRangeChange}

@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState, type ChangeEvent, type ReactElement } fro
 
 import { Button, Card, CardBody, CardHeader } from "@/components/ui"
 import { EnterpriseDataTable } from "@/components/infrastructure/enterprise-data-table"
+import { NATIVE_FORM } from "@/lib/constants/spacing"
 import { TYPOGRAPHY } from "@/lib/constants/typography"
 import { InfiniteScrollContainer } from "@/components/infrastructure/infinite-scroll-container"
 import { useFilterPersistence } from "@/lib/hooks/use-filter-persistence"
@@ -376,7 +377,7 @@ export function IssuesTrackingPage(props: IIssueTrackingPageProps = {}): ReactEl
                         />
                         <select
                             aria-label="Filter by status"
-                            className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground"
+                            className={NATIVE_FORM.select}
                             value={filters.status}
                             onChange={handleSelectChange("status")}
                         >
@@ -391,7 +392,7 @@ export function IssuesTrackingPage(props: IIssueTrackingPageProps = {}): ReactEl
                         </select>
                         <select
                             aria-label="Filter by severity"
-                            className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground"
+                            className={NATIVE_FORM.select}
                             value={filters.severity}
                             onChange={handleSelectChange("severity")}
                         >

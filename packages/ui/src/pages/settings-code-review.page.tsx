@@ -18,6 +18,7 @@ import { ReviewCadenceSelector } from "@/components/settings/review-cadence-sele
 import { RuleEditor } from "@/components/settings/rule-editor"
 import { SuggestionLimitConfig } from "@/components/settings/suggestion-limit-config"
 import type { ICodeReviewFormValues } from "@/components/settings/settings-form-schemas"
+import { NATIVE_FORM } from "@/lib/constants/spacing"
 import { REPO_REVIEW_MODE, type TRepoReviewMode } from "@/lib/api/endpoints/repo-config.endpoint"
 import { useCCRSummary, useDryRun, useRepoConfig, useReviewCadence } from "@/lib/hooks/queries"
 import { showToastInfo, showToastSuccess } from "@/lib/notifications/toast"
@@ -409,7 +410,7 @@ export function SettingsCodeReviewPage(): ReactElement {
                 <FormGroup>
                     <select
                         aria-label="Summary detail level"
-                        className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground"
+                        className={NATIVE_FORM.select}
                         id="ccr-summary-detail-level"
                         value={ccrSummarySettings.detailLevel}
                         onChange={(event): void => {
@@ -521,7 +522,7 @@ export function SettingsCodeReviewPage(): ReactElement {
                     </label>
                     <select
                         aria-label="IDE provider scope"
-                        className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground"
+                        className={NATIVE_FORM.select}
                         id="ide-sync-provider"
                         value={ideSyncSettings.provider}
                         onChange={(event): void => {

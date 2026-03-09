@@ -4,6 +4,7 @@ import { useNavigate } from "@tanstack/react-router"
 import { Alert, Button, Card, CardBody, CardHeader, Chip, Input, Switch } from "@/components/ui"
 import { useAuthAccess } from "@/lib/auth/auth-access"
 import { resolveDeepLinkGuard } from "@/lib/navigation/deep-link-guard"
+import { NATIVE_FORM } from "@/lib/constants/spacing"
 import { TYPOGRAPHY } from "@/lib/constants/typography"
 import { showToastError, showToastInfo, showToastSuccess } from "@/lib/notifications/toast"
 import { useUiRole } from "@/lib/permissions/ui-policy"
@@ -515,7 +516,7 @@ export function SettingsNotificationsPage(): ReactElement {
                     <div className="md:max-w-[260px]">
                         <select
                             aria-label="Filter event type"
-                            className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground"
+                            className={NATIVE_FORM.select}
                             id="notifications-event-type-filter"
                             value={eventTypeFilter}
                             onChange={(event): void => {

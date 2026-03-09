@@ -1,6 +1,8 @@
 import type { ChangeEvent, ReactElement } from "react"
 import { useEffect, useState } from "react"
 
+import { NATIVE_FORM } from "@/lib/constants/spacing"
+
 /**
  * Каналы доставки prediction-alert.
  */
@@ -203,7 +205,7 @@ export function AlertConfigDialog(props: IAlertConfigDialogProps): ReactElement 
                 </span>
                 <select
                     aria-label="Alert frequency"
-                    className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground"
+                    className={NATIVE_FORM.select}
                     value={frequency}
                     onChange={(event): void => {
                         const nextFrequency = event.currentTarget.value

@@ -3,6 +3,7 @@ import { Link } from "@tanstack/react-router"
 
 import { Button, Card, CardBody, CardHeader } from "@/components/ui"
 import { EnterpriseDataTable } from "@/components/infrastructure/enterprise-data-table"
+import { NATIVE_FORM } from "@/lib/constants/spacing"
 import { TYPOGRAPHY } from "@/lib/constants/typography"
 
 type TRepositoryStatus = "error" | "ready" | "scanning"
@@ -384,7 +385,7 @@ export function RepositoriesListPage(props: IRepositoryListPageProps): ReactElem
                         />
                         <select
                             aria-label="Фильтр по статусу"
-                            className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground"
+                            className={NATIVE_FORM.select}
                             value={status}
                             onChange={handleStatusFilter}
                         >
@@ -395,7 +396,7 @@ export function RepositoriesListPage(props: IRepositoryListPageProps): ReactElem
                         </select>
                         <select
                             aria-label="Сортировка"
-                            className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground"
+                            className={NATIVE_FORM.select}
                             value={sortBy}
                             onChange={handleSortChange}
                         >

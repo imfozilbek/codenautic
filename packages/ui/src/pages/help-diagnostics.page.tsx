@@ -3,6 +3,7 @@ import { useNavigate } from "@tanstack/react-router"
 
 import { Alert, Button, Card, CardBody, CardHeader, Chip, Textarea } from "@/components/ui"
 import { SystemStateCard } from "@/components/infrastructure/system-state-card"
+import { NATIVE_FORM } from "@/lib/constants/spacing"
 import { TYPOGRAPHY } from "@/lib/constants/typography"
 import { useExternalContext, useFeatureFlagsQuery } from "@/lib/hooks/queries"
 
@@ -493,7 +494,7 @@ export function HelpDiagnosticsPage(): ReactElement {
                             Category
                             <select
                                 aria-label="Help category"
-                                className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground"
+                                className={NATIVE_FORM.select}
                                 value={category}
                                 onChange={(event): void => {
                                     const value = event.currentTarget.value

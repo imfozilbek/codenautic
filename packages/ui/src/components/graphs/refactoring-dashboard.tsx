@@ -1,5 +1,6 @@
 import { useMemo, useState, type ReactElement } from "react"
 
+import { NATIVE_FORM } from "@/lib/constants/spacing"
 import { TYPOGRAPHY } from "@/lib/constants/typography"
 
 /**
@@ -131,7 +132,7 @@ export function RefactoringDashboard(props: IRefactoringDashboardProps): ReactEl
                     </span>
                     <select
                         aria-label="Refactoring sort"
-                        className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground"
+                        className={NATIVE_FORM.select}
                         id="refactor-sort"
                         value={sortKey}
                         onChange={(event): void => {
@@ -157,7 +158,7 @@ export function RefactoringDashboard(props: IRefactoringDashboardProps): ReactEl
                     </span>
                     <select
                         aria-label="Refactoring module filter"
-                        className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground"
+                        className={NATIVE_FORM.select}
                         id="refactor-module-filter"
                         value={moduleFilter}
                         onChange={(event): void => {

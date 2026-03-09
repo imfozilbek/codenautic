@@ -16,6 +16,7 @@ import {
     TableHeader,
     TableRow,
 } from "@/components/ui"
+import { NATIVE_FORM } from "@/lib/constants/spacing"
 import { TYPOGRAPHY } from "@/lib/constants/typography"
 import { showToastError, showToastInfo, showToastSuccess } from "@/lib/notifications/toast"
 
@@ -285,7 +286,7 @@ function BillingCard(props: {
                 <div className="flex flex-wrap items-center gap-2">
                     <select
                         aria-label="Plan"
-                        className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground"
+                        className={NATIVE_FORM.select}
                         id="billing-plan-select"
                         value={props.billing.plan}
                         onChange={(event): void => {
@@ -341,7 +342,7 @@ function MembersCard(props: {
                     />
                     <select
                         aria-label="Role"
-                        className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground"
+                        className={NATIVE_FORM.select}
                         id="invite-role-select"
                         value={props.inviteRole}
                         onChange={(event): void => {
@@ -390,7 +391,7 @@ function MembersCard(props: {
                                             </Chip>
                                             <select
                                                 aria-label={`Role for ${member.email}`}
-                                                className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground"
+                                                className={NATIVE_FORM.select}
                                                 value={member.role}
                                                 onChange={(event): void => {
                                                     const role = event.currentTarget.value
