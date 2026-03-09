@@ -7,6 +7,7 @@ import {
     AST_PARSER_FACTORY_ERROR_CODE,
     AstParserFactory,
     AstParserFactoryError,
+    JavaScriptSourceCodeParser,
     TypeScriptSourceCodeParser,
     normalizeAstParserLanguage,
 } from "../../src/ast"
@@ -82,6 +83,7 @@ describe("AstParserFactory", () => {
         expect(javascriptParser).toBe(factory.create("javascript"))
         expect(typescriptParser).not.toBe(javascriptParser)
         expect(typescriptParser).toBeInstanceOf(TypeScriptSourceCodeParser)
+        expect(javascriptParser).toBeInstanceOf(JavaScriptSourceCodeParser)
     })
 
     test("creates typescript, tsx, javascript and jsx parsers", async () => {

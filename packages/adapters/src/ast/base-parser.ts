@@ -369,7 +369,10 @@ export abstract class BaseParser implements ISourceCodeParser {
         return {
             name,
             exported: isExportedNode(node),
-            extendsTypes: splitClauseValues(extendsClause?.text, "extends"),
+            extendsTypes: splitClauseValues(
+                extendsClause?.text ?? heritageNode?.text,
+                "extends",
+            ),
             implementsTypes: splitClauseValues(implementsClause?.text, "implements"),
             location: createSourceLocation(node),
         }

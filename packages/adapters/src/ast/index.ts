@@ -10,6 +10,12 @@ export {
     type IAstLanguageDetectionService,
 } from "./ast-language-detection.service"
 export {
+    assertJavaScriptParserLanguage,
+    JavaScriptSourceCodeParser,
+    type IJavaScriptSourceCodeParserOptions,
+    type JavaScriptParserLanguage,
+} from "./javascript-source-code-parser"
+export {
     AST_PARSER_ERROR_CODE,
     AstParserError,
     type AstParserErrorCode,

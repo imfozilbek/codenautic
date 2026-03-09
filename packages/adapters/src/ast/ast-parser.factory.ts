@@ -1,6 +1,3 @@
-import JavaScript from "tree-sitter-javascript"
-import Parser from "tree-sitter"
-
 import {
     AST_LANGUAGE,
     type ISourceCodeParser,
@@ -11,7 +8,10 @@ import {
     AST_PARSER_FACTORY_ERROR_CODE,
     AstParserFactoryError,
 } from "./ast-parser-factory.error"
-import {TreeSitterSourceCodeParser} from "./tree-sitter-source-code-parser"
+import {
+    assertJavaScriptParserLanguage,
+    JavaScriptSourceCodeParser,
+} from "./javascript-source-code-parser"
 import {
     assertTypeScriptParserLanguage,
     TypeScriptSourceCodeParser,
@@ -81,13 +81,14 @@ const DEFAULT_AST_PARSER_CREATORS: Readonly<
         })
     },
     [AST_LANGUAGE.JAVASCRIPT](): ISourceCodeParser {
-        return createTreeSitterParser(
-            AST_LANGUAGE.JAVASCRIPT,
-            JavaScript as unknown as Parser.Language,
-        )
+        return new JavaScriptSourceCodeParser({
+            language: assertJavaScriptParserLanguage(AST_LANGUAGE.JAVASCRIPT),
+        })
     },
     [AST_LANGUAGE.JSX](): ISourceCodeParser {
-        return createTreeSitterParser(AST_LANGUAGE.JSX, JavaScript as unknown as Parser.Language)
+        return new JavaScriptSourceCodeParser({
+            language: assertJavaScriptParserLanguage(AST_LANGUAGE.JSX),
+        })
     },
 }
 
@@ -200,23 +201,6 @@ function buildCreatorMap(
     }
 
     return creators
-}
-
-/**
- * Creates one tree-sitter backed parser for a canonical language.
- *
- * @param language Canonical language.
- * @param grammar Tree-sitter grammar module.
- * @returns Concrete source-code parser adapter.
- */
-function createTreeSitterParser(
-    language: SupportedLanguage,
-    grammar: Parser.Language,
-): ISourceCodeParser {
-    return new TreeSitterSourceCodeParser({
-        language,
-        grammar,
-    })
 }
 
 /**
