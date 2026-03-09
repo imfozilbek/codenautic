@@ -20,6 +20,8 @@ export interface ISidebarProps {
     readonly isCollapsed?: boolean
     /** Content before main menu. */
     readonly headerSlot?: ReactNode
+    /** Content at the bottom of the sidebar (org switcher, user menu). */
+    readonly footerSlot?: ReactNode
     /** Callback when a nav item is selected (close mobile sidebar). */
     readonly onNavigate?: (to?: string) => void
     /** Callback to toggle collapse state. */
@@ -27,10 +29,11 @@ export interface ISidebarProps {
 }
 
 /**
- * Desktop sidebar with sticky positioning, collapse animation, and icon-only mode.
+ * Full-height sidebar with brand, scrollable navigation, and footer slot.
+ * Supports collapse animation between expanded (240px) and compact (48px) modes.
  *
  * @param props Configuration.
- * @returns Sticky sidebar navigation.
+ * @returns Full-height sidebar navigation.
  */
 export function Sidebar(props: ISidebarProps): ReactElement {
     const isCollapsed = props.isCollapsed === true
@@ -67,14 +70,19 @@ export function Sidebar(props: ISidebarProps): ReactElement {
             {props.headerSlot !== undefined ? (
                 <div className="mb-3 px-2">{props.headerSlot}</div>
             ) : null}
-            <SidebarNav isCollapsed={isCollapsed} onNavigate={props.onNavigate} />
+            <div className="flex-1 overflow-y-auto">
+                <SidebarNav isCollapsed={isCollapsed} onNavigate={props.onNavigate} />
+            </div>
+            {props.footerSlot !== undefined ? props.footerSlot : null}
         </>
     )
+
+    const baseClassName = `flex h-full flex-col overflow-hidden rounded-lg bg-sidebar-bg p-2 shadow-sm ${props.className ?? ""}`
 
     if (prefersReducedMotion) {
         return (
             <aside
-                className={`sticky top-20 max-h-[calc(100vh-5rem)] self-start overflow-y-auto rounded-lg bg-sidebar-bg p-2 shadow-sm ${props.className ?? ""}`}
+                className={baseClassName}
                 style={{ width: targetWidth }}
             >
                 {sidebarContent}
@@ -85,7 +93,7 @@ export function Sidebar(props: ISidebarProps): ReactElement {
     return (
         <motion.aside
             animate={{ width: targetWidth }}
-            className={`sticky top-20 max-h-[calc(100vh-5rem)] self-start overflow-y-auto rounded-lg bg-sidebar-bg p-2 shadow-sm ${props.className ?? ""}`}
+            className={baseClassName}
             transition={{
                 duration: DURATION.slow,
                 ease: EASING.spring,
@@ -94,6 +102,7 @@ export function Sidebar(props: ISidebarProps): ReactElement {
             <AnimatePresence mode="wait">
                 <motion.div
                     animate={{ opacity: 1 }}
+                    className="flex h-full flex-col"
                     exit={{ opacity: 0 }}
                     initial={{ opacity: 0 }}
                     key={isCollapsed ? "collapsed" : "expanded"}
