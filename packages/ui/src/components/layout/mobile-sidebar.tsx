@@ -1,26 +1,28 @@
 import { Drawer, DrawerBody, DrawerContent, DrawerHeader } from "@/components/ui"
 
-import type { ReactElement } from "react"
+import type { ReactElement, ReactNode } from "react"
 
 import { Sidebar } from "./sidebar"
 
 /**
- * Свойства мобильного sidebar.
+ * Mobile sidebar props.
  */
 export interface IMobileSidebarProps {
-    /** Видима ли панель. */
+    /** Whether the drawer is visible. */
     readonly isOpen: boolean
-    /** Обновление статуса Drawer. */
+    /** Update drawer open state. */
     readonly onOpenChange: (isOpen: boolean) => void
-    /** Заголовок mobile sidebar. */
+    /** Navigation section title. */
     readonly title?: string
+    /** Footer slot to pass through to Sidebar (org switcher, user menu). */
+    readonly footerSlot?: ReactNode
 }
 
 /**
- * Drawer-обёртка для мобильной навигации.
+ * Drawer wrapper for mobile navigation.
  *
- * @param props Конфигурация панели.
- * @returns Мобильный сайдбар с close-on-nav behavior.
+ * @param props Drawer configuration.
+ * @returns Mobile sidebar with close-on-nav behavior.
  */
 export function MobileSidebar(props: IMobileSidebarProps): ReactElement {
     return (
@@ -33,6 +35,7 @@ export function MobileSidebar(props: IMobileSidebarProps): ReactElement {
                 </DrawerHeader>
                 <DrawerBody>
                     <Sidebar
+                        footerSlot={props.footerSlot}
                         onNavigate={(): void => {
                             props.onOpenChange(false)
                         }}
