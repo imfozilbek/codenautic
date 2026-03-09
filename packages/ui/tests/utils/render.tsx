@@ -4,8 +4,9 @@ import { RouterContextProvider, createMemoryHistory, createRouter } from "@tanst
 import { QueryClientProvider, type QueryClient } from "@tanstack/react-query"
 
 import { createQueryClient } from "@/lib/query/query-client"
-import { routeTree } from "@/routeTree.gen"
 import { ThemeProvider, type ThemeMode } from "@/lib/theme/theme-provider"
+
+import { testRouteTree } from "./test-route-tree"
 
 /**
  * Расширенный результат рендера с доступом к QueryClient.
@@ -36,7 +37,7 @@ export function renderWithProviders(
 ): IRenderWithProvidersResult {
     const queryClient = options.queryClient ?? createQueryClient()
     const router = createRouter({
-        routeTree,
+        routeTree: testRouteTree,
         history: createMemoryHistory({
             initialEntries: [window.location.pathname],
         }),
