@@ -197,7 +197,10 @@ export function BusFactorTrendChart(props: IBusFactorTrendChartProps): ReactElem
                         y={CHART_PADDING_TOP}
                     />
                     {preparedSeries.map((series, seriesIndex): ReactElement => {
-                        const color = BUS_FACTOR_SERIES_COLORS[seriesIndex % BUS_FACTOR_SERIES_COLORS.length] ?? BUS_FACTOR_SERIES_COLORS[0]
+                        const color =
+                            BUS_FACTOR_SERIES_COLORS[
+                                seriesIndex % BUS_FACTOR_SERIES_COLORS.length
+                            ] ?? BUS_FACTOR_SERIES_COLORS[0]
                         return (
                             <g key={series.moduleId}>
                                 <path

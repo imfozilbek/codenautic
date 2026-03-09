@@ -1,5 +1,7 @@
 import type { ReactElement } from "react"
 
+import { TYPOGRAPHY } from "@/lib/constants/typography"
+
 /**
  * Дескриптор district bus factor overlay.
  */
@@ -97,7 +99,7 @@ export function CityBusFactorOverlay(props: ICityBusFactorOverlayProps): ReactEl
                                         </p>
                                     </div>
                                     <span
-                                        className={`rounded border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide ${resolveBusFactorBadgeClassName(entry.busFactor)}`}
+                                        className={`rounded border px-2 py-0.5 ${TYPOGRAPHY.micro} ${resolveBusFactorBadgeClassName(entry.busFactor)}`}
                                     >
                                         {riskLabel}
                                     </span>

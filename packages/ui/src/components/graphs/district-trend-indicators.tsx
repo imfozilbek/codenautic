@@ -1,5 +1,7 @@
 import type { ReactElement } from "react"
 
+import { TYPOGRAPHY } from "@/lib/constants/typography"
+
 /**
  * Направление district-тренда.
  */
@@ -191,7 +193,7 @@ export function DistrictTrendIndicators(props: IDistrictTrendIndicatorsProps): R
                                         </p>
                                     </div>
                                     <span
-                                        className={`inline-flex items-center gap-1 rounded border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide ${resolveTrendBadgeClassName(entry.trend)}`}
+                                        className={`inline-flex items-center gap-1 rounded border px-2 py-0.5 ${TYPOGRAPHY.micro} ${resolveTrendBadgeClassName(entry.trend)}`}
                                     >
                                         <TrendDirectionIcon trend={entry.trend} />
                                         {trendLabel}

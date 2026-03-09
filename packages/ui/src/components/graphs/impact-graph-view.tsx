@@ -1,5 +1,7 @@
 import { useMemo, useState, type ReactElement } from "react"
 
+import { TYPOGRAPHY } from "@/lib/constants/typography"
+
 /**
  * Узел impact graph.
  */
@@ -157,10 +159,7 @@ export function ImpactGraphView(props: IImpactGraphViewProps): ReactElement {
             <ul className="mt-3 space-y-1 rounded border border-border bg-surface p-2">
                 {visibleEdges.map(
                     (edge): ReactElement => (
-                        <li
-                            className="text-[11px] text-muted-foreground animate-pulse"
-                            key={edge.id}
-                        >
+                        <li className={`${TYPOGRAPHY.microMuted} animate-pulse`} key={edge.id}>
                             {edge.sourceId} → {edge.targetId}
                         </li>
                     ),

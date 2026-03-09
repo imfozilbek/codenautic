@@ -1,4 +1,4 @@
-import { useMemo, useState, type ChangeEvent, type ReactElement } from "react"
+import { useMemo, useState, type ReactElement } from "react"
 
 /**
  * Рекомендованный exploration path для навигации по CodeCity.
@@ -52,10 +52,6 @@ export function ExploreModeSidebar(props: IExploreModeSidebarProps): ReactElemen
         })
     }, [props.paths, roleFilter])
 
-    const handleRoleFilterChange = (event: ChangeEvent<HTMLSelectElement>): void => {
-        setRoleFilter(event.currentTarget.value)
-    }
-
     return (
         <aside className="rounded-lg border border-border bg-surface p-3 shadow-sm">
             <p className="text-sm font-semibold text-foreground">Explore mode sidebar</p>
@@ -69,10 +65,12 @@ export function ExploreModeSidebar(props: IExploreModeSidebarProps): ReactElemen
                 </span>
                 <select
                     aria-label="Explore role filter"
-                    className="w-full rounded-lg border border-border px-2 py-1.5 text-sm"
+                    className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground"
                     id="explore-role-filter"
-                    onChange={handleRoleFilterChange}
                     value={roleFilter}
+                    onChange={(event): void => {
+                        setRoleFilter(event.currentTarget.value)
+                    }}
                 >
                     {roleOptions.map(
                         (role): ReactElement => (

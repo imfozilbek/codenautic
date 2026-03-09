@@ -1,4 +1,4 @@
-import type { ChangeEvent, ReactElement } from "react"
+import type { ReactElement } from "react"
 
 export type TCausalOverlayMode = "impact" | "temporal-coupling" | "root-cause"
 
@@ -65,14 +65,6 @@ function resolveOverlayButtonClass(
 export function CausalOverlaySelector(props: ICausalOverlaySelectorProps): ReactElement {
     const activeLabel = CAUSAL_OVERLAY_LABELS[props.value]
 
-    const handleSelectChange = (event: ChangeEvent<HTMLSelectElement>): void => {
-        const nextValue = event.currentTarget.value
-        if (isCausalOverlayMode(nextValue) === false) {
-            return
-        }
-        props.onChange(nextValue)
-    }
-
     return (
         <div className="space-y-2 rounded-lg border border-border bg-surface p-3">
             <div className="grid gap-2 md:grid-cols-[220px_minmax(0,1fr)] md:items-center">
@@ -82,10 +74,15 @@ export function CausalOverlaySelector(props: ICausalOverlaySelectorProps): React
                     </span>
                     <select
                         aria-label="Causal overlay"
-                        className="w-full rounded-md border border-border bg-surface px-2.5 py-1.5 text-sm"
+                        className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground"
                         id="causal-overlay-selector"
                         value={props.value}
-                        onChange={handleSelectChange}
+                        onChange={(event): void => {
+                            const nextValue = event.currentTarget.value
+                            if (isCausalOverlayMode(nextValue)) {
+                                props.onChange(nextValue)
+                            }
+                        }}
                     >
                         {CAUSAL_OVERLAY_OPTIONS.map(
                             (option): ReactElement => (

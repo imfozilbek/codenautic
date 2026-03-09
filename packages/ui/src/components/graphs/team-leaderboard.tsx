@@ -1,6 +1,8 @@
 import type { ReactElement } from "react"
 import { useMemo, useState } from "react"
 
+import { TYPOGRAPHY } from "@/lib/constants/typography"
+
 /**
  * Период ранжирования leaderboard.
  */
@@ -198,7 +200,9 @@ export function TeamLeaderboard(props: ITeamLeaderboardProps): ReactElement {
                                             Score {String(score)} · {entry.fileIds.length} files
                                         </p>
                                     </div>
-                                    <span className="rounded border border-border bg-surface-muted px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-foreground">
+                                    <span
+                                        className={`rounded border border-border bg-surface-muted px-2 py-0.5 ${TYPOGRAPHY.micro} text-foreground`}
+                                    >
                                         {activeMetric}
                                     </span>
                                 </div>

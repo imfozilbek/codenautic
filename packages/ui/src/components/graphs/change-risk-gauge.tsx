@@ -1,5 +1,7 @@
 import type { ReactElement } from "react"
 
+import { TYPOGRAPHY } from "@/lib/constants/typography"
+
 /**
  * Историческая точка риска для gauge виджета.
  */
@@ -61,7 +63,9 @@ export function ChangeRiskGauge(props: IChangeRiskGaugeProps): ReactElement {
                     <div className="h-full w-[30%] bg-warning/70" />
                     <div className="h-full flex-1 bg-danger/70" />
                 </div>
-                <div className="flex items-center justify-between text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+                <div
+                    className={`flex items-center justify-between ${TYPOGRAPHY.micro} text-muted-foreground`}
+                >
                     <span>Green</span>
                     <span>Yellow</span>
                     <span>Red</span>

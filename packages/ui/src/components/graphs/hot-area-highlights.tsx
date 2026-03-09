@@ -1,5 +1,7 @@
 import type { ReactElement } from "react"
 
+import { TYPOGRAPHY } from "@/lib/constants/typography"
+
 /**
  * Уровень критичности hot area.
  */
@@ -78,7 +80,7 @@ export function HotAreaHighlights(props: IHotAreaHighlightsProps): ReactElement 
                                     </p>
                                 </div>
                                 <span
-                                    className={`rounded border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide ${resolveSeverityClassName(highlight.severity)}`}
+                                    className={`rounded border px-2 py-0.5 ${TYPOGRAPHY.micro} ${resolveSeverityClassName(highlight.severity)}`}
                                 >
                                     {highlight.severity}
                                 </span>

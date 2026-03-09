@@ -1,4 +1,4 @@
-import type { ChangeEvent, ReactElement } from "react"
+import type { ReactElement } from "react"
 import { useMemo, useState } from "react"
 
 const PERIOD_OPTIONS = [
@@ -153,16 +153,6 @@ export function HealthTrendChart(props: IHealthTrendChartProps): ReactElement {
         }
     }, [visiblePoints])
 
-    const handlePeriodChange = (event: ChangeEvent<HTMLSelectElement>): void => {
-        const nextPeriod = event.currentTarget.value
-        if (nextPeriod === "30d" || nextPeriod === "180d") {
-            setPeriod(nextPeriod)
-            return
-        }
-
-        setPeriod("90d")
-    }
-
     if (visiblePoints.length === 0) {
         return (
             <div aria-label={title} className="rounded-md border border-default-200 p-3">
@@ -181,10 +171,17 @@ export function HealthTrendChart(props: IHealthTrendChartProps): ReactElement {
                 </label>
                 <select
                     aria-label="Health trend period"
-                    className="rounded-md border border-default-200 bg-transparent px-2 py-1 text-xs"
+                    className="w-28 rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground"
                     id="health-trend-period"
-                    onChange={handlePeriodChange}
                     value={period}
+                    onChange={(event): void => {
+                        const nextPeriod = event.currentTarget.value
+                        if (nextPeriod === "30d" || nextPeriod === "180d") {
+                            setPeriod(nextPeriod)
+                            return
+                        }
+                        setPeriod("90d")
+                    }}
                 >
                     {PERIOD_OPTIONS.map(
                         (option): ReactElement => (

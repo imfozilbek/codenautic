@@ -1,6 +1,7 @@
 import { useMemo, useState, type ReactElement } from "react"
 
 import type { IRefactoringTargetDescriptor } from "@/components/graphs/refactoring-dashboard"
+import { TYPOGRAPHY } from "@/lib/constants/typography"
 
 /**
  * Режим визуализации для панели симуляции.
@@ -196,35 +197,29 @@ export function SimulationPanel(props: ISimulationPanelProps): ReactElement {
 
             <div className="mt-3 grid gap-2 md:grid-cols-3">
                 <div className="rounded border border-border bg-surface p-2">
-                    <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
-                        Complexity
-                    </p>
+                    <p className={`${TYPOGRAPHY.micro} text-muted-foreground`}>Complexity</p>
                     <p className="text-base font-semibold text-foreground">
                         {String(activeMetrics.complexity)}
                     </p>
-                    <p className="text-[11px] text-muted-foreground">
+                    <p className={TYPOGRAPHY.microMuted}>
                         Delta {formatDelta(afterMetrics.complexity - beforeMetrics.complexity)}
                     </p>
                 </div>
                 <div className="rounded border border-border bg-surface p-2">
-                    <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
-                        Risk
-                    </p>
+                    <p className={`${TYPOGRAPHY.micro} text-muted-foreground`}>Risk</p>
                     <p className="text-base font-semibold text-foreground">
                         {String(activeMetrics.risk)}
                     </p>
-                    <p className="text-[11px] text-muted-foreground">
+                    <p className={TYPOGRAPHY.microMuted}>
                         Delta {formatDelta(afterMetrics.risk - beforeMetrics.risk)}
                     </p>
                 </div>
                 <div className="rounded border border-border bg-surface p-2">
-                    <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
-                        Maintainability
-                    </p>
+                    <p className={`${TYPOGRAPHY.micro} text-muted-foreground`}>Maintainability</p>
                     <p className="text-base font-semibold text-foreground">
                         {String(activeMetrics.maintainability)}
                     </p>
-                    <p className="text-[11px] text-muted-foreground">
+                    <p className={TYPOGRAPHY.microMuted}>
                         Delta{" "}
                         {formatDelta(afterMetrics.maintainability - beforeMetrics.maintainability)}
                     </p>

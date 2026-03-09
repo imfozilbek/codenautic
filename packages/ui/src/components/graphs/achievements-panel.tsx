@@ -1,5 +1,7 @@
 import type { ReactElement } from "react"
 
+import { TYPOGRAPHY } from "@/lib/constants/typography"
+
 /**
  * Тип achievement badge.
  */
@@ -131,7 +133,7 @@ export function AchievementsPanel(props: IAchievementsPanelProps): ReactElement 
                                         </p>
                                     </div>
                                     <span
-                                        className={`inline-flex items-center gap-1 rounded border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide ${resolveBadgeClassName(entry.badge)}`}
+                                        className={`inline-flex items-center gap-1 rounded border px-2 py-0.5 ${TYPOGRAPHY.micro} ${resolveBadgeClassName(entry.badge)}`}
                                     >
                                         <BadgeIcon badge={entry.badge} />
                                         {badgeLabel}

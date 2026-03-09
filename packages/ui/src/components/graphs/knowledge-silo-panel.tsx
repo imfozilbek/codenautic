@@ -1,5 +1,7 @@
 import type { ReactElement } from "react"
 
+import { TYPOGRAPHY } from "@/lib/constants/typography"
+
 /**
  * Элемент панели knowledge silo.
  */
@@ -88,7 +90,7 @@ export function KnowledgeSiloPanel(props: IKnowledgeSiloPanelProps): ReactElemen
                                         </p>
                                     </div>
                                     <span
-                                        className={`rounded border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide ${resolveRiskClassName(entry.riskScore)}`}
+                                        className={`rounded border px-2 py-0.5 ${TYPOGRAPHY.micro} ${resolveRiskClassName(entry.riskScore)}`}
                                     >
                                         Risk {String(entry.riskScore)}
                                     </span>

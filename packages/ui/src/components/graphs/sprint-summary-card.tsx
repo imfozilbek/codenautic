@@ -1,5 +1,7 @@
 import type { ReactElement } from "react"
 
+import { TYPOGRAPHY } from "@/lib/constants/typography"
+
 /**
  * Метрика в sprint summary card.
  */
@@ -79,17 +81,13 @@ export function SprintSummaryCard(props: ISprintSummaryCardProps): ReactElement 
 
             <div className="mt-3 grid grid-cols-2 gap-2">
                 <div className="rounded border border-border bg-surface p-2">
-                    <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
-                        Achievements
-                    </p>
+                    <p className={`${TYPOGRAPHY.micro} text-muted-foreground`}>Achievements</p>
                     <p className="mt-1 text-sm font-semibold text-foreground">
                         {String(props.model.achievementsCount)}
                     </p>
                 </div>
                 <div className="rounded border border-border bg-surface p-2">
-                    <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
-                        Overall score
-                    </p>
+                    <p className={`${TYPOGRAPHY.micro} text-muted-foreground`}>Overall score</p>
                     <p className="mt-1 text-sm font-semibold text-foreground">
                         {String(props.model.overallImprovementScore)}
                     </p>

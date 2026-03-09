@@ -60,13 +60,6 @@ export function RefactoringExportDialog(props: IRefactoringExportDialogProps): R
         })
     }
 
-    const handleDestinationChange = (event: ChangeEvent<HTMLSelectElement>): void => {
-        const value = event.currentTarget.value
-        if (value === "jira" || value === "github") {
-            setDestination(value)
-        }
-    }
-
     const handleTemplateTitleChange = (event: ChangeEvent<HTMLInputElement>): void => {
         setTemplateTitle(event.currentTarget.value)
     }
@@ -102,10 +95,15 @@ export function RefactoringExportDialog(props: IRefactoringExportDialogProps): R
                         </span>
                         <select
                             aria-label="Refactoring export destination"
-                            className="w-full rounded border border-border px-2 py-1.5 text-sm"
+                            className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground"
                             id="refactor-export-destination"
-                            onChange={handleDestinationChange}
                             value={destination}
+                            onChange={(event): void => {
+                                const value = event.currentTarget.value
+                                if (value === "jira" || value === "github") {
+                                    setDestination(value)
+                                }
+                            }}
                         >
                             <option value="jira">Jira</option>
                             <option value="github">GitHub Issues</option>

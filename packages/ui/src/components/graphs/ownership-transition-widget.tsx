@@ -1,5 +1,7 @@
 import type { ReactElement } from "react"
 
+import { TYPOGRAPHY } from "@/lib/constants/typography"
+
 /**
  * Тип handoff индикатора для transition timeline.
  */
@@ -119,7 +121,7 @@ export function OwnershipTransitionWidget(props: IOwnershipTransitionWidgetProps
                             </p>
                             <div className="mt-2 flex flex-wrap items-center gap-2">
                                 <span
-                                    className={`rounded border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide ${resolveHandoffBadgeClassName(event.handoffSeverity)}`}
+                                    className={`rounded border px-2 py-0.5 ${TYPOGRAPHY.micro} ${resolveHandoffBadgeClassName(event.handoffSeverity)}`}
                                 >
                                     {resolveHandoffLabel(event.handoffSeverity)}
                                 </span>

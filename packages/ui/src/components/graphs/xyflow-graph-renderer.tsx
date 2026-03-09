@@ -73,7 +73,10 @@ function XYFlowViewportControls(): ReactElement {
     }
 
     return (
-        <Panel className="flex flex-col gap-2 rounded border bg-surface/95 p-2" position="top-right">
+        <Panel
+            className="flex flex-col gap-2 rounded border bg-surface/95 p-2"
+            position="top-right"
+        >
             <div className="flex gap-1">
                 <button
                     aria-label="Zoom in"
@@ -168,7 +171,10 @@ function XYFlowExportControls(props: {
     const exportTitle = props.graphTitle.trim().length > 0 ? props.graphTitle : "graph"
 
     return (
-        <Panel className="flex flex-col gap-2 rounded border bg-surface/95 p-2" position="top-right">
+        <Panel
+            className="flex flex-col gap-2 rounded border bg-surface/95 p-2"
+            position="top-right"
+        >
             <button
                 aria-label="Export graph as SVG"
                 className="rounded border border-border px-2 py-1 text-xs"

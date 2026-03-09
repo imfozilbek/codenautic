@@ -1,5 +1,7 @@
 import { useMemo, type ReactElement } from "react"
 
+import { TYPOGRAPHY } from "@/lib/constants/typography"
+
 /**
  * Задача refactoring timeline.
  */
@@ -75,7 +77,9 @@ export function RefactoringTimeline(props: IRefactoringTimelineProps): ReactElem
                                         {String(task.startWeek + task.durationWeeks - 1)}
                                     </p>
                                 </div>
-                                <span className="rounded border border-primary/40 bg-primary/15 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-on-primary">
+                                <span
+                                    className={`rounded border border-primary/40 bg-primary/15 px-2 py-0.5 ${TYPOGRAPHY.micro} text-on-primary`}
+                                >
                                     {String(task.durationWeeks)}w
                                 </span>
                             </div>
@@ -90,7 +94,7 @@ export function RefactoringTimeline(props: IRefactoringTimelineProps): ReactElem
                                 />
                             </div>
 
-                            <p className="mt-2 text-[11px] text-muted-foreground">
+                            <p className={`mt-2 ${TYPOGRAPHY.microMuted}`}>
                                 Dependencies:{" "}
                                 {task.dependencies.length === 0
                                     ? "none"

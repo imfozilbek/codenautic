@@ -203,8 +203,9 @@ export function AlertConfigDialog(props: IAlertConfigDialogProps): ReactElement 
                 </span>
                 <select
                     aria-label="Alert frequency"
-                    className="w-full rounded border border-border bg-surface px-2 py-1 text-xs"
-                    onChange={(event: ChangeEvent<HTMLSelectElement>): void => {
+                    className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground"
+                    value={frequency}
+                    onChange={(event): void => {
                         const nextFrequency = event.currentTarget.value
                         if (
                             nextFrequency === "realtime" ||
@@ -214,7 +215,6 @@ export function AlertConfigDialog(props: IAlertConfigDialogProps): ReactElement 
                             setFrequency(nextFrequency)
                         }
                     }}
-                    value={frequency}
                 >
                     <option value="realtime">realtime</option>
                     <option value="daily">daily</option>

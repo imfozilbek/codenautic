@@ -1,5 +1,7 @@
 import type { ReactElement } from "react"
 
+import { TYPOGRAPHY } from "@/lib/constants/typography"
+
 /**
  * Уровень приоритета refactoring overlay.
  */
@@ -76,7 +78,7 @@ export function CityRefactoringOverlay(props: ICityRefactoringOverlayProps): Rea
                                     </p>
                                 </div>
                                 <span
-                                    className={`rounded border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide ${resolvePriorityClassName(entry.priority)}`}
+                                    className={`rounded border px-2 py-0.5 ${TYPOGRAPHY.micro} ${resolvePriorityClassName(entry.priority)}`}
                                 >
                                     {entry.priority}
                                 </span>

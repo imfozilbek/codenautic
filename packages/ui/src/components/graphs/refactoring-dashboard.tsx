@@ -1,4 +1,6 @@
-import { useMemo, useState, type ChangeEvent, type ReactElement } from "react"
+import { useMemo, useState, type ReactElement } from "react"
+
+import { TYPOGRAPHY } from "@/lib/constants/typography"
 
 /**
  * Сортировка таргетов refactoring dashboard.
@@ -115,17 +117,6 @@ export function RefactoringDashboard(props: IRefactoringDashboardProps): ReactEl
         return sortTargets(filteredTargets, sortKey)
     }, [filteredTargets, sortKey])
 
-    const handleSortChange = (event: ChangeEvent<HTMLSelectElement>): void => {
-        const nextSortKey = event.currentTarget.value
-        if (nextSortKey === "roi" || nextSortKey === "risk" || nextSortKey === "effort") {
-            setSortKey(nextSortKey)
-        }
-    }
-
-    const handleModuleFilterChange = (event: ChangeEvent<HTMLSelectElement>): void => {
-        setModuleFilter(event.currentTarget.value)
-    }
-
     return (
         <section className="rounded-lg border border-border bg-surface p-3 shadow-sm">
             <p className="text-sm font-semibold text-foreground">Refactoring dashboard</p>
@@ -140,10 +131,19 @@ export function RefactoringDashboard(props: IRefactoringDashboardProps): ReactEl
                     </span>
                     <select
                         aria-label="Refactoring sort"
-                        className="w-full rounded-lg border border-border px-2 py-1.5 text-sm"
+                        className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground"
                         id="refactor-sort"
-                        onChange={handleSortChange}
                         value={sortKey}
+                        onChange={(event): void => {
+                            const nextSortKey = event.currentTarget.value
+                            if (
+                                nextSortKey === "roi" ||
+                                nextSortKey === "risk" ||
+                                nextSortKey === "effort"
+                            ) {
+                                setSortKey(nextSortKey)
+                            }
+                        }}
                     >
                         <option value="roi">ROI</option>
                         <option value="risk">Risk</option>
@@ -157,10 +157,12 @@ export function RefactoringDashboard(props: IRefactoringDashboardProps): ReactEl
                     </span>
                     <select
                         aria-label="Refactoring module filter"
-                        className="w-full rounded-lg border border-border px-2 py-1.5 text-sm"
+                        className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground"
                         id="refactor-module-filter"
-                        onChange={handleModuleFilterChange}
                         value={moduleFilter}
+                        onChange={(event): void => {
+                            setModuleFilter(event.currentTarget.value)
+                        }}
                     >
                         {moduleOptions.map(
                             (module): ReactElement => (
@@ -185,12 +187,12 @@ export function RefactoringDashboard(props: IRefactoringDashboardProps): ReactEl
                                     <p className="mt-1 text-xs text-muted-foreground">
                                         {target.description}
                                     </p>
-                                    <p className="mt-1 text-[11px] uppercase tracking-wide text-muted-foreground">
+                                    <p className={`mt-1 ${TYPOGRAPHY.micro} text-muted-foreground`}>
                                         Module: {target.module}
                                     </p>
                                 </div>
                                 <span
-                                    className={`rounded border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide ${resolveRiskClassName(target.riskScore)}`}
+                                    className={`rounded border px-2 py-0.5 ${TYPOGRAPHY.micro} ${resolveRiskClassName(target.riskScore)}`}
                                 >
                                     Risk {String(target.riskScore)}
                                 </span>

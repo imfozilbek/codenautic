@@ -542,7 +542,9 @@ export function CodeCity3DScene(props: ICodeCity3DSceneProps): ReactElement {
                             ? `Root-cause trail: ${props.navigationLabel}`
                             : "Root-cause trail"}
                     </p>
-                    <p className="mt-1 text-hud-text-muted">{navigationBreadcrumbPaths.join(" -> ")}</p>
+                    <p className="mt-1 text-hud-text-muted">
+                        {navigationBreadcrumbPaths.join(" -> ")}
+                    </p>
                 </aside>
             ) : null}
             <div className="absolute right-3 top-3 z-10 w-72 rounded-md border border-hud-border bg-hud-surface/90 p-2.5 text-xs text-hud-text shadow-lg">
@@ -600,7 +602,9 @@ export function CodeCity3DScene(props: ICodeCity3DSceneProps): ReactElement {
                                 {isCausalReplayPlaying ? "Pause" : "Play"}
                             </button>
                         </div>
-                        <p className="mt-2 break-all text-hud-text-muted">{currentCausalEventLabel}</p>
+                        <p className="mt-2 break-all text-hud-text-muted">
+                            {currentCausalEventLabel}
+                        </p>
                         <input
                             aria-label="Causal timeline"
                             className="mt-2 w-full accent-primary"
@@ -674,7 +678,9 @@ export function CodeCity3DScene(props: ICodeCity3DSceneProps): ReactElement {
                             Close
                         </button>
                     </div>
-                    <p className="mt-2 break-all text-xs text-hud-text-muted">{selectedFile.path}</p>
+                    <p className="mt-2 break-all text-xs text-hud-text-muted">
+                        {selectedFile.path}
+                    </p>
                     <dl className="mt-3 grid grid-cols-2 gap-2 text-xs">
                         <div className="rounded border border-hud-border bg-hud-surface/70 p-2">
                             <dt className="text-hud-text-muted">LOC</dt>

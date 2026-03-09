@@ -1,4 +1,4 @@
-import { type ChangeEvent, type KeyboardEvent, type ReactElement, useMemo, useState } from "react"
+import { type KeyboardEvent, type ReactElement, useMemo, useState } from "react"
 
 import { Button, Card, CardBody, CardHeader } from "@/components/ui"
 import { ResponsiveContainer, Treemap } from "recharts"
@@ -1322,8 +1322,8 @@ export function CodeCityTreemap(props: ICodeCityTreemapProps): ReactElement {
         setSelectedPackage(undefined)
         setHoveredFile(undefined)
     }
-    const handleMetricChange = (event: ChangeEvent<HTMLSelectElement>): void => {
-        setMetric(resolveMetricByValue(event.target.value))
+    const handleMetricChange = (event: React.ChangeEvent<HTMLSelectElement>): void => {
+        setMetric(resolveMetricByValue(event.currentTarget.value))
     }
     const handlePackageSelect = (packageName: string): void => {
         const canSelect = treemapData.packages.some(
@@ -1344,7 +1344,7 @@ export function CodeCityTreemap(props: ICodeCityTreemapProps): ReactElement {
             return currentValue === false
         })
     }
-    const handleBugHeatRangeChange = (event: ChangeEvent<HTMLSelectElement>): void => {
+    const handleBugHeatRangeChange = (event: React.ChangeEvent<HTMLSelectElement>): void => {
         setBugHeatRange(resolveBugHeatRange(event.currentTarget.value))
     }
     const metricRangeText = `Min ${treemapData.metricRange.min} — Max ${treemapData.metricRange.max}`
@@ -1408,10 +1408,11 @@ export function CodeCityTreemap(props: ICodeCityTreemapProps): ReactElement {
                             Metric
                         </label>
                         <select
-                            className="rounded-md border border-default-200 bg-transparent px-2 py-1 text-sm"
+                            aria-label="Metric"
+                            className="w-36 rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground"
                             id={selectorId}
-                            onChange={handleMetricChange}
                             value={metric}
+                            onChange={handleMetricChange}
                         >
                             {CODE_CITY_METRICS.map(
                                 (metricName): ReactElement => (
@@ -1428,10 +1429,10 @@ export function CodeCityTreemap(props: ICodeCityTreemapProps): ReactElement {
                                 </label>
                                 <select
                                     aria-label="Bug heat range"
-                                    className="rounded-md border border-default-200 bg-transparent px-2 py-1 text-sm"
+                                    className="w-32 rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground"
                                     id={bugHeatSelectorId}
-                                    onChange={handleBugHeatRangeChange}
                                     value={bugHeatRange}
+                                    onChange={handleBugHeatRangeChange}
                                 >
                                     {CODE_CITY_BUG_HEAT_RANGES.map(
                                         (range): ReactElement => (

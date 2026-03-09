@@ -1,6 +1,7 @@
 import type { ReactElement } from "react"
 
 import type { TCodeCityTreemapPredictionRiskLevel } from "@/components/graphs/codecity-treemap"
+import { TYPOGRAPHY } from "@/lib/constants/typography"
 
 /**
  * Элемент prediction overlay на уровне файла.
@@ -105,7 +106,7 @@ export function CityPredictionOverlay(props: ICityPredictionOverlayProps): React
                                         </p>
                                     </div>
                                     <span
-                                        className={`rounded border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide ${resolveRiskBadgeClassName(entry.riskLevel)}`}
+                                        className={`rounded border px-2 py-0.5 ${TYPOGRAPHY.micro} ${resolveRiskBadgeClassName(entry.riskLevel)}`}
                                     >
                                         {riskLabel}
                                     </span>

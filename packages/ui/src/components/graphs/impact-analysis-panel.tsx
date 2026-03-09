@@ -1,5 +1,7 @@
 import { useMemo, useState, type ReactElement } from "react"
 
+import { TYPOGRAPHY } from "@/lib/constants/typography"
+
 /**
  * Элемент impact seed для анализа blast radius.
  */
@@ -178,9 +180,7 @@ export function ImpactAnalysisPanel(props: IImpactAnalysisPanelProps): ReactElem
 
             <div className="mt-3 grid gap-2 md:grid-cols-3">
                 <div className="rounded border border-border bg-surface p-2">
-                    <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
-                        Affected files
-                    </p>
+                    <p className={`${TYPOGRAPHY.micro} text-muted-foreground`}>Affected files</p>
                     <p className="mt-1 text-xs text-foreground">
                         {aggregatedImpact.affectedFiles.length === 0
                             ? "none"
@@ -188,9 +188,7 @@ export function ImpactAnalysisPanel(props: IImpactAnalysisPanelProps): ReactElem
                     </p>
                 </div>
                 <div className="rounded border border-border bg-surface p-2">
-                    <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
-                        Affected tests
-                    </p>
+                    <p className={`${TYPOGRAPHY.micro} text-muted-foreground`}>Affected tests</p>
                     <p className="mt-1 text-xs text-foreground">
                         {aggregatedImpact.affectedTests.length === 0
                             ? "none"
@@ -198,9 +196,7 @@ export function ImpactAnalysisPanel(props: IImpactAnalysisPanelProps): ReactElem
                     </p>
                 </div>
                 <div className="rounded border border-border bg-surface p-2">
-                    <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
-                        Consumers
-                    </p>
+                    <p className={`${TYPOGRAPHY.micro} text-muted-foreground`}>Consumers</p>
                     <p className="mt-1 text-xs text-foreground">
                         {aggregatedImpact.affectedConsumers.length === 0
                             ? "none"

@@ -1,5 +1,7 @@
 import type { ReactElement } from "react"
 
+import { TYPOGRAPHY } from "@/lib/constants/typography"
+
 /**
  * Sparkline по одной метрике.
  */
@@ -116,7 +118,9 @@ export function TrendTimelineWidget(props: ITrendTimelineWidgetProps): ReactElem
                                                 className="rounded border border-border bg-surface p-1.5"
                                                 key={metric.label}
                                             >
-                                                <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
+                                                <p
+                                                    className={`${TYPOGRAPHY.micro} text-muted-foreground`}
+                                                >
                                                     {metric.label}
                                                 </p>
                                                 <svg

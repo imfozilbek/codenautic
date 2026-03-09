@@ -1,6 +1,7 @@
 import { useState, type ChangeEvent, type DragEvent, type ReactElement } from "react"
 
 import type { IGuidedTourStep } from "@/components/graphs/guided-tour-overlay"
+import { TYPOGRAPHY } from "@/lib/constants/typography"
 
 /**
  * Пропсы кастомайзера тура.
@@ -199,7 +200,7 @@ export function TourCustomizer(props: ITourCustomizerProps): ReactElement {
                                 handleDropOnStep(step.id, event)
                             }}
                         >
-                            <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+                            <p className={`${TYPOGRAPHY.micro} text-muted-foreground`}>
                                 Step ID: {step.id}
                             </p>
                             <label
