@@ -4,11 +4,17 @@ import {Container, TOKENS} from "@codenautic/core"
 
 import {GIT_TOKENS, GitProviderFactory, registerGitModule} from "../../src/git"
 import {LLM_TOKENS, LlmProviderFactory, registerLlmModule} from "../../src/llm"
+import {
+    NOTIFICATION_TOKENS,
+    NotificationProviderFactory,
+    registerNotificationsModule,
+} from "../../src/notifications"
 import {registerReviewModule} from "../../src/review"
 import {registerRuleModule} from "../../src/rule"
 import {
     createGitProviderMock,
     createLlmProviderMock,
+    createNotificationProviderMock,
     createPipelineCheckpointStoreMock,
     createReviewRepositoryMock,
     createRuleRepositoryMock,
@@ -71,6 +77,43 @@ describe("Provider modules registration", () => {
         })
 
         const resolvedFactory = container.resolve(GIT_TOKENS.ProviderFactory)
+
+        expect(resolvedFactory).toBe(providerFactory)
+    })
+
+    test("registerNotificationsModule binds providers collection token", () => {
+        const container = new Container()
+        const slackProvider = createNotificationProviderMock()
+        const teamsProvider = createNotificationProviderMock("TEAMS")
+
+        registerNotificationsModule(container, {
+            providers: [
+                slackProvider,
+                teamsProvider,
+            ],
+        })
+
+        const resolvedProviders = container.resolve(NOTIFICATION_TOKENS.Providers)
+
+        expect(resolvedProviders).toEqual([
+            slackProvider,
+            teamsProvider,
+        ])
+    })
+
+    test("registerNotificationsModule binds optional provider factory token", () => {
+        const container = new Container()
+        const slackProvider = createNotificationProviderMock()
+        const providerFactory = new NotificationProviderFactory({
+            slack: slackProvider,
+        })
+
+        registerNotificationsModule(container, {
+            providers: [slackProvider],
+            providerFactory,
+        })
+
+        const resolvedFactory = container.resolve(NOTIFICATION_TOKENS.ProviderFactory)
 
         expect(resolvedFactory).toBe(providerFactory)
     })

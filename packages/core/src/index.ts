@@ -918,6 +918,17 @@ export {
     MemberRole,
     type MemberRoleValue,
 } from "./domain/value-objects/member-role.value-object"
+export {
+    NOTIFICATION_CHANNEL,
+    NOTIFICATION_EVENT,
+    NOTIFICATION_URGENCY,
+    isNotificationChannel,
+    isNotificationEvent,
+    isNotificationUrgency,
+    type NotificationChannel,
+    type NotificationEvent,
+    type NotificationUrgency,
+} from "./domain/value-objects/notification-channel.value-object"
 export {OrganizationId} from "./domain/value-objects/organization-id.value-object"
 export {
     PROGRAMMING_LANGUAGE,

@@ -119,6 +119,18 @@ export {
     mapSentryContext,
 } from "./context"
 export {
+    NOTIFICATION_PROVIDER_FACTORY_ERROR_CODE,
+    NOTIFICATION_TOKENS,
+    NotificationProviderFactory,
+    NotificationProviderFactoryError,
+    type INotificationProviderFactory,
+    type INotificationProviderFactoryOptions,
+    type IRegisterNotificationsModuleOptions,
+    type NotificationProviderFactoryErrorCode,
+    normalizeNotificationProviderChannel,
+    registerNotificationsModule,
+} from "./notifications"
+export {
     type IInboxDeduplicatorInput,
     type IInboxDeduplicatorRecord,
     type IInboxDeduplicatorResult,

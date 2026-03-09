@@ -1,0 +1,41 @@
+import {Container, type INotificationProvider} from "@codenautic/core"
+
+import {bindConstantSingleton} from "../shared/bind-constant-singleton"
+import type {INotificationProviderFactory} from "./notification-provider.factory"
+import {NOTIFICATION_TOKENS} from "./notifications.tokens"
+
+/**
+ * Registration options for notifications adapter module.
+ */
+export interface IRegisterNotificationsModuleOptions {
+    /**
+     * Notification providers available in this runtime.
+     */
+    readonly providers: readonly INotificationProvider[]
+
+    /**
+     * Optional notification provider factory.
+     */
+    readonly providerFactory?: INotificationProviderFactory
+}
+
+/**
+ * Registers notifications adapters in DI container.
+ *
+ * @param container Target container.
+ * @param options Module options.
+ */
+export function registerNotificationsModule(
+    container: Container,
+    options: IRegisterNotificationsModuleOptions,
+): void {
+    bindConstantSingleton(container, NOTIFICATION_TOKENS.Providers, options.providers)
+
+    if (options.providerFactory !== undefined) {
+        bindConstantSingleton(
+            container,
+            NOTIFICATION_TOKENS.ProviderFactory,
+            options.providerFactory,
+        )
+    }
+}

@@ -1,4 +1,6 @@
+import {NOTIFICATION_CHANNEL} from "@codenautic/core"
 import type {
+    NotificationChannel,
     CheckRunConclusion,
     CheckRunStatus,
     IChatChunkDTO,
@@ -7,6 +9,8 @@ import type {
     ICheckRunDTO,
     ICommentDTO,
     IGitProvider,
+    INotificationPayload,
+    INotificationProvider,
     IInlineCommentDTO,
     ILLMProvider,
     IMergeRequestDTO,
@@ -105,6 +109,23 @@ export function createLlmProviderMock(): ILLMProvider {
         },
         embed(_texts: readonly string[]): Promise<readonly number[][]> {
             return Promise.resolve([])
+        },
+    }
+}
+
+/**
+ * Minimal notification provider for DI and factory tests.
+ *
+ * @param channel Supported channel.
+ * @returns Provider instance.
+ */
+export function createNotificationProviderMock(
+    channel: NotificationChannel = NOTIFICATION_CHANNEL.SLACK,
+): INotificationProvider {
+    return {
+        channel,
+        send(_payload: INotificationPayload): Promise<void> {
+            return Promise.resolve()
         },
     }
 }
