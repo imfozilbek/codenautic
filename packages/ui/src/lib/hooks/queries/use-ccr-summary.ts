@@ -17,7 +17,7 @@ import { queryKeys } from "@/lib/query/query-keys"
 const api: { readonly ccrSummary: ICCRSummaryApi } = createApiContracts()
 
 /** Параметры `useCCRSummary` hook. */
-export interface IUseCcrSummaryParams {
+export interface IUseCcrSummaryArgs {
     /** Включить загрузку query-state. */
     readonly enabled?: boolean
     /** Репозиторий, для которого управляется summary. */
@@ -39,12 +39,16 @@ export interface IUseCcrSummaryResult {
 /**
  * React Query hook для генерации и просмотра CCR summaries.
  *
- * @param params - repository scope и флаг enable.
+ * Query использует `staleTime: Infinity` паттерн (cache-only):
+ * данные берутся из кэша без автоматических refetch, обновление
+ * происходит только при успешной мутации `generateSummary`.
+ *
+ * @param args - repository scope и флаг enable.
  * @returns query + mutation для summary workflow.
  */
-export function useCCRSummary(params: IUseCcrSummaryParams): IUseCcrSummaryResult {
+export function useCCRSummary(args: IUseCcrSummaryArgs): IUseCcrSummaryResult {
     const queryClient = useQueryClient()
-    const normalizedRepositoryId = params.repositoryId.trim()
+    const normalizedRepositoryId = args.repositoryId.trim()
 
     const summaryQuery = useQuery({
         queryKey: queryKeys.ccrSummary.byRepository(normalizedRepositoryId),
@@ -54,7 +58,7 @@ export function useCCRSummary(params: IUseCcrSummaryParams): IUseCcrSummaryResul
             )
             return Promise.resolve(cachedResponse ?? null)
         },
-        enabled: normalizedRepositoryId.length > 0 && (params.enabled ?? true),
+        enabled: normalizedRepositoryId.length > 0 && (args.enabled ?? true),
     })
 
     const generateSummary = useMutation({

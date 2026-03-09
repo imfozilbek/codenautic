@@ -83,22 +83,14 @@ export function useMultiTabSync(
 
         const handleStorageSync = (event: StorageEvent): void => {
             if (event.key === TENANT_STORAGE_KEY && event.newValue !== null) {
-                if (
-                    isTenantId(event.newValue) &&
-                    event.newValue !== activeOrganizationId
-                ) {
+                if (isTenantId(event.newValue) && event.newValue !== activeOrganizationId) {
                     setActiveOrganizationId(event.newValue)
-                    setMultiTabNotice(
-                        `Tenant synchronized from another tab: ${event.newValue}.`,
-                    )
+                    setMultiTabNotice(`Tenant synchronized from another tab: ${event.newValue}.`)
                 }
                 return
             }
 
-            if (
-                event.key === THEME_MODE_STORAGE_KEY ||
-                event.key === THEME_PRESET_STORAGE_KEY
-            ) {
+            if (event.key === THEME_MODE_STORAGE_KEY || event.key === THEME_PRESET_STORAGE_KEY) {
                 setMultiTabNotice("Theme synchronized from another tab.")
             }
         }

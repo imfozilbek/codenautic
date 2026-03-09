@@ -27,7 +27,7 @@ type TCustomRulesQuery = {
     readonly status?: TCustomRuleStatus
 }
 
-type TOptimisticContext = {
+type TCustomRulesOptimisticContext = {
     readonly previousList?: ICustomRulesListResponse
     readonly tempId?: string
 }
@@ -53,21 +53,21 @@ export interface IUseCustomRulesResult {
         ICustomRule,
         Error,
         ICreateCustomRuleRequest,
-        TOptimisticContext
+        TCustomRulesOptimisticContext
     >
     /** Обновление существующего правила. */
     readonly updateRule: UseMutationResult<
         ICustomRule,
         Error,
         IUpdateCustomRuleRequest,
-        TOptimisticContext
+        TCustomRulesOptimisticContext
     >
     /** Удаление существующего правила. */
     readonly deleteRule: UseMutationResult<
         IDeleteCustomRuleResponse,
         Error,
         IDeleteCustomRuleRequest,
-        TOptimisticContext
+        TCustomRulesOptimisticContext
     >
 }
 
@@ -211,12 +211,12 @@ export function useCustomRules(args: IUseCustomRulesQueryArgs = {}): IUseCustomR
         ICustomRule,
         Error,
         ICreateCustomRuleRequest,
-        TOptimisticContext
+        TCustomRulesOptimisticContext
     >({
         mutationFn: async (request: ICreateCustomRuleRequest): Promise<ICustomRule> => {
             return api.customRules.createCustomRule(request)
         },
-        onMutate: async (request): Promise<TOptimisticContext> => {
+        onMutate: async (request): Promise<TCustomRulesOptimisticContext> => {
             await queryClient.cancelQueries({ queryKey: queryKeys.customRules.all() })
 
             const previousList = queryClient.getQueryData<ICustomRulesListResponse>(listQueryKey)
@@ -264,12 +264,12 @@ export function useCustomRules(args: IUseCustomRulesQueryArgs = {}): IUseCustomR
         ICustomRule,
         Error,
         IUpdateCustomRuleRequest,
-        TOptimisticContext
+        TCustomRulesOptimisticContext
     >({
         mutationFn: async (request: IUpdateCustomRuleRequest): Promise<ICustomRule> => {
             return api.customRules.updateCustomRule(request)
         },
-        onMutate: async (request): Promise<TOptimisticContext> => {
+        onMutate: async (request): Promise<TCustomRulesOptimisticContext> => {
             await queryClient.cancelQueries({ queryKey: queryKeys.customRules.all() })
 
             const previousList = queryClient.getQueryData<ICustomRulesListResponse>(listQueryKey)
@@ -328,14 +328,14 @@ export function useCustomRules(args: IUseCustomRulesQueryArgs = {}): IUseCustomR
         IDeleteCustomRuleResponse,
         Error,
         IDeleteCustomRuleRequest,
-        TOptimisticContext
+        TCustomRulesOptimisticContext
     >({
         mutationFn: async (
             request: IDeleteCustomRuleRequest,
         ): Promise<IDeleteCustomRuleResponse> => {
             return api.customRules.deleteCustomRule(request)
         },
-        onMutate: async (request): Promise<TOptimisticContext> => {
+        onMutate: async (request): Promise<TCustomRulesOptimisticContext> => {
             await queryClient.cancelQueries({ queryKey: queryKeys.customRules.all() })
 
             const previousList = queryClient.getQueryData<ICustomRulesListResponse>(listQueryKey)

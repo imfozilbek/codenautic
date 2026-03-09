@@ -28,6 +28,14 @@ export type IPermissionsQueryState = Pick<
 >
 
 /**
+ * Результат `usePermissionsQuery` hook.
+ */
+export interface IUsePermissionsQueryResult {
+    /** Query-результат с permissions. */
+    readonly permissionsQuery: UseQueryResult<IPermissionsResponse, Error>
+}
+
+/**
  * Проверяет, выдаётся ли конкретное разрешение.
  *
  * @param state State из usePermissionsQuery.
@@ -49,6 +57,12 @@ export function isPermissionEnabled(
     return state.data?.permissions.includes(permissionName) === true
 }
 
+/**
+ * Нормализует массив ролей в стабильный cache key.
+ *
+ * @param roles Массив ролей пользователя.
+ * @returns Нормализованная строка для query key.
+ */
 function normalizeRoleKey(roles: ReadonlyArray<string>): string {
     if (roles.length === 0) {
         return "anonymous"
@@ -77,7 +91,7 @@ function normalizeRoleKey(roles: ReadonlyArray<string>): string {
  */
 export function usePermissionsQuery(
     args: IUsePermissionsQueryArgs = {},
-): UseQueryResult<IPermissionsResponse, Error> {
+): IUsePermissionsQueryResult {
     const { roles = [], enabled = true, roleKey } = args
     const queryClient = useQueryClient()
     const resolvedRoleKey = useMemo((): string => {
@@ -97,7 +111,7 @@ export function usePermissionsQuery(
         previousRoleKeyRef.current = resolvedRoleKey
     }, [queryClient, resolvedRoleKey])
 
-    return useQuery({
+    const permissionsQuery = useQuery({
         queryKey: queryKeys.permissions.byRole(resolvedRoleKey),
         queryFn: async (): Promise<IPermissionsResponse> => {
             return api.permissions.getPermissions(resolvedRoleKey)
@@ -105,6 +119,10 @@ export function usePermissionsQuery(
         enabled,
         refetchOnMount: false,
     })
+
+    return {
+        permissionsQuery,
+    }
 }
 
 /**

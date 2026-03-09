@@ -8,6 +8,17 @@ import { queryKeys } from "@/lib/query/query-keys"
 const api = createApiContracts()
 
 /**
+ * Параметры `useFeatureFlagsQuery` hook.
+ *
+ * Зарезервирован для единообразия с остальными query-hooks;
+ * расширяется при появлении конфигурационных опций.
+ */
+export interface IUseFeatureFlagsQueryArgs {
+    /** Включить/выключить автозагрузку. */
+    readonly enabled?: boolean
+}
+
+/**
  * Минимальный query-state контракт для проверки feature flag состояния.
  */
 export type IFeatureFlagQueryState = Pick<
@@ -16,19 +27,37 @@ export type IFeatureFlagQueryState = Pick<
 >
 
 /**
+ * Результат `useFeatureFlagsQuery` hook.
+ */
+export interface IUseFeatureFlagsQueryResult {
+    /** Query-результат с серверными флагами. */
+    readonly featureFlagsQuery: UseQueryResult<IFeatureFlagsResponse, Error>
+}
+
+/**
  * Загружает feature flags через React Query.
  *
+ * @param args Параметры запроса.
  * @returns Query-результат с серверными флагами.
  */
-export function useFeatureFlagsQuery(): UseQueryResult<IFeatureFlagsResponse, Error> {
-    return useQuery({
+export function useFeatureFlagsQuery(
+    args: IUseFeatureFlagsQueryArgs = {},
+): IUseFeatureFlagsQueryResult {
+    const { enabled = true } = args
+
+    const featureFlagsQuery = useQuery({
         queryKey: queryKeys.featureFlags.all(),
         queryFn: async (): Promise<IFeatureFlagsResponse> => {
             return api.featureFlags.getFeatureFlags()
         },
         retry: false,
         refetchInterval: 60_000,
+        enabled,
     })
+
+    return {
+        featureFlagsQuery,
+    }
 }
 
 /**

@@ -3,10 +3,7 @@ import { useQueryClient } from "@tanstack/react-query"
 
 import type { TUiRole } from "@/lib/access/access-types"
 import { useUiRole } from "@/lib/permissions/ui-policy"
-import {
-    POLICY_DRIFT_EVENT_NAME,
-    isPolicyDriftEventDetail,
-} from "@/lib/permissions/policy-drift"
+import { POLICY_DRIFT_EVENT_NAME, isPolicyDriftEventDetail } from "@/lib/permissions/policy-drift"
 import { queryKeys } from "@/lib/query/query-keys"
 
 /**
@@ -68,10 +65,7 @@ export function usePolicyDrift(): IPolicyDriftResult {
         window.addEventListener(POLICY_DRIFT_EVENT_NAME, handlePolicyDrift as EventListener)
 
         return (): void => {
-            window.removeEventListener(
-                POLICY_DRIFT_EVENT_NAME,
-                handlePolicyDrift as EventListener,
-            )
+            window.removeEventListener(POLICY_DRIFT_EVENT_NAME, handlePolicyDrift as EventListener)
         }
     }, [queryClient])
 

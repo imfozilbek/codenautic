@@ -1,4 +1,7 @@
-import { type TReviewStatus } from "@/components/reviews/review-status-badge"
+/**
+ * Статусы CCR.
+ */
+export type TReviewStatus = "new" | "queued" | "in_progress" | "approved" | "rejected"
 
 /**
  * Уровень важности CCR.

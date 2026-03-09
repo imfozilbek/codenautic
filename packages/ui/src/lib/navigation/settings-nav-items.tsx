@@ -230,5 +230,6 @@ export const SETTINGS_NAV_GROUPS: ReadonlyArray<ISettingsNavGroup> = [
 /**
  * Flat list of all settings navigation items — used by sidebar nav.
  */
-export const SETTINGS_NAV_ITEMS: ReadonlyArray<ISettingsNavItem> =
-    SETTINGS_NAV_GROUPS.flatMap((group) => group.items)
+export const SETTINGS_NAV_ITEMS: ReadonlyArray<ISettingsNavItem> = SETTINGS_NAV_GROUPS.flatMap(
+    (group) => group.items,
+)

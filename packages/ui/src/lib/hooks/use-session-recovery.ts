@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { useLocation, useNavigate } from "@tanstack/react-router"
 
 import {
@@ -10,6 +10,11 @@ import {
     writeSessionPendingIntent,
     type ISessionExpiredEventDetail,
 } from "@/lib/session/session-recovery"
+
+/**
+ * Минимальный интервал между autosave draft записями (мс).
+ */
+const DRAFT_AUTOSAVE_THROTTLE_MS = 500
 
 /**
  * Результат хука восстановления сессии.
@@ -39,15 +44,15 @@ export function useSessionRecovery(): ISessionRecoveryResult {
     const [restoredDraftMessage, setRestoredDraftMessage] = useState<string | undefined>(undefined)
     const navigate = useNavigate()
     const location = useLocation()
+    const lastDraftWriteRef = useRef<number>(0)
 
     useEffect((): (() => void) | void => {
         if (typeof window === "undefined") {
             return
         }
 
-        const handleSessionExpired = (event: Event): void => {
-            const customEvent = event as CustomEvent<ISessionExpiredEventDetail>
-            const detail = customEvent.detail
+        const handleSessionExpired = (event: CustomEvent<ISessionExpiredEventDetail>): void => {
+            const detail = event.detail
             const code = detail?.code === 419 ? 419 : 401
             const pendingIntent = detail?.pendingIntent ?? location.pathname
 
@@ -81,6 +86,12 @@ export function useSessionRecovery(): ISessionRecoveryResult {
                 return
             }
 
+            const now = Date.now()
+            if (now - lastDraftWriteRef.current < DRAFT_AUTOSAVE_THROTTLE_MS) {
+                return
+            }
+            lastDraftWriteRef.current = now
+
             writeSessionDraftSnapshot({
                 fieldKey: buildDraftFieldKey(target),
                 path: location.pathname,
@@ -89,17 +100,11 @@ export function useSessionRecovery(): ISessionRecoveryResult {
             })
         }
 
-        window.addEventListener(
-            "codenautic:session-expired",
-            handleSessionExpired as EventListener,
-        )
+        window.addEventListener("codenautic:session-expired", handleSessionExpired)
         document.addEventListener("input", handleInputAutosave, true)
 
         return (): void => {
-            window.removeEventListener(
-                "codenautic:session-expired",
-                handleSessionExpired as EventListener,
-            )
+            window.removeEventListener("codenautic:session-expired", handleSessionExpired)
             document.removeEventListener("input", handleInputAutosave, true)
         }
     }, [location.pathname])

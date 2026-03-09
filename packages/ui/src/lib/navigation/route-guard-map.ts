@@ -563,44 +563,39 @@ const BREADCRUMB_ROOT_PATH_MAP: Readonly<Record<string, string>> = {
  * @param pathname Текущий pathname.
  * @returns Сегменты breadcrumb с опциональными путями.
  */
-export function getBreadcrumbsWithPaths(
-    pathname: string,
-): ReadonlyArray<IBreadcrumbSegment> {
+export function getBreadcrumbsWithPaths(pathname: string): ReadonlyArray<IBreadcrumbSegment> {
     const route = resolveRoute(pathname)
     if (route === undefined) {
         return [{ label: "Dashboard", path: "/" }, { label: "Unknown route" }]
     }
 
-    return route.breadcrumbs.map(
-        (label, index): IBreadcrumbSegment => {
-            const isLast = index === route.breadcrumbs.length - 1
-            if (isLast) {
-                return { label }
-            }
-
-            const rootPath = BREADCRUMB_ROOT_PATH_MAP[label]
-            if (rootPath !== undefined) {
-                return { label, path: rootPath }
-            }
-
-            const partialBreadcrumbs = route.breadcrumbs.slice(0, index + 1)
-            const parentRoute = ROUTE_GUARD_MAP.find((candidate): boolean => {
-                return (
-                    candidate.breadcrumbs.length === partialBreadcrumbs.length &&
-                    candidate.breadcrumbs.every(
-                        (crumb, crumbIndex): boolean =>
-                            crumb === partialBreadcrumbs[crumbIndex],
-                    )
-                )
-            })
-
-            if (parentRoute !== undefined) {
-                return { label, path: parentRoute.path }
-            }
-
+    return route.breadcrumbs.map((label, index): IBreadcrumbSegment => {
+        const isLast = index === route.breadcrumbs.length - 1
+        if (isLast) {
             return { label }
-        },
-    )
+        }
+
+        const rootPath = BREADCRUMB_ROOT_PATH_MAP[label]
+        if (rootPath !== undefined) {
+            return { label, path: rootPath }
+        }
+
+        const partialBreadcrumbs = route.breadcrumbs.slice(0, index + 1)
+        const parentRoute = ROUTE_GUARD_MAP.find((candidate): boolean => {
+            return (
+                candidate.breadcrumbs.length === partialBreadcrumbs.length &&
+                candidate.breadcrumbs.every(
+                    (crumb, crumbIndex): boolean => crumb === partialBreadcrumbs[crumbIndex],
+                )
+            )
+        })
+
+        if (parentRoute !== undefined) {
+            return { label, path: parentRoute.path }
+        }
+
+        return { label }
+    })
 }
 
 /**

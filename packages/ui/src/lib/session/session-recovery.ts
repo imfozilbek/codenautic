@@ -1,8 +1,19 @@
+/**
+ * Детали custom event `codenautic:session-expired`.
+ */
 export interface ISessionExpiredEventDetail {
     /** HTTP код ошибки сессии. */
     readonly code: 401 | 419
     /** Pending intent route для восстановления после re-auth. */
     readonly pendingIntent?: string
+}
+
+declare global {
+    // eslint-disable-next-line @typescript-eslint/naming-convention -- extends built-in WindowEventMap
+    interface WindowEventMap {
+        "codenautic:session-expired": CustomEvent<ISessionExpiredEventDetail>
+        "codenautic:session-draft-restored": CustomEvent<ISessionDraftSnapshot>
+    }
 }
 
 export interface ISessionDraftSnapshot {
@@ -19,10 +30,16 @@ export interface ISessionDraftSnapshot {
 const SESSION_PENDING_INTENT_KEY = "codenautic:session:pending-intent"
 const SESSION_DRAFT_KEY = "codenautic:session:draft"
 
-function safeParse<T>(rawValue: string): T | undefined {
+/**
+ * Безопасно парсит JSON строку.
+ *
+ * @param rawValue Сырая JSON строка.
+ * @returns Распарсенное значение или undefined при ошибке.
+ */
+function safeParseJson(rawValue: string): unknown {
     try {
-        return JSON.parse(rawValue) as T
-    } catch (_error: unknown) {
+        return JSON.parse(rawValue) as unknown
+    } catch {
         return undefined
     }
 }
@@ -122,19 +139,25 @@ export function readSessionDraftSnapshot(): ISessionDraftSnapshot | undefined {
         return undefined
     }
 
-    const parsed = safeParse<ISessionDraftSnapshot>(rawValue)
-    if (parsed === undefined) {
+    const parsed = safeParseJson(rawValue)
+    if (typeof parsed !== "object" || parsed === null) {
         return undefined
     }
 
+    const candidate = parsed as Record<string, unknown>
     if (
-        typeof parsed.fieldKey !== "string" ||
-        typeof parsed.path !== "string" ||
-        typeof parsed.value !== "string" ||
-        typeof parsed.updatedAt !== "string"
+        typeof candidate.fieldKey !== "string" ||
+        typeof candidate.path !== "string" ||
+        typeof candidate.value !== "string" ||
+        typeof candidate.updatedAt !== "string"
     ) {
         return undefined
     }
 
-    return parsed
+    return {
+        fieldKey: candidate.fieldKey,
+        path: candidate.path,
+        value: candidate.value,
+        updatedAt: candidate.updatedAt,
+    }
 }

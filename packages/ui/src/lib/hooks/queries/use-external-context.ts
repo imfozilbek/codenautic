@@ -18,7 +18,7 @@ import type {
 } from "@/lib/api/endpoints/external-context.endpoint"
 import { queryKeys } from "@/lib/query/query-keys"
 
-type TOptimisticSourcesContext = {
+type TExternalContextOptimisticContext = {
     readonly previousSources?: IExternalContextSourcesResponse
 }
 
@@ -45,14 +45,14 @@ export interface IUseExternalContextResult {
         IUpdateExternalContextSourceResponse,
         Error,
         IUpdateExternalContextSourceRequest,
-        TOptimisticSourcesContext
+        TExternalContextOptimisticContext
     >
     /** Мутация refresh/sync для source. */
     readonly refreshSource: UseMutationResult<
         IRefreshExternalContextSourceResponse,
         Error,
         string,
-        TOptimisticSourcesContext
+        TExternalContextOptimisticContext
     >
 }
 
@@ -112,7 +112,7 @@ export function useExternalContext(args: IUseExternalContextArgs = {}): IUseExte
         IUpdateExternalContextSourceResponse,
         Error,
         IUpdateExternalContextSourceRequest,
-        TOptimisticSourcesContext
+        TExternalContextOptimisticContext
     >({
         mutationFn: async (
             request: IUpdateExternalContextSourceRequest,
@@ -121,7 +121,7 @@ export function useExternalContext(args: IUseExternalContextArgs = {}): IUseExte
         },
         onMutate: async (
             request: IUpdateExternalContextSourceRequest,
-        ): Promise<TOptimisticSourcesContext> => {
+        ): Promise<TExternalContextOptimisticContext> => {
             await queryClient.cancelQueries({ queryKey: sourcesQueryKey })
             const previousSources =
                 queryClient.getQueryData<IExternalContextSourcesResponse>(sourcesQueryKey)
@@ -178,12 +178,12 @@ export function useExternalContext(args: IUseExternalContextArgs = {}): IUseExte
         IRefreshExternalContextSourceResponse,
         Error,
         string,
-        TOptimisticSourcesContext
+        TExternalContextOptimisticContext
     >({
         mutationFn: async (sourceId: string): Promise<IRefreshExternalContextSourceResponse> => {
             return api.externalContext.refreshSource(sourceId)
         },
-        onMutate: async (sourceId): Promise<TOptimisticSourcesContext> => {
+        onMutate: async (sourceId): Promise<TExternalContextOptimisticContext> => {
             const normalizedId = normalizeSourceId(sourceId)
             await queryClient.cancelQueries({ queryKey: sourcesQueryKey })
 
