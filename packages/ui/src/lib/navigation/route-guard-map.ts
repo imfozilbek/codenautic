@@ -1,3 +1,5 @@
+import type { TFunction } from "i18next"
+
 import type { TTenantId, TUiRole } from "@/lib/access/access-types"
 
 export type { TTenantId } from "@/lib/access/access-types"
@@ -22,10 +24,10 @@ export interface IBreadcrumbSegment {
 }
 
 export interface INavigationRouteEntry {
-    /** Breadcrumb trail для route. */
-    readonly breadcrumbs: ReadonlyArray<string>
-    /** Метка для quick navigation. */
-    readonly label: string
+    /** Ключи breadcrumb-сегментов (части ключей `navigation:breadcrumb.*`). */
+    readonly breadcrumbKeys: ReadonlyArray<string>
+    /** Ключ метки маршрута (часть ключа `navigation:routeLabel.*`). */
+    readonly labelKey: string
     /** Путь маршрута. */
     readonly path: string
     /** Дополнительные поисковые ключи. */
@@ -45,460 +47,461 @@ const BASE_TENANTS: ReadonlyArray<TTenantId> = ["platform-team", "frontend-team"
 
 /**
  * Формализованный route tree с guard matrix для desktop/mobile навигации.
+ * Breadcrumb и label хранятся как i18n-ключи (`navigation:breadcrumb.*`, `navigation:routeLabel.*`).
  */
 export const ROUTE_GUARD_MAP: ReadonlyArray<INavigationRouteEntry> = [
     {
-        breadcrumbs: ["Authentication", "Login"],
+        breadcrumbKeys: ["authentication", "login"],
         guards: {
             requiresAuth: false,
             roles: BASE_ROLES,
             tenants: BASE_TENANTS,
         },
-        label: "Login",
+        labelKey: "login",
         path: "/login",
         searchKeywords: ["login", "auth", "session"],
         section: "workflows",
     },
     {
-        breadcrumbs: ["Dashboard"],
+        breadcrumbKeys: ["dashboard"],
         guards: {
             requiresAuth: true,
             roles: BASE_ROLES,
             tenants: BASE_TENANTS,
         },
-        label: "Dashboard",
+        labelKey: "dashboard",
         path: "/",
         searchKeywords: ["home", "overview", "landing"],
         section: "dashboard",
     },
     {
-        breadcrumbs: ["Dashboard", "System Health"],
+        breadcrumbKeys: ["dashboard", "systemHealth"],
         guards: {
             requiresAuth: true,
             roles: BASE_ROLES,
             tenants: BASE_TENANTS,
         },
-        label: "System health",
+        labelKey: "systemHealth",
         path: "/system-health",
         searchKeywords: ["system", "health", "status", "uptime"],
         section: "dashboard",
     },
     {
-        breadcrumbs: ["Dashboard", "My Work"],
+        breadcrumbKeys: ["dashboard", "myWork"],
         guards: {
             requiresAuth: true,
             roles: BASE_ROLES,
             tenants: BASE_TENANTS,
         },
-        label: "My Work",
+        labelKey: "myWork",
         path: "/my-work",
         searchKeywords: ["triage", "inbox", "assigned", "work queue"],
         section: "workflows",
     },
     {
-        breadcrumbs: ["Dashboard", "Onboarding"],
+        breadcrumbKeys: ["dashboard", "onboarding"],
         guards: {
             requiresAuth: true,
             roles: BASE_ROLES,
             tenants: BASE_TENANTS,
         },
-        label: "Repository onboarding",
+        labelKey: "repositoryOnboarding",
         path: "/onboarding",
         searchKeywords: ["connect repository", "wizard", "scan"],
         section: "workflows",
     },
     {
-        breadcrumbs: ["Dashboard", "Scan progress"],
+        breadcrumbKeys: ["dashboard", "scanProgress"],
         guards: {
             requiresAuth: true,
             roles: BASE_ROLES,
             tenants: BASE_TENANTS,
         },
-        label: "Scan progress",
+        labelKey: "scanProgress",
         path: "/scan-progress",
         searchKeywords: ["scan", "pipeline", "progress", "jobs"],
         section: "workflows",
     },
     {
-        breadcrumbs: ["Dashboard", "Scan error recovery"],
+        breadcrumbKeys: ["dashboard", "scanErrorRecovery"],
         guards: {
             requiresAuth: true,
             roles: BASE_ROLES,
             tenants: BASE_TENANTS,
         },
-        label: "Scan error recovery",
+        labelKey: "scanErrorRecovery",
         path: "/scan-error-recovery",
         searchKeywords: ["scan", "recovery", "retry", "failure"],
         section: "workflows",
     },
     {
-        breadcrumbs: ["Dashboard", "Repositories"],
+        breadcrumbKeys: ["dashboard", "repositories"],
         guards: {
             requiresAuth: true,
             roles: BASE_ROLES,
             tenants: BASE_TENANTS,
         },
-        label: "Repositories",
+        labelKey: "repositories",
         path: "/repositories",
         searchKeywords: ["repositories", "overview", "owner", "catalog"],
         section: "workflows",
     },
     {
-        breadcrumbs: ["Dashboard", "Reviews"],
+        breadcrumbKeys: ["dashboard", "ccrReviews"],
         guards: {
             requiresAuth: true,
             roles: BASE_ROLES,
             tenants: BASE_TENANTS,
         },
-        label: "CCR Reviews",
+        labelKey: "ccrReviews",
         path: "/reviews",
         searchKeywords: ["ccr", "code review", "triage"],
         section: "workflows",
     },
     {
-        breadcrumbs: ["Dashboard", "Issues"],
+        breadcrumbKeys: ["dashboard", "issuesTracking"],
         guards: {
             requiresAuth: true,
             roles: BASE_ROLES,
             tenants: BASE_TENANTS,
         },
-        label: "Issues tracking",
+        labelKey: "issuesTracking",
         path: "/issues",
         searchKeywords: ["issues", "severity", "status", "triage"],
         section: "workflows",
     },
     {
-        breadcrumbs: ["Dashboard", "Help & diagnostics"],
+        breadcrumbKeys: ["dashboard", "helpDiagnostics"],
         guards: {
             requiresAuth: true,
             roles: BASE_ROLES,
             tenants: BASE_TENANTS,
         },
-        label: "Help and diagnostics",
+        labelKey: "helpAndDiagnostics",
         path: "/help-diagnostics",
         searchKeywords: ["help", "diagnostics", "support", "runbook"],
         section: "settings",
     },
     {
-        breadcrumbs: ["Dashboard", "Session recovery"],
+        breadcrumbKeys: ["dashboard", "sessionRecovery"],
         guards: {
             requiresAuth: true,
             roles: BASE_ROLES,
             tenants: BASE_TENANTS,
         },
-        label: "Session recovery flow",
+        labelKey: "sessionRecoveryFlow",
         path: "/session-recovery",
         searchKeywords: ["session", "recovery", "auth", "re-login"],
         section: "settings",
     },
     {
-        breadcrumbs: ["Dashboard", "Code City"],
+        breadcrumbKeys: ["dashboard", "codeCity"],
         guards: {
             requiresAuth: true,
             roles: BASE_ROLES,
             tenants: BASE_TENANTS,
         },
-        label: "Code City",
+        labelKey: "codeCity",
         path: "/dashboard/code-city",
         searchKeywords: ["code city", "architecture", "graph"],
         section: "dashboard",
     },
     {
-        breadcrumbs: ["Dashboard", "Reports"],
+        breadcrumbKeys: ["dashboard", "reports"],
         guards: {
             requiresAuth: true,
             roles: ["developer", "lead", "admin"],
             tenants: BASE_TENANTS,
         },
-        label: "Reports workspace",
+        labelKey: "reportsWorkspace",
         path: "/reports",
         searchKeywords: ["reports", "analytics", "generated", "history"],
         section: "analytics",
     },
     {
-        breadcrumbs: ["Dashboard", "Reports", "Generator"],
+        breadcrumbKeys: ["dashboard", "reports", "generator"],
         guards: {
             requiresAuth: true,
             roles: ["developer", "lead", "admin"],
             tenants: BASE_TENANTS,
         },
-        label: "Report generator",
+        labelKey: "reportGenerator",
         path: "/reports/generate",
         searchKeywords: ["reports", "generate", "schedule", "template"],
         section: "analytics",
     },
     {
-        breadcrumbs: ["Dashboard", "Reports", "Viewer"],
+        breadcrumbKeys: ["dashboard", "reports", "viewer"],
         guards: {
             requiresAuth: true,
             roles: ["developer", "lead", "admin"],
             tenants: BASE_TENANTS,
         },
-        label: "Report viewer",
+        labelKey: "reportViewer",
         path: "/reports/viewer",
         searchKeywords: ["reports", "viewer", "export", "share"],
         section: "analytics",
     },
     {
-        breadcrumbs: ["Settings"],
+        breadcrumbKeys: ["settings"],
         guards: {
             requiresAuth: true,
             roles: BASE_ROLES,
             tenants: BASE_TENANTS,
         },
-        label: "Settings home",
+        labelKey: "settingsHome",
         path: "/settings",
         searchKeywords: ["preferences", "configuration"],
         section: "settings",
     },
     {
-        breadcrumbs: ["Settings", "Appearance"],
+        breadcrumbKeys: ["settings", "appearance"],
         guards: {
             requiresAuth: true,
             roles: BASE_ROLES,
             tenants: ["frontend-team", "platform-team"],
         },
-        label: "Appearance settings",
+        labelKey: "appearanceSettings",
         path: "/settings-appearance",
         searchKeywords: ["theme", "palette", "ui"],
         section: "settings",
     },
     {
-        breadcrumbs: ["Settings", "Notifications"],
+        breadcrumbKeys: ["settings", "notifications"],
         guards: {
             requiresAuth: true,
             roles: BASE_ROLES,
             tenants: BASE_TENANTS,
         },
-        label: "Notification center",
+        labelKey: "notificationCenter",
         path: "/settings-notifications",
         searchKeywords: ["inbox", "delivery", "alerts"],
         section: "settings",
     },
     {
-        breadcrumbs: ["Settings", "Code Review"],
+        breadcrumbKeys: ["settings", "codeReview"],
         guards: {
             requiresAuth: true,
             roles: ["developer", "lead", "admin"],
             tenants: ["frontend-team", "platform-team"],
         },
-        label: "Code review settings",
+        labelKey: "codeReviewSettings",
         path: "/settings-code-review",
         searchKeywords: ["policy", "rules", "severity"],
         section: "settings",
     },
     {
-        breadcrumbs: ["Settings", "LLM Providers"],
+        breadcrumbKeys: ["settings", "llmProviders"],
         guards: {
             requiresAuth: true,
             roles: ["developer", "lead", "admin"],
             tenants: BASE_TENANTS,
         },
-        label: "LLM providers",
+        labelKey: "llmProviders",
         path: "/settings-llm-providers",
         searchKeywords: ["llm", "models", "provider", "connection"],
         section: "settings",
     },
     {
-        breadcrumbs: ["Settings", "Git Providers"],
+        breadcrumbKeys: ["settings", "gitProviders"],
         guards: {
             requiresAuth: true,
             roles: ["developer", "lead", "admin"],
             tenants: BASE_TENANTS,
         },
-        label: "Git providers",
+        labelKey: "gitProviders",
         path: "/settings-git-providers",
         searchKeywords: ["git", "github", "gitlab", "bitbucket"],
         section: "settings",
     },
     {
-        breadcrumbs: ["Settings", "Integrations"],
+        breadcrumbKeys: ["settings", "integrations"],
         guards: {
             requiresAuth: true,
             roles: ["developer", "lead", "admin"],
             tenants: ["runtime-team", "platform-team"],
         },
-        label: "Integrations",
+        labelKey: "integrations",
         path: "/settings-integrations",
         searchKeywords: ["jira", "linear", "sentry", "slack"],
         section: "settings",
     },
     {
-        breadcrumbs: ["Settings", "Webhooks"],
+        breadcrumbKeys: ["settings", "webhooks"],
         guards: {
             requiresAuth: true,
             roles: ["developer", "lead", "admin"],
             tenants: ["runtime-team", "platform-team"],
         },
-        label: "Webhooks",
+        labelKey: "webhooks",
         path: "/settings-webhooks",
         searchKeywords: ["events", "delivery", "secret"],
         section: "settings",
     },
     {
-        breadcrumbs: ["Settings", "Rules Library"],
+        breadcrumbKeys: ["settings", "rulesLibrary"],
         guards: {
             requiresAuth: true,
             roles: ["developer", "lead", "admin"],
             tenants: BASE_TENANTS,
         },
-        label: "Rules library",
+        labelKey: "rulesLibrary",
         path: "/settings-rules-library",
         searchKeywords: ["rules", "library", "custom", "policy"],
         section: "settings",
     },
     {
-        breadcrumbs: ["Settings", "Audit Logs"],
+        breadcrumbKeys: ["settings", "auditLogs"],
         guards: {
             requiresAuth: true,
             roles: ["lead", "admin"],
             tenants: BASE_TENANTS,
         },
-        label: "Audit logs",
+        labelKey: "auditLogs",
         path: "/settings-audit-logs",
         searchKeywords: ["audit", "history", "actor", "events"],
         section: "settings",
     },
     {
-        breadcrumbs: ["Settings", "Contract Validation"],
+        breadcrumbKeys: ["settings", "contractValidation"],
         guards: {
             requiresAuth: true,
             roles: ["developer", "lead", "admin"],
             tenants: BASE_TENANTS,
         },
-        label: "Contract validation",
+        labelKey: "contractValidation",
         path: "/settings-contract-validation",
         searchKeywords: ["contracts", "drift", "validation", "import/export"],
         section: "settings",
     },
     {
-        breadcrumbs: ["Settings", "Privacy Export"],
+        breadcrumbKeys: ["settings", "privacyExport"],
         guards: {
             requiresAuth: true,
             roles: ["developer", "lead", "admin"],
             tenants: BASE_TENANTS,
         },
-        label: "Privacy redaction",
+        labelKey: "privacyRedaction",
         path: "/settings-privacy-redaction",
         searchKeywords: ["privacy", "redaction", "export", "pii"],
         section: "settings",
     },
     {
-        breadcrumbs: ["Settings", "Provider Degradation"],
+        breadcrumbKeys: ["settings", "providerDegradation"],
         guards: {
             requiresAuth: true,
             roles: BASE_ROLES,
             tenants: BASE_TENANTS,
         },
-        label: "Provider degradation",
+        labelKey: "providerDegradation",
         path: "/settings-provider-degradation",
         searchKeywords: ["degradation", "outage", "fallback", "provider"],
         section: "settings",
     },
     {
-        breadcrumbs: ["Settings", "Concurrency"],
+        breadcrumbKeys: ["settings", "concurrency"],
         guards: {
             requiresAuth: true,
             roles: ["developer", "lead", "admin"],
             tenants: BASE_TENANTS,
         },
-        label: "Concurrency resolver",
+        labelKey: "concurrencyResolver",
         path: "/settings-concurrency",
         searchKeywords: ["concurrency", "conflicts", "merge", "retry"],
         section: "settings",
     },
     {
-        breadcrumbs: ["Settings", "Jobs"],
+        breadcrumbKeys: ["settings", "jobs"],
         guards: {
             requiresAuth: true,
             roles: ["developer", "lead", "admin"],
             tenants: BASE_TENANTS,
         },
-        label: "Jobs monitor",
+        labelKey: "jobsMonitor",
         path: "/settings-jobs",
         searchKeywords: ["jobs", "workers", "queues", "operations"],
         section: "settings",
     },
     {
-        breadcrumbs: ["Settings", "Billing"],
+        breadcrumbKeys: ["settings", "billing"],
         guards: {
             requiresAuth: true,
             roles: ["lead", "admin"],
             tenants: ["platform-team"],
         },
-        label: "Billing lifecycle",
+        labelKey: "billingLifecycle",
         path: "/settings-billing",
         searchKeywords: ["billing", "plan", "entitlement", "trial"],
         section: "settings",
     },
     {
-        breadcrumbs: ["Settings", "Organization"],
+        breadcrumbKeys: ["settings", "organization"],
         guards: {
             requiresAuth: true,
             roles: ["lead", "admin"],
             tenants: ["platform-team"],
         },
-        label: "Organization settings",
+        labelKey: "organizationSettings",
         path: "/settings-organization",
         searchKeywords: ["billing", "members", "org"],
         section: "settings",
     },
     {
-        breadcrumbs: ["Settings", "SSO"],
+        breadcrumbKeys: ["settings", "sso"],
         guards: {
             requiresAuth: true,
             roles: ["lead", "admin"],
             tenants: ["platform-team"],
         },
-        label: "SSO management",
+        labelKey: "ssoManagement",
         path: "/settings-sso",
         searchKeywords: ["sso", "saml", "oidc", "identity"],
         section: "settings",
     },
     {
-        breadcrumbs: ["Settings", "BYOK"],
+        breadcrumbKeys: ["settings", "byok"],
         guards: {
             requiresAuth: true,
             roles: ["lead", "admin"],
             tenants: BASE_TENANTS,
         },
-        label: "BYOK settings",
+        labelKey: "byokSettings",
         path: "/settings-byok",
         searchKeywords: ["byok", "keys", "api key", "credentials"],
         section: "settings",
     },
     {
-        breadcrumbs: ["Settings", "Team"],
+        breadcrumbKeys: ["settings", "team"],
         guards: {
             requiresAuth: true,
             roles: ["developer", "lead", "admin"],
             tenants: ["platform-team"],
         },
-        label: "Team management",
+        labelKey: "teamManagement",
         path: "/settings-team",
         searchKeywords: ["invite", "members", "roles"],
         section: "settings",
     },
     {
-        breadcrumbs: ["Settings", "Token usage"],
+        breadcrumbKeys: ["settings", "tokenUsage"],
         guards: {
             requiresAuth: true,
             roles: ["lead", "admin"],
             tenants: ["runtime-team", "platform-team"],
         },
-        label: "Token usage",
+        labelKey: "tokenUsage",
         path: "/settings-token-usage",
         searchKeywords: ["cost", "models", "usage"],
         section: "analytics",
     },
     {
-        breadcrumbs: ["Settings", "Adoption analytics"],
+        breadcrumbKeys: ["settings", "adoptionAnalytics"],
         guards: {
             requiresAuth: true,
             roles: ["lead", "admin"],
             tenants: ["runtime-team", "platform-team"],
         },
-        label: "Adoption analytics",
+        labelKey: "adoptionAnalytics",
         path: "/settings-adoption-analytics",
         searchKeywords: ["adoption", "funnel", "ttfv", "analytics"],
         section: "analytics",
@@ -533,26 +536,77 @@ function resolveRoute(pathname: string): INavigationRouteEntry | undefined {
 }
 
 /**
- * Возвращает breadcrumbs для текущего маршрута.
+ * Вызывает t() с динамически построенным ключом.
+ * Динамические ключи не резолвятся через CustomTypeOptions — приводим через unknown.
  *
- * @param pathname Текущий pathname.
- * @returns Хлебные крошки для route.
+ * @param fullKey Полный i18n-ключ (например `navigation:breadcrumb.dashboard`).
+ * @param t Функция перевода.
+ * @returns Переведённая строка.
  */
-export function getBreadcrumbs(pathname: string): ReadonlyArray<string> {
-    const route = resolveRoute(pathname)
-    if (route === undefined) {
-        return ["Dashboard", "Unknown route"]
-    }
-
-    return route.breadcrumbs
+function translateDynamicKey(
+    fullKey: string,
+    t: TFunction<ReadonlyArray<"navigation">>,
+): string {
+     
+    return (t as unknown as (key: string) => string)(fullKey)
 }
 
 /**
- * Маппинг корневых breadcrumb-меток на пути для первого уровня навигации.
+ * Резолвит ключ breadcrumb-сегмента через функцию перевода.
+ *
+ * @param key Ключ breadcrumb-сегмента.
+ * @param t Функция перевода.
+ * @returns Переведённая метка.
+ */
+function translateBreadcrumbKey(
+    key: string,
+    t: TFunction<ReadonlyArray<"navigation">>,
+): string {
+    return translateDynamicKey(`navigation:breadcrumb.${key}`, t)
+}
+
+/**
+ * Резолвит ключ метки маршрута через функцию перевода.
+ *
+ * @param key Ключ метки маршрута.
+ * @param t Функция перевода.
+ * @returns Переведённая метка.
+ */
+export function translateRouteLabelKey(
+    key: string,
+    t: TFunction<ReadonlyArray<"navigation">>,
+): string {
+    return translateDynamicKey(`navigation:routeLabel.${key}`, t)
+}
+
+/**
+ * Маппинг корневых breadcrumb-ключей на пути для первого уровня навигации.
  */
 const BREADCRUMB_ROOT_PATH_MAP: Readonly<Record<string, string>> = {
-    Dashboard: "/",
-    Settings: "/settings",
+    dashboard: "/",
+    settings: "/settings",
+}
+
+/**
+ * Возвращает breadcrumbs для текущего маршрута.
+ *
+ * @param pathname Текущий pathname.
+ * @param t Функция перевода.
+ * @returns Переведённые хлебные крошки для route.
+ */
+export function getBreadcrumbs(
+    pathname: string,
+    t: TFunction<ReadonlyArray<"navigation">>,
+): ReadonlyArray<string> {
+    const route = resolveRoute(pathname)
+    if (route === undefined) {
+        return [
+            translateBreadcrumbKey("dashboard", t),
+            translateBreadcrumbKey("unknownRoute", t),
+        ]
+    }
+
+    return route.breadcrumbKeys.map((key): string => translateBreadcrumbKey(key, t))
 }
 
 /**
@@ -561,31 +615,39 @@ const BREADCRUMB_ROOT_PATH_MAP: Readonly<Record<string, string>> = {
  * Промежуточные сегменты резолвятся из route map.
  *
  * @param pathname Текущий pathname.
+ * @param t Функция перевода.
  * @returns Сегменты breadcrumb с опциональными путями.
  */
-export function getBreadcrumbsWithPaths(pathname: string): ReadonlyArray<IBreadcrumbSegment> {
+export function getBreadcrumbsWithPaths(
+    pathname: string,
+    t: TFunction<ReadonlyArray<"navigation">>,
+): ReadonlyArray<IBreadcrumbSegment> {
     const route = resolveRoute(pathname)
     if (route === undefined) {
-        return [{ label: "Dashboard", path: "/" }, { label: "Unknown route" }]
+        return [
+            { label: translateBreadcrumbKey("dashboard", t), path: "/" },
+            { label: translateBreadcrumbKey("unknownRoute", t) },
+        ]
     }
 
-    return route.breadcrumbs.map((label, index): IBreadcrumbSegment => {
-        const isLast = index === route.breadcrumbs.length - 1
+    return route.breadcrumbKeys.map((key, index): IBreadcrumbSegment => {
+        const label = translateBreadcrumbKey(key, t)
+        const isLast = index === route.breadcrumbKeys.length - 1
         if (isLast) {
             return { label }
         }
 
-        const rootPath = BREADCRUMB_ROOT_PATH_MAP[label]
+        const rootPath = BREADCRUMB_ROOT_PATH_MAP[key]
         if (rootPath !== undefined) {
             return { label, path: rootPath }
         }
 
-        const partialBreadcrumbs = route.breadcrumbs.slice(0, index + 1)
+        const partialKeys = route.breadcrumbKeys.slice(0, index + 1)
         const parentRoute = ROUTE_GUARD_MAP.find((candidate): boolean => {
             return (
-                candidate.breadcrumbs.length === partialBreadcrumbs.length &&
-                candidate.breadcrumbs.every(
-                    (crumb, crumbIndex): boolean => crumb === partialBreadcrumbs[crumbIndex],
+                candidate.breadcrumbKeys.length === partialKeys.length &&
+                candidate.breadcrumbKeys.every(
+                    (crumb, crumbIndex): boolean => crumb === partialKeys[crumbIndex],
                 )
             )
         })
@@ -652,7 +714,9 @@ export function searchAccessibleRoutes(
             return true
         }
 
-        const haystack = [route.label, route.path, ...route.searchKeywords].join(" ").toLowerCase()
+        const haystack = [route.labelKey, route.path, ...route.searchKeywords]
+            .join(" ")
+            .toLowerCase()
         return haystack.includes(normalizedQuery)
     })
 }

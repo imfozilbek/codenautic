@@ -1,4 +1,5 @@
 import type { ReactElement } from "react"
+import type { TFunction } from "i18next"
 import type { LinkProps } from "@tanstack/react-router"
 import {
     Activity,
@@ -54,182 +55,194 @@ export interface ISettingsNavGroup {
 }
 
 /**
- * Grouped settings navigation data — source of truth for all settings nav.
+ * Создаёт сгруппированные navigation items для settings с переведёнными метками.
  *
- * 7 groups, 22 items total.
+ * @param t Функция перевода из react-i18next.
+ * @returns 7 групп, 22 items total.
  */
-export const SETTINGS_NAV_GROUPS: ReadonlyArray<ISettingsNavGroup> = [
-    {
-        key: "general",
-        label: "General",
-        description: "Workspace defaults, appearance, and notification preferences.",
-        icon: <SlidersHorizontal aria-hidden="true" size={20} />,
-        items: [
-            {
-                label: "General",
-                to: "/settings",
-                icon: <SlidersHorizontal aria-hidden="true" size={16} />,
-            },
-            {
-                label: "Appearance",
-                to: "/settings-appearance",
-                icon: <Paintbrush aria-hidden="true" size={16} />,
-            },
-            {
-                label: "Notifications",
-                to: "/settings-notifications",
-                icon: <BellRing aria-hidden="true" size={16} />,
-            },
-        ],
-    },
-    {
-        key: "code-review",
-        label: "Code Review",
-        description: "Review policies, custom rules, and contract validation.",
-        icon: <GitPullRequest aria-hidden="true" size={20} />,
-        items: [
-            {
-                label: "Code Review",
-                to: "/settings-code-review",
-                icon: <GitPullRequest aria-hidden="true" size={16} />,
-            },
-            {
-                label: "Rules Library",
-                to: "/settings-rules-library",
-                icon: <LibraryBig aria-hidden="true" size={16} />,
-            },
-            {
-                label: "Contract Validation",
-                to: "/settings-contract-validation",
-                icon: <Settings aria-hidden="true" size={16} />,
-            },
-        ],
-    },
-    {
-        key: "providers",
-        label: "Providers",
-        description: "LLM models, Git platforms, integrations, and webhooks.",
-        icon: <Bot aria-hidden="true" size={20} />,
-        items: [
-            {
-                label: "LLM Providers",
-                to: "/settings-llm-providers",
-                icon: <Bot aria-hidden="true" size={16} />,
-            },
-            {
-                label: "Git Providers",
-                to: "/settings-git-providers",
-                icon: <GitBranch aria-hidden="true" size={16} />,
-            },
-            {
-                label: "Integrations",
-                to: "/settings-integrations",
-                icon: <Link2 aria-hidden="true" size={16} />,
-            },
-            {
-                label: "Webhooks",
-                to: "/settings-webhooks",
-                icon: <Webhook aria-hidden="true" size={16} />,
-            },
-        ],
-    },
-    {
-        key: "security",
-        label: "Security & Compliance",
-        description: "Privacy controls, audit logs, SSO, and encryption keys.",
-        icon: <Shield aria-hidden="true" size={20} />,
-        items: [
-            {
-                label: "Privacy Export",
-                to: "/settings-privacy-redaction",
-                icon: <Shield aria-hidden="true" size={16} />,
-            },
-            {
-                label: "Audit Logs",
-                to: "/settings-audit-logs",
-                icon: <FileClock aria-hidden="true" size={16} />,
-            },
-            {
-                label: "SSO",
-                to: "/settings-sso",
-                icon: <ShieldCheck aria-hidden="true" size={16} />,
-            },
-            {
-                label: "BYOK",
-                to: "/settings-byok",
-                icon: <KeyRound aria-hidden="true" size={16} />,
-            },
-        ],
-    },
-    {
-        key: "operations",
-        label: "Operations",
-        description: "Degradation mode, concurrency limits, and job monitoring.",
-        icon: <Activity aria-hidden="true" size={20} />,
-        items: [
-            {
-                label: "Degradation",
-                to: "/settings-provider-degradation",
-                icon: <AlertTriangle aria-hidden="true" size={16} />,
-            },
-            {
-                label: "Concurrency",
-                to: "/settings-concurrency",
-                icon: <RefreshCcw aria-hidden="true" size={16} />,
-            },
-            {
-                label: "Jobs Monitor",
-                to: "/settings-jobs",
-                icon: <Activity aria-hidden="true" size={16} />,
-            },
-        ],
-    },
-    {
-        key: "billing",
-        label: "Billing & Usage",
-        description: "Subscription plans, token consumption, and adoption metrics.",
-        icon: <CreditCard aria-hidden="true" size={20} />,
-        items: [
-            {
-                label: "Billing",
-                to: "/settings-billing",
-                icon: <CreditCard aria-hidden="true" size={16} />,
-            },
-            {
-                label: "Token Usage",
-                to: "/settings-token-usage",
-                icon: <Coins aria-hidden="true" size={16} />,
-            },
-            {
-                label: "Adoption Analytics",
-                to: "/settings-adoption-analytics",
-                icon: <ChartNoAxesColumn aria-hidden="true" size={16} />,
-            },
-        ],
-    },
-    {
-        key: "organization",
-        label: "Organization",
-        description: "Workspace settings and team member management.",
-        icon: <Building2 aria-hidden="true" size={20} />,
-        items: [
-            {
-                label: "Organization",
-                to: "/settings-organization",
-                icon: <Building2 aria-hidden="true" size={16} />,
-            },
-            {
-                label: "Team",
-                to: "/settings-team",
-                icon: <Users aria-hidden="true" size={16} />,
-            },
-        ],
-    },
-]
+export function createSettingsNavGroups(
+    t: TFunction<ReadonlyArray<"navigation">>,
+): ReadonlyArray<ISettingsNavGroup> {
+    return [
+        {
+            key: "general",
+            label: t("navigation:settingsGroup.general"),
+            description: t("navigation:settingsGroup.generalDescription"),
+            icon: <SlidersHorizontal aria-hidden="true" size={20} />,
+            items: [
+                {
+                    label: t("navigation:settingsItem.general"),
+                    to: "/settings",
+                    icon: <SlidersHorizontal aria-hidden="true" size={16} />,
+                },
+                {
+                    label: t("navigation:settingsItem.appearance"),
+                    to: "/settings-appearance",
+                    icon: <Paintbrush aria-hidden="true" size={16} />,
+                },
+                {
+                    label: t("navigation:settingsItem.notifications"),
+                    to: "/settings-notifications",
+                    icon: <BellRing aria-hidden="true" size={16} />,
+                },
+            ],
+        },
+        {
+            key: "code-review",
+            label: t("navigation:settingsGroup.codeReview"),
+            description: t("navigation:settingsGroup.codeReviewDescription"),
+            icon: <GitPullRequest aria-hidden="true" size={20} />,
+            items: [
+                {
+                    label: t("navigation:settingsItem.codeReview"),
+                    to: "/settings-code-review",
+                    icon: <GitPullRequest aria-hidden="true" size={16} />,
+                },
+                {
+                    label: t("navigation:settingsItem.rulesLibrary"),
+                    to: "/settings-rules-library",
+                    icon: <LibraryBig aria-hidden="true" size={16} />,
+                },
+                {
+                    label: t("navigation:settingsItem.contractValidation"),
+                    to: "/settings-contract-validation",
+                    icon: <Settings aria-hidden="true" size={16} />,
+                },
+            ],
+        },
+        {
+            key: "providers",
+            label: t("navigation:settingsGroup.providers"),
+            description: t("navigation:settingsGroup.providersDescription"),
+            icon: <Bot aria-hidden="true" size={20} />,
+            items: [
+                {
+                    label: t("navigation:settingsItem.llmProviders"),
+                    to: "/settings-llm-providers",
+                    icon: <Bot aria-hidden="true" size={16} />,
+                },
+                {
+                    label: t("navigation:settingsItem.gitProviders"),
+                    to: "/settings-git-providers",
+                    icon: <GitBranch aria-hidden="true" size={16} />,
+                },
+                {
+                    label: t("navigation:settingsItem.integrations"),
+                    to: "/settings-integrations",
+                    icon: <Link2 aria-hidden="true" size={16} />,
+                },
+                {
+                    label: t("navigation:settingsItem.webhooks"),
+                    to: "/settings-webhooks",
+                    icon: <Webhook aria-hidden="true" size={16} />,
+                },
+            ],
+        },
+        {
+            key: "security",
+            label: t("navigation:settingsGroup.securityCompliance"),
+            description: t("navigation:settingsGroup.securityComplianceDescription"),
+            icon: <Shield aria-hidden="true" size={20} />,
+            items: [
+                {
+                    label: t("navigation:settingsItem.privacyExport"),
+                    to: "/settings-privacy-redaction",
+                    icon: <Shield aria-hidden="true" size={16} />,
+                },
+                {
+                    label: t("navigation:settingsItem.auditLogs"),
+                    to: "/settings-audit-logs",
+                    icon: <FileClock aria-hidden="true" size={16} />,
+                },
+                {
+                    label: t("navigation:settingsItem.sso"),
+                    to: "/settings-sso",
+                    icon: <ShieldCheck aria-hidden="true" size={16} />,
+                },
+                {
+                    label: t("navigation:settingsItem.byok"),
+                    to: "/settings-byok",
+                    icon: <KeyRound aria-hidden="true" size={16} />,
+                },
+            ],
+        },
+        {
+            key: "operations",
+            label: t("navigation:settingsGroup.operations"),
+            description: t("navigation:settingsGroup.operationsDescription"),
+            icon: <Activity aria-hidden="true" size={20} />,
+            items: [
+                {
+                    label: t("navigation:settingsItem.degradation"),
+                    to: "/settings-provider-degradation",
+                    icon: <AlertTriangle aria-hidden="true" size={16} />,
+                },
+                {
+                    label: t("navigation:settingsItem.concurrency"),
+                    to: "/settings-concurrency",
+                    icon: <RefreshCcw aria-hidden="true" size={16} />,
+                },
+                {
+                    label: t("navigation:settingsItem.jobsMonitor"),
+                    to: "/settings-jobs",
+                    icon: <Activity aria-hidden="true" size={16} />,
+                },
+            ],
+        },
+        {
+            key: "billing",
+            label: t("navigation:settingsGroup.billingUsage"),
+            description: t("navigation:settingsGroup.billingUsageDescription"),
+            icon: <CreditCard aria-hidden="true" size={20} />,
+            items: [
+                {
+                    label: t("navigation:settingsItem.billing"),
+                    to: "/settings-billing",
+                    icon: <CreditCard aria-hidden="true" size={16} />,
+                },
+                {
+                    label: t("navigation:settingsItem.tokenUsage"),
+                    to: "/settings-token-usage",
+                    icon: <Coins aria-hidden="true" size={16} />,
+                },
+                {
+                    label: t("navigation:settingsItem.adoptionAnalytics"),
+                    to: "/settings-adoption-analytics",
+                    icon: <ChartNoAxesColumn aria-hidden="true" size={16} />,
+                },
+            ],
+        },
+        {
+            key: "organization",
+            label: t("navigation:settingsGroup.organization"),
+            description: t("navigation:settingsGroup.organizationDescription"),
+            icon: <Building2 aria-hidden="true" size={20} />,
+            items: [
+                {
+                    label: t("navigation:settingsItem.organization"),
+                    to: "/settings-organization",
+                    icon: <Building2 aria-hidden="true" size={16} />,
+                },
+                {
+                    label: t("navigation:settingsItem.team"),
+                    to: "/settings-team",
+                    icon: <Users aria-hidden="true" size={16} />,
+                },
+            ],
+        },
+    ]
+}
 
 /**
- * Flat list of all settings navigation items — used by sidebar nav.
+ * Создаёт плоский список всех settings navigation items — используется sidebar nav.
+ *
+ * @param t Функция перевода из react-i18next.
+ * @returns Flat list of settings items.
  */
-export const SETTINGS_NAV_ITEMS: ReadonlyArray<ISettingsNavItem> = SETTINGS_NAV_GROUPS.flatMap(
-    (group) => group.items,
-)
+export function createSettingsNavItems(
+    t: TFunction<ReadonlyArray<"navigation">>,
+): ReadonlyArray<ISettingsNavItem> {
+    return createSettingsNavGroups(t).flatMap(
+        (group): ReadonlyArray<ISettingsNavItem> => group.items,
+    )
+}

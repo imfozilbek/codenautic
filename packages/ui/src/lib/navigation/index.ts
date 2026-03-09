@@ -21,6 +21,7 @@ export {
 export {
     type ISettingsNavItem,
     type ISettingsNavGroup,
-    SETTINGS_NAV_GROUPS,
-    SETTINGS_NAV_ITEMS,
+    createSettingsNavGroups,
+    createSettingsNavItems,
 } from "./settings-nav-items"
+export { translateRouteLabelKey } from "./route-guard-map"
