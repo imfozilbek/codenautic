@@ -1,4 +1,5 @@
 import { type ReactElement, useMemo, useState } from "react"
+import { useTranslation } from "react-i18next"
 
 import {
     Alert,
@@ -124,6 +125,7 @@ function resolveDiffRows(
  * @returns Conflict dialog с merge/reload/retry и audit trail решений.
  */
 export function SettingsConcurrencyPage(): ReactElement {
+    const { t } = useTranslation(["settings"])
     const [remoteSnapshot, setRemoteSnapshot] =
         useState<IAdminConfigSnapshot>(DEFAULT_REMOTE_CONFIG)
     const [localDraft, setLocalDraft] = useState<IAdminConfigSnapshot>(DEFAULT_REMOTE_CONFIG)
@@ -172,7 +174,7 @@ export function SettingsConcurrencyPage(): ReactElement {
                 local: localDraft,
                 remote: remoteSnapshot,
             })
-            showToastInfo("Concurrency conflict detected.")
+            showToastInfo(t("settings:concurrency.toast.concurrencyConflictDetected"))
             return
         }
 
@@ -182,7 +184,7 @@ export function SettingsConcurrencyPage(): ReactElement {
         }
         applySave(nextSnapshot)
         appendAudit("retry", nextSnapshot.etag, "Config saved without conflict.")
-        showToastSuccess("Config saved.")
+        showToastSuccess(t("settings:concurrency.toast.configSaved"))
     }
 
     const handleSimulateRemoteChange = (): void => {
@@ -197,7 +199,7 @@ export function SettingsConcurrencyPage(): ReactElement {
         }
 
         setRemoteSnapshot(nextRemoteSnapshot)
-        showToastInfo("External update applied on server snapshot.")
+        showToastInfo(t("settings:concurrency.toast.externalUpdateApplied"))
     }
 
     const handleConflictMerge = (): void => {
@@ -212,7 +214,7 @@ export function SettingsConcurrencyPage(): ReactElement {
         applySave(nextSnapshot)
         appendAudit("merge", nextSnapshot.etag, "Conflict merged with local priority.")
         setConflictState(undefined)
-        showToastSuccess("Conflict resolved by merge.")
+        showToastSuccess(t("settings:concurrency.toast.conflictResolvedByMerge"))
     }
 
     const handleConflictReload = (): void => {
@@ -227,7 +229,7 @@ export function SettingsConcurrencyPage(): ReactElement {
             "Local draft reloaded from remote snapshot.",
         )
         setConflictState(undefined)
-        showToastInfo("Local draft replaced with remote data.")
+        showToastInfo(t("settings:concurrency.toast.localDraftReplacedWithRemote"))
     }
 
     const handleConflictRetry = (): void => {
@@ -246,31 +248,31 @@ export function SettingsConcurrencyPage(): ReactElement {
             "Local draft aligned to latest etag for retry.",
         )
         setConflictState(undefined)
-        showToastInfo("Draft aligned to latest etag. Retry save is now available.")
+        showToastInfo(t("settings:concurrency.toast.draftAlignedToLatestEtag"))
     }
 
     return (
         <section className="space-y-4">
-            <h1 className={TYPOGRAPHY.pageTitle}>Concurrent config resolver</h1>
+            <h1 className={TYPOGRAPHY.pageTitle}>{t("settings:concurrency.pageTitle")}</h1>
             <p className={TYPOGRAPHY.pageSubtitle}>
-                Optimistic concurrency flow for admin settings with explicit conflict outcomes.
+                {t("settings:concurrency.pageSubtitle")}
             </p>
 
             <Card>
                 <CardHeader className="flex flex-wrap items-center justify-between gap-2">
-                    <p className={TYPOGRAPHY.sectionTitle}>Snapshot versions</p>
+                    <p className={TYPOGRAPHY.sectionTitle}>{t("settings:concurrency.snapshotVersions")}</p>
                     <div className="flex gap-2">
                         <Chip size="sm" variant="flat">
-                            Local etag: {localDraft.etag}
+                            {t("settings:concurrency.localEtag", { etag: localDraft.etag })}
                         </Chip>
                         <Chip size="sm" variant="flat">
-                            Remote etag: {remoteSnapshot.etag}
+                            {t("settings:concurrency.remoteEtag", { etag: remoteSnapshot.etag })}
                         </Chip>
                     </div>
                 </CardHeader>
                 <CardBody className="space-y-3">
                     <Input
-                        label="Ignore paths"
+                        label={t("settings:concurrency.ignorePaths")}
                         value={localDraft.values.ignorePaths}
                         onValueChange={(value): void => {
                             setLocalDraft(
@@ -327,12 +329,12 @@ export function SettingsConcurrencyPage(): ReactElement {
                             )
                         }}
                     >
-                        Require reviewer approval
+                        {t("settings:concurrency.requireReviewerApproval")}
                     </Switch>
                     <div className="flex flex-wrap gap-2">
-                        <Button onPress={handleSave}>Save settings (optimistic)</Button>
+                        <Button onPress={handleSave}>{t("settings:concurrency.saveSettingsOptimistic")}</Button>
                         <Button variant="flat" onPress={handleSimulateRemoteChange}>
-                            Simulate external update
+                            {t("settings:concurrency.simulateExternalUpdate")}
                         </Button>
                     </div>
                 </CardBody>
@@ -340,12 +342,12 @@ export function SettingsConcurrencyPage(): ReactElement {
 
             <Card>
                 <CardHeader>
-                    <p className={TYPOGRAPHY.sectionTitle}>Conflict resolution audit</p>
+                    <p className={TYPOGRAPHY.sectionTitle}>{t("settings:concurrency.conflictResolutionAudit")}</p>
                 </CardHeader>
                 <CardBody className="space-y-2">
                     {audit.length === 0 ? (
-                        <Alert color="warning" title="No concurrency decisions yet" variant="flat">
-                            Trigger a conflict to inspect merge/reload/retry decision trace.
+                        <Alert color="warning" title={t("settings:concurrency.noConcurrencyDecisionsTitle")} variant="flat">
+                            {t("settings:concurrency.noConcurrencyDecisionsDescription")}
                         </Alert>
                     ) : (
                         <ul aria-label="Concurrency audit list" className="space-y-2">
@@ -379,11 +381,10 @@ export function SettingsConcurrencyPage(): ReactElement {
                 }}
             >
                 <ModalContent>
-                    <ModalHeader>Config conflict detected</ModalHeader>
+                    <ModalHeader>{t("settings:concurrency.configConflictDetected")}</ModalHeader>
                     <ModalBody>
                         <p className="text-sm text-text-tertiary">
-                            Server ETag changed while you were editing. Choose deterministic
-                            conflict strategy.
+                            {t("settings:concurrency.conflictDescription")}
                         </p>
                         <ul aria-label="Conflict diff list" className="space-y-2">
                             {diffRows.map(
@@ -393,8 +394,8 @@ export function SettingsConcurrencyPage(): ReactElement {
                                         key={row.field}
                                     >
                                         <p className="font-semibold text-foreground">{row.field}</p>
-                                        <p>Local: {row.localValue}</p>
-                                        <p>Remote: {row.remoteValue}</p>
+                                        <p>{t("settings:concurrency.local", { value: row.localValue })}</p>
+                                        <p>{t("settings:concurrency.remote", { value: row.remoteValue })}</p>
                                     </li>
                                 ),
                             )}
@@ -402,13 +403,13 @@ export function SettingsConcurrencyPage(): ReactElement {
                     </ModalBody>
                     <ModalFooter>
                         <Button variant="flat" onPress={handleConflictReload}>
-                            Reload remote
+                            {t("settings:concurrency.reloadRemote")}
                         </Button>
                         <Button variant="flat" onPress={handleConflictRetry}>
-                            Retry with latest etag
+                            {t("settings:concurrency.retryWithLatestEtag")}
                         </Button>
                         <Button color="primary" onPress={handleConflictMerge}>
-                            Merge and save
+                            {t("settings:concurrency.mergeAndSave")}
                         </Button>
                     </ModalFooter>
                 </ModalContent>

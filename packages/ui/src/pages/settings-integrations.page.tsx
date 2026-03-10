@@ -1,4 +1,5 @@
 import { type ReactElement, useEffect, useMemo, useState } from "react"
+import { useTranslation } from "react-i18next"
 
 import { ContextPreview } from "@/components/settings/context-preview"
 import { ContextSourceCard } from "@/components/settings/context-source-card"
@@ -37,7 +38,7 @@ interface IIntegrationState {
 const INITIAL_INTEGRATIONS: ReadonlyArray<IIntegrationState> = [
     {
         connected: true,
-        description: "Issue sync и ticket linking для review findings.",
+        description: "Issue sync and ticket linking for review findings.",
         lastSyncAt: "2026-03-04 09:12",
         notificationsEnabled: true,
         provider: "Jira",
@@ -49,7 +50,7 @@ const INITIAL_INTEGRATIONS: ReadonlyArray<IIntegrationState> = [
     },
     {
         connected: false,
-        description: "Lightweight issue routing для triage и ownership.",
+        description: "Lightweight issue routing for triage and ownership.",
         notificationsEnabled: false,
         provider: "Linear",
         secretConfigured: false,
@@ -60,7 +61,7 @@ const INITIAL_INTEGRATIONS: ReadonlyArray<IIntegrationState> = [
     },
     {
         connected: true,
-        description: "Production incidents и error alerts correlation.",
+        description: "Production incidents and error alerts correlation.",
         lastSyncAt: "2026-03-04 08:41",
         notificationsEnabled: true,
         provider: "Sentry",
@@ -96,16 +97,16 @@ function mapStatusChipColor(status: TIntegrationStatus): "default" | "success" |
     return "default"
 }
 
-function mapStatusLabel(status: TIntegrationStatus): string {
+function mapStatusLabelKey(status: TIntegrationStatus): string {
     if (status === "connected") {
-        return "Connected"
+        return "connected"
     }
 
     if (status === "degraded") {
-        return "Degraded"
+        return "degraded"
     }
 
-    return "Disconnected"
+    return "disconnected"
 }
 
 function resolveWorkspacePlaceholder(provider: TIntegrationProvider): string {
@@ -164,6 +165,7 @@ function updateIntegrationByProvider(
  * @returns Экран конфигурации Jira/Linear/Sentry/Slack.
  */
 export function SettingsIntegrationsPage(): ReactElement {
+    const { t } = useTranslation(["settings"])
     const [integrations, setIntegrations] =
         useState<ReadonlyArray<IIntegrationState>>(INITIAL_INTEGRATIONS)
     const [selectedContextSourceId, setSelectedContextSourceId] = useState<string | undefined>(
@@ -310,7 +312,7 @@ export function SettingsIntegrationsPage(): ReactElement {
                     },
                 ),
         )
-        showToastSuccess(`${provider} configuration saved.`)
+        showToastSuccess(t("settings:integrations.toast.configSaved", { provider }))
     }
 
     const handleToggleConnection = (provider: TIntegrationProvider): void => {
@@ -339,7 +341,7 @@ export function SettingsIntegrationsPage(): ReactElement {
                     },
                 ),
         )
-        showToastInfo(`${provider} connection state updated.`)
+        showToastInfo(t("settings:integrations.toast.connectionStateUpdated", { provider }))
     }
 
     const handleTestConnection = (provider: TIntegrationProvider): boolean => {
@@ -366,11 +368,11 @@ export function SettingsIntegrationsPage(): ReactElement {
         )
 
         if (isHealthy) {
-            showToastSuccess(`${provider} is healthy.`)
+            showToastSuccess(t("settings:integrations.toast.providerHealthy", { provider }))
             return true
         }
 
-        showToastError(`${provider} health check failed.`)
+        showToastError(t("settings:integrations.toast.healthCheckFailed", { provider }))
         return false
     }
 
@@ -383,18 +385,18 @@ export function SettingsIntegrationsPage(): ReactElement {
                 sourceId,
                 enabled: nextEnabled,
             })
-            showToastSuccess("Context source updated.")
+            showToastSuccess(t("settings:integrations.toast.contextSourceUpdated"))
         } catch {
-            showToastError("Unable to update context source.")
+            showToastError(t("settings:integrations.toast.unableToUpdateContextSource"))
         }
     }
 
     const handleRefreshContextSource = async (sourceId: string): Promise<void> => {
         try {
             await externalContext.refreshSource.mutateAsync(sourceId)
-            showToastInfo("Context source refresh queued.")
+            showToastInfo(t("settings:integrations.toast.contextSourceRefreshQueued"))
         } catch {
-            showToastError("Unable to queue context source refresh.")
+            showToastError(t("settings:integrations.toast.unableToQueueRefresh"))
         }
     }
 
@@ -404,25 +406,29 @@ export function SettingsIntegrationsPage(): ReactElement {
 
     return (
         <section className="space-y-4">
-            <h1 className={TYPOGRAPHY.pageTitle}>Integrations</h1>
+            <h1 className={TYPOGRAPHY.pageTitle}>{t("settings:integrations.pageTitle")}</h1>
             <p className={TYPOGRAPHY.pageSubtitle}>
-                Configure Jira, Linear, Sentry and Slack connections for issues, alerts and
-                notifications.
+                {t("settings:integrations.pageSubtitle")}
             </p>
 
             <Card>
                 <CardHeader>
-                    <p className={TYPOGRAPHY.sectionTitle}>Connection health summary</p>
+                    <p className={TYPOGRAPHY.sectionTitle}>
+                        {t("settings:integrations.connectionHealthSummary")}
+                    </p>
                 </CardHeader>
                 <CardBody className="grid gap-2 text-sm sm:grid-cols-3">
                     <p className="rounded-lg border border-success/30 bg-success/10 px-3 py-2 text-success">
-                        Connected: <span className="font-semibold">{summary.connected}</span>
+                        {t("settings:integrations.connected")}{" "}
+                        <span className="font-semibold">{summary.connected}</span>
                     </p>
                     <p className="rounded-lg border border-warning/30 bg-warning/10 px-3 py-2 text-warning">
-                        Degraded: <span className="font-semibold">{summary.degraded}</span>
+                        {t("settings:integrations.degraded")}{" "}
+                        <span className="font-semibold">{summary.degraded}</span>
                     </p>
                     <p className="rounded-lg border border-border bg-surface px-3 py-2 text-foreground">
-                        Disconnected: <span className="font-semibold">{summary.disconnected}</span>
+                        {t("settings:integrations.disconnected")}{" "}
+                        <span className="font-semibold">{summary.disconnected}</span>
                     </p>
                 </CardBody>
             </Card>
@@ -445,13 +451,13 @@ export function SettingsIntegrationsPage(): ReactElement {
                                     size="sm"
                                     variant="flat"
                                 >
-                                    {mapStatusLabel(integration.status)}
+                                    {(t as unknown as (key: string) => string)(`settings:integrations.${mapStatusLabelKey(integration.status)}`)}
                                 </Chip>
                             </CardHeader>
                             <CardBody className="space-y-3">
                                 <div className="grid gap-3 md:grid-cols-2">
                                     <Input
-                                        label="Workspace / endpoint"
+                                        label={t("settings:integrations.workspaceEndpoint")}
                                         onValueChange={(value): void => {
                                             setWorkspace(integration.provider, value)
                                         }}
@@ -461,7 +467,7 @@ export function SettingsIntegrationsPage(): ReactElement {
                                         value={integration.workspace}
                                     />
                                     <Input
-                                        label="Target"
+                                        label={t("settings:integrations.target")}
                                         onValueChange={(value): void => {
                                             setTarget(integration.provider, value)
                                         }}
@@ -477,7 +483,7 @@ export function SettingsIntegrationsPage(): ReactElement {
                                             setSyncEnabled(integration.provider, value)
                                         }}
                                     >
-                                        Enable sync
+                                        {t("settings:integrations.enableSync")}
                                     </Switch>
                                     <Switch
                                         isSelected={integration.notificationsEnabled}
@@ -485,7 +491,7 @@ export function SettingsIntegrationsPage(): ReactElement {
                                             setNotificationsEnabled(integration.provider, value)
                                         }}
                                     >
-                                        Enable notifications
+                                        {t("settings:integrations.enableNotifications")}
                                     </Switch>
                                 </div>
 
@@ -507,7 +513,9 @@ export function SettingsIntegrationsPage(): ReactElement {
                                             integration.connected === true ? "secondary" : "solid"
                                         }
                                     >
-                                        {integration.connected === true ? "Disconnect" : "Connect"}
+                                        {integration.connected === true
+                                            ? t("settings:integrations.disconnect")
+                                            : t("settings:integrations.connect")}
                                     </Button>
                                     <Button
                                         onPress={(): void => {
@@ -516,16 +524,17 @@ export function SettingsIntegrationsPage(): ReactElement {
                                         size="sm"
                                         variant="light"
                                     >
-                                        Save configuration
+                                        {t("settings:integrations.saveConfiguration")}
                                     </Button>
                                 </div>
 
                                 <p className="text-xs text-muted-foreground">
-                                    Secret/token:{" "}
+                                    {t("settings:integrations.secretToken")}{" "}
                                     {integration.secretConfigured === true
-                                        ? "configured"
-                                        : "not configured"}{" "}
-                                    · Last sync: {integration.lastSyncAt ?? "not synced yet"}
+                                        ? t("settings:integrations.configured")
+                                        : t("settings:integrations.notConfigured")}{" "}
+                                    · {t("settings:integrations.lastSync")}{" "}
+                                    {integration.lastSyncAt ?? t("settings:integrations.notSyncedYet")}
                                 </p>
                             </CardBody>
                         </Card>
@@ -536,20 +545,22 @@ export function SettingsIntegrationsPage(): ReactElement {
             <Card>
                 <CardHeader>
                     <div>
-                        <p className={TYPOGRAPHY.sectionTitle}>External Context Sources</p>
+                        <p className={TYPOGRAPHY.sectionTitle}>
+                            {t("settings:integrations.externalContextSources")}
+                        </p>
                         <p className="text-sm text-muted-foreground">
-                            Manage indexed sources and inspect loaded context snippets.
+                            {t("settings:integrations.manageContextSources")}
                         </p>
                     </div>
                 </CardHeader>
                 <CardBody className="space-y-4">
                     {externalContext.sourcesQuery.isPending ? (
                         <p aria-live="polite" className="text-sm text-muted-foreground">
-                            Loading external context sources...
+                            {t("settings:integrations.loadingContextSources")}
                         </p>
                     ) : externalContext.sourcesQuery.error !== null ? (
                         <p aria-live="polite" className="text-sm text-danger">
-                            Failed to load context sources.
+                            {t("settings:integrations.failedToLoadContextSources")}
                         </p>
                     ) : (
                         <div className="grid gap-3 lg:grid-cols-2">

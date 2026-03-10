@@ -1,4 +1,5 @@
 import { type ReactElement, useMemo, useState } from "react"
+import { useTranslation } from "react-i18next"
 
 import { Button, Card, CardBody, CardHeader } from "@/components/ui"
 import { showToastError, showToastInfo, showToastSuccess } from "@/lib/notifications/toast"
@@ -168,6 +169,7 @@ function renderProviderCard(
     onSave: (next: INormalizedLlmProviderFormValues) => void,
     onTest: () => Promise<boolean>,
     isActionDisabled: boolean,
+    t: ReturnType<typeof useTranslation<readonly ["settings"]>>["t"],
 ): ReactElement {
     return (
         <Card key={provider}>
@@ -194,10 +196,10 @@ function renderProviderCard(
                     <Button
                         isDisabled={isActionDisabled}
                         onPress={(): void => {
-                            showToastInfo(`Triggered manual test for ${provider}.`)
+                            showToastInfo(t("settings:llmProviders.toast.manualTestTriggered", { provider }))
                         }}
                     >
-                        Validate via pipeline
+                        {t("settings:llmProviders.validateViaPipeline")}
                     </Button>
                 </div>
             </CardBody>
@@ -211,6 +213,7 @@ function renderProviderCard(
  * @returns Форма выбора провайдера, ключа и теста подключения.
  */
 export function SettingsLlmProvidersPage(): ReactElement {
+    const { t } = useTranslation(["settings"])
     const [configs, setConfigs] = useState<Record<TLlmProvider, ILlmProviderConfig>>(INITIAL_CONFIG)
 
     const hasAtLeastOneConfigured = useMemo<boolean>(
@@ -222,7 +225,7 @@ export function SettingsLlmProvidersPage(): ReactElement {
         setConfigs((previousValue): Record<TLlmProvider, ILlmProviderConfig> => {
             return toNextProviderConfig(previousValue, provider, next)
         })
-        showToastSuccess(`Saved ${provider} provider config.`)
+        showToastSuccess(t("settings:llmProviders.toast.configSaved", { provider }))
     }
 
     const testProvider = (provider: TLlmProvider): Promise<boolean> => {
@@ -244,11 +247,11 @@ export function SettingsLlmProvidersPage(): ReactElement {
             }
         })
         if (next === true) {
-            showToastSuccess(`${provider} marked as connected.`)
+            showToastSuccess(t("settings:llmProviders.toast.markedAsConnected", { provider }))
             return
         }
 
-        showToastError(`${provider} is not connected.`)
+        showToastError(t("settings:llmProviders.toast.notConnected", { provider }))
     }
 
     const testAndPersistConnection = async (provider: TLlmProvider): Promise<boolean> => {
@@ -259,13 +262,12 @@ export function SettingsLlmProvidersPage(): ReactElement {
 
     return (
         <section className="space-y-4">
-            <h1 className={TYPOGRAPHY.pageTitle}>LLM Providers</h1>
+            <h1 className={TYPOGRAPHY.pageTitle}>{t("settings:llmProviders.pageTitle")}</h1>
             <p className={TYPOGRAPHY.pageSubtitle}>
-                Configure provider credentials and model defaults for automated suggestion
-                generation.
+                {t("settings:llmProviders.pageSubtitle")}
             </p>
             <div className="rounded-md border border-primary/30 bg-primary/10 p-3 text-sm text-on-primary">
-                BYOK keys are masked in UI. Keep secrets in secure storage on save.
+                {t("settings:llmProviders.byokNotice")}
             </div>
 
             <div className="space-y-4">
@@ -280,6 +282,7 @@ export function SettingsLlmProvidersPage(): ReactElement {
                         },
                         async (): Promise<boolean> => testAndPersistConnection(provider),
                         hasAtLeastOneConfigured === false,
+                        t,
                     )
                 })}
             </div>

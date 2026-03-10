@@ -1,4 +1,5 @@
 import { type ReactElement, useState } from "react"
+import { useTranslation } from "react-i18next"
 
 import { Alert, Button, Card, CardBody, CardHeader, Input, Textarea } from "@/components/ui"
 import { TYPOGRAPHY } from "@/lib/constants/typography"
@@ -59,9 +60,9 @@ function hasOidcRequiredConfig(config: IOidcConfigState): boolean {
     return hasIssuer && hasClientId && hasClientSecret
 }
 
-function getMaskedSecret(secret: string): string {
+function getMaskedSecret(secret: string, notConfiguredLabel: string): string {
     if (secret.trim().length === 0) {
-        return "Not configured"
+        return notConfiguredLabel
     }
 
     return "••••••••"
@@ -73,6 +74,7 @@ function getMaskedSecret(secret: string): string {
  * @returns UI-конфигурация SSO с проверкой валидности и тестом подключения.
  */
 export function SettingsSsoPage(): ReactElement {
+    const { t } = useTranslation(["settings"])
     const [samlConfig, setSamlConfig] = useState<ISamlConfigState>(INITIAL_SAML_CONFIG)
     const [oidcConfig, setOidcConfig] = useState<IOidcConfigState>(INITIAL_OIDC_CONFIG)
     const [isSamlSaved, setIsSamlSaved] = useState(false)
@@ -81,22 +83,22 @@ export function SettingsSsoPage(): ReactElement {
 
     const handleSaveSaml = (): void => {
         if (hasSamlRequiredConfig(samlConfig) !== true) {
-            showToastError("SAML config is invalid. Check Entity ID, SSO URL and certificate.")
+            showToastError(t("settings:sso.toast.samlConfigInvalid"))
             return
         }
 
         setIsSamlSaved(true)
-        showToastSuccess("SAML configuration saved.")
+        showToastSuccess(t("settings:sso.toast.samlConfigSaved"))
     }
 
     const handleSaveOidc = (): void => {
         if (hasOidcRequiredConfig(oidcConfig) !== true) {
-            showToastError("OIDC config is invalid. Check issuer, client id and secret.")
+            showToastError(t("settings:sso.toast.oidcConfigInvalid"))
             return
         }
 
         setIsOidcSaved(true)
-        showToastSuccess("OIDC configuration saved.")
+        showToastSuccess(t("settings:sso.toast.oidcConfigSaved"))
     }
 
     const handleTestSso = (provider: "oidc" | "saml"): void => {
@@ -107,40 +109,39 @@ export function SettingsSsoPage(): ReactElement {
 
         if (isValid) {
             const nextState: ISsoTestState = {
-                message: `SSO test passed for ${provider}.`,
+                message: t("settings:sso.toast.ssoTestPassedMessage", { provider }),
                 provider,
                 status: "passed",
             }
             setTestState(nextState)
-            showToastSuccess("SSO test completed successfully.")
+            showToastSuccess(t("settings:sso.toast.ssoTestPassed"))
             return
         }
 
         const failedState: ISsoTestState = {
-            message: `SSO test failed for ${provider}. Check required fields and try again.`,
+            message: t("settings:sso.toast.ssoTestFailedMessage", { provider }),
             provider,
             status: "failed",
         }
         setTestState(failedState)
-        showToastInfo("SSO test finished with validation error.")
+        showToastInfo(t("settings:sso.toast.ssoTestFailed"))
     }
 
     return (
         <section className="space-y-4">
-            <h1 className={TYPOGRAPHY.pageTitle}>SSO provider management</h1>
-            <p className={TYPOGRAPHY.pageSubtitle}>
-                Configure SAML and OIDC providers, validate required fields, and run test SSO checks
-                before rollout.
-            </p>
+            <h1 className={TYPOGRAPHY.pageTitle}>{t("settings:sso.pageTitle")}</h1>
+            <p className={TYPOGRAPHY.pageSubtitle}>{t("settings:sso.pageSubtitle")}</p>
 
             <div className="grid gap-4 xl:grid-cols-2">
                 <Card>
                     <CardHeader>
-                        <p className={TYPOGRAPHY.sectionTitle}>SAML configuration</p>
+                        <p className={TYPOGRAPHY.sectionTitle}>
+                            {t("settings:sso.samlConfiguration")}
+                        </p>
                     </CardHeader>
                     <CardBody className="space-y-3">
                         <Input
-                            label="SAML Entity ID"
+                            label={t("settings:sso.samlEntityId")}
                             placeholder="urn:codenautic:sp:acme"
                             value={samlConfig.entityId}
                             onValueChange={(value): void => {
@@ -153,7 +154,7 @@ export function SettingsSsoPage(): ReactElement {
                             }}
                         />
                         <Input
-                            label="SAML SSO URL"
+                            label={t("settings:sso.samlSsoUrl")}
                             placeholder="https://idp.acme.dev/sso/saml"
                             value={samlConfig.ssoUrl}
                             onValueChange={(value): void => {
@@ -166,7 +167,7 @@ export function SettingsSsoPage(): ReactElement {
                             }}
                         />
                         <Textarea
-                            label="X.509 certificate"
+                            label={t("settings:sso.x509Certificate")}
                             minRows={5}
                             placeholder="-----BEGIN CERTIFICATE-----"
                             value={samlConfig.x509Certificate}
@@ -180,19 +181,25 @@ export function SettingsSsoPage(): ReactElement {
                             }}
                         />
                         <div className="flex flex-wrap items-center gap-2">
-                            <Button onPress={handleSaveSaml}>Save SAML config</Button>
+                            <Button onPress={handleSaveSaml}>
+                                {t("settings:sso.saveSamlConfig")}
+                            </Button>
                             <Button
                                 variant="flat"
                                 onPress={(): void => {
                                     handleTestSso("saml")
                                 }}
                             >
-                                Test SSO (SAML)
+                                {t("settings:sso.testSsoSaml")}
                             </Button>
                         </div>
                         {isSamlSaved ? (
-                            <Alert color="success" title="SAML configuration saved" variant="flat">
-                                SAML settings passed local validation and are ready for secure sync.
+                            <Alert
+                                color="success"
+                                title={t("settings:sso.samlConfigSavedTitle")}
+                                variant="flat"
+                            >
+                                {t("settings:sso.samlConfigSavedDescription")}
                             </Alert>
                         ) : null}
                     </CardBody>
@@ -200,11 +207,13 @@ export function SettingsSsoPage(): ReactElement {
 
                 <Card>
                     <CardHeader>
-                        <p className={TYPOGRAPHY.sectionTitle}>OIDC configuration</p>
+                        <p className={TYPOGRAPHY.sectionTitle}>
+                            {t("settings:sso.oidcConfiguration")}
+                        </p>
                     </CardHeader>
                     <CardBody className="space-y-3">
                         <Input
-                            label="OIDC issuer URL"
+                            label={t("settings:sso.oidcIssuerUrl")}
                             placeholder="https://auth.acme.dev/realms/platform"
                             value={oidcConfig.issuerUrl}
                             onValueChange={(value): void => {
@@ -217,7 +226,7 @@ export function SettingsSsoPage(): ReactElement {
                             }}
                         />
                         <Input
-                            label="OIDC client ID"
+                            label={t("settings:sso.oidcClientId")}
                             placeholder="codenautic-web"
                             value={oidcConfig.clientId}
                             onValueChange={(value): void => {
@@ -230,7 +239,7 @@ export function SettingsSsoPage(): ReactElement {
                             }}
                         />
                         <Input
-                            label="OIDC client secret"
+                            label={t("settings:sso.oidcClientSecret")}
                             placeholder="client secret"
                             type="password"
                             value={oidcConfig.clientSecret}
@@ -244,22 +253,33 @@ export function SettingsSsoPage(): ReactElement {
                             }}
                         />
                         <p className="text-xs text-text-secondary">
-                            Secret preview in UI: {getMaskedSecret(oidcConfig.clientSecret)}
+                            {t("settings:sso.secretPreview", {
+                                preview: getMaskedSecret(
+                                    oidcConfig.clientSecret,
+                                    t("settings:sso.notConfigured"),
+                                ),
+                            })}
                         </p>
                         <div className="flex flex-wrap items-center gap-2">
-                            <Button onPress={handleSaveOidc}>Save OIDC config</Button>
+                            <Button onPress={handleSaveOidc}>
+                                {t("settings:sso.saveOidcConfig")}
+                            </Button>
                             <Button
                                 variant="flat"
                                 onPress={(): void => {
                                     handleTestSso("oidc")
                                 }}
                             >
-                                Test SSO (OIDC)
+                                {t("settings:sso.testSsoOidc")}
                             </Button>
                         </div>
                         {isOidcSaved ? (
-                            <Alert color="success" title="OIDC configuration saved" variant="flat">
-                                OIDC settings passed local validation and are ready for secure sync.
+                            <Alert
+                                color="success"
+                                title={t("settings:sso.oidcConfigSavedTitle")}
+                                variant="flat"
+                            >
+                                {t("settings:sso.oidcConfigSavedDescription")}
                             </Alert>
                         ) : null}
                     </CardBody>
@@ -271,8 +291,8 @@ export function SettingsSsoPage(): ReactElement {
                     color={testState.status === "passed" ? "success" : "warning"}
                     title={
                         testState.status === "passed"
-                            ? "SSO connectivity check passed"
-                            : "SSO connectivity check failed"
+                            ? t("settings:sso.connectivityCheckPassed")
+                            : t("settings:sso.connectivityCheckFailed")
                     }
                     variant="flat"
                 >

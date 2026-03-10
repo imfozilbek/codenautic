@@ -1,4 +1,5 @@
 import { type ReactElement, useMemo, useState } from "react"
+import { useTranslation } from "react-i18next"
 
 import { Alert, Button, Card, CardBody, CardHeader, Chip } from "@/components/ui"
 import { TYPOGRAPHY } from "@/lib/constants/typography"
@@ -46,17 +47,18 @@ const DEFAULT_PROVIDER_STATE: IProviderState = {
  * @returns Управление degraded banner, affected features и queue/retry сценариями.
  */
 export function SettingsProviderDegradationPage(): ReactElement {
+    const { t } = useTranslation(["settings"])
     const [providerState, setProviderState] = useState<IProviderState>(DEFAULT_PROVIDER_STATE)
     const [queuedActions, setQueuedActions] = useState<ReadonlyArray<IQueuedAction>>([])
 
     const canQueueCriticalAction = providerState.level === "degraded"
     const incidentMessage = useMemo((): string => {
         if (providerState.level === "operational") {
-            return "All providers are operational."
+            return t("settings:providerDegradation.allProvidersOperational")
         }
 
-        return `Provider ${providerState.provider} is degraded. Queue mode is active.`
-    }, [providerState.level, providerState.provider])
+        return t("settings:providerDegradation.providerDegraded", { provider: providerState.provider })
+    }, [providerState.level, providerState.provider, t])
 
     const dispatchDegradationEvent = (detail: IProviderDegradationEventDetail): void => {
         window.dispatchEvent(
@@ -76,7 +78,7 @@ export function SettingsProviderDegradationPage(): ReactElement {
         }
         setProviderState(nextState)
         dispatchDegradationEvent(nextState)
-        showToastInfo("Global degradation mode activated.")
+        showToastInfo(t("settings:providerDegradation.toast.degradationActivated"))
     }
 
     const handleMarkOperational = (): void => {
@@ -87,7 +89,7 @@ export function SettingsProviderDegradationPage(): ReactElement {
         setProviderState(nextState)
         dispatchDegradationEvent(nextState)
         setQueuedActions([])
-        showToastSuccess("Provider marked as operational.")
+        showToastSuccess(t("settings:providerDegradation.toast.markedOperational"))
     }
 
     const handleQueueCriticalAction = (): void => {
@@ -117,21 +119,20 @@ export function SettingsProviderDegradationPage(): ReactElement {
                     }),
                 ),
         )
-        showToastInfo("Queued actions processed with current provider state.")
+        showToastInfo(t("settings:providerDegradation.toast.queuedActionsProcessed"))
     }
 
     return (
         <section className="space-y-4">
-            <h1 className={TYPOGRAPHY.pageTitle}>Provider degradation mode</h1>
+            <h1 className={TYPOGRAPHY.pageTitle}>{t("settings:providerDegradation.pageTitle")}</h1>
             <p className={TYPOGRAPHY.pageSubtitle}>
-                Monitor affected features, keep critical actions in queue/retry mode and provide
-                quick incident runbook access.
+                {t("settings:providerDegradation.pageSubtitle")}
             </p>
 
             <Alert
                 color={providerState.level === "degraded" ? "danger" : "success"}
                 title={
-                    providerState.level === "degraded" ? "Degraded mode active" : "Operational mode"
+                    providerState.level === "degraded" ? t("settings:providerDegradation.degradedModeActive") : t("settings:providerDegradation.operationalMode")
                 }
                 variant="flat"
             >
@@ -140,7 +141,7 @@ export function SettingsProviderDegradationPage(): ReactElement {
 
             <Card>
                 <CardHeader>
-                    <p className={TYPOGRAPHY.sectionTitle}>Incident controls</p>
+                    <p className={TYPOGRAPHY.sectionTitle}>{t("settings:providerDegradation.incidentControls")}</p>
                 </CardHeader>
                 <CardBody className="space-y-3">
                     <div className="flex flex-wrap items-center gap-2">
@@ -156,7 +157,7 @@ export function SettingsProviderDegradationPage(): ReactElement {
                         </Chip>
                     </div>
                     {providerState.affectedFeatures.length === 0 ? (
-                        <p className="text-sm text-text-secondary">No affected features.</p>
+                        <p className="text-sm text-text-secondary">{t("settings:providerDegradation.noAffectedFeatures")}</p>
                     ) : (
                         <ul aria-label="Affected features list" className="space-y-1">
                             {providerState.affectedFeatures.map(
@@ -169,9 +170,9 @@ export function SettingsProviderDegradationPage(): ReactElement {
                         </ul>
                     )}
                     <div className="flex flex-wrap gap-2">
-                        <Button onPress={handleSimulateOutage}>Simulate outage</Button>
+                        <Button onPress={handleSimulateOutage}>{t("settings:providerDegradation.simulateOutage")}</Button>
                         <Button variant="flat" onPress={handleMarkOperational}>
-                            Mark operational
+                            {t("settings:providerDegradation.markOperational")}
                         </Button>
                         <a
                             className="inline-flex items-center rounded-full border border-border px-3 py-1 text-sm text-text-tertiary"
@@ -179,7 +180,7 @@ export function SettingsProviderDegradationPage(): ReactElement {
                             rel="noreferrer"
                             target="_blank"
                         >
-                            Open runbook
+                            {t("settings:providerDegradation.openRunbook")}
                         </a>
                     </div>
                 </CardBody>
@@ -187,7 +188,7 @@ export function SettingsProviderDegradationPage(): ReactElement {
 
             <Card>
                 <CardHeader>
-                    <p className={TYPOGRAPHY.sectionTitle}>Queue & retry for critical actions</p>
+                    <p className={TYPOGRAPHY.sectionTitle}>{t("settings:providerDegradation.queueRetry")}</p>
                 </CardHeader>
                 <CardBody className="space-y-3">
                     <div className="flex gap-2">
@@ -196,10 +197,10 @@ export function SettingsProviderDegradationPage(): ReactElement {
                             size="sm"
                             onPress={handleQueueCriticalAction}
                         >
-                            Queue critical action
+                            {t("settings:providerDegradation.queueCriticalAction")}
                         </Button>
                         <Button size="sm" variant="flat" onPress={handleRetryQueuedActions}>
-                            Retry queued actions
+                            {t("settings:providerDegradation.retryQueuedActions")}
                         </Button>
                     </div>
                     <ul aria-label="Queued critical actions list" className="space-y-2">
@@ -218,7 +219,7 @@ export function SettingsProviderDegradationPage(): ReactElement {
                         )}
                     </ul>
                     {queuedActions.length === 0 ? (
-                        <p className="text-sm text-text-secondary">No critical actions in queue.</p>
+                        <p className="text-sm text-text-secondary">{t("settings:providerDegradation.noCriticalActionsInQueue")}</p>
                     ) : null}
                 </CardBody>
             </Card>

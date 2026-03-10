@@ -1,4 +1,5 @@
 import { type ReactElement, useMemo } from "react"
+import { useTranslation } from "react-i18next"
 
 import { Button, Card, CardBody } from "@/components/ui"
 import {
@@ -70,6 +71,7 @@ function hasAnyConfiguredToken(providers: ReadonlyArray<IGitProviderConnection>)
  * @returns Список Git подключений и действия connect/test.
  */
 export function SettingsGitProvidersPage(): ReactElement {
+    const { t } = useTranslation(["settings"])
     const gitProviders = useGitProviders()
 
     const sourceProviders = useMemo((): ReadonlyArray<IGitProviderConnection> => {
@@ -112,14 +114,16 @@ export function SettingsGitProvidersPage(): ReactElement {
 
     return (
         <section className="space-y-4">
-            <h1 className={TYPOGRAPHY.pageTitle}>Git Providers</h1>
+            <h1 className={TYPOGRAPHY.pageTitle}>{t("settings:gitProviders.pageTitle")}</h1>
             <p className={TYPOGRAPHY.pageSubtitle}>
-                Настройка OAuth/чтение репозиториев и webhook-интеграций.
+                {t("settings:gitProviders.pageSubtitle")}
             </p>
             <GitProvidersList providers={providerCards} />
             <Card>
                 <CardBody className="space-y-3">
-                    <p className="text-sm font-medium text-foreground">Connectivity checks</p>
+                    <p className="text-sm font-medium text-foreground">
+                        {t("settings:gitProviders.connectivityChecks")}
+                    </p>
                     <div className="space-y-2">
                         {sourceProviders.map(
                             (provider): ReactElement => (
@@ -143,7 +147,9 @@ export function SettingsGitProvidersPage(): ReactElement {
                                             })
                                         }}
                                     >
-                                        {provider.connected ? "Force reconnect" : "Connect"}
+                                        {provider.connected
+                                            ? t("settings:gitProviders.forceReconnect")
+                                            : t("settings:gitProviders.connect")}
                                     </Button>
                                 </div>
                             ),
@@ -151,8 +157,8 @@ export function SettingsGitProvidersPage(): ReactElement {
                     </div>
                     <p className="text-xs text-muted-foreground">
                         {isTokenConfigured
-                            ? "At least one token is configured."
-                            : "No tokens are configured yet."}
+                            ? t("settings:gitProviders.tokenConfigured")
+                            : t("settings:gitProviders.noTokensConfigured")}
                     </p>
                 </CardBody>
             </Card>

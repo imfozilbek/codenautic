@@ -1,4 +1,5 @@
 import { type ReactElement, useMemo, useState } from "react"
+import { useTranslation } from "react-i18next"
 
 import { Alert, Button, Card, CardBody, CardHeader, Chip, Input, Switch } from "@/components/ui"
 import { NATIVE_FORM } from "@/lib/constants/spacing"
@@ -112,6 +113,7 @@ function formatLastUsed(value: string): string {
  * @returns UI для добавления, ротации и мониторинга ключей.
  */
 export function SettingsByokPage(): ReactElement {
+    const { t } = useTranslation(["settings"])
     const [keys, setKeys] = useState<ReadonlyArray<IByokKeyEntry>>(INITIAL_KEYS)
     const [form, setForm] = useState<ICreateKeyFormState>({
         label: "",
@@ -185,11 +187,11 @@ export function SettingsByokPage(): ReactElement {
         const normalizedSecret = form.secret.trim()
 
         if (normalizedLabel.length < 3) {
-            showToastError("Key label should be at least 3 characters.")
+            showToastError(t("settings:byok.toast.keyLabelTooShort"))
             return
         }
         if (normalizedSecret.length < 12) {
-            showToastError("API key must be at least 12 characters.")
+            showToastError(t("settings:byok.toast.apiKeyTooShort"))
             return
         }
 
@@ -211,7 +213,7 @@ export function SettingsByokPage(): ReactElement {
             provider: form.provider,
             secret: "",
         })
-        showToastSuccess(`BYOK key "${nextKey.label}" added.`)
+        showToastSuccess(t("settings:byok.toast.keyAdded", { label: nextKey.label }))
     }
 
     const handleRotateKey = (keyId: string): void => {
@@ -231,7 +233,7 @@ export function SettingsByokPage(): ReactElement {
                     }
                 }),
         )
-        showToastInfo("Key rotated successfully.")
+        showToastInfo(t("settings:byok.toast.keyRotated"))
     }
 
     const handleToggleActive = (keyId: string, isActive: boolean): void => {
@@ -254,19 +256,19 @@ export function SettingsByokPage(): ReactElement {
             (previous): ReadonlyArray<IByokKeyEntry> =>
                 previous.filter((entry): boolean => entry.id !== keyId),
         )
-        showToastInfo("BYOK key removed.")
+        showToastInfo(t("settings:byok.toast.keyRemoved"))
     }
 
     return (
         <section className="space-y-4">
-            <h1 className={TYPOGRAPHY.pageTitle}>BYOK management</h1>
+            <h1 className={TYPOGRAPHY.pageTitle}>{t("settings:byok.pageTitle")}</h1>
             <p className={TYPOGRAPHY.pageSubtitle}>
-                Add provider keys, keep secrets masked in UI, rotate safely and monitor usage.
+                {t("settings:byok.pageSubtitle")}
             </p>
 
             <Card>
                 <CardHeader>
-                    <p className={TYPOGRAPHY.sectionTitle}>Add API key</p>
+                    <p className={TYPOGRAPHY.sectionTitle}>{t("settings:byok.addApiKey")}</p>
                 </CardHeader>
                 <CardBody className="space-y-3">
                     <div className="grid gap-3 md:grid-cols-[180px_1fr_1fr_auto]">
@@ -298,8 +300,8 @@ export function SettingsByokPage(): ReactElement {
                             <option value="gitlab">GitLab</option>
                         </select>
                         <Input
-                            label="Key label"
-                            placeholder="openai-prod-main"
+                            label={t("settings:byok.keyLabel")}
+                            placeholder={t("settings:byok.keyLabelPlaceholder")}
                             value={form.label}
                             onValueChange={(value): void => {
                                 setForm(
@@ -311,8 +313,8 @@ export function SettingsByokPage(): ReactElement {
                             }}
                         />
                         <Input
-                            label="API key / secret"
-                            placeholder="sk-..."
+                            label={t("settings:byok.apiKeySecret")}
+                            placeholder={t("settings:byok.apiKeySecretPlaceholder")}
                             type="password"
                             value={form.secret}
                             onValueChange={(value): void => {
@@ -326,12 +328,12 @@ export function SettingsByokPage(): ReactElement {
                         />
                         <div className="flex items-end">
                             <Button className="w-full md:w-auto" onPress={handleCreateKey}>
-                                Add key
+                                {t("settings:byok.addKey")}
                             </Button>
                         </div>
                     </div>
-                    <Alert color="primary" title="Secrets are masked" variant="flat">
-                        Raw API keys are never rendered after submit. UI shows only masked values.
+                    <Alert color="primary" title={t("settings:byok.secretsMaskedTitle")} variant="flat">
+                        {t("settings:byok.secretsMaskedDescription")}
                     </Alert>
                 </CardBody>
             </Card>
@@ -339,7 +341,7 @@ export function SettingsByokPage(): ReactElement {
             <div className="grid gap-4 md:grid-cols-4">
                 <Card>
                     <CardHeader>
-                        <p className="text-sm font-semibold text-foreground">Total keys</p>
+                        <p className="text-sm font-semibold text-foreground">{t("settings:byok.totalKeys")}</p>
                     </CardHeader>
                     <CardBody>
                         <p className="text-2xl font-semibold text-foreground">{stats.totalKeys}</p>
@@ -347,7 +349,7 @@ export function SettingsByokPage(): ReactElement {
                 </Card>
                 <Card>
                     <CardHeader>
-                        <p className="text-sm font-semibold text-foreground">Active keys</p>
+                        <p className="text-sm font-semibold text-foreground">{t("settings:byok.activeKeys")}</p>
                     </CardHeader>
                     <CardBody>
                         <p className="text-2xl font-semibold text-foreground">{stats.activeKeys}</p>
@@ -355,7 +357,7 @@ export function SettingsByokPage(): ReactElement {
                 </Card>
                 <Card>
                     <CardHeader>
-                        <p className="text-sm font-semibold text-foreground">Usage requests</p>
+                        <p className="text-sm font-semibold text-foreground">{t("settings:byok.usageRequests")}</p>
                     </CardHeader>
                     <CardBody>
                         <p className="text-2xl font-semibold text-foreground">
@@ -365,7 +367,7 @@ export function SettingsByokPage(): ReactElement {
                 </Card>
                 <Card>
                     <CardHeader>
-                        <p className="text-sm font-semibold text-foreground">Usage tokens</p>
+                        <p className="text-sm font-semibold text-foreground">{t("settings:byok.usageTokens")}</p>
                     </CardHeader>
                     <CardBody>
                         <p className="text-2xl font-semibold text-foreground">
@@ -377,7 +379,7 @@ export function SettingsByokPage(): ReactElement {
 
             <Card>
                 <CardHeader>
-                    <p className={TYPOGRAPHY.sectionTitle}>Provider usage stats</p>
+                    <p className={TYPOGRAPHY.sectionTitle}>{t("settings:byok.providerUsageStats")}</p>
                 </CardHeader>
                 <CardBody className="space-y-2">
                     {providerUsage.map(
@@ -390,8 +392,7 @@ export function SettingsByokPage(): ReactElement {
                                     {formatProviderLabel(entry.provider)}
                                 </p>
                                 <p className="text-text-secondary">
-                                    Keys: {entry.keys} • Requests: {entry.requests} • Tokens:{" "}
-                                    {entry.tokens}
+                                    {t("settings:byok.providerStats", { keys: entry.keys, requests: entry.requests, tokens: entry.tokens })}
                                 </p>
                             </div>
                         ),
@@ -401,12 +402,12 @@ export function SettingsByokPage(): ReactElement {
 
             <Card>
                 <CardHeader>
-                    <p className={TYPOGRAPHY.sectionTitle}>Configured keys</p>
+                    <p className={TYPOGRAPHY.sectionTitle}>{t("settings:byok.configuredKeys")}</p>
                 </CardHeader>
                 <CardBody className="space-y-3">
                     {keys.length === 0 ? (
-                        <Alert color="warning" title="No BYOK keys configured" variant="flat">
-                            Add your first provider key to activate secure provider calls.
+                        <Alert color="warning" title={t("settings:byok.noKeysConfiguredTitle")} variant="flat">
+                            {t("settings:byok.noKeysConfiguredDescription")}
                         </Alert>
                     ) : (
                         keys.map(
@@ -421,20 +422,19 @@ export function SettingsByokPage(): ReactElement {
                                                 {entry.label}
                                             </p>
                                             <p className="text-xs text-text-secondary">
-                                                Provider: {formatProviderLabel(entry.provider)}
+                                                {t("settings:byok.provider", { provider: formatProviderLabel(entry.provider) })}
                                             </p>
                                             <p className="font-mono text-xs text-text-secondary">
                                                 {entry.maskedSecret}
                                             </p>
                                             <p className="text-xs text-text-secondary">
-                                                Rotation: {entry.rotationCount}
+                                                {t("settings:byok.rotation", { count: entry.rotationCount })}
                                             </p>
                                             <p className="text-xs text-text-secondary">
-                                                Usage: {entry.usageRequests} requests •{" "}
-                                                {entry.usageTokens} tokens
+                                                {t("settings:byok.usage", { requests: entry.usageRequests, tokens: entry.usageTokens })}
                                             </p>
                                             <p className="text-xs text-text-secondary">
-                                                Last used: {formatLastUsed(entry.lastUsedAt)}
+                                                {t("settings:byok.lastUsed", { date: formatLastUsed(entry.lastUsedAt) })}
                                             </p>
                                         </div>
                                         <div className="flex flex-col items-start gap-2">
@@ -443,7 +443,7 @@ export function SettingsByokPage(): ReactElement {
                                                 size="sm"
                                                 variant="flat"
                                             >
-                                                {entry.isActive ? "active" : "inactive"}
+                                                {entry.isActive ? t("settings:byok.active") : t("settings:byok.inactive")}
                                             </Chip>
                                             <Switch
                                                 aria-label={`Active key ${entry.label}`}
@@ -453,7 +453,7 @@ export function SettingsByokPage(): ReactElement {
                                                     handleToggleActive(entry.id, value)
                                                 }}
                                             >
-                                                Active
+                                                {t("settings:byok.activeLabel")}
                                             </Switch>
                                             <div className="flex gap-2">
                                                 <Button
@@ -463,7 +463,7 @@ export function SettingsByokPage(): ReactElement {
                                                         handleRotateKey(entry.id)
                                                     }}
                                                 >
-                                                    {`Rotate key ${entry.label}`}
+                                                    {t("settings:byok.rotateKey", { label: entry.label })}
                                                 </Button>
                                                 <Button
                                                     color="danger"
@@ -473,7 +473,7 @@ export function SettingsByokPage(): ReactElement {
                                                         handleDeleteKey(entry.id)
                                                     }}
                                                 >
-                                                    {`Remove key ${entry.label}`}
+                                                    {t("settings:byok.removeKey", { label: entry.label })}
                                                 </Button>
                                             </div>
                                         </div>

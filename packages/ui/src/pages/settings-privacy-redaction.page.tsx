@@ -1,4 +1,5 @@
 import { type ReactElement, useMemo, useState } from "react"
+import { useTranslation } from "react-i18next"
 
 import { Alert, Button, Card, CardBody, CardHeader, Textarea } from "@/components/ui"
 import { TYPOGRAPHY } from "@/lib/constants/typography"
@@ -68,12 +69,13 @@ function buildRedactedText(text: string, hits: ReadonlyArray<ISensitiveHit>): st
  * @returns Проверка/редакция чувствительных данных перед export/share.
  */
 export function SettingsPrivacyRedactionPage(): ReactElement {
+    const { t } = useTranslation(["settings"])
     const [sourceText, setSourceText] = useState(
         "token=abc123456789\nowner=security@acme.dev\nnote=share review summary only",
     )
     const [redactedText, setRedactedText] = useState("")
     const [redactedSourceText, setRedactedSourceText] = useState("")
-    const [lastExportState, setLastExportState] = useState<string>("No export executed yet.")
+    const [lastExportState, setLastExportState] = useState<string>(t("settings:privacyRedaction.noExportYet"))
 
     const sensitiveHits = useMemo((): ReadonlyArray<ISensitiveHit> => {
         return detectSensitiveFragments(sourceText)
@@ -85,14 +87,14 @@ export function SettingsPrivacyRedactionPage(): ReactElement {
         if (hasSensitiveData !== true) {
             setRedactedText(sourceText)
             setRedactedSourceText(sourceText)
-            showToastInfo("No sensitive fragments detected.")
+            showToastInfo(t("settings:privacyRedaction.toast.noSensitiveFragments"))
             return
         }
 
         const nextRedacted = buildRedactedText(sourceText, sensitiveHits)
         setRedactedText(nextRedacted)
         setRedactedSourceText(sourceText)
-        showToastSuccess("Sensitive fragments redacted.")
+        showToastSuccess(t("settings:privacyRedaction.toast.sensitiveFragmentsRedacted"))
     }
 
     const handleExport = (): void => {
@@ -101,39 +103,39 @@ export function SettingsPrivacyRedactionPage(): ReactElement {
             (redactedText.length === 0 || redactedSourceText !== sourceText)
         ) {
             setLastExportState(
-                "Export blocked: sensitive fragments detected. Apply redaction for current source text first.",
+                t("settings:privacyRedaction.exportBlocked"),
             )
-            showToastError("Export blocked by privacy guard.")
+            showToastError(t("settings:privacyRedaction.toast.exportBlocked"))
             return
         }
 
         const exportedPayload = hasSensitiveData === true ? redactedText : sourceText
         setLastExportState(
-            `Safe export confirmed (${exportedPayload.length} chars). Sensitive data removed.`,
+            t("settings:privacyRedaction.safeExportConfirmed", { chars: exportedPayload.length }),
         )
-        showToastSuccess("Safe export confirmed.")
+        showToastSuccess(t("settings:privacyRedaction.toast.safeExportConfirmed"))
     }
 
     return (
         <section className="space-y-4">
-            <h1 className={TYPOGRAPHY.pageTitle}>Privacy-safe export</h1>
+            <h1 className={TYPOGRAPHY.pageTitle}>{t("settings:privacyRedaction.pageTitle")}</h1>
             <p className={TYPOGRAPHY.pageSubtitle}>
-                Detect and redact secrets/PII before copy, export or share operations.
+                {t("settings:privacyRedaction.pageSubtitle")}
             </p>
 
             {hasSensitiveData ? (
-                <Alert color="danger" title="Sensitive fragments detected" variant="flat">
-                    Export is blocked until suggested redaction is applied.
+                <Alert color="danger" title={t("settings:privacyRedaction.sensitiveFragmentsDetectedTitle")} variant="flat">
+                    {t("settings:privacyRedaction.sensitiveFragmentsDetectedDescription")}
                 </Alert>
             ) : (
-                <Alert color="success" title="No sensitive fragments" variant="flat">
-                    Current payload is safe for export.
+                <Alert color="success" title={t("settings:privacyRedaction.noSensitiveFragmentsTitle")} variant="flat">
+                    {t("settings:privacyRedaction.noSensitiveFragmentsDescription")}
                 </Alert>
             )}
 
             <Card>
                 <CardHeader>
-                    <p className={TYPOGRAPHY.sectionTitle}>Source content</p>
+                    <p className={TYPOGRAPHY.sectionTitle}>{t("settings:privacyRedaction.sourceContent")}</p>
                 </CardHeader>
                 <CardBody className="space-y-3">
                     <Textarea
@@ -143,9 +145,9 @@ export function SettingsPrivacyRedactionPage(): ReactElement {
                         onValueChange={setSourceText}
                     />
                     <div className="flex flex-wrap gap-2">
-                        <Button onPress={handleApplyRedaction}>Apply redaction suggestions</Button>
+                        <Button onPress={handleApplyRedaction}>{t("settings:privacyRedaction.applyRedactionSuggestions")}</Button>
                         <Button variant="flat" onPress={handleExport}>
-                            Confirm safe export
+                            {t("settings:privacyRedaction.confirmSafeExport")}
                         </Button>
                     </div>
                 </CardBody>
@@ -153,7 +155,7 @@ export function SettingsPrivacyRedactionPage(): ReactElement {
 
             <Card>
                 <CardHeader>
-                    <p className={TYPOGRAPHY.sectionTitle}>Detection summary</p>
+                    <p className={TYPOGRAPHY.sectionTitle}>{t("settings:privacyRedaction.detectionSummary")}</p>
                 </CardHeader>
                 <CardBody className="space-y-2">
                     {hasSensitiveData ? (
@@ -172,7 +174,7 @@ export function SettingsPrivacyRedactionPage(): ReactElement {
                         </ul>
                     ) : (
                         <p className="text-sm text-text-secondary">
-                            No hits. You can export directly.
+                            {t("settings:privacyRedaction.noHitsMessage")}
                         </p>
                     )}
                 </CardBody>
@@ -180,7 +182,7 @@ export function SettingsPrivacyRedactionPage(): ReactElement {
 
             <Card>
                 <CardHeader>
-                    <p className={TYPOGRAPHY.sectionTitle}>Redacted preview</p>
+                    <p className={TYPOGRAPHY.sectionTitle}>{t("settings:privacyRedaction.redactedPreview")}</p>
                 </CardHeader>
                 <CardBody className="space-y-2">
                     <Textarea
@@ -189,7 +191,7 @@ export function SettingsPrivacyRedactionPage(): ReactElement {
                         minRows={6}
                         value={redactedText}
                     />
-                    <Alert color="primary" title="Export state" variant="flat">
+                    <Alert color="primary" title={t("settings:privacyRedaction.exportState")} variant="flat">
                         {lastExportState}
                     </Alert>
                 </CardBody>

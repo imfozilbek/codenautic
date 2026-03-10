@@ -1,4 +1,5 @@
 import { type FormEvent, type ReactElement, useEffect, useState } from "react"
+import { useTranslation } from "react-i18next"
 
 import { Button } from "@/components/ui"
 import { FormLayout } from "@/components/forms/form-layout"
@@ -91,6 +92,7 @@ const DEFAULT_MCP_TOOL_USAGE_STATS: ReadonlyArray<IMcpToolListItem> = [
  * @returns Форма управления cadence/severity/suggestions + ignore paths.
  */
 export function SettingsCodeReviewPage(): ReactElement {
+    const { t } = useTranslation(["settings"])
     const [formValues, setFormValues] = useState<ICodeReviewFormValues>({
         cadence: "daily",
         enableDriftSignals: true,
@@ -112,7 +114,7 @@ export function SettingsCodeReviewPage(): ReactElement {
         detailLevel: CCR_SUMMARY_DETAIL_LEVEL.standard,
         maxSuggestions: 8,
     })
-    const [ccrSummaryState, setCcrSummaryState] = useState<string>("Not saved yet.")
+    const [ccrSummaryState, setCcrSummaryState] = useState<string>(t("settings:codeReview.notSavedYet"))
     const [promptOverride, setPromptOverride] = useState<string>(DEFAULT_CCR_PROMPT_OVERRIDE)
     const [ideSyncSettings, setIdeSyncSettings] = useState<IIdeSyncSettings>({
         enabled: true,
@@ -120,7 +122,7 @@ export function SettingsCodeReviewPage(): ReactElement {
         syncOnPush: true,
         autoOpenDiffOnSync: true,
     })
-    const [ideSyncState, setIdeSyncState] = useState<string>("Not saved yet.")
+    const [ideSyncState, setIdeSyncState] = useState<string>(t("settings:codeReview.notSavedYet"))
     const mcpTotalCalls = DEFAULT_MCP_TOOL_USAGE_STATS.reduce(
         (acc, item): number => acc + item.calls,
         0,
@@ -162,7 +164,7 @@ export function SettingsCodeReviewPage(): ReactElement {
 
     const saveReviewForm = (nextValues: ICodeReviewFormValues): void => {
         setFormValues(nextValues)
-        showToastSuccess("Code Review settings saved.")
+        showToastSuccess(t("settings:codeReview.toast.codeReviewSettingsSaved"))
     }
 
     const persistRepositoryConfig = (params: {
@@ -172,7 +174,7 @@ export function SettingsCodeReviewPage(): ReactElement {
         readonly successMessage: string
     }): void => {
         if (normalizedRepositoryId.length === 0) {
-            showToastInfo("Repository ID is required.")
+            showToastInfo(t("settings:codeReview.toast.repositoryIdRequired"))
             return
         }
 
@@ -190,7 +192,7 @@ export function SettingsCodeReviewPage(): ReactElement {
                 showToastSuccess(params.successMessage)
             })
             .catch((): void => {
-                showToastInfo("Unable to save repository config.")
+                showToastInfo(t("settings:codeReview.toast.unableToSaveRepoConfig"))
             })
     }
 
@@ -207,7 +209,7 @@ export function SettingsCodeReviewPage(): ReactElement {
             configYaml,
             ignorePatterns: normalizedPaths,
             reviewMode,
-            successMessage: "Ignore paths saved.",
+            successMessage: t("settings:codeReview.toast.ignorePathsSaved"),
         })
     }
 
@@ -219,7 +221,7 @@ export function SettingsCodeReviewPage(): ReactElement {
             configYaml,
             ignorePatterns: defaultPaths,
             reviewMode,
-            successMessage: "Ignore paths reset to defaults.",
+            successMessage: t("settings:codeReview.toast.ignorePathsReset"),
         })
     }
 
@@ -233,13 +235,13 @@ export function SettingsCodeReviewPage(): ReactElement {
             configYaml,
             ignorePatterns: ignoredPaths,
             reviewMode,
-            successMessage: "Repository config saved.",
+            successMessage: t("settings:codeReview.toast.repositoryConfigSaved"),
         })
     }
 
     const handleRunDryRun = (): void => {
         if (normalizedRepositoryId.length === 0) {
-            showToastInfo("Repository ID is required.")
+            showToastInfo(t("settings:codeReview.toast.repositoryIdRequired"))
             return
         }
 
@@ -251,16 +253,16 @@ export function SettingsCodeReviewPage(): ReactElement {
             })
             .then((response): void => {
                 setDryRunResult(response.result)
-                showToastSuccess("Dry-run completed.")
+                showToastSuccess(t("settings:codeReview.toast.dryRunCompleted"))
             })
             .catch((): void => {
-                showToastInfo("Unable to run dry-run.")
+                showToastInfo(t("settings:codeReview.toast.unableToRunDryRun"))
             })
     }
 
     const handleCadenceSave = (): void => {
         if (normalizedRepositoryId.length === 0) {
-            showToastInfo("Repository ID is required.")
+            showToastInfo(t("settings:codeReview.toast.repositoryIdRequired"))
             return
         }
 
@@ -271,10 +273,10 @@ export function SettingsCodeReviewPage(): ReactElement {
             })
             .then((response): void => {
                 setReviewMode(response.config.reviewMode)
-                showToastSuccess("Review cadence saved.")
+                showToastSuccess(t("settings:codeReview.toast.reviewCadenceSaved"))
             })
             .catch((): void => {
-                showToastInfo("Unable to save review cadence.")
+                showToastInfo(t("settings:codeReview.toast.unableToSaveReviewCadence"))
             })
     }
 
@@ -283,20 +285,20 @@ export function SettingsCodeReviewPage(): ReactElement {
     }
 
     const handleSummarySettingsSave = (): void => {
-        setCcrSummaryState("Saving CCR summary settings...")
+        setCcrSummaryState(t("settings:codeReview.savingCcrSummary"))
         setTimeout((): void => {
-            setCcrSummaryState("CCR summary settings saved.")
-            showToastSuccess("CCR summary settings saved.")
+            setCcrSummaryState(t("settings:codeReview.ccrSummarySettingsSaved"))
+            showToastSuccess(t("settings:codeReview.toast.ccrSummarySettingsSaved"))
         }, 0)
     }
 
     const handleGenerateCcrSummary = (): void => {
         if (normalizedRepositoryId.length === 0) {
-            showToastInfo("Repository ID is required.")
+            showToastInfo(t("settings:codeReview.toast.repositoryIdRequired"))
             return
         }
 
-        setCcrSummaryState("Generating CCR summary...")
+        setCcrSummaryState(t("settings:codeReview.generatingCcrSummary"))
         void ccrSummary.generateSummary
             .mutateAsync({
                 repositoryId: normalizedRepositoryId,
@@ -308,27 +310,27 @@ export function SettingsCodeReviewPage(): ReactElement {
                 promptOverride,
             })
             .then((): void => {
-                setCcrSummaryState("CCR summary generated.")
-                showToastSuccess("CCR summary generated.")
+                setCcrSummaryState(t("settings:codeReview.ccrSummaryGenerated"))
+                showToastSuccess(t("settings:codeReview.toast.ccrSummaryGenerated"))
             })
             .catch((): void => {
-                setCcrSummaryState("Unable to generate CCR summary.")
-                showToastInfo("Unable to generate CCR summary.")
+                setCcrSummaryState(t("settings:codeReview.unableToGenerateCcrSummary"))
+                showToastInfo(t("settings:codeReview.toast.unableToGenerateCcrSummary"))
             })
     }
 
     const handleIdeSyncSave = (): void => {
-        setIdeSyncState("Saving IDE sync settings...")
+        setIdeSyncState(t("settings:codeReview.savingIdeSyncSettings"))
         setTimeout((): void => {
-            setIdeSyncState("IDE sync settings saved.")
-            showToastSuccess("IDE sync settings saved.")
+            setIdeSyncState(t("settings:codeReview.ideSyncSettingsSaved"))
+            showToastSuccess(t("settings:codeReview.toast.ideSyncSettingsSaved"))
         }, 0)
     }
 
     return (
         <FormLayout
-            description="Configure repository YAML, cadence, severity threshold and ignore paths for automated review."
-            title="Code Review Configuration"
+            description={t("settings:codeReview.pageDescription")}
+            title={t("settings:codeReview.pageTitle")}
         >
             <ConfigurationEditor
                 configYaml={configYaml}
@@ -357,8 +359,8 @@ export function SettingsCodeReviewPage(): ReactElement {
                 onModeChange={handleCadenceModeChange}
             />
             <FormSection
-                description="Configure how CCR summary cards are generated and what sections they include."
-                heading="CCR summary settings"
+                description={t("settings:codeReview.ccrSummaryDescription")}
+                heading={t("settings:codeReview.ccrSummaryHeading")}
             >
                 <FormGroup withDivider>
                     <label className="flex items-center gap-2 text-sm text-foreground">
@@ -374,7 +376,7 @@ export function SettingsCodeReviewPage(): ReactElement {
                                 )
                             }}
                         />
-                        Enable CCR summary generation
+                        {t("settings:codeReview.enableCcrSummary")}
                     </label>
                     <label className="flex items-center gap-2 text-sm text-foreground">
                         <input
@@ -389,7 +391,7 @@ export function SettingsCodeReviewPage(): ReactElement {
                                 )
                             }}
                         />
-                        Include risk overview section
+                        {t("settings:codeReview.includeRiskOverview")}
                     </label>
                     <label className="flex items-center gap-2 text-sm text-foreground">
                         <input
@@ -404,7 +406,7 @@ export function SettingsCodeReviewPage(): ReactElement {
                                 )
                             }}
                         />
-                        Include timeline highlights
+                        {t("settings:codeReview.includeTimeline")}
                     </label>
                 </FormGroup>
                 <FormGroup>
@@ -426,9 +428,9 @@ export function SettingsCodeReviewPage(): ReactElement {
                             )
                         }}
                     >
-                        <option value={CCR_SUMMARY_DETAIL_LEVEL.concise}>Concise</option>
-                        <option value={CCR_SUMMARY_DETAIL_LEVEL.standard}>Standard</option>
-                        <option value={CCR_SUMMARY_DETAIL_LEVEL.deep}>Deep</option>
+                        <option value={CCR_SUMMARY_DETAIL_LEVEL.concise}>{t("settings:codeReview.detailConcise")}</option>
+                        <option value={CCR_SUMMARY_DETAIL_LEVEL.standard}>{t("settings:codeReview.detailStandard")}</option>
+                        <option value={CCR_SUMMARY_DETAIL_LEVEL.deep}>{t("settings:codeReview.detailDeep")}</option>
                     </select>
                     <SuggestionLimitConfig
                         value={ccrSummarySettings.maxSuggestions}
@@ -446,7 +448,7 @@ export function SettingsCodeReviewPage(): ReactElement {
                     {ccrSummaryState}
                 </p>
                 <Button type="button" variant="solid" onPress={handleSummarySettingsSave}>
-                    Save CCR summary settings
+                    {t("settings:codeReview.saveCcrSummarySettings")}
                 </Button>
                 <Button
                     isDisabled={
@@ -456,7 +458,7 @@ export function SettingsCodeReviewPage(): ReactElement {
                     variant="flat"
                     onPress={handleGenerateCcrSummary}
                 >
-                    Generate CCR summary preview
+                    {t("settings:codeReview.generateCcrSummaryPreview")}
                 </Button>
                 <CCRSummaryPreview settings={ccrSummarySettings} />
                 <PromptOverrideEditor
@@ -472,7 +474,7 @@ export function SettingsCodeReviewPage(): ReactElement {
                         className="text-xs text-muted-foreground"
                         data-testid="ccr-summary-output-empty"
                     >
-                        Generate summary preview to inspect current output.
+                        {t("settings:codeReview.generateSummaryHint")}
                     </p>
                 ) : (
                     (() => {
@@ -483,7 +485,7 @@ export function SettingsCodeReviewPage(): ReactElement {
                                 data-testid="ccr-summary-output"
                             >
                                 <p className="text-xs text-muted-foreground">
-                                    {`Generated at: ${generatedSummary.result.generatedAt}`}
+                                    {t("settings:codeReview.generatedAt", { date: generatedSummary.result.generatedAt })}
                                 </p>
                                 <p className="text-sm text-foreground">
                                     {generatedSummary.result.summary}
@@ -501,8 +503,8 @@ export function SettingsCodeReviewPage(): ReactElement {
                 )}
             </FormSection>
             <FormSection
-                description="Configure how CCR decisions and code insights are synced to IDE plugins."
-                heading="IDE sync settings"
+                description={t("settings:codeReview.ideSyncDescription")}
+                heading={t("settings:codeReview.ideSyncHeading")}
             >
                 <FormGroup withDivider>
                     <label className="flex items-center gap-2 text-sm text-foreground">
@@ -518,7 +520,7 @@ export function SettingsCodeReviewPage(): ReactElement {
                                 )
                             }}
                         />
-                        Enable IDE plugin sync
+                        {t("settings:codeReview.enableIdeSync")}
                     </label>
                     <select
                         aria-label="IDE provider scope"
@@ -538,9 +540,9 @@ export function SettingsCodeReviewPage(): ReactElement {
                             )
                         }}
                     >
-                        <option value={IDE_SYNC_PROVIDER.vscode}>VS Code</option>
-                        <option value={IDE_SYNC_PROVIDER.jetbrains}>JetBrains</option>
-                        <option value={IDE_SYNC_PROVIDER.both}>Both</option>
+                        <option value={IDE_SYNC_PROVIDER.vscode}>{t("settings:codeReview.ideProviderVscode")}</option>
+                        <option value={IDE_SYNC_PROVIDER.jetbrains}>{t("settings:codeReview.ideProviderJetbrains")}</option>
+                        <option value={IDE_SYNC_PROVIDER.both}>{t("settings:codeReview.ideProviderBoth")}</option>
                     </select>
                 </FormGroup>
                 <FormGroup>
@@ -557,7 +559,7 @@ export function SettingsCodeReviewPage(): ReactElement {
                                 )
                             }}
                         />
-                        Sync decisions on every push
+                        {t("settings:codeReview.syncOnPush")}
                     </label>
                     <label className="flex items-center gap-2 text-sm text-foreground">
                         <input
@@ -572,24 +574,24 @@ export function SettingsCodeReviewPage(): ReactElement {
                                 )
                             }}
                         />
-                        Auto-open affected diffs after sync
+                        {t("settings:codeReview.autoOpenDiffs")}
                     </label>
                 </FormGroup>
                 <p className="text-xs text-muted-foreground" data-testid="ide-sync-state">
                     {ideSyncState}
                 </p>
                 <Button type="button" variant="solid" onPress={handleIdeSyncSave}>
-                    Save IDE sync settings
+                    {t("settings:codeReview.saveIdeSyncSettings")}
                 </Button>
             </FormSection>
             <FormSection
-                description="Review MCP tool usage and runtime quality to spot unstable tools before they impact CCR generation."
-                heading="MCP server control panel"
+                description={t("settings:codeReview.mcpDescription")}
+                heading={t("settings:codeReview.mcpHeading")}
             >
                 <div className="grid gap-3 sm:grid-cols-3">
                     <article className="rounded-md border border-border bg-surface p-3">
                         <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                            Total tool calls
+                            {t("settings:codeReview.totalToolCalls")}
                         </p>
                         <p
                             className="text-xl font-semibold text-foreground"
@@ -600,7 +602,7 @@ export function SettingsCodeReviewPage(): ReactElement {
                     </article>
                     <article className="rounded-md border border-border bg-surface p-3">
                         <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                            Success rate
+                            {t("settings:codeReview.successRate")}
                         </p>
                         <p
                             className="text-xl font-semibold text-foreground"
@@ -611,7 +613,7 @@ export function SettingsCodeReviewPage(): ReactElement {
                     </article>
                     <article className="rounded-md border border-border bg-surface p-3">
                         <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                            Avg latency
+                            {t("settings:codeReview.avgLatency")}
                         </p>
                         <p
                             className="text-xl font-semibold text-foreground"
@@ -630,13 +632,13 @@ export function SettingsCodeReviewPage(): ReactElement {
             />
             <CodeReviewForm initialValues={formValues} onSubmit={saveReviewForm} />
             <IgnorePatternEditor
-                helperText="Ignore patterns filter scan scope and CCR output."
+                helperText={t("settings:codeReview.ignorePatternHelper")}
                 ignoredPatterns={ignoredPaths}
                 onChange={handlePathsChange}
             />
             <RuleEditor
                 id="code-review-rules-editor"
-                label="Review rules"
+                label={t("settings:codeReview.reviewRulesLabel")}
                 maxLength={4000}
                 onChange={setRulesText}
                 value={rulesText}
@@ -646,7 +648,7 @@ export function SettingsCodeReviewPage(): ReactElement {
                     type="submit"
                     className="inline-flex rounded-md bg-foreground px-4 py-2 text-sm text-background"
                 >
-                    Reset ignore paths
+                    {t("settings:codeReview.resetIgnorePaths")}
                 </Button>
             </form>
         </FormLayout>

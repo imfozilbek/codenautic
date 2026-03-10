@@ -1,4 +1,5 @@
 import { type ReactElement, useMemo, useState } from "react"
+import { useTranslation } from "react-i18next"
 
 import { Alert, Button, Card, CardBody, CardHeader, Chip } from "@/components/ui"
 import { TYPOGRAPHY } from "@/lib/constants/typography"
@@ -27,6 +28,26 @@ interface IWorkflowHealth {
     readonly health: "at_risk" | "healthy" | "needs_attention"
     /** Пояснение по stage. */
     readonly summary: string
+}
+
+const FUNNEL_STAGE_KEYS: Record<TFunnelStageId, string> = {
+    connect_provider: "connectProvider",
+    add_repo: "addRepository",
+    first_scan: "firstScan",
+    first_insights: "firstInsights",
+    first_ccr_reviewed: "firstCcrReviewed",
+}
+
+const WORKFLOW_STAGE_KEYS: Record<string, string> = {
+    "Provider setup": "providerSetup",
+    "First scan": "firstScan",
+    "First CCR reviewed": "firstCcrReviewed",
+}
+
+const HEALTH_KEYS: Record<IWorkflowHealth["health"], string> = {
+    healthy: "healthy",
+    needs_attention: "needsAttention",
+    at_risk: "atRisk",
 }
 
 function getFunnelStages(range: TAnalyticsRange): ReadonlyArray<IFunnelStage> {
@@ -115,6 +136,7 @@ function mapHealthColor(health: IWorkflowHealth["health"]): "danger" | "success"
  * @returns Funnel внедрения, drop-offs, активность и workflow health.
  */
 export function SettingsAdoptionAnalyticsPage(): ReactElement {
+    const { t } = useTranslation(["settings"])
     const [range, setRange] = useState<TAnalyticsRange>("30d")
 
     const funnelStages = useMemo((): ReadonlyArray<IFunnelStage> => {
@@ -146,10 +168,9 @@ export function SettingsAdoptionAnalyticsPage(): ReactElement {
 
     return (
         <section className="space-y-4">
-            <h1 className={TYPOGRAPHY.pageTitle}>Usage & adoption analytics</h1>
+            <h1 className={TYPOGRAPHY.pageTitle}>{t("settings:adoptionAnalytics.pageTitle")}</h1>
             <p className={TYPOGRAPHY.pageSubtitle}>
-                Understand time-to-first-value funnel, drop-offs, active users, and workflow health
-                by transparent event definitions.
+                {t("settings:adoptionAnalytics.pageSubtitle")}
             </p>
 
             <div className="flex flex-wrap gap-2">
@@ -172,27 +193,33 @@ export function SettingsAdoptionAnalyticsPage(): ReactElement {
             <div className="grid gap-4 md:grid-cols-2">
                 <Card>
                     <CardHeader>
-                        <p className={TYPOGRAPHY.sectionTitle}>Value realization KPIs</p>
+                        <p className={TYPOGRAPHY.sectionTitle}>
+                            {t("settings:adoptionAnalytics.valueRealizationKpis")}
+                        </p>
                     </CardHeader>
                     <CardBody className="space-y-2">
                         <p className="text-sm text-foreground">
-                            Active users: <strong>{activeUsers}</strong>
+                            {t("settings:adoptionAnalytics.activeUsers")}{" "}
+                            <strong>{activeUsers}</strong>
                         </p>
                         <p className="text-sm text-foreground">
-                            Median time to first value: <strong>{timeToFirstValue}</strong>
+                            {t("settings:adoptionAnalytics.medianTimeToFirstValue")}{" "}
+                            <strong>{timeToFirstValue}</strong>
                         </p>
                         <p className="text-xs text-text-secondary">
-                            First value = first successful scan + first visible insights.
+                            {t("settings:adoptionAnalytics.firstValueDefinition")}
                         </p>
                     </CardBody>
                 </Card>
 
                 <Card>
                     <CardHeader>
-                        <p className={TYPOGRAPHY.sectionTitle}>Workflow health</p>
+                        <p className={TYPOGRAPHY.sectionTitle}>
+                            {t("settings:adoptionAnalytics.workflowHealth")}
+                        </p>
                     </CardHeader>
                     <CardBody className="space-y-2">
-                        <ul aria-label="Workflow health list" className="space-y-2">
+                        <ul aria-label={t("settings:adoptionAnalytics.workflowHealthListAriaLabel")} className="space-y-2">
                             {workflowHealth.map(
                                 (item): ReactElement => (
                                     <li
@@ -201,14 +228,14 @@ export function SettingsAdoptionAnalyticsPage(): ReactElement {
                                     >
                                         <div className="flex flex-wrap items-center gap-2">
                                             <p className="text-sm font-semibold text-foreground">
-                                                {item.stage}
+                                                {(t as unknown as (key: string) => string)(`settings:adoptionAnalytics.workflowStage.${WORKFLOW_STAGE_KEYS[item.stage] ?? item.stage}`)}
                                             </p>
                                             <Chip
                                                 color={mapHealthColor(item.health)}
                                                 size="sm"
                                                 variant="flat"
                                             >
-                                                {item.health}
+                                                {(t as unknown as (key: string) => string)(`settings:adoptionAnalytics.health.${HEALTH_KEYS[item.health]}`)}
                                             </Chip>
                                         </div>
                                         <p className="text-xs text-text-secondary">
@@ -224,10 +251,12 @@ export function SettingsAdoptionAnalyticsPage(): ReactElement {
 
             <Card>
                 <CardHeader>
-                    <p className={TYPOGRAPHY.sectionTitle}>Adoption funnel</p>
+                    <p className={TYPOGRAPHY.sectionTitle}>
+                        {t("settings:adoptionAnalytics.adoptionFunnel")}
+                    </p>
                 </CardHeader>
                 <CardBody className="space-y-2">
-                    <ul aria-label="Adoption funnel list" className="space-y-2">
+                    <ul aria-label={t("settings:adoptionAnalytics.adoptionFunnelListAriaLabel")} className="space-y-2">
                         {funnelStages.map((stage, index): ReactElement => {
                             const previous =
                                 index === 0
@@ -244,14 +273,14 @@ export function SettingsAdoptionAnalyticsPage(): ReactElement {
                                 >
                                     <div className="flex flex-wrap items-center justify-between gap-2">
                                         <p className="text-sm font-semibold text-foreground">
-                                            {stage.label}
+                                            {(t as unknown as (key: string) => string)(`settings:adoptionAnalytics.funnelStage.${FUNNEL_STAGE_KEYS[stage.id]}`)}
                                         </p>
                                         <Chip size="sm" variant="flat">
                                             {stage.count}
                                         </Chip>
                                     </div>
                                     <p className="text-xs text-text-secondary">
-                                        {`Conversion from previous stage: ${String(conversion)}% · Drop-off: ${String(dropOff)}`}
+                                        {(t as unknown as (key: string, options: Record<string, string>) => string)("settings:adoptionAnalytics.conversionDropOff", { conversion: String(conversion), dropOff: String(dropOff) })}
                                     </p>
                                 </li>
                             )
@@ -260,9 +289,12 @@ export function SettingsAdoptionAnalyticsPage(): ReactElement {
                 </CardBody>
             </Card>
 
-            <Alert color="warning" title="Privacy boundary" variant="flat">
-                This page uses aggregated UX telemetry only. No source code content or direct PII is
-                shown without explicit opt-in.
+            <Alert
+                color="warning"
+                title={t("settings:adoptionAnalytics.privacyBoundaryTitle")}
+                variant="flat"
+            >
+                {t("settings:adoptionAnalytics.privacyBoundaryDescription")}
             </Alert>
         </section>
     )

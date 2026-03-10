@@ -1,4 +1,5 @@
 import { type ReactElement, useMemo, useRef, useState } from "react"
+import { useTranslation } from "react-i18next"
 
 import { useVirtualizer } from "@tanstack/react-virtual"
 
@@ -205,6 +206,7 @@ function hasUrlPrefix(url: string): boolean {
  * @returns UI для create/delete/rotate/logs с виртуализацией.
  */
 export function SettingsWebhooksPage(): ReactElement {
+    const { t } = useTranslation(["settings"])
     const [webhooks, setWebhooks] = useState<ReadonlyArray<IWebhookEndpoint>>(INITIAL_WEBHOOKS)
     const [deliveryLogs, setDeliveryLogs] =
         useState<ReadonlyArray<IWebhookDeliveryLog>>(INITIAL_DELIVERY_LOGS)
@@ -259,13 +261,13 @@ export function SettingsWebhooksPage(): ReactElement {
     const handleCreateWebhook = (): void => {
         const trimmedUrl = createForm.url.trim()
         if (trimmedUrl.length === 0 || hasUrlPrefix(trimmedUrl) === false) {
-            showToastError("Webhook URL must start with https:// or http://")
+            showToastError(t("settings:webhooks.toast.webhookUrlInvalid"))
             return
         }
 
         const parsedEvents = parseEventTypes(createForm.eventTypesCsv)
         if (parsedEvents.length === 0) {
-            showToastWarning("Add at least one event type.")
+            showToastWarning(t("settings:webhooks.toast.addAtLeastOneEvent"))
             return
         }
 
@@ -285,7 +287,7 @@ export function SettingsWebhooksPage(): ReactElement {
             url: "",
         })
         setActiveEndpointId(nextId)
-        showToastSuccess("Webhook endpoint created.")
+        showToastSuccess(t("settings:webhooks.toast.webhookCreated"))
     }
 
     const handleDeleteWebhook = (endpointId: string): void => {
@@ -300,7 +302,7 @@ export function SettingsWebhooksPage(): ReactElement {
             (previous): ReadonlyArray<IWebhookDeliveryLog> =>
                 previous.filter((entry): boolean => entry.endpointId !== endpointId),
         )
-        showToastInfo("Webhook endpoint deleted.")
+        showToastInfo(t("settings:webhooks.toast.webhookDeleted"))
     }
 
     const handleRotateSecret = (endpointId: string): void => {
@@ -318,7 +320,7 @@ export function SettingsWebhooksPage(): ReactElement {
                     }
                 }),
         )
-        showToastSuccess("Webhook secret rotated.")
+        showToastSuccess(t("settings:webhooks.toast.secretRotated"))
     }
 
     const handleToggleEndpoint = (endpointId: string, isEnabled: boolean): void => {
@@ -371,29 +373,29 @@ export function SettingsWebhooksPage(): ReactElement {
         )
 
         if (isHealthy) {
-            showToastSuccess("Test delivery succeeded.")
+            showToastSuccess(t("settings:webhooks.toast.testDeliverySucceeded"))
             return true
         }
 
-        showToastError("Test delivery failed.")
+        showToastError(t("settings:webhooks.toast.testDeliveryFailed"))
         return false
     }
 
     return (
         <section className="space-y-4">
-            <h1 className={TYPOGRAPHY.pageTitle}>Webhook Management</h1>
+            <h1 className={TYPOGRAPHY.pageTitle}>{t("settings:webhooks.pageTitle")}</h1>
             <p className={TYPOGRAPHY.pageSubtitle}>
-                Create, rotate and monitor webhook endpoints with delivery logs.
+                {t("settings:webhooks.pageSubtitle")}
             </p>
 
             <Card>
                 <CardHeader>
-                    <p className={TYPOGRAPHY.sectionTitle}>Create webhook endpoint</p>
+                    <p className={TYPOGRAPHY.sectionTitle}>{t("settings:webhooks.createWebhookEndpoint")}</p>
                 </CardHeader>
                 <CardBody className="space-y-3">
                     <div className="grid gap-3 md:grid-cols-[1.2fr_1fr_auto]">
                         <Input
-                            label="Endpoint URL"
+                            label={t("settings:webhooks.endpointUrl")}
                             onValueChange={(value): void => {
                                 setCreateForm(
                                     (previous): ICreateWebhookFormState => ({
@@ -406,7 +408,7 @@ export function SettingsWebhooksPage(): ReactElement {
                             value={createForm.url}
                         />
                         <Input
-                            label="Event types"
+                            label={t("settings:webhooks.eventTypes")}
                             onValueChange={(value): void => {
                                 setCreateForm(
                                     (previous): ICreateWebhookFormState => ({
@@ -420,12 +422,12 @@ export function SettingsWebhooksPage(): ReactElement {
                         />
                         <div className="flex items-end">
                             <Button onPress={handleCreateWebhook} type="button">
-                                Create endpoint
+                                {t("settings:webhooks.createEndpoint")}
                             </Button>
                         </div>
                     </div>
                     <Alert color="primary">
-                        Endpoint secrets are masked in UI. Use rotate when key leakage is suspected.
+                        {t("settings:webhooks.secretsMaskedNotice")}
                     </Alert>
                 </CardBody>
             </Card>
@@ -433,12 +435,12 @@ export function SettingsWebhooksPage(): ReactElement {
             <div className="grid gap-4 xl:grid-cols-[1.2fr_1fr]">
                 <Card>
                     <CardHeader className="flex flex-wrap items-center justify-between gap-2">
-                        <p className={TYPOGRAPHY.sectionTitle}>Webhook endpoints</p>
+                        <p className={TYPOGRAPHY.sectionTitle}>{t("settings:webhooks.webhookEndpoints")}</p>
                         <div className="flex flex-wrap gap-2">
                             <Input
                                 className="min-w-[200px]"
                                 onValueChange={setSearch}
-                                placeholder="Search URL or event..."
+                                placeholder={t("settings:webhooks.searchPlaceholder")}
                                 value={search}
                             />
                             <select
@@ -458,10 +460,10 @@ export function SettingsWebhooksPage(): ReactElement {
                                     setStatusFilter("all")
                                 }}
                             >
-                                <option value="all">All statuses</option>
-                                <option value="success">Success</option>
-                                <option value="retrying">Retrying</option>
-                                <option value="failed">Failed</option>
+                                <option value="all">{t("settings:webhooks.allStatuses")}</option>
+                                <option value="success">{t("settings:webhooks.statusSuccess")}</option>
+                                <option value="retrying">{t("settings:webhooks.statusRetrying")}</option>
+                                <option value="failed">{t("settings:webhooks.statusFailed")}</option>
                             </select>
                         </div>
                     </CardHeader>
@@ -507,10 +509,10 @@ export function SettingsWebhooksPage(): ReactElement {
                                                             {webhook.url}
                                                         </p>
                                                         <p className="mt-1 text-xs text-muted-foreground">
-                                                            Events: {webhook.eventTypes.join(", ")}
+                                                            {t("settings:webhooks.events", { events: webhook.eventTypes.join(", ") })}
                                                         </p>
                                                         <p className="text-xs text-muted-foreground">
-                                                            Secret: {webhook.secretPreview}
+                                                            {t("settings:webhooks.secret", { preview: webhook.secretPreview })}
                                                         </p>
                                                     </button>
                                                     <Chip
@@ -530,7 +532,7 @@ export function SettingsWebhooksPage(): ReactElement {
                                                             handleToggleEndpoint(webhook.id, value)
                                                         }}
                                                     >
-                                                        Enabled
+                                                        {t("settings:webhooks.enabled")}
                                                     </Switch>
                                                     <Button
                                                         onPress={(): void => {
@@ -539,7 +541,7 @@ export function SettingsWebhooksPage(): ReactElement {
                                                         size="sm"
                                                         variant="light"
                                                     >
-                                                        Rotate secret
+                                                        {t("settings:webhooks.rotateSecret")}
                                                     </Button>
                                                     <TestConnectionButton
                                                         onTest={(): Promise<boolean> =>
@@ -557,12 +559,12 @@ export function SettingsWebhooksPage(): ReactElement {
                                                         size="sm"
                                                         variant="ghost"
                                                     >
-                                                        Delete
+                                                        {t("settings:webhooks.delete")}
                                                     </Button>
                                                 </div>
                                                 <p className="mt-1 text-xs text-muted-foreground">
-                                                    Last delivery:{" "}
-                                                    {webhook.lastDeliveryAt ?? "not delivered"}
+                                                    {t("settings:webhooks.lastDelivery")}
+                                                    {webhook.lastDeliveryAt ?? t("settings:webhooks.notDelivered")}
                                                 </p>
                                             </article>
                                         )
@@ -575,13 +577,13 @@ export function SettingsWebhooksPage(): ReactElement {
                 <Card>
                     <CardHeader>
                         <p className={TYPOGRAPHY.sectionTitle}>
-                            Delivery logs{" "}
+                            {t("settings:webhooks.deliveryLogs")}{" "}
                             {activeEndpoint === undefined ? "" : `· ${activeEndpoint.id}`}
                         </p>
                     </CardHeader>
                     <CardBody className="space-y-3">
                         {activeEndpoint === undefined ? (
-                            <Alert color="warning">Select endpoint to inspect logs.</Alert>
+                            <Alert color="warning">{t("settings:webhooks.selectEndpointToInspect")}</Alert>
                         ) : null}
                         <div
                             ref={logsListRef}
@@ -624,7 +626,7 @@ export function SettingsWebhooksPage(): ReactElement {
                                                     {log.message}
                                                 </p>
                                                 <p className="text-xs text-muted-foreground">
-                                                    HTTP status: {log.httpStatus}
+                                                    {t("settings:webhooks.httpStatus", { status: log.httpStatus })}
                                                 </p>
                                             </article>
                                         )

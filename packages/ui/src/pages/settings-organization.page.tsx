@@ -1,4 +1,5 @@
 import { type ReactElement, useMemo, useState } from "react"
+import { useTranslation } from "react-i18next"
 
 import {
     Alert,
@@ -201,15 +202,19 @@ function OrganizationProfileCard(props: {
     readonly onProfileChange: (nextProfile: IOrganizationProfile) => void
     readonly onSave: () => void
 }): ReactElement {
+    const { t } = useTranslation(["settings"])
+
     return (
         <Card>
             <CardHeader>
-                <p className={TYPOGRAPHY.sectionTitle}>Organization profile</p>
+                <p className={TYPOGRAPHY.sectionTitle}>
+                    {t("settings:organization.profileTitle")}
+                </p>
             </CardHeader>
             <CardBody className="space-y-3">
                 <div className="grid gap-3 md:grid-cols-3">
                     <Input
-                        label="Organization name"
+                        label={t("settings:organization.organizationName")}
                         onValueChange={(value): void => {
                             props.onProfileChange({
                                 ...props.profile,
@@ -219,7 +224,7 @@ function OrganizationProfileCard(props: {
                         value={props.profile.name}
                     />
                     <Input
-                        label="Slug"
+                        label={t("settings:organization.slug")}
                         onValueChange={(value): void => {
                             props.onProfileChange({
                                 ...props.profile,
@@ -229,7 +234,7 @@ function OrganizationProfileCard(props: {
                         value={props.profile.slug}
                     />
                     <Input
-                        label="Timezone"
+                        label={t("settings:organization.timezone")}
                         onValueChange={(value): void => {
                             props.onProfileChange({
                                 ...props.profile,
@@ -240,7 +245,9 @@ function OrganizationProfileCard(props: {
                     />
                 </div>
                 <div className="flex justify-end">
-                    <Button onPress={props.onSave}>Save profile</Button>
+                    <Button onPress={props.onSave}>
+                        {t("settings:organization.saveProfile")}
+                    </Button>
                 </div>
             </CardBody>
         </Card>
@@ -253,12 +260,15 @@ function BillingCard(props: {
     readonly onRetryPayment: () => void
     readonly onConfirmCriticalAction: () => void
 }): ReactElement {
+    const { t } = useTranslation(["settings"])
     const seatUsagePercent = Math.round((props.billing.seatsUsed / props.billing.seatsTotal) * 100)
 
     return (
         <Card>
             <CardHeader className="flex items-center justify-between">
-                <p className={TYPOGRAPHY.sectionTitle}>Billing</p>
+                <p className={TYPOGRAPHY.sectionTitle}>
+                    {t("settings:organization.billingTitle")}
+                </p>
                 <Chip color={mapBillingStatusColor(props.billing.status)} size="sm" variant="flat">
                     {props.billing.status}
                 </Chip>
@@ -266,26 +276,28 @@ function BillingCard(props: {
             <CardBody className="space-y-3">
                 <div className="grid gap-3 text-sm md:grid-cols-2">
                     <p>
-                        Plan: <span className="font-semibold">{props.billing.plan}</span>
+                        {t("settings:organization.plan")}:{" "}
+                        <span className="font-semibold">{props.billing.plan}</span>
                     </p>
                     <p>
-                        Renewal: <span className="font-semibold">{props.billing.renewalAt}</span>
+                        {t("settings:organization.renewal")}:{" "}
+                        <span className="font-semibold">{props.billing.renewalAt}</span>
                     </p>
                     <p>
-                        Seats:{" "}
+                        {t("settings:organization.seats")}:{" "}
                         <span className="font-semibold">
                             {props.billing.seatsUsed}/{props.billing.seatsTotal}
                         </span>{" "}
                         ({seatUsagePercent}%)
                     </p>
                     <p>
-                        Payment method:{" "}
+                        {t("settings:organization.paymentMethod")}:{" "}
                         <span className="font-semibold">{props.billing.paymentMethod}</span>
                     </p>
                 </div>
                 <div className="flex flex-wrap items-center gap-2">
                     <select
-                        aria-label="Plan"
+                        aria-label={t("settings:organization.planLabel")}
                         className={NATIVE_FORM.select}
                         id="billing-plan-select"
                         value={props.billing.plan}
@@ -301,7 +313,7 @@ function BillingCard(props: {
                         <option value="enterprise">enterprise</option>
                     </select>
                     <Button onPress={props.onRetryPayment} size="sm" variant="light">
-                        Retry payment
+                        {t("settings:organization.retryPayment")}
                     </Button>
                     <Button
                         color="danger"
@@ -309,7 +321,7 @@ function BillingCard(props: {
                         size="sm"
                         variant="ghost"
                     >
-                        Confirm billing action
+                        {t("settings:organization.confirmBillingAction")}
                     </Button>
                 </div>
             </CardBody>
@@ -327,21 +339,25 @@ function MembersCard(props: {
     readonly onRoleChange: (memberId: string, role: TMemberRole) => void
     readonly onRemoveMember: (memberId: string) => void
 }): ReactElement {
+    const { t } = useTranslation(["settings"])
+
     return (
         <Card>
             <CardHeader>
-                <p className={TYPOGRAPHY.sectionTitle}>Members</p>
+                <p className={TYPOGRAPHY.sectionTitle}>
+                    {t("settings:organization.membersTitle")}
+                </p>
             </CardHeader>
             <CardBody className="space-y-3">
                 <div className="grid gap-3 md:grid-cols-[1fr_180px_auto]">
                     <Input
-                        label="Invite by email"
+                        label={t("settings:organization.inviteByEmail")}
                         onValueChange={props.onInviteEmailChange}
                         placeholder="new.member@acme.dev"
                         value={props.inviteEmail}
                     />
                     <select
-                        aria-label="Role"
+                        aria-label={t("settings:organization.role")}
                         className={NATIVE_FORM.select}
                         id="invite-role-select"
                         value={props.inviteRole}
@@ -363,18 +379,20 @@ function MembersCard(props: {
                         <option value="admin">admin</option>
                     </select>
                     <div className="flex items-end">
-                        <Button onPress={props.onInvite}>Invite member</Button>
+                        <Button onPress={props.onInvite}>
+                            {t("settings:organization.inviteMember")}
+                        </Button>
                     </div>
                 </div>
 
                 <Table aria-label="Organization members">
                     <TableHeader>
-                        <TableColumn>Name</TableColumn>
-                        <TableColumn>Email</TableColumn>
-                        <TableColumn>Role</TableColumn>
-                        <TableColumn>Actions</TableColumn>
+                        <TableColumn>{t("settings:organization.tableNameHeader")}</TableColumn>
+                        <TableColumn>{t("settings:organization.tableEmailHeader")}</TableColumn>
+                        <TableColumn>{t("settings:organization.tableRoleHeader")}</TableColumn>
+                        <TableColumn>{t("settings:organization.tableActionsHeader")}</TableColumn>
                     </TableHeader>
-                    <TableBody emptyContent="No members found">
+                    <TableBody emptyContent={t("settings:organization.noMembersFound")}>
                         {props.members.map(
                             (member): ReactElement => (
                                 <TableRow key={member.id}>
@@ -421,7 +439,7 @@ function MembersCard(props: {
                                             size="sm"
                                             variant="ghost"
                                         >
-                                            Remove
+                                            {t("settings:organization.remove")}
                                         </Button>
                                     </TableCell>
                                 </TableRow>
@@ -440,35 +458,39 @@ function ByokCard(props: {
     readonly onToggleLlmToken: (value: boolean) => void
     readonly onRotate: () => void
 }): ReactElement {
+    const { t } = useTranslation(["settings"])
+
     return (
         <Card>
             <CardHeader>
-                <p className={TYPOGRAPHY.sectionTitle}>BYOK</p>
+                <p className={TYPOGRAPHY.sectionTitle}>
+                    {t("settings:organization.byokTitle")}
+                </p>
             </CardHeader>
             <CardBody className="space-y-3">
                 <p className="text-sm text-muted-foreground">
-                    Manage secure provider keys used by integrations and LLM runtime.
+                    {t("settings:organization.byokDescription")}
                 </p>
                 <div className="flex flex-wrap items-center gap-4">
                     <Switch
                         isSelected={props.byok.gitProviderTokenConfigured}
                         onValueChange={props.onToggleGitToken}
                     >
-                        Git provider key configured
+                        {t("settings:organization.gitProviderKeyConfigured")}
                     </Switch>
                     <Switch
                         isSelected={props.byok.llmKeyConfigured}
                         onValueChange={props.onToggleLlmToken}
                     >
-                        LLM key configured
+                        {t("settings:organization.llmKeyConfigured")}
                     </Switch>
                 </div>
                 <p className="text-xs text-muted-foreground">
-                    Active key ref: {props.byok.maskedKeyRef}
+                    {t("settings:organization.activeKeyRef")}: {props.byok.maskedKeyRef}
                 </p>
                 <div>
                     <Button onPress={props.onRotate} size="sm" variant="light">
-                        Rotate BYOK secret
+                        {t("settings:organization.rotateByokSecret")}
                     </Button>
                 </div>
             </CardBody>
@@ -477,20 +499,24 @@ function ByokCard(props: {
 }
 
 function AuditLogsCard(props: { readonly logs: ReadonlyArray<IAuditLogEntry> }): ReactElement {
+    const { t } = useTranslation(["settings"])
+
     return (
         <Card>
             <CardHeader>
-                <p className={TYPOGRAPHY.sectionTitle}>Audit logs (latest)</p>
+                <p className={TYPOGRAPHY.sectionTitle}>
+                    {t("settings:organization.auditLogsTitle")}
+                </p>
             </CardHeader>
             <CardBody>
                 <Table aria-label="Organization audit logs">
                     <TableHeader>
-                        <TableColumn>Time</TableColumn>
-                        <TableColumn>Actor</TableColumn>
-                        <TableColumn>Action</TableColumn>
-                        <TableColumn>Details</TableColumn>
+                        <TableColumn>{t("settings:organization.auditTimeHeader")}</TableColumn>
+                        <TableColumn>{t("settings:organization.auditActorHeader")}</TableColumn>
+                        <TableColumn>{t("settings:organization.auditActionHeader")}</TableColumn>
+                        <TableColumn>{t("settings:organization.auditDetailsHeader")}</TableColumn>
                     </TableHeader>
-                    <TableBody emptyContent="No audit entries">
+                    <TableBody emptyContent={t("settings:organization.noAuditEntries")}>
                         {props.logs.map(
                             (log): ReactElement => (
                                 <TableRow key={log.id}>
@@ -514,6 +540,7 @@ function AuditLogsCard(props: { readonly logs: ReadonlyArray<IAuditLogEntry> }):
  * @returns Organization settings UI.
  */
 export function SettingsOrganizationPage(): ReactElement {
+    const { t } = useTranslation(["settings"])
     const [profile, setProfile] = useState<IOrganizationProfile>(PROFILE_DEFAULT)
     const [billing, setBilling] = useState<IBillingState>(BILLING_DEFAULT)
     const [members, setMembers] = useState<ReadonlyArray<IOrganizationMember>>(MEMBERS_DEFAULT)
@@ -529,17 +556,17 @@ export function SettingsOrganizationPage(): ReactElement {
 
     const handleSaveProfile = (): void => {
         if (profile.name.trim().length === 0 || profile.slug.trim().length === 0) {
-            showToastError("Organization name and slug are required.")
+            showToastError(t("settings:organization.toast.nameAndSlugRequired"))
             return
         }
 
-        showToastSuccess("Organization profile saved.")
+        showToastSuccess(t("settings:organization.toast.profileSaved"))
     }
 
     const handleInviteMember = (): void => {
         const normalizedEmail = inviteEmail.trim().toLowerCase()
         if (isValidInviteEmail(normalizedEmail) === false) {
-            showToastError("Enter a valid email for invite.")
+            showToastError(t("settings:organization.toast.invalidInviteEmail"))
             return
         }
 
@@ -551,7 +578,7 @@ export function SettingsOrganizationPage(): ReactElement {
         }
         setMembers((previous): ReadonlyArray<IOrganizationMember> => [...previous, nextMember])
         setInviteEmail("")
-        showToastSuccess("Invitation sent.")
+        showToastSuccess(t("settings:organization.toast.invitationSent"))
     }
 
     const handleMemberRoleChange = (memberId: string, role: TMemberRole): void => {
@@ -568,7 +595,7 @@ export function SettingsOrganizationPage(): ReactElement {
                     }
                 }),
         )
-        showToastInfo("Member role updated.")
+        showToastInfo(t("settings:organization.toast.memberRoleUpdated"))
     }
 
     const handleRemoveMember = (memberId: string): void => {
@@ -576,7 +603,7 @@ export function SettingsOrganizationPage(): ReactElement {
             (previous): ReadonlyArray<IOrganizationMember> =>
                 previous.filter((member): boolean => member.id !== memberId),
         )
-        showToastInfo("Member removed.")
+        showToastInfo(t("settings:organization.toast.memberRemoved"))
     }
 
     const handlePlanChange = (plan: TPlanName): void => {
@@ -588,29 +615,29 @@ export function SettingsOrganizationPage(): ReactElement {
             }),
         )
         setBillingError(undefined)
-        showToastSuccess("Billing plan updated.")
+        showToastSuccess(t("settings:organization.toast.billingPlanUpdated"))
     }
 
     const handleRetryPayment = (): void => {
         const shouldFail = billing.status === "past_due"
         if (shouldFail) {
-            setBillingError("Payment retry failed. Review billing method and try again.")
-            showToastError("Payment retry failed.")
+            setBillingError(t("settings:organization.toast.paymentRetryFailedDetails"))
+            showToastError(t("settings:organization.toast.paymentRetryFailed"))
             return
         }
 
         setBillingError(undefined)
-        showToastSuccess("Payment status is healthy.")
+        showToastSuccess(t("settings:organization.toast.paymentHealthy"))
     }
 
     const handleConfirmCriticalBillingAction = (): void => {
         const isConfirmed =
             typeof window === "undefined"
                 ? true
-                : window.confirm("Confirm critical billing action?")
+                : window.confirm(t("settings:organization.toast.confirmCriticalBillingAction"))
 
         if (isConfirmed !== true) {
-            showToastInfo("Billing action cancelled.")
+            showToastInfo(t("settings:organization.toast.billingActionCancelled"))
             return
         }
 
@@ -621,7 +648,7 @@ export function SettingsOrganizationPage(): ReactElement {
             }),
         )
         setBillingError(undefined)
-        showToastInfo("Critical billing action confirmed.")
+        showToastInfo(t("settings:organization.toast.criticalBillingActionConfirmed"))
     }
 
     const handleByokRotate = (): void => {
@@ -631,14 +658,16 @@ export function SettingsOrganizationPage(): ReactElement {
                 maskedKeyRef: `byok_****${String(Date.now()).slice(-4)}`,
             }),
         )
-        showToastSuccess("BYOK secret rotated.")
+        showToastSuccess(t("settings:organization.toast.byokSecretRotated"))
     }
 
     return (
         <section className="space-y-4">
-            <h1 className={TYPOGRAPHY.pageTitle}>Organization Settings</h1>
+            <h1 className={TYPOGRAPHY.pageTitle}>
+                {t("settings:organization.pageTitle")}
+            </h1>
             <p className={TYPOGRAPHY.pageSubtitle}>
-                Manage organization profile, billing, members, BYOK and audit history.
+                {t("settings:organization.pageSubtitle")}
             </p>
 
             {billingError === undefined ? null : <Alert color="danger">{billingError}</Alert>}

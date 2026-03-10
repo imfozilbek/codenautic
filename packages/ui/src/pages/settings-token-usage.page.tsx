@@ -1,4 +1,5 @@
 import { type ReactElement, useEffect, useMemo, useRef, useState } from "react"
+import { useTranslation } from "react-i18next"
 
 import {
     DataFreshnessPanel,
@@ -203,6 +204,7 @@ function formatTokens(value: number): string {
 
 function buildKpiMetrics(
     records: ReadonlyArray<ITokenUsageRecord>,
+    t: ReturnType<typeof useTranslation<readonly ["settings"]>>["t"],
 ): ReadonlyArray<IMetricGridMetric> {
     const totalPrompt = records.reduce(
         (accumulator, record): number => accumulator + record.promptTokens,
@@ -222,57 +224,61 @@ function buildKpiMetrics(
 
     return [
         {
-            caption: "Prompt + completion tokens across selected range",
+            caption: t("settings:tokenUsage.totalTokensCaption"),
             id: "total-tokens",
-            label: "Total tokens",
+            label: t("settings:tokenUsage.totalTokensLabel"),
             trendDirection: "up",
-            trendLabel: `${formatTokens(totalPrompt)} prompt`,
+            trendLabel: t("settings:tokenUsage.promptTrend", { value: formatTokens(totalPrompt) }),
             value: formatTokens(totalTokens),
         },
         {
-            caption: "Estimated by model-level pricing",
+            caption: t("settings:tokenUsage.estimatedCostCaption"),
             id: "estimated-cost",
-            label: "Estimated cost",
+            label: t("settings:tokenUsage.estimatedCostLabel"),
             trendDirection: "up",
-            trendLabel: `${formatTokens(totalCompletion)} completion`,
+            trendLabel: t("settings:tokenUsage.completionTrend", { value: formatTokens(totalCompletion) }),
             value: formatCostUsd(totalCost),
         },
         {
-            caption: "Developers with active usage in range",
+            caption: t("settings:tokenUsage.activeDevelopersCaption"),
             id: "active-developers",
-            label: "Active developers",
+            label: t("settings:tokenUsage.activeDevelopersLabel"),
             trendDirection: "neutral",
-            trendLabel: "usage tracked",
+            trendLabel: t("settings:tokenUsage.usageTracked"),
             value: String(activeDevelopers),
         },
         {
-            caption: "CCR contexts that consumed tokens",
+            caption: t("settings:tokenUsage.activeCcrCaption"),
             id: "active-ccr",
-            label: "Active CCR",
+            label: t("settings:tokenUsage.activeCcrLabel"),
             trendDirection: "neutral",
-            trendLabel: "linked to review flow",
+            trendLabel: t("settings:tokenUsage.linkedToReviewFlow"),
             value: String(activeCcr),
         },
     ]
 }
 
-function getDataWindowLabel(range: TDashboardDateRange): string {
+function getDataWindowLabel(
+    range: TDashboardDateRange,
+    t: ReturnType<typeof useTranslation<readonly ["settings"]>>["t"],
+): string {
     if (range === "1d") {
-        return "Last 24 hours"
+        return t("settings:tokenUsage.last24Hours")
     }
     if (range === "30d") {
-        return "Last 30 days"
+        return t("settings:tokenUsage.last30Days")
     }
     if (range === "90d") {
-        return "Last 90 days"
+        return t("settings:tokenUsage.last90Days")
     }
-    return "Last 7 days"
+    return t("settings:tokenUsage.last7Days")
 }
 
 function UsageTable(props: {
     readonly title: string
     readonly rows: ReadonlyArray<IAggregatedUsageRow>
 }): ReactElement {
+    const { t } = useTranslation(["settings"])
     return (
         <Card>
             <CardHeader>
@@ -284,37 +290,37 @@ function UsageTable(props: {
                     columns={[
                         {
                             accessor: (row): string => row.key,
-                            header: "Group",
+                            header: t("settings:tokenUsage.columnGroup"),
                             id: "group",
                             pin: "left",
                             size: 220,
                         },
                         {
                             accessor: (row): string => formatTokens(row.promptTokens),
-                            header: "Prompt tokens",
+                            header: t("settings:tokenUsage.columnPromptTokens"),
                             id: "promptTokens",
                             size: 170,
                         },
                         {
                             accessor: (row): string => formatTokens(row.completionTokens),
-                            header: "Completion tokens",
+                            header: t("settings:tokenUsage.columnCompletionTokens"),
                             id: "completionTokens",
                             size: 180,
                         },
                         {
                             accessor: (row): string => formatTokens(row.totalTokens),
-                            header: "Total tokens",
+                            header: t("settings:tokenUsage.columnTotalTokens"),
                             id: "totalTokens",
                             size: 170,
                         },
                         {
                             accessor: (row): string => formatCostUsd(row.estimatedCostUsd),
-                            header: "Estimated cost",
+                            header: t("settings:tokenUsage.columnEstimatedCost"),
                             id: "estimatedCost",
                             size: 180,
                         },
                     ]}
-                    emptyMessage="No usage data for this range"
+                    emptyMessage={t("settings:tokenUsage.noUsageData")}
                     getRowId={(row): string => row.key}
                     id={`token-usage-${props.title.toLowerCase().replace(/\s+/g, "-")}`}
                     rows={props.rows}
@@ -330,6 +336,7 @@ function UsageTable(props: {
  * @returns Usage by model/developer/CCR + cost estimate в выбранном диапазоне.
  */
 export function SettingsTokenUsagePage(): ReactElement {
+    const { t } = useTranslation(["settings"])
     const [range, setRange] = useState<TDashboardDateRange>("7d")
     const [selectedTab, setSelectedTab] = useState<TUsageTab>("by-model")
     const [lastUpdatedAt, setLastUpdatedAt] = useState<string>("2026-03-04T10:25:00Z")
@@ -357,8 +364,8 @@ export function SettingsTokenUsagePage(): ReactElement {
         [scaledRecords],
     )
     const metrics = useMemo(
-        (): ReadonlyArray<IMetricGridMetric> => buildKpiMetrics(scaledRecords),
-        [scaledRecords],
+        (): ReadonlyArray<IMetricGridMetric> => buildKpiMetrics(scaledRecords, t),
+        [scaledRecords, t],
     )
     const explainabilityFactors = useMemo((): ReadonlyArray<{
         readonly impact: "high" | "low" | "medium"
@@ -372,30 +379,30 @@ export function SettingsTokenUsagePage(): ReactElement {
         return [
             {
                 impact: "high",
-                label: "Top model contribution",
+                label: t("settings:tokenUsage.topModelContribution"),
                 value:
                     topModel === undefined
-                        ? "No model data for current range."
-                        : `${topModel.key} consumed ${formatTokens(topModel.totalTokens)} tokens.`,
+                        ? t("settings:tokenUsage.noModelData")
+                        : t("settings:tokenUsage.modelConsumed", { model: topModel.key, tokens: formatTokens(topModel.totalTokens) }),
             },
             {
                 impact: "medium",
-                label: "Developer concentration",
+                label: t("settings:tokenUsage.developerConcentration"),
                 value:
                     topDeveloper === undefined
-                        ? "No developer data for current range."
-                        : `${topDeveloper.key} drives largest usage share in this window.`,
+                        ? t("settings:tokenUsage.noDeveloperData")
+                        : t("settings:tokenUsage.developerDrivesUsage", { developer: topDeveloper.key }),
             },
             {
                 impact: "low",
-                label: "CCR distribution",
+                label: t("settings:tokenUsage.ccrDistribution"),
                 value:
                     topCcr === undefined
-                        ? "No CCR data for current range."
-                        : `Top CCR ${topCcr.key} contributes ${formatCostUsd(topCcr.estimatedCostUsd)}.`,
+                        ? t("settings:tokenUsage.noCcrData")
+                        : t("settings:tokenUsage.topCcrContributes", { ccr: topCcr.key, cost: formatCostUsd(topCcr.estimatedCostUsd) }),
             },
         ]
-    }, [byCcr, byDeveloper, byModel])
+    }, [byCcr, byDeveloper, byModel, t])
     const provenance = useMemo(
         (): IProvenanceContext => ({
             branch: "main",
@@ -427,7 +434,7 @@ export function SettingsTokenUsagePage(): ReactElement {
 
         setIsRefreshing(true)
         setLastUpdatedAt(new Date().toISOString())
-        setFreshnessActionMessage("Token usage refresh requested.")
+        setFreshnessActionMessage(t("settings:tokenUsage.tokenUsageRefreshRequested"))
         refreshResetTimerRef.current = window.setTimeout((): void => {
             setIsRefreshing(false)
             refreshResetTimerRef.current = undefined
@@ -435,17 +442,16 @@ export function SettingsTokenUsagePage(): ReactElement {
     }
 
     const handleRescan = (): void => {
-        setFreshnessActionMessage("Token usage rescan queued from settings.")
+        setFreshnessActionMessage(t("settings:tokenUsage.tokenUsageRescanQueued"))
     }
 
     return (
         <section className="space-y-4">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                 <div>
-                    <h1 className={TYPOGRAPHY.pageTitle}>Token Usage</h1>
+                    <h1 className={TYPOGRAPHY.pageTitle}>{t("settings:tokenUsage.pageTitle")}</h1>
                     <p className={TYPOGRAPHY.pageSubtitle}>
-                        Usage by model, developer and CCR with estimated cost over selected date
-                        range.
+                        {t("settings:tokenUsage.pageSubtitle")}
                     </p>
                 </div>
                 <DashboardDateRangeFilter
@@ -461,15 +467,15 @@ export function SettingsTokenUsagePage(): ReactElement {
                 lastUpdatedAt={lastUpdatedAt}
                 provenance={{
                     ...provenance,
-                    dataWindow: `${provenance.dataWindow} (${getDataWindowLabel(range)})`,
+                    dataWindow: `${provenance.dataWindow} (${getDataWindowLabel(range, t)})`,
                 }}
                 staleThresholdMinutes={30}
-                title="Usage freshness"
+                title={t("settings:tokenUsage.usageFreshness")}
                 onRefresh={handleRefresh}
                 onRescan={handleRescan}
             />
             {freshnessActionMessage.length > 0 ? (
-                <Alert color="primary" title="Freshness action" variant="flat">
+                <Alert color="primary" title={t("settings:tokenUsage.freshnessAction")} variant="flat">
                     {freshnessActionMessage}
                 </Alert>
             ) : null}
@@ -478,13 +484,13 @@ export function SettingsTokenUsagePage(): ReactElement {
                 dataWindow={`token-usage:${range}`}
                 factors={explainabilityFactors}
                 limitations={[
-                    "Estimated cost is based on static pricing table snapshot.",
-                    "Completion and prompt mix can shift after delayed event ingestion.",
+                    t("settings:tokenUsage.limitationPricing"),
+                    t("settings:tokenUsage.limitationIngestion"),
                 ]}
-                signalLabel="Cost concentration risk"
+                signalLabel={t("settings:tokenUsage.costConcentrationRisk")}
                 signalValue={range === "90d" ? "elevated" : "moderate"}
                 threshold=">= 0.65"
-                title="Explainability for token cost signal"
+                title={t("settings:tokenUsage.explainabilityTitle")}
             />
 
             <MetricsGrid metrics={metrics} />
@@ -503,7 +509,7 @@ export function SettingsTokenUsagePage(): ReactElement {
                         size="sm"
                         variant={selectedTab === "by-model" ? "solid" : "secondary"}
                     >
-                        By model
+                        {t("settings:tokenUsage.byModel")}
                     </Button>
                     <Button
                         aria-pressed={selectedTab === "by-developer"}
@@ -513,7 +519,7 @@ export function SettingsTokenUsagePage(): ReactElement {
                         size="sm"
                         variant={selectedTab === "by-developer" ? "solid" : "secondary"}
                     >
-                        By developer
+                        {t("settings:tokenUsage.byDeveloper")}
                     </Button>
                     <Button
                         aria-pressed={selectedTab === "by-ccr"}
@@ -523,16 +529,16 @@ export function SettingsTokenUsagePage(): ReactElement {
                         size="sm"
                         variant={selectedTab === "by-ccr" ? "solid" : "secondary"}
                     >
-                        By CCR
+                        {t("settings:tokenUsage.byCcr")}
                     </Button>
                 </div>
                 {selectedTab === "by-model" ? (
-                    <UsageTable rows={byModel} title="Usage by model" />
+                    <UsageTable rows={byModel} title={t("settings:tokenUsage.usageByModel")} />
                 ) : null}
                 {selectedTab === "by-developer" ? (
-                    <UsageTable rows={byDeveloper} title="Usage by developer" />
+                    <UsageTable rows={byDeveloper} title={t("settings:tokenUsage.usageByDeveloper")} />
                 ) : null}
-                {selectedTab === "by-ccr" ? <UsageTable rows={byCcr} title="Usage by CCR" /> : null}
+                {selectedTab === "by-ccr" ? <UsageTable rows={byCcr} title={t("settings:tokenUsage.usageByCcr")} /> : null}
             </div>
         </section>
     )

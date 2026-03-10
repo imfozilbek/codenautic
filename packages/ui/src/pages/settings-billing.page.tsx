@@ -1,4 +1,5 @@
 import { type ReactElement, useMemo, useState } from "react"
+import { useTranslation } from "react-i18next"
 
 import { Alert, Button, Card, CardBody, CardHeader, Chip } from "@/components/ui"
 import { NATIVE_FORM } from "@/lib/constants/spacing"
@@ -149,12 +150,15 @@ function buildPaywallBanner(status: TBillingStatus): {
  * @returns UI для управления plan/status, paywall, upgrade/downgrade и истории.
  */
 export function SettingsBillingPage(): ReactElement {
+    const { t } = useTranslation(["settings"])
     const [billingSnapshot, setBillingSnapshot] =
         useState<IBillingSnapshot>(INITIAL_BILLING_SNAPSHOT)
     const [draftPlan, setDraftPlan] = useState<TPlanName>(INITIAL_BILLING_SNAPSHOT.plan)
     const [draftStatus, setDraftStatus] = useState<TBillingStatus>(INITIAL_BILLING_SNAPSHOT.status)
     const [history, setHistory] = useState<ReadonlyArray<IPlanHistoryEntry>>(INITIAL_HISTORY)
-    const [lastOutcome, setLastOutcome] = useState<string>("No billing actions applied yet.")
+    const [lastOutcome, setLastOutcome] = useState<string>(
+        t("settings:billing.noBillingActionsYet"),
+    )
 
     const paywallBanner = useMemo(() => {
         return buildPaywallBanner(billingSnapshot.status)
@@ -175,8 +179,8 @@ export function SettingsBillingPage(): ReactElement {
                 isLocked === false
                     ? undefined
                     : isStatusLocked
-                      ? "Billing status is not active."
-                      : `Requires ${feature.minPlan} plan.`
+                      ? t("settings:billing.billingStatusNotActive")
+                      : t("settings:billing.requiresPlan", { plan: feature.minPlan })
 
             return {
                 id: feature.id,
@@ -185,7 +189,7 @@ export function SettingsBillingPage(): ReactElement {
                 lockReason,
             }
         })
-    }, [billingSnapshot.plan, billingSnapshot.status])
+    }, [billingSnapshot.plan, billingSnapshot.status, t])
 
     const handleApplyBillingChange = (): void => {
         const isPlanDowngrade = PLAN_PRIORITY[draftPlan] < PLAN_PRIORITY[billingSnapshot.plan]
@@ -193,10 +197,10 @@ export function SettingsBillingPage(): ReactElement {
             const downgradeConfirmed =
                 typeof window === "undefined"
                     ? true
-                    : window.confirm("Confirm downgrade to a lower plan?")
+                    : window.confirm(t("settings:billing.confirmDowngrade"))
             if (downgradeConfirmed !== true) {
-                setLastOutcome("Billing change cancelled by operator.")
-                showToastInfo("Downgrade cancelled.")
+                setLastOutcome(t("settings:billing.billingChangeCancelled"))
+                showToastInfo(t("settings:billing.toast.downgradeCancelled"))
                 return
             }
         }
@@ -211,7 +215,10 @@ export function SettingsBillingPage(): ReactElement {
             plan: draftPlan,
             status: draftStatus,
         }
-        const outcome = `Applied ${nextSnapshot.plan} / ${nextSnapshot.status} successfully.`
+        const outcome = t("settings:billing.appliedSuccessfully", {
+            plan: nextSnapshot.plan,
+            status: nextSnapshot.status,
+        })
 
         setBillingSnapshot(nextSnapshot)
         setLastOutcome(outcome)
@@ -227,7 +234,7 @@ export function SettingsBillingPage(): ReactElement {
                 ...previous,
             ],
         )
-        showToastSuccess("Billing lifecycle updated.")
+        showToastSuccess(t("settings:billing.toast.billingLifecycleUpdated"))
     }
 
     const handleMarkInvoicePaid = (): void => {
@@ -252,7 +259,7 @@ export function SettingsBillingPage(): ReactElement {
                 ...previous,
             ],
         )
-        showToastSuccess("Invoice marked as paid.")
+        showToastSuccess(t("settings:billing.toast.invoiceMarkedAsPaid"))
     }
 
     return (

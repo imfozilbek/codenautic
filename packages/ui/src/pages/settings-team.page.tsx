@@ -1,4 +1,5 @@
 import { type ReactElement, useMemo, useState } from "react"
+import { useTranslation } from "react-i18next"
 
 import { Alert, Button, Card, CardBody, CardHeader, Chip, Input } from "@/components/ui"
 import { NATIVE_FORM } from "@/lib/constants/spacing"
@@ -134,10 +135,12 @@ function TeamDirectoryCard(props: {
     readonly activeTeamId: string
     readonly onTeamSelect: (teamId: string) => void
 }): ReactElement {
+    const { t } = useTranslation(["settings"])
+
     return (
         <Card>
             <CardHeader>
-                <p className={TYPOGRAPHY.sectionTitle}>Teams</p>
+                <p className={TYPOGRAPHY.sectionTitle}>{t("settings:team.teams")}</p>
             </CardHeader>
             <CardBody className="space-y-2">
                 {props.teams.map((team): ReactElement => {
@@ -159,7 +162,7 @@ function TeamDirectoryCard(props: {
                             <p className="text-sm font-semibold text-foreground">{team.name}</p>
                             <p className="text-xs text-text-secondary">{team.description}</p>
                             <p className="mt-1 text-xs text-text-secondary">
-                                {team.members.length} members • {team.repositories.length} repos
+                                {t("settings:team.membersCount", { count: team.members.length, repos: team.repositories.length })}
                             </p>
                         </button>
                     )
@@ -180,6 +183,7 @@ function TeamMembersCard(props: {
     readonly onRoleUpdate: (memberId: string, role: TTeamMemberRole) => void
     readonly roleManagementPolicy: IUiActionPolicy
 }): ReactElement {
+    const { t } = useTranslation(["settings"])
     const isInviteDisabled = props.invitePolicy.visibility !== "enabled"
     const isRoleManagementHidden = props.roleManagementPolicy.visibility === "hidden"
     const isRoleManagementDisabled = props.roleManagementPolicy.visibility === "disabled"
@@ -187,12 +191,12 @@ function TeamMembersCard(props: {
     return (
         <Card>
             <CardHeader>
-                <p className={TYPOGRAPHY.sectionTitle}>Members</p>
+                <p className={TYPOGRAPHY.sectionTitle}>{t("settings:team.members")}</p>
             </CardHeader>
             <CardBody className="space-y-3">
                 <div className="grid gap-3 md:grid-cols-[1fr_180px_auto]">
                     <Input
-                        label="Invite member by email"
+                        label={t("settings:team.inviteMemberByEmail")}
                         placeholder="new.member@acme.dev"
                         value={props.inviteEmail}
                         onValueChange={props.onInviteEmailChange}
@@ -228,13 +232,13 @@ function TeamMembersCard(props: {
                             isDisabled={isInviteDisabled}
                             onPress={props.onInviteMember}
                         >
-                            Add member
+                            {t("settings:team.addMember")}
                         </Button>
                     </div>
                 </div>
                 {props.invitePolicy.reason === undefined || isInviteDisabled === false ? null : (
                     <p className="text-xs text-text-secondary">
-                        Invite policy: {props.invitePolicy.reason}
+                        {t("settings:team.invitePolicy", { reason: props.invitePolicy.reason })}
                     </p>
                 )}
 
@@ -299,7 +303,7 @@ function TeamMembersCard(props: {
                 {props.roleManagementPolicy.reason === undefined ||
                 isRoleManagementHidden ? null : (
                     <p className="text-xs text-text-secondary">
-                        Role policy: {props.roleManagementPolicy.reason}
+                        {t("settings:team.rolePolicy", { reason: props.roleManagementPolicy.reason })}
                     </p>
                 )}
             </CardBody>
@@ -313,12 +317,13 @@ function TeamRepositoriesCard(props: {
     readonly repositories: ReadonlyArray<string>
     readonly onRepositoryToggle: (repository: string, isSelected: boolean) => void
 }): ReactElement {
+    const { t } = useTranslation(["settings"])
     const isAssignmentDisabled = props.assignmentPolicy.visibility !== "enabled"
 
     return (
         <Card>
             <CardHeader>
-                <p className={TYPOGRAPHY.sectionTitle}>Repository assignment</p>
+                <p className={TYPOGRAPHY.sectionTitle}>{t("settings:team.repositoryAssignment")}</p>
             </CardHeader>
             <CardBody className="space-y-2">
                 {props.repositories.map((repository): ReactElement => {
@@ -348,7 +353,7 @@ function TeamRepositoriesCard(props: {
                 {props.assignmentPolicy.reason === undefined ||
                 isAssignmentDisabled === false ? null : (
                     <p className="text-xs text-text-secondary">
-                        Repository policy: {props.assignmentPolicy.reason}
+                        {t("settings:team.repositoryPolicy", { reason: props.assignmentPolicy.reason })}
                     </p>
                 )}
             </CardBody>
@@ -362,6 +367,7 @@ function TeamRepositoriesCard(props: {
  * @returns UI для создания команд, назначения участников и репозиториев.
  */
 export function SettingsTeamPage(): ReactElement {
+    const { t } = useTranslation(["settings"])
     const activeUiRole = useUiRole()
     const [teams, setTeams] = useState<ReadonlyArray<ITeamState>>(INITIAL_TEAMS)
     const [activeTeamId, setActiveTeamId] = useState(INITIAL_TEAMS[0]?.id ?? "")
@@ -389,13 +395,13 @@ export function SettingsTeamPage(): ReactElement {
 
     const handleCreateTeam = (): void => {
         if (createTeamPolicy.visibility !== "enabled") {
-            showToastError(createTeamPolicy.reason ?? "Team creation is restricted by policy.")
+            showToastError(createTeamPolicy.reason ?? t("settings:team.toast.teamCreationRestricted"))
             return
         }
 
         const normalizedName = newTeamName.trim()
         if (normalizedName.length < 3) {
-            showToastError("Team name should be at least 3 characters.")
+            showToastError(t("settings:team.toast.teamNameTooShort"))
             return
         }
 
@@ -403,7 +409,7 @@ export function SettingsTeamPage(): ReactElement {
             (team): boolean => team.name.toLowerCase() === normalizedName.toLowerCase(),
         )
         if (duplicateExists === true) {
-            showToastError("Team with the same name already exists.")
+            showToastError(t("settings:team.toast.teamNameDuplicate"))
             return
         }
 
@@ -419,27 +425,27 @@ export function SettingsTeamPage(): ReactElement {
         setActiveTeamId(nextTeam.id)
         setNewTeamName("")
         setNewTeamDescription("")
-        showToastSuccess(`Team "${nextTeam.name}" created.`)
+        showToastSuccess(t("settings:team.toast.teamCreated", { name: nextTeam.name }))
     }
 
     const handleInviteMember = (): void => {
         if (invitePolicy.visibility !== "enabled") {
-            showToastError(invitePolicy.reason ?? "Member invitation is restricted by policy.")
+            showToastError(invitePolicy.reason ?? t("settings:team.toast.memberInviteRestricted"))
             return
         }
 
         if (activeTeam === undefined) {
-            showToastError("Select a team before inviting members.")
+            showToastError(t("settings:team.toast.selectTeamFirst"))
             return
         }
 
         const normalizedEmail = inviteEmail.trim().toLowerCase()
         if (isValidEmail(normalizedEmail) !== true) {
-            showToastError("Enter a valid member email.")
+            showToastError(t("settings:team.toast.invalidEmail"))
             return
         }
         if (hasMemberWithEmail(activeTeam, normalizedEmail) === true) {
-            showToastError("Member already exists in this team.")
+            showToastError(t("settings:team.toast.memberAlreadyExists"))
             return
         }
 
@@ -462,13 +468,13 @@ export function SettingsTeamPage(): ReactElement {
                 ),
         )
         setInviteEmail("")
-        showToastSuccess(`${nextMember.email} added to ${activeTeam.name}.`)
+        showToastSuccess(t("settings:team.toast.memberAdded", { email: nextMember.email, team: activeTeam.name }))
     }
 
     const handleRoleUpdate = (memberId: string, role: TTeamMemberRole): void => {
         if (roleManagementPolicy.visibility !== "enabled") {
             showToastError(
-                roleManagementPolicy.reason ?? "Role update is restricted by current policy.",
+                roleManagementPolicy.reason ?? t("settings:team.toast.roleUpdateRestricted"),
             )
             return
         }
@@ -496,13 +502,13 @@ export function SettingsTeamPage(): ReactElement {
                     }),
                 ),
         )
-        showToastInfo("Member role updated.")
+        showToastInfo(t("settings:team.toast.memberRoleUpdated"))
     }
 
     const handleRepositoryToggle = (repository: string, isSelected: boolean): void => {
         if (assignmentPolicy.visibility !== "enabled") {
             showToastError(
-                assignmentPolicy.reason ?? "Repository assignment is restricted by current policy.",
+                assignmentPolicy.reason ?? t("settings:team.toast.repositoryAssignmentRestricted"),
             )
             return
         }
@@ -530,33 +536,33 @@ export function SettingsTeamPage(): ReactElement {
                     }
                 }),
         )
-        showToastInfo(`Repository assignment updated for ${activeTeam.name}.`)
+        showToastInfo(t("settings:team.toast.repositoryAssignmentUpdated", { name: activeTeam.name }))
     }
 
     return (
         <section className="space-y-4">
-            <h1 className={TYPOGRAPHY.pageTitle}>Team management</h1>
+            <h1 className={TYPOGRAPHY.pageTitle}>{t("settings:team.pageTitle")}</h1>
             <p className={TYPOGRAPHY.pageSubtitle}>
-                Create teams, add members, assign repositories and control roles in one place.
+                {t("settings:team.pageSubtitle")}
             </p>
-            <Alert color="primary" title={`RBAC preview role: ${activeUiRole}`} variant="flat">
-                Restricted actions are hidden or disabled based on active role policy.
+            <Alert color="primary" title={t("settings:team.rbacPreviewRole", { role: activeUiRole })} variant="flat">
+                {t("settings:team.rbacDescription")}
             </Alert>
 
             <Card>
                 <CardHeader>
-                    <p className={TYPOGRAPHY.sectionTitle}>Create team</p>
+                    <p className={TYPOGRAPHY.sectionTitle}>{t("settings:team.createTeam")}</p>
                 </CardHeader>
                 <CardBody className="grid gap-3 md:grid-cols-[1fr_1fr_auto]">
                     <Input
-                        label="Team name"
-                        placeholder="Platform Enablement"
+                        label={t("settings:team.teamName")}
+                        placeholder={t("settings:team.teamNamePlaceholder")}
                         value={newTeamName}
                         onValueChange={setNewTeamName}
                     />
                     <Input
-                        label="Description"
-                        placeholder="Scope, ownership and responsibilities"
+                        label={t("settings:team.description")}
+                        placeholder={t("settings:team.descriptionPlaceholder")}
                         value={newTeamDescription}
                         onValueChange={setNewTeamDescription}
                     />
@@ -567,7 +573,7 @@ export function SettingsTeamPage(): ReactElement {
                                 isDisabled={createTeamPolicy.visibility === "disabled"}
                                 onPress={handleCreateTeam}
                             >
-                                Create team
+                                {t("settings:team.createTeam")}
                             </Button>
                         </div>
                     )}
@@ -576,18 +582,17 @@ export function SettingsTeamPage(): ReactElement {
             {createTeamPolicy.reason === undefined ||
             createTeamPolicy.visibility === "enabled" ? null : (
                 <p className="text-xs text-text-secondary">
-                    Create team policy: {createTeamPolicy.reason}
+                    {t("settings:team.createTeamPolicy", { reason: createTeamPolicy.reason })}
                 </p>
             )}
 
             {activeTeam === undefined ? (
-                <Alert color="warning" title="No active team selected" variant="flat">
-                    Select or create a team to continue with member and repository assignment.
+                <Alert color="warning" title={t("settings:team.noActiveTeamTitle")} variant="flat">
+                    {t("settings:team.noActiveTeamDescription")}
                 </Alert>
             ) : (
-                <Alert color="primary" title={`Active team: ${activeTeam.name}`} variant="flat">
-                    Members: {activeTeam.members.length} • Repositories:{" "}
-                    {activeTeam.repositories.length}
+                <Alert color="primary" title={t("settings:team.activeTeamTitle", { name: activeTeam.name })} variant="flat">
+                    {t("settings:team.activeTeamDescription", { members: activeTeam.members.length, repos: activeTeam.repositories.length })}
                 </Alert>
             )}
 

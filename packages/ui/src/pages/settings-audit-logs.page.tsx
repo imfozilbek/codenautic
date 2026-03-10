@@ -1,4 +1,5 @@
 import { type ReactElement, useMemo, useState } from "react"
+import { useTranslation } from "react-i18next"
 
 import { Alert, Button, Card, CardBody, CardHeader, Chip } from "@/components/ui"
 import { EnterpriseDataTable } from "@/components/infrastructure/enterprise-data-table"
@@ -247,6 +248,7 @@ function filterAuditLogs(
  * @returns Экран Audit Logs.
  */
 export function SettingsAuditLogsPage(props: ISettingsAuditLogsPageProps = {}): ReactElement {
+    const { t } = useTranslation(["settings"])
     const sourceLogs = props.logs ?? ALL_AUDIT_LOGS
     const [filters, setFilters] = useState<IAuditFilters>({
         action: "all",
@@ -275,21 +277,20 @@ export function SettingsAuditLogsPage(props: ISettingsAuditLogsPageProps = {}): 
         const fileName = `audit-logs-${timestamp}.csv`
 
         triggerCsvDownload(payload, fileName)
-        setExportMessage(`Exported ${filteredLogs.length} rows to CSV.`)
-        showToastSuccess("Audit logs exported.")
+        setExportMessage(t("settings:auditLogs.exportedRows", { count: filteredLogs.length }))
+        showToastSuccess(t("settings:auditLogs.toast.auditLogsExported"))
     }
 
     return (
         <section className="space-y-4">
-            <h1 className={TYPOGRAPHY.pageTitle}>Audit logs</h1>
+            <h1 className={TYPOGRAPHY.pageTitle}>{t("settings:auditLogs.pageTitle")}</h1>
             <p className={TYPOGRAPHY.pageSubtitle}>
-                Review change history, filter by actor and action, inspect selected date range, and
-                export filtered results.
+                {t("settings:auditLogs.pageSubtitle")}
             </p>
 
             <Card>
                 <CardHeader>
-                    <p className={TYPOGRAPHY.sectionTitle}>Filters</p>
+                    <p className={TYPOGRAPHY.sectionTitle}>{t("settings:auditLogs.filters")}</p>
                 </CardHeader>
                 <CardBody className="space-y-3">
                     <div className="grid gap-3 md:grid-cols-[1fr_1fr_180px_180px_auto]">
@@ -311,7 +312,7 @@ export function SettingsAuditLogsPage(props: ISettingsAuditLogsPageProps = {}): 
                                 )
                             }}
                         >
-                            <option value="all">All actors</option>
+                            <option value="all">{t("settings:auditLogs.allActors")}</option>
                             {actorOptions.map(
                                 (actor): ReactElement => (
                                     <option key={actor} value={actor}>
@@ -344,19 +345,19 @@ export function SettingsAuditLogsPage(props: ISettingsAuditLogsPageProps = {}): 
                                 }
                             }}
                         >
-                            <option value="all">All actions</option>
-                            <option value="member.invited">Member invited</option>
-                            <option value="role.changed">Role changed</option>
-                            <option value="integration.connected">Integration connected</option>
-                            <option value="policy.updated">Policy updated</option>
-                            <option value="schedule.updated">Schedule updated</option>
+                            <option value="all">{t("settings:auditLogs.allActions")}</option>
+                            <option value="member.invited">{t("settings:auditLogs.memberInvited")}</option>
+                            <option value="role.changed">{t("settings:auditLogs.roleChanged")}</option>
+                            <option value="integration.connected">{t("settings:auditLogs.integrationConnected")}</option>
+                            <option value="policy.updated">{t("settings:auditLogs.policyUpdated")}</option>
+                            <option value="schedule.updated">{t("settings:auditLogs.scheduleUpdated")}</option>
                         </select>
                         <div className="flex flex-col gap-1">
                             <label
                                 className="text-sm text-text-tertiary"
                                 htmlFor="audit-filter-date-from"
                             >
-                                Date from
+                                {t("settings:auditLogs.dateFrom")}
                             </label>
                             <input
                                 aria-label="Date from"
@@ -380,7 +381,7 @@ export function SettingsAuditLogsPage(props: ISettingsAuditLogsPageProps = {}): 
                                 className="text-sm text-text-tertiary"
                                 htmlFor="audit-filter-date-to"
                             >
-                                Date to
+                                {t("settings:auditLogs.dateTo")}
                             </label>
                             <input
                                 aria-label="Date to"
@@ -405,15 +406,15 @@ export function SettingsAuditLogsPage(props: ISettingsAuditLogsPageProps = {}): 
                                 variant="flat"
                                 onPress={handleExport}
                             >
-                                Export CSV
+                                {t("settings:auditLogs.exportCsv")}
                             </Button>
                         </div>
                     </div>
                     <p className="text-sm text-text-secondary">
-                        Showing {filteredLogs.length} of {sourceLogs.length} entries.
+                        {t("settings:auditLogs.showingEntries", { filtered: filteredLogs.length, total: sourceLogs.length })}
                     </p>
                     {exportMessage.length > 0 ? (
-                        <Alert color="success" title="Export completed" variant="flat">
+                        <Alert color="success" title={t("settings:auditLogs.exportCompleted")} variant="flat">
                             {exportMessage}
                         </Alert>
                     ) : null}
@@ -422,9 +423,9 @@ export function SettingsAuditLogsPage(props: ISettingsAuditLogsPageProps = {}): 
 
             <Card>
                 <CardHeader className="flex items-center justify-between">
-                    <p className={TYPOGRAPHY.sectionTitle}>Changes list</p>
+                    <p className={TYPOGRAPHY.sectionTitle}>{t("settings:auditLogs.changesList")}</p>
                     <Chip size="sm" variant="flat">
-                        {filteredLogs.length} entries
+                        {t("settings:auditLogs.entriesCount", { count: filteredLogs.length })}
                     </Chip>
                 </CardHeader>
                 <CardBody>
@@ -433,14 +434,14 @@ export function SettingsAuditLogsPage(props: ISettingsAuditLogsPageProps = {}): 
                         columns={[
                             {
                                 accessor: (entry): string => entry.id,
-                                header: "ID",
+                                header: t("settings:auditLogs.columnId"),
                                 id: "id",
                                 pin: "left",
                                 size: 180,
                             },
                             {
                                 accessor: (entry): string => entry.actor,
-                                header: "Actor",
+                                header: t("settings:auditLogs.columnActor"),
                                 id: "actor",
                                 size: 180,
                             },
@@ -455,30 +456,30 @@ export function SettingsAuditLogsPage(props: ISettingsAuditLogsPageProps = {}): 
                                         {formatActionLabel(entry.action)}
                                     </Chip>
                                 ),
-                                header: "Action",
+                                header: t("settings:auditLogs.columnAction"),
                                 id: "action",
                                 size: 190,
                             },
                             {
                                 accessor: (entry): string => formatOccurredAt(entry.occurredAt),
-                                header: "Occurred at",
+                                header: t("settings:auditLogs.columnOccurredAt"),
                                 id: "occurredAt",
                                 size: 180,
                             },
                             {
                                 accessor: (entry): string => entry.details,
-                                header: "Details",
+                                header: t("settings:auditLogs.columnDetails"),
                                 id: "details",
                                 size: 340,
                             },
                             {
                                 accessor: (entry): string => entry.target,
-                                header: "Target",
+                                header: t("settings:auditLogs.columnTarget"),
                                 id: "target",
                                 size: 260,
                             },
                         ]}
-                        emptyMessage="No audit logs found for current filters."
+                        emptyMessage={t("settings:auditLogs.noAuditLogsFound")}
                         getRowId={(entry): string => entry.id}
                         id="settings-audit-logs-table"
                         rows={filteredLogs}

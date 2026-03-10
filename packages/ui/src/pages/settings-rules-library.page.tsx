@@ -1,4 +1,5 @@
 import { type ReactElement, useMemo, useState } from "react"
+import { useTranslation } from "react-i18next"
 
 import { Alert, Button, Card, CardBody, CardHeader, Chip, Input } from "@/components/ui"
 import { NATIVE_FORM } from "@/lib/constants/spacing"
@@ -113,6 +114,7 @@ function formatCategoryLabel(category: TRuleCategory): string {
  * @returns UI для browse/import/custom/test сценариев правил.
  */
 export function SettingsRulesLibraryPage(): ReactElement {
+    const { t } = useTranslation(["settings"])
     const [rules, setRules] = useState<ReadonlyArray<IRuleTemplate>>(PREBUILT_RULES)
     const [importedRuleIds, setImportedRuleIds] = useState<ReadonlyArray<string>>([])
     const [searchQuery, setSearchQuery] = useState("")
@@ -151,23 +153,23 @@ export function SettingsRulesLibraryPage(): ReactElement {
     const handleImportRule = (ruleId: string): void => {
         const isAlreadyImported = importedRuleIds.includes(ruleId)
         if (isAlreadyImported === true) {
-            showToastInfo("Rule already imported to the active profile.")
+            showToastInfo(t("settings:rulesLibrary.toast.ruleAlreadyImported"))
             return
         }
 
         setImportedRuleIds((previous): ReadonlyArray<string> => [...previous, ruleId])
-        showToastSuccess("Rule imported into active library.")
+        showToastSuccess(t("settings:rulesLibrary.toast.ruleImported"))
     }
 
     const handleCreateCustomRule = (): void => {
         const normalizedName = customName.trim()
         const normalizedExpression = customExpression.trim()
         if (normalizedName.length < 3) {
-            showToastError("Custom rule name should be at least 3 characters.")
+            showToastError(t("settings:rulesLibrary.toast.customRuleNameTooShort"))
             return
         }
         if (normalizedExpression.length < 3) {
-            showToastError("Custom rule expression should be at least 3 characters.")
+            showToastError(t("settings:rulesLibrary.toast.customRuleExpressionTooShort"))
             return
         }
 
@@ -190,81 +192,80 @@ export function SettingsRulesLibraryPage(): ReactElement {
         setCustomName("")
         setCustomDescription("")
         setCustomExpression("")
-        showToastSuccess(`Custom rule "${nextRule.name}" created.`)
+        showToastSuccess(t("settings:rulesLibrary.toast.customRuleCreated", { name: nextRule.name }))
     }
 
     const handleTestRule = (): void => {
         const selectedRule = rules.find((rule): boolean => rule.id === testRuleId)
         if (selectedRule === undefined) {
-            showToastError("Select a rule before running test.")
+            showToastError(t("settings:rulesLibrary.toast.selectRuleBeforeTest"))
             return
         }
 
         const normalizedInput = testInput.trim()
         if (normalizedInput.length === 0) {
-            showToastError("Provide a sample snippet for rule test.")
+            showToastError(t("settings:rulesLibrary.toast.provideSampleSnippet"))
             return
         }
 
         const isMatched = normalizedInput.includes(selectedRule.testPattern)
         setTestResult({
             message: isMatched
-                ? `Pattern "${selectedRule.testPattern}" was detected in sample input.`
-                : `Pattern "${selectedRule.testPattern}" was not detected in sample input.`,
+                ? t("settings:rulesLibrary.patternDetected", { pattern: selectedRule.testPattern })
+                : t("settings:rulesLibrary.patternNotDetected", { pattern: selectedRule.testPattern }),
             status: isMatched ? "passed" : "failed",
         })
-        showToastInfo("Rule test finished.")
+        showToastInfo(t("settings:rulesLibrary.toast.ruleTestFinished"))
     }
 
     return (
         <section className="space-y-4">
-            <h1 className={TYPOGRAPHY.pageTitle}>Rules library</h1>
+            <h1 className={TYPOGRAPHY.pageTitle}>{t("settings:rulesLibrary.pageTitle")}</h1>
             <p className={TYPOGRAPHY.pageSubtitle}>
-                Browse pre-built rules, import to your workspace, create custom policies and test
-                them on sample snippets.
+                {t("settings:rulesLibrary.pageSubtitle")}
             </p>
 
             <div className="grid gap-4 md:grid-cols-3">
                 <Card>
                     <CardHeader>
-                        <p className="text-sm font-semibold text-foreground">Catalog</p>
+                        <p className="text-sm font-semibold text-foreground">{t("settings:rulesLibrary.catalog")}</p>
                     </CardHeader>
                     <CardBody>
                         <p className="text-2xl font-semibold text-foreground">{rules.length}</p>
-                        <p className="text-xs text-text-secondary">Total rules</p>
+                        <p className="text-xs text-text-secondary">{t("settings:rulesLibrary.totalRules")}</p>
                     </CardBody>
                 </Card>
                 <Card>
                     <CardHeader>
-                        <p className="text-sm font-semibold text-foreground">Imported</p>
+                        <p className="text-sm font-semibold text-foreground">{t("settings:rulesLibrary.imported")}</p>
                     </CardHeader>
                     <CardBody>
                         <p className="text-2xl font-semibold text-foreground">{importedCount}</p>
-                        <p className="text-xs text-text-secondary">Rules in active profile</p>
+                        <p className="text-xs text-text-secondary">{t("settings:rulesLibrary.rulesInActiveProfile")}</p>
                     </CardBody>
                 </Card>
                 <Card>
                     <CardHeader>
-                        <p className="text-sm font-semibold text-foreground">Custom</p>
+                        <p className="text-sm font-semibold text-foreground">{t("settings:rulesLibrary.custom")}</p>
                     </CardHeader>
                     <CardBody>
                         <p className="text-2xl font-semibold text-foreground">
                             {rules.filter((rule): boolean => rule.source === "custom").length}
                         </p>
-                        <p className="text-xs text-text-secondary">Team-defined policy rules</p>
+                        <p className="text-xs text-text-secondary">{t("settings:rulesLibrary.teamDefinedPolicyRules")}</p>
                     </CardBody>
                 </Card>
             </div>
 
             <Card>
                 <CardHeader>
-                    <p className={TYPOGRAPHY.sectionTitle}>Browse pre-built rules</p>
+                    <p className={TYPOGRAPHY.sectionTitle}>{t("settings:rulesLibrary.browsePrebuiltRules")}</p>
                 </CardHeader>
                 <CardBody className="space-y-3">
                     <div className="grid gap-3 md:grid-cols-[1fr_220px]">
                         <Input
-                            label="Search rules"
-                            placeholder="Search by name, description or expression"
+                            label={t("settings:rulesLibrary.searchRules")}
+                            placeholder={t("settings:rulesLibrary.searchPlaceholder")}
                             value={searchQuery}
                             onValueChange={setSearchQuery}
                         />
@@ -290,7 +291,7 @@ export function SettingsRulesLibraryPage(): ReactElement {
                                 (option): ReactElement => (
                                     <option key={option} value={option}>
                                         {option === "all"
-                                            ? "All categories"
+                                            ? t("settings:rulesLibrary.allCategories")
                                             : formatCategoryLabel(option)}
                                     </option>
                                 ),
@@ -338,7 +339,7 @@ export function SettingsRulesLibraryPage(): ReactElement {
                                                 handleImportRule(rule.id)
                                             }}
                                         >
-                                            {isImported ? "Imported" : "Import"}
+                                            {isImported ? t("settings:rulesLibrary.importedButton") : t("settings:rulesLibrary.importButton")}
                                         </Button>
                                     </div>
                                 </li>
@@ -351,18 +352,18 @@ export function SettingsRulesLibraryPage(): ReactElement {
             <div className="grid gap-4 xl:grid-cols-2">
                 <Card>
                     <CardHeader>
-                        <p className={TYPOGRAPHY.sectionTitle}>Create custom rule</p>
+                        <p className={TYPOGRAPHY.sectionTitle}>{t("settings:rulesLibrary.createCustomRule")}</p>
                     </CardHeader>
                     <CardBody className="space-y-3">
                         <Input
-                            label="Rule name"
-                            placeholder="Block direct production writes"
+                            label={t("settings:rulesLibrary.ruleName")}
+                            placeholder={t("settings:rulesLibrary.ruleNamePlaceholder")}
                             value={customName}
                             onValueChange={setCustomName}
                         />
                         <Input
-                            label="Description"
-                            placeholder="Short explanation for reviewers"
+                            label={t("settings:rulesLibrary.description")}
+                            placeholder={t("settings:rulesLibrary.descriptionPlaceholder")}
                             value={customDescription}
                             onValueChange={setCustomDescription}
                         />
@@ -383,26 +384,26 @@ export function SettingsRulesLibraryPage(): ReactElement {
                                 }
                             }}
                         >
-                            <option value="security">Security</option>
-                            <option value="architecture">Architecture</option>
-                            <option value="performance">Performance</option>
-                            <option value="style">Style</option>
+                            <option value="security">{t("settings:rulesLibrary.categorySecurity")}</option>
+                            <option value="architecture">{t("settings:rulesLibrary.categoryArchitecture")}</option>
+                            <option value="performance">{t("settings:rulesLibrary.categoryPerformance")}</option>
+                            <option value="style">{t("settings:rulesLibrary.categoryStyle")}</option>
                         </select>
                         <Input
-                            label="Rule expression"
-                            placeholder="deny(secret in diff)"
+                            label={t("settings:rulesLibrary.ruleExpression")}
+                            placeholder={t("settings:rulesLibrary.ruleExpressionPlaceholder")}
                             value={customExpression}
                             onValueChange={setCustomExpression}
                         />
                         <div className="flex justify-end">
-                            <Button onPress={handleCreateCustomRule}>Create custom rule</Button>
+                            <Button onPress={handleCreateCustomRule}>{t("settings:rulesLibrary.createCustomRule")}</Button>
                         </div>
                     </CardBody>
                 </Card>
 
                 <Card>
                     <CardHeader>
-                        <p className={TYPOGRAPHY.sectionTitle}>Test rules</p>
+                        <p className={TYPOGRAPHY.sectionTitle}>{t("settings:rulesLibrary.testRules")}</p>
                     </CardHeader>
                     <CardBody className="space-y-3">
                         <select
@@ -431,7 +432,7 @@ export function SettingsRulesLibraryPage(): ReactElement {
                                 className="text-sm text-text-tertiary"
                                 htmlFor="rule-test-sample-input"
                             >
-                                Sample input
+                                {t("settings:rulesLibrary.sampleInput")}
                             </label>
                             <textarea
                                 aria-label="Sample input"
@@ -445,7 +446,7 @@ export function SettingsRulesLibraryPage(): ReactElement {
                         </div>
                         <div className="flex justify-end">
                             <Button variant="flat" onPress={handleTestRule}>
-                                Test selected rule
+                                {t("settings:rulesLibrary.testSelectedRule")}
                             </Button>
                         </div>
                         {testResult === undefined ? null : (
@@ -453,8 +454,8 @@ export function SettingsRulesLibraryPage(): ReactElement {
                                 color={testResult.status === "passed" ? "success" : "warning"}
                                 title={
                                     testResult.status === "passed"
-                                        ? "Rule matched"
-                                        : "Rule not matched"
+                                        ? t("settings:rulesLibrary.ruleMatched")
+                                        : t("settings:rulesLibrary.ruleNotMatched")
                                 }
                                 variant="flat"
                             >
