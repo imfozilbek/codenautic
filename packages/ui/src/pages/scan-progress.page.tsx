@@ -1,5 +1,6 @@
 import type { ReactElement } from "react"
 import { useEffect, useMemo, useState } from "react"
+import { useTranslation } from "react-i18next"
 
 import { Alert, Button, Card, CardBody, CardHeader } from "@/components/ui"
 import { TYPOGRAPHY } from "@/lib/constants/typography"
@@ -183,7 +184,7 @@ function mapPhaseState(
                 return {
                     isCompleted: false,
                     isActive: index === 0,
-                    message: "Ожидание",
+                    message: "",
                     phase,
                 }
             }
@@ -192,7 +193,7 @@ function mapPhaseState(
                 return {
                     isCompleted: true,
                     isActive: false,
-                    message: "Завершено",
+                    message: "",
                     phase,
                 }
             }
@@ -201,7 +202,7 @@ function mapPhaseState(
                 return {
                     isCompleted: false,
                     isActive: false,
-                    message: "Ожидание",
+                    message: "",
                     phase,
                 }
             }
@@ -237,7 +238,7 @@ function buildProgressState(state: IUseScanProgressState): {
     return {
         phaseStates: latest === undefined ? [] : mapPhaseState(latest.phase, percent, state.events),
         etaSeconds,
-        currentMessage: latest?.message ?? "Ожидание начала скана",
+        currentMessage: latest?.message ?? "",
         isDone,
         percent,
     }
@@ -314,11 +315,11 @@ function useScanProgressEvents(
 
 function formatSecondsToMinutes(totalSeconds: number): string {
     if (totalSeconds <= 0) {
-        return "менее минуты"
+        return "lessThanMinute"
     }
 
     const minutes = Math.max(1, Math.ceil(totalSeconds / 60))
-    return `~${minutes} мин`
+    return String(minutes)
 }
 
 function formatLogTime(value: string): string {
@@ -345,6 +346,7 @@ function formatProgressLabel(percent: number): string {
  * @returns Экран реального прогресса сканирования.
  */
 export function ScanProgressPage(props: IScanProgressPageProps): ReactElement {
+    const { t } = useTranslation(["system"])
     const jobId =
         props.jobId?.trim().length === 0 ? DEFAULT_JOB_ID : (props.jobId ?? DEFAULT_JOB_ID)
     const state = useScanProgressEvents(jobId, {
@@ -361,31 +363,54 @@ export function ScanProgressPage(props: IScanProgressPageProps): ReactElement {
               : "bg-purple-500"
     const batchRepositoriesCount = props.targetRepositories?.length ?? 0
 
+    const etaDisplay = useMemo((): string => {
+        if (progressState.etaSeconds === undefined) {
+            return t("system:scanProgress.etaDash")
+        }
+        const raw = formatSecondsToMinutes(progressState.etaSeconds)
+        if (raw === "lessThanMinute") {
+            return t("system:scanProgress.lessThanMinute")
+        }
+        return (t as unknown as (key: string, options: Record<string, string>) => string)(
+            "system:scanProgress.etaMinutes",
+            { minutes: raw },
+        )
+    }, [progressState.etaSeconds, t])
+
     return (
         <section className="space-y-4">
-            <h1 className={TYPOGRAPHY.pageTitle}>Scan Progress</h1>
+            <h1 className={TYPOGRAPHY.pageTitle}>{t("system:scanProgress.pageTitle")}</h1>
             <p className={TYPOGRAPHY.pageSubtitle}>
-                Отслеживайте жизненный цикл скана "{jobId}" в реальном времени.
+                {(t as unknown as (key: string, options: Record<string, string>) => string)(
+                    "system:scanProgress.pageSubtitle",
+                    { jobId },
+                )}
             </p>
             {batchRepositoriesCount > 1 ? (
                 <p className="text-sm text-muted-foreground">
-                    Batch onboarding: {String(batchRepositoriesCount)} repositories are tracked in
-                    this run.
+                    {(t as unknown as (key: string, options: Record<string, string>) => string)(
+                        "system:scanProgress.batchOnboarding",
+                        { count: String(batchRepositoriesCount) },
+                    )}
                 </p>
             ) : null}
 
             <Card>
                 <CardHeader>
-                    <p className="text-sm font-semibold text-foreground">Текущий статус</p>
+                    <p className="text-sm font-semibold text-foreground">
+                        {t("system:scanProgress.currentStatus")}
+                    </p>
                 </CardHeader>
                 <CardBody className="space-y-4">
                     <div className="rounded-lg border border-border bg-surface p-3">
                         <p className="mb-2 text-sm font-semibold text-foreground">
-                            {progressState.currentMessage}
+                            {progressState.currentMessage.length > 0
+                                ? progressState.currentMessage
+                                : t("system:scanProgress.waitingForScanStart")}
                         </p>
                         <div className="h-3 w-full rounded-full bg-surface-muted">
                             <div
-                                aria-label="scan progress bar"
+                                aria-label={t("system:scanProgress.progressBarLabel")}
                                 aria-valuemax={100}
                                 aria-valuemin={0}
                                 aria-valuenow={progressState.percent}
@@ -395,12 +420,23 @@ export function ScanProgressPage(props: IScanProgressPageProps): ReactElement {
                             />
                         </div>
                         <div className="mt-2 flex items-center justify-between text-sm text-muted-foreground">
-                            <span>Прогресс: {formatProgressLabel(progressState.percent)}</span>
                             <span>
-                                ETA:{" "}
-                                {progressState.etaSeconds === undefined
-                                    ? "—"
-                                    : formatSecondsToMinutes(progressState.etaSeconds)}
+                                {(
+                                    t as unknown as (
+                                        key: string,
+                                        options: Record<string, string>,
+                                    ) => string
+                                )("system:scanProgress.progressLabel", {
+                                    percent: String(progressState.percent),
+                                })}
+                            </span>
+                            <span>
+                                {(
+                                    t as unknown as (
+                                        key: string,
+                                        options: Record<string, string>,
+                                    ) => string
+                                )("system:scanProgress.etaLabel", { eta: etaDisplay })}
                             </span>
                         </div>
                     </div>
@@ -423,12 +459,18 @@ export function ScanProgressPage(props: IScanProgressPageProps): ReactElement {
                                     </p>
                                     <p className="text-sm font-semibold text-foreground">
                                         {phase.isCompleted
-                                            ? "Готово"
+                                            ? t("system:scanProgress.phaseDone")
                                             : phase.isActive
-                                              ? "Выполняется"
-                                              : "Ожидает"}
+                                              ? t("system:scanProgress.phaseRunning")
+                                              : t("system:scanProgress.phaseWaiting")}
                                     </p>
-                                    <p className="text-xs text-muted-foreground">{phase.message}</p>
+                                    <p className="text-xs text-muted-foreground">
+                                        {phase.message.length > 0
+                                            ? phase.message
+                                            : phase.isCompleted
+                                              ? t("system:scanProgress.phaseMessageDone")
+                                              : t("system:scanProgress.phaseMessageWaiting")}
+                                    </p>
                                 </article>
                             ),
                         )}
@@ -436,7 +478,7 @@ export function ScanProgressPage(props: IScanProgressPageProps): ReactElement {
 
                     <div className="flex flex-wrap gap-2">
                         <Button onPress={props.onRetry} size="sm" type="button" variant="light">
-                            Retry
+                            {t("system:scanProgress.retryButton")}
                         </Button>
                         <Button
                             color="danger"
@@ -445,7 +487,7 @@ export function ScanProgressPage(props: IScanProgressPageProps): ReactElement {
                             type="button"
                             variant="ghost"
                         >
-                            Cancel
+                            {t("system:scanProgress.cancelButton")}
                         </Button>
                         {progressState.isDone && props.repositoryId !== undefined ? (
                             <Button
@@ -455,7 +497,7 @@ export function ScanProgressPage(props: IScanProgressPageProps): ReactElement {
                                 type="button"
                                 variant="solid"
                             >
-                                Open repository overview
+                                {t("system:scanProgress.openRepositoryOverview")}
                             </Button>
                         ) : null}
                     </div>
@@ -465,15 +507,17 @@ export function ScanProgressPage(props: IScanProgressPageProps): ReactElement {
             <Card>
                 <CardHeader>
                     <div className="flex items-center justify-between">
-                        <p className="text-sm font-semibold text-foreground">Логи этапов</p>
+                        <p className="text-sm font-semibold text-foreground">
+                            {t("system:scanProgress.stageLogs")}
+                        </p>
                         <p
                             className={`text-xs ${progressState.isDone ? "text-success" : "text-muted-foreground"}`}
                         >
                             {progressState.isDone
-                                ? "Завершено"
+                                ? t("system:scanProgress.statusDone")
                                 : state.isLive
-                                  ? "ОБНОВЛЯЕТСЯ"
-                                  : "ОЖИДАЕТ"}
+                                  ? t("system:scanProgress.statusUpdating")
+                                  : t("system:scanProgress.statusWaiting")}
                         </p>
                     </div>
                 </CardHeader>
@@ -482,10 +526,14 @@ export function ScanProgressPage(props: IScanProgressPageProps): ReactElement {
                         <Alert color="danger">{state.errorMessage}</Alert>
                     ) : null}
 
-                    <ul aria-label="Scan logs" className="space-y-2 text-sm" role="log">
+                    <ul
+                        aria-label={t("system:scanProgress.scanLogsLabel")}
+                        className="space-y-2 text-sm"
+                        role="log"
+                    >
                         {state.events.length === 0 ? (
                             <li className="rounded-md border border-border p-3 text-muted-foreground">
-                                Пока нет событий сканирования.
+                                {t("system:scanProgress.noEventsYet")}
                             </li>
                         ) : null}
                         {state.events.map(

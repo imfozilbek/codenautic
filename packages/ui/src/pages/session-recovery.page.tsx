@@ -1,4 +1,5 @@
 import { type ReactElement } from "react"
+import { useTranslation } from "react-i18next"
 import { useNavigate } from "@tanstack/react-router"
 
 import { Alert, Button, Card, CardBody, CardHeader } from "@/components/ui"
@@ -10,31 +11,37 @@ import { TYPOGRAPHY } from "@/lib/constants/typography"
  * @returns Session recovery flow с шагами re-auth и возврата в рабочий контекст.
  */
 export function SessionRecoveryPage(): ReactElement {
+    const { t } = useTranslation(["system"])
     const navigate = useNavigate()
 
     return (
         <section className="space-y-4">
-            <h1 className={TYPOGRAPHY.pageTitle}>Session recovery flow</h1>
+            <h1 className={TYPOGRAPHY.pageTitle}>
+                {t("system:sessionRecovery.pageTitle")}
+            </h1>
             <p className={TYPOGRAPHY.pageSubtitle}>
-                Restore authentication and continue from saved workflow state after session expiry.
+                {t("system:sessionRecovery.pageSubtitle")}
             </p>
 
-            <Alert color="primary" title="Session guidance" variant="flat">
-                Re-authenticate first, then return to your active review, issue, or onboarding
-                context.
+            <Alert
+                color="primary"
+                title={t("system:sessionRecovery.guidanceTitle")}
+                variant="flat"
+            >
+                {t("system:sessionRecovery.guidanceMessage")}
             </Alert>
 
             <Card>
                 <CardHeader>
-                    <p className={TYPOGRAPHY.sectionTitle}>Recovery steps</p>
+                    <p className={TYPOGRAPHY.sectionTitle}>
+                        {t("system:sessionRecovery.recoveryStepsTitle")}
+                    </p>
                 </CardHeader>
                 <CardBody className="space-y-3">
                     <ol className="list-decimal space-y-2 pl-5 text-sm text-foreground/85">
-                        <li>
-                            Open organization settings and verify active session and tenant context.
-                        </li>
-                        <li>Re-login if token is expired or tenant was switched by policy.</li>
-                        <li>Return to diagnostics and confirm auth check status is healthy.</li>
+                        <li>{t("system:sessionRecovery.step1")}</li>
+                        <li>{t("system:sessionRecovery.step2")}</li>
+                        <li>{t("system:sessionRecovery.step3")}</li>
                     </ol>
                     <div className="flex flex-wrap gap-2">
                         <Button
@@ -46,7 +53,7 @@ export function SessionRecoveryPage(): ReactElement {
                                 })
                             }}
                         >
-                            Open organization settings
+                            {t("system:sessionRecovery.openOrganizationSettings")}
                         </Button>
                         <Button
                             size="sm"
@@ -57,7 +64,7 @@ export function SessionRecoveryPage(): ReactElement {
                                 })
                             }}
                         >
-                            Re-authenticate
+                            {t("system:sessionRecovery.reAuthenticate")}
                         </Button>
                         <Button
                             size="sm"
@@ -68,7 +75,7 @@ export function SessionRecoveryPage(): ReactElement {
                                 })
                             }}
                         >
-                            Back to diagnostics
+                            {t("system:sessionRecovery.backToDiagnostics")}
                         </Button>
                     </div>
                 </CardBody>

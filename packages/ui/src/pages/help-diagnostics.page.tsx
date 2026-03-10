@@ -1,4 +1,5 @@
 import { type ReactElement, useMemo, useState } from "react"
+import { useTranslation } from "react-i18next"
 import { useNavigate } from "@tanstack/react-router"
 
 import { Alert, Button, Card, CardBody, CardHeader, Chip, Textarea } from "@/components/ui"
@@ -15,10 +16,10 @@ interface IHelpArticle {
     readonly id: string
     /** Категория статьи. */
     readonly category: TArticleCategory
-    /** Заголовок статьи. */
-    readonly title: string
-    /** Краткое описание. */
-    readonly summary: string
+    /** Ключ заголовка статьи. */
+    readonly titleKey: string
+    /** Ключ краткого описания. */
+    readonly summaryKey: string
     /** Deep-link в экран или раздел диагностики. */
     readonly href: string
 }
@@ -26,12 +27,14 @@ interface IHelpArticle {
 interface IDiagnosticCheck {
     /** Идентификатор проверки. */
     readonly id: string
-    /** Название проверки. */
-    readonly label: string
+    /** Ключ названия проверки. */
+    readonly labelKey: string
     /** Статус проверки. */
     readonly status: TDiagnosticStatus
-    /** Подробность результата. */
-    readonly details: string
+    /** Ключ или строка подробности результата. */
+    readonly detailsKey: string
+    /** Параметры интерполяции для detailsKey. */
+    readonly detailsParams?: Record<string, string>
     /** Ссылка на релевантную статью. */
     readonly articleHref: string
 }
@@ -39,10 +42,10 @@ interface IDiagnosticCheck {
 interface IDiagnosticSuggestedAction {
     /** Идентификатор действия. */
     readonly id: string
-    /** Заголовок действия. */
-    readonly label: string
-    /** Описание шага. */
-    readonly description: string
+    /** Ключ заголовка действия. */
+    readonly labelKey: string
+    /** Ключ описания шага. */
+    readonly descriptionKey: string
     /** Куда ведёт действие. */
     readonly path?:
         | "/dashboard/code-city"
@@ -57,73 +60,73 @@ const HELP_ARTICLES: ReadonlyArray<IHelpArticle> = [
         category: "auth",
         href: "/settings-organization",
         id: "help-auth-401",
-        summary: "Что проверить при истекшей сессии и ошибках доступа 401/403.",
-        title: "Auth session recovery",
+        summaryKey: "system:helpDiagnostics.articles.authSessionRecoverySummary",
+        titleKey: "system:helpDiagnostics.articles.authSessionRecovery",
     },
     {
         category: "network",
         href: "/settings-integrations",
         id: "help-network-timeout",
-        summary: "Диагностика сетевых таймаутов и проблем с API недоступностью.",
-        title: "Network timeout diagnostics",
+        summaryKey: "system:helpDiagnostics.articles.networkTimeoutDiagnosticsSummary",
+        titleKey: "system:helpDiagnostics.articles.networkTimeoutDiagnostics",
     },
     {
         category: "providers",
         href: "/settings-integrations",
         id: "help-provider-outage",
-        summary: "Проверка деградации LLM/Git провайдеров и fallback стратегий.",
-        title: "Provider outage playbook",
+        summaryKey: "system:helpDiagnostics.articles.providerOutagePlaybookSummary",
+        titleKey: "system:helpDiagnostics.articles.providerOutagePlaybook",
     },
     {
         category: "incidents",
         href: "/settings-jobs",
         id: "help-scan-failure",
-        summary: "Как расследовать scan/review worker failures и перезапустить jobs.",
-        title: "Scan failure triage",
+        summaryKey: "system:helpDiagnostics.articles.scanFailureTriageSummary",
+        titleKey: "system:helpDiagnostics.articles.scanFailureTriage",
     },
     {
         category: "rendering",
         href: "/dashboard/code-city",
         id: "help-webgl",
-        summary: "Проверка readiness браузера и WebGL для CodeCity экранов.",
-        title: "WebGL readiness and fallback",
+        summaryKey: "system:helpDiagnostics.articles.webglReadinessSummary",
+        titleKey: "system:helpDiagnostics.articles.webglReadiness",
     },
 ]
 
 const INITIAL_CHECKS: ReadonlyArray<IDiagnosticCheck> = [
     {
         articleHref: "/settings-organization",
-        details: "Not run yet.",
+        detailsKey: "system:helpDiagnostics.checks.notRunYet",
         id: "diag-auth",
-        label: "Auth/session state",
+        labelKey: "system:helpDiagnostics.checks.authSessionLabel",
         status: "pending",
     },
     {
         articleHref: "/settings-integrations",
-        details: "Not run yet.",
+        detailsKey: "system:helpDiagnostics.checks.notRunYet",
         id: "diag-network",
-        label: "Network availability",
+        labelKey: "system:helpDiagnostics.checks.networkLabel",
         status: "pending",
     },
     {
         articleHref: "/settings-integrations",
-        details: "Not run yet.",
+        detailsKey: "system:helpDiagnostics.checks.notRunYet",
         id: "diag-provider",
-        label: "Provider connectivity",
+        labelKey: "system:helpDiagnostics.checks.providerLabel",
         status: "pending",
     },
     {
         articleHref: "/settings",
-        details: "Not run yet.",
+        detailsKey: "system:helpDiagnostics.checks.notRunYet",
         id: "diag-flags",
-        label: "Feature flags state",
+        labelKey: "system:helpDiagnostics.checks.featureFlagsLabel",
         status: "pending",
     },
     {
         articleHref: "/dashboard/code-city",
-        details: "Not run yet.",
+        detailsKey: "system:helpDiagnostics.checks.notRunYet",
         id: "diag-webgl",
-        label: "Browser/WebGL readiness",
+        labelKey: "system:helpDiagnostics.checks.webglLabel",
         status: "pending",
     },
 ]
@@ -197,21 +200,35 @@ export function runDiagnosticsChecks(
         return "error"
     })()
 
-    const providerDetails = (() => {
+    const providerDetailsKey = (() => {
         if (snapshot.providersPending === true) {
-            return "Provider status is still loading. Re-run diagnostics in a moment."
+            return "system:helpDiagnostics.diagnosticDetails.providerLoading"
         }
         if (snapshot.providersErrorMessage !== undefined) {
-            return `Provider status unavailable: ${snapshot.providersErrorMessage}`
+            return "system:helpDiagnostics.diagnosticDetails.providerUnavailable"
         }
         if (snapshot.providerDegradedCount > 0) {
-            return `Detected degraded providers: ${String(snapshot.providerDegradedCount)}.`
+            return "system:helpDiagnostics.diagnosticDetails.providerDegraded"
         }
         if (snapshot.providerConnectedCount > 0) {
-            return `Provider connectivity healthy for ${String(snapshot.providerConnectedCount)} providers.`
+            return "system:helpDiagnostics.diagnosticDetails.providerHealthy"
         }
-        return "No connected provider detected. Check provider configuration."
+        return "system:helpDiagnostics.diagnosticDetails.providerNone"
     })()
+
+    const providerDetailsParams: Record<string, string> | undefined =
+        ((): Record<string, string> | undefined => {
+            if (snapshot.providersErrorMessage !== undefined) {
+                return { errorMessage: snapshot.providersErrorMessage }
+            }
+            if (snapshot.providerDegradedCount > 0) {
+                return { count: String(snapshot.providerDegradedCount) }
+            }
+            if (snapshot.providerConnectedCount > 0) {
+                return { count: String(snapshot.providerConnectedCount) }
+            }
+            return undefined
+        })()
 
     const featureFlagsStatus: TDiagnosticStatus = (() => {
         if (snapshot.featureFlagsPending === true) {
@@ -223,58 +240,65 @@ export function runDiagnosticsChecks(
         return snapshot.featureFlagsReady ? "ok" : "warning"
     })()
 
-    const featureFlagsDetails = (() => {
+    const featureFlagsDetailsKey = (() => {
         if (snapshot.featureFlagsPending === true) {
-            return "Feature flags are still loading."
+            return "system:helpDiagnostics.diagnosticDetails.featureFlagsLoading"
         }
         if (snapshot.featureFlagsErrorMessage !== undefined) {
-            return `Feature flags unavailable: ${snapshot.featureFlagsErrorMessage}`
+            return "system:helpDiagnostics.diagnosticDetails.featureFlagsUnavailable"
         }
         return snapshot.featureFlagsReady
-            ? "Feature flags loaded and evaluated."
-            : "Feature flags unavailable; defaults may be applied."
+            ? "system:helpDiagnostics.diagnosticDetails.featureFlagsLoaded"
+            : "system:helpDiagnostics.diagnosticDetails.featureFlagsDefaults"
     })()
+
+    const featureFlagsDetailsParams =
+        snapshot.featureFlagsErrorMessage !== undefined
+            ? { errorMessage: snapshot.featureFlagsErrorMessage }
+            : undefined
 
     return [
         {
             articleHref: "/settings-organization",
-            details: snapshot.hasSessionToken
-                ? "Session token is present in local storage."
-                : "No session token found. Re-authentication may be required.",
+            detailsKey: snapshot.hasSessionToken
+                ? "system:helpDiagnostics.diagnosticDetails.sessionTokenPresent"
+                : "system:helpDiagnostics.diagnosticDetails.sessionTokenMissing",
             id: "diag-auth",
-            label: "Auth/session state",
+            labelKey: "system:helpDiagnostics.checks.authSessionLabel",
             status: snapshot.hasSessionToken ? "ok" : "warning",
         },
         {
             articleHref: "/settings-integrations",
-            details: snapshot.networkOnline
-                ? "Network looks reachable from browser context."
-                : "Browser reports offline network state.",
+            detailsKey: snapshot.networkOnline
+                ? "system:helpDiagnostics.diagnosticDetails.networkReachable"
+                : "system:helpDiagnostics.diagnosticDetails.networkOffline",
             id: "diag-network",
-            label: "Network availability",
+            labelKey: "system:helpDiagnostics.checks.networkLabel",
             status: snapshot.networkOnline ? "ok" : "error",
         },
         {
             articleHref: "/settings-integrations",
-            details: providerDetails,
+            detailsKey: providerDetailsKey,
+            detailsParams: providerDetailsParams,
             id: "diag-provider",
-            label: "Provider connectivity",
+            labelKey: "system:helpDiagnostics.checks.providerLabel",
             status: providerStatus,
         },
         {
             articleHref: "/settings",
-            details: featureFlagsDetails,
+            detailsKey: featureFlagsDetailsKey,
+            detailsParams: featureFlagsDetailsParams,
             id: "diag-flags",
-            label: "Feature flags state",
+            labelKey: "system:helpDiagnostics.checks.featureFlagsLabel",
             status: featureFlagsStatus,
         },
         {
             articleHref: "/dashboard/code-city",
-            details: snapshot.webGlReady
-                ? "WebGL context is available."
-                : "WebGL context unavailable, fallback renderer recommended.",
+            detailsKey: snapshot.webGlReady
+                ? "system:helpDiagnostics.diagnosticDetails.webglAvailable"
+                : "system:helpDiagnostics.diagnosticDetails.webglUnavailable",
             id: "diag-webgl",
-            label: "Browser/WebGL readiness",
+            labelKey: "system:helpDiagnostics.checks.webglLabel",
             status: snapshot.webGlReady ? "ok" : "warning",
         },
     ]
@@ -291,33 +315,33 @@ function buildSuggestedActions(
 
     if (authCheck?.status === "warning" || authCheck?.status === "error") {
         actions.push({
-            description: "Re-authenticate and restore draft/session state before retrying.",
+            descriptionKey: "system:helpDiagnostics.actions.sessionRecoveryDescription",
             id: "action-session-recovery",
-            label: "Open session recovery",
+            labelKey: "system:helpDiagnostics.actions.sessionRecoveryLabel",
             path: "/session-recovery",
         })
     }
     if (networkCheck?.status === "error") {
         actions.push({
-            description: "Check connectivity and external source settings for failed requests.",
+            descriptionKey: "system:helpDiagnostics.actions.networkRecoveryDescription",
             id: "action-network-recovery",
-            label: "Open integration diagnostics",
+            labelKey: "system:helpDiagnostics.actions.networkRecoveryLabel",
             path: "/settings-integrations",
         })
     }
     if (providerCheck?.status === "warning" || providerCheck?.status === "error") {
         actions.push({
-            description: "Switch provider fallback and inspect degradation timeline.",
+            descriptionKey: "system:helpDiagnostics.actions.providerRecoveryDescription",
             id: "action-provider-recovery",
-            label: "Open degradation console",
+            labelKey: "system:helpDiagnostics.actions.providerRecoveryLabel",
             path: "/settings-provider-degradation",
         })
     }
     if (webglCheck?.status === "warning" || webglCheck?.status === "error") {
         actions.push({
-            description: "Use safe fallback renderer or validate browser WebGL support.",
+            descriptionKey: "system:helpDiagnostics.actions.webglRecoveryDescription",
             id: "action-webgl-recovery",
-            label: "Open CodeCity fallback check",
+            labelKey: "system:helpDiagnostics.actions.webglRecoveryLabel",
             path: "/dashboard/code-city",
         })
     }
@@ -325,9 +349,9 @@ function buildSuggestedActions(
     if (actions.length === 0) {
         return [
             {
-                description: "No blocking issues detected. Continue your workflow.",
+                descriptionKey: "system:helpDiagnostics.actions.healthyDescription",
                 id: "action-healthy",
-                label: "Diagnostics are healthy",
+                labelKey: "system:helpDiagnostics.actions.healthyLabel",
             },
         ]
     }
@@ -341,6 +365,7 @@ function buildSuggestedActions(
  * @returns Экран поиска help-статей, запуск диагностики и support bundle.
  */
 export function HelpDiagnosticsPage(): ReactElement {
+    const { t } = useTranslation(["system"])
     const navigate = useNavigate()
     const { featureFlagsQuery: featureFlags } = useFeatureFlagsQuery()
     const externalContext = useExternalContext({
@@ -351,6 +376,8 @@ export function HelpDiagnosticsPage(): ReactElement {
     const [checks, setChecks] = useState<ReadonlyArray<IDiagnosticCheck>>(INITIAL_CHECKS)
     const [supportBundle, setSupportBundle] = useState<string>("")
     const [bundleMessage, setBundleMessage] = useState<string>("")
+
+    const tDynamic = t as unknown as (key: string, options?: Record<string, string>) => string
 
     const sourceContext = useMemo((): string => {
         if (typeof window === "undefined") {
@@ -364,13 +391,15 @@ export function HelpDiagnosticsPage(): ReactElement {
         const normalizedQuery = normalize(search)
         return HELP_ARTICLES.filter((article): boolean => {
             const categoryMatches = category === "all" || article.category === category
+            const translatedTitle = normalize(tDynamic(article.titleKey))
+            const translatedSummary = normalize(tDynamic(article.summaryKey))
             const queryMatches =
                 normalizedQuery.length === 0 ||
-                normalize(article.title).includes(normalizedQuery) ||
-                normalize(article.summary).includes(normalizedQuery)
+                translatedTitle.includes(normalizedQuery) ||
+                translatedSummary.includes(normalizedQuery)
             return categoryMatches && queryMatches
         })
-    }, [category, search])
+    }, [category, search, tDynamic])
     const suggestedActions = useMemo((): ReadonlyArray<IDiagnosticSuggestedAction> => {
         return buildSuggestedActions(checks)
     }, [checks])
@@ -455,35 +484,40 @@ export function HelpDiagnosticsPage(): ReactElement {
         }
 
         setSupportBundle(JSON.stringify(payload, null, 2))
-        setBundleMessage("Redacted support bundle is ready to attach to support ticket.")
+        setBundleMessage(t("system:helpDiagnostics.bundleReadyMessage"))
     }
 
     return (
         <section className="space-y-4">
-            <h1 className={TYPOGRAPHY.pageTitle}>Help & diagnostics center</h1>
+            <h1 className={TYPOGRAPHY.pageTitle}>{t("system:helpDiagnostics.pageTitle")}</h1>
             <p className={TYPOGRAPHY.pageSubtitle}>
-                Search help knowledge base, run diagnostics checks, and generate a redacted support
-                bundle without losing workflow context.
+                {t("system:helpDiagnostics.pageSubtitle")}
             </p>
 
             {sourceContext === "error-fallback" ? (
-                <Alert color="warning" title="Opened from error state" variant="flat">
-                    You were redirected from a route error. Start diagnostics below to investigate.
+                <Alert
+                    color="warning"
+                    title={t("system:helpDiagnostics.errorFallbackTitle")}
+                    variant="flat"
+                >
+                    {t("system:helpDiagnostics.errorFallbackMessage")}
                 </Alert>
             ) : null}
 
             <Card>
                 <CardHeader>
-                    <p className={TYPOGRAPHY.sectionTitle}>Knowledge base search</p>
+                    <p className={TYPOGRAPHY.sectionTitle}>
+                        {t("system:helpDiagnostics.knowledgeBaseTitle")}
+                    </p>
                 </CardHeader>
                 <CardBody className="space-y-3">
                     <div className="grid gap-3 md:grid-cols-[1fr_220px]">
                         <label className="flex flex-col gap-1 text-sm text-text-tertiary">
-                            Search
+                            {t("system:helpDiagnostics.searchLabel")}
                             <input
-                                aria-label="Help search"
+                                aria-label={t("system:helpDiagnostics.searchLabel")}
                                 className="rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground"
-                                placeholder="Find article or issue type"
+                                placeholder={t("system:helpDiagnostics.searchPlaceholder")}
                                 value={search}
                                 onChange={(event): void => {
                                     setSearch(event.currentTarget.value)
@@ -491,9 +525,9 @@ export function HelpDiagnosticsPage(): ReactElement {
                             />
                         </label>
                         <label className="flex flex-col gap-1 text-sm text-text-tertiary">
-                            Category
+                            {t("system:helpDiagnostics.categoryLabel")}
                             <select
-                                aria-label="Help category"
+                                aria-label={t("system:helpDiagnostics.categoryLabel")}
                                 className={NATIVE_FORM.select}
                                 value={category}
                                 onChange={(event): void => {
@@ -510,20 +544,32 @@ export function HelpDiagnosticsPage(): ReactElement {
                                     }
                                 }}
                             >
-                                <option value="all">all categories</option>
-                                <option value="auth">auth</option>
-                                <option value="network">network</option>
-                                <option value="providers">providers</option>
-                                <option value="incidents">incidents</option>
-                                <option value="rendering">rendering</option>
+                                <option value="all">
+                                    {t("system:helpDiagnostics.categoryAll")}
+                                </option>
+                                <option value="auth">
+                                    {t("system:helpDiagnostics.categoryAuth")}
+                                </option>
+                                <option value="network">
+                                    {t("system:helpDiagnostics.categoryNetwork")}
+                                </option>
+                                <option value="providers">
+                                    {t("system:helpDiagnostics.categoryProviders")}
+                                </option>
+                                <option value="incidents">
+                                    {t("system:helpDiagnostics.categoryIncidents")}
+                                </option>
+                                <option value="rendering">
+                                    {t("system:helpDiagnostics.categoryRendering")}
+                                </option>
                             </select>
                         </label>
                     </div>
                     {filteredArticles.length === 0 ? (
                         <SystemStateCard
-                            ctaLabel="Reset filters"
-                            description="No help articles match current query. Reset filters or open diagnostics checks."
-                            title="No matching help content"
+                            ctaLabel={t("system:helpDiagnostics.noMatchCta")}
+                            description={t("system:helpDiagnostics.noMatchDescription")}
+                            title={t("system:helpDiagnostics.noMatchTitle")}
                             variant="empty"
                             onCtaPress={(): void => {
                                 setCategory("all")
@@ -531,7 +577,10 @@ export function HelpDiagnosticsPage(): ReactElement {
                             }}
                         />
                     ) : (
-                        <ul aria-label="Help articles list" className="space-y-2">
+                        <ul
+                            aria-label={t("system:helpDiagnostics.articlesListLabel")}
+                            className="space-y-2"
+                        >
                             {filteredArticles.map(
                                 (article): ReactElement => (
                                     <li
@@ -539,16 +588,16 @@ export function HelpDiagnosticsPage(): ReactElement {
                                         key={article.id}
                                     >
                                         <p className="text-sm font-semibold text-foreground">
-                                            {article.title}
+                                            {tDynamic(article.titleKey)}
                                         </p>
                                         <p className="text-xs text-text-secondary">
-                                            {article.summary}
+                                            {tDynamic(article.summaryKey)}
                                         </p>
                                         <a
                                             className="mt-1 inline-flex text-xs underline underline-offset-4"
                                             href={article.href}
                                         >
-                                            Open article / diagnostics
+                                            {t("system:helpDiagnostics.openArticleLink")}
                                         </a>
                                     </li>
                                 ),
@@ -560,17 +609,18 @@ export function HelpDiagnosticsPage(): ReactElement {
 
             <Card>
                 <CardHeader>
-                    <p className={TYPOGRAPHY.sectionTitle}>Diagnostics checks</p>
+                    <p className={TYPOGRAPHY.sectionTitle}>
+                        {t("system:helpDiagnostics.diagnosticsTitle")}
+                    </p>
                 </CardHeader>
                 <CardBody className="space-y-3">
                     <div className="flex flex-wrap items-center justify-between gap-2">
                         <p className="text-sm text-text-tertiary">
-                            Checks: auth/session, network, provider connectivity, feature flags,
-                            browser/webgl readiness.
+                            {t("system:helpDiagnostics.diagnosticsDescription")}
                         </p>
                         <div className="flex flex-wrap items-center gap-2">
                             <Button size="sm" variant="flat" onPress={handleRunDiagnostics}>
-                                Run diagnostics
+                                {t("system:helpDiagnostics.runDiagnostics")}
                             </Button>
                             <Button
                                 size="sm"
@@ -581,7 +631,7 @@ export function HelpDiagnosticsPage(): ReactElement {
                                     })
                                 }}
                             >
-                                Open degradation console
+                                {t("system:helpDiagnostics.openDegradationConsole")}
                             </Button>
                             <Button
                                 size="sm"
@@ -592,7 +642,7 @@ export function HelpDiagnosticsPage(): ReactElement {
                                     })
                                 }}
                             >
-                                Open scan recovery
+                                {t("system:helpDiagnostics.openScanRecovery")}
                             </Button>
                             <Button
                                 size="sm"
@@ -603,14 +653,21 @@ export function HelpDiagnosticsPage(): ReactElement {
                                     })
                                 }}
                             >
-                                Open session recovery
+                                {t("system:helpDiagnostics.openSessionRecovery")}
                             </Button>
-                            <Button size="sm" variant="flat" onPress={handleGenerateSupportBundle}>
-                                Generate support bundle
+                            <Button
+                                size="sm"
+                                variant="flat"
+                                onPress={handleGenerateSupportBundle}
+                            >
+                                {t("system:helpDiagnostics.generateSupportBundle")}
                             </Button>
                         </div>
                     </div>
-                    <ul aria-label="Diagnostics checks list" className="space-y-2">
+                    <ul
+                        aria-label={t("system:helpDiagnostics.checksListLabel")}
+                        className="space-y-2"
+                    >
                         {checks.map(
                             (check): ReactElement => (
                                 <li
@@ -619,7 +676,7 @@ export function HelpDiagnosticsPage(): ReactElement {
                                 >
                                     <div className="flex flex-wrap items-center gap-2">
                                         <p className="text-sm font-semibold text-foreground">
-                                            {check.label}
+                                            {tDynamic(check.labelKey)}
                                         </p>
                                         <Chip
                                             color={mapStatusColor(check.status)}
@@ -629,20 +686,27 @@ export function HelpDiagnosticsPage(): ReactElement {
                                             {check.status}
                                         </Chip>
                                     </div>
-                                    <p className="text-xs text-text-secondary">{check.details}</p>
+                                    <p className="text-xs text-text-secondary">
+                                        {tDynamic(check.detailsKey, check.detailsParams)}
+                                    </p>
                                     <a
                                         className="inline-flex text-xs underline underline-offset-4"
                                         href={check.articleHref}
                                     >
-                                        Open related guide
+                                        {t("system:helpDiagnostics.openRelatedGuide")}
                                     </a>
                                 </li>
                             ),
                         )}
                     </ul>
                     <div className="rounded-lg border border-border bg-surface px-3 py-2">
-                        <p className="text-sm font-semibold text-foreground">Suggested actions</p>
-                        <ul aria-label="Diagnostics suggested actions" className="mt-2 space-y-2">
+                        <p className="text-sm font-semibold text-foreground">
+                            {t("system:helpDiagnostics.suggestedActionsTitle")}
+                        </p>
+                        <ul
+                            aria-label={t("system:helpDiagnostics.suggestedActionsListLabel")}
+                            className="mt-2 space-y-2"
+                        >
                             {suggestedActions.map(
                                 (action): ReactElement => (
                                     <li
@@ -650,10 +714,10 @@ export function HelpDiagnosticsPage(): ReactElement {
                                         key={action.id}
                                     >
                                         <p className="text-sm font-semibold text-foreground">
-                                            {action.label}
+                                            {tDynamic(action.labelKey)}
                                         </p>
                                         <p className="text-xs text-text-secondary">
-                                            {action.description}
+                                            {tDynamic(action.descriptionKey)}
                                         </p>
                                         {action.path !== undefined ? (
                                             <Button
@@ -670,7 +734,7 @@ export function HelpDiagnosticsPage(): ReactElement {
                                                     })
                                                 }}
                                             >
-                                                Open action
+                                                {t("system:helpDiagnostics.openAction")}
                                             </Button>
                                         ) : null}
                                     </li>
@@ -683,21 +747,27 @@ export function HelpDiagnosticsPage(): ReactElement {
 
             <Card>
                 <CardHeader>
-                    <p className={TYPOGRAPHY.sectionTitle}>Support bundle</p>
+                    <p className={TYPOGRAPHY.sectionTitle}>
+                        {t("system:helpDiagnostics.supportBundleTitle")}
+                    </p>
                 </CardHeader>
                 <CardBody className="space-y-3">
                     <Button size="sm" variant="flat" onPress={handleGenerateSupportBundle}>
-                        Generate redacted bundle
+                        {t("system:helpDiagnostics.generateRedactedBundle")}
                     </Button>
                     {bundleMessage.length > 0 ? (
-                        <Alert color="primary" title="Bundle ready" variant="flat">
+                        <Alert
+                            color="primary"
+                            title={t("system:helpDiagnostics.bundleReadyTitle")}
+                            variant="flat"
+                        >
                             {bundleMessage}
                         </Alert>
                     ) : null}
                     {supportBundle.length > 0 ? (
                         <Textarea
                             isReadOnly
-                            aria-label="Support bundle payload"
+                            aria-label={t("system:helpDiagnostics.supportBundlePayloadLabel")}
                             value={supportBundle}
                         />
                     ) : null}

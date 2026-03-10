@@ -1,4 +1,5 @@
 import { type ReactElement } from "react"
+import { useTranslation } from "react-i18next"
 import { useNavigate } from "@tanstack/react-router"
 
 import { Alert, Button, Card, CardBody, CardHeader } from "@/components/ui"
@@ -10,30 +11,37 @@ import { TYPOGRAPHY } from "@/lib/constants/typography"
  * @returns Пошаговый recovery flow с быстрыми переходами.
  */
 export function ScanErrorRecoveryPage(): ReactElement {
+    const { t } = useTranslation(["system"])
     const navigate = useNavigate()
 
     return (
         <section className="space-y-4">
-            <h1 className={TYPOGRAPHY.pageTitle}>Scan error recovery</h1>
+            <h1 className={TYPOGRAPHY.pageTitle}>
+                {t("system:scanErrorRecovery.pageTitle")}
+            </h1>
             <p className={TYPOGRAPHY.pageSubtitle}>
-                Recover failed repository scans using safe retry steps and diagnostics links.
+                {t("system:scanErrorRecovery.pageSubtitle")}
             </p>
 
-            <Alert color="warning" title="Recovery flow" variant="flat">
-                Follow the steps below to restore scan progress without losing onboarding context.
+            <Alert
+                color="warning"
+                title={t("system:scanErrorRecovery.recoveryFlowTitle")}
+                variant="flat"
+            >
+                {t("system:scanErrorRecovery.recoveryFlowMessage")}
             </Alert>
 
             <Card>
                 <CardHeader>
-                    <p className={TYPOGRAPHY.sectionTitle}>Recommended steps</p>
+                    <p className={TYPOGRAPHY.sectionTitle}>
+                        {t("system:scanErrorRecovery.recommendedStepsTitle")}
+                    </p>
                 </CardHeader>
                 <CardBody className="space-y-3">
                     <ol className="list-decimal space-y-2 pl-5 text-sm text-foreground/85">
-                        <li>
-                            Open repositories and confirm provider connectivity and webhook status.
-                        </li>
-                        <li>Retry scan for the affected repository from the onboarding queue.</li>
-                        <li>Open jobs and check worker logs if retry fails again.</li>
+                        <li>{t("system:scanErrorRecovery.step1")}</li>
+                        <li>{t("system:scanErrorRecovery.step2")}</li>
+                        <li>{t("system:scanErrorRecovery.step3")}</li>
                     </ol>
                     <div className="flex flex-wrap gap-2">
                         <Button
@@ -45,7 +53,7 @@ export function ScanErrorRecoveryPage(): ReactElement {
                                 })
                             }}
                         >
-                            Open repositories
+                            {t("system:scanErrorRecovery.openRepositories")}
                         </Button>
                         <Button
                             size="sm"
@@ -56,7 +64,7 @@ export function ScanErrorRecoveryPage(): ReactElement {
                                 })
                             }}
                         >
-                            Open jobs center
+                            {t("system:scanErrorRecovery.openJobsCenter")}
                         </Button>
                         <Button
                             size="sm"
@@ -67,7 +75,7 @@ export function ScanErrorRecoveryPage(): ReactElement {
                                 })
                             }}
                         >
-                            Back to diagnostics
+                            {t("system:scanErrorRecovery.backToDiagnostics")}
                         </Button>
                     </div>
                 </CardBody>
