@@ -1,4 +1,5 @@
 import { lazy, Suspense, type ReactElement, useEffect, useId, useState } from "react"
+import { useTranslation } from "react-i18next"
 
 import { Button, Card, CardBody, CardHeader, Textarea } from "@/components/ui"
 import type { IRuleEditorMarkdownPreviewProps } from "./rule-editor-markdown-preview"
@@ -90,12 +91,13 @@ async function canImportModule(moduleName: string): Promise<boolean> {
 
 /** Редактор markdown-правил с toolbar и live preview. */
 export function RuleEditor(props: IRuleEditorProps): ReactElement {
+    const { t } = useTranslation(["settings"])
     const {
         id,
         label,
         maxLength,
         onChange,
-        placeholder = "Введите правила ревью в markdown...",
+        placeholder = t("settings:ruleEditor.defaultPlaceholder"),
         showPreview = true,
         value,
     } = props
@@ -178,16 +180,16 @@ export function RuleEditor(props: IRuleEditorProps): ReactElement {
             <CardBody className="space-y-3">
                 <div className="flex flex-wrap gap-2">
                     <Button onPress={formatBold} size="sm" variant="solid">
-                        Bold
+                        {t("settings:ruleEditor.bold")}
                     </Button>
                     <Button onPress={formatItalic} size="sm" variant="solid">
-                        Italic
+                        {t("settings:ruleEditor.italic")}
                     </Button>
                     <Button onPress={formatHeading} size="sm" variant="solid">
-                        Heading
+                        {t("settings:ruleEditor.heading")}
                     </Button>
                     <Button onPress={formatCodeBlock} size="sm" variant="solid">
-                        Code block
+                        {t("settings:ruleEditor.codeBlock")}
                     </Button>
                     <Button
                         onPress={(): void => {
@@ -196,16 +198,18 @@ export function RuleEditor(props: IRuleEditorProps): ReactElement {
                         size="sm"
                         variant="solid"
                     >
-                        {isPreviewVisible === true ? "Hide preview" : "Show preview"}
+                        {isPreviewVisible === true
+                            ? t("settings:ruleEditor.hidePreview")
+                            : t("settings:ruleEditor.showPreview")}
                     </Button>
                 </div>
                 <p className="text-xs text-muted-foreground">
-                    TipTap mode:{" "}
+                    {t("settings:ruleEditor.tipTapModeLabel")}
                     {tipTapLoadState === "loading"
-                        ? "loading"
+                        ? t("settings:ruleEditor.tipTapLoading")
                         : tipTapLoadState === "ready"
-                          ? "ready (OSS core loaded via dynamic import)"
-                          : "fallback markdown editor (TipTap unavailable)"}
+                          ? t("settings:ruleEditor.tipTapReady")
+                          : t("settings:ruleEditor.tipTapFallback")}
                 </p>
                 <Textarea
                     aria-label={label}
@@ -222,21 +226,29 @@ export function RuleEditor(props: IRuleEditorProps): ReactElement {
                     placeholder={placeholder}
                 />
                 <p id={characterCountId} className="text-xs text-muted-foreground">
-                    {String(value.length)} symbols
+                    {t("settings:ruleEditor.symbolCount", { count: value.length })}
                 </p>
                 {maxLength === undefined ? null : (
                     <p
                         id={maxLengthId}
                         className={`text-xs ${value.length > maxLength ? "text-danger" : "text-muted-foreground"}`}
                     >
-                        Max {String(maxLength)} symbols
+                        {t("settings:ruleEditor.maxSymbols", { max: maxLength })}
                     </p>
                 )}
                 {isPreviewVisible === false ? (
-                    <p className="text-sm text-muted-foreground">Preview is hidden</p>
+                    <p className="text-sm text-muted-foreground">
+                        {t("settings:ruleEditor.previewHidden")}
+                    </p>
                 ) : (
-                    <section aria-live="polite" aria-label="Rule preview" id={previewId}>
-                        <Suspense fallback={<p>Loading preview...</p>}>
+                    <section
+                        aria-live="polite"
+                        aria-label={t("settings:ruleEditor.previewAriaLabel")}
+                        id={previewId}
+                    >
+                        <Suspense
+                            fallback={<p>{t("settings:ruleEditor.loadingPreview")}</p>}
+                        >
                             <LazyRuleEditorPreview content={value} />
                         </Suspense>
                     </section>

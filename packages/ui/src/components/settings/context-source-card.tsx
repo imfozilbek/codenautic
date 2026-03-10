@@ -1,4 +1,5 @@
 import type { ReactElement } from "react"
+import { useTranslation } from "react-i18next"
 
 import { Button, Card, CardBody, CardHeader, Chip } from "@/components/ui"
 import type {
@@ -34,19 +35,6 @@ function resolveStatusColor(status: TExternalContextStatus): "default" | "succes
     return "default"
 }
 
-function formatStatusLabel(status: TExternalContextStatus): string {
-    if (status === "CONNECTED") {
-        return "Connected"
-    }
-    if (status === "DEGRADED") {
-        return "Degraded"
-    }
-    if (status === "SYNCING") {
-        return "Syncing"
-    }
-    return "Disconnected"
-}
-
 /**
  * Карточка внешнего context-source с действиями управления.
  *
@@ -54,7 +42,21 @@ function formatStatusLabel(status: TExternalContextStatus): string {
  * @returns Виджет источника внешнего контекста.
  */
 export function ContextSourceCard(props: IContextSourceCardProps): ReactElement {
+    const { t } = useTranslation(["settings"])
     const { source } = props
+
+    const formatStatusLabel = (status: TExternalContextStatus): string => {
+        if (status === "CONNECTED") {
+            return t("settings:contextSourceCard.statusConnected")
+        }
+        if (status === "DEGRADED") {
+            return t("settings:contextSourceCard.statusDegraded")
+        }
+        if (status === "SYNCING") {
+            return t("settings:contextSourceCard.statusSyncing")
+        }
+        return t("settings:contextSourceCard.statusDisconnected")
+    }
 
     return (
         <Card
@@ -94,7 +96,10 @@ export function ContextSourceCard(props: IContextSourceCardProps): ReactElement 
             </CardHeader>
             <CardBody className="space-y-3">
                 <p className="text-xs text-foreground-600">
-                    {`Items: ${source.itemCount} · Last sync: ${source.lastSyncedAt ?? "n/a"}`}
+                    {t("settings:contextSourceCard.itemsAndSync", {
+                        items: source.itemCount,
+                        sync: source.lastSyncedAt ?? t("settings:contextSourceCard.syncNotAvailable"),
+                    })}
                 </p>
                 <div className="flex flex-wrap gap-2">
                     <Button
@@ -108,7 +113,9 @@ export function ContextSourceCard(props: IContextSourceCardProps): ReactElement 
                             void props.onToggleEnabled(source.id, source.enabled !== true)
                         }}
                     >
-                        {source.enabled ? "Disable" : "Enable"}
+                        {source.enabled
+                            ? t("settings:contextSourceCard.disable")
+                            : t("settings:contextSourceCard.enable")}
                     </Button>
                     <Button
                         isDisabled={props.onRefresh === undefined || props.isLoading === true}
@@ -121,7 +128,7 @@ export function ContextSourceCard(props: IContextSourceCardProps): ReactElement 
                             void props.onRefresh(source.id)
                         }}
                     >
-                        Refresh
+                        {t("settings:contextSourceCard.refresh")}
                     </Button>
                 </div>
             </CardBody>

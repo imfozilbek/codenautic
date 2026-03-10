@@ -1,4 +1,5 @@
 import { lazy, Suspense, type ReactElement, useState } from "react"
+import { useTranslation } from "react-i18next"
 
 import { Button, Textarea } from "@/components/ui"
 import type { IRuleEditorMarkdownPreviewProps } from "./rule-editor-markdown-preview"
@@ -22,19 +23,22 @@ interface IPromptOverrideEditorProps {
  * @returns Карточка редактора prompt c динамически загружаемым preview.
  */
 export function PromptOverrideEditor(props: IPromptOverrideEditorProps): ReactElement {
+    const { t } = useTranslation(["settings"])
     const [isPreviewVisible, setIsPreviewVisible] = useState<boolean>(false)
 
     return (
         <section className="space-y-3 rounded-md border border-border bg-surface p-3">
-            <h3 className="text-sm font-semibold text-foreground">Prompt override editor</h3>
+            <h3 className="text-sm font-semibold text-foreground">
+                {t("settings:promptOverrideEditor.title")}
+            </h3>
             <p className="text-xs text-muted-foreground">
-                Override default summary prompt for repository-specific output structure.
+                {t("settings:promptOverrideEditor.description")}
             </p>
             <Textarea
-                aria-label="CCR summary prompt override"
+                aria-label={t("settings:promptOverrideEditor.ariaLabel")}
                 minRows={5}
                 onValueChange={props.onChange}
-                placeholder="Write custom CCR summary prompt..."
+                placeholder={t("settings:promptOverrideEditor.placeholder")}
                 value={props.value}
             />
             <div className="flex flex-wrap gap-2">
@@ -45,17 +49,24 @@ export function PromptOverrideEditor(props: IPromptOverrideEditorProps): ReactEl
                         setIsPreviewVisible((previous): boolean => !previous)
                     }}
                 >
-                    {isPreviewVisible === true ? "Hide prompt preview" : "Show prompt preview"}
+                    {isPreviewVisible === true
+                        ? t("settings:promptOverrideEditor.hidePromptPreview")
+                        : t("settings:promptOverrideEditor.showPromptPreview")}
                 </Button>
                 <Button size="sm" variant="flat" onPress={props.onReset}>
-                    Reset prompt override
+                    {t("settings:promptOverrideEditor.resetPromptOverride")}
                 </Button>
             </div>
             {isPreviewVisible === false ? null : (
-                <section aria-label="Prompt override preview" className="space-y-2">
+                <section
+                    aria-label={t("settings:promptOverrideEditor.previewAriaLabel")}
+                    className="space-y-2"
+                >
                     <Suspense
                         fallback={
-                            <p className="text-xs text-muted-foreground">Loading preview...</p>
+                            <p className="text-xs text-muted-foreground">
+                                {t("settings:promptOverrideEditor.loadingPreview")}
+                            </p>
                         }
                     >
                         <LazyPromptOverridePreview content={props.value} />

@@ -1,4 +1,5 @@
-import { type ReactElement } from "react"
+import { type ReactElement, useMemo } from "react"
+import { useTranslation } from "react-i18next"
 
 import { Button } from "@/components/ui"
 import { REPO_REVIEW_MODE, type TRepoReviewMode } from "@/lib/api/endpoints/repo-config.endpoint"
@@ -9,37 +10,11 @@ interface IReviewCadenceOption {
     readonly label: string
 }
 
-const REVIEW_CADENCE_OPTIONS: ReadonlyArray<IReviewCadenceOption> = [
-    {
-        key: REPO_REVIEW_MODE.manual,
-        label: "Manual",
-        description: "Run code review only when explicitly triggered by developer.",
-    },
-    {
-        key: REPO_REVIEW_MODE.auto,
-        label: "Auto",
-        description: "Run code review automatically for every repository update.",
-    },
-    {
-        key: REPO_REVIEW_MODE.autoPause,
-        label: "Auto-pause",
-        description: "Auto review with safety pause when degradation signals are detected.",
-    },
-] as const
-
 interface IReviewCadenceSelectorProps {
     readonly isApplyDisabled: boolean
     readonly mode: TRepoReviewMode
     readonly onApply: () => void
     readonly onModeChange: (mode: TRepoReviewMode) => void
-}
-
-function mapReviewModeToLabel(mode: TRepoReviewMode): string {
-    const modeLabel = REVIEW_CADENCE_OPTIONS.find((option): boolean => option.key === mode)?.label
-    if (modeLabel === undefined) {
-        return "Unknown"
-    }
-    return modeLabel
 }
 
 /**
@@ -49,14 +24,52 @@ function mapReviewModeToLabel(mode: TRepoReviewMode): string {
  * @returns UI карточка переключения cadence modes.
  */
 export function ReviewCadenceSelector(props: IReviewCadenceSelectorProps): ReactElement {
+    const { t } = useTranslation(["settings"])
+
+    const cadenceOptions: ReadonlyArray<IReviewCadenceOption> = useMemo(
+        (): ReadonlyArray<IReviewCadenceOption> => [
+            {
+                key: REPO_REVIEW_MODE.manual,
+                label: t("settings:reviewCadenceSelector.modeManual"),
+                description: t("settings:reviewCadenceSelector.modeManualDescription"),
+            },
+            {
+                key: REPO_REVIEW_MODE.auto,
+                label: t("settings:reviewCadenceSelector.modeAuto"),
+                description: t("settings:reviewCadenceSelector.modeAutoDescription"),
+            },
+            {
+                key: REPO_REVIEW_MODE.autoPause,
+                label: t("settings:reviewCadenceSelector.modeAutoPause"),
+                description: t("settings:reviewCadenceSelector.modeAutoPauseDescription"),
+            },
+        ],
+        [t],
+    )
+
+    const mapReviewModeToLabel = (mode: TRepoReviewMode): string => {
+        const modeLabel = cadenceOptions.find(
+            (option): boolean => option.key === mode,
+        )?.label
+        if (modeLabel === undefined) {
+            return t("settings:reviewCadenceSelector.modeUnknown")
+        }
+        return modeLabel
+    }
+
     return (
         <section className="space-y-3 rounded-xl border border-border bg-surface p-4">
-            <h2 className="text-base font-semibold text-foreground">Review cadence settings</h2>
+            <h2 className="text-base font-semibold text-foreground">
+                {t("settings:reviewCadenceSelector.title")}
+            </h2>
             <p className="text-sm text-muted-foreground">
-                Choose how code review is executed for repository updates.
+                {t("settings:reviewCadenceSelector.description")}
             </p>
-            <fieldset aria-label="Review cadence mode" className="space-y-2">
-                {REVIEW_CADENCE_OPTIONS.map(
+            <fieldset
+                aria-label={t("settings:reviewCadenceSelector.fieldsetAriaLabel")}
+                className="space-y-2"
+            >
+                {cadenceOptions.map(
                     (option): ReactElement => (
                         <label
                             key={option.key}
@@ -85,7 +98,10 @@ export function ReviewCadenceSelector(props: IReviewCadenceSelectorProps): React
                 )}
             </fieldset>
             <p className="text-xs text-muted-foreground" data-testid="review-cadence-current">
-                {`Current mode: ${mapReviewModeToLabel(props.mode)} (${props.mode})`}
+                {t("settings:reviewCadenceSelector.currentMode", {
+                    label: mapReviewModeToLabel(props.mode),
+                    mode: props.mode,
+                })}
             </p>
             <Button
                 isDisabled={props.isApplyDisabled}
@@ -93,7 +109,7 @@ export function ReviewCadenceSelector(props: IReviewCadenceSelectorProps): React
                 variant="solid"
                 onPress={props.onApply}
             >
-                Apply cadence mode
+                {t("settings:reviewCadenceSelector.applyCadenceMode")}
             </Button>
         </section>
     )

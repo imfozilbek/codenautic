@@ -1,4 +1,5 @@
 import type { ReactElement } from "react"
+import { useTranslation } from "react-i18next"
 
 import { Button, Card, CardBody, CardHeader, Chip } from "@/components/ui"
 
@@ -27,6 +28,8 @@ export interface IGitProviderCardProps {
  * @returns Карточка с кнопкой подключения.
  */
 export function GitProviderCard(props: IGitProviderCardProps): ReactElement {
+    const { t } = useTranslation(["settings"])
+
     return (
         <Card>
             <CardHeader>
@@ -36,16 +39,20 @@ export function GitProviderCard(props: IGitProviderCardProps): ReactElement {
                 <div className="flex flex-col gap-2">
                     <p className="text-sm text-muted-foreground">
                         {props.connected
-                            ? `Connected as ${props.account ?? "Unknown"}`
-                            : "Not connected"}
+                            ? t("settings:gitProviderCard.connectedAs", {
+                                  account: props.account ?? "Unknown",
+                              })
+                            : t("settings:gitProviderCard.notConnected")}
                     </p>
                     {props.lastSyncAt === undefined ? null : (
                         <p className="text-xs text-muted-foreground">
-                            Last sync: {props.lastSyncAt}
+                            {t("settings:gitProviderCard.lastSync", { date: props.lastSyncAt })}
                         </p>
                     )}
                     <Chip color={props.connected ? "success" : "default"} size="sm">
-                        {props.connected ? "Connected" : "Disconnected"}
+                        {props.connected
+                            ? t("settings:gitProviderCard.statusConnected")
+                            : t("settings:gitProviderCard.statusDisconnected")}
                     </Chip>
                     <Button
                         className="w-full"
@@ -61,7 +68,9 @@ export function GitProviderCard(props: IGitProviderCardProps): ReactElement {
                             void props.onAction()
                         }}
                     >
-                        {props.connected ? "Disconnect" : "Connect"}
+                        {props.connected
+                            ? t("settings:gitProviderCard.disconnect")
+                            : t("settings:gitProviderCard.connect")}
                     </Button>
                 </div>
             </CardBody>

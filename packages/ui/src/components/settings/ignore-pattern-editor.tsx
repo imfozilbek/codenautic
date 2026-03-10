@@ -1,4 +1,5 @@
 import { type FormEvent, type ReactElement, useEffect, useMemo, useState } from "react"
+import { useTranslation } from "react-i18next"
 
 import { Button, Textarea } from "@/components/ui"
 import { sanitizeTextInput } from "@/lib/validation/schema-validation"
@@ -31,6 +32,7 @@ function normalizePatterns(value: string): ReadonlyArray<string> {
  * @returns Поле ввода + action-кнопка сохранения паттернов.
  */
 export function IgnorePatternEditor(props: IIgnorePatternEditorProps): ReactElement {
+    const { t } = useTranslation(["settings"])
     const [rawValue, setRawValue] = useState<string>(() => props.ignoredPatterns.join("\n"))
     const textareaId = "ignore-pattern-editor"
     const normalizedPatterns = useMemo(
@@ -56,10 +58,10 @@ export function IgnorePatternEditor(props: IIgnorePatternEditorProps): ReactElem
     return (
         <form className="space-y-3" onSubmit={applyChanges}>
             <label className="text-sm font-medium text-foreground" htmlFor={textareaId}>
-                Ignore patterns
+                {t("settings:ignorePatternEditor.label")}
             </label>
             <Textarea
-                aria-label="Ignore patterns"
+                aria-label={t("settings:ignorePatternEditor.label")}
                 id={textareaId}
                 rows={6}
                 value={rawValue}
@@ -69,14 +71,16 @@ export function IgnorePatternEditor(props: IIgnorePatternEditorProps): ReactElem
             />
             <div className="flex items-center justify-between gap-3">
                 <p className="text-xs text-muted-foreground">
-                    {props.helperText ?? "One glob pattern per line."}
+                    {props.helperText ?? t("settings:ignorePatternEditor.defaultHelper")}
                 </p>
                 <p className="text-xs text-muted-foreground" data-testid="ignore-pattern-count">
-                    {`Patterns: ${normalizedPatterns.length}`}
+                    {t("settings:ignorePatternEditor.patternCount", {
+                        count: normalizedPatterns.length,
+                    })}
                 </p>
             </div>
             <Button type="submit" variant="solid">
-                Save ignore patterns
+                {t("settings:ignorePatternEditor.saveIgnorePatterns")}
             </Button>
         </form>
     )

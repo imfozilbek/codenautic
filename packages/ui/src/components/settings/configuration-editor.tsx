@@ -1,4 +1,5 @@
 import { type FormEvent, type ReactElement } from "react"
+import { useTranslation } from "react-i18next"
 
 import { Button } from "@/components/ui"
 import { REPO_REVIEW_MODE, type TRepoReviewMode } from "@/lib/api/endpoints/repo-config.endpoint"
@@ -32,24 +33,6 @@ export interface IConfigurationEditorProps {
     readonly onSave: (event: FormEvent) => void
 }
 
-function resolveConfigurationEditorStateMessage(props: {
-    readonly hasLoadError: boolean
-    readonly hasSaveError: boolean
-    readonly isLoading: boolean
-    readonly isSaving: boolean
-}): string {
-    if (props.isLoading === true) {
-        return "Loading repository config..."
-    }
-    if (props.isSaving === true) {
-        return "Saving repository config..."
-    }
-    if (props.hasLoadError === true || props.hasSaveError === true) {
-        return "Repository config unavailable."
-    }
-    return "Repository config is ready."
-}
-
 /**
  * Визуальный YAML editor для репозиторного конфига.
  *
@@ -57,31 +40,44 @@ function resolveConfigurationEditorStateMessage(props: {
  * @returns Форма редактирования `codenautic-config.yml`.
  */
 export function ConfigurationEditor(props: IConfigurationEditorProps): ReactElement {
-    const stateMessage = resolveConfigurationEditorStateMessage({
-        hasLoadError: props.hasLoadError,
-        hasSaveError: props.hasSaveError,
-        isLoading: props.isLoading,
-        isSaving: props.isSaving,
-    })
+    const { t } = useTranslation(["settings"])
+
+    const resolveStateMessage = (): string => {
+        if (props.isLoading === true) {
+            return t("settings:configurationEditor.stateLoading")
+        }
+        if (props.isSaving === true) {
+            return t("settings:configurationEditor.stateSaving")
+        }
+        if (props.hasLoadError === true || props.hasSaveError === true) {
+            return t("settings:configurationEditor.stateUnavailable")
+        }
+        return t("settings:configurationEditor.stateReady")
+    }
+
+    const stateMessage = resolveStateMessage()
 
     return (
         <form
             className="space-y-3 rounded-xl border border-border bg-surface p-4"
             onSubmit={props.onSave}
         >
-            <h2 className="text-base font-semibold text-foreground">Repository config</h2>
+            <h2 className="text-base font-semibold text-foreground">
+                {t("settings:configurationEditor.repositoryConfig")}
+            </h2>
             <p className="text-sm text-muted-foreground">
-                Edit <code>codenautic-config.yml</code> visually and keep repository review settings
-                in sync.
+                {t("settings:configurationEditor.editDescription")}
             </p>
             <div className="grid gap-3 md:grid-cols-2">
                 <label
                     className="space-y-1 text-sm text-foreground"
                     htmlFor="repo-config-repository-id"
                 >
-                    <span className="font-medium text-foreground">Repository ID</span>
+                    <span className="font-medium text-foreground">
+                        {t("settings:configurationEditor.repositoryId")}
+                    </span>
                     <input
-                        aria-label="Repository ID"
+                        aria-label={t("settings:configurationEditor.repositoryId")}
                         className="w-full rounded-lg border border-border px-3 py-2"
                         data-testid="repo-config-repository-id"
                         id="repo-config-repository-id"
@@ -92,9 +88,11 @@ export function ConfigurationEditor(props: IConfigurationEditorProps): ReactElem
                     />
                 </label>
                 <label className="space-y-1 text-sm text-foreground" htmlFor="repo-review-mode">
-                    <span className="font-medium text-foreground">Review mode</span>
+                    <span className="font-medium text-foreground">
+                        {t("settings:configurationEditor.reviewMode")}
+                    </span>
                     <select
-                        aria-label="Repository review mode"
+                        aria-label={t("settings:configurationEditor.reviewModeAriaLabel")}
                         className={NATIVE_FORM.select}
                         data-testid="repo-review-mode"
                         id="repo-review-mode"
@@ -110,16 +108,24 @@ export function ConfigurationEditor(props: IConfigurationEditorProps): ReactElem
                             }
                         }}
                     >
-                        <option value={REPO_REVIEW_MODE.manual}>Manual</option>
-                        <option value={REPO_REVIEW_MODE.auto}>Auto</option>
-                        <option value={REPO_REVIEW_MODE.autoPause}>Auto pause</option>
+                        <option value={REPO_REVIEW_MODE.manual}>
+                            {t("settings:configurationEditor.optionManual")}
+                        </option>
+                        <option value={REPO_REVIEW_MODE.auto}>
+                            {t("settings:configurationEditor.optionAuto")}
+                        </option>
+                        <option value={REPO_REVIEW_MODE.autoPause}>
+                            {t("settings:configurationEditor.optionAutoPause")}
+                        </option>
                     </select>
                 </label>
             </div>
             <label className="space-y-1 text-sm text-foreground" htmlFor="repo-config-yaml">
-                <span className="font-medium text-foreground">Config YAML</span>
+                <span className="font-medium text-foreground">
+                    {t("settings:configurationEditor.configYaml")}
+                </span>
                 <textarea
-                    aria-label="Repository config YAML"
+                    aria-label={t("settings:configurationEditor.configYamlAriaLabel")}
                     className="min-h-[220px] w-full rounded-lg border border-border px-3 py-2 font-mono text-xs"
                     data-testid="repo-config-yaml"
                     id="repo-config-yaml"
@@ -136,7 +142,7 @@ export function ConfigurationEditor(props: IConfigurationEditorProps): ReactElem
                     type="submit"
                     variant="solid"
                 >
-                    Save repository config
+                    {t("settings:configurationEditor.saveRepositoryConfig")}
                 </Button>
                 <p className="text-xs text-muted-foreground" data-testid="repo-config-state">
                     {stateMessage}

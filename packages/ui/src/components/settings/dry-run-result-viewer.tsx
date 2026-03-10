@@ -1,4 +1,5 @@
 import { type ReactElement } from "react"
+import { useTranslation } from "react-i18next"
 
 import { Button } from "@/components/ui"
 import type { TRepoReviewMode } from "@/lib/api/endpoints/repo-config.endpoint"
@@ -29,11 +30,15 @@ interface IDryRunResultViewerProps {
  * @returns Карточка с запуском, summary и списком найденных подсказок.
  */
 export function DryRunResultViewer(props: IDryRunResultViewerProps): ReactElement {
+    const { t } = useTranslation(["settings"])
+
     return (
         <section className="space-y-3 rounded-xl border border-border bg-surface p-4">
-            <h2 className="text-base font-semibold text-foreground">Dry-run results</h2>
+            <h2 className="text-base font-semibold text-foreground">
+                {t("settings:dryRunResultViewer.title")}
+            </h2>
             <p className="text-sm text-muted-foreground">
-                Preview review findings before switching cadence or running full automation.
+                {t("settings:dryRunResultViewer.description")}
             </p>
             <Button
                 isDisabled={props.isRunning === true}
@@ -41,16 +46,22 @@ export function DryRunResultViewer(props: IDryRunResultViewerProps): ReactElemen
                 variant="solid"
                 onPress={props.onRunDryRun}
             >
-                {props.isRunning === true ? "Running dry-run..." : "Run dry-run"}
+                {props.isRunning === true
+                    ? t("settings:dryRunResultViewer.runningDryRun")
+                    : t("settings:dryRunResultViewer.runDryRun")}
             </Button>
             {props.result === undefined ? (
                 <p className="text-xs text-muted-foreground" data-testid="dry-run-empty">
-                    Run dry-run to preview current review output.
+                    {t("settings:dryRunResultViewer.emptyState")}
                 </p>
             ) : (
                 <div className="space-y-2">
                     <p className="text-sm text-foreground" data-testid="dry-run-summary">
-                        {`Mode: ${props.result.mode} · Reviewed files: ${props.result.reviewedFiles} · Suggestions: ${props.result.suggestions}`}
+                        {t("settings:dryRunResultViewer.summaryLine", {
+                            mode: props.result.mode,
+                            files: props.result.reviewedFiles,
+                            suggestions: props.result.suggestions,
+                        })}
                     </p>
                     <ul className="space-y-1 text-xs text-muted-foreground">
                         {props.result.issues.map(

@@ -1,4 +1,5 @@
 import type { ReactElement } from "react"
+import { useTranslation } from "react-i18next"
 
 import { Card, CardBody, CardHeader } from "@/components/ui"
 import type { IExternalContextPreviewResponse } from "@/lib/api/endpoints/external-context.endpoint"
@@ -24,8 +25,13 @@ export interface IContextPreviewProps {
  * @returns Карточка со сниппетами и deep-links.
  */
 export function ContextPreview(props: IContextPreviewProps): ReactElement {
-    const title = props.sourceName === undefined ? "Context preview" : `${props.sourceName} preview`
-    const emptyStateLabel = props.emptyStateLabel ?? "No context items loaded yet."
+    const { t } = useTranslation(["settings"])
+
+    const title =
+        props.sourceName === undefined
+            ? t("settings:contextPreview.title")
+            : t("settings:contextPreview.titleWithSource", { name: props.sourceName })
+    const emptyStateLabel = props.emptyStateLabel ?? t("settings:contextPreview.emptyState")
 
     return (
         <Card>
@@ -35,11 +41,11 @@ export function ContextPreview(props: IContextPreviewProps): ReactElement {
             <CardBody className="space-y-3">
                 {props.isLoading === true ? (
                     <p aria-live="polite" className="text-sm text-foreground-500">
-                        Loading context preview...
+                        {t("settings:contextPreview.loading")}
                     </p>
                 ) : props.isError === true ? (
                     <p aria-live="polite" className="text-sm text-danger">
-                        Unable to load context preview.
+                        {t("settings:contextPreview.errorLoading")}
                     </p>
                 ) : props.preview === undefined || props.preview.items.length === 0 ? (
                     <p className="text-sm text-foreground-500">{emptyStateLabel}</p>
@@ -63,7 +69,7 @@ export function ContextPreview(props: IContextPreviewProps): ReactElement {
                                         rel="noreferrer"
                                         target="_blank"
                                     >
-                                        Open source item
+                                        {t("settings:contextPreview.openSourceItem")}
                                     </a>
                                 </li>
                             ),

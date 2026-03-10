@@ -1,13 +1,10 @@
-import { type ReactElement } from "react"
+import { type ReactElement, useMemo } from "react"
+import { useTranslation } from "react-i18next"
 
-const CCR_SUMMARY_DETAIL_LABELS = {
-    CONCISE: "Concise",
-    STANDARD: "Standard",
-    DEEP: "Deep",
-} as const
+export type TCCRSummaryDetailLevel = "CONCISE" | "STANDARD" | "DEEP"
 
 export interface ICCRSummaryPreviewSettings {
-    readonly detailLevel: keyof typeof CCR_SUMMARY_DETAIL_LABELS
+    readonly detailLevel: TCCRSummaryDetailLevel
     readonly enabled: boolean
     readonly includeRiskOverview: boolean
     readonly includeTimeline: boolean
@@ -25,22 +22,41 @@ interface ICCRSummaryPreviewProps {
  * @returns Карточка предпросмотра с включенными секциями и лимитами.
  */
 export function CCRSummaryPreview(props: ICCRSummaryPreviewProps): ReactElement {
+    const { t } = useTranslation(["settings"])
+
+    const detailLabels = useMemo(
+        (): Record<TCCRSummaryDetailLevel, string> => ({
+            CONCISE: t("settings:ccrSummaryPreview.detailConcise"),
+            STANDARD: t("settings:ccrSummaryPreview.detailStandard"),
+            DEEP: t("settings:ccrSummaryPreview.detailDeep"),
+        }),
+        [t],
+    )
+
     if (props.settings.enabled !== true) {
         return (
             <article
                 className="space-y-2 rounded-md border border-dashed border-border bg-surface p-3"
                 data-testid="ccr-summary-preview"
             >
-                <h3 className="text-sm font-semibold text-foreground">CCR summary preview</h3>
-                <p className="text-xs text-muted-foreground">Summary generation is disabled.</p>
+                <h3 className="text-sm font-semibold text-foreground">
+                    {t("settings:ccrSummaryPreview.title")}
+                </h3>
+                <p className="text-xs text-muted-foreground">
+                    {t("settings:ccrSummaryPreview.generationDisabled")}
+                </p>
             </article>
         )
     }
 
     const sections = [
-        props.settings.includeRiskOverview === true ? "Risk overview" : undefined,
-        props.settings.includeTimeline === true ? "Timeline highlights" : undefined,
-        "Top actionable suggestions",
+        props.settings.includeRiskOverview === true
+            ? t("settings:ccrSummaryPreview.sectionRiskOverview")
+            : undefined,
+        props.settings.includeTimeline === true
+            ? t("settings:ccrSummaryPreview.sectionTimelineHighlights")
+            : undefined,
+        t("settings:ccrSummaryPreview.sectionTopSuggestions"),
     ].filter((item): item is string => item !== undefined)
 
     return (
@@ -48,18 +64,24 @@ export function CCRSummaryPreview(props: ICCRSummaryPreviewProps): ReactElement 
             className="space-y-2 rounded-md border border-border bg-surface p-3"
             data-testid="ccr-summary-preview"
         >
-            <h3 className="text-sm font-semibold text-foreground">CCR summary preview</h3>
+            <h3 className="text-sm font-semibold text-foreground">
+                {t("settings:ccrSummaryPreview.title")}
+            </h3>
             <p
                 className="text-xs text-muted-foreground"
                 data-testid="ccr-summary-preview-detail-level"
             >
-                {`Detail level: ${CCR_SUMMARY_DETAIL_LABELS[props.settings.detailLevel]}`}
+                {t("settings:ccrSummaryPreview.detailLevel", {
+                    level: detailLabels[props.settings.detailLevel],
+                })}
             </p>
             <p
                 className="text-xs text-muted-foreground"
                 data-testid="ccr-summary-preview-max-suggestions"
             >
-                {`Max suggestions: ${props.settings.maxSuggestions}`}
+                {t("settings:ccrSummaryPreview.maxSuggestions", {
+                    count: props.settings.maxSuggestions,
+                })}
             </p>
             <ul className="list-disc space-y-1 pl-5 text-xs text-foreground">
                 {sections.map(

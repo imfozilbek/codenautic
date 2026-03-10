@@ -1,6 +1,7 @@
 import { type ReactElement } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
+import { useTranslation } from "react-i18next"
 import * as z from "zod"
 
 import {
@@ -128,6 +129,7 @@ function getLlmFormDefaults(props: ILlmProviderFormProps): {
  * @returns Форма с выбором provider, моделью и ключом.
  */
 export function LlmProviderForm(props: ILlmProviderFormProps): ReactElement {
+    const { t } = useTranslation(["settings"])
     const providers = getSafeItems(props.providers, LLM_PROVIDER_OPTIONS[0])
     const modelOptions = getSafeItems(props.modelOptions, LLM_MODEL_OPTIONS[0])
     const providerOptions = toSelectOptions(providers)
@@ -155,7 +157,7 @@ export function LlmProviderForm(props: ILlmProviderFormProps): ReactElement {
             <FormSelectField
                 control={form.control}
                 id="llm-provider-name"
-                label="Provider"
+                label={t("settings:llmProviderForm.provider")}
                 name="provider"
                 options={providerOptions}
             />
@@ -163,32 +165,36 @@ export function LlmProviderForm(props: ILlmProviderFormProps): ReactElement {
                 control={form.control}
                 id="llm-api-key"
                 inputProps={{
-                    placeholder: "sk-...",
+                    placeholder: t("settings:llmProviderForm.apiKeyPlaceholder"),
                     type: "password",
                 }}
-                label="API key / token"
+                label={t("settings:llmProviderForm.apiKeyToken")}
                 name="apiKey"
             />
             <FormSelectField
                 control={form.control}
                 id="llm-model"
-                label="Model"
+                label={t("settings:llmProviderForm.model")}
                 name="model"
                 options={llmModelOptions}
             />
             <FormTextField
                 control={form.control}
-                helperText="Optional custom API endpoint for enterprise routes."
+                helperText={t("settings:llmProviderForm.customEndpointHelper")}
                 id="llm-endpoint"
                 inputProps={{
-                    placeholder: "https://api.openai.com/v1",
+                    placeholder: t("settings:llmProviderForm.customEndpointPlaceholder"),
                 }}
-                label="Custom endpoint"
+                label={t("settings:llmProviderForm.customEndpoint")}
                 name="endpoint"
             />
-            <FormSwitchField control={form.control} label="Test after save" name="testAfterSave" />
+            <FormSwitchField
+                control={form.control}
+                label={t("settings:llmProviderForm.testAfterSave")}
+                name="testAfterSave"
+            />
             <FormSubmitButton isSubmitting={form.formState.isSubmitting}>
-                Save LLM configuration
+                {t("settings:llmProviderForm.saveLlmConfiguration")}
             </FormSubmitButton>
         </form>
     )

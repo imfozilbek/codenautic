@@ -1,6 +1,7 @@
 import { type ReactElement } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
+import { useTranslation } from "react-i18next"
 import { z } from "zod"
 
 import {
@@ -34,6 +35,8 @@ export interface ICodeReviewFormProps {
  * @returns Набор полей для конфигурации ревью.
  */
 export function CodeReviewForm(props: ICodeReviewFormProps): ReactElement {
+    const { t } = useTranslation(["settings"])
+
     const cadenceOptions: ReadonlyArray<IFormSelectOption> = CODE_REVIEW_CADENCE_OPTIONS.map(
         (item): IFormSelectOption => ({
             label: `${item.charAt(0).toUpperCase()}${item.slice(1)}`,
@@ -66,14 +69,14 @@ export function CodeReviewForm(props: ICodeReviewFormProps): ReactElement {
             <FormSelectField
                 control={form.control}
                 id="code-review-cadence"
-                label="Review cadence"
+                label={t("settings:codeReviewForm.reviewCadence")}
                 name="cadence"
                 options={cadenceOptions}
             />
             <FormSelectField
                 control={form.control}
                 id="code-review-severity"
-                label="Severity threshold"
+                label={t("settings:codeReviewForm.severityThreshold")}
                 name="severity"
                 options={severityOptions}
             />
@@ -82,19 +85,19 @@ export function CodeReviewForm(props: ICodeReviewFormProps): ReactElement {
                 id="code-review-suggestions-limit"
                 inputProps={{
                     min: 1,
-                    placeholder: "1..99",
+                    placeholder: t("settings:codeReviewForm.suggestionsLimitPlaceholder"),
                 }}
-                label="Suggestions limit"
+                label={t("settings:codeReviewForm.suggestionsLimit")}
                 name="suggestionsLimit"
             />
             <FormSwitchField
                 control={form.control}
-                helperText="Enable additional insights for drift-related code patterns."
-                label="Enable drift signals"
+                helperText={t("settings:codeReviewForm.enableDriftSignalsHelper")}
+                label={t("settings:codeReviewForm.enableDriftSignals")}
                 name="enableDriftSignals"
             />
             <FormSubmitButton isSubmitting={form.formState.isSubmitting}>
-                Save review config
+                {t("settings:codeReviewForm.saveReviewConfig")}
             </FormSubmitButton>
         </form>
     )
