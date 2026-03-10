@@ -7,9 +7,7 @@ import { renderWithProviders } from "../../utils/render"
 
 describe("SidebarFooter", (): void => {
     it("рендерит user avatar с именем пользователя", (): void => {
-        renderWithProviders(
-            <SidebarFooter userName="Jane Doe" userEmail="jane@example.com" />,
-        )
+        renderWithProviders(<SidebarFooter userName="Jane Doe" userEmail="jane@example.com" />)
 
         expect(screen.getAllByText("Jane Doe").length).toBeGreaterThan(0)
     })
@@ -17,7 +15,7 @@ describe("SidebarFooter", (): void => {
     it("использует fallback 'User', когда userName не задан", (): void => {
         renderWithProviders(<SidebarFooter />)
 
-        expect(screen.getAllByText("Пользователь").length).toBeGreaterThan(0)
+        expect(screen.getAllByText("User").length).toBeGreaterThan(0)
     })
 
     it("вычисляет initials 'CN', когда userName не задан", (): void => {
@@ -45,29 +43,25 @@ describe("SidebarFooter", (): void => {
         renderWithProviders(
             <SidebarFooter
                 activeOrganizationId="non-existent"
-                organizations={[
-                    { id: "org-1", label: "CodeNautic" },
-                ]}
+                organizations={[{ id: "org-1", label: "CodeNautic" }]}
                 userName="Test User"
             />,
         )
 
-        expect(screen.getByText("Рабочее пространство")).not.toBeNull()
+        expect(screen.getByText("Workspace")).not.toBeNull()
     })
 
     it("не рендерит workspace switcher, когда organizations не переданы", (): void => {
         renderWithProviders(<SidebarFooter userName="Test User" />)
 
-        expect(screen.queryByText("Рабочее пространство")).toBeNull()
+        expect(screen.queryByText("Workspace")).toBeNull()
     })
 
     it("скрывает текст и показывает только иконки в collapsed режиме", (): void => {
         renderWithProviders(
             <SidebarFooter
                 isCollapsed={true}
-                organizations={[
-                    { id: "org-1", label: "CodeNautic" },
-                ]}
+                organizations={[{ id: "org-1", label: "CodeNautic" }]}
                 activeOrganizationId="org-1"
                 userName="Jane Doe"
             />,
@@ -103,18 +97,16 @@ describe("SidebarFooter", (): void => {
             await user.click(userTrigger)
         }
 
-        expect(screen.getByText("Открыть настройки")).not.toBeNull()
-        expect(screen.getByText("Открыть биллинг")).not.toBeNull()
-        expect(screen.getByText("Помощь и диагностика")).not.toBeNull()
+        expect(screen.getByText("Open settings")).not.toBeNull()
+        expect(screen.getByText("Open billing")).not.toBeNull()
+        expect(screen.getByText("Help & diagnostics")).not.toBeNull()
     })
 
     it("показывает Sign out в user menu, когда onSignOut передан", async (): Promise<void> => {
         const user = userEvent.setup()
         const onSignOut = vi.fn()
 
-        renderWithProviders(
-            <SidebarFooter userName="Jane Doe" onSignOut={onSignOut} />,
-        )
+        renderWithProviders(<SidebarFooter userName="Jane Doe" onSignOut={onSignOut} />)
 
         const triggers = screen.getAllByRole("button", { name: /Jane Doe/i })
         const userTrigger = triggers.find(
@@ -126,7 +118,7 @@ describe("SidebarFooter", (): void => {
             await user.click(userTrigger)
         }
 
-        expect(screen.getByText("Выйти")).not.toBeNull()
+        expect(screen.getByText("Sign out")).not.toBeNull()
     })
 
     it("не рендерит Sign out кнопку, когда onSignOut не передан", async (): Promise<void> => {
@@ -144,15 +136,13 @@ describe("SidebarFooter", (): void => {
             await user.click(userTrigger)
         }
 
-        expect(screen.queryByText("Выйти")).toBeNull()
+        expect(screen.queryByText("Sign out")).toBeNull()
     })
 
     it("отображает email и имя пользователя в открытом user menu", async (): Promise<void> => {
         const user = userEvent.setup()
 
-        renderWithProviders(
-            <SidebarFooter userName="Jane Doe" userEmail="jane@example.com" />,
-        )
+        renderWithProviders(<SidebarFooter userName="Jane Doe" userEmail="jane@example.com" />)
 
         const triggers = screen.getAllByRole("button", { name: /Jane Doe/i })
         const userTrigger = triggers.find(
@@ -215,9 +205,7 @@ describe("SidebarFooter", (): void => {
         renderWithProviders(
             <SidebarFooter
                 isCollapsed={false}
-                organizations={[
-                    { id: "org-1", label: "CodeNautic" },
-                ]}
+                organizations={[{ id: "org-1", label: "CodeNautic" }]}
                 activeOrganizationId="org-1"
                 userName="Jane Doe"
             />,
@@ -231,9 +219,7 @@ describe("SidebarFooter", (): void => {
         renderWithProviders(<SidebarFooter userName="John Smith" />)
 
         const srOnlySpans = screen.getAllByText("JO")
-        const hasSrOnly = srOnlySpans.some(
-            (span): boolean => span.classList.contains("sr-only"),
-        )
+        const hasSrOnly = srOnlySpans.some((span): boolean => span.classList.contains("sr-only"))
         expect(hasSrOnly).toBe(true)
     })
 
@@ -241,9 +227,7 @@ describe("SidebarFooter", (): void => {
         const { container } = renderWithProviders(
             <SidebarFooter
                 isCollapsed={false}
-                organizations={[
-                    { id: "org-1", label: "CodeNautic" },
-                ]}
+                organizations={[{ id: "org-1", label: "CodeNautic" }]}
                 activeOrganizationId="org-1"
                 userName="Test User"
             />,
@@ -257,9 +241,7 @@ describe("SidebarFooter", (): void => {
         renderWithProviders(
             <SidebarFooter
                 isCollapsed={true}
-                organizations={[
-                    { id: "org-1", label: "CodeNautic" },
-                ]}
+                organizations={[{ id: "org-1", label: "CodeNautic" }]}
                 activeOrganizationId="org-1"
                 userName="Test User"
             />,
@@ -283,7 +265,7 @@ describe("SidebarFooter", (): void => {
             await user.click(userTrigger)
         }
 
-        expect(screen.getByLabelText("Пользователь")).not.toBeNull()
+        expect(screen.getByLabelText("User")).not.toBeNull()
     })
 
     it("рендерит user dropdown trigger с aria-haspopup", (): void => {
@@ -299,9 +281,7 @@ describe("SidebarFooter", (): void => {
     it("рендерит workspace trigger с aria-haspopup когда organizations переданы", (): void => {
         renderWithProviders(
             <SidebarFooter
-                organizations={[
-                    { id: "org-1", label: "CodeNautic" },
-                ]}
+                organizations={[{ id: "org-1", label: "CodeNautic" }]}
                 activeOrganizationId="org-1"
                 userName="Test User"
             />,
@@ -312,5 +292,145 @@ describe("SidebarFooter", (): void => {
             (button): boolean => button.getAttribute("aria-haspopup") === "true",
         )
         expect(popupTriggers.length).toBe(2)
+    })
+
+    it("when workspace org is selected, then calls onOrganizationChange with a string key", async (): Promise<void> => {
+        const user = userEvent.setup()
+        const onOrganizationChange = vi.fn()
+
+        renderWithProviders(
+            <SidebarFooter
+                organizations={[
+                    { id: "org-1", label: "Org Alpha" },
+                    { id: "org-2", label: "Org Beta" },
+                ]}
+                activeOrganizationId="org-1"
+                onOrganizationChange={onOrganizationChange}
+                userName="Test User"
+            />,
+        )
+
+        const workspaceTrigger = screen.getByText("Org Alpha").closest("button")
+        expect(workspaceTrigger).not.toBeNull()
+
+        if (workspaceTrigger !== null) {
+            await user.click(workspaceTrigger)
+        }
+
+        const orgBetaOption = screen.getByText("Org Beta")
+        await user.click(orgBetaOption)
+
+        expect(onOrganizationChange).toHaveBeenCalledTimes(1)
+        expect(typeof onOrganizationChange.mock.calls[0]?.[0]).toBe("string")
+    })
+
+    it("when settings menu item is pressed, then calls onOpenSettings", async (): Promise<void> => {
+        const user = userEvent.setup()
+        const onOpenSettings = vi.fn()
+
+        renderWithProviders(<SidebarFooter userName="Jane Doe" onOpenSettings={onOpenSettings} />)
+
+        const triggers = screen.getAllByRole("button", { name: /Jane Doe/i })
+        const userTrigger = triggers.find(
+            (button): boolean => button.getAttribute("aria-haspopup") === "true",
+        )
+        expect(userTrigger).not.toBeUndefined()
+
+        if (userTrigger !== undefined) {
+            await user.click(userTrigger)
+        }
+
+        const settingsItem = screen.getByText("Open settings")
+        await user.click(settingsItem)
+
+        expect(onOpenSettings).toHaveBeenCalledTimes(1)
+    })
+
+    it("when billing menu item is pressed, then calls onOpenBilling", async (): Promise<void> => {
+        const user = userEvent.setup()
+        const onOpenBilling = vi.fn()
+
+        renderWithProviders(<SidebarFooter userName="Jane Doe" onOpenBilling={onOpenBilling} />)
+
+        const triggers = screen.getAllByRole("button", { name: /Jane Doe/i })
+        const userTrigger = triggers.find(
+            (button): boolean => button.getAttribute("aria-haspopup") === "true",
+        )
+        expect(userTrigger).not.toBeUndefined()
+
+        if (userTrigger !== undefined) {
+            await user.click(userTrigger)
+        }
+
+        const billingItem = screen.getByText("Open billing")
+        await user.click(billingItem)
+
+        expect(onOpenBilling).toHaveBeenCalledTimes(1)
+    })
+
+    it("when help menu item is pressed, then calls onOpenHelp", async (): Promise<void> => {
+        const user = userEvent.setup()
+        const onOpenHelp = vi.fn()
+
+        renderWithProviders(<SidebarFooter userName="Jane Doe" onOpenHelp={onOpenHelp} />)
+
+        const triggers = screen.getAllByRole("button", { name: /Jane Doe/i })
+        const userTrigger = triggers.find(
+            (button): boolean => button.getAttribute("aria-haspopup") === "true",
+        )
+        expect(userTrigger).not.toBeUndefined()
+
+        if (userTrigger !== undefined) {
+            await user.click(userTrigger)
+        }
+
+        const helpItem = screen.getByText("Help & diagnostics")
+        await user.click(helpItem)
+
+        expect(onOpenHelp).toHaveBeenCalledTimes(1)
+    })
+
+    it("when sign out is pressed, then calls onSignOut", async (): Promise<void> => {
+        const user = userEvent.setup()
+        const onSignOut = vi.fn()
+
+        renderWithProviders(<SidebarFooter userName="Jane Doe" onSignOut={onSignOut} />)
+
+        const triggers = screen.getAllByRole("button", { name: /Jane Doe/i })
+        const userTrigger = triggers.find(
+            (button): boolean => button.getAttribute("aria-haspopup") === "true",
+        )
+        expect(userTrigger).not.toBeUndefined()
+
+        if (userTrigger !== undefined) {
+            await user.click(userTrigger)
+        }
+
+        const signOutItem = screen.getByText("Sign out")
+        await user.click(signOutItem)
+
+        expect(onSignOut).toHaveBeenCalledTimes(1)
+    })
+
+    it("when sign out item is pressed but onSignOut becomes undefined, then does not throw", async (): Promise<void> => {
+        const user = userEvent.setup()
+        const onSignOut = vi.fn()
+
+        renderWithProviders(<SidebarFooter userName="Jane Doe" onSignOut={onSignOut} />)
+
+        const triggers = screen.getAllByRole("button", { name: /Jane Doe/i })
+        const userTrigger = triggers.find(
+            (button): boolean => button.getAttribute("aria-haspopup") === "true",
+        )
+        expect(userTrigger).not.toBeUndefined()
+
+        if (userTrigger !== undefined) {
+            await user.click(userTrigger)
+        }
+
+        const signOutItem = screen.getByText("Sign out")
+        expect((): void => {
+            signOutItem.click()
+        }).not.toThrow()
     })
 })

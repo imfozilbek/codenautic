@@ -45,4 +45,87 @@ describe("ContextSourceCard", (): void => {
         expect(onToggle).toHaveBeenCalledWith("jira-source", false)
         expect(onRefresh).toHaveBeenCalledWith("jira-source")
     })
+
+    it("when status is DEGRADED, then renders Degraded chip", (): void => {
+        renderWithProviders(
+            <ContextSourceCard source={{ ...SOURCE, status: EXTERNAL_CONTEXT_STATUS.degraded }} />,
+        )
+
+        expect(screen.getByText("Degraded")).toBeDefined()
+    })
+
+    it("when status is SYNCING, then renders Syncing chip", (): void => {
+        renderWithProviders(
+            <ContextSourceCard source={{ ...SOURCE, status: EXTERNAL_CONTEXT_STATUS.syncing }} />,
+        )
+
+        expect(screen.getByText("Syncing")).toBeDefined()
+    })
+
+    it("when status is DISCONNECTED, then renders Disconnected chip", (): void => {
+        renderWithProviders(
+            <ContextSourceCard
+                source={{ ...SOURCE, status: EXTERNAL_CONTEXT_STATUS.disconnected }}
+            />,
+        )
+
+        expect(screen.getByText("Disconnected")).toBeDefined()
+    })
+
+    it("when source is disabled, then shows Enable button", (): void => {
+        renderWithProviders(
+            <ContextSourceCard onToggleEnabled={vi.fn()} source={{ ...SOURCE, enabled: false }} />,
+        )
+
+        expect(screen.getByRole("button", { name: "Enable" })).toBeDefined()
+    })
+
+    it("when selected, then applies border style", (): void => {
+        const { container } = renderWithProviders(
+            <ContextSourceCard selected={true} source={SOURCE} />,
+        )
+
+        const card = container.querySelector(".border-primary-300")
+        expect(card).not.toBeNull()
+    })
+
+    it("when onSelect provided, then clicking card calls onSelect", async (): Promise<void> => {
+        const user = userEvent.setup()
+        const onSelect = vi.fn()
+
+        renderWithProviders(<ContextSourceCard onSelect={onSelect} source={SOURCE} />)
+
+        await user.click(screen.getByText("Jira issues"))
+
+        expect(onSelect).toHaveBeenCalledWith("jira-source")
+    })
+
+    it("when lastSyncedAt is undefined, then shows n/a", (): void => {
+        renderWithProviders(<ContextSourceCard source={{ ...SOURCE, lastSyncedAt: undefined }} />)
+
+        expect(screen.getByText(/Last sync: n\/a/)).toBeDefined()
+    })
+
+    it("when isLoading, then buttons are disabled", (): void => {
+        renderWithProviders(
+            <ContextSourceCard
+                isLoading={true}
+                onRefresh={vi.fn()}
+                onToggleEnabled={vi.fn()}
+                source={SOURCE}
+            />,
+        )
+
+        const disableBtn = screen.getByRole("button", { name: "Disable" })
+        const refreshBtn = screen.getByRole("button", { name: "Refresh" })
+        expect(disableBtn.matches(":disabled")).toBe(true)
+        expect(refreshBtn.matches(":disabled")).toBe(true)
+    })
+
+    it("when no onToggleEnabled, then toggle button is disabled", (): void => {
+        renderWithProviders(<ContextSourceCard source={SOURCE} />)
+
+        const btn = screen.getByRole("button", { name: "Disable" })
+        expect(btn.matches(":disabled")).toBe(true)
+    })
 })

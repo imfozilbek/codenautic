@@ -182,10 +182,7 @@ describe("ConfigurationEditor", (): void => {
             />,
         )
 
-        await user.selectOptions(
-            screen.getByLabelText("Repository review mode"),
-            "AUTO_PAUSE",
-        )
+        await user.selectOptions(screen.getByLabelText("Repository review mode"), "AUTO_PAUSE")
         expect(onReviewModeChange).toHaveBeenCalledWith(REPO_REVIEW_MODE.autoPause)
     })
 

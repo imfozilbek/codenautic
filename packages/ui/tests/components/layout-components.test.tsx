@@ -257,8 +257,8 @@ describe("layout components", (): void => {
         )
 
         expect(screen.queryByText("Navigation")).not.toBeNull()
-        expect(screen.queryByRole("button", { name: /Дашборд/ })).not.toBeNull()
-        expect(screen.queryByRole("button", { name: /Управление CCR/ })).not.toBeNull()
+        expect(screen.queryByRole("button", { name: /Dashboard/ })).not.toBeNull()
+        expect(screen.queryByRole("button", { name: /CCR Management/ })).not.toBeNull()
 
         const collapseButton = screen.getByRole("button", { name: "Collapse navigation" })
         await user.click(collapseButton)
@@ -537,7 +537,7 @@ describe("layout components", (): void => {
             defaultThemeMode: "light" as ThemeMode,
         })
 
-        expect(screen.queryByRole("button", { name: /Настройки/ })).not.toBeNull()
+        expect(screen.queryByRole("button", { name: /Settings/ })).not.toBeNull()
         expect(screen.queryByRole("button", { name: /LLM Providers/ })).toBeNull()
         expect(screen.queryByRole("button", { name: /Code Review/ })).toBeNull()
         expect(screen.queryByRole("button", { name: /Git Providers/ })).toBeNull()
@@ -555,14 +555,10 @@ describe("layout components", (): void => {
             },
         )
 
-        window.dispatchEvent(
-            new CustomEvent("codenautic:shortcut:open-command-palette"),
-        )
+        window.dispatchEvent(new CustomEvent("codenautic:shortcut:open-command-palette"))
 
         await waitFor((): void => {
-            expect(
-                screen.getByRole("dialog", { name: "Global command palette" }),
-            ).not.toBeNull()
+            expect(screen.getByRole("dialog", { name: "Global command palette" })).not.toBeNull()
         })
     })
 
@@ -640,9 +636,7 @@ describe("layout components", (): void => {
         await user.keyboard("{Meta>}k{/Meta}")
 
         await waitFor((): void => {
-            expect(
-                screen.getByRole("dialog", { name: "Global command palette" }),
-            ).not.toBeNull()
+            expect(screen.getByRole("dialog", { name: "Global command palette" })).not.toBeNull()
         })
     })
 
@@ -662,17 +656,13 @@ describe("layout components", (): void => {
         await user.keyboard("{Control>}k{/Control}")
 
         await waitFor((): void => {
-            expect(
-                screen.getByRole("dialog", { name: "Global command palette" }),
-            ).not.toBeNull()
+            expect(screen.getByRole("dialog", { name: "Global command palette" })).not.toBeNull()
         })
 
         await user.keyboard("{Escape}")
 
         await waitFor((): void => {
-            expect(
-                screen.queryByRole("dialog", { name: "Global command palette" }),
-            ).toBeNull()
+            expect(screen.queryByRole("dialog", { name: "Global command palette" })).toBeNull()
         })
     })
 
@@ -692,7 +682,7 @@ describe("layout components", (): void => {
 
         const breadcrumbButtons = screen.queryAllByRole("button")
         const settingsButton = breadcrumbButtons.find(
-            (button): boolean => button.textContent === "Настройки",
+            (button): boolean => button.textContent === "Settings",
         )
         if (settingsButton !== undefined) {
             await user.click(settingsButton)

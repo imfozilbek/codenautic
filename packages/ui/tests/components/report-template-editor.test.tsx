@@ -12,12 +12,12 @@ describe("ReportTemplateEditor", (): void => {
 
         await user.clear(screen.getByLabelText("Template name"))
         await user.type(screen.getByLabelText("Template name"), "Leadership weekly digest")
-        await user.clear(screen.getByLabelText("Template brand logo"))
+        await user.clear(screen.getByLabelText("Brand logo URL"))
         await user.type(
-            screen.getByLabelText("Template brand logo"),
+            screen.getByLabelText("Brand logo URL"),
             "https://cdn.codenautic.app/lead.svg",
         )
-        fireEvent.change(screen.getByLabelText("Template accent color"), {
+        fireEvent.change(screen.getByLabelText("Accent color"), {
             target: { value: "#0f766e" },
         })
 
@@ -66,9 +66,7 @@ describe("ReportTemplateEditor", (): void => {
 
         const sectionsList = screen.getByRole("list", { name: "Template sections list" })
 
-        await user.click(
-            screen.getByRole("button", { name: "Move up section executive-summary" }),
-        )
+        await user.click(screen.getByRole("button", { name: "Move up section executive-summary" }))
 
         const items = sectionsList.querySelectorAll("li")
         const firstSectionTitle = items[0]?.textContent ?? ""
@@ -226,7 +224,9 @@ describe("ReportTemplateEditor", (): void => {
 
         await waitFor((): void => {
             expect(
-                screen.getByText(/Template saved: Weekly engineering report with 4 enabled sections/),
+                screen.getByText(
+                    /Template saved: Weekly engineering report with 4 enabled sections/,
+                ),
             ).not.toBeNull()
         })
     })

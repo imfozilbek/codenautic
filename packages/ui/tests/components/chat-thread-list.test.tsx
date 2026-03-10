@@ -213,9 +213,7 @@ describe("chat thread list", (): void => {
 
         const allPressedButtons = screen
             .getAllByRole("button", { name: /Open thread/ })
-            .filter(
-                (button): boolean => button.getAttribute("aria-pressed") === "true",
-            )
+            .filter((button): boolean => button.getAttribute("aria-pressed") === "true")
         expect(allPressedButtons.length).toBe(0)
     })
 

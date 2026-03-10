@@ -206,4 +206,239 @@ describe("chat message bubble", (): void => {
             lineEnd: undefined,
         })
     })
+
+    it("when роль system, then отображает метку Система", (): void => {
+        renderWithProviders(
+            <ChatMessageBubble
+                message={{
+                    content: "Системное уведомление",
+                    id: "sys-msg",
+                    role: "system",
+                }}
+            />,
+        )
+
+        expect(screen.queryByText("Система")).not.toBeNull()
+    })
+
+    it("when контент пустой, then отображает dash в области контента", (): void => {
+        renderWithProviders(
+            <ChatMessageBubble
+                message={{
+                    content: "",
+                    id: "empty-msg",
+                    role: "assistant",
+                    sender: "Bot",
+                }}
+            />,
+        )
+
+        const dashes = screen.queryAllByText("—")
+        expect(dashes.length).toBeGreaterThanOrEqual(2)
+        const contentDash = dashes.find((element): boolean =>
+            element.className.includes("text-text-subtle"),
+        )
+        expect(contentDash).not.toBeUndefined()
+    })
+
+    it("when compact true, then применяет full width", (): void => {
+        renderWithProviders(
+            <ChatMessageBubble
+                compact
+                message={{
+                    content: "Compact message",
+                    id: "compact-msg",
+                    role: "user",
+                    sender: "User",
+                }}
+            />,
+        )
+
+        const article = screen.getByRole("article")
+        expect(article.className).toContain("max-w-full")
+    })
+
+    it("when compact false, then применяет ограниченный width", (): void => {
+        renderWithProviders(
+            <ChatMessageBubble
+                message={{
+                    content: "Normal message",
+                    id: "normal-msg",
+                    role: "user",
+                    sender: "User",
+                }}
+            />,
+        )
+
+        const article = screen.getByRole("article")
+        expect(article.className).toContain("max-w-[82%]")
+    })
+
+    it("when createdAt валидная строка, then отображает форматированное время", (): void => {
+        renderWithProviders(
+            <ChatMessageBubble
+                message={{
+                    content: "Timed message",
+                    createdAt: new Date("2026-03-10T14:30:00.000Z"),
+                    id: "timed-msg",
+                    role: "assistant",
+                    sender: "Bot",
+                }}
+            />,
+        )
+
+        expect(screen.queryByText("—")).toBeNull()
+    })
+
+    it("when createdAt невалидная строка, then отображает dash", (): void => {
+        renderWithProviders(
+            <ChatMessageBubble
+                message={{
+                    content: "Bad date message",
+                    createdAt: "not-a-date",
+                    id: "bad-date-msg",
+                    role: "assistant",
+                    sender: "Bot",
+                }}
+            />,
+        )
+
+        expect(screen.queryByText("—")).not.toBeNull()
+    })
+
+    it("when sender не задан, then использует role-based label", (): void => {
+        renderWithProviders(
+            <ChatMessageBubble
+                message={{
+                    content: "No sender",
+                    id: "no-sender-msg",
+                    role: "assistant",
+                }}
+            />,
+        )
+
+        expect(screen.queryByText("Ассистент")).not.toBeNull()
+    })
+
+    it("when ссылка содержит URL с протоколом, then не парсит как code reference", (): void => {
+        const onCodeReferenceClick = vi.fn()
+
+        renderWithProviders(
+            <ChatMessageBubble
+                message={{
+                    content: "[Docs](https://docs.example.com/guide)",
+                    id: "url-link-msg",
+                    role: "assistant",
+                    sender: "Bot",
+                }}
+                onCodeReferenceClick={onCodeReferenceClick}
+            />,
+        )
+
+        const link = screen.getByRole("link", { name: "Docs" })
+        expect(link).toHaveAttribute("href", "https://docs.example.com/guide")
+    })
+
+    it("when code block без языка, then отображает text", (): void => {
+        renderWithProviders(
+            <ChatMessageBubble
+                message={{
+                    content: "```\nplain text block\n```",
+                    id: "no-lang-msg",
+                    role: "assistant",
+                    sender: "Bot",
+                }}
+            />,
+        )
+
+        const codeBlock = screen.getByLabelText("Code block code-0")
+        expect(codeBlock).not.toBeNull()
+        expect(screen.queryByText("text")).not.toBeNull()
+    })
+
+    it("when markdown содержит h2, then рендерит как h4", (): void => {
+        renderWithProviders(
+            <ChatMessageBubble
+                message={{
+                    content: "## Подзаголовок",
+                    id: "h2-msg",
+                    role: "assistant",
+                    sender: "Bot",
+                }}
+            />,
+        )
+
+        expect(screen.getByRole("heading", { level: 4, name: "Подзаголовок" })).not.toBeNull()
+    })
+
+    it("when code reference с line range (start-end), then парсит оба числа", async (): Promise<void> => {
+        const user = userEvent.setup()
+        const onCodeReferenceClick = vi.fn()
+
+        renderWithProviders(
+            <ChatMessageBubble
+                message={{
+                    content: "[src/utils.ts:5-15](src/utils.ts:5-15)",
+                    id: "range-ref-msg",
+                    role: "assistant",
+                }}
+                onCodeReferenceClick={onCodeReferenceClick}
+            />,
+        )
+
+        const link = screen.getByRole("link", {
+            name: "Code reference src/utils.ts:5-15",
+        })
+        await user.click(link)
+
+        expect(onCodeReferenceClick).toHaveBeenCalledWith({
+            filePath: "src/utils.ts",
+            lineStart: 5,
+            lineEnd: 15,
+        })
+    })
+
+    it("when code reference с hash range #L10-L20, then парсит hash line numbers", async (): Promise<void> => {
+        const user = userEvent.setup()
+        const onCodeReferenceClick = vi.fn()
+
+        renderWithProviders(
+            <ChatMessageBubble
+                message={{
+                    content: "[src/app.ts#L10-L20](src/app.ts#L10-L20)",
+                    id: "hash-range-msg",
+                    role: "assistant",
+                }}
+                onCodeReferenceClick={onCodeReferenceClick}
+            />,
+        )
+
+        const link = screen.getByRole("link", {
+            name: "Code reference src/app.ts:10-20",
+        })
+        await user.click(link)
+
+        expect(onCodeReferenceClick).toHaveBeenCalledWith({
+            filePath: "src/app.ts",
+            lineStart: 10,
+            lineEnd: 20,
+        })
+    })
+
+    it("when onCodeReferenceClick не передан но href содержит code ref, then ссылка не делает preventDefault", async (): Promise<void> => {
+        renderWithProviders(
+            <ChatMessageBubble
+                message={{
+                    content: "[src/main.ts:5](src/main.ts:5)",
+                    id: "no-callback-msg",
+                    role: "assistant",
+                }}
+            />,
+        )
+
+        const link = screen.getByRole("link", {
+            name: "Code reference src/main.ts:5",
+        })
+        expect(link).not.toBeNull()
+    })
 })

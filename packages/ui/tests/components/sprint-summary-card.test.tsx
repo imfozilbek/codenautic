@@ -65,4 +65,51 @@ describe("SprintSummaryCard", (): void => {
             }),
         )
     })
+
+    it("when metric has negative delta, then renders without plus prefix", (): void => {
+        const negModel: ISprintSummaryCardModel = {
+            ...TEST_MODEL,
+            metrics: [
+                {
+                    deltaPercent: -5,
+                    focusFileIds: [],
+                    id: "bugs",
+                    label: "Bugs",
+                    value: "Bug count 3",
+                },
+            ],
+        }
+
+        renderWithProviders(<SprintSummaryCard model={negModel} />)
+
+        expect(screen.getByText("-5%")).toBeDefined()
+    })
+
+    it("when metric has zero delta, then renders 0%", (): void => {
+        const zeroModel: ISprintSummaryCardModel = {
+            ...TEST_MODEL,
+            metrics: [
+                {
+                    deltaPercent: 0,
+                    focusFileIds: [],
+                    id: "stable",
+                    label: "Stable",
+                    value: "No change",
+                },
+            ],
+        }
+
+        renderWithProviders(<SprintSummaryCard model={zeroModel} />)
+
+        expect(screen.getByText("0%")).toBeDefined()
+    })
+
+    it("when activeMetricId matches, then applies active style", (): void => {
+        renderWithProviders(<SprintSummaryCard activeMetricId="complexity" model={TEST_MODEL} />)
+
+        const button = screen.getByRole("button", {
+            name: "Inspect sprint summary metric Complexity",
+        })
+        expect(button.className).toContain("border-primary")
+    })
 })

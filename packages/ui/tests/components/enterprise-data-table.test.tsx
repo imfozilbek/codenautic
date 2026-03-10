@@ -373,10 +373,7 @@ describe("EnterpriseDataTable", (): void => {
             density: "compact",
             globalFilter: "beta",
         }
-        window.localStorage.setItem(
-            "ui.enterprise-table.restored-table",
-            JSON.stringify(savedView),
-        )
+        window.localStorage.setItem("ui.enterprise-table.restored-table", JSON.stringify(savedView))
 
         renderWithProviders(
             <EnterpriseDataTable
@@ -459,9 +456,7 @@ describe("EnterpriseDataTable", (): void => {
         )
 
         const rows = screen.getAllByRole("row")
-        const dataRow = rows.find(
-            (row): boolean => row.getAttribute("tabindex") === "0",
-        )
+        const dataRow = rows.find((row): boolean => row.getAttribute("tabindex") === "0")
         expect(dataRow).not.toBeUndefined()
 
         if (dataRow !== undefined) {

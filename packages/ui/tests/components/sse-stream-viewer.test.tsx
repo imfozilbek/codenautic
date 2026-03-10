@@ -154,11 +154,7 @@ describe("SseStreamViewer", (): void => {
 
     it("отображает заголовок и секцию Event log", (): void => {
         renderWithProviders(
-            <SseStreamViewer
-                autoStart={false}
-                eventSourceUrl="/api/v1/stream"
-                title="My Stream"
-            />,
+            <SseStreamViewer autoStart={false} eventSourceUrl="/api/v1/stream" title="My Stream" />,
         )
 
         expect(screen.getByText("My Stream")).not.toBeNull()
@@ -202,19 +198,14 @@ describe("SseStreamViewer", (): void => {
     })
 
     it("рендерит done событие с меткой 'Done'", (): void => {
-        renderWithProviders(
-            <SseStreamViewer eventSourceUrl="/api/v1/stream" title="Done stream" />,
-        )
+        renderWithProviders(<SseStreamViewer eventSourceUrl="/api/v1/stream" title="Done stream" />)
 
         const source = mockSources.at(0)
         expect(source).not.toBeUndefined()
 
         act((): void => {
             source?.emit("open", "")
-            source?.emit(
-                "done",
-                JSON.stringify({ message: "All done" }),
-            )
+            source?.emit("done", JSON.stringify({ message: "All done" }))
         })
 
         expect(screen.getByText("Done")).not.toBeNull()
@@ -231,10 +222,7 @@ describe("SseStreamViewer", (): void => {
 
         act((): void => {
             source?.emit("open", "")
-            source?.emit(
-                "stream-error",
-                JSON.stringify({ message: "Something went wrong" }),
-            )
+            source?.emit("stream-error", JSON.stringify({ message: "Something went wrong" }))
         })
 
         expect(screen.getByText("Error")).not.toBeNull()
@@ -258,9 +246,7 @@ describe("SseStreamViewer", (): void => {
     })
 
     it("показывает статус 'Live' при открытом соединении", (): void => {
-        renderWithProviders(
-            <SseStreamViewer eventSourceUrl="/api/v1/stream" title="Test stream" />,
-        )
+        renderWithProviders(<SseStreamViewer eventSourceUrl="/api/v1/stream" title="Test stream" />)
 
         const source = mockSources.at(0)
         expect(source).not.toBeUndefined()

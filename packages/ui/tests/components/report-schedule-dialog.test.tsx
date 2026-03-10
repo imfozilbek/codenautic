@@ -13,11 +13,11 @@ describe("ReportScheduleDialog", (): void => {
         await user.click(screen.getByRole("button", { name: "Open schedule dialog" }))
         expect(screen.getByRole("dialog", { name: "Report schedule dialog" })).not.toBeNull()
 
-        await user.clear(screen.getByLabelText("Schedule recipients"))
-        await user.type(screen.getByLabelText("Schedule recipients"), "lead@codenautic.app")
-        await user.clear(screen.getByLabelText("Schedule cron expression"))
-        await user.type(screen.getByLabelText("Schedule cron expression"), "0 8 * * 1-5")
-        await user.selectOptions(screen.getByLabelText("Schedule format"), "png")
+        await user.clear(screen.getByLabelText("Recipients"))
+        await user.type(screen.getByLabelText("Recipients"), "lead@codenautic.app")
+        await user.clear(screen.getByLabelText("Cron expression"))
+        await user.type(screen.getByLabelText("Cron expression"), "0 8 * * 1-5")
+        await user.selectOptions(screen.getByLabelText("Delivery format"), "png")
 
         expect(screen.getByLabelText("Schedule preview value").textContent).toContain("0 8 * * 1-5")
         expect(screen.getByLabelText("Schedule preview value").textContent).toContain(

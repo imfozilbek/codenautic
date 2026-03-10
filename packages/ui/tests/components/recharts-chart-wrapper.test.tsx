@@ -68,11 +68,7 @@ describe("recharts chart wrapper", (): void => {
 
         let capturedIsAggregated = true
         renderWithProviders(
-            <RechartsChartWrapper
-                data={rows}
-                scalePolicy={{ enabled: false }}
-                title="Chart"
-            >
+            <RechartsChartWrapper data={rows} scalePolicy={{ enabled: false }} title="Chart">
                 {({ isAggregated }) => {
                     capturedIsAggregated = isAggregated
                     return <p>content</p>
@@ -134,8 +130,10 @@ describe("recharts chart wrapper", (): void => {
                 }}
             >
                 {({ displayData }) => {
-                    capturedDisplayData =
-                        displayData as ReadonlyArray<{ label: string; value: number }>
+                    capturedDisplayData = displayData as ReadonlyArray<{
+                        label: string
+                        value: number
+                    }>
                     return <p>ok</p>
                 }}
             </RechartsChartWrapper>,
