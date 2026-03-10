@@ -1,4 +1,5 @@
 import type { ReactElement } from "react"
+import { useTranslation } from "react-i18next"
 
 import { Card, CardBody, CardHeader } from "@/components/ui"
 import { TYPOGRAPHY } from "@/lib/constants/typography"
@@ -21,14 +22,13 @@ import { useOnboardingWizardState } from "./use-onboarding-wizard-state"
  * @returns Компонент wizard с расширенным bulk-режимом.
  */
 export function OnboardingWizardPage(props: IOnboardingWizardPageProps): ReactElement {
+    const { t } = useTranslation(["onboarding"])
     const state = useOnboardingWizardState(props)
 
     return (
         <section className="space-y-4">
-            <h1 className={TYPOGRAPHY.pageTitle}>Repository Onboarding</h1>
-            <p className={TYPOGRAPHY.pageSubtitle}>
-                Подключите новый репозиторий, проверьте параметры и запустите скан.
-            </p>
+            <h1 className={TYPOGRAPHY.pageTitle}>{t("onboarding:page.title")}</h1>
+            <p className={TYPOGRAPHY.pageSubtitle}>{t("onboarding:page.subtitle")}</p>
 
             <Card>
                 <CardHeader>

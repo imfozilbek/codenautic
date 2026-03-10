@@ -1,4 +1,5 @@
 import type { ReactElement } from "react"
+import { useTranslation } from "react-i18next"
 
 import { Button } from "@/components/ui"
 import { FormSubmitButton } from "@/components/forms"
@@ -21,6 +22,8 @@ export interface IWizardStepsNavigatorProps {
  * @returns Компонент навигации.
  */
 export function WizardStepsNavigator({ state }: IWizardStepsNavigatorProps): ReactElement {
+    const { t } = useTranslation(["onboarding"])
+
     return (
         <div className="flex items-center justify-between gap-2">
             <Button
@@ -31,16 +34,16 @@ export function WizardStepsNavigator({ state }: IWizardStepsNavigatorProps): Rea
                 type="button"
                 variant="light"
             >
-                Назад
+                {t("onboarding:navigator.backButton")}
             </Button>
             {state.isFinalStep ? (
                 <FormSubmitButton
                     buttonProps={{
                         isDisabled: state.isStarted,
                     }}
-                    submittingText="Запускаем..."
+                    submittingText={t("onboarding:navigator.submittingButton")}
                 >
-                    Запустить сканирование
+                    {t("onboarding:navigator.submitButton")}
                 </FormSubmitButton>
             ) : (
                 <Button
@@ -49,7 +52,7 @@ export function WizardStepsNavigator({ state }: IWizardStepsNavigatorProps): Rea
                     }}
                     type="button"
                 >
-                    Далее
+                    {t("onboarding:navigator.nextButton")}
                 </Button>
             )}
         </div>
@@ -71,11 +74,14 @@ export interface IWizardStepIndicatorProps {
  * @returns Компонент индикатора шагов.
  */
 export function WizardStepIndicator({ state }: IWizardStepIndicatorProps): ReactElement {
+    const { t } = useTranslation(["onboarding"])
+
     return (
         <div className="flex items-center justify-between gap-2">
             {WIZARD_STEPS.map((step, index): ReactElement => {
                 const isActive = index === state.activeStep
                 const isCompleted = index < state.activeStep
+                const stepId = step.id
 
                 return (
                     <button
@@ -95,10 +101,17 @@ export function WizardStepIndicator({ state }: IWizardStepIndicatorProps): React
                             className={`rounded-md px-2 py-2 ${isActive ? "bg-foreground text-background" : isCompleted ? "bg-surface-muted text-foreground" : "bg-surface text-muted-foreground"}`}
                         >
                             <p className="text-xs font-semibold uppercase tracking-wider">
-                                Шаг {index + 1}
+                                {(t as unknown as (key: string, options: Record<string, string>) => string)(
+                                    "onboarding:steps.stepLabel",
+                                    { number: String(index + 1) },
+                                )}
                             </p>
-                            <p className="text-sm font-semibold">{step.label}</p>
-                            <p className="text-xs">{step.description}</p>
+                            <p className="text-sm font-semibold">
+                                {t(`onboarding:steps.${stepId}.label`)}
+                            </p>
+                            <p className="text-xs">
+                                {t(`onboarding:steps.${stepId}.description`)}
+                            </p>
                         </div>
                     </button>
                 )

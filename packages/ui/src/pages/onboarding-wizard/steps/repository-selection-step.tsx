@@ -1,18 +1,13 @@
-import type { ReactElement } from "react"
+import { useMemo, type ReactElement } from "react"
+import { useTranslation } from "react-i18next"
 
 import { Alert, Button, Checkbox } from "@/components/ui"
-import {
-    FormRadioGroupField,
-    FormTextField,
-    FormTextareaField,
-} from "@/components/forms"
+import { FormRadioGroupField, FormTextField, FormTextareaField } from "@/components/forms"
+import type { IFormSelectOption } from "@/components/forms"
 
 import type { IOnboardingWizardState } from "../use-onboarding-wizard-state"
 import type { IOnboardingFormValues } from "../onboarding-wizard-types"
-import {
-    BULK_PROGRESS_PREVIEW_LABEL_LIMIT,
-    ONBOARDING_MODE_SELECT_OPTIONS,
-} from "../onboarding-wizard-types"
+import { BULK_PROGRESS_PREVIEW_LABEL_LIMIT } from "../onboarding-wizard-types"
 
 /**
  * Параметры компонента шага выбора репозитория.
@@ -31,6 +26,22 @@ export interface IRepositorySelectionStepProps {
 export function RepositorySelectionStep({
     state,
 }: IRepositorySelectionStepProps): ReactElement | null {
+    const { t } = useTranslation(["onboarding"])
+
+    const onboardingModeOptions: ReadonlyArray<IFormSelectOption> = useMemo(
+        () => [
+            {
+                label: t("onboarding:repository.singleLabel"),
+                value: "single",
+            },
+            {
+                label: t("onboarding:repository.bulkLabel"),
+                value: "bulk",
+            },
+        ],
+        [t],
+    )
+
     if (state.activeStep !== 1) {
         return null
     }
@@ -39,21 +50,21 @@ export function RepositorySelectionStep({
         <section className="space-y-3">
             <FormRadioGroupField<IOnboardingFormValues, "onboardingMode">
                 control={state.form.control}
-                helperText="Выберите формат запуска."
-                label="Режим onboarding"
+                helperText={t("onboarding:repository.modeHelper")}
+                label={t("onboarding:repository.modeLabel")}
                 name="onboardingMode"
-                options={ONBOARDING_MODE_SELECT_OPTIONS}
+                options={onboardingModeOptions}
             />
 
             {state.isSingleMode ? (
                 <FormTextField<IOnboardingFormValues, "repositoryUrl">
                     control={state.form.control}
                     id="repository-url"
-                    label="URL репозитория"
+                    label={t("onboarding:repository.urlLabel")}
                     name="repositoryUrl"
-                    helperText="Поддерживаются GitHub, GitLab, Bitbucket."
+                    helperText={t("onboarding:repository.urlHelper")}
                     inputProps={{
-                        placeholder: "https://github.com/owner/repository",
+                        placeholder: t("onboarding:repository.urlPlaceholder"),
                         type: "url",
                     }}
                 />
@@ -62,7 +73,7 @@ export function RepositorySelectionStep({
                     <FormTextareaField<IOnboardingFormValues, "repositoryUrlList">
                         control={state.form.control}
                         id="repository-url-list"
-                        label="Список репозиториев (по одной ссылке на строку)"
+                        label={t("onboarding:repository.bulkListLabel")}
                         name="repositoryUrlList"
                         textareaProps={{
                             minRows: 6,
@@ -73,15 +84,13 @@ https://github.com/owner/repo-b`,
 
                     <div className="flex items-center justify-between">
                         <p className="text-sm text-foreground">
-                            Выбрано{" "}
-                            <span className="font-semibold">
-                                {state.selectedRepositoryUrls.length}
-                            </span>{" "}
-                            из{" "}
-                            <span className="font-semibold">
-                                {state.parsedBulkList.repositories.length}
-                            </span>{" "}
-                            репозиториев
+                            {(t as unknown as (key: string, options: Record<string, string>) => string)(
+                                "onboarding:repository.selectedCount",
+                                {
+                                    selected: String(state.selectedRepositoryUrls.length),
+                                    total: String(state.parsedBulkList.repositories.length),
+                                },
+                            )}
                         </p>
                         <div className="flex gap-2">
                             <Button
@@ -92,7 +101,7 @@ https://github.com/owner/repo-b`,
                                 type="button"
                                 variant="light"
                             >
-                                Выбрать все
+                                {t("onboarding:repository.selectAll")}
                             </Button>
                             <Button
                                 onPress={(): void => {
@@ -102,7 +111,7 @@ https://github.com/owner/repo-b`,
                                 type="button"
                                 variant="light"
                             >
-                                Снять все
+                                {t("onboarding:repository.deselectAll")}
                             </Button>
                         </div>
                     </div>
@@ -110,7 +119,7 @@ https://github.com/owner/repo-b`,
                     <div className="max-h-60 space-y-2 overflow-auto rounded-md border border-border p-2">
                         {state.parsedBulkList.repositories.length === 0 ? (
                             <p className="text-sm text-muted-foreground">
-                                Добавьте URL репозиториев в поле выше.
+                                {t("onboarding:repository.bulkEmptyHint")}
                             </p>
                         ) : null}
 
@@ -137,7 +146,7 @@ https://github.com/owner/repo-b`,
 
                     {state.parsedBulkList.invalidLines.length > 0 ? (
                         <Alert color="danger">
-                            Некорректные строки
+                            {t("onboarding:repository.invalidLines")}
                             <ul className="mt-1 list-disc space-y-1 pl-5">
                                 {state.parsedBulkList.invalidLines.map(
                                     (line): ReactElement => (
@@ -153,8 +162,7 @@ https://github.com/owner/repo-b`,
                     {state.parsedBulkList.repositories.length >
                     BULK_PROGRESS_PREVIEW_LABEL_LIMIT ? (
                         <Alert color="primary">
-                            Будет применен единый шаблон сканирования ко всем выбранным
-                            репозиториям.
+                            {t("onboarding:repository.bulkTemplateNotice")}
                         </Alert>
                     ) : null}
                 </>
@@ -162,8 +170,7 @@ https://github.com/owner/repo-b`,
 
             {state.isSingleMode || state.isStarted ? null : (
                 <Alert color="primary">
-                    В bulk-режиме все выбранные репозитории запускаются по общему шаблону
-                    настроек.
+                    {t("onboarding:repository.bulkInfoNotice")}
                 </Alert>
             )}
         </section>

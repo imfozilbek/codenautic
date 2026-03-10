@@ -1,4 +1,5 @@
-import type { ReactElement } from "react"
+import { useMemo, type ReactElement } from "react"
+import { useTranslation } from "react-i18next"
 
 import { Alert, Button, Chip } from "@/components/ui"
 import {
@@ -8,21 +9,19 @@ import {
     FormSwitchField,
     FormTextField,
 } from "@/components/forms"
+import type { IFormSelectOption } from "@/components/forms"
 
 import type { IOnboardingWizardState } from "../use-onboarding-wizard-state"
-import type { IOnboardingFormValues } from "../onboarding-wizard-types"
+import type { IOnboardingFormValues, TOnboardingTemplateId } from "../onboarding-wizard-types"
 import {
     PREVIEW_REPOSITORY_LIMIT,
     PREVIEW_TEMPLATE_DIFF_LIMIT,
-    SCAN_MODE_SELECT_OPTIONS,
-    SCAN_SCHEDULE_SELECT_OPTIONS,
 } from "../onboarding-wizard-types"
 import {
-    formatBooleanForSummary,
     formatTemplateTags,
     mapProviderLabel,
     splitTemplateTagsForPreview,
-    TEMPLATE_OPTIONS,
+    ONBOARDING_TEMPLATES,
 } from "../onboarding-templates"
 
 /**
@@ -39,9 +38,77 @@ export interface IScanConfigurationStepProps {
  * @param props Конфигурация.
  * @returns Компонент шага настройки сканирования.
  */
-export function ScanConfigurationStep({
-    state,
-}: IScanConfigurationStepProps): ReactElement | null {
+export function ScanConfigurationStep({ state }: IScanConfigurationStepProps): ReactElement | null {
+    const { t } = useTranslation(["onboarding"])
+
+    const templateOptions: ReadonlyArray<{
+        readonly label: string
+        readonly value: TOnboardingTemplateId
+    }> = useMemo(
+        () => [
+            {
+                label: t("onboarding:templates.customLabel"),
+                value: "custom" as TOnboardingTemplateId,
+            },
+            ...ONBOARDING_TEMPLATES.map(
+                (
+                    template,
+                ): {
+                    readonly label: string
+                    readonly value: TOnboardingTemplateId
+                } => ({
+                    label: `${template.name} — ${template.version}`,
+                    value: template.id,
+                }),
+            ),
+        ],
+        [t],
+    )
+
+    const scanModeSelectOptions: ReadonlyArray<IFormSelectOption> = useMemo(
+        () => [
+            {
+                label: t("onboarding:scanModeOptions.incremental"),
+                value: "incremental",
+            },
+            {
+                label: t("onboarding:scanModeOptions.full"),
+                value: "full",
+            },
+            {
+                label: t("onboarding:scanModeOptions.delta"),
+                value: "delta",
+            },
+        ],
+        [t],
+    )
+
+    const scanScheduleSelectOptions: ReadonlyArray<IFormSelectOption> = useMemo(
+        () => [
+            {
+                description: t("onboarding:scheduleOptions.manualDescription"),
+                label: t("onboarding:scheduleOptions.manual"),
+                value: "manual",
+            },
+            {
+                description: t("onboarding:scheduleOptions.hourlyDescription"),
+                label: t("onboarding:scheduleOptions.hourly"),
+                value: "hourly",
+            },
+            {
+                description: t("onboarding:scheduleOptions.dailyDescription"),
+                label: t("onboarding:scheduleOptions.daily"),
+                value: "daily",
+            },
+            {
+                description: t("onboarding:scheduleOptions.weeklyDescription"),
+                label: t("onboarding:scheduleOptions.weekly"),
+                value: "weekly",
+            },
+        ],
+        [t],
+    )
+
     if (state.activeStep !== 2) {
         return null
     }
@@ -51,50 +118,56 @@ export function ScanConfigurationStep({
             <section className="space-y-3">
                 <div className="rounded-md border border-border p-3">
                     <p className="text-sm font-semibold text-foreground">
-                        Registry шаблонов onboarding
+                        {t("onboarding:scan.templateRegistry")}
                     </p>
                     <p className="text-xs text-muted-foreground">
-                        Выберите шаблон — сначала preview, потом примените в один клик.
+                        {t("onboarding:scan.templateRegistryHint")}
                     </p>
                     <div className="mt-2">
                         <FormRadioGroupField<IOnboardingFormValues, "onboardingTemplateId">
                             control={state.form.control}
-                            helperText="Шаблон влияет только на настройки сканирования."
-                            label="Шаблон"
+                            helperText={t("onboarding:scan.templateFieldHelper")}
+                            label={t("onboarding:scan.templateFieldLabel")}
                             name="onboardingTemplateId"
-                            options={TEMPLATE_OPTIONS}
+                            options={templateOptions}
                         />
                     </div>
 
                     {state.selectedTemplate !== undefined ? (
                         <details className="mt-2">
                             <summary className="cursor-pointer text-sm font-semibold">
-                                Что будет применено
+                                {t("onboarding:scan.whatWillBeApplied")}
                             </summary>
                             <div className="mt-2 space-y-1 text-xs text-foreground">
                                 <p>
-                                    <span className="font-semibold">ID:</span>{" "}
+                                    <span className="font-semibold">
+                                        {t("onboarding:scan.idLabel")}:
+                                    </span>{" "}
                                     {state.selectedTemplate.id}
                                 </p>
                                 <p>
-                                    <span className="font-semibold">Version:</span>{" "}
+                                    <span className="font-semibold">
+                                        {t("onboarding:scan.versionLabel")}:
+                                    </span>{" "}
                                     {state.selectedTemplate.version}
                                 </p>
                                 <p>
-                                    <span className="font-semibold">Rules:</span>{" "}
+                                    <span className="font-semibold">
+                                        {t("onboarding:scan.rulesLabel")}:
+                                    </span>{" "}
                                     {state.selectedTemplate.rulesPreset}
                                 </p>
                                 <p>
-                                    <span className="font-semibold">Description:</span>{" "}
+                                    <span className="font-semibold">
+                                        {t("onboarding:scan.descriptionLabel")}:
+                                    </span>{" "}
                                     {state.selectedTemplate.description}
                                 </p>
-                                {state.templateDiff
-                                    .slice(0, PREVIEW_TEMPLATE_DIFF_LIMIT)
-                                    .map(
-                                        (line): ReactElement => (
-                                            <p key={line}>{line}</p>
-                                        ),
-                                    )}
+                                {state.templateDiff.slice(0, PREVIEW_TEMPLATE_DIFF_LIMIT).map(
+                                    (line): ReactElement => (
+                                        <p key={line}>{line}</p>
+                                    ),
+                                )}
                             </div>
                         </details>
                     ) : null}
@@ -110,18 +183,18 @@ export function ScanConfigurationStep({
                                 type="button"
                                 variant="light"
                             >
-                                Применить шаблон
+                                {t("onboarding:scan.applyTemplate")}
                             </Button>
                         </div>
                     ) : null}
 
                     <details className="mt-2">
                         <summary className="cursor-pointer text-sm font-semibold">
-                            Применённые шаблоны (audit log)
+                            {t("onboarding:scan.auditLogTitle")}
                         </summary>
                         {state.templateAuditLog.length === 0 ? (
                             <p className="mt-2 text-sm text-muted-foreground">
-                                Пока шаблоны не применялись.
+                                {t("onboarding:scan.auditLogEmpty")}
                             </p>
                         ) : null}
                         {state.templateAuditLog.length === 0 ? null : (
@@ -136,16 +209,19 @@ export function ScanConfigurationStep({
                                                 key={`${entry.templateId}-${entry.appliedAt}`}
                                             >
                                                 <p className="text-xs">
-                                                    {entry.templateName} —{" "}
-                                                    {entry.templateVersion}
+                                                    {entry.templateName} — {entry.templateVersion}
                                                 </p>
                                                 <p className="text-xs text-muted-foreground">
                                                     {entry.appliedAt}
                                                 </p>
                                                 <p className="text-xs text-muted-foreground">
-                                                    From:{" "}
-                                                    {formatTemplateTags(entry.before.tags)} →
-                                                    {formatTemplateTags(entry.after.tags)}
+                                                    {(t as unknown as (key: string, options: Record<string, string>) => string)(
+                                                        "onboarding:scan.auditLogFrom",
+                                                        {
+                                                            before: formatTemplateTags(entry.before.tags),
+                                                            after: formatTemplateTags(entry.after.tags),
+                                                        },
+                                                    )}
                                                 </p>
                                             </article>
                                         ),
@@ -160,7 +236,7 @@ export function ScanConfigurationStep({
                                     type="button"
                                     variant="ghost"
                                 >
-                                    Откатить последнее применение
+                                    {t("onboarding:scan.rollbackLast")}
                                 </Button>
                             </div>
                         )}
@@ -170,91 +246,90 @@ export function ScanConfigurationStep({
                 <FormSelectField<IOnboardingFormValues, "scanMode">
                     control={state.form.control}
                     id="scan-mode"
-                    helperText="Incremental — быстрее, full — полная проверка."
-                    label="Режим сканирования"
+                    helperText={t("onboarding:scan.scanModeHelper")}
+                    label={t("onboarding:scan.scanModeLabel")}
                     name="scanMode"
-                    options={SCAN_MODE_SELECT_OPTIONS}
+                    options={scanModeSelectOptions}
                 />
                 <FormTextField<IOnboardingFormValues, "tags">
                     control={state.form.control}
-                    helperText="Через запятую."
+                    helperText={t("onboarding:scan.tagsHelper")}
                     id="onboarding-tags"
                     inputProps={{
-                        placeholder: "security, core, baseline",
+                        placeholder: t("onboarding:scan.tagsPlaceholder"),
                         type: "text",
                     }}
-                    label="Теги"
+                    label={t("onboarding:scan.tagsLabel")}
                     name="tags"
                 />
                 <FormSelectField<IOnboardingFormValues, "scanSchedule">
                     control={state.form.control}
                     id="scan-schedule"
-                    label="Расписание"
+                    label={t("onboarding:scan.scheduleLabel")}
                     name="scanSchedule"
-                    options={SCAN_SCHEDULE_SELECT_OPTIONS}
+                    options={scanScheduleSelectOptions}
                 />
                 <FormNumberField<IOnboardingFormValues, "scanThreads">
                     control={state.form.control}
                     id="scan-threads"
-                    helperText="1..32 параллельных воркера."
+                    helperText={t("onboarding:scan.workersHelper")}
                     inputProps={{
                         min: 1,
                         max: 32,
                         placeholder: "4",
                     }}
-                    label="Количество воркеров"
+                    label={t("onboarding:scan.workersLabel")}
                     name="scanThreads"
                 />
                 <FormSwitchField<IOnboardingFormValues, "includeSubmodules">
                     control={state.form.control}
-                    label="Включать сабмодули"
+                    label={t("onboarding:scan.submodulesLabel")}
                     name="includeSubmodules"
                 />
                 <FormSwitchField<IOnboardingFormValues, "includeHistory">
                     control={state.form.control}
-                    helperText="Если включено, соберём больше индексов."
-                    label="Сканировать историю"
+                    helperText={t("onboarding:scan.historyHelper")}
+                    label={t("onboarding:scan.historyLabel")}
                     name="includeHistory"
                 />
                 <FormTextField<IOnboardingFormValues, "notifyEmail">
                     control={state.form.control}
-                    helperText="Email для уведомлений о статусе."
+                    helperText={t("onboarding:scan.notifyEmailHelper")}
                     id="notify-email"
                     inputProps={{
                         placeholder: "dev@company.com",
                         type: "email",
                     }}
-                    label="Email для уведомлений (необязательно)"
+                    label={t("onboarding:scan.notifyEmailLabel")}
                     name="notifyEmail"
                 />
             </section>
 
             <section className="space-y-3">
                 <p className="text-sm font-semibold text-foreground">
-                    Проверьте выбранные настройки:
+                    {t("onboarding:summary.title")}
                 </p>
                 <div className="grid gap-2 rounded-lg border border-border p-3">
                     {state.isSingleMode ? (
                         <p className="text-sm">
-                            <span className="font-semibold">Repository:</span>{" "}
+                            <span className="font-semibold">
+                                {t("onboarding:summary.repositoryLabel")}:
+                            </span>{" "}
                             {state.values.repositoryUrl}
                         </p>
                     ) : null}
                     <details className="rounded-md border border-border p-2">
                         <summary className="cursor-pointer text-sm font-semibold">
-                            Шаблон onboarding
+                            {t("onboarding:summary.onboardingTemplate")}
                         </summary>
                         <p className="mt-1 text-sm text-foreground">
-                            {state.appliedTemplateMeta.name} (
-                            {state.appliedTemplateMeta.version})
+                            {state.appliedTemplateMeta.name} ({state.appliedTemplateMeta.version})
                         </p>
                         <p className="text-sm text-foreground">
-                            Rules: {state.appliedTemplateMeta.rulesPreset}
+                            {t("onboarding:scan.rulesLabel")}: {state.appliedTemplateMeta.rulesPreset}
                         </p>
                         <div className="mt-1 flex flex-wrap gap-1">
-                            {splitTemplateTagsForPreview(
-                                state.appliedTemplateMeta.tags,
-                            ).map(
+                            {splitTemplateTagsForPreview(state.appliedTemplateMeta.tags).map(
                                 (tag): ReactElement => (
                                     <Chip key={tag} size="sm">
                                         {tag}
@@ -266,12 +341,17 @@ export function ScanConfigurationStep({
                     {state.isSingleMode ? null : (
                         <details className="rounded-md border border-border p-2">
                             <summary className="cursor-pointer text-sm font-semibold">
-                                Применяемый профиль
+                                {t("onboarding:summary.appliedProfile")}
                             </summary>
                             <p className="mt-1 text-sm text-foreground">
-                                Один шаблон на {state.selectedRepositoryUrls.length}{" "}
-                                репозиториев: {state.values.scanMode}/
-                                {state.values.scanSchedule}
+                                {(t as unknown as (key: string, options: Record<string, string>) => string)(
+                                    "onboarding:summary.profileDescription",
+                                    {
+                                        count: String(state.selectedRepositoryUrls.length),
+                                        mode: state.values.scanMode,
+                                        schedule: state.values.scanSchedule,
+                                    },
+                                )}
                             </p>
                             {state.selectedRepositoryUrls.length === 0 ? null : (
                                 <ul className="mt-2 list-disc space-y-1 pl-5 text-sm">
@@ -287,12 +367,15 @@ export function ScanConfigurationStep({
                                     {state.selectedRepositoryUrls.length >
                                     PREVIEW_REPOSITORY_LIMIT ? (
                                         <li>
-                                            ...и еще{" "}
-                                            {String(
-                                                state.selectedRepositoryUrls.length -
-                                                    PREVIEW_REPOSITORY_LIMIT,
-                                            )}{" "}
-                                            репозиториев.
+                                            {(t as unknown as (key: string, options: Record<string, string>) => string)(
+                                                "onboarding:summary.moreRepositories",
+                                                {
+                                                    count: String(
+                                                        state.selectedRepositoryUrls.length -
+                                                            PREVIEW_REPOSITORY_LIMIT,
+                                                    ),
+                                                },
+                                            )}
                                         </li>
                                     ) : null}
                                 </ul>
@@ -300,34 +383,54 @@ export function ScanConfigurationStep({
                         </details>
                     )}
                     <p className="text-sm">
-                        <span className="font-semibold">Provider:</span>{" "}
+                        <span className="font-semibold">
+                            {t("onboarding:summary.providerLabel")}:
+                        </span>{" "}
                         {mapProviderLabel(state.values.provider)} (
-                        {state.isProviderConnected ? "connected" : "not connected"})
+                        {state.isProviderConnected
+                            ? t("onboarding:summary.providerConnected")
+                            : t("onboarding:summary.providerNotConnected")})
                     </p>
                     <p className="text-sm">
-                        <span className="font-semibold">Mode:</span>{" "}
+                        <span className="font-semibold">
+                            {t("onboarding:summary.modeLabel")}:
+                        </span>{" "}
                         {state.values.scanMode}
                     </p>
                     <p className="text-sm">
-                        <span className="font-semibold">Schedule:</span>{" "}
+                        <span className="font-semibold">
+                            {t("onboarding:summary.scheduleLabel")}:
+                        </span>{" "}
                         {state.values.scanSchedule}
                     </p>
                     <p className="text-sm">
-                        <span className="font-semibold">Workers:</span>{" "}
+                        <span className="font-semibold">
+                            {t("onboarding:summary.workersLabel")}:
+                        </span>{" "}
                         {state.values.scanThreads}
                     </p>
                     <p className="text-sm">
-                        <span className="font-semibold">Submodules:</span>{" "}
-                        {formatBooleanForSummary(state.values.includeSubmodules)}
+                        <span className="font-semibold">
+                            {t("onboarding:summary.submodulesLabel")}:
+                        </span>{" "}
+                        {state.values.includeSubmodules
+                            ? t("onboarding:boolean.yes")
+                            : t("onboarding:boolean.no")}
                     </p>
                     <p className="text-sm">
-                        <span className="font-semibold">History:</span>{" "}
-                        {formatBooleanForSummary(state.values.includeHistory)}
+                        <span className="font-semibold">
+                            {t("onboarding:summary.historyLabel")}:
+                        </span>{" "}
+                        {state.values.includeHistory
+                            ? t("onboarding:boolean.yes")
+                            : t("onboarding:boolean.no")}
                     </p>
                     <p className="text-sm">
-                        <span className="font-semibold">Email:</span>{" "}
+                        <span className="font-semibold">
+                            {t("onboarding:summary.emailLabel")}:
+                        </span>{" "}
                         {state.values.notifyEmail.length === 0
-                            ? "не указан"
+                            ? t("onboarding:summary.emailNotSet")
                             : state.values.notifyEmail}
                     </p>
                 </div>
@@ -335,13 +438,13 @@ export function ScanConfigurationStep({
                 {state.isSingleMode ? (
                     <Alert color="success">
                         {state.isStarted
-                            ? "Сканирование запущено. Вы можете повторить запуск после правок."
-                            : "После запуска будет начат первичный скан."}
+                            ? t("onboarding:summary.singleStartedAlert")
+                            : t("onboarding:summary.singleReadyAlert")}
                     </Alert>
                 ) : null}
                 {state.isSingleMode || state.isStarted ? null : (
                     <Alert color="primary">
-                        После запуска вы увидите единый статус для всех репозиториев.
+                        {t("onboarding:summary.bulkReadyAlert")}
                     </Alert>
                 )}
             </section>

@@ -1,14 +1,27 @@
 import type { ReactElement } from "react"
+import { useTranslation } from "react-i18next"
 
 import { Alert, Button } from "@/components/ui"
 
 import type { IOnboardingWizardState } from "../use-onboarding-wizard-state"
 import {
-    mapBulkStatusLabel,
     mapBulkStatusClasses,
     mapBulkProgressClasses,
     isBulkScanTerminal,
 } from "../onboarding-templates"
+import type { TBulkScanStatus } from "../onboarding-wizard-types"
+
+/**
+ * Маппинг статуса bulk-задачи на i18n ключ.
+ */
+const BULK_STATUS_KEYS: Record<TBulkScanStatus, string> = {
+    running: "onboarding:bulk.statusRunning",
+    queued: "onboarding:bulk.statusQueued",
+    paused: "onboarding:bulk.statusPaused",
+    completed: "onboarding:bulk.statusCompleted",
+    cancelled: "onboarding:bulk.statusCancelled",
+    error: "onboarding:bulk.statusError",
+}
 
 /**
  * Параметры компонента мониторинга bulk-задач.
@@ -25,6 +38,8 @@ export interface IBulkScanJobsMonitorProps {
  * @returns Компонент мониторинга bulk-задач или null.
  */
 export function BulkScanJobsMonitor({ state }: IBulkScanJobsMonitorProps): ReactElement | null {
+    const { t } = useTranslation(["onboarding"])
+
     if (state.isSingleMode || state.isStarted === false) {
         return null
     }
@@ -36,7 +51,7 @@ export function BulkScanJobsMonitor({ state }: IBulkScanJobsMonitorProps): React
     return (
         <section className="space-y-3">
             <div className="flex items-center justify-between gap-2">
-                <p className="text-sm font-semibold">Прогресс массового сканирования</p>
+                <p className="text-sm font-semibold">{t("onboarding:bulk.progressTitle")}</p>
                 <div className="flex gap-2">
                     <Button
                         isDisabled={state.isBulkPaused}
@@ -47,7 +62,7 @@ export function BulkScanJobsMonitor({ state }: IBulkScanJobsMonitorProps): React
                         type="button"
                         variant="light"
                     >
-                        Пауза
+                        {t("onboarding:bulk.pauseButton")}
                     </Button>
                     <Button
                         isDisabled={state.isBulkPaused === false}
@@ -58,7 +73,7 @@ export function BulkScanJobsMonitor({ state }: IBulkScanJobsMonitorProps): React
                         type="button"
                         variant="light"
                     >
-                        Возобновить
+                        {t("onboarding:bulk.resumeButton")}
                     </Button>
                     <Button
                         color="danger"
@@ -69,17 +84,24 @@ export function BulkScanJobsMonitor({ state }: IBulkScanJobsMonitorProps): React
                         type="button"
                         variant="ghost"
                     >
-                        Отменить все
+                        {t("onboarding:bulk.cancelAllButton")}
                     </Button>
                 </div>
             </div>
 
             <div className="grid gap-2 rounded-lg border border-border p-2 text-sm">
                 <p>
-                    В работе: {state.bulkSummary.running}, Очередь:{" "}
-                    {state.bulkSummary.queued}, Пауза: {state.bulkSummary.paused}, Ошибки:{" "}
-                    {state.bulkSummary.error}, Готово: {state.bulkSummary.completed}, Отменено:{" "}
-                    {state.bulkSummary.cancelled}
+                    {(t as unknown as (key: string, options: Record<string, string>) => string)(
+                        "onboarding:bulk.summaryLine",
+                        {
+                            running: String(state.bulkSummary.running),
+                            queued: String(state.bulkSummary.queued),
+                            paused: String(state.bulkSummary.paused),
+                            error: String(state.bulkSummary.error),
+                            completed: String(state.bulkSummary.completed),
+                            cancelled: String(state.bulkSummary.cancelled),
+                        },
+                    )}
                 </p>
 
                 {state.bulkJobs.map(
@@ -93,7 +115,9 @@ export function BulkScanJobsMonitor({ state }: IBulkScanJobsMonitorProps): React
                                 <span
                                     className={`rounded-full border px-2 py-1 text-xs ${mapBulkStatusClasses(job.status)}`}
                                 >
-                                    {mapBulkStatusLabel(job.status)}
+                                    {(t as unknown as (key: string) => string)(
+                                        BULK_STATUS_KEYS[job.status],
+                                    )}
                                 </span>
                             </div>
                             <div className="mt-2 h-2 rounded-full bg-surface-muted">
@@ -110,7 +134,10 @@ export function BulkScanJobsMonitor({ state }: IBulkScanJobsMonitorProps): React
                                 />
                             </div>
                             <p className="mt-1 text-xs text-muted-foreground">
-                                Прогресс: {job.progress}%
+                                {(t as unknown as (key: string, options: Record<string, string>) => string)(
+                                    "onboarding:bulk.progressLabel",
+                                    { value: String(job.progress) },
+                                )}
                             </p>
 
                             {job.errorMessage === undefined ? null : (
@@ -122,14 +149,12 @@ export function BulkScanJobsMonitor({ state }: IBulkScanJobsMonitorProps): React
                             job.errorDetails.length === 0 ? null : (
                                 <details className="mt-2">
                                     <summary className="cursor-pointer text-xs font-semibold">
-                                        Подробнее об ошибке
+                                        {t("onboarding:bulk.errorDetailsTitle")}
                                     </summary>
                                     <ul className="mt-1 list-disc pl-5 text-xs">
                                         {job.errorDetails.map(
                                             (detail, index): ReactElement => (
-                                                <li
-                                                    key={`${job.id}-detail-${String(index)}`}
-                                                >
+                                                <li key={`${job.id}-detail-${String(index)}`}>
                                                     {detail}
                                                 </li>
                                             ),
@@ -149,7 +174,7 @@ export function BulkScanJobsMonitor({ state }: IBulkScanJobsMonitorProps): React
                                         type="button"
                                         variant="ghost"
                                     >
-                                        Retry
+                                        {t("onboarding:bulk.retryButton")}
                                     </Button>
                                 ) : null}
                                 {isBulkScanTerminal(job.status) ||
@@ -163,7 +188,7 @@ export function BulkScanJobsMonitor({ state }: IBulkScanJobsMonitorProps): React
                                         type="button"
                                         variant="ghost"
                                     >
-                                        Отменить
+                                        {t("onboarding:bulk.cancelButton")}
                                     </Button>
                                 )}
                             </div>

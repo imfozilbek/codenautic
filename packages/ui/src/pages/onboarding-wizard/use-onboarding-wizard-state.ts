@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react"
+import { useTranslation } from "react-i18next"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm, type Resolver, type UseFormReturn } from "react-hook-form"
 
@@ -32,11 +33,7 @@ import type {
     TGitProvider,
     TOnboardingTemplateId,
 } from "./onboarding-wizard-types"
-import {
-    CUSTOM_TEMPLATE_ID,
-    STEP_FIELDS,
-    WIZARD_STEPS,
-} from "./onboarding-wizard-types"
+import { CUSTOM_TEMPLATE_ID, STEP_FIELDS, WIZARD_STEPS } from "./onboarding-wizard-types"
 
 /**
  * Хук, инкапсулирующий всё состояние и логику мастера onboarding.
@@ -44,7 +41,10 @@ import {
  * @param props Props страницы (содержит callback запуска скана).
  * @returns Полное состояние визарда и обработчики действий.
  */
-export function useOnboardingWizardState(props: IOnboardingWizardPageProps): IOnboardingWizardStateReturn {
+export function useOnboardingWizardState(
+    props: IOnboardingWizardPageProps,
+): IOnboardingWizardStateReturn {
+    const { t } = useTranslation(["onboarding"])
     const [activeStep, setActiveStep] = useState<0 | 1 | 2>(0)
     const [isStarted, setIsStarted] = useState(false)
     const [connectedProvider, setConnectedProvider] = useState<TGitProvider | undefined>(undefined)
@@ -90,6 +90,7 @@ export function useOnboardingWizardState(props: IOnboardingWizardPageProps): IOn
         shouldApplyTemplate,
         templateStateFromForm,
         templateStateFromSelection,
+        t as unknown as (key: string) => string,
     )
     const hasTemplateChanges = canApplyTemplate
         ? isTemplateStateEqual(templateStateFromForm, templateStateFromSelection) === false
@@ -111,7 +112,7 @@ export function useOnboardingWizardState(props: IOnboardingWizardPageProps): IOn
             }
 
             if (isProviderConnected === false) {
-                setProviderConnectionError("Сначала подключите Git-провайдера.")
+                setProviderConnectionError(t("onboarding:provider.connectionError"))
                 return false
             }
 
@@ -131,7 +132,7 @@ export function useOnboardingWizardState(props: IOnboardingWizardPageProps): IOn
 
             if (parsedBulkList.repositories.length === 0 || hasBulkSelection === false) {
                 form.setError("repositoryUrlList", {
-                    message: "Выберите хотя бы один репозиторий для запуска.",
+                    message: t("onboarding:validation.selectAtLeastOneRepo"),
                     type: "manual",
                 })
                 return false
@@ -187,8 +188,8 @@ export function useOnboardingWizardState(props: IOnboardingWizardPageProps): IOn
 
         showToastSuccess(
             isBulkMode
-                ? "Сканирование репозиториев запущено."
-                : "Сканирование репозитория запущено.",
+                ? t("onboarding:toast.bulkScanStarted")
+                : t("onboarding:toast.singleScanStarted"),
         )
         props.onScanStart?.({
             ...nextValues,
@@ -200,7 +201,12 @@ export function useOnboardingWizardState(props: IOnboardingWizardPageProps): IOn
     const handleConnectProvider = (): void => {
         setConnectedProvider(values.provider)
         setProviderConnectionError(undefined)
-        showToastSuccess(`${mapProviderLabel(values.provider)} подключен.`)
+        showToastSuccess(
+            (t as unknown as (key: string, options: Record<string, string>) => string)(
+                "onboarding:provider.connectedToast",
+                { provider: mapProviderLabel(values.provider) },
+            ),
+        )
     }
 
     const applyTemplateToForm = (): void => {
@@ -486,42 +492,54 @@ export function useOnboardingWizardState(props: IOnboardingWizardPageProps): IOn
  * @param shouldApply Необходимость сравнения.
  * @param fromForm Состояние из формы.
  * @param fromSelection Состояние из шаблона.
+ * @param t Функция перевода.
  * @returns Массив строк diff.
  */
 function buildTemplateDiffItems(
     shouldApply: boolean,
     fromForm: IOnboardingTemplateFormState,
     fromSelection: IOnboardingTemplateFormState,
+    t: (key: string) => string,
 ): ReadonlyArray<string> {
     if (shouldApply === false) {
         return []
     }
 
+    const notSet = t("onboarding:diff.notSet")
+
     return [
-        buildTemplateDiffLine("Mode", fromForm.scanMode, fromSelection.scanMode),
-        buildTemplateDiffLine("Cadence", fromForm.scanSchedule, fromSelection.scanSchedule),
         buildTemplateDiffLine(
-            "Workers",
+            t("onboarding:summary.modeLabel"),
+            fromForm.scanMode,
+            fromSelection.scanMode,
+        ),
+        buildTemplateDiffLine(
+            t("onboarding:summary.scheduleLabel"),
+            fromForm.scanSchedule,
+            fromSelection.scanSchedule,
+        ),
+        buildTemplateDiffLine(
+            t("onboarding:summary.workersLabel"),
             String(fromForm.scanThreads),
             String(fromSelection.scanThreads),
         ),
         buildTemplateDiffLine(
-            "Submodules",
+            t("onboarding:summary.submodulesLabel"),
             formatBooleanForSummary(fromForm.includeSubmodules),
             formatBooleanForSummary(fromSelection.includeSubmodules),
         ),
         buildTemplateDiffLine(
-            "History",
+            t("onboarding:summary.historyLabel"),
             formatBooleanForSummary(fromForm.includeHistory),
             formatBooleanForSummary(fromSelection.includeHistory),
         ),
         buildTemplateDiffLine(
-            "Email",
-            fromForm.notifyEmail.length === 0 ? "не задан" : fromForm.notifyEmail,
-            fromSelection.notifyEmail.length === 0 ? "не задан" : fromSelection.notifyEmail,
+            t("onboarding:summary.emailLabel"),
+            fromForm.notifyEmail.length === 0 ? notSet : fromForm.notifyEmail,
+            fromSelection.notifyEmail.length === 0 ? notSet : fromSelection.notifyEmail,
         ),
         buildTemplateDiffLine(
-            "Tags",
+            t("onboarding:scan.tagsLabel"),
             formatTemplateTags(fromForm.tags),
             formatTemplateTags(fromSelection.tags),
         ),

@@ -1,11 +1,12 @@
-import type { ReactElement } from "react"
+import { useMemo, type ReactElement } from "react"
+import { useTranslation } from "react-i18next"
 
 import { Alert, Button, Chip } from "@/components/ui"
 import { FormSelectField } from "@/components/forms"
+import type { IFormSelectOption } from "@/components/forms"
 
 import type { IOnboardingWizardState } from "../use-onboarding-wizard-state"
 import type { IOnboardingFormValues } from "../onboarding-wizard-types"
-import { GIT_PROVIDER_SELECT_OPTIONS } from "../onboarding-wizard-types"
 import { mapProviderLabel } from "../onboarding-templates"
 
 /**
@@ -23,6 +24,29 @@ export interface IProviderSelectionStepProps {
  * @returns Компонент шага выбора провайдера.
  */
 export function ProviderSelectionStep({ state }: IProviderSelectionStepProps): ReactElement | null {
+    const { t } = useTranslation(["onboarding"])
+
+    const gitProviderSelectOptions: ReadonlyArray<IFormSelectOption> = useMemo(
+        () => [
+            {
+                description: t("onboarding:provider.githubDescription"),
+                label: t("onboarding:provider.github"),
+                value: "github",
+            },
+            {
+                description: t("onboarding:provider.gitlabDescription"),
+                label: t("onboarding:provider.gitlab"),
+                value: "gitlab",
+            },
+            {
+                description: t("onboarding:provider.bitbucketDescription"),
+                label: t("onboarding:provider.bitbucket"),
+                value: "bitbucket",
+            },
+        ],
+        [t],
+    )
+
     if (state.activeStep !== 0) {
         return null
     }
@@ -32,10 +56,10 @@ export function ProviderSelectionStep({ state }: IProviderSelectionStepProps): R
             <FormSelectField<IOnboardingFormValues, "provider">
                 control={state.form.control}
                 id="provider"
-                label="Git-провайдер"
+                label={t("onboarding:provider.fieldLabel")}
                 name="provider"
-                options={GIT_PROVIDER_SELECT_OPTIONS}
-                helperText="Подключение нужно для доступа к репозиториям и запуску скана."
+                options={gitProviderSelectOptions}
+                helperText={t("onboarding:provider.fieldHelper")}
             />
             <div className="flex flex-wrap items-center gap-2">
                 <Button
@@ -44,7 +68,7 @@ export function ProviderSelectionStep({ state }: IProviderSelectionStepProps): R
                     }}
                     type="button"
                 >
-                    Connect provider
+                    {t("onboarding:provider.connectButton")}
                 </Button>
                 <Chip
                     color={state.isProviderConnected ? "success" : "warning"}
@@ -52,8 +76,11 @@ export function ProviderSelectionStep({ state }: IProviderSelectionStepProps): R
                     variant="flat"
                 >
                     {state.isProviderConnected
-                        ? `${mapProviderLabel(state.values.provider)} connected`
-                        : "Not connected"}
+                        ? (t as unknown as (key: string, options: Record<string, string>) => string)(
+                              "onboarding:provider.connected",
+                              { provider: mapProviderLabel(state.values.provider) },
+                          )
+                        : t("onboarding:provider.notConnected")}
                 </Chip>
             </div>
             {state.providerConnectionError === undefined ? null : (
