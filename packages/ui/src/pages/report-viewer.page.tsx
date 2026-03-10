@@ -1,4 +1,5 @@
 import { type ReactElement, useMemo, useState } from "react"
+import { useTranslation } from "react-i18next"
 import { useNavigate } from "@tanstack/react-router"
 import {
     Bar,
@@ -83,41 +84,59 @@ const SECTION_COLORS: ReadonlyArray<string> = ["#2563eb", "#16a34a", "#f59e0b", 
  * @returns UI report viewer с export/share действиями.
  */
 export function ReportViewerPage(): ReactElement {
+    const { t } = useTranslation(["reports"])
     const navigate = useNavigate()
     const [selectedMetric, setSelectedMetric] = useState<TViewerMetric>("riskScore")
-    const [downloadStatus, setDownloadStatus] = useState<string>("No download requested yet.")
-    const [shareLink, setShareLink] = useState<string>("No share link generated yet.")
+    const [downloadStatus, setDownloadStatus] = useState<string>(
+        t("reports:viewer.noDownloadYet"),
+    )
+    const [shareLink, setShareLink] = useState<string>(t("reports:viewer.noShareLinkYet"))
 
     const metricLabel = useMemo((): string => {
-        return selectedMetric === "riskScore" ? "Risk score" : "Delivery velocity"
-    }, [selectedMetric])
+        return selectedMetric === "riskScore"
+            ? t("reports:viewer.riskScore")
+            : t("reports:viewer.deliveryVelocity")
+    }, [selectedMetric, t])
     const reportHealthSummary = useMemo((): string => {
         const latestPoint = REPORT_TREND_POINTS.at(-1)
         if (latestPoint === undefined) {
-            return "No report trend data available."
+            return t("reports:viewer.noTrendData")
         }
 
-        return `Latest metrics: risk ${String(latestPoint.riskScore)} · velocity ${String(
-            latestPoint.deliveryVelocity,
-        )}.`
-    }, [])
+        return (t as unknown as (key: string, options: Record<string, string>) => string)(
+            "reports:viewer.latestMetrics",
+            {
+                risk: String(latestPoint.riskScore),
+                velocity: String(latestPoint.deliveryVelocity),
+            },
+        )
+    }, [t])
 
     const handleDownload = (format: "PDF" | "PNG"): void => {
-        setDownloadStatus(`Download prepared in ${format} format.`)
-        showToastSuccess(`Report ${format} download prepared.`)
+        setDownloadStatus(
+            (t as unknown as (key: string, options: Record<string, string>) => string)(
+                "reports:viewer.downloadPrepared",
+                { format },
+            ),
+        )
+        showToastSuccess(
+            (t as unknown as (key: string, options: Record<string, string>) => string)(
+                "reports:viewer.downloadPreparedToast",
+                { format },
+            ),
+        )
     }
     const handleGenerateShareLink = (): void => {
         const generatedLink = `https://codenautic.app/reports/generated/2026-q1-weekly`
         setShareLink(generatedLink)
-        showToastInfo("Share link generated.")
+        showToastInfo(t("reports:viewer.shareLinkGeneratedToast"))
     }
 
     return (
         <section className="space-y-4">
-            <h1 className={TYPOGRAPHY.pageTitle}>Report viewer</h1>
+            <h1 className={TYPOGRAPHY.pageTitle}>{t("reports:viewer.pageTitle")}</h1>
             <p className={TYPOGRAPHY.pageSubtitle}>
-                View generated reports in-browser, inspect interactive charts, and export/share
-                report artifacts.
+                {t("reports:viewer.pageSubtitle")}
             </p>
             <div className="flex flex-wrap gap-2">
                 <Button
@@ -129,7 +148,7 @@ export function ReportViewerPage(): ReactElement {
                         })
                     }}
                 >
-                    Open reports list
+                    {t("reports:viewer.openReportsList")}
                 </Button>
                 <Button
                     size="sm"
@@ -140,23 +159,31 @@ export function ReportViewerPage(): ReactElement {
                         })
                     }}
                 >
-                    Open report generator
+                    {t("reports:viewer.openReportGenerator")}
                 </Button>
             </div>
 
             <Card>
                 <CardHeader>
-                    <p className={TYPOGRAPHY.sectionTitle}>Generated report</p>
+                    <p className={TYPOGRAPHY.sectionTitle}>
+                        {t("reports:viewer.generatedReportTitle")}
+                    </p>
                 </CardHeader>
                 <CardBody className="space-y-3">
-                    <Alert color="success" title="Report summary" variant="flat">
+                    <Alert
+                        color="success"
+                        title={t("reports:viewer.reportSummaryTitle")}
+                        variant="flat"
+                    >
                         {reportHealthSummary}
                     </Alert>
                     <div className="grid gap-3 md:grid-cols-2">
                         <label className="space-y-1 text-sm">
-                            <span className="font-semibold text-foreground">Chart metric</span>
+                            <span className="font-semibold text-foreground">
+                                {t("reports:viewer.chartMetricLabel")}
+                            </span>
                             <select
-                                aria-label="Report chart metric"
+                                aria-label={t("reports:viewer.chartMetricLabel")}
                                 className={NATIVE_FORM.select}
                                 value={selectedMetric}
                                 onChange={(event): void => {
@@ -169,16 +196,20 @@ export function ReportViewerPage(): ReactElement {
                                     }
                                 }}
                             >
-                                <option value="riskScore">Risk score</option>
-                                <option value="deliveryVelocity">Delivery velocity</option>
+                                <option value="riskScore">
+                                    {t("reports:viewer.riskScore")}
+                                </option>
+                                <option value="deliveryVelocity">
+                                    {t("reports:viewer.deliveryVelocity")}
+                                </option>
                             </select>
                         </label>
                         <div className="flex items-end gap-2">
                             <Button onPress={(): void => handleDownload("PDF")}>
-                                Download PDF
+                                {t("reports:viewer.downloadPdf")}
                             </Button>
                             <Button variant="flat" onPress={(): void => handleDownload("PNG")}>
-                                Download PNG
+                                {t("reports:viewer.downloadPng")}
                             </Button>
                         </div>
                     </div>
@@ -216,7 +247,7 @@ export function ReportViewerPage(): ReactElement {
                             <XAxis dataKey="section" />
                             <YAxis domain={[0, 40]} />
                             <Tooltip />
-                            <Bar dataKey="value" name="Section contribution">
+                            <Bar dataKey="value" name={t("reports:viewer.sectionContribution")}>
                                 {SECTION_DISTRIBUTION_POINTS.map(
                                     (entry, index): ReactElement => (
                                         <Cell
@@ -228,13 +259,23 @@ export function ReportViewerPage(): ReactElement {
                             </Bar>
                         </BarChart>
                     </ChartContainer>
-                    <Alert color="primary" title="Download status" variant="flat">
+                    <Alert
+                        color="primary"
+                        title={t("reports:viewer.downloadStatus")}
+                        variant="flat"
+                    >
                         {downloadStatus}
                     </Alert>
                     <div className="flex gap-2">
-                        <Button onPress={handleGenerateShareLink}>Generate share link</Button>
+                        <Button onPress={handleGenerateShareLink}>
+                            {t("reports:viewer.generateShareLink")}
+                        </Button>
                     </div>
-                    <Alert color="primary" title="Share link" variant="flat">
+                    <Alert
+                        color="primary"
+                        title={t("reports:viewer.shareLinkTitle")}
+                        variant="flat"
+                    >
                         <span aria-label="Report share link">{shareLink}</span>
                     </Alert>
                 </CardBody>

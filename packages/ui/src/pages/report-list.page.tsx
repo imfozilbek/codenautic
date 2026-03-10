@@ -1,4 +1,5 @@
 import { type ChangeEvent, type ReactElement, useMemo, useState } from "react"
+import { useTranslation } from "react-i18next"
 import { useNavigate } from "@tanstack/react-router"
 
 import { Alert, Button, Card, CardBody, CardHeader } from "@/components/ui"
@@ -64,12 +65,13 @@ function resolveReportStatusBadgeClass(status: TReportStatus): string {
  * @returns UI со списком, фильтрами, status badges и delete/regenerate actions.
  */
 export function ReportListPage(): ReactElement {
+    const { t } = useTranslation(["reports"])
     const navigate = useNavigate()
     const [reportTypeFilter, setReportTypeFilter] = useState<TReportType | "all">("all")
     const [dateFrom, setDateFrom] = useState<string>("")
     const [dateTo, setDateTo] = useState<string>("")
     const [reports, setReports] = useState<ReadonlyArray<IGeneratedReport>>(INITIAL_REPORTS)
-    const [actionStatus, setActionStatus] = useState<string>("No report action executed yet.")
+    const [actionStatus, setActionStatus] = useState<string>(t("reports:list.noActionYet"))
 
     const filteredReports = useMemo((): ReadonlyArray<IGeneratedReport> => {
         return reports.filter((report): boolean => {
@@ -98,8 +100,13 @@ export function ReportListPage(): ReactElement {
         setReports((currentReports): ReadonlyArray<IGeneratedReport> => {
             return currentReports.filter((report): boolean => report.id !== reportId)
         })
-        setActionStatus(`Deleted report ${reportId}.`)
-        showToastSuccess("Report deleted.")
+        setActionStatus(
+            (t as unknown as (key: string, options: Record<string, string>) => string)(
+                "reports:list.deletedReport",
+                { id: reportId },
+            ),
+        )
+        showToastSuccess(t("reports:list.deletedToast"))
     }
     const handleRegenerateReport = (reportId: string): void => {
         setReports((currentReports): ReadonlyArray<IGeneratedReport> => {
@@ -115,8 +122,13 @@ export function ReportListPage(): ReactElement {
                 }
             })
         })
-        setActionStatus(`Regeneration queued for report ${reportId}.`)
-        showToastInfo("Report regeneration queued.")
+        setActionStatus(
+            (t as unknown as (key: string, options: Record<string, string>) => string)(
+                "reports:list.regenerationQueued",
+                { id: reportId },
+            ),
+        )
+        showToastInfo(t("reports:list.regenerationQueuedToast"))
     }
     const handleOpenGenerator = (): void => {
         void navigate({
@@ -131,29 +143,33 @@ export function ReportListPage(): ReactElement {
 
     return (
         <section className="space-y-4">
-            <h1 className={TYPOGRAPHY.pageTitle}>Report list</h1>
+            <h1 className={TYPOGRAPHY.pageTitle}>{t("reports:list.pageTitle")}</h1>
             <p className={TYPOGRAPHY.pageSubtitle}>
-                Browse generated reports, apply filters, and trigger lifecycle actions.
+                {t("reports:list.pageSubtitle")}
             </p>
             <div className="flex flex-wrap gap-2">
                 <Button size="sm" variant="flat" onPress={handleOpenGenerator}>
-                    Open generator
+                    {t("reports:list.openGenerator")}
                 </Button>
                 <Button size="sm" variant="flat" onPress={handleOpenViewer}>
-                    Open viewer
+                    {t("reports:list.openViewer")}
                 </Button>
             </div>
 
             <Card>
                 <CardHeader>
-                    <p className={TYPOGRAPHY.sectionTitle}>Report filters</p>
+                    <p className={TYPOGRAPHY.sectionTitle}>
+                        {t("reports:list.filtersTitle")}
+                    </p>
                 </CardHeader>
                 <CardBody className="space-y-3">
                     <div className="grid gap-3 md:grid-cols-3">
                         <label className="space-y-1 text-sm">
-                            <span className="font-semibold text-foreground">Report type</span>
+                            <span className="font-semibold text-foreground">
+                                {t("reports:list.reportTypeLabel")}
+                            </span>
                             <select
-                                aria-label="Report list type filter"
+                                aria-label={t("reports:list.reportTypeLabel")}
                                 className={NATIVE_FORM.select}
                                 value={reportTypeFilter}
                                 onChange={(event): void => {
@@ -175,9 +191,11 @@ export function ReportListPage(): ReactElement {
                             </select>
                         </label>
                         <label className="space-y-1 text-sm">
-                            <span className="font-semibold text-foreground">Date from</span>
+                            <span className="font-semibold text-foreground">
+                                {t("reports:list.dateFromLabel")}
+                            </span>
                             <input
-                                aria-label="Report list date from"
+                                aria-label={t("reports:list.dateFromLabel")}
                                 className="w-full rounded border border-border bg-surface px-2 py-1 text-sm text-foreground"
                                 type="date"
                                 value={dateFrom}
@@ -185,9 +203,11 @@ export function ReportListPage(): ReactElement {
                             />
                         </label>
                         <label className="space-y-1 text-sm">
-                            <span className="font-semibold text-foreground">Date to</span>
+                            <span className="font-semibold text-foreground">
+                                {t("reports:list.dateToLabel")}
+                            </span>
                             <input
-                                aria-label="Report list date to"
+                                aria-label={t("reports:list.dateToLabel")}
                                 className="w-full rounded border border-border bg-surface px-2 py-1 text-sm text-foreground"
                                 type="date"
                                 value={dateTo}
@@ -195,20 +215,33 @@ export function ReportListPage(): ReactElement {
                             />
                         </label>
                     </div>
-                    <Alert color="primary" title="Filter summary" variant="flat">
-                        {`Filtered reports: ${String(filteredReports.length)}.`}
+                    <Alert
+                        color="primary"
+                        title={t("reports:list.filterSummaryTitle")}
+                        variant="flat"
+                    >
+                        {(t as unknown as (key: string, options: Record<string, string>) => string)(
+                            "reports:list.filteredReports",
+                            { count: String(filteredReports.length) },
+                        )}
                     </Alert>
                 </CardBody>
             </Card>
 
             <Card>
                 <CardHeader>
-                    <p className={TYPOGRAPHY.sectionTitle}>Generated reports</p>
+                    <p className={TYPOGRAPHY.sectionTitle}>
+                        {t("reports:list.generatedReportsTitle")}
+                    </p>
                 </CardHeader>
                 <CardBody className="space-y-3">
                     {filteredReports.length === 0 ? (
-                        <Alert color="warning" title="No generated reports found" variant="flat">
-                            Adjust filters to see report history.
+                        <Alert
+                            color="warning"
+                            title={t("reports:list.noReportsTitle")}
+                            variant="flat"
+                        >
+                            {t("reports:list.noReportsHint")}
                         </Alert>
                     ) : (
                         <ul aria-label="Generated reports list" className="space-y-2">
@@ -232,7 +265,13 @@ export function ReportListPage(): ReactElement {
                                             </span>
                                         </div>
                                         <p className="text-sm text-foreground">
-                                            Type: {report.type} · Date: {report.generatedAt}
+                                            {(t as unknown as (key: string, options: Record<string, string>) => string)(
+                                                "reports:list.typeAndDate",
+                                                {
+                                                    date: report.generatedAt,
+                                                    type: report.type,
+                                                },
+                                            )}
                                         </p>
                                         <div className="mt-2 flex gap-2">
                                             <Button
@@ -240,7 +279,7 @@ export function ReportListPage(): ReactElement {
                                                 variant="flat"
                                                 onPress={handleOpenViewer}
                                             >
-                                                Open viewer
+                                                {t("reports:list.openViewer")}
                                             </Button>
                                             <Button
                                                 size="sm"
@@ -249,7 +288,10 @@ export function ReportListPage(): ReactElement {
                                                     handleRegenerateReport(report.id)
                                                 }}
                                             >
-                                                {`Regenerate ${report.id}`}
+                                                {(t as unknown as (key: string, options: Record<string, string>) => string)(
+                                                    "reports:list.regenerate",
+                                                    { id: report.id },
+                                                )}
                                             </Button>
                                             <Button
                                                 color="danger"
@@ -259,7 +301,10 @@ export function ReportListPage(): ReactElement {
                                                     handleDeleteReport(report.id)
                                                 }}
                                             >
-                                                {`Delete ${report.id}`}
+                                                {(t as unknown as (key: string, options: Record<string, string>) => string)(
+                                                    "reports:list.delete",
+                                                    { id: report.id },
+                                                )}
                                             </Button>
                                         </div>
                                     </li>
@@ -267,7 +312,11 @@ export function ReportListPage(): ReactElement {
                             )}
                         </ul>
                     )}
-                    <Alert color="primary" title="Action status" variant="flat">
+                    <Alert
+                        color="primary"
+                        title={t("reports:list.actionStatusTitle")}
+                        variant="flat"
+                    >
                         {actionStatus}
                     </Alert>
                 </CardBody>
