@@ -624,10 +624,7 @@ describe("keyboard shortcut registry", (): void => {
 
         const input = document.createElement("input")
         input.type = "email"
-        const event = withTarget(
-            new KeyboardEvent("keydown", { key: "k" }),
-            input,
-        )
+        const event = withTarget(new KeyboardEvent("keydown", { key: "k" }), input)
 
         const handled = registry.handleKeydown(event, { routePath: "/" })
         expect(handled).toBe(false)
@@ -647,10 +644,7 @@ describe("keyboard shortcut registry", (): void => {
 
         const input = document.createElement("input")
         input.type = "password"
-        const event = withTarget(
-            new KeyboardEvent("keydown", { key: "k" }),
-            input,
-        )
+        const event = withTarget(new KeyboardEvent("keydown", { key: "k" }), input)
 
         const handled = registry.handleKeydown(event, { routePath: "/" })
         expect(handled).toBe(false)
@@ -670,10 +664,7 @@ describe("keyboard shortcut registry", (): void => {
 
         const input = document.createElement("input")
         input.type = "search"
-        const event = withTarget(
-            new KeyboardEvent("keydown", { key: "k" }),
-            input,
-        )
+        const event = withTarget(new KeyboardEvent("keydown", { key: "k" }), input)
 
         const handled = registry.handleKeydown(event, { routePath: "/" })
         expect(handled).toBe(false)

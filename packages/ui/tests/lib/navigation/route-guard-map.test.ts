@@ -17,14 +17,8 @@ describe("route guard map", (): void => {
             "Дашборд",
             "Восстановление после ошибки сканирования",
         ])
-        expect(getBreadcrumbs("/session-recovery", t)).toEqual([
-            "Дашборд",
-            "Восстановление сессии",
-        ])
-        expect(getBreadcrumbs("/help-diagnostics", t)).toEqual([
-            "Дашборд",
-            "Помощь и диагностика",
-        ])
+        expect(getBreadcrumbs("/session-recovery", t)).toEqual(["Дашборд", "Восстановление сессии"])
+        expect(getBreadcrumbs("/help-diagnostics", t)).toEqual(["Дашборд", "Помощь и диагностика"])
         expect(getBreadcrumbs("/settings-adoption-analytics", t)).toEqual([
             "Настройки",
             "Аналитика внедрения",

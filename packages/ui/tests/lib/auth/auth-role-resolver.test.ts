@@ -181,10 +181,7 @@ describe("resolveAccessibleRouteFallbackPath", (): void => {
             role: "viewer",
             tenantId: "runtime-team",
         }
-        const fallback = resolveAccessibleRouteFallbackPath(
-            access,
-            "/settings-organization",
-        )
+        const fallback = resolveAccessibleRouteFallbackPath(access, "/settings-organization")
         expect(fallback).toBeDefined()
     })
 })

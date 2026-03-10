@@ -57,7 +57,9 @@ function createThrowingStorage(): Storage {
     }
 }
 
-function createDefaultTestOptions(overrides: Partial<IAnalyticsSdkOptions> = {}): IAnalyticsSdkOptions {
+function createDefaultTestOptions(
+    overrides: Partial<IAnalyticsSdkOptions> = {},
+): IAnalyticsSdkOptions {
     return {
         endpoint: "/api/v1/analytics/events",
         maxBatchSize: 20,
@@ -70,8 +72,7 @@ function createDefaultTestOptions(overrides: Partial<IAnalyticsSdkOptions> = {})
         onQueueStateChange: (): void => undefined,
         isOnline: (): boolean => true,
         sendRequest: vi.fn(
-            async (): Promise<Response> =>
-                new Response(null, { status: 200, statusText: "ok" }),
+            async (): Promise<Response> => new Response(null, { status: 200, statusText: "ok" }),
         ),
         ...overrides,
     }
@@ -443,10 +444,7 @@ describe("AnalyticsSdk", (): void => {
                     payload: { action: "click" },
                 },
             ]
-            storage.setItem(
-                "test:analytics:queue",
-                JSON.stringify({ events, sessionId }),
-            )
+            storage.setItem("test:analytics:queue", JSON.stringify({ events, sessionId }))
 
             const sdk = new AnalyticsSdk(
                 createDefaultTestOptions({
@@ -490,9 +488,7 @@ describe("AnalyticsSdk", (): void => {
         it("когда storage содержит невалидный JSON, возвращает пустую очередь", (): void => {
             storage.setItem("test:analytics:queue", "not valid json{{{")
 
-            const sdk = new AnalyticsSdk(
-                createDefaultTestOptions({ storage }),
-            )
+            const sdk = new AnalyticsSdk(createDefaultTestOptions({ storage }))
 
             expect(sdk.getPendingEventsCount()).toBe(0)
         })
@@ -500,9 +496,7 @@ describe("AnalyticsSdk", (): void => {
         it("когда storage содержит невалидную структуру, возвращает пустую очередь", (): void => {
             storage.setItem("test:analytics:queue", JSON.stringify({ invalid: true }))
 
-            const sdk = new AnalyticsSdk(
-                createDefaultTestOptions({ storage }),
-            )
+            const sdk = new AnalyticsSdk(createDefaultTestOptions({ storage }))
 
             expect(sdk.getPendingEventsCount()).toBe(0)
         })
@@ -513,9 +507,7 @@ describe("AnalyticsSdk", (): void => {
                 JSON.stringify({ sessionId: "s", events: "not-array" }),
             )
 
-            const sdk = new AnalyticsSdk(
-                createDefaultTestOptions({ storage }),
-            )
+            const sdk = new AnalyticsSdk(createDefaultTestOptions({ storage }))
 
             expect(sdk.getPendingEventsCount()).toBe(0)
         })
@@ -531,10 +523,7 @@ describe("AnalyticsSdk", (): void => {
                 payload: { action: `a${String(index)}` },
             }))
 
-            storage.setItem(
-                "test:analytics:queue",
-                JSON.stringify({ events, sessionId }),
-            )
+            storage.setItem("test:analytics:queue", JSON.stringify({ events, sessionId }))
 
             const sdk = new AnalyticsSdk(
                 createDefaultTestOptions({
@@ -551,17 +540,13 @@ describe("AnalyticsSdk", (): void => {
         it("когда storage содержит sessionId, использует его", (): void => {
             storage.setItem("test:analytics:session", "existing-session")
 
-            const sdk = new AnalyticsSdk(
-                createDefaultTestOptions({ storage }),
-            )
+            const sdk = new AnalyticsSdk(createDefaultTestOptions({ storage }))
 
             expect(sdk.getSessionId()).toBe("existing-session")
         })
 
         it("когда storage пуст, создает новый sessionId и сохраняет", (): void => {
-            const sdk = new AnalyticsSdk(
-                createDefaultTestOptions({ storage }),
-            )
+            const sdk = new AnalyticsSdk(createDefaultTestOptions({ storage }))
 
             const sessionId = sdk.getSessionId()
             expect(sessionId.length).toBeGreaterThan(3)
@@ -572,9 +557,7 @@ describe("AnalyticsSdk", (): void => {
         it("когда storage выбрасывает при чтении, генерирует sessionId", (): void => {
             const throwingStorage = createThrowingStorage()
 
-            const sdk = new AnalyticsSdk(
-                createDefaultTestOptions({ storage: throwingStorage }),
-            )
+            const sdk = new AnalyticsSdk(createDefaultTestOptions({ storage: throwingStorage }))
 
             const sessionId = sdk.getSessionId()
             expect(sessionId.length).toBeGreaterThan(3)
@@ -594,9 +577,7 @@ describe("AnalyticsSdk", (): void => {
                 },
             }
 
-            const sdk = new AnalyticsSdk(
-                createDefaultTestOptions({ storage: partialStorage }),
-            )
+            const sdk = new AnalyticsSdk(createDefaultTestOptions({ storage: partialStorage }))
 
             expect(sdk.getSessionId().length).toBeGreaterThan(3)
             expect(readCount).toBeGreaterThan(0)
@@ -963,6 +944,182 @@ describe("AnalyticsSdk", (): void => {
 
             expect(acceptedCount).toBeGreaterThan(0)
             expect(acceptedCount).toBeLessThan(100)
+        })
+    })
+
+    describe("startAutoFlushTimer with active timer", (): void => {
+        afterEach((): void => {
+            vi.restoreAllMocks()
+        })
+
+        it("когда flushIntervalMs > 0 и есть события, таймер запускается и flush срабатывает", async (): Promise<void> => {
+            vi.useFakeTimers()
+
+            const sendRequest = vi.fn(
+                async (): Promise<Response> =>
+                    new Response(null, { status: 200, statusText: "ok" }),
+            )
+
+            const sdk = new AnalyticsSdk(
+                createDefaultTestOptions({
+                    sendRequest,
+                    flushIntervalMs: 200,
+                    consent: "granted",
+                    isOnline: (): boolean => true,
+                }),
+            )
+
+            sdk.track(ANALYTICS_EVENT_NAMES.keyAction, { action: "click" })
+
+            await vi.advanceTimersByTimeAsync(300)
+
+            expect(sendRequest).toHaveBeenCalledTimes(1)
+            sdk.dispose()
+            vi.useRealTimers()
+        })
+
+        it("когда autoFlush и isOnline=false, таймер не запускается", (): void => {
+            vi.useFakeTimers()
+
+            const sendRequest = vi.fn(
+                async (): Promise<Response> =>
+                    new Response(null, { status: 200, statusText: "ok" }),
+            )
+
+            const sdk = new AnalyticsSdk(
+                createDefaultTestOptions({
+                    sendRequest,
+                    flushIntervalMs: 100,
+                    consent: "granted",
+                    isOnline: (): boolean => false,
+                }),
+            )
+
+            sdk.track(ANALYTICS_EVENT_NAMES.keyAction, { action: "click" })
+
+            vi.advanceTimersByTime(500)
+            expect(sendRequest).not.toHaveBeenCalled()
+            sdk.dispose()
+            vi.useRealTimers()
+        })
+    })
+
+    describe("dispose с активным flushTimeout", (): void => {
+        afterEach((): void => {
+            vi.restoreAllMocks()
+        })
+
+        it("когда dispose вызван при активном таймере, таймер очищается", async (): Promise<void> => {
+            vi.useFakeTimers()
+
+            let flushCount = 0
+            const sendRequest = vi.fn(
+                async (): Promise<Response> => {
+                    flushCount += 1
+                    return new Response(null, { status: 200, statusText: "ok" })
+                },
+            )
+
+            const sdk = new AnalyticsSdk(
+                createDefaultTestOptions({
+                    sendRequest,
+                    flushIntervalMs: 500,
+                    consent: "granted",
+                    isOnline: (): boolean => true,
+                }),
+            )
+
+            sdk.track(ANALYTICS_EVENT_NAMES.keyAction, { action: "click" })
+
+            await vi.advanceTimersByTimeAsync(10)
+            const countAfterFirstFlush = flushCount
+
+            sdk.dispose()
+
+            sendRequest.mockClear()
+            await vi.advanceTimersByTimeAsync(1000)
+
+            expect(sendRequest).not.toHaveBeenCalled()
+            expect(countAfterFirstFlush).toBeGreaterThan(0)
+            vi.useRealTimers()
+        })
+    })
+
+    describe("sanitizeAnalyticsPayload extended", (): void => {
+        it("когда payload содержит non-object/non-array non-string type, сохраняет как есть", (): void => {
+            const result = sanitizeAnalyticsPayload({
+                sym: Symbol.for("test") as unknown as string,
+                fn: ((): void => undefined) as unknown as string,
+            })
+
+            expect(result.sym).toEqual(Symbol.for("test"))
+            expect(typeof result.fn).toBe("function")
+        })
+
+        it("когда payload содержит вложенные массивы с объектами, рекурсивно санитизирует", (): void => {
+            const result = sanitizeAnalyticsPayload({
+                items: [
+                    { password: "secret123", name: "safe" },
+                    { token: "jwt-abc", label: "ok" },
+                ],
+            })
+
+            const items = result.items as Array<Record<string, unknown>>
+            expect(items[0]?.password).toBe("[REDACTED]")
+            expect(items[0]?.name).toBe("safe")
+            expect(items[1]?.token).toBe("[REDACTED]")
+            expect(items[1]?.label).toBe("ok")
+        })
+
+        it("когда ключ содержит пробелы/регистр, нормализует чувствительные ключи", (): void => {
+            const result = sanitizeAnalyticsPayload({
+                " Password ": "hidden",
+                " TOKEN ": "jwt",
+                normalKey: "visible",
+            })
+
+            expect(result[" Password "]).toBe("[REDACTED]")
+            expect(result[" TOKEN "]).toBe("[REDACTED]")
+            expect(result.normalKey).toBe("visible")
+        })
+    })
+
+    describe("concurrent flush guard", (): void => {
+        it("когда flush уже в процессе, повторный вызов flush не отправляет второй запрос", async (): Promise<void> => {
+            let resolveFirst: (() => void) | undefined
+            const firstCallPromise = new Promise<void>((resolve): void => {
+                resolveFirst = resolve
+            })
+
+            const sendRequest = vi.fn(
+                async (): Promise<Response> => {
+                    await firstCallPromise
+                    return new Response(null, { status: 200, statusText: "ok" })
+                },
+            )
+
+            const sdk = new AnalyticsSdk(
+                createDefaultTestOptions({
+                    sendRequest,
+                    consent: "granted",
+                    isOnline: (): boolean => true,
+                }),
+            )
+
+            sdk.track(ANALYTICS_EVENT_NAMES.keyAction, { action: "click" })
+
+            const flushPromise1 = sdk.flush()
+            const flushPromise2 = sdk.flush()
+
+            expect(sendRequest).toHaveBeenCalledTimes(1)
+
+            if (resolveFirst !== undefined) {
+                resolveFirst()
+            }
+            await flushPromise1
+            await flushPromise2
+
+            sdk.dispose()
         })
     })
 })

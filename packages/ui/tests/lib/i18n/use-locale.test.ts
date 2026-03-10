@@ -1,7 +1,7 @@
 import i18next from "i18next"
 import { afterEach, describe, expect, it } from "vitest"
 
-import { DEFAULT_LOCALE, LOCALE_STORAGE_KEY } from "@/lib/i18n/i18n"
+import { LOCALE_STORAGE_KEY } from "@/lib/i18n/i18n"
 import { syncHtmlLangAttribute } from "@/lib/i18n/use-locale"
 
 describe("syncHtmlLangAttribute", (): void => {
@@ -12,7 +12,7 @@ describe("syncHtmlLangAttribute", (): void => {
     it("when called without argument, then sets html lang to current i18n locale", (): void => {
         syncHtmlLangAttribute()
 
-        expect(document.documentElement.lang).toBe(DEFAULT_LOCALE)
+        expect(document.documentElement.lang).toBe("en")
     })
 
     it("when called with explicit locale, then sets html lang to that locale", (): void => {
@@ -30,8 +30,8 @@ describe("syncHtmlLangAttribute", (): void => {
 
 describe("useLocale integration", (): void => {
     afterEach(async (): Promise<void> => {
-        localStorage.setItem(LOCALE_STORAGE_KEY, DEFAULT_LOCALE)
-        await i18next.changeLanguage(DEFAULT_LOCALE)
+        localStorage.setItem(LOCALE_STORAGE_KEY, "en")
+        await i18next.changeLanguage("en")
     })
 
     it("when i18n language changes, then getCurrentLocale reflects new value", async (): Promise<void> => {

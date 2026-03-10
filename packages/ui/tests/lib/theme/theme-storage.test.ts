@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
+import { beforeEach, describe, expect, it } from "vitest"
 
 import {
     getWindowLocalStorage,
@@ -243,5 +243,34 @@ describe("resolveSystemTheme", (): void => {
         const result = resolveSystemTheme()
 
         expect(result === "light" || result === "dark").toBe(true)
+    })
+
+    it("when matchMedia throws, then returns light", (): void => {
+        const originalMatchMedia = window.matchMedia
+        Object.defineProperty(window, "matchMedia", {
+            configurable: true,
+            value: (): never => {
+                throw new Error("matchMedia unavailable")
+            },
+        })
+
+        expect(resolveSystemTheme()).toBe("light")
+
+        Object.defineProperty(window, "matchMedia", {
+            configurable: true,
+            value: originalMatchMedia,
+        })
+    })
+})
+
+describe("writeLocalStorageItem edge cases", (): void => {
+    beforeEach((): void => {
+        localStorage.clear()
+    })
+
+    it("when called with valid key and value, then value is retrievable", (): void => {
+        writeLocalStorageItem("theme-test", "dark")
+
+        expect(readLocalStorageItem("theme-test")).toBe("dark")
     })
 })

@@ -10,9 +10,7 @@ import {
 import { ApiHttpError, type IHttpClient } from "@/lib/api/http-client"
 import type { IThemeProfile } from "@/lib/theme/theme-type-guards"
 
-function createMockHttpClient(
-    requestImpl: IHttpClient["request"] = vi.fn(),
-): IHttpClient {
+function createMockHttpClient(requestImpl: IHttpClient["request"] = vi.fn()): IHttpClient {
     return {
         request: requestImpl,
     }
@@ -110,9 +108,7 @@ describe("fetchThemeProfileFromApi", (): void => {
     })
 
     it("when API request throws, then returns undefined", async (): Promise<void> => {
-        const client = createMockHttpClient(
-            vi.fn().mockRejectedValue(new Error("Network error")),
-        )
+        const client = createMockHttpClient(vi.fn().mockRejectedValue(new Error("Network error")))
 
         const result = await fetchThemeProfileFromApi(
             client,
@@ -197,12 +193,7 @@ describe("saveThemeProfileToApi", (): void => {
         const requestFn = vi.fn().mockResolvedValue(undefined)
         const client = createMockHttpClient(requestFn)
 
-        await saveThemeProfileToApi(
-            client,
-            createAbortSignal(),
-            "/api/v1/user/settings",
-            profile,
-        )
+        await saveThemeProfileToApi(client, createAbortSignal(), "/api/v1/user/settings", profile)
 
         expect(requestFn).toHaveBeenCalledWith(
             expect.objectContaining({

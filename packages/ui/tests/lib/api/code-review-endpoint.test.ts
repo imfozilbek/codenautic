@@ -121,4 +121,77 @@ describe("CodeReviewApi", (): void => {
             credentials: "include",
         })
     })
+
+    it("when getCodeReview вызван с пустым reviewId, then выбрасывает ошибку", async (): Promise<void> => {
+        const { httpClient } = createHttpClientMock()
+        const api = new CodeReviewApi(httpClient)
+
+        await expect(api.getCodeReview("")).rejects.toThrow("reviewId не должен быть пустым")
+    })
+
+    it("when getCodeReview вызван с id из пробелов, then выбрасывает ошибку", async (): Promise<void> => {
+        const { httpClient } = createHttpClientMock()
+        const api = new CodeReviewApi(httpClient)
+
+        await expect(api.getCodeReview("   ")).rejects.toThrow("reviewId не должен быть пустым")
+    })
+
+    it("when triggerCodeReview вызван с пустым repositoryId, then выбрасывает ошибку", async (): Promise<void> => {
+        const { httpClient } = createHttpClientMock()
+        const api = new CodeReviewApi(httpClient)
+
+        await expect(api.triggerCodeReview({ repositoryId: "" })).rejects.toThrow(
+            "repositoryId не должен быть пустым",
+        )
+    })
+
+    it("when triggerCodeReview вызван с repositoryId из пробелов, then выбрасывает ошибку", async (): Promise<void> => {
+        const { httpClient } = createHttpClientMock()
+        const api = new CodeReviewApi(httpClient)
+
+        await expect(api.triggerCodeReview({ repositoryId: "   " })).rejects.toThrow(
+            "repositoryId не должен быть пустым",
+        )
+    })
+
+    it("when getCodeReview вызван с id содержащим спецсимволы, then encodeURIComponent применяется", async (): Promise<void> => {
+        const review: ICodeReview = {
+            reviewId: "rev/special",
+            repositoryId: "repo-1",
+            mergeRequestId: "mr-1",
+            status: "completed",
+            issues: [],
+            metrics: null,
+        }
+        const { httpClient, requestMock } = createHttpClientMock()
+        requestMock.mockResolvedValueOnce(review)
+
+        const api = new CodeReviewApi(httpClient)
+        await api.getCodeReview("rev/special")
+
+        expect(requestMock).toHaveBeenCalledWith({
+            method: "GET",
+            path: "/api/v1/reviews/rev%2Fspecial",
+            credentials: "include",
+        })
+    })
+
+    it("when triggerCodeReview с trim repositoryId, then нормализует id", async (): Promise<void> => {
+        const response: ITriggerCodeReviewResponse = {
+            reviewId: "review-200",
+            status: "queued",
+        }
+        const { httpClient, requestMock } = createHttpClientMock()
+        requestMock.mockResolvedValueOnce(response)
+
+        const api = new CodeReviewApi(httpClient)
+        await api.triggerCodeReview({ repositoryId: "  repo-1  " })
+
+        expect(requestMock).toHaveBeenCalledWith({
+            method: "POST",
+            path: "/api/v1/reviews",
+            body: expect.objectContaining({ repositoryId: "repo-1" }) as Record<string, unknown>,
+            credentials: "include",
+        })
+    })
 })

@@ -198,4 +198,198 @@ describe("auth-session helpers", (): void => {
         )
         expect(loadPersistedAuthSession(sessionStorage)).toBeUndefined()
     })
+
+    it("when expiresAt is invalid date string, then isAuthSessionExpired returns true", (): void => {
+        const session = { expiresAt: "not-a-date" }
+        expect(isAuthSessionExpired(session)).toBe(true)
+    })
+
+    it("when expiresAt is invalid date string, then shouldRefreshAuthSession returns false", (): void => {
+        const session = { expiresAt: "not-a-date" }
+        expect(shouldRefreshAuthSession(session)).toBe(false)
+    })
+
+    it("when session is already expired, then shouldRefreshAuthSession returns false", (): void => {
+        const nowMs = Date.parse("2026-03-03T10:00:00.000Z")
+        const expiredSession = createSession("2026-03-03T09:00:00.000Z")
+        expect(shouldRefreshAuthSession(expiredSession, nowMs, 60_000)).toBe(false)
+    })
+
+    it("when session has valid optional access metadata, then snapshot loads correctly", (): void => {
+        sessionStorage.setItem(
+            AUTH_SESSION_STORAGE_KEY,
+            JSON.stringify({
+                provider: "gitlab",
+                expiresAt: "2030-03-03T10:10:00.000Z",
+                user: {
+                    id: "u-2",
+                    email: "admin@example.com",
+                    displayName: "Admin User",
+                    avatarUrl: "https://example.com/avatar.png",
+                    role: "admin",
+                    roles: ["admin", "developer"],
+                    tenantId: "tenant-1",
+                },
+            }),
+        )
+
+        const snapshot = loadPersistedAuthSession(sessionStorage)
+        expect(snapshot).not.toBeUndefined()
+        expect(snapshot?.provider).toBe("gitlab")
+        expect(snapshot?.user.role).toBe("admin")
+        expect(snapshot?.user.roles).toEqual(["admin", "developer"])
+        expect(snapshot?.user.tenantId).toBe("tenant-1")
+    })
+
+    it("when snapshot has empty expiresAt, then loadPersistedAuthSession returns undefined", (): void => {
+        sessionStorage.setItem(
+            AUTH_SESSION_STORAGE_KEY,
+            JSON.stringify({
+                provider: "github",
+                expiresAt: "",
+                user: {
+                    id: "u-1",
+                    email: "dev@example.com",
+                    displayName: "Dev User",
+                },
+            }),
+        )
+        expect(loadPersistedAuthSession(sessionStorage)).toBeUndefined()
+    })
+
+    it("when snapshot user has non-string role, then loadPersistedAuthSession returns undefined", (): void => {
+        sessionStorage.setItem(
+            AUTH_SESSION_STORAGE_KEY,
+            JSON.stringify({
+                provider: "github",
+                expiresAt: "2030-03-03T10:10:00.000Z",
+                user: {
+                    id: "u-1",
+                    email: "dev@example.com",
+                    displayName: "Dev User",
+                    role: 42,
+                },
+            }),
+        )
+        expect(loadPersistedAuthSession(sessionStorage)).toBeUndefined()
+    })
+
+    it("when snapshot user has non-string tenantId, then loadPersistedAuthSession returns undefined", (): void => {
+        sessionStorage.setItem(
+            AUTH_SESSION_STORAGE_KEY,
+            JSON.stringify({
+                provider: "github",
+                expiresAt: "2030-03-03T10:10:00.000Z",
+                user: {
+                    id: "u-1",
+                    email: "dev@example.com",
+                    displayName: "Dev User",
+                    tenantId: 123,
+                },
+            }),
+        )
+        expect(loadPersistedAuthSession(sessionStorage)).toBeUndefined()
+    })
+
+    it("when snapshot user has non-array roles, then loadPersistedAuthSession returns undefined", (): void => {
+        sessionStorage.setItem(
+            AUTH_SESSION_STORAGE_KEY,
+            JSON.stringify({
+                provider: "github",
+                expiresAt: "2030-03-03T10:10:00.000Z",
+                user: {
+                    id: "u-1",
+                    email: "dev@example.com",
+                    displayName: "Dev User",
+                    roles: "admin",
+                },
+            }),
+        )
+        expect(loadPersistedAuthSession(sessionStorage)).toBeUndefined()
+    })
+
+    it("when snapshot user has roles with empty string, then loadPersistedAuthSession returns undefined", (): void => {
+        sessionStorage.setItem(
+            AUTH_SESSION_STORAGE_KEY,
+            JSON.stringify({
+                provider: "github",
+                expiresAt: "2030-03-03T10:10:00.000Z",
+                user: {
+                    id: "u-1",
+                    email: "dev@example.com",
+                    displayName: "Dev User",
+                    roles: ["admin", ""],
+                },
+            }),
+        )
+        expect(loadPersistedAuthSession(sessionStorage)).toBeUndefined()
+    })
+
+    it("when snapshot user has roles with non-string elements, then loadPersistedAuthSession returns undefined", (): void => {
+        sessionStorage.setItem(
+            AUTH_SESSION_STORAGE_KEY,
+            JSON.stringify({
+                provider: "github",
+                expiresAt: "2030-03-03T10:10:00.000Z",
+                user: {
+                    id: "u-1",
+                    email: "dev@example.com",
+                    displayName: "Dev User",
+                    roles: [42],
+                },
+            }),
+        )
+        expect(loadPersistedAuthSession(sessionStorage)).toBeUndefined()
+    })
+
+    it("when persistAuthSession is called with all user fields, then stores complete snapshot", (): void => {
+        const session: IAuthSession = {
+            provider: "google",
+            expiresAt: "2030-03-03T10:10:00.000Z",
+            user: {
+                id: "u-3",
+                email: "user@example.com",
+                displayName: "Full User",
+                avatarUrl: "https://example.com/avatar.png",
+                role: "developer",
+                roles: ["developer"],
+                tenantId: "team-1",
+            },
+        }
+
+        persistAuthSession(sessionStorage, session)
+
+        const snapshot = loadPersistedAuthSession(sessionStorage)
+        expect(snapshot).not.toBeUndefined()
+        expect(snapshot?.user.avatarUrl).toBe("https://example.com/avatar.png")
+        expect(snapshot?.user.role).toBe("developer")
+        expect(snapshot?.user.tenantId).toBe("team-1")
+    })
+
+    it("when snapshot provider is one of supported providers, then loads successfully", (): void => {
+        const providers = ["github", "gitlab", "google", "oidc"] as const
+
+        for (const provider of providers) {
+            sessionStorage.setItem(
+                AUTH_SESSION_STORAGE_KEY,
+                JSON.stringify({
+                    provider,
+                    expiresAt: "2030-03-03T10:10:00.000Z",
+                    user: {
+                        id: "u-1",
+                        email: "dev@example.com",
+                        displayName: "Dev User",
+                    },
+                }),
+            )
+            const snapshot = loadPersistedAuthSession(sessionStorage)
+            expect(snapshot).not.toBeUndefined()
+            expect(snapshot?.provider).toBe(provider)
+        }
+    })
+
+    it("when snapshot value is null in storage, then loadPersistedAuthSession returns undefined", (): void => {
+        sessionStorage.removeItem(AUTH_SESSION_STORAGE_KEY)
+        expect(loadPersistedAuthSession(sessionStorage)).toBeUndefined()
+    })
 })

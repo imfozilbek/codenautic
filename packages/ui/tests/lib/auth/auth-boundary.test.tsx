@@ -82,11 +82,11 @@ describe("AuthBoundary", (): void => {
         )
 
         const dashboardLabel = await screen.findByText("Private dashboard")
-        const logoutButton = screen.getByRole("button", { name: "Выйти" })
+        const logoutButton = screen.getByRole("button", { name: "Log out" })
         const userName = screen.getByText("Dev User")
 
         expect(dashboardLabel.textContent).toBe("Private dashboard")
-        expect(logoutButton.textContent).toBe("Выйти")
+        expect(logoutButton.textContent).toBe("Log out")
         expect(userName.textContent).toBe("Dev User")
         expect(getSession).toHaveBeenCalledTimes(1)
     })
@@ -111,8 +111,8 @@ describe("AuthBoundary", (): void => {
             </AuthBoundary>,
         )
 
-        const loginTitle = await screen.findByText("Войдите, чтобы открыть dashboard")
-        expect(loginTitle.textContent).toBe("Войдите, чтобы открыть dashboard")
+        const loginTitle = await screen.findByText("Sign in to open dashboard")
+        expect(loginTitle.textContent).toBe("Sign in to open dashboard")
 
         const githubButton = screen.getByRole("button", { name: "GitHub" })
         await user.click(githubButton)
@@ -373,8 +373,8 @@ describe("AuthBoundary", (): void => {
             </AuthBoundary>,
         )
 
-        const loginTitle = await screen.findByText("Войдите, чтобы открыть dashboard")
-        expect(loginTitle.textContent).toBe("Войдите, чтобы открыть dashboard")
+        const loginTitle = await screen.findByText("Sign in to open dashboard")
+        expect(loginTitle.textContent).toBe("Sign in to open dashboard")
         expect(onNavigateToLogin).not.toHaveBeenCalled()
     })
 
@@ -398,8 +398,8 @@ describe("AuthBoundary", (): void => {
             </AuthBoundary>,
         )
 
-        const loginTitle = await screen.findByText("Войдите, чтобы открыть dashboard")
-        expect(loginTitle.textContent).toBe("Войдите, чтобы открыть dashboard")
+        const loginTitle = await screen.findByText("Sign in to open dashboard")
+        expect(loginTitle.textContent).toBe("Sign in to open dashboard")
         expect(onNavigateToLogin).not.toHaveBeenCalled()
     })
 
@@ -421,8 +421,8 @@ describe("AuthBoundary", (): void => {
             </AuthBoundary>,
         )
 
-        const loginTitle = await screen.findByText("Войдите, чтобы открыть dashboard")
-        expect(loginTitle.textContent).toBe("Войдите, чтобы открыть dashboard")
+        const loginTitle = await screen.findByText("Sign in to open dashboard")
+        expect(loginTitle.textContent).toBe("Sign in to open dashboard")
         expect(onNavigateToLogin).not.toHaveBeenCalled()
     })
 
@@ -514,8 +514,8 @@ describe("AuthBoundary", (): void => {
             </AuthBoundary>,
         )
 
-        const loginTitle = await screen.findByText("Войдите, чтобы открыть dashboard")
-        expect(loginTitle.textContent).toBe("Войдите, чтобы открыть dashboard")
+        const loginTitle = await screen.findByText("Sign in to open dashboard")
+        expect(loginTitle.textContent).toBe("Sign in to open dashboard")
         expect(sessionStorage.getItem("codenautic.ui.auth.session")).toBeNull()
     })
 
@@ -649,8 +649,8 @@ describe("AuthBoundary", (): void => {
         )
 
         await screen.findByText("Private dashboard")
-        const loginTitle = await screen.findByText("Войдите, чтобы открыть dashboard")
-        expect(loginTitle.textContent).toBe("Войдите, чтобы открыть dashboard")
+        const loginTitle = await screen.findByText("Sign in to open dashboard")
+        expect(loginTitle.textContent).toBe("Sign in to open dashboard")
     })
 
     it("выполняет logout и возвращает пользователя на login panel", async (): Promise<void> => {
@@ -676,13 +676,13 @@ describe("AuthBoundary", (): void => {
             </AuthBoundary>,
         )
 
-        const logoutButton = await screen.findByRole("button", { name: "Выйти" })
+        const logoutButton = await screen.findByRole("button", { name: "Log out" })
         await user.click(logoutButton)
 
         expect(logout).toHaveBeenCalledTimes(1)
 
-        const loginTitle = await screen.findByText("Войдите, чтобы открыть dashboard")
-        expect(loginTitle.textContent).toBe("Войдите, чтобы открыть dashboard")
+        const loginTitle = await screen.findByText("Sign in to open dashboard")
+        expect(loginTitle.textContent).toBe("Sign in to open dashboard")
     })
 
     it("показывает ошибку, если logout endpoint недоступен", async (): Promise<void> => {
@@ -706,11 +706,11 @@ describe("AuthBoundary", (): void => {
             </AuthBoundary>,
         )
 
-        const logoutButton = await screen.findByRole("button", { name: "Выйти" })
+        const logoutButton = await screen.findByRole("button", { name: "Log out" })
         await user.click(logoutButton)
 
         const errorAlert = await screen.findByRole("alert")
-        expect(errorAlert.textContent).toBe("Не удалось завершить сессию. Повторите попытку.")
+        expect(errorAlert.textContent).toBe("Failed to complete logout. Please try again.")
         expect(logout).toHaveBeenCalledTimes(1)
     })
 
@@ -734,7 +734,7 @@ describe("AuthBoundary", (): void => {
 
         const errorAlert = await screen.findByRole("alert")
         expect(errorAlert.textContent).toBe(
-            "Не удалось начать OAuth авторизацию. Повторите попытку.",
+            "Failed to start OAuth authorization. Please try again.",
         )
     })
 
@@ -759,7 +759,7 @@ describe("AuthBoundary", (): void => {
 
         const status = await screen.findByRole("status")
         expect(status.textContent).toBe(
-            "Доступ запрещён (403). У аккаунта нет прав на этот ресурс.",
+            "Access denied (403). Your account has no access to this resource.",
         )
     })
 })

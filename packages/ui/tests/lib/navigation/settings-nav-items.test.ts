@@ -54,9 +54,7 @@ describe("settings-nav-items", (): void => {
     it("every group has a unique key", (): void => {
         const t = i18next.getFixedT("ru", ["navigation"])
         const groups = createSettingsNavGroups(t)
-        const keys = groups.map(
-            (group: ISettingsNavGroup): string => group.key,
-        )
+        const keys = groups.map((group: ISettingsNavGroup): string => group.key)
         const unique = new Set(keys)
         expect(unique.size).toBe(keys.length)
     })

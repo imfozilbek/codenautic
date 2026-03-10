@@ -61,4 +61,71 @@ describe("CCRSummaryApi", (): void => {
             credentials: "include",
         })
     })
+
+    it("when repositoryId пустой, then выбрасывает ошибку", async (): Promise<void> => {
+        const { httpClient } = createHttpClientMock()
+        const api = new CCRSummaryApi(httpClient)
+
+        await expect(
+            api.generateSummary({
+                repositoryId: "",
+                reviewMode: "AUTO",
+                detailLevel: "CONCISE",
+                includeRiskOverview: false,
+                includeTimeline: false,
+                maxSuggestions: 5,
+                promptOverride: "",
+            }),
+        ).rejects.toThrow("repositoryId не должен быть пустым")
+    })
+
+    it("when repositoryId из пробелов, then выбрасывает ошибку", async (): Promise<void> => {
+        const { httpClient } = createHttpClientMock()
+        const api = new CCRSummaryApi(httpClient)
+
+        await expect(
+            api.generateSummary({
+                repositoryId: "   ",
+                reviewMode: "MANUAL",
+                detailLevel: "STANDARD",
+                includeRiskOverview: true,
+                includeTimeline: false,
+                maxSuggestions: 10,
+                promptOverride: "",
+            }),
+        ).rejects.toThrow("repositoryId не должен быть пустым")
+    })
+
+    it("when repositoryId содержит спецсимволы, then encodeURIComponent применяется", async (): Promise<void> => {
+        const response: IGenerateCcrSummaryResponse = {
+            result: {
+                mode: "MANUAL",
+                generatedAt: "2026-03-10T12:00:00.000Z",
+                summary: "No critical issues.",
+                highlights: [],
+            },
+        }
+        const { httpClient, requestMock } = createHttpClientMock()
+        requestMock.mockResolvedValueOnce(response)
+
+        const api = new CCRSummaryApi(httpClient)
+        await api.generateSummary({
+            repositoryId: "org/repo name",
+            reviewMode: "MANUAL",
+            detailLevel: "CONCISE",
+            includeRiskOverview: false,
+            includeTimeline: false,
+            maxSuggestions: 5,
+            promptOverride: "",
+        })
+
+        expect(requestMock).toHaveBeenCalledWith({
+            method: "POST",
+            path: "/api/v1/repositories/org%2Frepo%20name/ccr-summary/generate",
+            body: expect.objectContaining({
+                reviewMode: "MANUAL",
+            }) as Record<string, unknown>,
+            credentials: "include",
+        })
+    })
 })

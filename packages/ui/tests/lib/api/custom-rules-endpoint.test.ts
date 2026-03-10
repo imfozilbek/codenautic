@@ -169,4 +169,108 @@ describe("CustomRulesApi", (): void => {
             credentials: "include",
         })
     })
+
+    describe("listCustomRules default query", (): void => {
+        it("when called without query, then passes empty object", async (): Promise<void> => {
+            const response: ICustomRulesListResponse = {
+                rules: [],
+                total: 0,
+            }
+            const { httpClient, requestMock } = createHttpClientMock()
+            requestMock.mockResolvedValueOnce(response)
+
+            const api = new CustomRulesApi(httpClient)
+            const result = await api.listCustomRules()
+
+            expect(result).toEqual(response)
+            expect(requestMock).toHaveBeenCalledWith({
+                method: "GET",
+                path: "/api/v1/rules",
+                query: {},
+                credentials: "include",
+            })
+        })
+    })
+
+    describe("getCustomRule validation", (): void => {
+        it("when ruleId is empty string, then throws error", async (): Promise<void> => {
+            const { httpClient } = createHttpClientMock()
+            const api = new CustomRulesApi(httpClient)
+
+            await expect(api.getCustomRule("")).rejects.toThrowError("ruleId не должен быть пустым")
+        })
+
+        it("when ruleId is whitespace only, then throws error", async (): Promise<void> => {
+            const { httpClient } = createHttpClientMock()
+            const api = new CustomRulesApi(httpClient)
+
+            await expect(api.getCustomRule("   ")).rejects.toThrowError(
+                "ruleId не должен быть пустым",
+            )
+        })
+
+        it("when ruleId has special characters, then encodes them in path", async (): Promise<void> => {
+            const { httpClient, requestMock } = createHttpClientMock()
+            requestMock.mockResolvedValueOnce(mockRule)
+
+            const api = new CustomRulesApi(httpClient)
+            await api.getCustomRule("rule/with spaces")
+
+            expect(requestMock).toHaveBeenCalledWith({
+                method: "GET",
+                path: "/api/v1/rules/rule%2Fwith%20spaces",
+                credentials: "include",
+            })
+        })
+    })
+
+    describe("updateCustomRule validation", (): void => {
+        it("when id is empty string, then throws error", async (): Promise<void> => {
+            const { httpClient } = createHttpClientMock()
+            const api = new CustomRulesApi(httpClient)
+
+            const payload: IUpdateCustomRuleRequest = {
+                id: "",
+                title: "Updated",
+            }
+
+            await expect(api.updateCustomRule(payload)).rejects.toThrowError(
+                "ruleId не должен быть пустым",
+            )
+        })
+
+        it("when id is whitespace only, then throws error", async (): Promise<void> => {
+            const { httpClient } = createHttpClientMock()
+            const api = new CustomRulesApi(httpClient)
+
+            const payload: IUpdateCustomRuleRequest = {
+                id: "   ",
+                title: "Updated",
+            }
+
+            await expect(api.updateCustomRule(payload)).rejects.toThrowError(
+                "ruleId не должен быть пустым",
+            )
+        })
+    })
+
+    describe("deleteCustomRule validation", (): void => {
+        it("when id is empty string, then throws error", async (): Promise<void> => {
+            const { httpClient } = createHttpClientMock()
+            const api = new CustomRulesApi(httpClient)
+
+            await expect(api.deleteCustomRule({ id: "" })).rejects.toThrowError(
+                "ruleId не должен быть пустым",
+            )
+        })
+
+        it("when id is whitespace only, then throws error", async (): Promise<void> => {
+            const { httpClient } = createHttpClientMock()
+            const api = new CustomRulesApi(httpClient)
+
+            await expect(api.deleteCustomRule({ id: "   " })).rejects.toThrowError(
+                "ruleId не должен быть пустым",
+            )
+        })
+    })
 })

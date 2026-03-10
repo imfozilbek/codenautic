@@ -61,4 +61,60 @@ describe("DryRunApi", (): void => {
             credentials: "include",
         })
     })
+
+    it("when repositoryId пустой, then выбрасывает ошибку", async (): Promise<void> => {
+        const { httpClient } = createHttpClientMock()
+        const api = new DryRunApi(httpClient)
+
+        await expect(
+            api.triggerDryRun({
+                repositoryId: "",
+                reviewMode: "AUTO",
+                ignorePatterns: [],
+            }),
+        ).rejects.toThrow("repositoryId не должен быть пустым")
+    })
+
+    it("when repositoryId из пробелов, then выбрасывает ошибку", async (): Promise<void> => {
+        const { httpClient } = createHttpClientMock()
+        const api = new DryRunApi(httpClient)
+
+        await expect(
+            api.triggerDryRun({
+                repositoryId: "   ",
+                reviewMode: "MANUAL",
+                ignorePatterns: [],
+            }),
+        ).rejects.toThrow("repositoryId не должен быть пустым")
+    })
+
+    it("when repositoryId содержит спецсимволы, then encodeURIComponent применяется", async (): Promise<void> => {
+        const response: ITriggerDryRunResponse = {
+            result: {
+                mode: "AUTO",
+                reviewedFiles: 3,
+                suggestions: 1,
+                issues: [],
+            },
+        }
+        const { httpClient, requestMock } = createHttpClientMock()
+        requestMock.mockResolvedValueOnce(response)
+
+        const api = new DryRunApi(httpClient)
+        await api.triggerDryRun({
+            repositoryId: "org/repo name",
+            reviewMode: "AUTO",
+            ignorePatterns: ["dist/"],
+        })
+
+        expect(requestMock).toHaveBeenCalledWith({
+            method: "POST",
+            path: "/api/v1/repositories/org%2Frepo%20name/dry-run",
+            body: {
+                reviewMode: "AUTO",
+                ignorePatterns: ["dist/"],
+            },
+            credentials: "include",
+        })
+    })
 })

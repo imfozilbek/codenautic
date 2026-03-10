@@ -280,3 +280,11 @@ describe("writeUiRoleToStorage", (): void => {
         })
     })
 })
+
+describe("getUiActionPolicy edge cases", (): void => {
+    it("when role is valid but actionId is unknown, then returns default policy", (): void => {
+        const policy = getUiActionPolicy("admin", "unknown.action" as TUiActionId)
+        expect(policy.visibility).toBe("disabled")
+        expect(policy.reason).toBe("Action is unavailable for the current role policy.")
+    })
+})

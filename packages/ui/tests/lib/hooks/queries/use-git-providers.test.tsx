@@ -4,10 +4,7 @@ import userEvent from "@testing-library/user-event"
 import { useState, type ReactElement } from "react"
 import { describe, expect, it } from "vitest"
 
-import {
-    useGitProviders,
-    type IUseGitProvidersResult,
-} from "@/lib/hooks/queries/use-git-providers"
+import { useGitProviders, type IUseGitProvidersResult } from "@/lib/hooks/queries/use-git-providers"
 import type { IGitProviderConnection } from "@/lib/api/endpoints/git-providers.endpoint"
 import { renderWithProviders } from "../../../utils/render"
 import { server } from "../../../mocks/server"

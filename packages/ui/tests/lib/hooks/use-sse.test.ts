@@ -571,4 +571,228 @@ describe("useSSEStream", (): void => {
             expect(result.current.progressTotal).toBe(0)
         })
     })
+
+    describe("EventSource unavailable", (): void => {
+        it("when EventSource is not a function, then sets error state", (): void => {
+            vi.stubGlobal("EventSource", undefined)
+
+            const { result } = renderHook((): IUseSSEStreamResult => {
+                return useSSEStream({
+                    sourceUrl: "http://localhost:3000/stream",
+                    autoStart: true,
+                })
+            })
+
+            expect(result.current.state).toBe("error")
+            expect(result.current.error).toBe(
+                "EventSource is not available in this environment.",
+            )
+        })
+    })
+
+    describe("EventSource constructor throws", (): void => {
+        it("when EventSource constructor throws, then sets error with message", (): void => {
+            vi.stubGlobal("EventSource", class {
+                public constructor() {
+                    throw new Error("Blocked by CSP")
+                }
+            })
+
+            const { result } = renderHook((): IUseSSEStreamResult => {
+                return useSSEStream({
+                    sourceUrl: "http://localhost:3000/stream",
+                    autoStart: true,
+                })
+            })
+
+            expect(result.current.state).toBe("error")
+            expect(result.current.error).toBe("Blocked by CSP")
+        })
+
+        it("when EventSource constructor throws non-Error, then uses fallback message", (): void => {
+            vi.stubGlobal("EventSource", class {
+                public constructor() {
+                    // eslint-disable-next-line @typescript-eslint/only-throw-error
+                    throw "string error"
+                }
+            })
+
+            const { result } = renderHook((): IUseSSEStreamResult => {
+                return useSSEStream({
+                    sourceUrl: "http://localhost:3000/stream",
+                    autoStart: true,
+                })
+            })
+
+            expect(result.current.state).toBe("error")
+            expect(result.current.error).toBe("Failed to initialize SSE connection.")
+        })
+    })
+
+    describe("connection error when stopped", (): void => {
+        it("when connection error occurs after stop, then sets closed state", (): void => {
+            const controller = installMockEventSource()
+
+            const { result } = renderHook((): IUseSSEStreamResult => {
+                return useSSEStream({
+                    sourceUrl: "http://localhost:3000/stream",
+                    maxReconnectAttempts: 3,
+                    initialReconnectDelayMs: 50,
+                })
+            })
+
+            act((): void => {
+                controller.open()
+            })
+
+            act((): void => {
+                result.current.stop()
+            })
+
+            act((): void => {
+                controller.error()
+            })
+
+            expect(result.current.state).toBe("closed")
+        })
+    })
+
+    describe("event limit", (): void => {
+        it("when more than 100 events received, then keeps last 100", (): void => {
+            const controller = installMockEventSource()
+
+            const { result } = renderHook((): IUseSSEStreamResult => {
+                return useSSEStream({
+                    sourceUrl: "http://localhost:3000/stream",
+                })
+            })
+
+            act((): void => {
+                controller.open()
+            })
+
+            act((): void => {
+                for (let index = 0; index < 105; index += 1) {
+                    controller.sendMessage(
+                        JSON.stringify({ message: `msg-${String(index)}` }),
+                    )
+                }
+            })
+
+            expect(result.current.events.length).toBeLessThanOrEqual(100)
+        })
+    })
+
+    describe("progress clamp edge cases", (): void => {
+        it("when progress current exceeds max, then clamps to max", (): void => {
+            const controller = installMockEventSource()
+
+            const { result } = renderHook((): IUseSSEStreamResult => {
+                return useSSEStream({
+                    sourceUrl: "http://localhost:3000/stream",
+                })
+            })
+
+            act((): void => {
+                controller.open()
+            })
+
+            act((): void => {
+                controller.sendProgress(
+                    JSON.stringify({ current: 999999999999999, total: 10 }),
+                )
+            })
+
+            expect(result.current.progressCurrent).toBe(999999999999999)
+            expect(result.current.progressTotal).toBe(10)
+        })
+
+        it("when progress values are undefined, then clamps to 0", (): void => {
+            const controller = installMockEventSource()
+
+            const { result } = renderHook((): IUseSSEStreamResult => {
+                return useSSEStream({
+                    sourceUrl: "http://localhost:3000/stream",
+                })
+            })
+
+            act((): void => {
+                controller.open()
+            })
+
+            act((): void => {
+                controller.sendProgress(JSON.stringify({ stage: "analyzing" }))
+            })
+
+            expect(result.current.progressCurrent).toBe(0)
+            expect(result.current.progressTotal).toBe(0)
+        })
+    })
+
+    describe("parseSSEPayload edge cases", (): void => {
+        it("when parsed JSON is an array (not record), then wraps in message", (): void => {
+            const controller = installMockEventSource()
+
+            const { result } = renderHook((): IUseSSEStreamResult => {
+                return useSSEStream({
+                    sourceUrl: "http://localhost:3000/stream",
+                })
+            })
+
+            act((): void => {
+                controller.open()
+            })
+
+            act((): void => {
+                controller.sendMessage("[1,2,3]")
+            })
+
+            expect(result.current.events).toHaveLength(1)
+            expect(result.current.events[0]?.payload.message).toBe("[1,2,3]")
+        })
+
+        it("when parsed JSON has no message field, then uses raw data as message", (): void => {
+            const controller = installMockEventSource()
+
+            const { result } = renderHook((): IUseSSEStreamResult => {
+                return useSSEStream({
+                    sourceUrl: "http://localhost:3000/stream",
+                })
+            })
+
+            act((): void => {
+                controller.open()
+            })
+
+            act((): void => {
+                controller.sendMessage(JSON.stringify({ stage: "step1", current: 5, total: 10 }))
+            })
+
+            expect(result.current.events).toHaveLength(1)
+            const payload = result.current.events[0]?.payload
+            expect(payload?.stage).toBe("step1")
+            expect(payload?.current).toBe(5)
+            expect(payload?.total).toBe(10)
+        })
+    })
+
+    describe("cleanup on unmount", (): void => {
+        it("when hook unmounts, then stops the stream", (): void => {
+            const controller = installMockEventSource()
+
+            const { unmount } = renderHook((): IUseSSEStreamResult => {
+                return useSSEStream({
+                    sourceUrl: "http://localhost:3000/stream",
+                })
+            })
+
+            act((): void => {
+                controller.open()
+            })
+
+            unmount()
+
+            expect(controller.isClosed()).toBe(true)
+        })
+    })
 })
