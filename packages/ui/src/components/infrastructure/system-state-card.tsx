@@ -1,4 +1,5 @@
 import type { ReactElement } from "react"
+import { useTranslation } from "react-i18next"
 
 import { Button, Card, CardBody } from "@/components/ui"
 
@@ -30,17 +31,17 @@ function mapStateTone(variant: TSystemStateVariant): string {
     return "border-border bg-surface text-foreground"
 }
 
-function mapStateLabel(variant: TSystemStateVariant): string {
+function mapStateLabelKey(variant: TSystemStateVariant): string {
     if (variant === "error") {
-        return "Error state"
+        return "common:systemStateCard.errorState"
     }
     if (variant === "loading") {
-        return "Loading state"
+        return "common:systemStateCard.loadingState"
     }
     if (variant === "partial") {
-        return "Partial data state"
+        return "common:systemStateCard.partialDataState"
     }
-    return "Empty state"
+    return "common:systemStateCard.emptyState"
 }
 
 /**
@@ -50,11 +51,12 @@ function mapStateLabel(variant: TSystemStateVariant): string {
  * @returns Системный state card.
  */
 export function SystemStateCard(props: ISystemStateCardProps): ReactElement {
+    const { t } = useTranslation(["common"])
     return (
         <Card className={mapStateTone(props.variant)}>
             <CardBody className="space-y-2 p-4">
                 <p className="text-xs font-semibold uppercase tracking-[0.12em]">
-                    {mapStateLabel(props.variant)}
+                    {(t as unknown as (key: string) => string)(mapStateLabelKey(props.variant))}
                 </p>
                 <p className="text-base font-semibold">{props.title}</p>
                 <p className="text-sm opacity-90">{props.description}</p>

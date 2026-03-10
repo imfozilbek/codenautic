@@ -1,4 +1,5 @@
 import { type ReactElement, useMemo, useState } from "react"
+import { useTranslation } from "react-i18next"
 
 import { Button, Drawer, DrawerBody, DrawerContent, DrawerHeader, Textarea } from "@/components/ui"
 
@@ -32,14 +33,14 @@ interface IExplainabilityPanelProps {
     readonly factors: ReadonlyArray<IExplainabilityFactor>
 }
 
-function formatImpactLabel(impact: TFactorImpact): string {
+function formatImpactLabel(impact: TFactorImpact, t: (key: string) => string): string {
     if (impact === "high") {
-        return "high impact"
+        return t("common:explainabilityPanel.highImpact")
     }
     if (impact === "medium") {
-        return "medium impact"
+        return t("common:explainabilityPanel.mediumImpact")
     }
-    return "low impact"
+    return t("common:explainabilityPanel.lowImpact")
 }
 
 /**
@@ -49,6 +50,7 @@ function formatImpactLabel(impact: TFactorImpact): string {
  * @returns Блок explainability с экспортом snippet.
  */
 export function ExplainabilityPanel(props: IExplainabilityPanelProps): ReactElement {
+    const { t } = useTranslation(["common"])
     const [isDrawerOpen, setIsDrawerOpen] = useState<boolean>(false)
     const [snippet, setSnippet] = useState<string>("")
     const exportSnippet = useMemo((): string => {
@@ -82,7 +84,7 @@ export function ExplainabilityPanel(props: IExplainabilityPanelProps): ReactElem
                             setIsDrawerOpen(true)
                         }}
                     >
-                        Why this score?
+                        {t("common:explainabilityPanel.whyThisScore")}
                     </Button>
                 </div>
             </section>
@@ -90,22 +92,22 @@ export function ExplainabilityPanel(props: IExplainabilityPanelProps): ReactElem
             <Drawer isOpen={isDrawerOpen} onOpenChange={setIsDrawerOpen}>
                 <DrawerContent className="!m-0 !ml-auto !h-full !w-[min(92vw,460px)] !rounded-none bg-surface text-foreground">
                     <DrawerHeader className="border-b border-border px-4 py-3">
-                        <h2 className="text-base font-semibold text-foreground">Explainability</h2>
+                        <h2 className="text-base font-semibold text-foreground">{t("common:explainabilityPanel.explainability")}</h2>
                     </DrawerHeader>
                     <DrawerBody className="space-y-3 px-4 py-3">
                         <dl className="grid grid-cols-[130px_1fr] gap-x-2 gap-y-2 text-sm">
-                            <dt className="text-text-subtle">Signal</dt>
+                            <dt className="text-text-subtle">{t("common:explainabilityPanel.signal")}</dt>
                             <dd>{`${props.signalLabel}: ${props.signalValue}`}</dd>
-                            <dt className="text-text-subtle">Threshold</dt>
+                            <dt className="text-text-subtle">{t("common:explainabilityPanel.threshold")}</dt>
                             <dd>{props.threshold}</dd>
-                            <dt className="text-text-subtle">Confidence</dt>
+                            <dt className="text-text-subtle">{t("common:explainabilityPanel.confidence")}</dt>
                             <dd>{props.confidence}</dd>
-                            <dt className="text-text-subtle">Data window</dt>
+                            <dt className="text-text-subtle">{t("common:explainabilityPanel.dataWindow")}</dt>
                             <dd>{props.dataWindow}</dd>
                         </dl>
 
                         <section className="space-y-2">
-                            <p className="text-sm font-semibold text-foreground">Top factors</p>
+                            <p className="text-sm font-semibold text-foreground">{t("common:explainabilityPanel.topFactors")}</p>
                             <ul aria-label="Explainability factors" className="space-y-2">
                                 {props.factors.map(
                                     (factor): ReactElement => (
@@ -117,7 +119,7 @@ export function ExplainabilityPanel(props: IExplainabilityPanelProps): ReactElem
                                                 {factor.label}
                                             </p>
                                             <p className="text-xs text-text-secondary">
-                                                {formatImpactLabel(factor.impact)}
+                                                {formatImpactLabel(factor.impact, t as unknown as (key: string) => string)}
                                             </p>
                                             <p className="text-sm text-text-tertiary">
                                                 {factor.value}
@@ -130,7 +132,7 @@ export function ExplainabilityPanel(props: IExplainabilityPanelProps): ReactElem
 
                         <section className="space-y-2">
                             <p className="text-sm font-semibold text-foreground">
-                                Known limitations
+                                {t("common:explainabilityPanel.knownLimitations")}
                             </p>
                             <ul
                                 aria-label="Explainability limitations"
@@ -152,7 +154,7 @@ export function ExplainabilityPanel(props: IExplainabilityPanelProps): ReactElem
                                     setSnippet(exportSnippet)
                                 }}
                             >
-                                Export explanation snippet
+                                {t("common:explainabilityPanel.exportSnippet")}
                             </Button>
                             {snippet.length > 0 ? (
                                 <Textarea

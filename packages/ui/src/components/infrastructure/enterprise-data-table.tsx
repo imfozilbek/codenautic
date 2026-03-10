@@ -7,6 +7,7 @@ import {
     useRef,
     useState,
 } from "react"
+import { useTranslation } from "react-i18next"
 
 import {
     type ColumnDef,
@@ -221,6 +222,7 @@ function createColumnDefs<TRow>(
  * @returns Унифицированный виртуализированный table layout.
  */
 export function EnterpriseDataTable<TRow>(props: IEnterpriseDataTableProps<TRow>): ReactElement {
+    const { t } = useTranslation(["common"])
     const initialView = useMemo((): IEnterpriseTableSavedView => {
         return readSavedView(props.id)
     }, [props.id])
@@ -450,7 +452,7 @@ export function EnterpriseDataTable<TRow>(props: IEnterpriseDataTableProps<TRow>
                 <input
                     aria-label={`${props.ariaLabel} search`}
                     className="rounded-lg border border-border bg-surface px-3 py-2 text-sm"
-                    placeholder="Search rows"
+                    placeholder={t("common:dataTable.searchRows")}
                     value={globalFilter}
                     onChange={(event): void => {
                         setGlobalFilter(event.currentTarget.value)
@@ -463,7 +465,7 @@ export function EnterpriseDataTable<TRow>(props: IEnterpriseDataTableProps<TRow>
                         setDensity("compact")
                     }}
                 >
-                    Compact
+                    {t("common:dataTable.compact")}
                 </Button>
                 <Button
                     size="sm"
@@ -472,19 +474,19 @@ export function EnterpriseDataTable<TRow>(props: IEnterpriseDataTableProps<TRow>
                         setDensity("comfortable")
                     }}
                 >
-                    Comfortable
+                    {t("common:dataTable.comfortable")}
                 </Button>
                 <Button size="sm" variant="flat" onPress={handleExportCsv}>
-                    Export CSV
+                    {t("common:dataTable.exportCsv")}
                 </Button>
                 <Button size="sm" variant="flat" onPress={handleExportJson}>
-                    Export JSON
+                    {t("common:dataTable.exportJson")}
                 </Button>
                 <Button size="sm" variant="flat" onPress={handleSaveView}>
-                    Save view
+                    {t("common:dataTable.saveView")}
                 </Button>
                 <Button size="sm" variant="flat" onPress={handleResetView}>
-                    Reset view
+                    {t("common:dataTable.resetView")}
                 </Button>
             </div>
 
@@ -512,7 +514,7 @@ export function EnterpriseDataTable<TRow>(props: IEnterpriseDataTableProps<TRow>
                                             column.toggleVisibility()
                                         }}
                                     >
-                                        {column.getIsVisible() ? "Hide" : "Show"}
+                                        {column.getIsVisible() ? t("common:dataTable.hide") : t("common:dataTable.show")}
                                     </Button>
                                 ) : null}
                                 <Button
@@ -572,9 +574,9 @@ export function EnterpriseDataTable<TRow>(props: IEnterpriseDataTableProps<TRow>
                                         column.pin(false)
                                     }}
                                 >
-                                    <option value="none">pin: none</option>
-                                    <option value="left">pin: left</option>
-                                    <option value="right">pin: right</option>
+                                    <option value="none">{t("common:dataTable.pinNone")}</option>
+                                    <option value="left">{t("common:dataTable.pinLeft")}</option>
+                                    <option value="right">{t("common:dataTable.pinRight")}</option>
                                 </select>
                             </div>
                             <input
@@ -597,7 +599,7 @@ export function EnterpriseDataTable<TRow>(props: IEnterpriseDataTableProps<TRow>
             {selectedRows.length > 0 ? (
                 <div className="flex flex-wrap items-center gap-2 rounded-lg border border-border bg-surface px-3 py-2">
                     <Chip color="primary" size="sm" variant="flat">
-                        {selectedRows.length} selected
+                        {t("common:dataTable.selected", { count: selectedRows.length })}
                     </Chip>
                     <Button
                         size="sm"
@@ -606,7 +608,7 @@ export function EnterpriseDataTable<TRow>(props: IEnterpriseDataTableProps<TRow>
                             setRowSelection({})
                         }}
                     >
-                        Clear selection
+                        {t("common:dataTable.clearSelection")}
                     </Button>
                 </div>
             ) : null}
