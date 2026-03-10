@@ -2,6 +2,7 @@ import {describe, expect, test} from "bun:test"
 
 import type {IIssueAggregationProvider} from "../../../../src/application/ports/outbound/review/issue-aggregation-provider"
 import type {IFileMetricsProvider} from "../../../../src/application/ports/outbound/analysis/file-metrics-provider"
+import type {ICodeGraphPageRankService} from "../../../../src/application/ports/outbound/graph/code-graph-page-rank-service.port"
 import type {IGraphRepository} from "../../../../src/application/ports/outbound/graph/code-graph-repository.port"
 import {
     CODE_GRAPH_EDGE_TYPE,
@@ -24,6 +25,10 @@ interface ITrackedCalls {
     loadGraphArgs: Array<[string, string | undefined]>
     metricsArgs: Array<[string, readonly string[]]>
     heatmapArgs: string[]
+    hotspotArgs: Array<{
+        readonly graph: ICodeGraph
+        readonly filePaths: readonly string[] | undefined
+    }>
 }
 
 describe("GetCodeCityDataUseCase", () => {
@@ -153,6 +158,23 @@ describe("GetCodeCityDataUseCase", () => {
         const error = result.error as ValidationError
         expect(error.fields[0]?.message).toContain("aggregateByFile failed for gh:repo-1")
     })
+
+    test("returns validation error when hotspot ranking fails", async () => {
+        const useCase = createUseCase({
+            pageRankService: {
+                calculateHotspots: () => Promise.reject(new Error("page rank unavailable")),
+            },
+        })
+
+        const result = await useCase.execute({
+            repoId: "gh:repo-1",
+        })
+
+        expect(result.isFail).toBe(true)
+        expect(result.error.code).toBe("VALIDATION_ERROR")
+        const error = result.error as ValidationError
+        expect(error.fields[0]?.message).toContain("calculateHotspots failed for gh:repo-1")
+    })
 })
 
 function createUseCase(
@@ -160,6 +182,7 @@ function createUseCase(
         readonly graph?: ICodeGraph | null
         readonly metricsProvider?: Partial<IFileMetricsProvider>
         readonly issueProvider?: Partial<IIssueAggregationProvider>
+        readonly pageRankService?: Partial<ICodeGraphPageRankService>
         readonly trackedCalls?: ITrackedCalls
     } = {},
     now: Date = new Date("2026-03-03T00:00:00.000Z"),
@@ -234,9 +257,35 @@ function createUseCase(
         },
     }
 
+    const codeGraphPageRankService: ICodeGraphPageRankService = {
+        calculateHotspots: ({graph, filePaths}) => {
+            if (overrides.trackedCalls !== undefined) {
+                overrides.trackedCalls.hotspotArgs.push({graph, filePaths})
+            }
+
+            if (
+                overrides.pageRankService !== undefined
+                && overrides.pageRankService.calculateHotspots !== undefined
+            ) {
+                return overrides.pageRankService.calculateHotspots({graph, filePaths})
+            }
+
+            const normalizedFilePaths = [...(filePaths ?? [])].sort((left, right) => right.localeCompare(left))
+            return Promise.resolve(
+                normalizedFilePaths.map((filePath, index) => {
+                    return {
+                        filePath,
+                        score: normalizedFilePaths.length - index,
+                    }
+                }),
+            )
+        },
+    }
+
     return new GetCodeCityDataUseCase({
         graphRepository,
         fileMetricsProvider,
+        codeGraphPageRankService,
         issueAggregationProvider,
         ...(useDefaultNow ? {} : {now: () => now}),
     })
@@ -253,6 +302,7 @@ function createDeterministicUseCase(
         loadGraphArgs: [],
         metricsArgs: [],
         heatmapArgs: [],
+        hotspotArgs: [],
     }
 
     const useCase = createUseCase({
@@ -369,6 +419,8 @@ function assertTrackedCalls(trackedCalls: ITrackedCalls): void {
     expect(trackedCalls.loadGraphArgs).toEqual([["gh:repo-1", "main"]])
     expect(trackedCalls.metricsArgs).toHaveLength(1)
     expect(trackedCalls.metricsArgs[0]?.[1]).toEqual(["src/index.ts", "src/utils.ts"])
+    expect(trackedCalls.hotspotArgs).toHaveLength(1)
+    expect(trackedCalls.hotspotArgs[0]?.filePaths).toEqual(["src/index.ts", "src/utils.ts"])
 }
 
 function createIssueHeatmapEntry(

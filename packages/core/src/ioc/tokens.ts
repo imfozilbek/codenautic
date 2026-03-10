@@ -10,6 +10,7 @@ import type {ISystemSettingsWriter} from "../application/ports/outbound/common/s
 import type {ICustomRuleRepository} from "../application/ports/outbound/custom-rule-repository.port"
 import type {IFeedbackRepository} from "../application/ports/outbound/feedback-repository.port"
 import type {IGitProvider} from "../application/ports/outbound/git/git-provider.port"
+import type {ICodeGraphPageRankService} from "../application/ports/outbound/graph/code-graph-page-rank-service.port"
 import type {IGraphRepository} from "../application/ports/outbound/graph/code-graph-repository.port"
 import type {ILLMProvider} from "../application/ports/outbound/llm/llm-provider.port"
 import type {IConversationThreadRepository} from "../application/ports/outbound/messaging/conversation-thread-repository.port"
@@ -53,6 +54,9 @@ export const TOKENS = {
         Service: createToken<IAnalyticsService>("core.analytics.service"),
     },
     Analysis: {
+        CodeGraphPageRankService: createToken<ICodeGraphPageRankService>(
+            "core.analysis.code-graph-page-rank-service",
+        ),
         FileMetricsProvider: createToken<IFileMetricsProvider>(
             "core.analysis.file-metrics-provider",
         ),

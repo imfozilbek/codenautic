@@ -1,16 +1,13 @@
 import type {IUseCase} from "../../ports/inbound/use-case.port"
 import type {IIssueAggregationProvider} from "../../ports/outbound/review/issue-aggregation-provider"
 import type {IFileMetricsProvider} from "../../ports/outbound/analysis/file-metrics-provider"
+import type {ICodeGraphPageRankService} from "../../ports/outbound/graph/code-graph-page-rank-service.port"
 import type {IFileMetricsDTO} from "../../dto/analytics/file-metrics.dto"
 import type {IHotspotMetric, ICodeCityDataDTO} from "../../dto/analytics/code-city-data.dto"
 import type {IIssueHeatmapEntryDTO} from "../../dto/analytics/issue-heatmap-entry.dto"
 import type {ITreemapNodeDTO, ITreemapNodeMetrics, TreemapNodeType} from "../../dto/analytics/treemap-node.dto"
 import {TREEMAP_NODE_TYPE} from "../../dto/analytics/treemap-node.dto"
-import type {
-    ICodeGraph,
-    ICodeGraphEdge,
-    ICodeGraphNode,
-} from "../../ports/outbound/graph/code-graph.type"
+import type {ICodeGraph} from "../../ports/outbound/graph/code-graph.type"
 import type {IGraphRepository} from "../../ports/outbound/graph/code-graph-repository.port"
 import {CODE_GRAPH_NODE_TYPE} from "../../ports/outbound/graph/code-graph.type"
 import {NotFoundError} from "../../../domain/errors/not-found.error"
@@ -88,6 +85,11 @@ export interface IGetCodeCityDataUseCaseDependencies {
     readonly fileMetricsProvider: IFileMetricsProvider
 
     /**
+     * Code graph PageRank hotspot ranking service.
+     */
+    readonly codeGraphPageRankService: ICodeGraphPageRankService
+
+    /**
      * Issue aggregation provider port.
      */
     readonly issueAggregationProvider: IIssueAggregationProvider
@@ -98,8 +100,6 @@ export interface IGetCodeCityDataUseCaseDependencies {
     readonly now?: () => Date
 }
 
-const PAGE_RANK_DAMPING_FACTOR = 0.85
-const PAGE_RANK_ITERATIONS = 20
 const REPOSITORY_ROOT_NODE_ID = "repository-root"
 const REPOSITORY_ROOT_NODE_NAME = "repository"
 
@@ -111,6 +111,7 @@ export class GetCodeCityDataUseCase
 {
     private readonly graphRepository: IGraphRepository
     private readonly fileMetricsProvider: IFileMetricsProvider
+    private readonly codeGraphPageRankService: ICodeGraphPageRankService
     private readonly issueAggregationProvider: IIssueAggregationProvider
     private readonly nowProvider: () => Date
 
@@ -122,6 +123,7 @@ export class GetCodeCityDataUseCase
     public constructor(dependencies: IGetCodeCityDataUseCaseDependencies) {
         this.graphRepository = dependencies.graphRepository
         this.fileMetricsProvider = dependencies.fileMetricsProvider
+        this.codeGraphPageRankService = dependencies.codeGraphPageRankService
         this.issueAggregationProvider = dependencies.issueAggregationProvider
         this.nowProvider = dependencies.now ?? (() => new Date())
     }
@@ -178,13 +180,20 @@ export class GetCodeCityDataUseCase
         )
 
         const rootNode = this.buildTreemapRoot(fileMetrics)
-        const hotspots = this.calculateHotspots(graph, fileMetrics)
+        const hotspotsResult = await this.loadHotspots(
+            normalizedInput.repoId,
+            graph,
+            fileMetrics,
+        )
+        if (hotspotsResult.isFail) {
+            return Result.fail<ICodeCityDataDTO, DomainError>(hotspotsResult.error)
+        }
 
         return Result.ok<ICodeCityDataDTO, DomainError>({
             repositoryId: normalizedInput.repoId,
             rootNode,
             heatmap: issueHeatmapResult.value,
-            hotspots,
+            hotspots: hotspotsResult.value,
             generatedAt: this.nowProvider().toISOString(),
         })
     }
@@ -365,6 +374,33 @@ export class GetCodeCityDataUseCase
         } catch (error: unknown) {
             return Result.fail<readonly IIssueHeatmapEntryDTO[], ValidationError>(
                 this.mapDependencyFailure("aggregateByFile", repositoryId, error),
+            )
+        }
+    }
+
+    /**
+     * Loads deterministic hotspot ranking from graph PageRank service.
+     *
+     * @param repositoryId Repository identifier.
+     * @param graph Graph payload.
+     * @param fileMetrics Aggregated file metrics used to scope hotspots.
+     * @returns Ranked hotspot metrics.
+     */
+    private async loadHotspots(
+        repositoryId: string,
+        graph: ICodeGraph,
+        fileMetrics: readonly IFileMetricsDTO[],
+    ): Promise<Result<readonly IHotspotMetric[], ValidationError>> {
+        try {
+            const hotspots = await this.codeGraphPageRankService.calculateHotspots({
+                graph,
+                filePaths: fileMetrics.map((metric) => metric.filePath),
+            })
+
+            return Result.ok<readonly IHotspotMetric[], ValidationError>(hotspots)
+        } catch (error: unknown) {
+            return Result.fail<readonly IHotspotMetric[], ValidationError>(
+                this.mapDependencyFailure("calculateHotspots", repositoryId, error),
             )
         }
     }
@@ -844,234 +880,6 @@ export class GetCodeCityDataUseCase
         type: TreemapNodeType,
     ): IMutableTreemapNode | undefined {
         return node.children.find((child) => child.id === id && child.type === type)
-    }
-
-    /**
-     * Calculates hotspot scores for files.
-     *
-     * @param graph Graph payload.
-     * @param fileMetrics Aggregated file metric rows.
-     * @returns Sorted hotspot metrics.
-     */
-    private calculateHotspots(
-        graph: ICodeGraph,
-        fileMetrics: readonly IFileMetricsDTO[],
-    ): readonly IHotspotMetric[] {
-        const filePaths = new Set<string>(fileMetrics.map((metric) => metric.filePath))
-        const fileNodeLookup = this.buildFileNodeLookup(graph.nodes)
-        const adjacency = this.buildFileAdjacency(graph.edges, fileNodeLookup, filePaths)
-        const scores = this.computePageRank([...filePaths], adjacency)
-
-        const merged = [...filePaths].map((filePath) => {
-            return {
-                filePath,
-                score: scores.get(filePath) ?? 0,
-            }
-        })
-
-        merged.sort((left, right) => {
-            if (left.score === right.score) {
-                return left.filePath.localeCompare(right.filePath)
-            }
-
-            return right.score - left.score
-        })
-
-        return merged
-    }
-
-    /**
-     * Builds mapping nodeId → filePath for file nodes.
-     *
-     * @param nodes Graph nodes.
-     * @returns Resolver map.
-     */
-    private buildFileNodeLookup(nodes: readonly ICodeGraphNode[]): Map<string, string> {
-        const lookup = new Map<string, string>()
-
-        for (const node of nodes) {
-            if (node.type !== CODE_GRAPH_NODE_TYPE.FILE) {
-                continue
-            }
-
-            const normalizedPath = this.normalizeFilePath(node.filePath)
-            if (normalizedPath.length > 0) {
-                lookup.set(node.id, normalizedPath)
-                lookup.set(normalizedPath, normalizedPath)
-            }
-        }
-
-        return lookup
-    }
-
-    /**
-     * Builds outgoing file adjacency list.
-     *
-     * @param edges Graph edges.
-     * @param fileNodeLookup File node resolver.
-     * @param knownFiles Known file paths for this run.
-     * @returns Directed adjacency by file path.
-     */
-    private buildFileAdjacency(
-        edges: readonly ICodeGraphEdge[],
-        fileNodeLookup: Map<string, string>,
-        knownFiles: Set<string>,
-    ): Map<string, Set<string>> {
-        const adjacency = new Map<string, Set<string>>()
-
-        for (const edge of edges) {
-            const source = this.resolveFileNodeEndpoint(edge.source, fileNodeLookup, knownFiles)
-            const target = this.resolveFileNodeEndpoint(edge.target, fileNodeLookup, knownFiles)
-            if (source === undefined || target === undefined) {
-                continue
-            }
-
-            const bucket = adjacency.get(source)
-            if (bucket === undefined) {
-                adjacency.set(source, new Set([target]))
-                continue
-            }
-
-            bucket.add(target)
-        }
-
-        return adjacency
-    }
-
-    /**
-     * Resolves endpoint to canonical file path when possible.
-     *
-     * @param rawEndpoint Raw edge endpoint.
-     * @param fileNodeLookup File node resolver.
-     * @param knownFiles Known file paths for this run.
-     * @returns File path.
-     */
-    private resolveFileNodeEndpoint(
-        rawEndpoint: string,
-        fileNodeLookup: Map<string, string>,
-        knownFiles: Set<string>,
-    ): string | undefined {
-        const direct = fileNodeLookup.get(rawEndpoint)
-        if (direct !== undefined && knownFiles.has(direct)) {
-            return direct
-        }
-
-        const normalized = this.normalizeFilePath(rawEndpoint)
-        if (normalized.length === 0) {
-            return undefined
-        }
-
-        const fromLookup = fileNodeLookup.get(normalized)
-        if (fromLookup === undefined || knownFiles.has(fromLookup) === false) {
-            return undefined
-        }
-
-        return fromLookup
-    }
-
-    /**
-     * Computes deterministic PageRank scores.
-     *
-     * @param filePaths Candidate file ids.
-     * @param adjacency Outgoing adjacency list.
-     * @param knownFiles Files expected in output.
-     * @returns PageRank by file path.
-     */
-    private computePageRank(
-        filePaths: readonly string[],
-        adjacency: Map<string, Set<string>>,
-    ): Map<string, number> {
-        const result = new Map<string, number>()
-        if (filePaths.length === 0) {
-            return result
-        }
-
-        const sortedFiles = [...filePaths].sort()
-        const initialRank = 1 / sortedFiles.length
-        let current = this.initializePageRank(sortedFiles, initialRank)
-
-        for (let iteration = 0; iteration < PAGE_RANK_ITERATIONS; iteration++) {
-            const next = this.initializePageRank(
-                sortedFiles,
-                (1 - PAGE_RANK_DAMPING_FACTOR) / sortedFiles.length,
-            )
-            const sinkRank = this.distributeRanksToTargets(sortedFiles, current, adjacency, next)
-            this.distributeSinkRankToAllFiles(next, sinkRank, sortedFiles.length)
-            current = next
-        }
-
-        return current
-    }
-
-    /**
-     * Creates equally distributed starting page rank map.
-     *
-     * @param filePaths Sorted file paths.
-     * @param initialRank Initial rank value for each node.
-     * @returns PageRank initialization map.
-     */
-    private initializePageRank(filePaths: readonly string[], initialRank: number): Map<string, number> {
-        const ranks = new Map<string, number>()
-
-        for (const filePath of filePaths) {
-            ranks.set(filePath, initialRank)
-        }
-
-        return ranks
-    }
-
-    /**
-     * Distributes rank across graph edges and returns sink rank.
-     *
-     * @param filePaths Sorted file paths.
-     * @param current Current rank map.
-     * @param adjacency Target adjacency.
-     * @param next Next rank accumulator.
-     * @returns Total rank of sink nodes.
-     */
-    private distributeRanksToTargets(
-        filePaths: readonly string[],
-        current: Map<string, number>,
-        adjacency: Map<string, Set<string>>,
-        next: Map<string, number>,
-    ): number {
-        let sinkRank = 0
-
-        for (const filePath of filePaths) {
-            const rank = current.get(filePath) ?? 0
-            const targets = adjacency.get(filePath)
-
-            if (targets === undefined || targets.size === 0) {
-                sinkRank += rank
-                continue
-            }
-
-            const shared = (rank * PAGE_RANK_DAMPING_FACTOR) / targets.size
-            for (const target of targets) {
-                next.set(target, (next.get(target) ?? 0) + shared)
-            }
-        }
-
-        return sinkRank
-    }
-
-    /**
-     * Distributes sink rank to all files with damping.
-     *
-     * @param next Next rank accumulator.
-     * @param sinkRank Collected sink rank.
-     * @param fileCount Number of files.
-     */
-    private distributeSinkRankToAllFiles(
-        next: Map<string, number>,
-        sinkRank: number,
-        fileCount: number,
-    ): void {
-        const sinkShare = sinkRank / fileCount
-        const sinkContribution = PAGE_RANK_DAMPING_FACTOR * sinkShare
-        for (const key of next.keys()) {
-            next.set(key, (next.get(key) ?? 0) + sinkContribution)
-        }
     }
 
     /**

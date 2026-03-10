@@ -9,6 +9,7 @@ import type {ILogger} from "../../src/application/ports/outbound/common/logger.p
 import type {ICustomRuleRepository} from "../../src/application/ports/outbound/custom-rule-repository.port"
 import type {IFeedbackRepository} from "../../src/application/ports/outbound/feedback-repository.port"
 import type {IGitProvider} from "../../src/application/ports/outbound/git/git-provider.port"
+import type {ICodeGraphPageRankService} from "../../src/application/ports/outbound/graph/code-graph-page-rank-service.port"
 import type {IGraphRepository} from "../../src/application/ports/outbound/graph/code-graph-repository.port"
 import type {ILLMProvider} from "../../src/application/ports/outbound/llm/llm-provider.port"
 import type {IConversationThreadRepository} from "../../src/application/ports/outbound/messaging/conversation-thread-repository.port"
@@ -99,6 +100,8 @@ describe("createToken", () => {
 describe("TOKENS", () => {
     test("exposes typed symbols for outbound core ports", () => {
         const analyticsServiceToken: InjectionToken<IAnalyticsService> = TOKENS.Analytics.Service
+        const codeGraphPageRankServiceToken: InjectionToken<ICodeGraphPageRankService> =
+            TOKENS.Analysis.CodeGraphPageRankService
         const fileMetricsProviderToken: InjectionToken<IFileMetricsProvider> =
             TOKENS.Analysis.FileMetricsProvider
         const graphRepositoryToken: InjectionToken<IGraphRepository> =
@@ -171,6 +174,7 @@ describe("TOKENS", () => {
 
         const tokens: readonly InjectionToken<unknown>[] = [
             analyticsServiceToken,
+            codeGraphPageRankServiceToken,
             fileMetricsProviderToken,
             graphRepositoryToken,
             auditLogRepositoryToken,

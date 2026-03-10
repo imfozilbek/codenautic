@@ -98,7 +98,7 @@ function createAstCodeGraphEnricherErrorMessage(
     }
 
     if (code === AST_CODE_GRAPH_ENRICHER_ERROR_CODE.CLASS_NODE_NOT_FOUND) {
-        return `Missing class node for AST code graph enrichment: ${details.className ?? "<unknown>"}` 
+        return `Missing class node for AST code graph enrichment: ${details.className ?? "<unknown>"}`
     }
 
     return `Missing function node for AST code graph enrichment: ${details.functionName ?? "<unknown>"}`

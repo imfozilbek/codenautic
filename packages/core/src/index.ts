@@ -17,6 +17,10 @@ export {type IFileMetricsProvider} from "./application/ports/outbound/analysis/f
 export {type IIssueAggregationProvider} from "./application/ports/outbound/review/issue-aggregation-provider"
 export {type IAnalyticsService} from "./application/ports/outbound/analytics/analytics-service.port"
 export {
+    type ICodeGraphPageRankInput,
+    type ICodeGraphPageRankService,
+} from "./application/ports/outbound/graph/code-graph-page-rank-service.port"
+export {
     type MessageBrokerHandler,
     type MessageBrokerPayload,
     type IMessageBroker,

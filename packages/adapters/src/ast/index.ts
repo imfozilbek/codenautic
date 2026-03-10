@@ -16,6 +16,12 @@ export {
     type IAstCodeGraphBuilderErrorDetails,
 } from "./ast-code-graph-builder.error"
 export {
+    AST_CODE_GRAPH_PAGE_RANK_ERROR_CODE,
+    AstCodeGraphPageRankError,
+    type AstCodeGraphPageRankErrorCode,
+    type IAstCodeGraphPageRankErrorDetails,
+} from "./ast-code-graph-page-rank.error"
+export {
     AST_CODE_GRAPH_ENRICHER_ERROR_CODE,
     AstCodeGraphEnricherError,
     type AstCodeGraphEnricherErrorCode,
@@ -34,6 +40,10 @@ export {
     type IAstCodeGraphEnrichmentInput,
     type IAstCodeGraphEnrichmentResult,
 } from "./ast-code-graph.enricher"
+export {
+    AstCodeGraphPageRankService,
+    type IAstCodeGraphPageRankServiceOptions,
+} from "./ast-code-graph-page-rank.service"
 export {
     assertJavaScriptParserLanguage,
     JavaScriptSourceCodeParser,
