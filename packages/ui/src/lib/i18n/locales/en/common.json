@@ -118,5 +118,41 @@
         "date": "Date",
         "createdAt": "Created at",
         "updatedAt": "Updated at"
+    },
+    "dataTable": {
+        "searchRows": "Search rows",
+        "compact": "Compact",
+        "comfortable": "Comfortable",
+        "exportCsv": "Export CSV",
+        "exportJson": "Export JSON",
+        "saveView": "Save view",
+        "resetView": "Reset view",
+        "hide": "Hide",
+        "show": "Show",
+        "pinNone": "pin: none",
+        "pinLeft": "pin: left",
+        "pinRight": "pin: right",
+        "selected": "{{count}} selected",
+        "clearSelection": "Clear selection"
+    },
+    "explainabilityPanel": {
+        "whyThisScore": "Why this score?",
+        "explainability": "Explainability",
+        "signal": "Signal",
+        "threshold": "Threshold",
+        "confidence": "Confidence",
+        "dataWindow": "Data window",
+        "topFactors": "Top factors",
+        "highImpact": "high impact",
+        "mediumImpact": "medium impact",
+        "lowImpact": "low impact",
+        "knownLimitations": "Known limitations",
+        "exportSnippet": "Export explanation snippet"
+    },
+    "systemStateCard": {
+        "errorState": "Error state",
+        "loadingState": "Loading state",
+        "partialDataState": "Partial data state",
+        "emptyState": "Empty state"
     }
 }

@@ -1,1 +1,187 @@
-{}
+{
+    "page": {
+        "title": "Onboarding репозитория",
+        "subtitle": "Подключите новый репозиторий, проверьте параметры и запустите скан."
+    },
+    "steps": {
+        "stepLabel": "Шаг {{number}}",
+        "provider": {
+            "label": "Подключить провайдера",
+            "description": "Выберите Git-провайдера и подтвердите подключение."
+        },
+        "repository": {
+            "label": "Выбрать репозиторий",
+            "description": "Укажите URL/список репозиториев для сканирования."
+        },
+        "launch": {
+            "label": "Запустить скан",
+            "description": "Проверьте параметры и стартаньте процесс."
+        }
+    },
+    "provider": {
+        "fieldLabel": "Git-провайдер",
+        "fieldHelper": "Подключение нужно для доступа к репозиториям и запуску скана.",
+        "connectButton": "Подключить провайдера",
+        "connected": "{{provider}} подключен",
+        "notConnected": "Не подключен",
+        "connectionError": "Сначала подключите Git-провайдера.",
+        "connectedToast": "{{provider}} подключен.",
+        "github": "GitHub",
+        "gitlab": "GitLab",
+        "bitbucket": "Bitbucket",
+        "githubDescription": "OAuth + API token flow",
+        "gitlabDescription": "OAuth + project/repo scopes",
+        "bitbucketDescription": "Workspace app or app password"
+    },
+    "repository": {
+        "modeLabel": "Режим onboarding",
+        "modeHelper": "Выберите формат запуска.",
+        "singleLabel": "Одиночный репозиторий",
+        "bulkLabel": "Массовый onboarding (bulk)",
+        "urlLabel": "URL репозитория",
+        "urlHelper": "Поддерживаются GitHub, GitLab, Bitbucket.",
+        "urlPlaceholder": "https://github.com/owner/repository",
+        "bulkListLabel": "Список репозиториев (по одной ссылке на строку)",
+        "selectedCount": "Выбрано {{selected}} из {{total}} репозиториев",
+        "selectAll": "Выбрать все",
+        "deselectAll": "Снять все",
+        "bulkEmptyHint": "Добавьте URL репозиториев в поле выше.",
+        "invalidLines": "Некорректные строки",
+        "bulkTemplateNotice": "Будет применен единый шаблон сканирования ко всем выбранным репозиториям.",
+        "bulkInfoNotice": "В bulk-режиме все выбранные репозитории запускаются по общему шаблону настроек."
+    },
+    "scan": {
+        "templateRegistry": "Registry шаблонов onboarding",
+        "templateRegistryHint": "Выберите шаблон — сначала preview, потом примените в один клик.",
+        "templateFieldLabel": "Шаблон",
+        "templateFieldHelper": "Шаблон влияет только на настройки сканирования.",
+        "whatWillBeApplied": "Что будет применено",
+        "idLabel": "ID",
+        "versionLabel": "Version",
+        "rulesLabel": "Rules",
+        "descriptionLabel": "Description",
+        "applyTemplate": "Применить шаблон",
+        "auditLogTitle": "Применённые шаблоны (audit log)",
+        "auditLogEmpty": "Пока шаблоны не применялись.",
+        "auditLogFrom": "From: {{before}} \u2192 {{after}}",
+        "rollbackLast": "Откатить последнее применение",
+        "scanModeLabel": "Режим сканирования",
+        "scanModeHelper": "Incremental — быстрее, full — полная проверка.",
+        "tagsLabel": "Теги",
+        "tagsHelper": "Через запятую.",
+        "tagsPlaceholder": "security, core, baseline",
+        "scheduleLabel": "Расписание",
+        "workersLabel": "Количество воркеров",
+        "workersHelper": "1..32 параллельных воркера.",
+        "submodulesLabel": "Включать сабмодули",
+        "historyLabel": "Сканировать историю",
+        "historyHelper": "Если включено, соберём больше индексов.",
+        "notifyEmailLabel": "Email для уведомлений (необязательно)",
+        "notifyEmailHelper": "Email для уведомлений о статусе."
+    },
+    "scanModeOptions": {
+        "incremental": "Incremental",
+        "full": "Full",
+        "delta": "Delta"
+    },
+    "scheduleOptions": {
+        "manual": "Manual",
+        "manualDescription": "Запуск только вручную",
+        "hourly": "Hourly",
+        "hourlyDescription": "Каждый 1 час",
+        "daily": "Daily",
+        "dailyDescription": "Раз в день",
+        "weekly": "Weekly",
+        "weeklyDescription": "Раз в неделю"
+    },
+    "summary": {
+        "title": "Проверьте выбранные настройки:",
+        "repositoryLabel": "Repository",
+        "onboardingTemplate": "Шаблон onboarding",
+        "appliedProfile": "Применяемый профиль",
+        "profileDescription": "Один шаблон на {{count}} репозиториев: {{mode}}/{{schedule}}",
+        "moreRepositories": "...и еще {{count}} репозиториев.",
+        "providerLabel": "Provider",
+        "providerConnected": "connected",
+        "providerNotConnected": "not connected",
+        "modeLabel": "Mode",
+        "scheduleLabel": "Schedule",
+        "workersLabel": "Workers",
+        "submodulesLabel": "Submodules",
+        "historyLabel": "History",
+        "emailLabel": "Email",
+        "emailNotSet": "не указан",
+        "singleStartedAlert": "Сканирование запущено. Вы можете повторить запуск после правок.",
+        "singleReadyAlert": "После запуска будет начат первичный скан.",
+        "bulkReadyAlert": "После запуска вы увидите единый статус для всех репозиториев."
+    },
+    "bulk": {
+        "progressTitle": "Прогресс массового сканирования",
+        "pauseButton": "Пауза",
+        "resumeButton": "Возобновить",
+        "cancelAllButton": "Отменить все",
+        "summaryLine": "В работе: {{running}}, Очередь: {{queued}}, Пауза: {{paused}}, Ошибки: {{error}}, Готово: {{completed}}, Отменено: {{cancelled}}",
+        "progressLabel": "Прогресс: {{value}}%",
+        "errorDetailsTitle": "Подробнее об ошибке",
+        "retryButton": "Retry",
+        "cancelButton": "Отменить",
+        "statusRunning": "В процессе",
+        "statusQueued": "В очереди",
+        "statusPaused": "Пауза",
+        "statusCompleted": "Готово",
+        "statusCancelled": "Отменено",
+        "statusError": "Ошибка"
+    },
+    "navigator": {
+        "backButton": "Назад",
+        "nextButton": "Далее",
+        "submitButton": "Запустить сканирование",
+        "submittingButton": "Запускаем..."
+    },
+    "templates": {
+        "customLabel": "Ручная настройка",
+        "customName": "Ручная настройка",
+        "securityBaseline": {
+            "name": "Security Baseline",
+            "description": "Подходит для чувствительных проектов: включена история и строгие теги безопасности."
+        },
+        "qualityScan": {
+            "name": "Quality Scan",
+            "description": "Сбалансированный вариант для новых репозиториев с акцентом на качество."
+        },
+        "fastOnboarding": {
+            "name": "Fast Onboarding",
+            "description": "Быстрый onboarding для пилота: меньше воркеров и более редкая проверка."
+        },
+        "noTags": "без тегов"
+    },
+    "diff": {
+        "keep": "{{label}}: оставляем {{value}}",
+        "change": "{{label}}: {{previous}} \u2192 {{next}}",
+        "notSet": "не задан"
+    },
+    "boolean": {
+        "yes": "Да",
+        "no": "Нет"
+    },
+    "toast": {
+        "bulkScanStarted": "Сканирование репозиториев запущено.",
+        "singleScanStarted": "Сканирование репозитория запущено."
+    },
+    "validation": {
+        "emailTooLong": "Email слишком длинный",
+        "invalidEmail": "Введите корректный email",
+        "workersInteger": "Количество воркеров должно быть целым",
+        "workersMin": "Количество воркеров не должно быть меньше 1",
+        "workersMax": "Количество воркеров не должно превышать 32",
+        "tagsTooLong": "Теги слишком длинные",
+        "enterRepoUrl": "Введите URL репозитория",
+        "invalidRepoUrl": "Введите корректный URL репозитория",
+        "addMinOneRepo": "Добавьте минимум один корректный URL репозитория",
+        "invalidLinks": "Некорректные ссылки: {{preview}}",
+        "selectAtLeastOneRepo": "Выберите хотя бы один репозиторий для запуска.",
+        "errorNetworkTimeout": "Сетевой запрос к провайдеру завершился таймаутом.",
+        "errorBadGateway": "Ресурс вернул 502 Bad Gateway.",
+        "errorScanAborted": "Сканирование прервано: ошибка доступа к репозиторию"
+    }
+}

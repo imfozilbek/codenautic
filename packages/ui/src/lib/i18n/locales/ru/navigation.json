@@ -162,5 +162,59 @@
         "adoptionAnalytics": "Аналитика внедрения",
         "organization": "Организация",
         "team": "Команда"
-    }
+    },
+    "toolbar": {
+        "openNavigationMenu": "Открыть навигационное меню",
+        "openCommandPalette": "Открыть палитру команд (⌘K)",
+        "notifications": "Уведомления ({{count}})"
+    },
+    "header": {
+        "openNavigationMenu": "Открыть навигационное меню",
+        "openCommandPalette": "Открыть палитру команд (⌘K)",
+        "workspace": "Рабочее пространство",
+        "workspaceSwitcher": "Переключение рабочего пространства",
+        "notifications": "Уведомления ({{count}})"
+    },
+    "notifications": {
+        "shortcutConflictsTitle": "Обнаружены конфликты клавиатурных сочетаний",
+        "multiTabSyncTitle": "Синхронизация вкладок применена",
+        "providerDegradationTitle": "Режим деградации провайдера",
+        "providerDegradationMessage": "{{provider}} деградирован. Затронуто: {{features}}. ETA: {{eta}}.",
+        "openRunbook": "Открыть runbook",
+        "policyDriftTitle": "Обнаружено отклонение от runtime-политики",
+        "sessionRecoveredTitle": "Сессия восстановлена"
+    },
+    "shortcuts": {
+        "title": "Клавиатурные сочетания",
+        "searchLabel": "Поиск сочетаний",
+        "searchPlaceholder": "Поиск по клавише или действию",
+        "helpHint": "Нажмите ? для помощи.",
+        "listLabel": "Список сочетаний"
+    },
+    "localeSwitcher": {
+        "ariaLabel": "Переключатель языка",
+        "englishAriaLabel": "Английский язык",
+        "russianAriaLabel": "Русский язык"
+    },
+    "themeModeToggle": {
+        "ariaLabel": "Режим темы",
+        "darkAriaLabel": "Использовать тёмную тему",
+        "systemAriaLabel": "Использовать системную тему",
+        "lightAriaLabel": "Использовать светлую тему"
+    },
+    "themeToggle": {
+        "ariaLabel": "Режим темы",
+        "darkLabel": "Тёмная",
+        "darkAriaLabel": "Использовать тёмную тему",
+        "systemLabel": "Системная",
+        "systemAriaLabel": "Использовать системную тему",
+        "lightLabel": "Светлая",
+        "lightAriaLabel": "Использовать светлую тему"
+    },
+    "sidebarNav": {
+        "title": "Навигация",
+        "expandAriaLabel": "Развернуть навигацию",
+        "collapseAriaLabel": "Свернуть навигацию"
+    },
+    "userMenuAriaLabel": "Меню пользователя"
 }

@@ -162,5 +162,59 @@
         "adoptionAnalytics": "Adoption Analytics",
         "organization": "Organization",
         "team": "Team"
-    }
+    },
+    "toolbar": {
+        "openNavigationMenu": "Open navigation menu",
+        "openCommandPalette": "Open command palette (⌘K)",
+        "notifications": "Notifications ({{count}})"
+    },
+    "header": {
+        "openNavigationMenu": "Open navigation menu",
+        "openCommandPalette": "Open command palette (⌘K)",
+        "workspace": "Workspace",
+        "workspaceSwitcher": "Workspace switcher",
+        "notifications": "Notifications ({{count}})"
+    },
+    "notifications": {
+        "shortcutConflictsTitle": "Keyboard shortcut conflicts detected",
+        "multiTabSyncTitle": "Multi-tab sync applied",
+        "providerDegradationTitle": "Provider degradation mode",
+        "providerDegradationMessage": "{{provider}} degraded. Affected: {{features}}. ETA: {{eta}}.",
+        "openRunbook": "Open runbook",
+        "policyDriftTitle": "Runtime policy drift detected",
+        "sessionRecoveredTitle": "Session recovered"
+    },
+    "shortcuts": {
+        "title": "Keyboard shortcuts",
+        "searchLabel": "Search shortcuts",
+        "searchPlaceholder": "Search by key or action",
+        "helpHint": "Press ? for help.",
+        "listLabel": "Shortcuts list"
+    },
+    "localeSwitcher": {
+        "ariaLabel": "Language switcher",
+        "englishAriaLabel": "English language",
+        "russianAriaLabel": "Русский язык"
+    },
+    "themeModeToggle": {
+        "ariaLabel": "Theme mode",
+        "darkAriaLabel": "Use dark theme",
+        "systemAriaLabel": "Use system theme",
+        "lightAriaLabel": "Use light theme"
+    },
+    "themeToggle": {
+        "ariaLabel": "Theme mode",
+        "darkLabel": "Dark",
+        "darkAriaLabel": "Use dark theme",
+        "systemLabel": "System",
+        "systemAriaLabel": "Use system theme",
+        "lightLabel": "Light",
+        "lightAriaLabel": "Use light theme"
+    },
+    "sidebarNav": {
+        "title": "Navigation",
+        "expandAriaLabel": "Expand navigation",
+        "collapseAriaLabel": "Collapse navigation"
+    },
+    "userMenuAriaLabel": "User menu"
 }

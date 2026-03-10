@@ -118,5 +118,41 @@
         "date": "Дата",
         "createdAt": "Создано",
         "updatedAt": "Обновлено"
+    },
+    "dataTable": {
+        "searchRows": "Поиск строк",
+        "compact": "Компактный",
+        "comfortable": "Комфортный",
+        "exportCsv": "Экспорт CSV",
+        "exportJson": "Экспорт JSON",
+        "saveView": "Сохранить вид",
+        "resetView": "Сбросить вид",
+        "hide": "Скрыть",
+        "show": "Показать",
+        "pinNone": "без закрепления",
+        "pinLeft": "закрепить слева",
+        "pinRight": "закрепить справа",
+        "selected": "{{count}} выбрано",
+        "clearSelection": "Снять выделение"
+    },
+    "explainabilityPanel": {
+        "whyThisScore": "Почему такая оценка?",
+        "explainability": "Объяснимость",
+        "signal": "Сигнал",
+        "threshold": "Порог",
+        "confidence": "Уверенность",
+        "dataWindow": "Окно данных",
+        "topFactors": "Ключевые факторы",
+        "highImpact": "высокое влияние",
+        "mediumImpact": "среднее влияние",
+        "lowImpact": "низкое влияние",
+        "knownLimitations": "Известные ограничения",
+        "exportSnippet": "Экспорт объяснения"
+    },
+    "systemStateCard": {
+        "errorState": "Состояние ошибки",
+        "loadingState": "Состояние загрузки",
+        "partialDataState": "Частичные данные",
+        "emptyState": "Пустое состояние"
     }
 }

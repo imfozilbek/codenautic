@@ -1,1 +1,187 @@
-{}
+{
+    "page": {
+        "title": "Repository Onboarding",
+        "subtitle": "Connect a new repository, review the parameters and launch a scan."
+    },
+    "steps": {
+        "stepLabel": "Step {{number}}",
+        "provider": {
+            "label": "Connect provider",
+            "description": "Select a Git provider and confirm the connection."
+        },
+        "repository": {
+            "label": "Select repository",
+            "description": "Enter the URL/list of repositories to scan."
+        },
+        "launch": {
+            "label": "Launch scan",
+            "description": "Review the parameters and start the process."
+        }
+    },
+    "provider": {
+        "fieldLabel": "Git provider",
+        "fieldHelper": "A connection is required for repository access and scan launch.",
+        "connectButton": "Connect provider",
+        "connected": "{{provider}} connected",
+        "notConnected": "Not connected",
+        "connectionError": "Connect the Git provider first.",
+        "connectedToast": "{{provider}} connected.",
+        "github": "GitHub",
+        "gitlab": "GitLab",
+        "bitbucket": "Bitbucket",
+        "githubDescription": "OAuth + API token flow",
+        "gitlabDescription": "OAuth + project/repo scopes",
+        "bitbucketDescription": "Workspace app or app password"
+    },
+    "repository": {
+        "modeLabel": "Onboarding mode",
+        "modeHelper": "Select the launch format.",
+        "singleLabel": "Single repository",
+        "bulkLabel": "Bulk onboarding",
+        "urlLabel": "Repository URL",
+        "urlHelper": "Supports GitHub, GitLab, Bitbucket.",
+        "urlPlaceholder": "https://github.com/owner/repository",
+        "bulkListLabel": "Repository list (one link per line)",
+        "selectedCount": "Selected {{selected}} of {{total}} repositories",
+        "selectAll": "Select all",
+        "deselectAll": "Deselect all",
+        "bulkEmptyHint": "Add repository URLs in the field above.",
+        "invalidLines": "Invalid lines",
+        "bulkTemplateNotice": "A single scan template will be applied to all selected repositories.",
+        "bulkInfoNotice": "In bulk mode, all selected repositories are launched with the shared settings template."
+    },
+    "scan": {
+        "templateRegistry": "Onboarding template registry",
+        "templateRegistryHint": "Select a template — preview first, then apply in one click.",
+        "templateFieldLabel": "Template",
+        "templateFieldHelper": "The template affects scan settings only.",
+        "whatWillBeApplied": "What will be applied",
+        "idLabel": "ID",
+        "versionLabel": "Version",
+        "rulesLabel": "Rules",
+        "descriptionLabel": "Description",
+        "applyTemplate": "Apply template",
+        "auditLogTitle": "Applied templates (audit log)",
+        "auditLogEmpty": "No templates have been applied yet.",
+        "auditLogFrom": "From: {{before}} \u2192 {{after}}",
+        "rollbackLast": "Rollback last application",
+        "scanModeLabel": "Scan mode",
+        "scanModeHelper": "Incremental \u2014 faster, full \u2014 complete check.",
+        "tagsLabel": "Tags",
+        "tagsHelper": "Comma separated.",
+        "tagsPlaceholder": "security, core, baseline",
+        "scheduleLabel": "Schedule",
+        "workersLabel": "Worker count",
+        "workersHelper": "1..32 parallel workers.",
+        "submodulesLabel": "Include submodules",
+        "historyLabel": "Scan history",
+        "historyHelper": "If enabled, more indices will be collected.",
+        "notifyEmailLabel": "Notification email (optional)",
+        "notifyEmailHelper": "Email for status notifications."
+    },
+    "scanModeOptions": {
+        "incremental": "Incremental",
+        "full": "Full",
+        "delta": "Delta"
+    },
+    "scheduleOptions": {
+        "manual": "Manual",
+        "manualDescription": "Launch only manually",
+        "hourly": "Hourly",
+        "hourlyDescription": "Every 1 hour",
+        "daily": "Daily",
+        "dailyDescription": "Once a day",
+        "weekly": "Weekly",
+        "weeklyDescription": "Once a week"
+    },
+    "summary": {
+        "title": "Review the selected settings:",
+        "repositoryLabel": "Repository",
+        "onboardingTemplate": "Onboarding template",
+        "appliedProfile": "Applied profile",
+        "profileDescription": "One template for {{count}} repositories: {{mode}}/{{schedule}}",
+        "moreRepositories": "...and {{count}} more repositories.",
+        "providerLabel": "Provider",
+        "providerConnected": "connected",
+        "providerNotConnected": "not connected",
+        "modeLabel": "Mode",
+        "scheduleLabel": "Schedule",
+        "workersLabel": "Workers",
+        "submodulesLabel": "Submodules",
+        "historyLabel": "History",
+        "emailLabel": "Email",
+        "emailNotSet": "not set",
+        "singleStartedAlert": "Scan is running. You can re-launch after edits.",
+        "singleReadyAlert": "After launch, the initial scan will begin.",
+        "bulkReadyAlert": "After launch you will see a unified status for all repositories."
+    },
+    "bulk": {
+        "progressTitle": "Bulk scan progress",
+        "pauseButton": "Pause",
+        "resumeButton": "Resume",
+        "cancelAllButton": "Cancel all",
+        "summaryLine": "Running: {{running}}, Queue: {{queued}}, Paused: {{paused}}, Errors: {{error}}, Done: {{completed}}, Cancelled: {{cancelled}}",
+        "progressLabel": "Progress: {{value}}%",
+        "errorDetailsTitle": "Error details",
+        "retryButton": "Retry",
+        "cancelButton": "Cancel",
+        "statusRunning": "Running",
+        "statusQueued": "Queued",
+        "statusPaused": "Paused",
+        "statusCompleted": "Done",
+        "statusCancelled": "Cancelled",
+        "statusError": "Error"
+    },
+    "navigator": {
+        "backButton": "Back",
+        "nextButton": "Next",
+        "submitButton": "Launch scan",
+        "submittingButton": "Launching..."
+    },
+    "templates": {
+        "customLabel": "Manual configuration",
+        "customName": "Manual configuration",
+        "securityBaseline": {
+            "name": "Security Baseline",
+            "description": "Suitable for sensitive projects: history is enabled and strict security tags."
+        },
+        "qualityScan": {
+            "name": "Quality Scan",
+            "description": "Balanced option for new repositories with a focus on quality."
+        },
+        "fastOnboarding": {
+            "name": "Fast Onboarding",
+            "description": "Quick onboarding for pilots: fewer workers and less frequent checks."
+        },
+        "noTags": "no tags"
+    },
+    "diff": {
+        "keep": "{{label}}: keeping {{value}}",
+        "change": "{{label}}: {{previous}} \u2192 {{next}}",
+        "notSet": "not set"
+    },
+    "boolean": {
+        "yes": "Yes",
+        "no": "No"
+    },
+    "toast": {
+        "bulkScanStarted": "Repository scanning started.",
+        "singleScanStarted": "Repository scan started."
+    },
+    "validation": {
+        "emailTooLong": "Email is too long",
+        "invalidEmail": "Enter a valid email",
+        "workersInteger": "Worker count must be an integer",
+        "workersMin": "Worker count must not be less than 1",
+        "workersMax": "Worker count must not exceed 32",
+        "tagsTooLong": "Tags are too long",
+        "enterRepoUrl": "Enter repository URL",
+        "invalidRepoUrl": "Enter a valid repository URL",
+        "addMinOneRepo": "Add at least one valid repository URL",
+        "invalidLinks": "Invalid links: {{preview}}",
+        "selectAtLeastOneRepo": "Select at least one repository to launch.",
+        "errorNetworkTimeout": "Network request to provider timed out.",
+        "errorBadGateway": "Resource returned 502 Bad Gateway.",
+        "errorScanAborted": "Scan aborted: repository access error"
+    }
+}
