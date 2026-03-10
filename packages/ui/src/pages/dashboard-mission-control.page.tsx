@@ -1,4 +1,5 @@
 import { type ReactElement, Suspense, lazy, useEffect, useMemo, useState } from "react"
+import { useTranslation } from "react-i18next"
 
 import { Alert, Button, Card, CardBody, CardHeader, StyledLink } from "@/components/ui"
 import { ActivationChecklist } from "@/components/onboarding/activation-checklist"
@@ -146,6 +147,7 @@ function saveWorkspacePersonalization(payload: IWorkspacePersonalization): void 
  * @returns Mission control page.
  */
 export function DashboardMissionControlPage(): ReactElement {
+    const { t } = useTranslation(["dashboard"])
     const uiRole = useUiRole()
     const checklistRole = uiRole === "admin" ? "admin" : "developer"
     const personalizationDefaults = readWorkspacePersonalization()
@@ -229,7 +231,7 @@ export function DashboardMissionControlPage(): ReactElement {
         () => [
             {
                 impact: "high" as const,
-                label: "Open CCR backlog",
+                label: t("dashboard:missionControl.openCcrBacklog"),
                 value:
                     range === "1d"
                         ? "19 open CCRs in current window."
@@ -237,18 +239,18 @@ export function DashboardMissionControlPage(): ReactElement {
             },
             {
                 impact: "medium" as const,
-                label: "Provider degradation",
+                label: t("dashboard:missionControl.providerDegradation"),
                 value: opsBanner.isDegraded
                     ? "Latency spike and fallback usage increased weighted risk."
                     : "Provider health is stable in current window.",
             },
             {
                 impact: "low" as const,
-                label: "Review throughput",
+                label: t("dashboard:missionControl.reviewThroughput"),
                 value: "Throughput improved by +5%, partially reducing release risk score.",
             },
         ],
-        [opsBanner.isDegraded, range],
+        [opsBanner.isDegraded, range, t],
     )
 
     const activePreset = useMemo(() => resolveDashboardLayoutPreset(layoutPreset), [layoutPreset])
@@ -260,14 +262,14 @@ export function DashboardMissionControlPage(): ReactElement {
     const handleRefresh = (): void => {
         setIsRefreshing(true)
         setLastUpdatedAt(new Date().toISOString())
-        setFreshnessActionMessage("Dashboard refresh requested.")
+        setFreshnessActionMessage(t("dashboard:missionControl.dashboardRefreshRequested"))
         setTimeout((): void => {
             setIsRefreshing(false)
         }, 450)
     }
 
     const handleRescan = (): void => {
-        setFreshnessActionMessage("Rescan job was queued from mission control.")
+        setFreshnessActionMessage(t("dashboard:missionControl.rescanQueued"))
     }
 
     const handleToggleShortcut = (shortcut: string): void => {
@@ -287,7 +289,7 @@ export function DashboardMissionControlPage(): ReactElement {
             repositoryScope,
             teamScope,
         })
-        setPersonalizationMessage("Workspace personalization saved.")
+        setPersonalizationMessage(t("dashboard:missionControl.personalizationSaved"))
     }
 
     const handleGenerateShareLink = (): void => {
@@ -309,9 +311,9 @@ export function DashboardMissionControlPage(): ReactElement {
             {/* Header + Scope filters */}
             <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                 <div>
-                    <h1 className={TYPOGRAPHY.pageTitle}>Dashboard Mission Control</h1>
+                    <h1 className={TYPOGRAPHY.pageTitle}>{t("dashboard:missionControl.pageTitle")}</h1>
                     <p className="text-sm text-muted-foreground">
-                        Scope: {orgScope} / {repositoryScope} / {teamScope}
+                        {t("dashboard:missionControl.scopeLabel")} {orgScope} / {repositoryScope} / {teamScope}
                     </p>
                 </div>
                 <div className="sm:min-w-[420px]">
@@ -338,8 +340,8 @@ export function DashboardMissionControlPage(): ReactElement {
                 isRefreshing={isRefreshing}
                 lastUpdatedAt={lastUpdatedAt}
                 limitations={[
-                    "Score does not include code content, only metadata and workflow signals.",
-                    "Cross-repository dependencies may lag by one scan cycle.",
+                    t("dashboard:missionControl.scoreNotIncludeCode"),
+                    t("dashboard:missionControl.crossRepoDependencies"),
                 ]}
                 provenance={provenance}
                 signalValue={opsBanner.isDegraded ? "elevated" : "moderate"}
@@ -354,8 +356,8 @@ export function DashboardMissionControlPage(): ReactElement {
                 <div className="grid gap-6 lg:grid-cols-[auto_1fr]">
                     <DashboardHeroMetric
                         color="var(--primary)"
-                        label="Release health"
-                        subtitle={`${String(architectureHealth.layerViolations)} violations`}
+                        label={t("dashboard:missionControl.releaseHealth")}
+                        subtitle={(t as unknown as (key: string, options: Record<string, string>) => string)("dashboard:missionControl.violations", { count: String(architectureHealth.layerViolations) })}
                         value={architectureHealth.healthScore}
                     />
                     <MetricsGrid metrics={metrics} />
@@ -363,7 +365,7 @@ export function DashboardMissionControlPage(): ReactElement {
             </AnimatedMount>
 
             {/* Zone B: Primary charts — collapsible */}
-            <DashboardZone isVisible={activePreset.showZoneB} title="Primary charts">
+            <DashboardZone isVisible={activePreset.showZoneB} title={t("dashboard:missionControl.primaryCharts")}>
                 <AnimatedMount motionKey={`charts-primary-${range}`}>
                     <div className="grid gap-4 lg:grid-cols-2">
                         <FlowMetricsWidget
@@ -377,7 +379,7 @@ export function DashboardMissionControlPage(): ReactElement {
             </DashboardZone>
 
             {/* Zone C: Operations — work queue + timeline */}
-            <DashboardZone isVisible={activePreset.showZoneC} title="Operations">
+            <DashboardZone isVisible={activePreset.showZoneC} title={t("dashboard:missionControl.operations")}>
                 <Suspense fallback={<DashboardSkeleton />}>
                     <DashboardContent
                         statusDistribution={statusDistribution}
@@ -388,7 +390,7 @@ export function DashboardMissionControlPage(): ReactElement {
             </DashboardZone>
 
             {/* Zone D: Analytics — secondary charts */}
-            <DashboardZone isVisible={activePreset.showZoneD} title="Analytics">
+            <DashboardZone isVisible={activePreset.showZoneD} title={t("dashboard:missionControl.analytics")}>
                 <AnimatedMount motionKey={`charts-secondary-${range}`}>
                     <div className="grid gap-4 lg:grid-cols-2">
                         <TokenUsageDashboardWidget
@@ -405,18 +407,18 @@ export function DashboardMissionControlPage(): ReactElement {
             </DashboardZone>
 
             {/* Zone E: Explore + Signals */}
-            <DashboardZone isVisible={activePreset.showZoneE} title="Explore">
+            <DashboardZone isVisible={activePreset.showZoneE} title={t("dashboard:missionControl.explore")}>
                 <div className="grid gap-4 md:grid-cols-2">
                     <div className="space-y-2">
-                        <p className={TYPOGRAPHY.sectionTitle}>Explore</p>
-                        <ul className="space-y-1.5">{renderExploreLinks()}</ul>
+                        <p className={TYPOGRAPHY.sectionTitle}>{t("dashboard:missionControl.explore")}</p>
+                        <ul className="space-y-1.5">{renderExploreLinks(t as unknown as (key: string) => string)}</ul>
                     </div>
                     <div className="space-y-2">
-                        <p className={TYPOGRAPHY.sectionTitle}>Signals</p>
+                        <p className={TYPOGRAPHY.sectionTitle}>{t("dashboard:missionControl.signals")}</p>
                         <ul className="space-y-1.5 text-sm text-text-secondary">
-                            <li>Signals: drift + architecture health warnings.</li>
-                            <li>Predictions: release risk elevated in team runtime.</li>
-                            <li>Usage: plan for token topup before peak window.</li>
+                            <li>{t("dashboard:missionControl.signalsDrift")}</li>
+                            <li>{t("dashboard:missionControl.signalsPredictions")}</li>
+                            <li>{t("dashboard:missionControl.signalsUsage")}</li>
                         </ul>
                     </div>
                 </div>
@@ -431,20 +433,20 @@ export function DashboardMissionControlPage(): ReactElement {
                         setIsPersonalizationOpen((prev): boolean => !prev)
                     }}
                 >
-                    {isPersonalizationOpen ? "Hide personalization" : "Workspace personalization"}
+                    {isPersonalizationOpen ? t("dashboard:missionControl.hidePersonalization") : t("dashboard:missionControl.workspacePersonalization")}
                 </Button>
                 <AnimatedAlert isVisible={isPersonalizationOpen}>
                     <Card className="mt-3">
                         <CardHeader>
                             <p className="text-sm font-semibold text-foreground">
-                                Workspace personalization
+                                {t("dashboard:missionControl.workspacePersonalization")}
                             </p>
                         </CardHeader>
                         <CardBody className="space-y-3">
                             <label className="flex flex-col gap-1 text-sm text-foreground">
-                                Layout preset
+                                {t("dashboard:missionControl.layoutPreset")}
                                 <select
-                                    aria-label="Layout preset"
+                                    aria-label={t("dashboard:missionControl.layoutPresetAriaLabel")}
                                     className={NATIVE_FORM.select}
                                     value={layoutPreset}
                                     onChange={(event): void => {
@@ -465,7 +467,7 @@ export function DashboardMissionControlPage(): ReactElement {
                             </label>
 
                             <div className="space-y-1">
-                                <p className="text-sm text-foreground">Pinned shortcuts</p>
+                                <p className="text-sm text-foreground">{t("dashboard:missionControl.pinnedShortcuts")}</p>
                                 <div className="grid gap-2 sm:grid-cols-2">
                                     {WORKSPACE_SHORTCUT_OPTIONS.map(
                                         (shortcut): ReactElement => (
@@ -474,7 +476,7 @@ export function DashboardMissionControlPage(): ReactElement {
                                                 key={shortcut}
                                             >
                                                 <input
-                                                    aria-label={`Pin ${shortcut}`}
+                                                    aria-label={(t as unknown as (key: string, options: Record<string, string>) => string)("dashboard:missionControl.pinAriaLabel", { shortcut })}
                                                     checked={pinnedShortcuts.includes(shortcut)}
                                                     type="checkbox"
                                                     onChange={(): void => {
@@ -494,17 +496,17 @@ export function DashboardMissionControlPage(): ReactElement {
                                     variant="flat"
                                     onPress={handleSavePersonalization}
                                 >
-                                    Save personalization
+                                    {t("dashboard:missionControl.savePersonalization")}
                                 </Button>
                                 <Button size="sm" variant="flat" onPress={handleGenerateShareLink}>
-                                    Generate share link
+                                    {t("dashboard:missionControl.generateShareLink")}
                                 </Button>
                             </div>
 
                             <AnimatedAlert isVisible={personalizationMessage.length > 0}>
                                 <Alert
                                     color="primary"
-                                    title="Workspace personalization"
+                                    title={t("dashboard:missionControl.workspacePersonalization")}
                                     variant="flat"
                                 >
                                     {personalizationMessage}
@@ -514,7 +516,7 @@ export function DashboardMissionControlPage(): ReactElement {
                             {shareLink.length > 0 ? (
                                 <input
                                     readOnly
-                                    aria-label="Workspace share link"
+                                    aria-label={t("dashboard:missionControl.shareLinkAriaLabel")}
                                     className="w-full rounded-lg border border-border px-3 py-2 text-xs"
                                     value={shareLink}
                                 />
@@ -532,31 +534,31 @@ export function DashboardMissionControlPage(): ReactElement {
  *
  * @returns Explore links JSX.
  */
-function renderExploreLinks(): ReadonlyArray<ReactElement> {
+function renderExploreLinks(t: (key: string) => string): ReadonlyArray<ReactElement> {
     const links = [
-        { to: "/reviews", label: "Open CCR" },
-        { to: "/issues", label: "Open Issues" },
-        { to: "/dashboard/code-city", label: "Open CodeCity" },
-        { to: "/dashboard/code-city", label: "Open Graph Explorer" },
-        { to: "/dashboard/code-city", label: "Open Causal Analysis" },
-        { to: "/dashboard/code-city", label: "Open Impact Planning" },
-        { to: "/dashboard/code-city", label: "Open Refactoring Planner" },
-        { to: "/dashboard/code-city", label: "Open Knowledge Map" },
-        { to: "/reports", label: "Open Reports" },
-        { to: "/reports/generate", label: "Generate report" },
-        { to: "/settings-code-review", label: "Code review config" },
-        { to: "/settings-llm-providers", label: "LLM provider config" },
-        { to: "/settings-git-providers", label: "Git provider config" },
+        { to: "/reviews", labelKey: "dashboard:missionControl.exploreOpenCcr" },
+        { to: "/issues", labelKey: "dashboard:missionControl.exploreOpenIssues" },
+        { to: "/dashboard/code-city", labelKey: "dashboard:missionControl.exploreOpenCodeCity" },
+        { to: "/dashboard/code-city", labelKey: "dashboard:missionControl.exploreOpenGraphExplorer" },
+        { to: "/dashboard/code-city", labelKey: "dashboard:missionControl.exploreOpenCausalAnalysis" },
+        { to: "/dashboard/code-city", labelKey: "dashboard:missionControl.exploreOpenImpactPlanning" },
+        { to: "/dashboard/code-city", labelKey: "dashboard:missionControl.exploreOpenRefactoringPlanner" },
+        { to: "/dashboard/code-city", labelKey: "dashboard:missionControl.exploreOpenKnowledgeMap" },
+        { to: "/reports", labelKey: "dashboard:missionControl.exploreOpenReports" },
+        { to: "/reports/generate", labelKey: "dashboard:missionControl.exploreGenerateReport" },
+        { to: "/settings-code-review", labelKey: "dashboard:missionControl.exploreCodeReviewConfig" },
+        { to: "/settings-llm-providers", labelKey: "dashboard:missionControl.exploreLlmProviderConfig" },
+        { to: "/settings-git-providers", labelKey: "dashboard:missionControl.exploreGitProviderConfig" },
     ] as const
 
     return links.map(
         (link): ReactElement => (
-            <li key={link.to}>
+            <li key={link.labelKey}>
                 <StyledLink
                     className="text-sm text-foreground transition-colors duration-150 hover:text-primary"
                     to={link.to}
                 >
-                    {link.label}
+                    {t(link.labelKey)}
                 </StyledLink>
             </li>
         ),

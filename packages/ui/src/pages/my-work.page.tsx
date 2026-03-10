@@ -1,4 +1,5 @@
 import { type ReactElement, useEffect, useMemo, useState } from "react"
+import { useTranslation } from "react-i18next"
 
 import { Alert, Button, Card, CardBody, CardHeader, Chip } from "@/components/ui"
 import { SystemStateCard } from "@/components/infrastructure/system-state-card"
@@ -233,37 +234,6 @@ function getEscalationColor(
     return "default"
 }
 
-function getSlaLabel(state: TSlaState): string {
-    if (state === "breach") {
-        return "SLA breach"
-    }
-    if (state === "warning") {
-        return "SLA warning"
-    }
-    return "SLA healthy"
-}
-
-function formatAuditAction(action: TAuditAction): string {
-    if (action === "assign_to_me") {
-        return "assigned to current reviewer"
-    }
-    if (action === "mark_read") {
-        return "marked as read"
-    }
-    if (action === "snooze") {
-        return "snoozed"
-    }
-    if (action === "open_context") {
-        return "opened context"
-    }
-    if (action === "escalate") {
-        return "escalated"
-    }
-    if (action === "start_work") {
-        return "moved to in progress"
-    }
-    return "marked as done"
-}
 
 /**
  * Unified triage hub "My Work".
@@ -271,12 +241,37 @@ function formatAuditAction(action: TAuditAction): string {
  * @returns Единый экран triage с приоритизацией, ownership и escalation.
  */
 export function MyWorkPage(): ReactElement {
+    const { t } = useTranslation(["dashboard"])
     const [scope, setScope] = useState<TTriageScope>("mine")
     const [reviewerRole, setReviewerRole] = useState<TReviewerRole>("lead")
     const [items, setItems] = useState<ReadonlyArray<ITriageItem>>(TRIAGE_ITEMS_DEFAULT)
-    const [lastActionSummary, setLastActionSummary] = useState("No triage actions yet.")
+    const [lastActionSummary, setLastActionSummary] = useState(
+        t("dashboard:myWork.noTriageActions"),
+    )
     const [nowTimestamp, setNowTimestamp] = useState<number>(Date.now())
     const [auditTrail, setAuditTrail] = useState<ReadonlyArray<IAuditEntry>>([])
+
+    const slaLabelMap = useMemo(
+        (): Record<TSlaState, string> => ({
+            breach: t("dashboard:myWork.slaBreachLabel"),
+            healthy: t("dashboard:myWork.slaHealthyLabel"),
+            warning: t("dashboard:myWork.slaWarningLabel"),
+        }),
+        [t],
+    )
+
+    const auditActionMap = useMemo(
+        (): Record<TAuditAction, string> => ({
+            assign_to_me: t("dashboard:myWork.assignToMe"),
+            escalate: t("dashboard:myWork.escalate"),
+            mark_done: t("dashboard:myWork.markDone"),
+            mark_read: t("dashboard:myWork.markRead"),
+            open_context: t("dashboard:myWork.openReview"),
+            snooze: t("dashboard:myWork.snooze"),
+            start_work: t("dashboard:myWork.startWork"),
+        }),
+        [t],
+    )
 
     const filteredItems = useMemo((): ReadonlyArray<ITriageItem> => {
         const scopeItems = items.filter((item): boolean => {
@@ -363,7 +358,7 @@ export function MyWorkPage(): ReactElement {
 
     const handleAssignToMe = (itemId: string): void => {
         if (isRoleAllowed(reviewerRole, ASSIGNABLE_ROLES) !== true) {
-            setLastActionSummary("Current role cannot assign triage ownership.")
+            setLastActionSummary(t("dashboard:myWork.cannotAssign"))
             return
         }
 
@@ -416,7 +411,7 @@ export function MyWorkPage(): ReactElement {
         )
         setLastActionSummary(`Snoozed ${itemId} until next triage cycle.`)
         addAuditEntry(itemId, "snooze")
-        showToastInfo("Item snoozed.")
+        showToastInfo(t("dashboard:myWork.itemSnoozed"))
     }
 
     const handleOpenReview = (itemId: string): void => {
@@ -430,12 +425,12 @@ export function MyWorkPage(): ReactElement {
         }
         setLastActionSummary(`Opened ${item.id} context: ${item.deepLink}`)
         addAuditEntry(itemId, "open_context")
-        showToastSuccess("Context opened.")
+        showToastSuccess(t("dashboard:myWork.contextOpened"))
     }
 
     const handleEscalate = (itemId: string): void => {
         if (isRoleAllowed(reviewerRole, ESCALATION_ROLES) !== true) {
-            setLastActionSummary("Current role cannot escalate triage items.")
+            setLastActionSummary(t("dashboard:myWork.cannotEscalate"))
             return
         }
 
@@ -455,12 +450,12 @@ export function MyWorkPage(): ReactElement {
 
         setLastActionSummary(`Escalated ${itemId} and notified owner channel.`)
         addAuditEntry(itemId, "escalate")
-        showToastInfo("Escalation sent.")
+        showToastInfo(t("dashboard:myWork.escalationSent"))
     }
 
     const handleStartWork = (itemId: string): void => {
         if (isRoleAllowed(reviewerRole, ASSIGNABLE_ROLES) !== true) {
-            setLastActionSummary("Current role cannot update ownership status.")
+            setLastActionSummary(t("dashboard:myWork.cannotUpdateStatus"))
             return
         }
 
@@ -484,7 +479,7 @@ export function MyWorkPage(): ReactElement {
 
     const handleMarkDone = (itemId: string): void => {
         if (isRoleAllowed(reviewerRole, ASSIGNABLE_ROLES) !== true) {
-            setLastActionSummary("Current role cannot close triage items.")
+            setLastActionSummary(t("dashboard:myWork.cannotClose"))
             return
         }
 
@@ -510,23 +505,24 @@ export function MyWorkPage(): ReactElement {
 
     return (
         <section className="space-y-4">
-            <h1 className={TYPOGRAPHY.pageTitle}>My Work / Triage</h1>
+            <h1 className={TYPOGRAPHY.pageTitle}>{t("dashboard:myWork.pageTitle")}</h1>
             <p className={TYPOGRAPHY.pageSubtitle}>
-                Unified hub for assigned CCRs, critical issues, inbox notifications, stuck jobs and
-                pending approvals with ownership + escalation model.
+                {t("dashboard:myWork.pageSubtitle")}
             </p>
 
             <Card>
                 <CardHeader className="flex flex-wrap items-center justify-between gap-2">
-                    <p className={TYPOGRAPHY.sectionTitle}>Scope and ownership controls</p>
+                    <p className={TYPOGRAPHY.sectionTitle}>
+                        {t("dashboard:myWork.scopeAndOwnership")}
+                    </p>
                     <Chip size="sm" variant="flat">
-                        Keyboard: Alt+1 mine · Alt+2 team · Alt+3 repo
+                        {t("dashboard:myWork.keyboardHint")}
                     </Chip>
                 </CardHeader>
                 <CardBody className="space-y-2">
                     <div className="flex flex-wrap gap-2">
                         <select
-                            aria-label="Triage scope"
+                            aria-label={t("dashboard:myWork.triageScopeAriaLabel")}
                             className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground md:max-w-[220px]"
                             value={scope}
                             onChange={(event): void => {
@@ -546,7 +542,7 @@ export function MyWorkPage(): ReactElement {
                         </select>
 
                         <select
-                            aria-label="Reviewer role"
+                            aria-label={t("dashboard:myWork.reviewerRoleAriaLabel")}
                             className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground md:max-w-[220px]"
                             value={reviewerRole}
                             onChange={(event): void => {
@@ -568,12 +564,20 @@ export function MyWorkPage(): ReactElement {
                         </select>
                     </div>
 
-                    <Alert color="primary" title="Last triage action" variant="flat">
+                    <Alert
+                        color="primary"
+                        title={t("dashboard:myWork.lastTriageAction")}
+                        variant="flat"
+                    >
                         {lastActionSummary}
                     </Alert>
                     {breachCount > 0 ? (
-                        <Alert color="danger" title="Escalation watchlist" variant="flat">
-                            {`${breachCount} item(s) are in SLA breach and require immediate ownership action.`}
+                        <Alert
+                            color="danger"
+                            title={t("dashboard:myWork.escalationWatchlist")}
+                            variant="flat"
+                        >
+                            {(t as unknown as (key: string, options: Record<string, string | number>) => string)("dashboard:myWork.slaBreachAlert", { count: String(breachCount) })}
                         </Alert>
                     ) : null}
                 </CardBody>
@@ -581,21 +585,26 @@ export function MyWorkPage(): ReactElement {
 
             <Card>
                 <CardHeader>
-                    <p className={TYPOGRAPHY.sectionTitle}>Unified triage list</p>
+                    <p className={TYPOGRAPHY.sectionTitle}>
+                        {t("dashboard:myWork.unifiedTriageList")}
+                    </p>
                 </CardHeader>
                 <CardBody className="space-y-2">
                     {filteredItems.length === 0 ? (
                         <SystemStateCard
-                            ctaLabel="Switch scope"
-                            description="No triage items match current filters. Change scope or run refresh."
-                            title="No triage items in this view"
+                            ctaLabel={t("dashboard:myWork.switchScope")}
+                            description={t("dashboard:myWork.noTriageItemsDescription")}
+                            title={t("dashboard:myWork.noTriageItemsTitle")}
                             variant="empty"
                             onCtaPress={(): void => {
                                 setScope("team")
                             }}
                         />
                     ) : (
-                        <ul aria-label="My work triage list" className="space-y-2">
+                        <ul
+                            aria-label={t("dashboard:myWork.triageListAriaLabel")}
+                            className="space-y-2"
+                        >
                             {filteredItems.map((item): ReactElement => {
                                 const slaState = getSlaState(item, nowTimestamp)
                                 return (
@@ -622,36 +631,40 @@ export function MyWorkPage(): ReactElement {
                                                 {item.severity}
                                             </Chip>
                                             <Chip size="sm" variant="flat">
-                                                owner: {item.owner}
+                                                {t("dashboard:myWork.ownerLabel")} {item.owner}
                                             </Chip>
                                             <Chip
                                                 color={getStatusColor(item.status)}
                                                 size="sm"
                                                 variant="flat"
                                             >
-                                                status: {item.status}
+                                                {t("dashboard:myWork.statusLabel")} {item.status}
                                             </Chip>
                                             <Chip
                                                 color={getEscalationColor(item.escalationLevel)}
                                                 size="sm"
-                                                title={`Escalation: ${item.escalationLevel}`}
+                                                title={`${t("dashboard:myWork.escalationTitle")} ${item.escalationLevel}`}
                                                 variant="flat"
                                             >
-                                                escalation: {item.escalationLevel}
+                                                {t("dashboard:myWork.escalationLabel")}{" "}
+                                                {item.escalationLevel}
                                             </Chip>
                                             <Chip
                                                 color={getSlaColor(slaState)}
                                                 size="sm"
-                                                title={`Due at ${formatTimestamp(item.dueAt)}`}
+                                                title={`${t("dashboard:myWork.dueAtTitle")} ${formatTimestamp(item.dueAt)}`}
                                                 variant="flat"
                                             >
-                                                {getSlaLabel(slaState)}
+                                                {slaLabelMap[slaState]}
                                             </Chip>
                                         </div>
                                         <p className="mt-1 text-xs text-text-secondary">
-                                            {item.repository} · created{" "}
-                                            {formatTimestamp(item.timestamp)} · due{" "}
-                                            {formatTimestamp(item.dueAt)} · sla {item.slaMinutes}m
+                                            {item.repository} ·{" "}
+                                            {t("dashboard:myWork.createdLabel")}{" "}
+                                            {formatTimestamp(item.timestamp)} ·{" "}
+                                            {t("dashboard:myWork.dueLabel")}{" "}
+                                            {formatTimestamp(item.dueAt)} ·{" "}
+                                            {t("dashboard:myWork.slaLabel")} {item.slaMinutes}m
                                         </p>
                                         <div className="mt-2 flex flex-wrap gap-2">
                                             <Button
@@ -661,7 +674,7 @@ export function MyWorkPage(): ReactElement {
                                                     handleMarkRead(item.id)
                                                 }}
                                             >
-                                                Mark read
+                                                {t("dashboard:myWork.markRead")}
                                             </Button>
                                             <Button
                                                 isDisabled={
@@ -676,7 +689,7 @@ export function MyWorkPage(): ReactElement {
                                                     handleAssignToMe(item.id)
                                                 }}
                                             >
-                                                Assign to me
+                                                {t("dashboard:myWork.assignToMe")}
                                             </Button>
                                             <Button
                                                 isDisabled={
@@ -691,7 +704,7 @@ export function MyWorkPage(): ReactElement {
                                                     handleStartWork(item.id)
                                                 }}
                                             >
-                                                Start work
+                                                {t("dashboard:myWork.startWork")}
                                             </Button>
                                             <Button
                                                 isDisabled={
@@ -706,7 +719,7 @@ export function MyWorkPage(): ReactElement {
                                                     handleMarkDone(item.id)
                                                 }}
                                             >
-                                                Mark done
+                                                {t("dashboard:myWork.markDone")}
                                             </Button>
                                             <Button
                                                 isDisabled={
@@ -721,7 +734,7 @@ export function MyWorkPage(): ReactElement {
                                                     handleEscalate(item.id)
                                                 }}
                                             >
-                                                Escalate
+                                                {t("dashboard:myWork.escalate")}
                                             </Button>
                                             <Button
                                                 size="sm"
@@ -730,7 +743,7 @@ export function MyWorkPage(): ReactElement {
                                                     handleSnooze(item.id)
                                                 }}
                                             >
-                                                Snooze
+                                                {t("dashboard:myWork.snooze")}
                                             </Button>
                                             <Button
                                                 size="sm"
@@ -739,13 +752,13 @@ export function MyWorkPage(): ReactElement {
                                                     handleOpenReview(item.id)
                                                 }}
                                             >
-                                                Open review
+                                                {t("dashboard:myWork.openReview")}
                                             </Button>
                                             <a
                                                 className="inline-flex items-center rounded-full border border-border px-3 py-1 text-xs text-text-tertiary"
                                                 href={item.deepLink}
                                             >
-                                                Deep-link
+                                                {t("dashboard:myWork.deepLink")}
                                             </a>
                                         </div>
                                     </li>
@@ -758,19 +771,26 @@ export function MyWorkPage(): ReactElement {
 
             <Card>
                 <CardHeader>
-                    <p className={TYPOGRAPHY.sectionTitle}>Ownership audit trail</p>
+                    <p className={TYPOGRAPHY.sectionTitle}>
+                        {t("dashboard:myWork.ownershipAuditTrail")}
+                    </p>
                 </CardHeader>
                 <CardBody className="space-y-2">
                     {auditTrail.length === 0 ? (
-                        <p className="text-sm text-text-secondary">No ownership changes yet.</p>
+                        <p className="text-sm text-text-secondary">
+                            {t("dashboard:myWork.noOwnershipChanges")}
+                        </p>
                     ) : (
-                        <ul aria-label="Ownership audit trail" className="space-y-1">
+                        <ul
+                            aria-label={t("dashboard:myWork.auditTrailAriaLabel")}
+                            className="space-y-1"
+                        >
                             {auditTrail.map(
                                 (entry): ReactElement => (
                                     <li
                                         className="text-xs text-text-tertiary"
                                         key={entry.id}
-                                    >{`${entry.itemId} ${formatAuditAction(entry.action)} at ${formatTimestamp(entry.timestamp)}`}</li>
+                                    >{`${entry.itemId} ${auditActionMap[entry.action]} at ${formatTimestamp(entry.timestamp)}`}</li>
                                 ),
                             )}
                         </ul>

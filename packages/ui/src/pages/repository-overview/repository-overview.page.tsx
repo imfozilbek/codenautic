@@ -443,7 +443,12 @@ export function RepositoryOverviewPage(props: IRepositoryOverviewProps): ReactEl
     }
 
     const updateRescheduleWeekday = (event: ChangeEvent<HTMLSelectElement>): void => {
-        const nextWeekday = parseCronNumber(event.currentTarget.value, 0, 6, draftReschedule.weekday)
+        const nextWeekday = parseCronNumber(
+            event.currentTarget.value,
+            0,
+            6,
+            draftReschedule.weekday,
+        )
         setDraftReschedule(
             (previous): IRescanScheduleValues => ({
                 ...previous,

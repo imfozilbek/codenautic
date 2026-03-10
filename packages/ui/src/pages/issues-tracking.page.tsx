@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState, type ChangeEvent, type ReactElement } from "react"
+import { useTranslation } from "react-i18next"
 
 import { Button, Card, CardBody, CardHeader } from "@/components/ui"
 import { EnterpriseDataTable } from "@/components/infrastructure/enterprise-data-table"
@@ -49,25 +50,31 @@ const ISSUE_ACTIONS_BY_STATUS: Record<TIssueTrackingStatus, ReadonlyArray<TIssue
     open: ["acknowledge", "snooze", "fix", "ignore"],
 }
 
-const ISSUE_ACTION_LABELS: Record<TIssueTrackingAction, string> = {
-    acknowledge: "Acknowledge",
-    fix: "Mark fixed",
-    ignore: "Ignore",
-    snooze: "Snooze",
+function createIssueActionLabels(t: (key: string) => string): Record<TIssueTrackingAction, string> {
+    return {
+        acknowledge: t("dashboard:issuesTracking.actionAcknowledge"),
+        fix: t("dashboard:issuesTracking.actionMarkFixed"),
+        ignore: t("dashboard:issuesTracking.actionIgnore"),
+        snooze: t("dashboard:issuesTracking.actionSnooze"),
+    }
 }
 
-const ISSUE_SEVERITY_LABELS: Record<TIssueTrackingSeverity, string> = {
-    critical: "Critical",
-    high: "High",
-    low: "Low",
-    medium: "Medium",
+function createIssueSeverityLabels(t: (key: string) => string): Record<TIssueTrackingSeverity, string> {
+    return {
+        critical: t("dashboard:issuesTracking.severityCritical"),
+        high: t("dashboard:issuesTracking.severityHigh"),
+        low: t("dashboard:issuesTracking.severityLow"),
+        medium: t("dashboard:issuesTracking.severityMedium"),
+    }
 }
 
-const ISSUE_STATUS_LABELS: Record<TIssueTrackingStatus, string> = {
-    dismissed: "Dismissed",
-    fixed: "Fixed",
-    in_progress: "In progress",
-    open: "Open",
+function createIssueStatusLabels(t: (key: string) => string): Record<TIssueTrackingStatus, string> {
+    return {
+        dismissed: t("dashboard:issuesTracking.statusDismissed"),
+        fixed: t("dashboard:issuesTracking.statusFixed"),
+        in_progress: t("dashboard:issuesTracking.statusInProgress"),
+        open: t("dashboard:issuesTracking.statusOpen"),
+    }
 }
 
 const ISSUE_STATUS_STYLES: Record<TIssueTrackingStatus, string> = {
@@ -251,6 +258,10 @@ function estimateIssueRowHeight(
  * @returns Страница.
  */
 export function IssuesTrackingPage(props: IIssueTrackingPageProps = {}): ReactElement {
+    const { t } = useTranslation(["dashboard"])
+    const ISSUE_ACTION_LABELS = useMemo(() => createIssueActionLabels(t as unknown as (key: string) => string), [t])
+    const ISSUE_SEVERITY_LABELS = useMemo(() => createIssueSeverityLabels(t as unknown as (key: string) => string), [t])
+    const ISSUE_STATUS_LABELS = useMemo(() => createIssueStatusLabels(t as unknown as (key: string) => string), [t])
     const sourceIssues = props.issues ?? ALL_ISSUES
     const [visibleItems, setVisibleItems] = useState<number>(ISSUE_PAGE_SIZE)
     const persistedFilters = useFilterPersistence<IIssueTrackingFilters>({
@@ -361,27 +372,27 @@ export function IssuesTrackingPage(props: IIssueTrackingPageProps = {}): ReactEl
 
     return (
         <section className="space-y-4">
-            <h1 className={TYPOGRAPHY.pageTitle}>Issues tracking</h1>
+            <h1 className={TYPOGRAPHY.pageTitle}>{t("dashboard:issuesTracking.pageTitle")}</h1>
             <Card>
                 <CardHeader>
-                    <p className="text-sm font-semibold text-foreground">Issues tracking</p>
+                    <p className="text-sm font-semibold text-foreground">{t("dashboard:issuesTracking.cardTitle")}</p>
                 </CardHeader>
                 <CardBody className="space-y-3">
                     <div className="grid gap-3 md:grid-cols-4">
                         <input
-                            aria-label="Search issues"
+                            aria-label={t("dashboard:issuesTracking.searchAriaLabel")}
                             className="rounded-lg border border-border px-3 py-2 text-sm"
-                            placeholder="Search by id, title, repo or file"
+                            placeholder={t("dashboard:issuesTracking.searchPlaceholder")}
                             value={filters.search}
                             onChange={handleSearchChange}
                         />
                         <select
-                            aria-label="Filter by status"
+                            aria-label={t("dashboard:issuesTracking.filterByStatus")}
                             className={NATIVE_FORM.select}
                             value={filters.status}
                             onChange={handleSelectChange("status")}
                         >
-                            <option value="all">All statuses</option>
+                            <option value="all">{t("dashboard:issuesTracking.allStatuses")}</option>
                             {ISSUE_STATUS_OPTIONS.map(
                                 (status): ReactElement => (
                                     <option key={status} value={status}>
@@ -391,12 +402,12 @@ export function IssuesTrackingPage(props: IIssueTrackingPageProps = {}): ReactEl
                             )}
                         </select>
                         <select
-                            aria-label="Filter by severity"
+                            aria-label={t("dashboard:issuesTracking.filterBySeverity")}
                             className={NATIVE_FORM.select}
                             value={filters.severity}
                             onChange={handleSelectChange("severity")}
                         >
-                            <option value="all">All severities</option>
+                            <option value="all">{t("dashboard:issuesTracking.allSeverities")}</option>
                             {ISSUE_SEVERITY_OPTIONS.map(
                                 (severity): ReactElement => (
                                     <option key={severity} value={severity}>
@@ -406,7 +417,7 @@ export function IssuesTrackingPage(props: IIssueTrackingPageProps = {}): ReactEl
                             )}
                         </select>
                         <p className="rounded-lg border border-border px-3 py-2 text-sm text-foreground">
-                            {String(filteredIssues.length)} of {String(sourceIssues.length)} issues
+                            {(t as unknown as (key: string, options: Record<string, string>) => string)("dashboard:issuesTracking.issueCount", { filtered: String(filteredIssues.length), total: String(sourceIssues.length) })}
                         </p>
                     </div>
                 </CardBody>
@@ -414,51 +425,51 @@ export function IssuesTrackingPage(props: IIssueTrackingPageProps = {}): ReactEl
 
             <Card>
                 <CardBody className="space-y-2">
-                    <h2 className="text-sm font-semibold text-foreground">Issue list</h2>
+                    <h2 className="text-sm font-semibold text-foreground">{t("dashboard:issuesTracking.issueListTitle")}</h2>
                     <InfiniteScrollContainer
                         hasMore={hasMoreIssues}
                         isLoading={false}
-                        loadingText="Loading more issues..."
+                        loadingText={t("dashboard:issuesTracking.loadingMoreIssues")}
                         onLoadMore={handleLoadMore}
                     >
                         <EnterpriseDataTable
-                            ariaLabel="Issue list"
+                            ariaLabel={t("dashboard:issuesTracking.issueListAriaLabel")}
                             columns={[
                                 {
                                     accessor: (issue): string => issue.id,
-                                    header: "Issue ID",
+                                    header: t("dashboard:issuesTracking.columnIssueId"),
                                     id: "id",
                                     pin: "left",
                                     size: 130,
                                 },
                                 {
                                     accessor: (issue): string => issue.title,
-                                    header: "Title",
+                                    header: t("dashboard:issuesTracking.columnTitle"),
                                     id: "title",
                                     size: 260,
                                 },
                                 {
                                     accessor: (issue): string => issue.repository,
-                                    header: "Repository",
+                                    header: t("dashboard:issuesTracking.columnRepository"),
                                     id: "repository",
                                     size: 220,
                                 },
                                 {
                                     accessor: (issue): string => issue.filePath,
-                                    header: "File",
+                                    header: t("dashboard:issuesTracking.columnFile"),
                                     id: "filePath",
                                     size: 220,
                                 },
                                 {
                                     accessor: (issue): string => issue.owner,
-                                    header: "Owner",
+                                    header: t("dashboard:issuesTracking.columnOwner"),
                                     id: "owner",
                                     size: 140,
                                 },
                                 {
                                     accessor: (issue): string => issue.detectedAt,
                                     cell: (issue): string => formatIssueDate(issue.detectedAt),
-                                    header: "Detected at",
+                                    header: t("dashboard:issuesTracking.columnDetectedAt"),
                                     id: "detectedAt",
                                     size: 170,
                                 },
@@ -471,7 +482,7 @@ export function IssuesTrackingPage(props: IIssueTrackingPageProps = {}): ReactEl
                                             {ISSUE_STATUS_LABELS[issue.status]}
                                         </span>
                                     ),
-                                    header: "Status",
+                                    header: t("dashboard:issuesTracking.columnStatus"),
                                     id: "status",
                                     size: 160,
                                 },
@@ -484,13 +495,13 @@ export function IssuesTrackingPage(props: IIssueTrackingPageProps = {}): ReactEl
                                             {ISSUE_SEVERITY_LABELS[issue.severity]}
                                         </span>
                                     ),
-                                    header: "Severity",
+                                    header: t("dashboard:issuesTracking.columnSeverity"),
                                     id: "severity",
                                     size: 150,
                                 },
                                 {
                                     accessor: (issue): string => issue.message,
-                                    header: "Message",
+                                    header: t("dashboard:issuesTracking.columnMessage"),
                                     id: "message",
                                     size: 280,
                                 },
@@ -517,13 +528,13 @@ export function IssuesTrackingPage(props: IIssueTrackingPageProps = {}): ReactEl
                                         </div>
                                     ),
                                     enableGlobalFilter: false,
-                                    header: "Actions",
+                                    header: t("dashboard:issuesTracking.columnActions"),
                                     id: "actions",
                                     isHideable: false,
                                     size: 280,
                                 },
                             ]}
-                            emptyMessage="No issues found for selected filters."
+                            emptyMessage={t("dashboard:issuesTracking.noIssuesFound")}
                             getRowId={(issue): string => issue.id}
                             id="issues-tracking-table"
                             rows={visibleIssues}
