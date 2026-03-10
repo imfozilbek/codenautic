@@ -1,4 +1,5 @@
 import { type ReactElement, useMemo, useState } from "react"
+import { useTranslation } from "react-i18next"
 
 import { StyledLink } from "@/components/ui"
 import { useDebounce } from "@/lib/hooks/use-debounce"
@@ -37,6 +38,7 @@ function estimateCcrRowHeight(row: IReviewRow, density: "comfortable" | "compact
  * Секция управления CCR в стиле mission control.
  */
 export function ReviewsContent(props: IReviewsContentProps): ReactElement {
+    const { t } = useTranslation(["reviews"])
     const showInlineFilters = props.showInlineFilters ?? true
     const [search, setSearch] = useState("")
     const [statusFilter, setStatusFilter] = useState<string>("all")
@@ -83,7 +85,7 @@ export function ReviewsContent(props: IReviewsContentProps): ReactElement {
 
     return (
         <section className="space-y-4">
-            <h2 className="text-xl font-semibold text-foreground">CCR Management</h2>
+            <h2 className="text-xl font-semibold text-foreground">{t("reviews:content.sectionTitle")}</h2>
             {showInlineFilters === true ? (
                 <ReviewsFilters
                     assignee={assigneeFilter}
@@ -103,17 +105,17 @@ export function ReviewsContent(props: IReviewsContentProps): ReactElement {
             ) : null}
             {hasActiveFilter ? (
                 <p className="text-sm text-muted-foreground">
-                    Showing {filteredRows.length} from {props.rows.length} CCR entries.
+                    {t("reviews:content.showingFiltered", { filtered: String(filteredRows.length), total: String(props.rows.length) })}
                 </p>
             ) : null}
             <InfiniteScrollContainer
                 hasMore={props.hasMore}
                 isLoading={props.isLoadingMore}
-                loadingText="Loading more CCR..."
+                loadingText={t("reviews:content.loadingMore")}
                 onLoadMore={props.onLoadMore}
             >
                 <EnterpriseDataTable
-                    ariaLabel="CCR management table"
+                    ariaLabel={t("reviews:content.tableAriaLabel")}
                     columns={[
                         {
                             accessor: (row): string => row.id,
@@ -126,50 +128,50 @@ export function ReviewsContent(props: IReviewsContentProps): ReactElement {
                                     {row.id}
                                 </StyledLink>
                             ),
-                            header: "CCR ID",
+                            header: t("reviews:content.columnCcrId"),
                             id: "id",
                             pin: "left",
                             size: 140,
                         },
                         {
                             accessor: (row): string => row.title,
-                            header: "Title",
+                            header: t("reviews:content.columnTitle"),
                             id: "title",
                             size: 280,
                         },
                         {
                             accessor: (row): string => row.repository,
-                            header: "Repository",
+                            header: t("reviews:content.columnRepository"),
                             id: "repository",
                             size: 200,
                         },
                         {
                             accessor: (row): string => row.assignee,
-                            header: "Assignee",
+                            header: t("reviews:content.columnAssignee"),
                             id: "assignee",
                             size: 180,
                         },
                         {
                             accessor: (row): number => row.comments,
-                            header: "Comments",
+                            header: t("reviews:content.columnComments"),
                             id: "comments",
                             size: 120,
                         },
                         {
                             accessor: (row): string => row.updatedAt,
-                            header: "Updated at",
+                            header: t("reviews:content.columnUpdatedAt"),
                             id: "updatedAt",
                             size: 180,
                         },
                         {
                             accessor: (row): string => row.status,
                             cell: (row): ReactElement => <ReviewStatusBadge status={row.status} />,
-                            header: "Status",
+                            header: t("reviews:content.columnStatus"),
                             id: "status",
                             size: 180,
                         },
                     ]}
-                    emptyMessage="No CCR entries for current filters."
+                    emptyMessage={t("reviews:content.emptyMessage")}
                     getRowId={(row): string => row.id}
                     id="ccr-management-table"
                     rows={filteredRows}

@@ -1,4 +1,5 @@
 import type { ReactElement } from "react"
+import { useTranslation } from "react-i18next"
 
 import { Button, Input, Select, SelectItem } from "@/components/ui"
 
@@ -56,23 +57,25 @@ export interface IReviewsFiltersProps {
  * @returns Строка фильтров для таблицы.
  */
 export function ReviewsFilters(props: IReviewsFiltersProps): ReactElement {
+    const { t } = useTranslation(["reviews"])
+
     return (
         <div className="grid gap-3 rounded-lg border border-border bg-surface p-3 md:grid-cols-4">
             <Input
-                aria-label="Search CCR"
-                placeholder="Search by repository or title"
+                aria-label={t("reviews:filters.searchAriaLabel")}
+                placeholder={t("reviews:filters.searchPlaceholder")}
                 value={props.search}
                 onValueChange={props.onSearchChange}
             />
             <Select
-                aria-label="Filter by status"
-                placeholder="All statuses"
+                aria-label={t("reviews:filters.filterByStatus")}
+                placeholder={t("reviews:filters.allStatuses")}
                 selectedKeys={new Set([props.status])}
                 onSelectionChange={(keys): void => {
                     props.onStatusChange(getSelectedKey(keys))
                 }}
             >
-                <SelectItem value="all">All statuses</SelectItem>
+                <SelectItem value="all">{t("reviews:filters.allStatuses")}</SelectItem>
                 {props.statusOptions.map(
                     (status): ReactElement => (
                         <SelectItem key={status} value={status}>
@@ -82,14 +85,14 @@ export function ReviewsFilters(props: IReviewsFiltersProps): ReactElement {
                 )}
             </Select>
             <Select
-                aria-label="Filter by assignee"
-                placeholder="All assignees"
+                aria-label={t("reviews:filters.filterByAssignee")}
+                placeholder={t("reviews:filters.allAssignees")}
                 selectedKeys={new Set([props.assignee])}
                 onSelectionChange={(keys): void => {
                     props.onAssigneeChange(getSelectedKey(keys))
                 }}
             >
-                <SelectItem value="all">All assignees</SelectItem>
+                <SelectItem value="all">{t("reviews:filters.allAssignees")}</SelectItem>
                 {props.assigneeOptions.map(
                     (assignee): ReactElement => (
                         <SelectItem key={assignee} value={assignee}>
@@ -99,7 +102,7 @@ export function ReviewsFilters(props: IReviewsFiltersProps): ReactElement {
                 )}
             </Select>
             <Button variant="tertiary" onPress={props.onReset}>
-                Reset
+                {t("reviews:filters.reset")}
             </Button>
         </div>
     )

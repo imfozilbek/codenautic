@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState, type ReactElement } from "react"
+import { useTranslation } from "react-i18next"
 
 import type { IReviewCommentThread, TReviewCommentFeedback } from "@/pages/ccr-data"
 
@@ -59,21 +60,17 @@ function createReply(id: string, author: string, message: string): IReviewCommen
     }
 }
 
-function buildActionLabel(comment: IReviewCommentThread, action: "resolved" | "reply"): string {
-    if (action === "resolved") {
-        return comment.isResolved ? "Mark unresolved" : "Resolve"
-    }
-
-    return "Reply"
-}
-
 function ReviewCommentNode(props: IReviewCommentNodeProps): ReactElement {
+    const { t } = useTranslation(["reviews"])
     const [replyText, setReplyText] = useState("")
     const [isReplyOpen, setIsReplyOpen] = useState(false)
 
     const resolveButtonLabel = useMemo(
-        () => buildActionLabel(props.comment, "resolved"),
-        [props.comment.isResolved],
+        () =>
+            props.comment.isResolved
+                ? t("reviews:commentThread.markUnresolved")
+                : t("reviews:commentThread.resolve"),
+        [props.comment.isResolved, t],
     )
     const isLiked = props.comment.feedback === "like"
     const isDisliked = props.comment.feedback === "dislike"
@@ -114,7 +111,7 @@ function ReviewCommentNode(props: IReviewCommentNodeProps): ReactElement {
                     </div>
                     {props.comment.isResolved ? (
                         <span className="rounded border border-success/30 bg-success/10 px-2 py-0.5 text-[11px] text-success">
-                            Resolved
+                            {t("reviews:commentThread.resolved")}
                         </span>
                     ) : null}
                 </div>
@@ -131,34 +128,34 @@ function ReviewCommentNode(props: IReviewCommentNodeProps): ReactElement {
                     <button
                         className="rounded border border-border px-2 py-1 text-xs"
                         type="button"
-                        aria-label={`Like comment from ${props.comment.author}`}
+                        aria-label={t("reviews:commentThread.likeAriaLabel", { author: props.comment.author })}
                         onClick={toggleLike}
                     >
-                        {isLiked ? "👍 Liked" : "👍 Like"}
+                        {isLiked ? t("reviews:commentThread.liked") : t("reviews:commentThread.like")}
                     </button>
                     <button
                         className="rounded border border-border px-2 py-1 text-xs"
                         type="button"
-                        aria-label={`Dislike comment from ${props.comment.author}`}
+                        aria-label={t("reviews:commentThread.dislikeAriaLabel", { author: props.comment.author })}
                         onClick={toggleDislike}
                     >
-                        {isDisliked ? "👎 Disliked" : "👎 Dislike"}
+                        {isDisliked ? t("reviews:commentThread.disliked") : t("reviews:commentThread.dislike")}
                     </button>
                     <button
                         className="rounded border border-border px-2 py-1 text-xs"
                         type="button"
-                        aria-label={`Reply to ${props.comment.author}`}
+                        aria-label={t("reviews:commentThread.replyAriaLabel", { author: props.comment.author })}
                         onClick={(): void => {
                             setIsReplyOpen((previousValue): boolean => !previousValue)
                         }}
                     >
-                        Reply
+                        {t("reviews:commentThread.reply")}
                     </button>
                 </div>
                 {isReplyOpen ? (
                     <div className="mt-3 space-y-2">
                         <textarea
-                            aria-label={`Reply textarea for ${props.comment.author}`}
+                            aria-label={t("reviews:commentThread.replyTextareaAriaLabel", { author: props.comment.author })}
                             className="min-h-16 w-full rounded border border-border px-2 py-1 text-sm"
                             value={replyText}
                             onChange={(event): void => {
@@ -170,7 +167,7 @@ function ReviewCommentNode(props: IReviewCommentNodeProps): ReactElement {
                             type="button"
                             onClick={addReply}
                         >
-                            Add reply
+                            {t("reviews:commentThread.addReply")}
                         </button>
                     </div>
                 ) : null}
@@ -197,6 +194,7 @@ function ReviewCommentNode(props: IReviewCommentNodeProps): ReactElement {
 
 /** Компонент review thread с вложенными ответами и действиями. */
 export function ReviewCommentThread(props: IReviewCommentThreadProps): ReactElement {
+    const { t } = useTranslation(["reviews"])
     const [threads, setThreads] = useState<ReadonlyArray<IReviewCommentThread>>(props.threads)
     const replyIdCounter = useRef(0)
 
@@ -246,7 +244,7 @@ export function ReviewCommentThread(props: IReviewCommentThreadProps): ReactElem
     if (props.threads.length === 0) {
         return (
             <section className="rounded-lg border border-border bg-surface p-4 text-sm text-muted-foreground">
-                No review comments yet.
+                {t("reviews:commentThread.noCommentsYet")}
             </section>
         )
     }
@@ -254,14 +252,14 @@ export function ReviewCommentThread(props: IReviewCommentThreadProps): ReactElem
     if (threads.length === 0) {
         return (
             <section className="rounded-lg border border-border bg-surface p-4 text-sm text-muted-foreground">
-                No review comments.
+                {t("reviews:commentThread.noComments")}
             </section>
         )
     }
 
     return (
         <section className="space-y-3">
-            <h2 className="text-xl font-semibold text-foreground">Review comments</h2>
+            <h2 className="text-xl font-semibold text-foreground">{t("reviews:commentThread.sectionTitle")}</h2>
             <ul className="space-y-3">
                 {threads.map(
                     (thread): ReactElement => (

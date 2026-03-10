@@ -1,5 +1,6 @@
 import { useMemo } from "react"
 import type { ReactElement } from "react"
+import { useTranslation } from "react-i18next"
 
 import { useVirtualizedList } from "@/lib/hooks/use-virtualized-list"
 import type {
@@ -143,6 +144,7 @@ function CodeDiffLine(props: ICodeLineProps): ReactElement {
 }
 
 function CodeDiffFilePanel(props: ICcrDiffFile): ReactElement {
+    const { t } = useTranslation(["reviews"])
     const fileData = props
     const lineCounts = useMemo((): { added: number; removed: number } => {
         let added = 0
@@ -174,11 +176,11 @@ function CodeDiffFilePanel(props: ICcrDiffFile): ReactElement {
                 <span className="rounded bg-surface-muted px-2 py-0.5 text-[11px] text-foreground">
                     +{String(lineCounts.added)} / -{String(lineCounts.removed)}
                 </span>
-                <span className="text-xs text-muted-foreground">Язык: {fileData.language}</span>
+                <span className="text-xs text-muted-foreground">{t("reviews:codeDiff.language", { language: fileData.language })}</span>
             </header>
             <div className="overflow-x-auto">
                 <div
-                    aria-label={`Diff lines for ${fileData.filePath}`}
+                    aria-label={t("reviews:codeDiff.diffLinesAriaLabel", { filePath: fileData.filePath })}
                     className="relative max-h-96 overflow-auto border-b border-border"
                     ref={virtualizer.parentRef}
                 >
@@ -244,17 +246,19 @@ function CodeDiffFilePanel(props: ICcrDiffFile): ReactElement {
 
 /** Viewer for review diff with side-by-side layout. */
 export function CodeDiffViewer(props: ICodeDiffViewerProps): ReactElement {
+    const { t } = useTranslation(["reviews"])
+
     if (props.files.length === 0) {
         return (
             <div className="rounded-lg border border-border bg-surface p-4 text-sm text-muted-foreground">
-                No available diff content for this CCR.
+                {t("reviews:codeDiff.noDiffContent")}
             </div>
         )
     }
 
     return (
-        <section className="space-y-4" aria-label="Code diff viewer">
-            <h2 className="text-xl font-semibold text-foreground">Code diff</h2>
+        <section className="space-y-4" aria-label={t("reviews:codeDiff.viewerAriaLabel")}>
+            <h2 className="text-xl font-semibold text-foreground">{t("reviews:codeDiff.sectionTitle")}</h2>
             {props.files.map(
                 (file): ReactElement => (
                     <CodeDiffFilePanel {...file} key={file.filePath} />

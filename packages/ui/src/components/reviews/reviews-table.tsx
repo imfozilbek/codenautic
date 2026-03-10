@@ -1,4 +1,5 @@
 import type { ReactElement } from "react"
+import { useTranslation } from "react-i18next"
 
 import {
     StyledLink,
@@ -44,18 +45,20 @@ export interface IReviewsTableProps {
  * Таблица CCR.
  */
 export function ReviewsTable(props: IReviewsTableProps): ReactElement {
+    const { t } = useTranslation(["reviews"])
+
     return (
-        <Table aria-label="CCR reviews table">
+        <Table aria-label={t("reviews:table.ariaLabel")}>
             <TableHeader>
-                <TableColumn>CCR</TableColumn>
-                <TableColumn>Title</TableColumn>
-                <TableColumn>Repository</TableColumn>
-                <TableColumn>Assignee</TableColumn>
-                <TableColumn>Comments</TableColumn>
-                <TableColumn>Updated</TableColumn>
-                <TableColumn>Status</TableColumn>
+                <TableColumn>{t("reviews:table.columnCcr")}</TableColumn>
+                <TableColumn>{t("reviews:table.columnTitle")}</TableColumn>
+                <TableColumn>{t("reviews:table.columnRepository")}</TableColumn>
+                <TableColumn>{t("reviews:table.columnAssignee")}</TableColumn>
+                <TableColumn>{t("reviews:table.columnComments")}</TableColumn>
+                <TableColumn>{t("reviews:table.columnUpdated")}</TableColumn>
+                <TableColumn>{t("reviews:table.columnStatus")}</TableColumn>
             </TableHeader>
-            <TableBody emptyContent="No CCRs found for this filter set">
+            <TableBody emptyContent={t("reviews:table.emptyContent")}>
                 {props.rows.map(
                     (row): ReactElement => (
                         <TableRow key={row.id}>
