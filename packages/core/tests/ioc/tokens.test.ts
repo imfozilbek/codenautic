@@ -43,6 +43,7 @@ import type {ISourceCodeParser} from "../../src/application/ports/outbound/scann
 import type {ITaskRepository} from "../../src/application/ports/outbound/task-repository.port"
 import type {ITeamRepository} from "../../src/application/ports/outbound/team-repository.port"
 import type {IUserRepository} from "../../src/application/ports/outbound/user-repository.port"
+import type {ICodeChunkEmbeddingGenerator} from "../../src/application/ports/outbound/vector/code-chunk-embedding-generator.port"
 import type {IVectorRepository} from "../../src/application/ports/outbound/vector/vector-repository.port"
 import {createToken, TOKENS, type InjectionToken} from "../../src/index"
 
@@ -175,6 +176,8 @@ describe("TOKENS", () => {
         const taskRepositoryToken: InjectionToken<ITaskRepository> = TOKENS.Task.Repository
         const teamRepositoryToken: InjectionToken<ITeamRepository> = TOKENS.Team.Repository
         const userRepositoryToken: InjectionToken<IUserRepository> = TOKENS.User.Repository
+        const codeChunkEmbeddingGeneratorToken: InjectionToken<ICodeChunkEmbeddingGenerator> =
+            TOKENS.Vector.CodeChunkEmbeddingGenerator
         const vectorRepositoryToken: InjectionToken<IVectorRepository> = TOKENS.Vector.Repository
 
         const tokens: readonly InjectionToken<unknown>[] = [
@@ -221,6 +224,7 @@ describe("TOKENS", () => {
             taskRepositoryToken,
             teamRepositoryToken,
             userRepositoryToken,
+            codeChunkEmbeddingGeneratorToken,
             vectorRepositoryToken,
         ]
 

@@ -45,6 +45,7 @@ import type {ISourceCodeParser} from "../application/ports/outbound/scanning/sou
 import type {ITaskRepository} from "../application/ports/outbound/task-repository.port"
 import type {ITeamRepository} from "../application/ports/outbound/team-repository.port"
 import type {IUserRepository} from "../application/ports/outbound/user-repository.port"
+import type {ICodeChunkEmbeddingGenerator} from "../application/ports/outbound/vector/code-chunk-embedding-generator.port"
 import type {IVectorRepository} from "../application/ports/outbound/vector/vector-repository.port"
 import {createToken} from "./create-token"
 
@@ -178,6 +179,9 @@ export const TOKENS = {
         Repository: createToken<IUserRepository>("core.user.repository"),
     },
     Vector: {
+        CodeChunkEmbeddingGenerator: createToken<ICodeChunkEmbeddingGenerator>(
+            "core.vector.code-chunk-embedding-generator",
+        ),
         Repository: createToken<IVectorRepository>("core.vector.repository"),
     },
 } as const

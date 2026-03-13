@@ -105,6 +105,10 @@ export {
     type ISentryProvider,
 } from "./application/ports/outbound/review/external-context-provider.port"
 export {
+    type ICodeChunkEmbeddingDTO,
+    type ICodeChunkEmbeddingGenerator,
+} from "./application/ports/outbound/vector/code-chunk-embedding-generator.port"
+export {
     type IVectorChunkDTO,
     type IVectorRepository,
     type IVectorSearchResultDTO,

@@ -29,6 +29,10 @@
     "./rule": {
       "import": "./dist/src/rule/index.js",
       "types": "./dist/src/rule/index.d.ts"
+    },
+    "./vector": {
+      "import": "./dist/src/vector/index.js",
+      "types": "./dist/src/vector/index.d.ts"
     }
   },
   "scripts": {

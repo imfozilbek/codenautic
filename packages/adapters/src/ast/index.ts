@@ -1,4 +1,15 @@
 export {
+    AST_CODE_CHUNK_EMBEDDING_GENERATOR_ERROR_CODE,
+    AstCodeChunkEmbeddingGeneratorError,
+    type AstCodeChunkEmbeddingGeneratorErrorCode,
+    type IAstCodeChunkEmbeddingGeneratorErrorDetails,
+} from "./ast-code-chunk-embedding-generator.error"
+export {
+    AstCodeChunkEmbeddingGenerator,
+    type IAstCodeChunkEmbeddingGenerator,
+    type IAstCodeChunkEmbeddingGeneratorOptions,
+} from "./ast-code-chunk-embedding-generator"
+export {
     AST_CODE_GRAPH_IMPACT_ANALYSIS_ERROR_CODE,
     AstCodeGraphImpactAnalysisError,
     type AstCodeGraphImpactAnalysisErrorCode,
