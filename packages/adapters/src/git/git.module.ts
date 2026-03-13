@@ -1,4 +1,8 @@
-import {Container, type IGitProvider} from "@codenautic/core"
+import {
+    Container,
+    type IGitProvider,
+    type IRepositoryWorkspaceProvider,
+} from "@codenautic/core"
 
 import {bindConstantSingleton} from "../shared/bind-constant-singleton"
 import type {IGitProviderFactory} from "./git-provider.factory"
@@ -17,6 +21,11 @@ export interface IRegisterGitModuleOptions {
      * Optional git provider factory.
      */
     readonly providerFactory?: IGitProviderFactory
+
+    /**
+     * Optional repository workspace provider.
+     */
+    readonly repositoryWorkspaceProvider?: IRepositoryWorkspaceProvider
 }
 
 /**
@@ -33,6 +42,14 @@ export function registerGitModule(container: Container, options: IRegisterGitMod
             container,
             GIT_TOKENS.ProviderFactory,
             options.providerFactory,
+        )
+    }
+
+    if (options.repositoryWorkspaceProvider !== undefined) {
+        bindConstantSingleton(
+            container,
+            GIT_TOKENS.RepositoryWorkspaceProvider,
+            options.repositoryWorkspaceProvider,
         )
     }
 }

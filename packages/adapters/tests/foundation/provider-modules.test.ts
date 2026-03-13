@@ -16,6 +16,7 @@ import {
     createLlmProviderMock,
     createNotificationProviderMock,
     createPipelineCheckpointStoreMock,
+    createRepositoryWorkspaceProviderMock,
     createReviewRepositoryMock,
     createRuleRepositoryMock,
 } from "../helpers/provider-factories"
@@ -79,6 +80,23 @@ describe("Provider modules registration", () => {
         const resolvedFactory = container.resolve(GIT_TOKENS.ProviderFactory)
 
         expect(resolvedFactory).toBe(providerFactory)
+    })
+
+    test("registerGitModule binds optional repository workspace provider token", () => {
+        const container = new Container()
+        const provider = createGitProviderMock()
+        const repositoryWorkspaceProvider = createRepositoryWorkspaceProviderMock()
+
+        registerGitModule(container, {
+            provider,
+            repositoryWorkspaceProvider,
+        })
+
+        const resolvedWorkspaceProvider = container.resolve(
+            GIT_TOKENS.RepositoryWorkspaceProvider,
+        )
+
+        expect(resolvedWorkspaceProvider).toBe(repositoryWorkspaceProvider)
     })
 
     test("registerNotificationsModule binds providers collection token", () => {

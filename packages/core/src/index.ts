@@ -71,6 +71,11 @@ export {type INotificationService} from "./application/ports/outbound/notificati
 export {type IRepositoryScanner} from "./application/ports/outbound/scanning/repository-scanner"
 export {type IRepositoryIndexRepository} from "./application/ports/outbound/scanning/repository-index-repository"
 export {type IScanProgressRepository} from "./application/ports/outbound/scanning/scan-progress-repository"
+export {
+    type ICreateRepositoryWorkspaceInput,
+    type IRepositoryWorkspaceProgressCallback,
+    type IRepositoryWorkspaceProvider,
+} from "./application/ports/outbound/scanning/repository-workspace-provider"
 export {type ISourceCodeParser, type ISourceCodeParseRequest} from "./application/ports/outbound/scanning/source-code-parser.port"
 export {type IPromptConfigurationRepository} from "./application/ports/outbound/prompt-configuration-repository.port"
 export {type IPromptTemplateRepository} from "./application/ports/outbound/prompt-template-repository.port"
@@ -217,11 +222,15 @@ export {
 } from "./application/dto/notifications"
 export {
     type IRepositoryIndex,
+    type IRepositoryWorkspace,
+    type IRepositoryWorkspaceProgress,
     type ILanguageStat,
+    type RepositoryWorkspacePhase,
     type IScanResult,
     type IScanProgress,
     type ScanStatus,
     type ScanPhase,
+    REPOSITORY_WORKSPACE_PHASE,
     SCAN_PHASE,
     SCAN_STATUS,
     type RepositoryIndexStatus,

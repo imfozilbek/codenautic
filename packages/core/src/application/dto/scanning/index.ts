@@ -11,3 +11,9 @@ export {
     type RepositoryIndexStatus,
     REPOSITORY_INDEX_STATUS,
 } from "./repository-index.dto"
+export {
+    REPOSITORY_WORKSPACE_PHASE,
+    type IRepositoryWorkspace,
+    type IRepositoryWorkspaceProgress,
+    type RepositoryWorkspacePhase,
+} from "./repository-workspace.dto"

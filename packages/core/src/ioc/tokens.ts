@@ -39,6 +39,7 @@ import type {ITeamRuleProvider} from "../application/ports/outbound/rule/team-ru
 import type {IRepositoryIndexRepository} from "../application/ports/outbound/scanning/repository-index-repository"
 import type {IRepositoryScanner} from "../application/ports/outbound/scanning/repository-scanner"
 import type {IScanProgressRepository} from "../application/ports/outbound/scanning/scan-progress-repository"
+import type {IRepositoryWorkspaceProvider} from "../application/ports/outbound/scanning/repository-workspace-provider"
 import type {ISourceCodeParser} from "../application/ports/outbound/scanning/source-code-parser.port"
 import type {ITaskRepository} from "../application/ports/outbound/task-repository.port"
 import type {ITeamRepository} from "../application/ports/outbound/team-repository.port"
@@ -154,6 +155,9 @@ export const TOKENS = {
         ),
         RepositoryScanner: createToken<IRepositoryScanner>(
             "core.scanning.repository-scanner",
+        ),
+        RepositoryWorkspaceProvider: createToken<IRepositoryWorkspaceProvider>(
+            "core.scanning.repository-workspace-provider",
         ),
         ScanProgressRepository: createToken<IScanProgressRepository>(
             "core.scanning.scan-progress-repository",

@@ -1,6 +1,16 @@
 export {type IRegisterGitModuleOptions, registerGitModule} from "./git.module"
 export {GIT_TOKENS} from "./git.tokens"
 export {
+    GIT_REPOSITORY_WORKSPACE_PROVIDER_ERROR_CODE,
+    GitRepositoryWorkspaceProviderError,
+    type GitRepositoryWorkspaceProviderErrorCode,
+    type IGitRepositoryWorkspaceProviderErrorDetails,
+} from "./git-repository-workspace-provider.error"
+export {
+    GitRepositoryWorkspaceProvider,
+    type IGitRepositoryWorkspaceProviderOptions,
+} from "./git-repository-workspace-provider"
+export {
     GIT_PROVIDER_TYPE,
     GitProviderFactory,
     normalizeGitProviderType,

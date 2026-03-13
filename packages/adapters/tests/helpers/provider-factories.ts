@@ -18,6 +18,9 @@ import type {
     IPipelineCheckpointStore,
     IPipelineStageCheckpoint,
     IReviewRepository,
+    IRepositoryWorkspace,
+    ICreateRepositoryWorkspaceInput,
+    IRepositoryWorkspaceProvider,
     IRuleRepository,
     Review,
     ReviewStatus,
@@ -72,6 +75,31 @@ export function createGitProviderMock(): IGitProvider {
             _conclusion: CheckRunConclusion,
         ): Promise<ICheckRunDTO> {
             return Promise.resolve({} as ICheckRunDTO)
+        },
+    }
+}
+
+/**
+ * Minimal repository workspace provider for DI tests.
+ *
+ * @returns Provider instance.
+ */
+export function createRepositoryWorkspaceProviderMock(): IRepositoryWorkspaceProvider {
+    return {
+        createWorkspace(
+            input: ICreateRepositoryWorkspaceInput,
+        ): Promise<IRepositoryWorkspace> {
+            return Promise.resolve({
+                workspaceId: "workspace-1",
+                repositoryId: input.repositoryId,
+                ref: input.ref,
+                workspacePath: "/tmp/workspace-1",
+                isShallow: input.shallow ?? false,
+                createdAt: "2026-03-13T10:30:00.000Z",
+            })
+        },
+        disposeWorkspace(_workspaceId: string): Promise<void> {
+            return Promise.resolve()
         },
     }
 }
