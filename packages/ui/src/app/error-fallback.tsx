@@ -65,21 +65,40 @@ function ErrorFallback(props: IErrorFallbackProps): ReactElement {
         }
     }, [statusCode])
 
-    if (statusCode === 401) {
+    return (
+        <section className="mx-auto flex min-h-screen w-full max-w-3xl flex-col items-center justify-center p-8">
+            <h1 className={TYPOGRAPHY.splash}>{props.scopeLabel}</h1>
+            <ErrorFallbackContent
+                message={resolvedError.message}
+                reset={props.reset}
+                statusCode={statusCode}
+            />
+        </section>
+    )
+}
+
+/**
+ * Условный контент для ErrorFallback в зависимости от HTTP-статуса.
+ *
+ * @param props Статус-код, сообщение и reset-callback.
+ * @returns Описание ошибки и кнопки действий.
+ */
+function ErrorFallbackContent(props: {
+    readonly statusCode: number | null
+    readonly message: string
+    readonly reset: () => void
+}): ReactElement {
+    if (props.statusCode === 401) {
         return (
-            <section className="mx-auto flex min-h-screen w-full max-w-3xl flex-col items-center justify-center p-8">
-                <h1 className={TYPOGRAPHY.splash}>{props.scopeLabel}</h1>
-                <p className="mt-4 text-base text-muted-foreground">
-                    Сессия истекла, перенаправляем на страницу входа...
-                </p>
-            </section>
+            <p className="mt-4 text-base text-muted-foreground">
+                Сессия истекла, перенаправляем на страницу входа...
+            </p>
         )
     }
 
-    if (statusCode === 403) {
+    if (props.statusCode === 403) {
         return (
-            <section className="mx-auto flex min-h-screen w-full max-w-3xl flex-col items-center justify-center p-8">
-                <h1 className={TYPOGRAPHY.splash}>{props.scopeLabel}</h1>
+            <>
                 <p className="mt-4 text-base text-warning">
                     Доступ запрещён для текущего пользователя.
                 </p>
@@ -95,24 +114,26 @@ function ErrorFallback(props: IErrorFallbackProps): ReactElement {
                     <Button
                         variant="flat"
                         onPress={(): void => {
-                            window.location.assign("/help-diagnostics?from=error-fallback")
+                            window.location.assign(
+                                "/help-diagnostics?from=error-fallback",
+                            )
                         }}
                     >
                         Открыть диагностику
                     </Button>
                 </div>
-            </section>
+            </>
         )
     }
 
-    const isServerError = statusCode !== null && statusCode >= 500
-    const isUnknownStatus = statusCode === null
+    const isServerError =
+        props.statusCode !== null && props.statusCode >= 500
+    const isUnknownStatus = props.statusCode === null
 
     if (isServerError || isUnknownStatus) {
         return (
-            <section className="mx-auto flex min-h-screen w-full max-w-3xl flex-col items-center justify-center p-8">
-                <h1 className={TYPOGRAPHY.splash}>{props.scopeLabel}</h1>
-                <p className="mt-4 text-base text-danger">{resolvedError.message}</p>
+            <>
+                <p className="mt-4 text-base text-danger">{props.message}</p>
                 <div className="mt-6 flex flex-wrap items-center gap-2">
                     <Button
                         className="rounded-full bg-foreground px-5 py-2 text-sm font-medium text-background transition hover:bg-foreground/80"
@@ -123,22 +144,19 @@ function ErrorFallback(props: IErrorFallbackProps): ReactElement {
                     <Button
                         variant="flat"
                         onPress={(): void => {
-                            window.location.assign("/help-diagnostics?from=error-fallback")
+                            window.location.assign(
+                                "/help-diagnostics?from=error-fallback",
+                            )
                         }}
                     >
                         Открыть диагностику
                     </Button>
                 </div>
-            </section>
+            </>
         )
     }
 
-    return (
-        <section className="mx-auto flex min-h-screen w-full max-w-3xl flex-col items-center justify-center p-8">
-            <h1 className={TYPOGRAPHY.splash}>{props.scopeLabel}</h1>
-            <p className="mt-4 text-base text-foreground">{resolvedError.message}</p>
-        </section>
-    )
+    return <p className="mt-4 text-base text-foreground">{props.message}</p>
 }
 
 function resolveRouteError(error: unknown): IResolvedRouteError {

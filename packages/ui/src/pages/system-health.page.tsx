@@ -24,75 +24,124 @@ export function SystemHealthPage(): ReactElement {
     )
 
     const isPending = healthQuery.isPending
-    if (isPending === true) {
+    const hasError = healthQuery.error !== null && healthQuery.error !== undefined
+
+    return (
+        <section
+            aria-busy={isPending === true ? "true" : undefined}
+            className={PAGE_LAYOUT.centered}
+        >
+            <h1 className={TYPOGRAPHY.splash}>{t("common:appTitle")}</h1>
+            <SystemHealthContent
+                hasError={hasError}
+                healthQuery={healthQuery}
+                isPending={isPending}
+                isPremiumDashboardEnabled={isPremiumDashboardEnabled}
+                locale={locale}
+                t={t}
+            />
+        </section>
+    )
+}
+
+/**
+ * Условный контент SystemHealthPage: загрузка, ошибка или результат.
+ *
+ * @param props Состояние запроса и локализация.
+ * @returns Содержимое страницы под заголовком.
+ */
+function SystemHealthContent(props: {
+    readonly isPending: boolean
+    readonly hasError: boolean
+    readonly healthQuery: ReturnType<typeof useHealthQuery>["healthQuery"]
+    readonly isPremiumDashboardEnabled: boolean
+    readonly locale: string
+    readonly t: ReturnType<typeof useTranslation>["t"]
+}): ReactElement {
+    if (props.isPending === true) {
         return (
-            <section aria-busy="true" className={PAGE_LAYOUT.centered}>
-                <h1 className={TYPOGRAPHY.splash}>{t("common:appTitle")}</h1>
-                <p className="mt-4 text-base text-muted-foreground">{t("common:loading")}</p>
-            </section>
+            <p className="mt-4 text-base text-muted-foreground">
+                {props.t("common:loading")}
+            </p>
         )
     }
 
-    if (healthQuery.error !== null && healthQuery.error !== undefined) {
+    if (props.hasError === true) {
         return (
-            <section className={PAGE_LAYOUT.centered}>
-                <h1 className={TYPOGRAPHY.splash}>{t("common:appTitle")}</h1>
-                <p aria-live="assertive" className="mt-4 text-base text-danger" role="alert">
-                    {t("system:unavailable")}
+            <>
+                <p
+                    aria-live="assertive"
+                    className="mt-4 text-base text-danger"
+                    role="alert"
+                >
+                    {props.t("system:unavailable")}
                 </p>
                 <Button
                     className="mt-6 rounded-full bg-foreground px-5 py-2 text-sm font-medium text-background transition hover:bg-foreground/80"
                     onPress={(): void => {
-                        void healthQuery.refetch()
+                        void props.healthQuery.refetch()
                     }}
                 >
-                    {t("common:retry")}
+                    {props.t("common:retry")}
                 </Button>
-            </section>
+            </>
         )
     }
 
-    const healthData = healthQuery.data
-
-    const localizedTimestamp = formatLocalizedDateTime(healthData.timestamp, locale)
+    const healthData = props.healthQuery.data
+    const localizedTimestamp = formatLocalizedDateTime(
+        healthData.timestamp,
+        props.locale,
+    )
 
     return (
-        <section className={PAGE_LAYOUT.centered}>
-            <h1 className={TYPOGRAPHY.splash}>{t("common:appTitle")}</h1>
-            <p className={`mt-3 ${TYPOGRAPHY.overline}`}>{t("system:healthStatus")}</p>
-            <p className="mt-2 text-4xl font-bold text-success">{healthData.status}</p>
+        <>
+            <p className={`mt-3 ${TYPOGRAPHY.overline}`}>
+                {props.t("system:healthStatus")}
+            </p>
+            <p className="mt-2 text-4xl font-bold text-success">
+                {healthData.status}
+            </p>
             <p className="mt-4 text-sm text-muted-foreground">
-                {t("system:service")}:{" "}
-                <span className="font-medium text-foreground">{healthData.service}</span>
+                {props.t("system:service")}:{" "}
+                <span className="font-medium text-foreground">
+                    {healthData.service}
+                </span>
             </p>
             <p className="mt-1 text-sm text-muted-foreground">
-                {t("system:timestamp")}:{" "}
-                <span className="font-medium text-foreground">{localizedTimestamp}</span>
+                {props.t("system:timestamp")}:{" "}
+                <span className="font-medium text-foreground">
+                    {localizedTimestamp}
+                </span>
             </p>
             <section
-                aria-label={t("system:premiumSectionTitle")}
+                aria-label={props.t("system:premiumSectionTitle")}
                 className="mt-8 w-full rounded-2xl border border-border bg-surface/80 p-5 text-left shadow-sm backdrop-blur"
             >
-                <p className={TYPOGRAPHY.overline}>{t("system:premiumSectionTitle")}</p>
+                <p className={TYPOGRAPHY.overline}>
+                    {props.t("system:premiumSectionTitle")}
+                </p>
                 <p
                     className={`mt-2 text-base font-semibold ${
-                        isPremiumDashboardEnabled === true ? "text-success" : "text-warning"
+                        props.isPremiumDashboardEnabled === true
+                            ? "text-success"
+                            : "text-warning"
                     }`}
                 >
-                    {isPremiumDashboardEnabled === true
-                        ? t("system:premiumEnabled")
-                        : t("system:premiumDisabled")}
+                    {props.isPremiumDashboardEnabled === true
+                        ? props.t("system:premiumEnabled")
+                        : props.t("system:premiumDisabled")}
                 </p>
-                {isPremiumDashboardEnabled === true ? (
+                {props.isPremiumDashboardEnabled === true ? (
                     <p className="mt-1 text-sm text-muted-foreground">
-                        {t("system:premiumEnabledDescription")}
+                        {props.t("system:premiumEnabledDescription")}
                     </p>
                 ) : (
                     <p className="mt-1 text-sm text-muted-foreground">
-                        {t("system:premiumDisabledDescription")}
+                        {props.t("system:premiumDisabledDescription")}
                     </p>
                 )}
             </section>
-        </section>
+        </>
     )
 }

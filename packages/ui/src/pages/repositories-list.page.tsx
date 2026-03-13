@@ -375,158 +375,246 @@ export function RepositoriesListPage(props: IRepositoryListPageProps): ReactElem
         }
     }
 
-    if (repositories.length === 0) {
-        return (
-            <section className="space-y-4">
-                <h1 className={TYPOGRAPHY.pageTitle}>{t("dashboard:repositoriesList.pageTitle")}</h1>
-                <p className="text-sm text-muted-foreground">
-                    {t("dashboard:repositoriesList.pageSubtitle")}
-                </p>
-                <RepositoriesEmptyState />
-            </section>
-        )
-    }
-
     return (
         <section className="space-y-4">
-            <h1 className={TYPOGRAPHY.pageTitle}>{t("dashboard:repositoriesList.pageTitle")}</h1>
-            <p className={TYPOGRAPHY.pageSubtitle}>
+            <h1 className={TYPOGRAPHY.pageTitle}>
+                {t("dashboard:repositoriesList.pageTitle")}
+            </h1>
+            <p
+                className={
+                    repositories.length === 0
+                        ? "text-sm text-muted-foreground"
+                        : TYPOGRAPHY.pageSubtitle
+                }
+            >
                 {t("dashboard:repositoriesList.pageSubtitle")}
             </p>
 
-            <Card>
-                <CardHeader>
-                    <div className="grid gap-3 md:grid-cols-4">
-                        <input
-                            aria-label={t("dashboard:repositoriesList.searchAriaLabel")}
-                            className={`${NATIVE_FORM.input} outline-none`}
-                            name="repository-search"
-                            onChange={handleSearch}
-                            placeholder={t("dashboard:repositoriesList.searchPlaceholder")}
-                            value={search}
-                        />
-                        <select
-                            aria-label={t("dashboard:repositoriesList.filterByStatus")}
-                            className={NATIVE_FORM.select}
-                            value={status}
-                            onChange={handleStatusFilter}
-                        >
-                            <option value="all">{t("dashboard:repositoriesList.allStatuses")}</option>
-                            <option value="ready">{t("dashboard:repositoriesList.statusReady")}</option>
-                            <option value="scanning">{t("dashboard:repositoriesList.statusScanning")}</option>
-                            <option value="error">{t("dashboard:repositoriesList.statusError")}</option>
-                        </select>
-                        <select
-                            aria-label={t("dashboard:repositoriesList.sortAriaLabel")}
-                            className={NATIVE_FORM.select}
-                            value={sortBy}
-                            onChange={handleSortChange}
-                        >
-                            {sortOptions.map(
-                                (option): ReactElement => (
-                                    <option key={option.value} value={option.value}>
-                                        {option.label}
-                                    </option>
-                                ),
-                            )}
-                        </select>
-                    </div>
-                </CardHeader>
-                <CardBody>
-                    <div className="mb-3 grid gap-2 md:grid-cols-3">
-                        <RepositoryCountSummary label={t("dashboard:repositoriesList.summaryReady")} value={repoReadyCount} />
-                        <RepositoryCountSummary label={t("dashboard:repositoriesList.summaryScanning")} value={repoScanningCount} />
-                        <RepositoryCountSummary label={t("dashboard:repositoriesList.summaryError")} value={repoErrorCount} />
-                    </div>
-                    <EnterpriseDataTable
-                        ariaLabel={t("dashboard:repositoriesList.tableAriaLabel")}
-                        columns={[
-                            {
-                                accessor: (item): string => item.name,
-                                cell: (item): ReactElement => {
-                                    const repositoryId = getRepositoryId(item)
-                                    return (
-                                        <Link
-                                            aria-label={tInterpolate("dashboard:repositoriesList.openOverviewAriaLabel", { owner: item.owner, name: item.name })}
-                                            className="font-medium text-foreground underline-offset-4 hover:underline"
-                                            params={{ repositoryId }}
-                                            to="/repositories/$repositoryId"
+            {repositories.length === 0 ? (
+                <RepositoriesEmptyState />
+            ) : (
+                <Card>
+                    <CardHeader>
+                        <div className="grid gap-3 md:grid-cols-4">
+                            <input
+                                aria-label={t(
+                                    "dashboard:repositoriesList.searchAriaLabel",
+                                )}
+                                className={`${NATIVE_FORM.input} outline-none`}
+                                name="repository-search"
+                                onChange={handleSearch}
+                                placeholder={t(
+                                    "dashboard:repositoriesList.searchPlaceholder",
+                                )}
+                                value={search}
+                            />
+                            <select
+                                aria-label={t(
+                                    "dashboard:repositoriesList.filterByStatus",
+                                )}
+                                className={NATIVE_FORM.select}
+                                value={status}
+                                onChange={handleStatusFilter}
+                            >
+                                <option value="all">
+                                    {t(
+                                        "dashboard:repositoriesList.allStatuses",
+                                    )}
+                                </option>
+                                <option value="ready">
+                                    {t(
+                                        "dashboard:repositoriesList.statusReady",
+                                    )}
+                                </option>
+                                <option value="scanning">
+                                    {t(
+                                        "dashboard:repositoriesList.statusScanning",
+                                    )}
+                                </option>
+                                <option value="error">
+                                    {t(
+                                        "dashboard:repositoriesList.statusError",
+                                    )}
+                                </option>
+                            </select>
+                            <select
+                                aria-label={t(
+                                    "dashboard:repositoriesList.sortAriaLabel",
+                                )}
+                                className={NATIVE_FORM.select}
+                                value={sortBy}
+                                onChange={handleSortChange}
+                            >
+                                {sortOptions.map(
+                                    (option): ReactElement => (
+                                        <option
+                                            key={option.value}
+                                            value={option.value}
                                         >
-                                            {item.name}
-                                        </Link>
-                                    )
-                                },
-                                header: t("dashboard:repositoriesList.columnRepository"),
-                                id: "repository",
-                                pin: "left",
-                                size: 220,
-                            },
-                            {
-                                accessor: (item): string => item.owner,
-                                header: t("dashboard:repositoriesList.columnOwner"),
-                                id: "owner",
-                                size: 170,
-                            },
-                            {
-                                accessor: (item): string => item.branch,
-                                header: t("dashboard:repositoriesList.columnBranch"),
-                                id: "branch",
-                                size: 150,
-                            },
-                            {
-                                accessor: (item): string => formatScanDate(item.lastScanAt),
-                                header: t("dashboard:repositoriesList.columnLastScan"),
-                                id: "lastScan",
-                                size: 190,
-                            },
-                            {
-                                accessor: (item): string => mapStatusToLabel(item.status, tDynamic),
-                                cell: (item): ReactElement => (
-                                    <RepositoryStatusBadge status={item.status} />
-                                ),
-                                header: t("dashboard:repositoriesList.columnStatus"),
-                                id: "status",
-                                size: 150,
-                            },
-                            {
-                                accessor: (item): number => item.issueCount,
-                                header: t("dashboard:repositoriesList.columnIssues"),
-                                id: "issueCount",
-                                size: 120,
-                            },
-                            {
-                                accessor: (item): string =>
-                                    item.scanError === undefined
-                                        ? "healthy"
-                                        : item.scanError.message,
-                                cell: (item): ReactElement => {
-                                    if (item.scanError === undefined || item.status !== "error") {
+                                            {option.label}
+                                        </option>
+                                    ),
+                                )}
+                            </select>
+                        </div>
+                    </CardHeader>
+                    <CardBody>
+                        <div className="mb-3 grid gap-2 md:grid-cols-3">
+                            <RepositoryCountSummary
+                                label={t(
+                                    "dashboard:repositoriesList.summaryReady",
+                                )}
+                                value={repoReadyCount}
+                            />
+                            <RepositoryCountSummary
+                                label={t(
+                                    "dashboard:repositoriesList.summaryScanning",
+                                )}
+                                value={repoScanningCount}
+                            />
+                            <RepositoryCountSummary
+                                label={t(
+                                    "dashboard:repositoriesList.summaryError",
+                                )}
+                                value={repoErrorCount}
+                            />
+                        </div>
+                        <EnterpriseDataTable
+                            ariaLabel={t(
+                                "dashboard:repositoriesList.tableAriaLabel",
+                            )}
+                            columns={[
+                                {
+                                    accessor: (item): string => item.name,
+                                    cell: (item): ReactElement => {
+                                        const repositoryId =
+                                            getRepositoryId(item)
                                         return (
-                                            <span className={TYPOGRAPHY.captionMuted}>—</span>
+                                            <Link
+                                                aria-label={tInterpolate(
+                                                    "dashboard:repositoriesList.openOverviewAriaLabel",
+                                                    {
+                                                        owner: item.owner,
+                                                        name: item.name,
+                                                    },
+                                                )}
+                                                className="font-medium text-foreground underline-offset-4 hover:underline"
+                                                params={{ repositoryId }}
+                                                to="/repositories/$repositoryId"
+                                            >
+                                                {item.name}
+                                            </Link>
                                         )
-                                    }
-
-                                    return (
-                                        <RepositoryScanErrorRecovery
-                                            onRetryScan={props.onRetryScan}
-                                            repositoryId={getRepositoryId(item)}
-                                            scanError={item.scanError}
-                                        />
-                                    )
+                                    },
+                                    header: t(
+                                        "dashboard:repositoriesList.columnRepository",
+                                    ),
+                                    id: "repository",
+                                    pin: "left",
+                                    size: 220,
                                 },
-                                enableGlobalFilter: false,
-                                header: t("dashboard:repositoriesList.columnRecovery"),
-                                id: "recovery",
-                                size: 360,
-                            },
-                        ]}
-                        emptyMessage={t("dashboard:repositoriesList.emptyMessage")}
-                        getRowId={(item): string => getRepositoryId(item)}
-                        id="repositories-list-table"
-                        rows={visible}
-                    />
-                </CardBody>
-            </Card>
+                                {
+                                    accessor: (item): string => item.owner,
+                                    header: t(
+                                        "dashboard:repositoriesList.columnOwner",
+                                    ),
+                                    id: "owner",
+                                    size: 170,
+                                },
+                                {
+                                    accessor: (item): string => item.branch,
+                                    header: t(
+                                        "dashboard:repositoriesList.columnBranch",
+                                    ),
+                                    id: "branch",
+                                    size: 150,
+                                },
+                                {
+                                    accessor: (item): string =>
+                                        formatScanDate(item.lastScanAt),
+                                    header: t(
+                                        "dashboard:repositoriesList.columnLastScan",
+                                    ),
+                                    id: "lastScan",
+                                    size: 190,
+                                },
+                                {
+                                    accessor: (item): string =>
+                                        mapStatusToLabel(
+                                            item.status,
+                                            tDynamic,
+                                        ),
+                                    cell: (item): ReactElement => (
+                                        <RepositoryStatusBadge
+                                            status={item.status}
+                                        />
+                                    ),
+                                    header: t(
+                                        "dashboard:repositoriesList.columnStatus",
+                                    ),
+                                    id: "status",
+                                    size: 150,
+                                },
+                                {
+                                    accessor: (item): number =>
+                                        item.issueCount,
+                                    header: t(
+                                        "dashboard:repositoriesList.columnIssues",
+                                    ),
+                                    id: "issueCount",
+                                    size: 120,
+                                },
+                                {
+                                    accessor: (item): string =>
+                                        item.scanError === undefined
+                                            ? "healthy"
+                                            : item.scanError.message,
+                                    cell: (item): ReactElement => {
+                                        if (
+                                            item.scanError === undefined ||
+                                            item.status !== "error"
+                                        ) {
+                                            return (
+                                                <span
+                                                    className={
+                                                        TYPOGRAPHY.captionMuted
+                                                    }
+                                                >
+                                                    —
+                                                </span>
+                                            )
+                                        }
+
+                                        return (
+                                            <RepositoryScanErrorRecovery
+                                                onRetryScan={
+                                                    props.onRetryScan
+                                                }
+                                                repositoryId={getRepositoryId(
+                                                    item,
+                                                )}
+                                                scanError={item.scanError}
+                                            />
+                                        )
+                                    },
+                                    enableGlobalFilter: false,
+                                    header: t(
+                                        "dashboard:repositoriesList.columnRecovery",
+                                    ),
+                                    id: "recovery",
+                                    size: 360,
+                                },
+                            ]}
+                            emptyMessage={t(
+                                "dashboard:repositoriesList.emptyMessage",
+                            )}
+                            getRowId={(item): string => getRepositoryId(item)}
+                            id="repositories-list-table"
+                            rows={visible}
+                        />
+                    </CardBody>
+                </Card>
+            )}
         </section>
     )
 }
