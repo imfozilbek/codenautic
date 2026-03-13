@@ -52,6 +52,12 @@ type IGitHubClientMockOverrides = {
     readonly git?: IGitHubMockGit
     readonly request?: AsyncMethod<unknown>
 }
+type IGitHubGraphQlRequestPayload = {
+    readonly query: string
+    readonly owner: string
+    readonly repo: string
+    readonly expression: string
+}
 
 /**
  * Creates async mock from queued handlers.
@@ -94,6 +100,29 @@ function createDataHandler(data: unknown): () => IDataResponse {
     return (): IDataResponse => {
         return {data}
     }
+}
+
+/**
+ * Checks whether value matches GitHub GraphQL request payload shape.
+ *
+ * @param value Candidate value.
+ * @returns True when value is a GraphQL request payload.
+ */
+function isGitHubGraphQlRequestPayload(
+    value: unknown,
+): value is IGitHubGraphQlRequestPayload {
+    if (typeof value !== "object" || value === null) {
+        return false
+    }
+
+    const candidate = value as Record<string, unknown>
+
+    return (
+        typeof candidate.query === "string" &&
+        typeof candidate.owner === "string" &&
+        typeof candidate.repo === "string" &&
+        typeof candidate.expression === "string"
+    )
 }
 
 /**
@@ -941,6 +970,118 @@ describe("GitHubProvider", () => {
             },
         ])
         expect(request.calls[0]?.[0]).toBe("POST /graphql")
+    })
+
+    test("loads batch blame data in input order", async () => {
+        const request = createQueuedAsyncMethod([
+            createDataHandler({
+                repository: {
+                    object: {
+                        blame: {
+                            ranges: [
+                                {
+                                    startingLine: 1,
+                                    endingLine: 2,
+                                    commit: {
+                                        oid: "abc",
+                                        author: {
+                                            name: "Alice",
+                                            email: "alice@example.com",
+                                            date: "2026-03-08T13:00:00.000Z",
+                                        },
+                                    },
+                                },
+                            ],
+                        },
+                    },
+                },
+            }),
+            createDataHandler({
+                repository: {
+                    object: {
+                        blame: {
+                            ranges: [
+                                {
+                                    startingLine: 8,
+                                    endingLine: 9,
+                                    commit: {
+                                        oid: "def",
+                                        author: {
+                                            name: "Bob",
+                                            email: "bob@example.com",
+                                            date: "2026-03-09T09:00:00.000Z",
+                                        },
+                                    },
+                                },
+                            ],
+                        },
+                    },
+                },
+            }),
+        ])
+        const provider = new GitHubProvider({
+            owner: "codenautic",
+            repo: "platform",
+            client: createGitHubClientMock({
+                request,
+            }),
+        })
+
+        const blame = await provider.getBlameDataBatch(
+            ["src/app.ts", "src/lib.ts"],
+            "main",
+        )
+
+        expect(blame).toEqual([
+            {
+                filePath: "src/app.ts",
+                blame: [
+                    {
+                        lineStart: 1,
+                        lineEnd: 2,
+                        commitSha: "abc",
+                        authorName: "Alice",
+                        authorEmail: "alice@example.com",
+                        date: "2026-03-08T13:00:00.000Z",
+                    },
+                ],
+            },
+            {
+                filePath: "src/lib.ts",
+                blame: [
+                    {
+                        lineStart: 8,
+                        lineEnd: 9,
+                        commitSha: "def",
+                        authorName: "Bob",
+                        authorEmail: "bob@example.com",
+                        date: "2026-03-09T09:00:00.000Z",
+                    },
+                ],
+            },
+        ])
+        const firstPayload = request.calls[0]?.[1]
+        const secondPayload = request.calls[1]?.[1]
+
+        expect(isGitHubGraphQlRequestPayload(firstPayload)).toBe(true)
+        expect(isGitHubGraphQlRequestPayload(secondPayload)).toBe(true)
+
+        if (
+            !isGitHubGraphQlRequestPayload(firstPayload) ||
+            !isGitHubGraphQlRequestPayload(secondPayload)
+        ) {
+            throw new Error("Expected GitHub GraphQL request payload")
+        }
+
+        expect(firstPayload.owner).toBe("codenautic")
+        expect(firstPayload.repo).toBe("platform")
+        expect(firstPayload.expression).toBe("main:src/app.ts")
+        expect(firstPayload.query.length).toBeGreaterThan(0)
+
+        expect(secondPayload.owner).toBe("codenautic")
+        expect(secondPayload.repo).toBe("platform")
+        expect(secondPayload.expression).toBe("main:src/lib.ts")
+        expect(secondPayload.query.length).toBeGreaterThan(0)
     })
 
     test("posts regular and inline comments with normalized payload", async () => {

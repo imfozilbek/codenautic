@@ -4,7 +4,6 @@ import type {
     ICheckRunDTO,
     ICommentDTO,
     IInlineCommentDTO,
-    IBlameData,
     IBranchInfo,
     ICommitHistoryOptions,
     ICommitInfo,
@@ -12,11 +11,12 @@ import type {
     IMergeRequestDTO,
     IMergeRequestDiffFileDTO,
 } from "../../../dto/git"
+import type {IGitBlame} from "./git-blame.port"
 
 /**
  * Outbound contract for Git platform integration.
  */
-export interface IGitProvider {
+export interface IGitProvider extends IGitBlame {
     /**
      * Fetches merge request by identifier.
      *
@@ -68,15 +68,6 @@ export interface IGitProvider {
         ref: string,
         options?: ICommitHistoryOptions,
     ): Promise<readonly ICommitInfo[]>
-
-    /**
-     * Fetches blame information for a file in the target reference.
-     *
-     * @param filePath File path relative to repository root.
-     * @param ref Commit SHA or branch name.
-     * @returns Line-level blame metadata.
-     */
-    getBlameData(filePath: string, ref: string): Promise<readonly IBlameData[]>
 
     /**
      * Posts regular comment to merge request.

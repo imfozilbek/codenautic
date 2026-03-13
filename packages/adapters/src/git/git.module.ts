@@ -35,6 +35,7 @@ export interface IRegisterGitModuleOptions {
  * @param options Module options.
  */
 export function registerGitModule(container: Container, options: IRegisterGitModuleOptions): void {
+    bindConstantSingleton(container, GIT_TOKENS.Blame, options.provider)
     bindConstantSingleton(container, GIT_TOKENS.Provider, options.provider)
 
     if (options.providerFactory !== undefined) {

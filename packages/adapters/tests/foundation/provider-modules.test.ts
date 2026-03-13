@@ -28,8 +28,10 @@ describe("Provider modules registration", () => {
 
         registerGitModule(container, {provider})
 
+        const resolvedBlame = container.resolve(GIT_TOKENS.Blame)
         const resolved = container.resolve(GIT_TOKENS.Provider)
 
+        expect(resolvedBlame).toBe(provider)
         expect(resolved).toBe(provider)
     })
 

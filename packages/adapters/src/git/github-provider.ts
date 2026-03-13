@@ -14,6 +14,7 @@ import {
     type ICommentDTO,
     type ICommitHistoryOptions,
     type ICommitInfo,
+    type IFileBlame,
     type IFileTreeNode,
     type IGitProvider,
     type IInlineCommentDTO,
@@ -488,12 +489,52 @@ export class GitHubProvider implements IGitProvider {
         const normalizedPath = normalizeRequiredText(filePath, "filePath")
         const normalizedRef = normalizeRequiredText(ref, "ref")
 
+        return this.loadBlameData(normalizedPath, normalizedRef)
+    }
+
+    /**
+     * Loads blame ranges for multiple files through GitHub GraphQL.
+     *
+     * @param filePaths Repository-relative file paths.
+     * @param ref Branch or commit reference.
+     * @returns File-scoped blame metadata in input order.
+     */
+    public async getBlameDataBatch(
+        filePaths: readonly string[],
+        ref: string,
+    ): Promise<readonly IFileBlame[]> {
+        const normalizedRef = normalizeRequiredText(ref, "ref")
+        const blameByFile = await Promise.all(
+            filePaths.map(async (filePath): Promise<IFileBlame> => {
+                const normalizedPath = normalizeRequiredText(filePath, "filePath")
+
+                return {
+                    filePath: normalizedPath,
+                    blame: await this.loadBlameData(normalizedPath, normalizedRef),
+                }
+            }),
+        )
+
+        return blameByFile
+    }
+
+    /**
+     * Loads blame ranges for normalized file path and reference.
+     *
+     * @param filePath Normalized repository-relative file path.
+     * @param ref Normalized branch or commit reference.
+     * @returns Line blame metadata.
+     */
+    private async loadBlameData(
+        filePath: string,
+        ref: string,
+    ): Promise<readonly IBlameData[]> {
         const response = await this.executeRequest(() => {
             return this.client.request("POST /graphql", {
                 query: GITHUB_BLAME_QUERY,
                 owner: this.owner,
                 repo: this.repo,
-                expression: `${normalizedRef}:${normalizedPath}`,
+                expression: `${ref}:${filePath}`,
             })
         })
 

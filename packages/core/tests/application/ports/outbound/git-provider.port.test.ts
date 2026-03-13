@@ -9,6 +9,7 @@ import {
     type CheckRunStatus,
     type ICheckRunDTO,
     type ICommentDTO,
+    type IFileBlame,
     type IGitProvider,
     type IInlineCommentDTO,
     type ICommitHistoryOptions,
@@ -135,6 +136,29 @@ class InMemoryGitProvider implements IGitProvider {
         ])
     }
 
+    public getBlameDataBatch(
+        filePaths: readonly string[],
+        ref: string,
+    ): Promise<readonly IFileBlame[]> {
+        return Promise.resolve(
+            filePaths.map((filePath): IFileBlame => {
+                return {
+                    filePath,
+                    blame: [
+                        {
+                            lineStart: 10,
+                            lineEnd: 20,
+                            commitSha: `${ref}-${filePath}-commit`,
+                            authorName: "Alice",
+                            authorEmail: "alice@example.com",
+                            date: "2026-03-03T10:00:00.000Z",
+                        },
+                    ],
+                }
+            }),
+        )
+    }
+
     public postComment(_mergeRequestId: string, body: string): Promise<ICommentDTO> {
         return Promise.resolve({
             id: "comment-1",
@@ -253,5 +277,19 @@ describe("IGitProvider contract", () => {
         expect(blame[0]?.lineStart).toBe(10)
         expect(blame[1]?.commitSha).toBe("def456")
         expect(blame[1]?.authorName).toBe("Bob")
+    })
+
+    test("returns batch blame data in input order", async () => {
+        const provider = new InMemoryGitProvider()
+
+        const blame = await provider.getBlameDataBatch(
+            ["src/index.ts", "src/pipeline.ts"],
+            "main",
+        )
+
+        expect(blame).toHaveLength(2)
+        expect(blame[0]?.filePath).toBe("src/index.ts")
+        expect(blame[0]?.blame[0]?.commitSha).toBe("main-src/index.ts-commit")
+        expect(blame[1]?.filePath).toBe("src/pipeline.ts")
     })
 })

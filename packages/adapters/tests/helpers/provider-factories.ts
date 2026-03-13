@@ -57,6 +57,12 @@ export function createGitProviderMock(): IGitProvider {
         getBlameData(_filePath: string, _ref: string): Promise<readonly []> {
             return Promise.resolve([])
         },
+        getBlameDataBatch(
+            _filePaths: readonly string[],
+            _ref: string,
+        ): Promise<readonly []> {
+            return Promise.resolve([])
+        },
         postComment(_mergeRequestId: string, _body: string): Promise<ICommentDTO> {
             return Promise.resolve({} as ICommentDTO)
         },

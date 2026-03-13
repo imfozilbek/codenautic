@@ -124,6 +124,13 @@ class InMemoryGitProvider implements IGitProvider {
         return Promise.resolve([])
     }
 
+    public getBlameDataBatch(
+        _filePaths: readonly string[],
+        _ref: string,
+    ): Promise<readonly never[]> {
+        return Promise.resolve([])
+    }
+
     public postComment(_mergeRequestId: string, body: string): Promise<ICommentDTO> {
         if (this.shouldThrowOnPost) {
             return Promise.reject(new Error("cannot post comment"))
