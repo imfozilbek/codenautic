@@ -36,7 +36,11 @@ export interface IDropdownTriggerProps extends Omit<THeroUIDropdownTriggerProps,
     readonly children: ReactNode
     readonly className?: string
     readonly color?: ButtonProps["color"]
+    /**
+     * @deprecated Используй `isDisabled`. Будет удалено в следующей major-версии.
+     */
     readonly disabled?: boolean
+    /** Отключает trigger. */
     readonly isDisabled?: boolean
     readonly radius?: ButtonProps["radius"]
     readonly size?: ButtonProps["size"]

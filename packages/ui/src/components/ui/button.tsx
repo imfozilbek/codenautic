@@ -27,7 +27,9 @@ interface IInternalButtonProps extends Omit<
     readonly children?: ReactNode
     /** Собственный класс для кнопки. */
     readonly className?: string
-    /** Legacy алиас для isDisabled. */
+    /**
+     * @deprecated Используй `isDisabled`. Будет удалено в следующей major-версии.
+     */
     readonly disabled?: boolean
 }
 
