@@ -114,8 +114,8 @@ export function TeamLeaderboard(props: ITeamLeaderboardProps): ReactElement {
 
     return (
         <section className="rounded-lg border border-border bg-surface p-3 shadow-sm">
-            <p className="text-sm font-semibold text-foreground">{t("code-city:teamLeaderboard.title")}</p>
-            <p className="mt-1 text-xs text-muted-foreground">
+            <p className={TYPOGRAPHY.cardTitle}>{t("code-city:teamLeaderboard.title")}</p>
+            <p className={`mt-1 ${TYPOGRAPHY.captionMuted}`}>
                 {t("code-city:teamLeaderboard.description")}
             </p>
 
@@ -195,10 +195,10 @@ export function TeamLeaderboard(props: ITeamLeaderboardProps): ReactElement {
                             >
                                 <div className="flex items-start justify-between gap-3">
                                     <div className="min-w-0">
-                                        <p className="truncate text-sm font-semibold text-foreground">
+                                        <p className={`truncate ${TYPOGRAPHY.cardTitle}`}>
                                             {String(index + 1)}. {entry.ownerName}
                                         </p>
-                                        <p className="mt-1 text-xs text-muted-foreground">
+                                        <p className={`mt-1 ${TYPOGRAPHY.captionMuted}`}>
                                             {t("code-city:teamLeaderboard.scoreMeta", { score: String(score), files: String(entry.fileIds.length) })}
                                         </p>
                                     </div>

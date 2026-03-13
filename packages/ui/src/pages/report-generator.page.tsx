@@ -279,7 +279,7 @@ export function ReportGeneratorPage(): ReactElement {
                             </span>
                             <input
                                 aria-label={t("reports:generator.startDateLabel")}
-                                className="w-full rounded border border-border bg-surface px-2 py-1 text-sm text-foreground"
+                                className={`w-full rounded border border-border bg-surface px-2 py-1 ${TYPOGRAPHY.body}`}
                                 type="date"
                                 value={startDate}
                                 onChange={handleStartDateChange}
@@ -291,7 +291,7 @@ export function ReportGeneratorPage(): ReactElement {
                             </span>
                             <input
                                 aria-label={t("reports:generator.endDateLabel")}
-                                className="w-full rounded border border-border bg-surface px-2 py-1 text-sm text-foreground"
+                                className={`w-full rounded border border-border bg-surface px-2 py-1 ${TYPOGRAPHY.body}`}
                                 type="date"
                                 value={endDate}
                                 onChange={handleEndDateChange}
@@ -299,14 +299,14 @@ export function ReportGeneratorPage(): ReactElement {
                         </label>
                     </div>
                     <fieldset className="space-y-2">
-                        <legend className="text-sm font-semibold text-foreground">
+                        <legend className={TYPOGRAPHY.cardTitle}>
                             {t("reports:generator.reportSectionsLegend")}
                         </legend>
                         <div className="grid gap-2 sm:grid-cols-2">
                             {REPORT_SECTION_OPTIONS.map(
                                 (section): ReactElement => (
                                     <label
-                                        className="flex items-center gap-2 rounded border border-border bg-surface px-2 py-1 text-sm text-foreground"
+                                        className={`flex items-center gap-2 rounded border border-border bg-surface px-2 py-1 ${TYPOGRAPHY.body}`}
                                         key={section.id}
                                     >
                                         <input

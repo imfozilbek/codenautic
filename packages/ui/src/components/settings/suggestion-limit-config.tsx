@@ -1,5 +1,7 @@
 import { type ChangeEvent, type ReactElement } from "react"
 
+import { TYPOGRAPHY } from "@/lib/constants/typography"
+
 interface ISuggestionLimitConfigProps {
     readonly max?: number
     readonly min?: number
@@ -27,7 +29,7 @@ export function SuggestionLimitConfig(props: ISuggestionLimitConfigProps): React
     }
 
     return (
-        <label className="space-y-1 text-sm text-foreground" htmlFor="ccr-summary-max-suggestions">
+        <label className={`space-y-1 ${TYPOGRAPHY.body}`} htmlFor="ccr-summary-max-suggestions">
             <span className="block font-medium text-foreground">Max suggestions in summary</span>
             <input
                 id="ccr-summary-max-suggestions"

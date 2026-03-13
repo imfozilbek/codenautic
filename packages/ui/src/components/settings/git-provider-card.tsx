@@ -2,6 +2,7 @@ import type { ReactElement } from "react"
 import { useTranslation } from "react-i18next"
 
 import { Button, Card, CardBody, CardHeader, Chip } from "@/components/ui"
+import { TYPOGRAPHY } from "@/lib/constants/typography"
 
 /**
  * Конфиг Git provider.
@@ -33,7 +34,7 @@ export function GitProviderCard(props: IGitProviderCardProps): ReactElement {
     return (
         <Card>
             <CardHeader>
-                <h3 className="text-base font-semibold text-foreground">{props.provider}</h3>
+                <h3 className={TYPOGRAPHY.sectionTitle}>{props.provider}</h3>
             </CardHeader>
             <CardBody>
                 <div className="flex flex-col gap-2">
@@ -45,7 +46,7 @@ export function GitProviderCard(props: IGitProviderCardProps): ReactElement {
                             : t("settings:gitProviderCard.notConnected")}
                     </p>
                     {props.lastSyncAt === undefined ? null : (
-                        <p className="text-xs text-muted-foreground">
+                        <p className={TYPOGRAPHY.captionMuted}>
                             {t("settings:gitProviderCard.lastSync", { date: props.lastSyncAt })}
                         </p>
                     )}

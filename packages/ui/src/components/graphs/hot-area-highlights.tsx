@@ -59,10 +59,10 @@ export function HotAreaHighlights(props: IHotAreaHighlightsProps): ReactElement 
 
     return (
         <section className="rounded-lg border border-border bg-surface p-3 shadow-sm">
-            <p className="text-sm font-semibold text-foreground">
+            <p className={TYPOGRAPHY.cardTitle}>
                 {t("code-city:hotAreaHighlights.title")}
             </p>
-            <p className="mt-1 text-xs text-muted-foreground">
+            <p className={`mt-1 ${TYPOGRAPHY.captionMuted}`}>
                 {t("code-city:hotAreaHighlights.description")}
             </p>
             <ul className="mt-3 space-y-2">
@@ -74,13 +74,13 @@ export function HotAreaHighlights(props: IHotAreaHighlightsProps): ReactElement 
                         >
                             <div className="flex items-start justify-between gap-3">
                                 <div className="min-w-0">
-                                    <p className="flex items-center gap-2 text-sm font-semibold text-foreground">
+                                    <p className={`flex items-center gap-2 ${TYPOGRAPHY.cardTitle}`}>
                                         <span
                                             className={`inline-block h-2 w-2 rounded-full animate-pulse ${highlight.severity === "critical" ? "bg-danger" : highlight.severity === "high" ? "bg-warning" : "bg-sky-500"}`}
                                         />
                                         <span className="truncate">{highlight.label}</span>
                                     </p>
-                                    <p className="mt-1 text-xs text-muted-foreground">
+                                    <p className={`mt-1 ${TYPOGRAPHY.captionMuted}`}>
                                         {highlight.description}
                                     </p>
                                 </div>

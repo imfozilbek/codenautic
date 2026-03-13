@@ -89,8 +89,8 @@ export function OwnershipTransitionWidget(props: IOwnershipTransitionWidgetProps
     const { t } = useTranslation(["code-city"])
     return (
         <section className="rounded-lg border border-border bg-surface p-3 shadow-sm">
-            <p className="text-sm font-semibold text-foreground">{t("code-city:ownershipTransition.title")}</p>
-            <p className="mt-1 text-xs text-muted-foreground">
+            <p className={TYPOGRAPHY.cardTitle}>{t("code-city:ownershipTransition.title")}</p>
+            <p className={`mt-1 ${TYPOGRAPHY.captionMuted}`}>
                 {t("code-city:ownershipTransition.description")}
             </p>
             <ul aria-label={t("code-city:ownershipTransition.ariaLabelTransitions")} className="mt-3 space-y-2">
@@ -111,14 +111,14 @@ export function OwnershipTransitionWidget(props: IOwnershipTransitionWidgetProps
                                 <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                                     {scopeLabel}
                                 </span>
-                                <span className="text-xs text-muted-foreground">
+                                <span className={TYPOGRAPHY.captionMuted}>
                                     {formatTransitionDate(event.changedAt)}
                                 </span>
                             </div>
-                            <p className="mt-1 text-sm font-semibold text-foreground">
+                            <p className={`mt-1 ${TYPOGRAPHY.cardTitle}`}>
                                 {event.scopeLabel}
                             </p>
-                            <p className="mt-1 text-xs text-muted-foreground">
+                            <p className={`mt-1 ${TYPOGRAPHY.captionMuted}`}>
                                 {event.fromOwnerName} → {event.toOwnerName}
                             </p>
                             <div className="mt-2 flex flex-wrap items-center gap-2">
@@ -127,7 +127,7 @@ export function OwnershipTransitionWidget(props: IOwnershipTransitionWidgetProps
                                 >
                                     {(t as unknown as (key: string) => string)(resolveHandoffLabelKey(event.handoffSeverity))}
                                 </span>
-                                <span className="text-xs text-muted-foreground">
+                                <span className={TYPOGRAPHY.captionMuted}>
                                     {event.reason}
                                 </span>
                             </div>

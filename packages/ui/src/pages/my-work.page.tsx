@@ -613,7 +613,7 @@ export function MyWorkPage(): ReactElement {
                                         key={item.id}
                                     >
                                         <div className="flex flex-wrap items-center gap-2">
-                                            <p className="text-sm font-semibold text-foreground">
+                                            <p className={TYPOGRAPHY.cardTitle}>
                                                 {item.title}
                                             </p>
                                             <Chip size="sm" variant="flat">
@@ -777,7 +777,7 @@ export function MyWorkPage(): ReactElement {
                 </CardHeader>
                 <CardBody className="space-y-2">
                     {auditTrail.length === 0 ? (
-                        <p className="text-sm text-text-secondary">
+                        <p className={TYPOGRAPHY.bodyMuted}>
                             {t("dashboard:myWork.noOwnershipChanges")}
                         </p>
                     ) : (

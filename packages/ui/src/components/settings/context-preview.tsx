@@ -2,6 +2,7 @@ import type { ReactElement } from "react"
 import { useTranslation } from "react-i18next"
 
 import { Card, CardBody, CardHeader } from "@/components/ui"
+import { TYPOGRAPHY } from "@/lib/constants/typography"
 import type { IExternalContextPreviewResponse } from "@/lib/api/endpoints/external-context.endpoint"
 
 /** Параметры preview внешнего контекста. */
@@ -36,7 +37,7 @@ export function ContextPreview(props: IContextPreviewProps): ReactElement {
     return (
         <Card>
             <CardHeader>
-                <h3 className="text-base font-semibold text-foreground">{title}</h3>
+                <h3 className={TYPOGRAPHY.sectionTitle}>{title}</h3>
             </CardHeader>
             <CardBody className="space-y-3">
                 {props.isLoading === true ? (
@@ -57,7 +58,7 @@ export function ContextPreview(props: IContextPreviewProps): ReactElement {
                                     key={item.id}
                                     className="rounded-lg border border-default-200 bg-content1 p-3"
                                 >
-                                    <p className="text-sm font-semibold text-foreground">
+                                    <p className={TYPOGRAPHY.cardTitle}>
                                         {item.title}
                                     </p>
                                     <p className="mt-1 text-xs text-foreground-600">
