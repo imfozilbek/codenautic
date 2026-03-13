@@ -2,6 +2,7 @@ import type { ReactElement } from "react"
 import { useTranslation } from "react-i18next"
 
 import type { TCodeCityTreemapPredictionRiskLevel } from "@/components/graphs/codecity-treemap"
+import { TYPOGRAPHY } from "@/lib/constants/typography"
 
 /**
  * Элемент explain-панели для прогнозного hotspot.
@@ -57,8 +58,8 @@ export function PredictionExplainPanel(props: IPredictionExplainPanelProps): Rea
 
     return (
         <section className="rounded-lg border border-border bg-surface p-3 shadow-sm">
-            <p className="text-sm font-semibold text-foreground">{t("code-city:predictionExplain.title")}</p>
-            <p className="mt-1 text-xs text-muted-foreground">
+            <p className={TYPOGRAPHY.cardTitle}>{t("code-city:predictionExplain.title")}</p>
+            <p className={`mt-1 ${TYPOGRAPHY.captionMuted}`}>
                 {t("code-city:predictionExplain.description")}
             </p>
 
@@ -78,8 +79,8 @@ export function PredictionExplainPanel(props: IPredictionExplainPanelProps): Rea
                             }}
                             type="button"
                         >
-                            <p className="text-sm font-semibold text-foreground">{entry.label}</p>
-                            <p className="mt-1 text-xs text-muted-foreground">
+                            <p className={TYPOGRAPHY.cardTitle}>{entry.label}</p>
+                            <p className={`mt-1 ${TYPOGRAPHY.captionMuted}`}>
                                 {t("code-city:predictionExplain.riskAndConfidence", { risk: (t as unknown as (key: string) => string)(resolveRiskLabelKey(entry.riskLevel)), confidence: String(entry.confidenceScore) })}
                             </p>
                         </button>
