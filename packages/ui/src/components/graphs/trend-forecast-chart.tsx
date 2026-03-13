@@ -7,6 +7,7 @@ import {
     FORECAST_LINE_STROKE,
     FORECAST_ZONE_FILL,
 } from "@/lib/constants/graph-colors"
+import { TYPOGRAPHY } from "@/lib/constants/typography"
 
 /**
  * Точка trend forecast chart.

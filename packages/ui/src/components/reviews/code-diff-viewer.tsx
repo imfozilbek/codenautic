@@ -2,6 +2,7 @@ import { useMemo } from "react"
 import type { ReactElement } from "react"
 import { useTranslation } from "react-i18next"
 
+import { TYPOGRAPHY } from "@/lib/constants/typography"
 import { useVirtualizedList } from "@/lib/hooks/use-virtualized-list"
 import type {
     ICcrDiffFile,
@@ -172,7 +173,7 @@ function CodeDiffFilePanel(props: ICcrDiffFile): ReactElement {
     return (
         <section className="rounded-lg border border-border">
             <header className="flex flex-wrap items-center gap-2 border-b border-border bg-surface px-3 py-2">
-                <h3 className="text-sm font-semibold text-foreground">{fileData.filePath}</h3>
+                <h3 className={TYPOGRAPHY.cardTitle}>{fileData.filePath}</h3>
                 <span className="rounded bg-surface-muted px-2 py-0.5 text-[11px] text-foreground">
                     +{String(lineCounts.added)} / -{String(lineCounts.removed)}
                 </span>
