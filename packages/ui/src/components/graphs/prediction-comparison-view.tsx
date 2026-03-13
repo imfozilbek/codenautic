@@ -71,7 +71,7 @@ export function PredictionComparisonView(props: IPredictionComparisonViewProps):
                 aria-label={t("code-city:predictionComparison.ariaLabelSummary")}
                 className="mt-3 rounded border border-border bg-surface p-2"
             >
-                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                <p className={TYPOGRAPHY.overline}>
                     {t("code-city:predictionComparison.whatHappened")}
                 </p>
                 <p className="mt-1 text-xs text-foreground">

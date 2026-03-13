@@ -168,7 +168,7 @@ export function ImpactAnalysisPanel(props: IImpactAnalysisPanelProps): ReactElem
             </ul>
 
             <div className="mt-3 rounded border border-primary/30 bg-primary/10 p-2">
-                <p className="text-xs font-semibold uppercase tracking-wide text-on-primary">
+                <p className={`${TYPOGRAPHY.overline} text-on-primary`}>
                     {t("code-city:impactAnalysisComp.aggregatedRiskScore")}
                 </p>
                 <p className="text-lg font-semibold text-on-primary">

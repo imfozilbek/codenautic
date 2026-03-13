@@ -47,7 +47,7 @@ function resolveBadgeClassName(badge: TAchievementBadge): string {
     if (badge === "silver") {
         return "border-border bg-surface-muted text-foreground"
     }
-    return "border-orange-300 bg-orange-100 text-orange-900"
+    return "border-warning/30 bg-warning/10 text-on-warning"
 }
 
 function resolveBadgeLabelKey(badge: TAchievementBadge): string {
@@ -73,7 +73,7 @@ function BadgeIcon(props: { readonly badge: TAchievementBadge }): ReactElement {
             ? "text-warning"
             : props.badge === "silver"
               ? "text-foreground"
-              : "text-orange-700"
+              : "text-on-warning"
 
     return (
         <svg

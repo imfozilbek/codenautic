@@ -32,7 +32,7 @@ interface IRootCauseChainViewerProps {
 
 const SEVERITY_TONE: Readonly<Record<IRootCauseIssueDescriptor["severity"], string>> = {
     critical: "bg-danger/15 text-danger",
-    high: "bg-orange-100 text-orange-700",
+    high: "bg-warning/15 text-on-warning",
     low: "bg-success/15 text-success",
     medium: "bg-warning/15 text-warning",
 }
@@ -158,7 +158,7 @@ export function RootCauseChainViewer(props: IRootCauseChainViewerProps): ReactEl
                                         <p className="font-semibold text-foreground">
                                             {node.label}
                                         </p>
-                                        <p className="text-xs uppercase tracking-wide text-muted-foreground">
+                                        <p className={TYPOGRAPHY.overline}>
                                             {node.type}
                                         </p>
                                     </button>

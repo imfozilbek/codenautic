@@ -66,7 +66,7 @@ export function KnowledgeMapExportWidget(props: IKnowledgeMapExportWidgetProps):
                 aria-label={t("code-city:knowledgeMapExportComp.ariaMetadata")}
                 className="mt-3 rounded border border-border bg-surface p-2"
             >
-                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                <p className={TYPOGRAPHY.overline}>
                     {t("code-city:knowledgeMapExportComp.metadata")}
                 </p>
                 <p className="mt-1 text-xs text-foreground">
@@ -84,7 +84,7 @@ export function KnowledgeMapExportWidget(props: IKnowledgeMapExportWidgetProps):
                 aria-label={t("code-city:knowledgeMapExportComp.ariaLegend")}
                 className="mt-2 rounded border border-border bg-surface p-2"
             >
-                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                <p className={TYPOGRAPHY.overline}>
                     {t("code-city:knowledgeMapExportComp.legend")}
                 </p>
                 <ul className="mt-1 space-y-1">

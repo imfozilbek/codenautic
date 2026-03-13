@@ -14,7 +14,8 @@ export interface IStyledLinkProps extends Omit<LinkProps, "children"> {
 /**
  * Базовые CSS-классы для consistent link styling.
  */
-const BASE_LINK_CLASSES = "underline underline-offset-4"
+const BASE_LINK_CLASSES =
+    "underline underline-offset-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
 
 /**
  * Обёртка над TanStack Router Link с consistent underline styling.

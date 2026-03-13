@@ -144,7 +144,7 @@ export function AlertConfigDialog(props: IAlertConfigDialogProps): ReactElement 
 
             <div className="mt-3 grid gap-2 md:grid-cols-2">
                 <label className="space-y-1">
-                    <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                    <span className={TYPOGRAPHY.overline}>
                         {t("code-city:alertConfigComp.confidenceThreshold")}
                     </span>
                     <input
@@ -161,7 +161,7 @@ export function AlertConfigDialog(props: IAlertConfigDialogProps): ReactElement 
                 </label>
 
                 <label className="space-y-1">
-                    <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                    <span className={TYPOGRAPHY.overline}>
                         {t("code-city:alertConfigComp.issueIncreaseThreshold")}
                     </span>
                     <input
@@ -179,7 +179,7 @@ export function AlertConfigDialog(props: IAlertConfigDialogProps): ReactElement 
             </div>
 
             <fieldset aria-label={t("code-city:alertConfigComp.ariaChannels")} className="mt-3 space-y-1">
-                <legend className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                <legend className={TYPOGRAPHY.overline}>
                     {t("code-city:alertConfigComp.channels")}
                 </legend>
                 {(["slack", "email", "webhook"] as const).map((channel): ReactElement => {
@@ -202,7 +202,7 @@ export function AlertConfigDialog(props: IAlertConfigDialogProps): ReactElement 
             </fieldset>
 
             <label className="mt-3 block space-y-1">
-                <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                <span className={TYPOGRAPHY.overline}>
                     {t("code-city:alertConfigComp.deliveryFrequency")}
                 </span>
                 <select
@@ -227,7 +227,7 @@ export function AlertConfigDialog(props: IAlertConfigDialogProps): ReactElement 
             </label>
 
             <fieldset aria-label={t("code-city:alertConfigComp.ariaModules")} className="mt-3 space-y-1">
-                <legend className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                <legend className={TYPOGRAPHY.overline}>
                     {t("code-city:alertConfigComp.perModuleGranularity")}
                 </legend>
                 {props.modules.map((module): ReactElement => {

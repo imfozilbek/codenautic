@@ -162,7 +162,7 @@ export function SimulationPanel(props: ISimulationPanelProps): ReactElement {
                 </button>
             </div>
 
-            <p className="mt-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+            <p className={`mt-2 ${TYPOGRAPHY.overline}`}>
                 {t("code-city:simulationPanel.simulationMode", { mode })}
             </p>
 

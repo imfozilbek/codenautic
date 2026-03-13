@@ -129,7 +129,7 @@ export function RefactoringDashboard(props: IRefactoringDashboardProps): ReactEl
 
             <div className="mt-3 grid gap-2 md:grid-cols-2">
                 <label className="space-y-1" htmlFor="refactor-sort">
-                    <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                    <span className={TYPOGRAPHY.overline}>
                         {t("code-city:refactoringComp.sortBy")}
                     </span>
                     <select
@@ -155,7 +155,7 @@ export function RefactoringDashboard(props: IRefactoringDashboardProps): ReactEl
                 </label>
 
                 <label className="space-y-1" htmlFor="refactor-module-filter">
-                    <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                    <span className={TYPOGRAPHY.overline}>
                         {t("code-city:refactoringComp.moduleFilter")}
                     </span>
                     <select

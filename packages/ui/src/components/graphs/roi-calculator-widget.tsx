@@ -116,7 +116,7 @@ export function ROICalculatorWidget(props: IROICalculatorWidgetProps): ReactElem
             </ul>
 
             <label className="mt-3 block space-y-1" htmlFor="roi-risk-weight">
-                <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                <span className={TYPOGRAPHY.overline}>
                     {t("code-city:roiCalculator.riskWeight", { value: String(riskWeight) })}
                 </span>
                 <input
@@ -131,7 +131,7 @@ export function ROICalculatorWidget(props: IROICalculatorWidgetProps): ReactElem
             </label>
 
             <label className="mt-2 block space-y-1" htmlFor="roi-effort-weight">
-                <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                <span className={TYPOGRAPHY.overline}>
                     {t("code-city:roiCalculator.effortWeight", { value: String(effortWeight) })}
                 </span>
                 <input
@@ -146,7 +146,7 @@ export function ROICalculatorWidget(props: IROICalculatorWidgetProps): ReactElem
             </label>
 
             <div className="mt-3 rounded border border-primary/30 bg-primary/10 p-2">
-                <p className="text-xs font-semibold uppercase tracking-wide text-on-primary">
+                <p className={`${TYPOGRAPHY.overline} text-on-primary`}>
                     {t("code-city:roiCalculator.estimatedRoiScore")}
                 </p>
                 <p className="text-lg font-semibold text-on-primary">{String(scenarioRoiScore)}</p>

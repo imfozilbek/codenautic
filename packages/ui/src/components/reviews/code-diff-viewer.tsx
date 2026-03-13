@@ -71,7 +71,7 @@ function getTokenClass(token: string): string {
     }
 
     if (/^\d+$/.test(token)) {
-        return "text-violet-700"
+        return "text-accent"
     }
 
     if (DIFF_KEYWORDS.has(token)) {

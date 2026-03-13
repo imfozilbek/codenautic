@@ -129,7 +129,7 @@ export function PredictionDashboard(props: IPredictionDashboardProps): ReactElem
                 aria-label={t("code-city:predictionDashboard.ariaLabelQualityTrend")}
                 className="mt-3 rounded border border-border bg-surface p-2"
             >
-                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                <p className={TYPOGRAPHY.overline}>
                     {t("code-city:predictionDashboard.qualityTrendForecast")}
                 </p>
                 <ul className="mt-1 space-y-1">
@@ -148,7 +148,7 @@ export function PredictionDashboard(props: IPredictionDashboardProps): ReactElem
                 aria-label={t("code-city:predictionDashboard.ariaLabelBugProne")}
                 className="mt-2 rounded border border-border bg-surface p-2"
             >
-                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                <p className={TYPOGRAPHY.overline}>
                     {t("code-city:predictionDashboard.bugProneFiles")}
                 </p>
                 <ul className="mt-1 space-y-1">

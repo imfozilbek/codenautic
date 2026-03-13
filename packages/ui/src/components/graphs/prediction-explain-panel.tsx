@@ -92,7 +92,7 @@ export function PredictionExplainPanel(props: IPredictionExplainPanelProps): Rea
                 aria-label={t("code-city:predictionExplain.ariaLabelDetails")}
                 className="mt-3 rounded border border-border bg-surface p-2"
             >
-                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                <p className={TYPOGRAPHY.overline}>
                     {t("code-city:predictionExplain.whyHotspot")}
                 </p>
                 <p className="mt-1 text-xs text-foreground">

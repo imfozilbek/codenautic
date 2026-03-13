@@ -71,7 +71,7 @@ export function ChangeRiskGauge(props: IChangeRiskGaugeProps): ReactElement {
                     <span>Red</span>
                 </div>
                 <div className="rounded border border-primary/30 bg-primary/10 p-2">
-                    <p className="text-xs font-semibold uppercase tracking-wide text-on-primary">
+                    <p className={`${TYPOGRAPHY.overline} text-on-primary`}>
                         Current risk score
                     </p>
                     <p className="text-lg font-semibold text-on-primary">{String(clampedScore)}</p>

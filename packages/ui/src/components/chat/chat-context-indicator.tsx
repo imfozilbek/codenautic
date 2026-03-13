@@ -144,7 +144,7 @@ export function ChatContextIndicator(props: IChatContextIndicatorProps): ReactEl
                                 <button
                                     aria-label={`${actionLabel} to ${formatContextSummary(context)}`}
                                     aria-selected={context.id === props.activeContextId}
-                                    className="w-full rounded-md border border-border bg-surface-muted p-2 text-left transition hover:bg-surface-hover"
+                                    className="w-full rounded-md border border-border bg-surface-muted p-2 text-left transition hover:bg-surface-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
                                     role="option"
                                     type="button"
                                     onClick={(): void => {

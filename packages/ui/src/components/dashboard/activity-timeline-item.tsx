@@ -25,7 +25,7 @@ export interface IActivityTimelineItemProps {
 export function ActivityTimelineItem(props: IActivityTimelineItemProps): ReactElement {
     return (
         <li className="rounded-lg border border-border bg-surface p-3">
-            <p className="text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground">
+            <p className={TYPOGRAPHY.overline}>
                 {props.time}
             </p>
             <p className={`mt-1 ${TYPOGRAPHY.cardTitle}`}>{props.title}</p>

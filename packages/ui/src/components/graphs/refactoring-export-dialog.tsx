@@ -93,7 +93,7 @@ export function RefactoringExportDialog(props: IRefactoringExportDialogProps): R
             {isDialogOpen ? (
                 <div className="mt-3 rounded border border-border bg-surface p-3">
                     <label className="block space-y-1" htmlFor="refactor-export-destination">
-                        <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                        <span className={TYPOGRAPHY.overline}>
                             {t("code-city:refactoringExportComp.destination")}
                         </span>
                         <select
@@ -114,7 +114,7 @@ export function RefactoringExportDialog(props: IRefactoringExportDialogProps): R
                     </label>
 
                     <label className="mt-2 block space-y-1" htmlFor="refactor-export-title">
-                        <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                        <span className={TYPOGRAPHY.overline}>
                             {t("code-city:refactoringExportComp.templateTitle")}
                         </span>
                         <input
@@ -128,7 +128,7 @@ export function RefactoringExportDialog(props: IRefactoringExportDialogProps): R
                     </label>
 
                     <label className="mt-2 block space-y-1" htmlFor="refactor-export-body">
-                        <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                        <span className={TYPOGRAPHY.overline}>
                             {t("code-city:refactoringExportComp.templateBody")}
                         </span>
                         <textarea

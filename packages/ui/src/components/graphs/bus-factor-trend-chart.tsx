@@ -192,7 +192,7 @@ export function BusFactorTrendChart(props: IBusFactorTrendChartProps): ReactElem
                     viewBox={`0 0 ${String(SVG_WIDTH)} ${String(SVG_HEIGHT)}`}
                 >
                     <rect
-                        fill="hsl(var(--nextui-colors-default-50))"
+                        fill="var(--surface-muted)"
                         height={SVG_HEIGHT - CHART_PADDING_TOP - CHART_PADDING_BOTTOM}
                         rx={6}
                         width={SVG_WIDTH - CHART_PADDING_LEFT - CHART_PADDING_RIGHT}
@@ -261,7 +261,7 @@ export function BusFactorTrendChart(props: IBusFactorTrendChartProps): ReactElem
                     {preparedSeries[0]?.points.map((point, index): ReactElement => {
                         return (
                             <text
-                                fill="hsl(215 25% 45%)"
+                                fill="var(--muted-foreground)"
                                 fontSize={9}
                                 key={point.timestamp}
                                 textAnchor="middle"

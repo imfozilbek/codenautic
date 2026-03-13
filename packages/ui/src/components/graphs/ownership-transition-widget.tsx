@@ -108,7 +108,7 @@ export function OwnershipTransitionWidget(props: IOwnershipTransitionWidgetProps
                             key={event.id}
                         >
                             <div className="flex flex-wrap items-center justify-between gap-2">
-                                <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                                <span className={TYPOGRAPHY.overline}>
                                     {scopeLabel}
                                 </span>
                                 <span className={TYPOGRAPHY.captionMuted}>

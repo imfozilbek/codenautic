@@ -127,7 +127,7 @@ export function ChatThreadList(props: IChatThreadListProps): ReactElement {
                             <li
                                 className={`rounded-lg border p-2 ${
                                     isActive
-                                        ? "border-primary bg-[color:color-mix(in oklab, var(--primary) 14%, var(--surface))]"
+                                        ? "border-primary bg-[color:color-mix(in oklab, var(--primary) 12%, var(--surface))]"
                                         : "border-border bg-surface"
                                 }`}
                                 key={thread.id}

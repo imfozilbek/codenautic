@@ -174,7 +174,7 @@ export function ProjectOverviewPanel(props: IProjectOverviewPanelProps): ReactEl
             </header>
 
             <section className="mt-3 space-y-2">
-                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                <p className={TYPOGRAPHY.overline}>
                     {t("code-city:projectOverview.architectureSummary")}
                 </p>
                 <ul className={`space-y-1 ${TYPOGRAPHY.body}`}>
@@ -190,7 +190,7 @@ export function ProjectOverviewPanel(props: IProjectOverviewPanelProps): ReactEl
             </section>
 
             <section className="mt-3 space-y-2">
-                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                <p className={TYPOGRAPHY.overline}>
                     {t("code-city:projectOverview.techStack")}
                 </p>
                 <ul className={`space-y-1 ${TYPOGRAPHY.body}`}>
@@ -206,7 +206,7 @@ export function ProjectOverviewPanel(props: IProjectOverviewPanelProps): ReactEl
             </section>
 
             <section className="mt-3 space-y-2">
-                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                <p className={TYPOGRAPHY.overline}>
                     {t("code-city:projectOverview.entryPoints")}
                 </p>
                 {metrics.entryPoints.length > 0 ? (

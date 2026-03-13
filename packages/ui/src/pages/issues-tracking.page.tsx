@@ -80,15 +80,15 @@ function createIssueStatusLabels(t: (key: string) => string): Record<TIssueTrack
 const ISSUE_STATUS_STYLES: Record<TIssueTrackingStatus, string> = {
     dismissed: "bg-surface-muted text-foreground",
     fixed: "bg-success/15 text-success",
-    in_progress: "bg-blue-100 text-primary",
+    in_progress: "bg-primary/15 text-primary",
     open: "bg-danger/15 text-danger",
 }
 
 const ISSUE_SEVERITY_STYLES: Record<TIssueTrackingSeverity, string> = {
     critical: "bg-danger/15 text-danger border border-danger/30",
     high: "bg-warning/15 text-warning border border-warning/30",
-    low: "bg-sky-100 text-sky-700 border border-sky-200",
-    medium: "bg-violet-100 text-violet-700 border border-violet-200",
+    low: "bg-primary/10 text-primary border border-primary/30",
+    medium: "bg-accent/15 text-accent border border-accent/30",
 }
 
 const DEFAULT_ISSUES: ReadonlyArray<IIssueTrackingIssue> = [

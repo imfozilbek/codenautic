@@ -67,7 +67,7 @@ export function ExploreModeSidebar(props: IExploreModeSidebarProps): ReactElemen
             </p>
 
             <label className="mt-3 block space-y-1" htmlFor="explore-role-filter">
-                <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                <span className={TYPOGRAPHY.overline}>
                     {t("code-city:exploreSidebar.filterByRole")}
                 </span>
                 <select

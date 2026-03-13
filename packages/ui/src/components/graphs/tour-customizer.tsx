@@ -149,7 +149,7 @@ export function TourCustomizer(props: ITourCustomizerProps): ReactElement {
             </p>
 
             <label className="mt-3 block space-y-1" htmlFor="tour-stop-title">
-                <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                <span className={TYPOGRAPHY.overline}>
                     {t("code-city:tourCustomizer.stopTitleLabel")}
                 </span>
                 <input
@@ -165,7 +165,7 @@ export function TourCustomizer(props: ITourCustomizerProps): ReactElement {
             </label>
 
             <label className="mt-2 block space-y-1" htmlFor="tour-stop-description">
-                <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                <span className={TYPOGRAPHY.overline}>
                     {t("code-city:tourCustomizer.stopDescriptionLabel")}
                 </span>
                 <textarea

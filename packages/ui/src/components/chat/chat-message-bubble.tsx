@@ -10,6 +10,11 @@ import { sanitizeText } from "@/lib/validation/schema-validation"
 
 import type { IChatPanelMessage } from "./chat-panel"
 
+/** Maximum width of a message bubble relative to container. */
+const BUBBLE_MAX_WIDTH = "max-w-[82%]"
+/** Collapsed height for code blocks before expansion. */
+const CODE_BLOCK_COLLAPSED_HEIGHT = "max-h-36"
+
 /** Ссылка на файл/диапазон в чате. */
 export interface IChatCodeReference {
     /** Путь к файлу в репозитории. */
@@ -237,7 +242,7 @@ function parseMessageCodeBlock(
     onCopy: (text: string) => void,
     onToggleExpand: () => void,
 ): ReactElement {
-    const className = isExpanded ? "max-h-none" : "max-h-36 overflow-hidden"
+    const className = isExpanded ? "max-h-none" : `${CODE_BLOCK_COLLAPSED_HEIGHT} overflow-hidden`
     const blockClassName = [
         "overflow-x-auto rounded-md border border-border bg-background",
         "p-3 text-sm transition-[max-height]",
@@ -251,7 +256,7 @@ function parseMessageCodeBlock(
     return (
         <section aria-label={`Code block ${keyPrefix}`} className="space-y-2" key={keyPrefix}>
             <div className="flex items-center justify-between gap-2">
-                <p className="text-xs uppercase tracking-wide text-text-secondary">{language}</p>
+                <p className={`${TYPOGRAPHY.overline} text-text-secondary`}>{language}</p>
                 <div className="flex items-center gap-2">
                     <Button
                         aria-label={`Copy code block ${keyPrefix}`}
@@ -306,7 +311,7 @@ export function ChatMessageBubble(props: IChatMessageBubbleProps): ReactElement 
     const sender = props.message.sender ?? roleLabel
     const isUser = props.message.role === "user"
     const formattedTime = formatMessageTime(props.message.createdAt)
-    const compactClass = props.compact === true ? "max-w-full" : "max-w-[82%]"
+    const compactClass = props.compact === true ? "max-w-full" : BUBBLE_MAX_WIDTH
     const avatarLabel = sender.slice(0, 2).toUpperCase()
     const messageContent = sanitizeText(props.message.content)
     let blockIndex = 0
