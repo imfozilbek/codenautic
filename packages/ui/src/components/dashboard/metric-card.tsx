@@ -3,6 +3,7 @@ import { type ReactElement } from "react"
 import { Card, CardBody, CardHeader, Chip } from "@/components/ui"
 import { useCountUp } from "@/lib/motion"
 import { TYPOGRAPHY } from "@/lib/constants/typography"
+import { CARD_SURFACE } from "@/lib/constants/spacing"
 
 /**
  * Направление динамики метрики.
@@ -43,11 +44,11 @@ export function MetricCard(props: IMetricCardProps): ReactElement {
     const trendLabel = props.trendDirection === "neutral" ? "text-muted-foreground" : trendColor
 
     return (
-        <Card className="h-full border-l-2 border-l-primary shadow-sm transition-shadow duration-200 hover:shadow-md">
-            <CardHeader className="pb-0">
+        <Card className={`h-full ${CARD_SURFACE.elevated}`}>
+            <CardHeader className="pb-1">
                 <p className="text-sm text-muted-foreground">{props.label}</p>
             </CardHeader>
-            <CardBody className="pt-2">
+            <CardBody className="pt-0">
                 <p className={`${TYPOGRAPHY.display} text-foreground`}>{displayValue}</p>
                 {props.caption === undefined ? null : (
                     <p className="mt-1 text-sm text-muted-foreground">{props.caption}</p>

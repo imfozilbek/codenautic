@@ -21,7 +21,7 @@ import {
     type TTeamScope,
 } from "@/components/dashboard/dashboard-scope-filters"
 import { useUiRole } from "@/lib/permissions/ui-policy"
-import { NATIVE_FORM } from "@/lib/constants/spacing"
+import { NATIVE_FORM, PAGE_LAYOUT } from "@/lib/constants/spacing"
 import { TYPOGRAPHY } from "@/lib/constants/typography"
 import { AnimatedAlert, AnimatedMount } from "@/lib/motion"
 
@@ -307,7 +307,7 @@ export function DashboardMissionControlPage(): ReactElement {
     }
 
     return (
-        <section className="space-y-6">
+        <section className={`${PAGE_LAYOUT.spacious} mx-auto max-w-[1400px]`}>
             {/* Header + Scope filters */}
             <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                 <div>
@@ -353,7 +353,7 @@ export function DashboardMissionControlPage(): ReactElement {
 
             {/* Zone A': Hero metric + KPI grid — always visible */}
             <AnimatedMount motionKey={`hero-metrics-${range}`}>
-                <div className="grid gap-6 lg:grid-cols-[auto_1fr]">
+                <div className="grid gap-4 lg:gap-6 lg:grid-cols-[auto_1fr]">
                     <DashboardHeroMetric
                         color="var(--primary)"
                         label={t("dashboard:missionControl.releaseHealth")}
@@ -365,9 +365,9 @@ export function DashboardMissionControlPage(): ReactElement {
             </AnimatedMount>
 
             {/* Zone B: Primary charts — collapsible */}
-            <DashboardZone isVisible={activePreset.showZoneB} title={t("dashboard:missionControl.primaryCharts")}>
+            <DashboardZone isVisible={activePreset.showZoneB} priority="primary" title={t("dashboard:missionControl.primaryCharts")}>
                 <AnimatedMount motionKey={`charts-primary-${range}`}>
-                    <div className="grid gap-4 lg:grid-cols-2">
+                    <div className="grid gap-3 md:gap-4 lg:grid-cols-2">
                         <FlowMetricsWidget
                             capacityTrendLabel="+6%"
                             flowTrendLabel="+4%"
@@ -379,7 +379,7 @@ export function DashboardMissionControlPage(): ReactElement {
             </DashboardZone>
 
             {/* Zone C: Operations — work queue + timeline */}
-            <DashboardZone isVisible={activePreset.showZoneC} title={t("dashboard:missionControl.operations")}>
+            <DashboardZone isVisible={activePreset.showZoneC} priority="primary" title={t("dashboard:missionControl.operations")}>
                 <Suspense fallback={<DashboardSkeleton />}>
                     <DashboardContent
                         statusDistribution={statusDistribution}
@@ -392,7 +392,7 @@ export function DashboardMissionControlPage(): ReactElement {
             {/* Zone D: Analytics — secondary charts */}
             <DashboardZone isVisible={activePreset.showZoneD} title={t("dashboard:missionControl.analytics")}>
                 <AnimatedMount motionKey={`charts-secondary-${range}`}>
-                    <div className="grid gap-4 lg:grid-cols-2">
+                    <div className="grid gap-3 md:gap-4 lg:grid-cols-2">
                         <TokenUsageDashboardWidget
                             byModel={tokenUsageByModel}
                             costTrend={tokenUsageTrend}
@@ -407,8 +407,8 @@ export function DashboardMissionControlPage(): ReactElement {
             </DashboardZone>
 
             {/* Zone E: Explore + Signals */}
-            <DashboardZone isVisible={activePreset.showZoneE} title={t("dashboard:missionControl.explore")}>
-                <div className="grid gap-4 md:grid-cols-2">
+            <DashboardZone isVisible={activePreset.showZoneE} priority="tertiary" title={t("dashboard:missionControl.explore")}>
+                <div className="grid gap-3 md:gap-4 md:grid-cols-2">
                     <div className="space-y-2">
                         <p className={TYPOGRAPHY.sectionTitle}>{t("dashboard:missionControl.explore")}</p>
                         <ul className="space-y-1.5">{renderExploreLinks(t as unknown as (key: string) => string)}</ul>

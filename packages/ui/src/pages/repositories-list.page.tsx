@@ -4,7 +4,7 @@ import { Link } from "@tanstack/react-router"
 
 import { Button, Card, CardBody, CardHeader } from "@/components/ui"
 import { EnterpriseDataTable } from "@/components/infrastructure/enterprise-data-table"
-import { NATIVE_FORM } from "@/lib/constants/spacing"
+import { NATIVE_FORM, PAGE_LAYOUT } from "@/lib/constants/spacing"
 import { TYPOGRAPHY } from "@/lib/constants/typography"
 
 type TRepositoryStatus = "error" | "ready" | "scanning"
@@ -376,7 +376,7 @@ export function RepositoriesListPage(props: IRepositoryListPageProps): ReactElem
     }
 
     return (
-        <section className="space-y-4">
+        <section className={PAGE_LAYOUT.standard}>
             <h1 className={TYPOGRAPHY.pageTitle}>
                 {t("dashboard:repositoriesList.pageTitle")}
             </h1>

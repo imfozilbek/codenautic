@@ -143,6 +143,7 @@
     --chart-grid: oklch(0.85 0.002 0);
 
     /* Layout surface tokens */
+    --surface-subtle: oklch(0.97 0.005 74);
     --header-bg: color-mix(in oklch, var(--surface) 88%, transparent);
     --sidebar-bg: color-mix(in oklch, var(--surface) 84%, transparent);
     --content-bg: color-mix(in oklch, var(--surface) 88%, transparent);
@@ -216,6 +217,7 @@
     --chart-grid: oklch(0.3 0.002 0);
 
     /* Layout surface tokens */
+    --surface-subtle: oklch(0.18 0.005 74);
     --header-bg: color-mix(in oklch, var(--surface) 88%, transparent);
     --sidebar-bg: color-mix(in oklch, var(--surface) 84%, transparent);
     --content-bg: color-mix(in oklch, var(--surface) 88%, transparent);

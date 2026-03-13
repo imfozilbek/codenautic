@@ -16,6 +16,7 @@ import { Card, CardBody, CardHeader } from "@/components/ui"
 import { EmptyState } from "@/components/states/empty-state"
 import { ChartContainer } from "@/components/charts/chart-container"
 import { TYPOGRAPHY } from "@/lib/constants/typography"
+import { CARD_SURFACE } from "@/lib/constants/spacing"
 import {
     CHART_FALLBACK_COLOR,
     CHART_GRID_DASH,
@@ -60,7 +61,7 @@ const PIE_COLORS = [
  */
 export function TokenUsageDashboardWidget(props: ITokenUsageDashboardWidgetProps): ReactElement {
     return (
-        <Card className="border-l-2 border-l-secondary">
+        <Card className={CARD_SURFACE.flat}>
             <CardHeader>
                 <p className={TYPOGRAPHY.sectionTitle}>Token usage dashboard</p>
             </CardHeader>

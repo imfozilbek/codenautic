@@ -6,6 +6,7 @@ import { Card, CardBody, CardHeader, Chip } from "@/components/ui"
 import { EmptyState } from "@/components/states/empty-state"
 import { ChartContainer } from "@/components/charts/chart-container"
 import { TYPOGRAPHY } from "@/lib/constants/typography"
+import { CARD_SURFACE } from "@/lib/constants/spacing"
 import { CHART_GRID_DASH, CHART_STROKE_WIDTH } from "@/lib/constants/chart-constants"
 import { CHART_DATA_TRANSITION } from "@/lib/motion"
 
@@ -35,7 +36,7 @@ interface IFlowMetricsWidgetProps {
  */
 export function FlowMetricsWidget(props: IFlowMetricsWidgetProps): ReactElement {
     return (
-        <Card className="border-l-2 border-l-secondary">
+        <Card className={CARD_SURFACE.default}>
             <CardHeader className="flex flex-wrap items-center justify-between gap-2">
                 <p className={TYPOGRAPHY.sectionTitle}>Flow metrics</p>
                 <div className="flex flex-wrap items-center gap-2">

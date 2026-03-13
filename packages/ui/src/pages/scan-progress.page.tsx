@@ -3,6 +3,7 @@ import { useEffect, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { Alert, Button, Card, CardBody, CardHeader } from "@/components/ui"
+import { PAGE_LAYOUT } from "@/lib/constants/spacing"
 import { TYPOGRAPHY } from "@/lib/constants/typography"
 
 const PHASES = ["queue", "clone", "analysis", "indexing", "report"] as const
@@ -378,7 +379,7 @@ export function ScanProgressPage(props: IScanProgressPageProps): ReactElement {
     }, [progressState.etaSeconds, t])
 
     return (
-        <section className="space-y-4">
+        <section className={PAGE_LAYOUT.standard}>
             <h1 className={TYPOGRAPHY.pageTitle}>{t("system:scanProgress.pageTitle")}</h1>
             <p className={TYPOGRAPHY.pageSubtitle}>
                 {(t as unknown as (key: string, options: Record<string, string>) => string)(

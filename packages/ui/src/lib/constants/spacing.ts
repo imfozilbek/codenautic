@@ -104,3 +104,25 @@ export const NATIVE_FORM = {
     /** Компактный input для graph-embedded контекстов (xs, rounded). */
     compact: "w-full rounded border border-border bg-surface px-2 py-1 text-xs text-foreground",
 } as const
+
+/**
+ * Визуальные стили поверхностей карточек.
+ * Определяют border, shadow и background для разных типов карточек.
+ *
+ * @example
+ * ```tsx
+ * <Card className={`h-full ${CARD_SURFACE.elevated}`}>
+ *     <CardBody>Important content</CardBody>
+ * </Card>
+ * ```
+ */
+export const CARD_SURFACE = {
+    /** Default — left accent border, subtle shadow. */
+    default: "border-l-2 border-l-primary shadow-sm",
+    /** Elevated — full border, hover shadow lift. */
+    elevated: "border border-border shadow-sm transition-shadow hover:shadow-md",
+    /** Flat — subtle background, no border/shadow. */
+    flat: "bg-surface-subtle",
+    /** Section — border-box для группировки контента (form sections). */
+    section: "rounded-lg border border-border/50 bg-surface-subtle p-4",
+} as const

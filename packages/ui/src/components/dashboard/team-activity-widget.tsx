@@ -6,6 +6,7 @@ import { Card, CardBody, CardHeader } from "@/components/ui"
 import { EmptyState } from "@/components/states/empty-state"
 import { ChartContainer } from "@/components/charts/chart-container"
 import { TYPOGRAPHY } from "@/lib/constants/typography"
+import { CARD_SURFACE } from "@/lib/constants/spacing"
 import { CHART_GRID_DASH } from "@/lib/constants/chart-constants"
 import { CHART_DATA_TRANSITION } from "@/lib/motion"
 
@@ -29,7 +30,7 @@ interface ITeamActivityWidgetProps {
  */
 export function TeamActivityWidget(props: ITeamActivityWidgetProps): ReactElement {
     return (
-        <Card className="border-l-2 border-l-secondary">
+        <Card className={CARD_SURFACE.default}>
             <CardHeader>
                 <p className={TYPOGRAPHY.sectionTitle}>Team activity</p>
             </CardHeader>

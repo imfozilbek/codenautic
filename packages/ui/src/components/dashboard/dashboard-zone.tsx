@@ -6,6 +6,21 @@ import { DURATION, EASING, useReducedMotion } from "@/lib/motion"
 import { TYPOGRAPHY } from "@/lib/constants/typography"
 
 /**
+ * Визуальный приоритет зоны dashboard.
+ * Определяет толщину левого бордера и отступ.
+ */
+export type TDashboardZonePriority = "primary" | "secondary" | "tertiary"
+
+/**
+ * Маппинг приоритета зоны на CSS-классы left-border + padding.
+ */
+const ZONE_PRIORITY_STYLES: Record<TDashboardZonePriority, string> = {
+    primary: "border-l-4 border-l-primary/60 pl-4",
+    secondary: "border-l-2 border-l-border pl-3",
+    tertiary: "border-l border-l-border/50 pl-3 opacity-90",
+}
+
+/**
  * Свойства collapsible zone dashboard.
  */
 export interface IDashboardZoneProps {
@@ -17,6 +32,8 @@ export interface IDashboardZoneProps {
     readonly defaultExpanded?: boolean
     /** Управляемое состояние видимости (для layout presets). */
     readonly isVisible?: boolean
+    /** Визуальный приоритет зоны (по умолчанию "secondary"). */
+    readonly priority?: TDashboardZonePriority
 }
 
 /**
@@ -29,13 +46,14 @@ export interface IDashboardZoneProps {
 export function DashboardZone(props: IDashboardZoneProps): ReactElement | null {
     const [isExpanded, setIsExpanded] = useState(props.defaultExpanded !== false)
     const prefersReducedMotion = useReducedMotion()
+    const priorityClass = ZONE_PRIORITY_STYLES[props.priority ?? "secondary"]
 
     if (props.isVisible === false) {
         return null
     }
 
     return (
-        <section className="space-y-3">
+        <section className={`space-y-3 ${priorityClass}`}>
             <button
                 aria-expanded={isExpanded}
                 className="flex w-full items-center gap-2 text-left"

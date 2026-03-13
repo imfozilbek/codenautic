@@ -6,7 +6,7 @@ import { FunctionClassCallGraph } from "@/components/graphs/function-class-call-
 import { PackageDependencyGraph } from "@/components/graphs/package-dependency-graph"
 import { Alert, Button, Card, CardBody, CardHeader, Chip, StyledLink } from "@/components/ui"
 import { MetricsGrid } from "@/components/dashboard/metrics-grid"
-import { NATIVE_FORM } from "@/lib/constants/spacing"
+import { NATIVE_FORM, PAGE_LAYOUT } from "@/lib/constants/spacing"
 import { TYPOGRAPHY } from "@/lib/constants/typography"
 
 import {
@@ -480,7 +480,7 @@ export function RepositoryOverviewPage(props: IRepositoryOverviewProps): ReactEl
     const packageDependencyGraph = getRepositoryPackageDependencyGraph(repository.id)
 
     return (
-        <section className="space-y-4">
+        <section className={PAGE_LAYOUT.standard}>
             <div className="space-y-1">
                 <p className="text-sm text-muted-foreground">Post-scan dashboard</p>
                 <h1 className={TYPOGRAPHY.pageTitle}>
@@ -496,7 +496,7 @@ export function RepositoryOverviewPage(props: IRepositoryOverviewProps): ReactEl
                 <CardHeader>
                     <p className="text-sm font-semibold text-foreground">Scan snapshot</p>
                 </CardHeader>
-                <CardBody className="grid gap-4 lg:grid-cols-2">
+                <CardBody className="grid gap-3 md:gap-4 lg:grid-cols-2">
                     <div className="space-y-2">
                         <p className="text-sm text-foreground">Branch: {repository.branch}</p>
                         <p className="text-sm text-foreground">
@@ -545,7 +545,7 @@ export function RepositoryOverviewPage(props: IRepositoryOverviewProps): ReactEl
                 <MetricsGrid metrics={repository.keyMetrics} />
             </section>
 
-            <div className="grid gap-4 md:grid-cols-2">
+            <div className="grid gap-3 md:gap-4 md:grid-cols-2">
                 <ArchitectureSummaryList lines={fallbackSummary} />
                 <TechnologyStackList stack={repository.techStack} />
             </div>

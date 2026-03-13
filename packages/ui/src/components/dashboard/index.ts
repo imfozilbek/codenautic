@@ -42,7 +42,11 @@ export {
     type TRepositoryScope,
     type TTeamScope,
 } from "./dashboard-scope-filters"
-export { DashboardZone, type IDashboardZoneProps } from "./dashboard-zone"
+export {
+    DashboardZone,
+    type IDashboardZoneProps,
+    type TDashboardZonePriority,
+} from "./dashboard-zone"
 export {
     FlowMetricsWidget,
     type IFlowMetricsPoint,

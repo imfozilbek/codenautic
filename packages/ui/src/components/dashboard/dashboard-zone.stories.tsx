@@ -32,6 +32,29 @@ export const CollapsedByDefault: TStory = {
     },
 }
 
+export const PrimaryPriority: TStory = {
+    args: {
+        title: "Primary Zone",
+        priority: "primary",
+        defaultExpanded: true,
+        children: (
+            <div className="grid gap-4 md:grid-cols-2">
+                <div className="h-32 rounded-lg bg-surface-muted" />
+                <div className="h-32 rounded-lg bg-surface-muted" />
+            </div>
+        ),
+    },
+}
+
+export const TertiaryPriority: TStory = {
+    args: {
+        title: "Tertiary Zone",
+        priority: "tertiary",
+        defaultExpanded: true,
+        children: <div className="h-32 rounded-lg bg-surface-muted" />,
+    },
+}
+
 export const Hidden: TStory = {
     args: {
         title: "Hidden Zone",

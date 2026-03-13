@@ -38,7 +38,7 @@ export function PageShell(props: IPageShellProps): ReactElement {
     const { title, subtitle, layout = "standard", headerActions, children } = props
     const prefersReducedMotion = useReducedMotion()
 
-    const layoutClassName = PAGE_LAYOUT[layout]
+    const layoutClassName = `${PAGE_LAYOUT[layout]} mx-auto max-w-[1400px]`
 
     const hasHeaderActions = headerActions !== undefined
     const hasSubtitle = subtitle !== undefined
