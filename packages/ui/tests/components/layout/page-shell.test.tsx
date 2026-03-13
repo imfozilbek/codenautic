@@ -56,7 +56,7 @@ describe("PageShell", (): void => {
         )
 
         const root = container.firstElementChild as HTMLElement
-        expect(root.className).toContain("space-y-4")
+        expect(root.className).toContain("space-y-6")
     })
 
     it("when layout is spacious, then uses page-level spacing", (): void => {
@@ -67,7 +67,7 @@ describe("PageShell", (): void => {
         )
 
         const root = container.firstElementChild as HTMLElement
-        expect(root.className).toContain("space-y-6")
+        expect(root.className).toContain("space-y-8")
     })
 
     it("when layout is centered, then uses centering utilities", (): void => {
@@ -86,6 +86,6 @@ describe("PageShell", (): void => {
         const { container } = renderWithProviders(<PageShell title="Default">content</PageShell>)
 
         const root = container.firstElementChild as HTMLElement
-        expect(root.className).toContain("space-y-4")
+        expect(root.className).toContain("space-y-6")
     })
 })

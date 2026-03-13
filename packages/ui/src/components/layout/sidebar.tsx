@@ -79,7 +79,7 @@ export function Sidebar(props: ISidebarProps): ReactElement {
         </>
     )
 
-    const baseClassName = `flex h-full flex-col overflow-hidden rounded-lg bg-sidebar-bg p-2 shadow-sm ${props.className ?? ""}`
+    const baseClassName = `flex h-full flex-col overflow-hidden rounded-xl bg-sidebar-bg p-2 shadow-md ring-1 ring-border/50 ${props.className ?? ""}`
 
     if (prefersReducedMotion) {
         return (

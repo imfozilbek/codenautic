@@ -187,7 +187,7 @@ export function DashboardLayout(props: IDashboardLayoutProps): ReactElement {
     )
 
     return (
-        <div className="relative grid h-screen grid-cols-1 gap-2 overflow-hidden p-2 text-foreground sm:p-3 md:grid-cols-[auto_1fr]">
+        <div className="relative grid h-screen grid-cols-1 gap-3 overflow-hidden p-3 text-foreground sm:p-4 md:grid-cols-[auto_1fr]">
             {/* Sidebar — full height, hidden on mobile */}
             <div className="hidden md:block">
                 <Sidebar

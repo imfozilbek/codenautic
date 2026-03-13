@@ -60,6 +60,6 @@ describe("PageShell — reduced motion branch", (): void => {
         )
 
         const root = container.firstElementChild as HTMLElement
-        expect(root.className).toContain("space-y-6")
+        expect(root.className).toContain("space-y-8")
     })
 })

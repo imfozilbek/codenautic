@@ -20,11 +20,11 @@ describe("SPACING", (): void => {
     })
 
     it("when page spacing is used, then has largest gap", (): void => {
-        expect(SPACING.page).toBe("space-y-6")
+        expect(SPACING.page).toBe("space-y-8")
     })
 
     it("when tight spacing is used, then has smallest gap", (): void => {
-        expect(SPACING.tight).toBe("space-y-1")
+        expect(SPACING.tight).toBe("space-y-1.5")
     })
 })
 
@@ -46,11 +46,11 @@ describe("PAGE_LAYOUT", (): void => {
     })
 
     it("when standard layout is used, then uses section-level spacing", (): void => {
-        expect(PAGE_LAYOUT.standard).toBe("space-y-4")
+        expect(PAGE_LAYOUT.standard).toBe("space-y-6")
     })
 
     it("when spacious layout is used, then uses page-level spacing", (): void => {
-        expect(PAGE_LAYOUT.spacious).toBe("space-y-6")
+        expect(PAGE_LAYOUT.spacious).toBe("space-y-8")
     })
 })
 
