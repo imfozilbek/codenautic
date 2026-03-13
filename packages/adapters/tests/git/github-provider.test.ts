@@ -14,6 +14,8 @@ import {
     type IGitHubOctokitClient,
 } from "../../src/git"
 
+const MAX_TEXT_FILE_BYTES = 1024 * 1024
+
 type AsyncMethod<TResult> = (...args: readonly unknown[]) => Promise<TResult>
 type IDataResponse = {readonly data: unknown}
 type IGitHubApiErrorFields = {
@@ -769,6 +771,74 @@ describe("GitHubProvider", () => {
 
         expect(content).toBe("export const value = 1\n")
         expect(emptyContent).toBe("")
+    })
+
+    test("supports utf-8 text responses and rejects unsupported encodings", async () => {
+        const provider = new GitHubProvider({
+            owner: "codenautic",
+            repo: "platform",
+            client: createGitHubClientMock({
+                repos: {
+                    getContent: createQueuedAsyncMethod([
+                        createDataHandler({
+                            type: "file",
+                            encoding: "utf-8",
+                            content: "plain text payload\n",
+                            size: 19,
+                        }),
+                        createDataHandler({
+                            type: "file",
+                            encoding: "latin1",
+                            content: "payload",
+                            size: 7,
+                        }),
+                    ]),
+                },
+            }),
+        })
+
+        const content = await provider.getFileContentByRef("src/plain.txt", "main")
+        const unsupportedEncodingError = await captureRejectedError(() =>
+            provider.getFileContentByRef("src/legacy.txt", "main"),
+        )
+
+        expect(content).toBe("plain text payload\n")
+        expect(unsupportedEncodingError.message).toContain("unsupported file encoding")
+    })
+
+    test("rejects binary and oversized file content responses", async () => {
+        const provider = new GitHubProvider({
+            owner: "codenautic",
+            repo: "platform",
+            client: createGitHubClientMock({
+                repos: {
+                    getContent: createQueuedAsyncMethod([
+                        createDataHandler({
+                            type: "file",
+                            encoding: "base64",
+                            content: Buffer.from([0x00, 0x7f, 0x45, 0x4c, 0x46]).toString("base64"),
+                            size: 5,
+                        }),
+                        createDataHandler({
+                            type: "file",
+                            encoding: "base64",
+                            content: Buffer.from("x".repeat(16)).toString("base64"),
+                            size: MAX_TEXT_FILE_BYTES + 1,
+                        }),
+                    ]),
+                },
+            }),
+        })
+
+        const binaryError = await captureRejectedError(() =>
+            provider.getFileContentByRef("bin/app", "main"),
+        )
+        const oversizedError = await captureRejectedError(() =>
+            provider.getFileContentByRef("src/huge.ts", "main"),
+        )
+
+        expect(binaryError.message).toContain("binary file content is not supported")
+        expect(oversizedError.message).toContain("file content exceeds size limit")
     })
 
     test("throws when content endpoint returns directory or non-file node", async () => {

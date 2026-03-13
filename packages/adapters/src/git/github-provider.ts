@@ -235,6 +235,7 @@ export interface IGitHubProviderOptions {
 
 const DEFAULT_RETRY_MAX_ATTEMPTS = 3
 const DEFAULT_RETRY_BASE_DELAY_MS = 250
+const MAX_GITHUB_TEXT_FILE_BYTES = 1024 * 1024
 
 /**
  * GraphQL query used for blame lookup.
@@ -1027,13 +1028,110 @@ function extractFileContent(data: ReposGetContentResponse): string {
         throw new Error("GitHub content response points to non-file node")
     }
 
+    const fileSize = typeof data.size === "number" ? data.size : 0
+    if (fileSize > MAX_GITHUB_TEXT_FILE_BYTES) {
+        throw new Error(
+            `GitHub file content exceeds size limit of ${MAX_GITHUB_TEXT_FILE_BYTES} bytes`,
+        )
+    }
+
+    const encoding = normalizeFileContentEncoding(data.encoding)
+    if (encoding === "none") {
+        throw new Error("GitHub binary file content is not supported")
+    }
+
     if (typeof data.content !== "string") {
         return ""
     }
 
-    const normalized = data.content.replace(/\n/g, "")
+    const decodedContent = decodeFileContent(
+        data.content,
+        encoding ?? "utf8",
+    )
+    if (isBinaryBuffer(decodedContent)) {
+        throw new Error("GitHub binary file content is not supported")
+    }
 
-    return Buffer.from(normalized, data.encoding === "base64" ? "base64" : "utf8").toString("utf8")
+    return decodedContent.toString("utf8")
+}
+
+/**
+ * Normalizes GitHub content encoding label.
+ *
+ * @param encoding Raw GitHub encoding value.
+ * @returns Supported normalized encoding or undefined.
+ */
+function normalizeFileContentEncoding(
+    encoding: string | undefined,
+): "base64" | "utf8" | "none" | undefined {
+    if (encoding === undefined) {
+        return undefined
+    }
+
+    const normalized = encoding.trim().toLowerCase()
+    if (normalized.length === 0) {
+        return undefined
+    }
+
+    if (normalized === "base64") {
+        return "base64"
+    }
+
+    if (normalized === "utf8" || normalized === "utf-8") {
+        return "utf8"
+    }
+
+    if (normalized === "none") {
+        return "none"
+    }
+
+    throw new Error(`GitHub content response uses unsupported file encoding: ${encoding}`)
+}
+
+/**
+ * Decodes GitHub file content into raw bytes.
+ *
+ * @param content Raw GitHub content field.
+ * @param encoding Normalized content encoding.
+ * @returns Decoded byte buffer.
+ */
+function decodeFileContent(
+    content: string,
+    encoding: "base64" | "utf8",
+): Buffer {
+    const normalizedContent = encoding === "base64"
+        ? content.replace(/\n/g, "")
+        : content
+
+    return Buffer.from(normalizedContent, encoding)
+}
+
+/**
+ * Detects likely binary data using control-byte heuristics.
+ *
+ * @param content Raw decoded bytes.
+ * @returns True when payload looks binary.
+ */
+function isBinaryBuffer(content: Uint8Array): boolean {
+    if (content.length === 0) {
+        return false
+    }
+
+    const sampleSize = Math.min(content.length, 512)
+    let suspiciousBytes = 0
+
+    for (let index = 0; index < sampleSize; index += 1) {
+        const byte = content[index]
+        if (byte === undefined) {
+            continue
+        }
+
+        if (byte === 0 || byte < 7 || (byte > 13 && byte < 32)) {
+            suspiciousBytes += 1
+        }
+    }
+
+    return suspiciousBytes / sampleSize > 0.1
 }
 
 /**
