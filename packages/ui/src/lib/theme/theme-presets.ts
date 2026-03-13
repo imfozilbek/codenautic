@@ -354,4 +354,4 @@ export type ThemePresetId = (typeof THEME_PRESETS)[number]["id"]
 /**
  * Пресет по умолчанию.
  */
-export const DEFAULT_THEME_PRESET_ID: ThemePresetId = "moonstone"
+export const DEFAULT_THEME_PRESET_ID: ThemePresetId = "sunrise"

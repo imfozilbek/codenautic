@@ -137,7 +137,7 @@ describe("readStoredThemePreset", (): void => {
     })
 
     it("when no preset stored, then returns default preset", (): void => {
-        expect(readStoredThemePreset()).toBe("moonstone")
+        expect(readStoredThemePreset()).toBe("sunrise")
     })
 
     it("when valid preset stored, then returns stored preset", (): void => {
@@ -149,7 +149,7 @@ describe("readStoredThemePreset", (): void => {
     it("when invalid preset stored, then returns default preset", (): void => {
         localStorage.setItem(THEME_PRESET_STORAGE_KEY, "nonexistent")
 
-        expect(readStoredThemePreset()).toBe("moonstone")
+        expect(readStoredThemePreset()).toBe("sunrise")
     })
 })
 

@@ -230,11 +230,11 @@ describe("ThemeProvider", (): void => {
         expect(state.resolvedMode).toBe("dark")
     })
 
-    it("when initializeTheme has no stored values, then defaults to system and moonstone", (): void => {
+    it("when initializeTheme has no stored values, then defaults to system and sunrise", (): void => {
         const state = initializeTheme()
 
         expect(state.mode).toBe("system")
-        expect(state.preset).toBe("moonstone")
+        expect(state.preset).toBe("sunrise")
     })
 
     it("when defaultMode is provided, then uses it instead of localStorage", async (): Promise<void> => {
@@ -664,7 +664,7 @@ describe("ThemeProvider", (): void => {
 
         renderWithProviders(<ThemeFullProbe />, { defaultThemeMode: "dark" })
 
-        expect(screen.getByTestId("theme-state")).toHaveTextContent("dark:moonstone")
+        expect(screen.getByTestId("theme-state")).toHaveTextContent("dark:sunrise")
     })
 
     it("when mode changes multiple times quickly, then settles on last value", async (): Promise<void> => {
