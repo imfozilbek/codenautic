@@ -3,6 +3,7 @@ import { useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { NATIVE_FORM } from "@/lib/constants/spacing"
+import { TYPOGRAPHY } from "@/lib/constants/typography"
 
 /**
  * Каналы доставки prediction-alert.
@@ -136,8 +137,8 @@ export function AlertConfigDialog(props: IAlertConfigDialogProps): ReactElement 
 
     return (
         <section className="rounded-lg border border-border bg-surface p-3 shadow-sm">
-            <p className="text-sm font-semibold text-foreground">{t("code-city:alertConfigComp.title")}</p>
-            <p className="mt-1 text-xs text-muted-foreground">
+            <p className={TYPOGRAPHY.cardTitle}>{t("code-city:alertConfigComp.title")}</p>
+            <p className={`mt-1 ${TYPOGRAPHY.captionMuted}`}>
                 {t("code-city:alertConfigComp.description")}
             </p>
 

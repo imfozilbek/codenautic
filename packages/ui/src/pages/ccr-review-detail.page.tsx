@@ -991,11 +991,11 @@ export function CcrReviewDetailPage(props: ICcrReviewDetailPageProps): ReactElem
                         <div>
                             <p className="text-sm text-muted-foreground">{t("reviews:detail.ccrReview")}</p>
                             <h1 className={TYPOGRAPHY.pageTitle}>{ccr.title}</h1>
-                            <p className="text-sm text-foreground">
+                            <p className={TYPOGRAPHY.body}>
                                 {ccr.id} · {ccr.repository} · {ccr.team} · {ccr.status}
                             </p>
                             {codeReview.codeReviewQuery.data?.summary === undefined ? null : (
-                                <p className="mt-1 text-xs text-muted-foreground">
+                                <p className={`mt-1 ${TYPOGRAPHY.captionMuted}`}>
                                     {codeReview.codeReviewQuery.data.summary}
                                 </p>
                             )}
@@ -1072,16 +1072,16 @@ export function CcrReviewDetailPage(props: ICcrReviewDetailPageProps): ReactElem
                             {reviewDecisionPolicy.reason}
                         </Alert>
                     )}
-                    <p className="text-sm text-foreground">
+                    <p className={TYPOGRAPHY.body}>
                         <strong>{t("reviews:detail.assignee")}</strong> {ccr.assignee}
                     </p>
-                    <p className="text-sm text-foreground">
+                    <p className={TYPOGRAPHY.body}>
                         <strong>{t("reviews:detail.comments")}</strong> {ccr.comments}
                     </p>
-                    <p className="text-sm text-foreground">
+                    <p className={TYPOGRAPHY.body}>
                         <strong>{t("reviews:detail.updated")}</strong> {ccr.updatedAt}
                     </p>
-                    <p className="text-sm text-foreground">
+                    <p className={TYPOGRAPHY.body}>
                         <strong>{t("reviews:detail.attachedFiles")}</strong>{" "}
                         {ccr.attachedFiles.length === 0
                             ? t("reviews:detail.noAttachedFiles")
@@ -1094,7 +1094,7 @@ export function CcrReviewDetailPage(props: ICcrReviewDetailPageProps): ReactElem
                 <aside className="space-y-4">
                     <Card>
                         <CardHeader>
-                            <p className="text-sm font-semibold text-foreground">{t("reviews:detail.filesTree")}</p>
+                            <p className={TYPOGRAPHY.cardTitle}>{t("reviews:detail.filesTree")}</p>
                         </CardHeader>
                         <CardBody className="space-y-2">
                             {ccrDiffFiles.length === 0 ? (
@@ -1127,7 +1127,7 @@ export function CcrReviewDetailPage(props: ICcrReviewDetailPageProps): ReactElem
                     <Card>
                         <CardHeader>
                             <div className="flex w-full flex-wrap items-center justify-between gap-2">
-                                <p className="text-sm font-semibold text-foreground">
+                                <p className={TYPOGRAPHY.cardTitle}>
                                     {t("reviews:detail.reviewContextSidebar")}
                                 </p>
                                 <Button
@@ -1151,7 +1151,7 @@ export function CcrReviewDetailPage(props: ICcrReviewDetailPageProps): ReactElem
                             </div>
                         </CardHeader>
                         <CardBody className="space-y-3">
-                            <p className="text-xs text-muted-foreground">
+                            <p className={TYPOGRAPHY.captionMuted}>
                                 {t("reviews:detail.codeCityMiniMapHint")}
                             </p>
                             <CodeCityTreemap
@@ -1168,7 +1168,7 @@ export function CcrReviewDetailPage(props: ICcrReviewDetailPageProps): ReactElem
                             />
                             <p
                                 aria-label="Review context map status"
-                                className="text-xs text-muted-foreground"
+                                className={TYPOGRAPHY.captionMuted}
                             >
                                 {isReviewContextMiniMapExpanded
                                     ? t("reviews:detail.expandedMapActive")
@@ -1182,12 +1182,12 @@ export function CcrReviewDetailPage(props: ICcrReviewDetailPageProps): ReactElem
                     <CodeDiffViewer files={visibleDiffFiles} />
                     <Card>
                         <CardHeader>
-                            <p className="text-sm font-semibold text-foreground">
+                            <p className={TYPOGRAPHY.cardTitle}>
                                 {t("reviews:detail.ccrImpactCityView")}
                             </p>
                         </CardHeader>
                         <CardBody className="space-y-3">
-                            <p className="text-xs text-muted-foreground">
+                            <p className={TYPOGRAPHY.captionMuted}>
                                 {t("reviews:detail.ccrImpactCityViewHint")}
                             </p>
                             <CodeCityTreemap
@@ -1282,15 +1282,15 @@ export function CcrReviewDetailPage(props: ICcrReviewDetailPageProps): ReactElem
                                     : impactFocusStatus}
                             </Alert>
                             <div className="rounded-lg border border-border bg-surface p-3">
-                                <p className="text-sm font-semibold text-foreground">
+                                <p className={TYPOGRAPHY.cardTitle}>
                                     {t("reviews:detail.fileNeighborhoodPanel")}
                                 </p>
-                                <p className="text-xs text-muted-foreground">
+                                <p className={TYPOGRAPHY.captionMuted}>
                                     {t("reviews:detail.focusedFile")}{" "}
                                     {activeFilePath ?? t("reviews:detail.noneSelected")}
                                 </p>
                                 {activeNeighborhoodFiles.length === 0 ? (
-                                    <p className="mt-2 text-xs text-muted-foreground">
+                                    <p className={`mt-2 ${TYPOGRAPHY.captionMuted}`}>
                                         {t("reviews:detail.noNeighboringFiles")}
                                     </p>
                                 ) : (
@@ -1379,7 +1379,7 @@ export function CcrReviewDetailPage(props: ICcrReviewDetailPageProps): ReactElem
                 <aside className="min-w-0 space-y-4">
                     <Card>
                         <CardHeader>
-                            <p className="text-sm font-semibold text-foreground">
+                            <p className={TYPOGRAPHY.cardTitle}>
                                 {t("reviews:detail.reviewRiskIndicator")}
                             </p>
                         </CardHeader>
@@ -1416,12 +1416,12 @@ export function CcrReviewDetailPage(props: ICcrReviewDetailPageProps): ReactElem
                     </Alert>
                     <Card>
                         <CardHeader>
-                            <p className="text-sm font-semibold text-foreground">
+                            <p className={TYPOGRAPHY.cardTitle}>
                                 {t("reviews:detail.safeGuardDecisionTrace")}
                             </p>
                         </CardHeader>
                         <CardBody className="space-y-3">
-                            <p className="text-sm text-foreground">
+                            <p className={TYPOGRAPHY.body}>
                                 {t("reviews:detail.appliedFilters")}{" "}
                                 {SAFEGUARD_FILTER_SEQUENCE.map((filter): string => {
                                     return translatedFilterLabels[filter]
@@ -1464,18 +1464,18 @@ export function CcrReviewDetailPage(props: ICcrReviewDetailPageProps): ReactElem
                             </ul>
                             {activeSafeGuardTraceItem === undefined ? null : (
                                 <div className="rounded-lg border border-border bg-surface p-3">
-                                    <p className="text-sm font-semibold text-foreground">
+                                    <p className={TYPOGRAPHY.cardTitle}>
                                         {activeSafeGuardTraceItem.id}:{" "}
                                         {activeSafeGuardTraceItem.remark}
                                     </p>
-                                    <p className="mt-1 text-xs text-muted-foreground">
+                                    <p className={`mt-1 ${TYPOGRAPHY.captionMuted}`}>
                                         {t("reviews:detail.decisionLabel")}{" "}
                                         {activeSafeGuardTraceItem.finalDecision === "shown"
                                             ? t("reviews:detail.decisionShown")
                                             : t("reviews:detail.decisionFilteredOut")}
                                     </p>
                                     {activeSafeGuardTraceItem.hiddenReason === undefined ? null : (
-                                        <p className="mt-1 text-xs text-muted-foreground">
+                                        <p className={`mt-1 ${TYPOGRAPHY.captionMuted}`}>
                                             {t("reviews:detail.hiddenReason")} {activeSafeGuardTraceItem.hiddenReason}
                                         </p>
                                     )}
@@ -1504,7 +1504,7 @@ export function CcrReviewDetailPage(props: ICcrReviewDetailPageProps): ReactElem
                     </Card>
                     <Card>
                         <CardHeader>
-                            <p className="text-sm font-semibold text-foreground">
+                            <p className={TYPOGRAPHY.cardTitle}>
                                 {t("reviews:detail.reviewerFeedbackLearningLoop")}
                             </p>
                         </CardHeader>
@@ -1617,7 +1617,7 @@ export function CcrReviewDetailPage(props: ICcrReviewDetailPageProps): ReactElem
                     </Card>
                     <Card>
                         <CardHeader>
-                            <p className="text-sm font-semibold text-foreground">
+                            <p className={TYPOGRAPHY.cardTitle}>
                                 {t("reviews:detail.conversationThreads")}
                             </p>
                         </CardHeader>

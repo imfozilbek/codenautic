@@ -3,6 +3,7 @@ import { useMemo, useState } from "react"
 
 import { Archive, X } from "@/components/icons/app-icons"
 import { Button, Input } from "@/components/ui"
+import { TYPOGRAPHY } from "@/lib/constants/typography"
 
 /** Параметры одного треда чата. */
 export interface IChatThread {
@@ -116,7 +117,7 @@ export function ChatThreadList(props: IChatThreadListProps): ReactElement {
                 role="list"
             >
                 {visibleThreads.length === 0 ? (
-                    <li className="text-sm text-text-secondary" role="status">
+                    <li className={TYPOGRAPHY.bodyMuted} role="status">
                         No threads found
                     </li>
                 ) : (

@@ -134,8 +134,8 @@ export function SimulationPanel(props: ISimulationPanelProps): ReactElement {
 
     return (
         <section className="rounded-lg border border-border bg-surface p-3 shadow-sm">
-            <p className="text-sm font-semibold text-foreground">{t("code-city:simulationPanel.title")}</p>
-            <p className="mt-1 text-xs text-muted-foreground">
+            <p className={TYPOGRAPHY.cardTitle}>{t("code-city:simulationPanel.title")}</p>
+            <p className={`mt-1 ${TYPOGRAPHY.captionMuted}`}>
                 {t("code-city:simulationPanel.description")}
             </p>
 
@@ -183,10 +183,10 @@ export function SimulationPanel(props: ISimulationPanelProps): ReactElement {
                                 type="checkbox"
                             />
                             <div className="min-w-0">
-                                <p className="text-sm font-semibold text-foreground">
+                                <p className={TYPOGRAPHY.cardTitle}>
                                     {target.title}
                                 </p>
-                                <p className="text-xs text-muted-foreground">
+                                <p className={TYPOGRAPHY.captionMuted}>
                                     {t("code-city:simulationPanel.targetMeta", { roi: String(target.roiScore), risk: String(target.riskScore), effort: String(target.effortScore) })}
                                 </p>
                             </div>
@@ -198,7 +198,7 @@ export function SimulationPanel(props: ISimulationPanelProps): ReactElement {
             <div className="mt-3 grid gap-2 md:grid-cols-3">
                 <div className="rounded border border-border bg-surface p-2">
                     <p className={`${TYPOGRAPHY.micro} text-muted-foreground`}>{t("code-city:simulationPanel.complexity")}</p>
-                    <p className="text-base font-semibold text-foreground">
+                    <p className={TYPOGRAPHY.sectionTitle}>
                         {String(activeMetrics.complexity)}
                     </p>
                     <p className={TYPOGRAPHY.microMuted}>
@@ -207,7 +207,7 @@ export function SimulationPanel(props: ISimulationPanelProps): ReactElement {
                 </div>
                 <div className="rounded border border-border bg-surface p-2">
                     <p className={`${TYPOGRAPHY.micro} text-muted-foreground`}>{t("code-city:simulationPanel.risk")}</p>
-                    <p className="text-base font-semibold text-foreground">
+                    <p className={TYPOGRAPHY.sectionTitle}>
                         {String(activeMetrics.risk)}
                     </p>
                     <p className={TYPOGRAPHY.microMuted}>
@@ -216,7 +216,7 @@ export function SimulationPanel(props: ISimulationPanelProps): ReactElement {
                 </div>
                 <div className="rounded border border-border bg-surface p-2">
                     <p className={`${TYPOGRAPHY.micro} text-muted-foreground`}>{t("code-city:simulationPanel.maintainability")}</p>
-                    <p className="text-base font-semibold text-foreground">
+                    <p className={TYPOGRAPHY.sectionTitle}>
                         {String(activeMetrics.maintainability)}
                     </p>
                     <p className={TYPOGRAPHY.microMuted}>

@@ -3,6 +3,7 @@ import { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
 import { BUS_FACTOR_SERIES_COLORS } from "@/lib/constants/graph-colors"
+import { TYPOGRAPHY } from "@/lib/constants/typography"
 
 const SVG_WIDTH = 520
 const SVG_HEIGHT = 260
@@ -177,8 +178,8 @@ export function BusFactorTrendChart(props: IBusFactorTrendChartProps): ReactElem
 
     return (
         <section className="space-y-3 rounded-lg border border-border bg-surface p-3 shadow-sm">
-            <p className="text-sm font-semibold text-foreground">{t("code-city:busFactorTrend.title")}</p>
-            <p className="text-xs text-muted-foreground">
+            <p className={TYPOGRAPHY.cardTitle}>{t("code-city:busFactorTrend.title")}</p>
+            <p className={TYPOGRAPHY.captionMuted}>
                 {t("code-city:busFactorTrend.description")}
             </p>
             <div
@@ -286,10 +287,10 @@ export function BusFactorTrendChart(props: IBusFactorTrendChartProps): ReactElem
                                 }
                                 key={series.moduleId}
                             >
-                                <p className="text-sm font-semibold text-foreground">
+                                <p className={TYPOGRAPHY.cardTitle}>
                                     {series.moduleLabel}
                                 </p>
-                                <p className="text-xs text-muted-foreground">
+                                <p className={TYPOGRAPHY.captionMuted}>
                                     {t("code-city:busFactorTrend.latestBusFactor", { value: String(latestBusFactor ?? "n/a") })}
                                 </p>
                                 <button

@@ -56,8 +56,8 @@ export function RefactoringTimeline(props: IRefactoringTimelineProps): ReactElem
 
     return (
         <section className="rounded-lg border border-border bg-surface p-3 shadow-sm">
-            <p className="text-sm font-semibold text-foreground">Refactoring timeline</p>
-            <p className="mt-1 text-xs text-muted-foreground">
+            <p className={TYPOGRAPHY.cardTitle}>Refactoring timeline</p>
+            <p className={`mt-1 ${TYPOGRAPHY.captionMuted}`}>
                 Gantt-like plan for refactoring waves with explicit dependency links.
             </p>
 
@@ -69,10 +69,10 @@ export function RefactoringTimeline(props: IRefactoringTimelineProps): ReactElem
                         <li className="rounded border border-border bg-surface p-2" key={task.id}>
                             <div className="flex items-start justify-between gap-3">
                                 <div className="min-w-0">
-                                    <p className="text-sm font-semibold text-foreground">
+                                    <p className={TYPOGRAPHY.cardTitle}>
                                         {task.title}
                                     </p>
-                                    <p className="text-xs text-muted-foreground">
+                                    <p className={TYPOGRAPHY.captionMuted}>
                                         Weeks {String(task.startWeek)}–
                                         {String(task.startWeek + task.durationWeeks - 1)}
                                     </p>

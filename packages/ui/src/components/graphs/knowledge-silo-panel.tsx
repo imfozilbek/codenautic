@@ -62,8 +62,8 @@ export function KnowledgeSiloPanel(props: IKnowledgeSiloPanelProps): ReactElemen
     const { t } = useTranslation(["code-city"])
     return (
         <section className="rounded-lg border border-border bg-surface p-3 shadow-sm">
-            <p className="text-sm font-semibold text-foreground">{t("code-city:knowledgeSiloComp.title")}</p>
-            <p className="mt-1 text-xs text-muted-foreground">
+            <p className={TYPOGRAPHY.cardTitle}>{t("code-city:knowledgeSiloComp.title")}</p>
+            <p className={`mt-1 ${TYPOGRAPHY.captionMuted}`}>
                 {t("code-city:knowledgeSiloComp.description")}
             </p>
 
@@ -83,10 +83,10 @@ export function KnowledgeSiloPanel(props: IKnowledgeSiloPanelProps): ReactElemen
                             >
                                 <div className="flex items-start justify-between gap-2">
                                     <div className="min-w-0">
-                                        <p className="truncate text-sm font-semibold text-foreground">
+                                        <p className={`truncate ${TYPOGRAPHY.cardTitle}`}>
                                             {entry.siloLabel}
                                         </p>
-                                        <p className="mt-1 text-xs text-muted-foreground">
+                                        <p className={`mt-1 ${TYPOGRAPHY.captionMuted}`}>
                                             {t("code-city:knowledgeSiloComp.contributorsFiles", { contributors: entry.contributorCount, files: entry.fileCount })}
                                         </p>
                                     </div>

@@ -153,8 +153,8 @@ export function ImpactGraphView(props: IImpactGraphViewProps): ReactElement {
 
     return (
         <section className="rounded-lg border border-border bg-surface p-3 shadow-sm">
-            <p className="text-sm font-semibold text-foreground">{t("code-city:impactGraphComp.title")}</p>
-            <p className="mt-1 text-xs text-muted-foreground">
+            <p className={TYPOGRAPHY.cardTitle}>{t("code-city:impactGraphComp.title")}</p>
+            <p className={`mt-1 ${TYPOGRAPHY.captionMuted}`}>
                 {t("code-city:impactGraphComp.description")}
             </p>
 
@@ -181,10 +181,10 @@ export function ImpactGraphView(props: IImpactGraphViewProps): ReactElement {
                         >
                             <div className="flex items-center justify-between gap-2">
                                 <div>
-                                    <p className="text-sm font-semibold text-foreground">
+                                    <p className={TYPOGRAPHY.cardTitle}>
                                         {node.label}
                                     </p>
-                                    <p className="text-xs text-muted-foreground">
+                                    <p className={TYPOGRAPHY.captionMuted}>
                                         {t("code-city:impactGraphComp.impactScore", { score: String(node.impactScore) })}
                                     </p>
                                 </div>

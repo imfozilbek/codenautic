@@ -82,7 +82,7 @@ describe("chat message bubble", (): void => {
     it("рендерит markdown: заголовок, списки, ссылку и inline-code", (): void => {
         renderWithProviders(<ChatMessageBubble message={messageWithMarkdown} />)
 
-        expect(screen.getByRole("heading", { level: 5, name: "Заголовок" })).not.toBeNull()
+        expect(screen.getByRole("heading", { level: 4, name: "Заголовок" })).not.toBeNull()
         expect(screen.getByRole("list")).not.toBeNull()
         expect(screen.getByRole("link", { name: "Docs" })).toHaveAttribute("href", "/docs")
         expect(screen.queryByText("код")).not.toBeNull()
@@ -368,7 +368,7 @@ describe("chat message bubble", (): void => {
             />,
         )
 
-        expect(screen.getByRole("heading", { level: 4, name: "Подзаголовок" })).not.toBeNull()
+        expect(screen.getByRole("heading", { level: 3, name: "Подзаголовок" })).not.toBeNull()
     })
 
     it("when code reference с line range (start-end), then парсит оба числа", async (): Promise<void> => {

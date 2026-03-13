@@ -52,8 +52,8 @@ export function ChangeRiskGauge(props: IChangeRiskGaugeProps): ReactElement {
 
     return (
         <section className="rounded-lg border border-border bg-surface p-3 shadow-sm">
-            <p className="text-sm font-semibold text-foreground">Change risk gauge</p>
-            <p className="mt-1 text-xs text-muted-foreground">
+            <p className={TYPOGRAPHY.cardTitle}>Change risk gauge</p>
+            <p className={`mt-1 ${TYPOGRAPHY.captionMuted}`}>
                 Green / yellow / red risk zones with historical comparison points.
             </p>
 
@@ -88,10 +88,10 @@ export function ChangeRiskGauge(props: IChangeRiskGaugeProps): ReactElement {
                             key={point.label}
                         >
                             <div>
-                                <p className="text-sm font-semibold text-foreground">
+                                <p className={TYPOGRAPHY.cardTitle}>
                                     {point.label}
                                 </p>
-                                <p className="text-xs text-muted-foreground">
+                                <p className={TYPOGRAPHY.captionMuted}>
                                     Historical {String(point.score)} · Delta{" "}
                                     {delta > 0 ? `+${String(delta)}` : String(delta)}
                                 </p>

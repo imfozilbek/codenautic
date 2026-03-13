@@ -2,6 +2,7 @@ import { useMemo, type ReactElement } from "react"
 import { useTranslation } from "react-i18next"
 
 import { NATIVE_FORM } from "@/lib/constants/spacing"
+import { TYPOGRAPHY } from "@/lib/constants/typography"
 
 export type TCausalOverlayMode = "impact" | "temporal-coupling" | "root-cause"
 
@@ -142,10 +143,10 @@ export function CausalOverlaySelector(props: ICausalOverlaySelectorProps): React
                     )}
                 </div>
             </div>
-            <p aria-live="polite" className="text-xs text-muted-foreground">
+            <p aria-live="polite" className={TYPOGRAPHY.captionMuted}>
                 {t("code-city:causalOverlay.activeOverlay", { label: activeLabel })}
             </p>
-            <p className="text-xs text-muted-foreground">
+            <p className={TYPOGRAPHY.captionMuted}>
                 {
                     causalOverlayOptions.find(
                         (option): boolean => option.value === props.value,

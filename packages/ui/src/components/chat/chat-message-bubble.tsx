@@ -5,6 +5,7 @@ import type { Components } from "react-markdown"
 
 import { ChevronDown, ChevronRight, Copy } from "@/components/icons/app-icons"
 import { Avatar, Button } from "@/components/ui"
+import { TYPOGRAPHY } from "@/lib/constants/typography"
 import { sanitizeText } from "@/lib/validation/schema-validation"
 
 import type { IChatPanelMessage } from "./chat-panel"
@@ -328,12 +329,12 @@ export function ChatMessageBubble(props: IChatMessageBubbleProps): ReactElement 
     }
 
     const markdownComponents: Components = {
-        h1: ({ children }): ReactElement => <h3 className="text-lg font-semibold">{children}</h3>,
-        h2: ({ children }): ReactElement => <h4 className="text-base font-semibold">{children}</h4>,
-        h3: ({ children }): ReactElement => <h5 className="text-sm font-semibold">{children}</h5>,
-        h4: ({ children }): ReactElement => <h6 className="text-sm font-semibold">{children}</h6>,
-        h5: ({ children }): ReactElement => <h6 className="text-xs font-semibold">{children}</h6>,
-        h6: ({ children }): ReactElement => <h6 className="text-xs font-semibold">{children}</h6>,
+        h1: ({ children }): ReactElement => <h2 className={TYPOGRAPHY.sectionTitle}>{children}</h2>,
+        h2: ({ children }): ReactElement => <h3 className={TYPOGRAPHY.sectionSubtitle}>{children}</h3>,
+        h3: ({ children }): ReactElement => <h4 className={TYPOGRAPHY.cardTitle}>{children}</h4>,
+        h4: ({ children }): ReactElement => <h5 className={TYPOGRAPHY.cardTitle}>{children}</h5>,
+        h5: ({ children }): ReactElement => <h6 className={TYPOGRAPHY.caption}>{children}</h6>,
+        h6: ({ children }): ReactElement => <h6 className={TYPOGRAPHY.caption}>{children}</h6>,
         p: ({ children }): ReactElement => (
             <p className="leading-relaxed text-foreground">{children}</p>
         ),

@@ -2,6 +2,7 @@ import type { ReactElement } from "react"
 import { useTranslation } from "react-i18next"
 
 import type { TCodeCityTreemapPredictionRiskLevel } from "@/components/graphs/codecity-treemap"
+import { TYPOGRAPHY } from "@/lib/constants/typography"
 
 /**
  * Прогнозный hotspot для prediction dashboard.
@@ -97,8 +98,8 @@ export function PredictionDashboard(props: IPredictionDashboardProps): ReactElem
     const { t } = useTranslation(["code-city"])
     return (
         <section className="rounded-lg border border-border bg-surface p-3 shadow-sm">
-            <p className="text-sm font-semibold text-foreground">{t("code-city:predictionDashboard.title")}</p>
-            <p className="mt-1 text-xs text-muted-foreground">
+            <p className={TYPOGRAPHY.cardTitle}>{t("code-city:predictionDashboard.title")}</p>
+            <p className={`mt-1 ${TYPOGRAPHY.captionMuted}`}>
                 {t("code-city:predictionDashboard.description")}
             </p>
 
@@ -115,8 +116,8 @@ export function PredictionDashboard(props: IPredictionDashboardProps): ReactElem
                             }}
                             type="button"
                         >
-                            <p className="text-sm font-semibold text-foreground">{entry.label}</p>
-                            <p className="mt-1 text-xs text-muted-foreground">
+                            <p className={TYPOGRAPHY.cardTitle}>{entry.label}</p>
+                            <p className={`mt-1 ${TYPOGRAPHY.captionMuted}`}>
                                 {t("code-city:predictionDashboard.hotspotMeta", { risk: (t as unknown as (key: string) => string)(resolveRiskLabelKey(entry.riskLevel)), confidence: String(entry.confidenceScore), increase: String(entry.predictedIssueIncrease) })}
                             </p>
                         </button>

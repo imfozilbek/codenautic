@@ -9,6 +9,8 @@ import {
 } from "react"
 import { useTranslation } from "react-i18next"
 
+import { TYPOGRAPHY } from "@/lib/constants/typography"
+
 interface ICodeCity3DSceneFileDescriptor {
     /** Уникальный ID файла. */
     readonly id: string
@@ -470,7 +472,7 @@ export function CodeCity3DScene(props: ICodeCity3DSceneProps): ReactElement {
                     {tDynamic(renderCapability.reason)}
                 </div>
                 <div className="mt-3">
-                    <p className="text-sm font-semibold text-foreground">{t("code-city:scene3d.fallback2d")}</p>
+                    <p className={TYPOGRAPHY.cardTitle}>{t("code-city:scene3d.fallback2d")}</p>
                     <div className="mt-2 grid auto-rows-[64px] grid-cols-6 gap-2">
                         {fallbackFiles.map((file): ReactElement => {
                             const columnSpan = Math.max(

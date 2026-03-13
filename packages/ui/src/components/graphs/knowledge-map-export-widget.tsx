@@ -6,6 +6,7 @@ import {
     exportKnowledgeMapAsSvg,
     type IKnowledgeMapExportModel,
 } from "@/components/graphs/knowledge-map-export"
+import { TYPOGRAPHY } from "@/lib/constants/typography"
 
 /**
  * Формат экспорта knowledge map.
@@ -56,8 +57,8 @@ export function KnowledgeMapExportWidget(props: IKnowledgeMapExportWidgetProps):
 
     return (
         <section className="rounded-lg border border-border bg-surface p-3 shadow-sm">
-            <p className="text-sm font-semibold text-foreground">{t("code-city:knowledgeMapExportComp.title")}</p>
-            <p className="mt-1 text-xs text-muted-foreground">
+            <p className={TYPOGRAPHY.cardTitle}>{t("code-city:knowledgeMapExportComp.title")}</p>
+            <p className={`mt-1 ${TYPOGRAPHY.captionMuted}`}>
                 {t("code-city:knowledgeMapExportComp.description")}
             </p>
 

@@ -1,6 +1,8 @@
 import type { ReactElement } from "react"
 import { useTranslation } from "react-i18next"
 
+import { TYPOGRAPHY } from "@/lib/constants/typography"
+
 /**
  * Снимок comparison для prediction history.
  */
@@ -37,8 +39,8 @@ export function PredictionComparisonView(props: IPredictionComparisonViewProps):
 
     return (
         <section className="rounded-lg border border-border bg-surface p-3 shadow-sm">
-            <p className="text-sm font-semibold text-foreground">{t("code-city:predictionComparison.title")}</p>
-            <p className="mt-1 text-xs text-muted-foreground">
+            <p className={TYPOGRAPHY.cardTitle}>{t("code-city:predictionComparison.title")}</p>
+            <p className={`mt-1 ${TYPOGRAPHY.captionMuted}`}>
                 {t("code-city:predictionComparison.description")}
             </p>
 

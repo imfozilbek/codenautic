@@ -11,6 +11,7 @@ import {
 } from "@/components/chat/chat-input"
 import { ChatStreamingResponse } from "@/components/chat/chat-streaming-response"
 import { Button, Card, CardBody, CardHeader } from "@/components/ui"
+import { TYPOGRAPHY } from "@/lib/constants/typography"
 import type { IChatCodeReference } from "@/components/chat/chat-message-bubble"
 
 /** Роль сообщения в чате. */
@@ -243,7 +244,7 @@ export function ChatPanel(props: IChatPanelProps): ReactElement {
                         role="log"
                     >
                         {props.messages.length === 0 ? (
-                            <li className="text-sm text-text-secondary" role="status">
+                            <li className={TYPOGRAPHY.bodyMuted} role="status">
                                 {emptyText}
                             </li>
                         ) : (

@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useState, type ReactElement } from "react"
 
+import { TYPOGRAPHY } from "@/lib/constants/typography"
+
 export interface IRootCauseChainNodeDescriptor {
     readonly id: string
     readonly fileId?: string
@@ -117,7 +119,7 @@ export function RootCauseChainViewer(props: IRootCauseChainViewerProps): ReactEl
                             }}
                             type="button"
                         >
-                            <p className="text-sm font-semibold text-foreground">{issue.title}</p>
+                            <p className={TYPOGRAPHY.cardTitle}>{issue.title}</p>
                             <span
                                 className={`mt-1 inline-flex rounded px-1.5 py-0.5 text-[11px] font-semibold ${
                                     SEVERITY_TONE[issue.severity]
@@ -131,7 +133,7 @@ export function RootCauseChainViewer(props: IRootCauseChainViewerProps): ReactEl
             </aside>
 
             <div className="space-y-3">
-                <p className="text-sm font-semibold text-foreground">Causal chain</p>
+                <p className={TYPOGRAPHY.cardTitle}>Causal chain</p>
                 <div className="rounded-md border border-border bg-surface p-3">
                     <div className="space-y-2">
                         {selectedIssue.chain.map(
@@ -168,7 +170,7 @@ export function RootCauseChainViewer(props: IRootCauseChainViewerProps): ReactEl
 
                 {selectedNode !== undefined ? (
                     <article className="rounded-md border border-border bg-surface p-3">
-                        <p className="text-sm font-semibold text-foreground">
+                        <p className={TYPOGRAPHY.cardTitle}>
                             {selectedNode.label}
                         </p>
                         <p className="mt-1 text-sm text-muted-foreground">

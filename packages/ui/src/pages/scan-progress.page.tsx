@@ -457,14 +457,14 @@ export function ScanProgressPage(props: IScanProgressPageProps): ReactElement {
                                     <p className="text-xs uppercase tracking-wider text-muted-foreground">
                                         {phase.phase}
                                     </p>
-                                    <p className="text-sm font-semibold text-foreground">
+                                    <p className={TYPOGRAPHY.cardTitle}>
                                         {phase.isCompleted
                                             ? t("system:scanProgress.phaseDone")
                                             : phase.isActive
                                               ? t("system:scanProgress.phaseRunning")
                                               : t("system:scanProgress.phaseWaiting")}
                                     </p>
-                                    <p className="text-xs text-muted-foreground">
+                                    <p className={TYPOGRAPHY.captionMuted}>
                                         {phase.message.length > 0
                                             ? phase.message
                                             : phase.isCompleted
@@ -507,7 +507,7 @@ export function ScanProgressPage(props: IScanProgressPageProps): ReactElement {
             <Card>
                 <CardHeader>
                     <div className="flex items-center justify-between">
-                        <p className="text-sm font-semibold text-foreground">
+                        <p className={TYPOGRAPHY.cardTitle}>
                             {t("system:scanProgress.stageLogs")}
                         </p>
                         <p
@@ -542,7 +542,7 @@ export function ScanProgressPage(props: IScanProgressPageProps): ReactElement {
                                     key={`${event.timestamp}-${event.phase}-${event.message}`}
                                     className="rounded-md border border-border bg-surface p-3"
                                 >
-                                    <p className="text-xs text-muted-foreground">
+                                    <p className={TYPOGRAPHY.captionMuted}>
                                         {formatLogTime(event.timestamp)}
                                     </p>
                                     <p>{event.message}</p>

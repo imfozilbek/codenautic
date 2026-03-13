@@ -1,6 +1,7 @@
 import { type ReactElement, type ReactNode, useState } from "react"
 
 import { Button, Chip } from "@/components/ui"
+import { TYPOGRAPHY } from "@/lib/constants/typography"
 
 /** Контекст, доступный для чата. */
 export interface IChatPanelContextInfo {
@@ -98,7 +99,7 @@ export function ChatContextIndicator(props: IChatContextIndicatorProps): ReactEl
                     props.className ?? ""
                 }`}
             >
-                <p className="text-sm text-text-secondary">No conversation contexts available</p>
+                <p className={TYPOGRAPHY.bodyMuted}>No conversation contexts available</p>
             </div>
         )
     }

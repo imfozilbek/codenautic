@@ -20,6 +20,7 @@ import { RuleEditor } from "@/components/settings/rule-editor"
 import { SuggestionLimitConfig } from "@/components/settings/suggestion-limit-config"
 import type { ICodeReviewFormValues } from "@/components/settings/settings-form-schemas"
 import { NATIVE_FORM } from "@/lib/constants/spacing"
+import { TYPOGRAPHY } from "@/lib/constants/typography"
 import { REPO_REVIEW_MODE, type TRepoReviewMode } from "@/lib/api/endpoints/repo-config.endpoint"
 import { useCCRSummary, useDryRun, useRepoConfig, useReviewCadence } from "@/lib/hooks/queries"
 import { showToastInfo, showToastSuccess } from "@/lib/notifications/toast"
@@ -363,7 +364,7 @@ export function SettingsCodeReviewPage(): ReactElement {
                 heading={t("settings:codeReview.ccrSummaryHeading")}
             >
                 <FormGroup withDivider>
-                    <label className="flex items-center gap-2 text-sm text-foreground">
+                    <label className={`flex items-center gap-2 ${TYPOGRAPHY.body}`}>
                         <input
                             checked={ccrSummarySettings.enabled}
                             type="checkbox"
@@ -378,7 +379,7 @@ export function SettingsCodeReviewPage(): ReactElement {
                         />
                         {t("settings:codeReview.enableCcrSummary")}
                     </label>
-                    <label className="flex items-center gap-2 text-sm text-foreground">
+                    <label className={`flex items-center gap-2 ${TYPOGRAPHY.body}`}>
                         <input
                             checked={ccrSummarySettings.includeRiskOverview}
                             type="checkbox"
@@ -393,7 +394,7 @@ export function SettingsCodeReviewPage(): ReactElement {
                         />
                         {t("settings:codeReview.includeRiskOverview")}
                     </label>
-                    <label className="flex items-center gap-2 text-sm text-foreground">
+                    <label className={`flex items-center gap-2 ${TYPOGRAPHY.body}`}>
                         <input
                             checked={ccrSummarySettings.includeTimeline}
                             type="checkbox"
@@ -444,7 +445,7 @@ export function SettingsCodeReviewPage(): ReactElement {
                         }}
                     />
                 </FormGroup>
-                <p className="text-xs text-muted-foreground" data-testid="ccr-summary-state">
+                <p className={TYPOGRAPHY.captionMuted} data-testid="ccr-summary-state">
                     {ccrSummaryState}
                 </p>
                 <Button type="button" variant="solid" onPress={handleSummarySettingsSave}>
@@ -471,7 +472,7 @@ export function SettingsCodeReviewPage(): ReactElement {
                 {ccrSummary.summaryQuery.data === undefined ||
                 ccrSummary.summaryQuery.data === null ? (
                     <p
-                        className="text-xs text-muted-foreground"
+                        className={TYPOGRAPHY.captionMuted}
                         data-testid="ccr-summary-output-empty"
                     >
                         {t("settings:codeReview.generateSummaryHint")}
@@ -484,13 +485,13 @@ export function SettingsCodeReviewPage(): ReactElement {
                                 className="space-y-2 rounded-md border border-border bg-surface p-3"
                                 data-testid="ccr-summary-output"
                             >
-                                <p className="text-xs text-muted-foreground">
+                                <p className={TYPOGRAPHY.captionMuted}>
                                     {t("settings:codeReview.generatedAt", { date: generatedSummary.result.generatedAt })}
                                 </p>
-                                <p className="text-sm text-foreground">
+                                <p className={TYPOGRAPHY.body}>
                                     {generatedSummary.result.summary}
                                 </p>
-                                <ul className="list-disc space-y-1 pl-5 text-xs text-muted-foreground">
+                                <ul className={`list-disc space-y-1 pl-5 ${TYPOGRAPHY.captionMuted}`}>
                                     {generatedSummary.result.highlights.map(
                                         (highlight): ReactElement => (
                                             <li key={highlight}>{highlight}</li>
@@ -507,7 +508,7 @@ export function SettingsCodeReviewPage(): ReactElement {
                 heading={t("settings:codeReview.ideSyncHeading")}
             >
                 <FormGroup withDivider>
-                    <label className="flex items-center gap-2 text-sm text-foreground">
+                    <label className={`flex items-center gap-2 ${TYPOGRAPHY.body}`}>
                         <input
                             checked={ideSyncSettings.enabled}
                             type="checkbox"
@@ -546,7 +547,7 @@ export function SettingsCodeReviewPage(): ReactElement {
                     </select>
                 </FormGroup>
                 <FormGroup>
-                    <label className="flex items-center gap-2 text-sm text-foreground">
+                    <label className={`flex items-center gap-2 ${TYPOGRAPHY.body}`}>
                         <input
                             checked={ideSyncSettings.syncOnPush}
                             type="checkbox"
@@ -561,7 +562,7 @@ export function SettingsCodeReviewPage(): ReactElement {
                         />
                         {t("settings:codeReview.syncOnPush")}
                     </label>
-                    <label className="flex items-center gap-2 text-sm text-foreground">
+                    <label className={`flex items-center gap-2 ${TYPOGRAPHY.body}`}>
                         <input
                             checked={ideSyncSettings.autoOpenDiffOnSync}
                             type="checkbox"
@@ -577,7 +578,7 @@ export function SettingsCodeReviewPage(): ReactElement {
                         {t("settings:codeReview.autoOpenDiffs")}
                     </label>
                 </FormGroup>
-                <p className="text-xs text-muted-foreground" data-testid="ide-sync-state">
+                <p className={TYPOGRAPHY.captionMuted} data-testid="ide-sync-state">
                     {ideSyncState}
                 </p>
                 <Button type="button" variant="solid" onPress={handleIdeSyncSave}>

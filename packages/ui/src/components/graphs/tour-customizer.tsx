@@ -129,10 +129,10 @@ export function TourCustomizer(props: ITourCustomizerProps): ReactElement {
     if (props.isAdmin === false) {
         return (
             <section className="rounded-lg border border-border bg-surface p-3 shadow-sm">
-                <p className="text-sm font-semibold text-foreground">
+                <p className={TYPOGRAPHY.cardTitle}>
                     {t("code-city:tourCustomizer.title")}
                 </p>
-                <p className="mt-1 text-xs text-muted-foreground">
+                <p className={`mt-1 ${TYPOGRAPHY.captionMuted}`}>
                     {t("code-city:tourCustomizer.adminRequiredDescription")}
                 </p>
             </section>
@@ -141,10 +141,10 @@ export function TourCustomizer(props: ITourCustomizerProps): ReactElement {
 
     return (
         <section className="rounded-lg border border-border bg-surface p-3 shadow-sm">
-            <p className="text-sm font-semibold text-foreground">
+            <p className={TYPOGRAPHY.cardTitle}>
                 {t("code-city:tourCustomizer.title")}
             </p>
-            <p className="mt-1 text-xs text-muted-foreground">
+            <p className={`mt-1 ${TYPOGRAPHY.captionMuted}`}>
                 {t("code-city:tourCustomizer.description")}
             </p>
 
@@ -213,7 +213,7 @@ export function TourCustomizer(props: ITourCustomizerProps): ReactElement {
                                 className="mt-1 block space-y-1"
                                 htmlFor={`step-title-${step.id}`}
                             >
-                                <span className="text-xs text-muted-foreground">
+                                <span className={TYPOGRAPHY.captionMuted}>
                                     {t("code-city:tourCustomizer.titleLabel")}
                                 </span>
                                 <input
@@ -232,7 +232,7 @@ export function TourCustomizer(props: ITourCustomizerProps): ReactElement {
                                 className="mt-1 block space-y-1"
                                 htmlFor={`step-description-${step.id}`}
                             >
-                                <span className="text-xs text-muted-foreground">
+                                <span className={TYPOGRAPHY.captionMuted}>
                                     {t("code-city:tourCustomizer.descriptionLabel")}
                                 </span>
                                 <textarea

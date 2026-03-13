@@ -103,8 +103,8 @@ export function AchievementsPanel(props: IAchievementsPanelProps): ReactElement 
     const { t } = useTranslation(["code-city"])
     return (
         <section className="rounded-lg border border-border bg-surface p-3 shadow-sm">
-            <p className="text-sm font-semibold text-foreground">{t("code-city:achievementsComp.title")}</p>
-            <p className="mt-1 text-xs text-muted-foreground">
+            <p className={TYPOGRAPHY.cardTitle}>{t("code-city:achievementsComp.title")}</p>
+            <p className={`mt-1 ${TYPOGRAPHY.captionMuted}`}>
                 {t("code-city:achievementsComp.description")}
             </p>
 
@@ -124,10 +124,10 @@ export function AchievementsPanel(props: IAchievementsPanelProps): ReactElement 
                             >
                                 <div className="flex items-start justify-between gap-2">
                                     <div className="min-w-0">
-                                        <p className="truncate text-sm font-semibold text-foreground">
+                                        <p className={`truncate ${TYPOGRAPHY.cardTitle}`}>
                                             {entry.title}
                                         </p>
-                                        <p className="mt-1 text-xs text-muted-foreground">
+                                        <p className={`mt-1 ${TYPOGRAPHY.captionMuted}`}>
                                             {entry.summary}
                                         </p>
                                         <p className="mt-1 text-xs font-semibold text-success">

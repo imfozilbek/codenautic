@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next"
 
 import type { IRefactoringTargetDescriptor } from "@/components/graphs/refactoring-dashboard"
 import { NATIVE_FORM } from "@/lib/constants/spacing"
+import { TYPOGRAPHY } from "@/lib/constants/typography"
 
 /**
  * Канал экспорта refactoring плана.
@@ -73,8 +74,8 @@ export function RefactoringExportDialog(props: IRefactoringExportDialogProps): R
 
     return (
         <section className="rounded-lg border border-border bg-surface p-3 shadow-sm">
-            <p className="text-sm font-semibold text-foreground">{t("code-city:refactoringExportComp.title")}</p>
-            <p className="mt-1 text-xs text-muted-foreground">
+            <p className={TYPOGRAPHY.cardTitle}>{t("code-city:refactoringExportComp.title")}</p>
+            <p className={`mt-1 ${TYPOGRAPHY.captionMuted}`}>
                 {t("code-city:refactoringExportComp.description")}
             </p>
 
@@ -156,10 +157,10 @@ export function RefactoringExportDialog(props: IRefactoringExportDialogProps): R
                                         type="checkbox"
                                     />
                                     <div className="min-w-0">
-                                        <p className="text-sm font-semibold text-foreground">
+                                        <p className={TYPOGRAPHY.cardTitle}>
                                             {target.title}
                                         </p>
-                                        <p className="text-xs text-muted-foreground">
+                                        <p className={TYPOGRAPHY.captionMuted}>
                                             {t("code-city:refactoringExportComp.moduleRoi", { module: target.module, roi: target.roiScore })}
                                         </p>
                                     </div>
