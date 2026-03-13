@@ -98,6 +98,51 @@ class InMemoryGitProvider implements IGitProvider {
         ])
     }
 
+    public getDiffBetweenRefs(
+        baseRef: string,
+        headRef: string,
+    ): ReturnType<IGitProvider["getDiffBetweenRefs"]> {
+        return Promise.resolve({
+            baseRef,
+            headRef,
+            comparisonStatus: "ahead",
+            aheadBy: 1,
+            behindBy: 0,
+            totalCommits: 1,
+            summary: {
+                changedFiles: 2,
+                addedFiles: 1,
+                modifiedFiles: 0,
+                deletedFiles: 0,
+                renamedFiles: 1,
+                additions: 12,
+                deletions: 3,
+                changes: 15,
+            },
+            files: [
+                {
+                    path: "src/new.ts",
+                    status: "added",
+                    additions: 8,
+                    deletions: 0,
+                    changes: 8,
+                    patch: "@@ -0,0 +1,8 @@",
+                    hunks: ["@@ -0,0 +1,8 @@"],
+                },
+                {
+                    path: "src/api.ts",
+                    oldPath: "src/http.ts",
+                    status: "renamed",
+                    additions: 4,
+                    deletions: 3,
+                    changes: 7,
+                    patch: "@@ -1,3 +1,4 @@",
+                    hunks: ["@@ -1,3 +1,4 @@"],
+                },
+            ],
+        })
+    }
+
     public getBranches(): Promise<readonly IBranchInfo[]> {
         return Promise.resolve([
             {
@@ -271,6 +316,18 @@ describe("IGitProvider contract", () => {
         expect(branches[0]?.isDefault).toBe(true)
         expect(branches[1]?.isProtected).toBe(false)
         expect(branches[0]?.lastCommitDate).toBe("2026-03-03T12:00:00.000Z")
+    })
+
+    test("returns diff between refs with summary and rename metadata", async () => {
+        const provider = new InMemoryGitProvider()
+
+        const diff = await provider.getDiffBetweenRefs("main", "feature/contracts")
+
+        expect(diff.baseRef).toBe("main")
+        expect(diff.headRef).toBe("feature/contracts")
+        expect(diff.summary.changedFiles).toBe(2)
+        expect(diff.summary.renamedFiles).toBe(1)
+        expect(diff.files[1]?.oldPath).toBe("src/http.ts")
     })
 
     test("returns blame data by file reference", async () => {

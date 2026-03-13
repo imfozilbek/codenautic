@@ -54,6 +54,30 @@ export function createGitProviderMock(): IGitProvider {
         getCommitHistory(_ref: string): Promise<readonly []> {
             return Promise.resolve([])
         },
+        getDiffBetweenRefs(
+            baseRef: string,
+            headRef: string,
+        ): ReturnType<IGitProvider["getDiffBetweenRefs"]> {
+            return Promise.resolve({
+                baseRef,
+                headRef,
+                comparisonStatus: "identical",
+                aheadBy: 0,
+                behindBy: 0,
+                totalCommits: 0,
+                summary: {
+                    changedFiles: 0,
+                    addedFiles: 0,
+                    modifiedFiles: 0,
+                    deletedFiles: 0,
+                    renamedFiles: 0,
+                    additions: 0,
+                    deletions: 0,
+                    changes: 0,
+                },
+                files: [],
+            })
+        },
         getBlameData(_filePath: string, _ref: string): Promise<readonly []> {
             return Promise.resolve([])
         },

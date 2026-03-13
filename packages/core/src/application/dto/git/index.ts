@@ -25,6 +25,13 @@ export {type IBlameData} from "./blame-data.dto"
 export {type IFileBlame} from "./file-blame.dto"
 export {type IBranchInfo} from "./branch-info.dto"
 export {
+    GIT_REF_COMPARISON_STATUS,
+    type GitRefComparisonStatus,
+    type IRefDiffFile,
+    type IRefDiffResult,
+    type IRefDiffSummary,
+} from "./ref-diff.dto"
+export {
     FILE_TREE_NODE_TYPE,
     type FileTreeNodeType,
     type IFileTreeNode,

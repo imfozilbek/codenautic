@@ -5,9 +5,12 @@ import {
     CHECK_RUN_CONCLUSION,
     CHECK_RUN_STATUS,
     FILE_TREE_NODE_TYPE,
+    GIT_REF_COMPARISON_STATUS,
     INLINE_COMMENT_SIDE,
+    MERGE_REQUEST_DIFF_FILE_STATUS,
     type CheckRunConclusion,
     type CheckRunStatus,
+    type GitRefComparisonStatus,
     type IBlameData,
     type IBranchInfo,
     type ICheckRunDTO,
@@ -18,6 +21,9 @@ import {
     type IFileTreeNode,
     type IGitProvider,
     type IInlineCommentDTO,
+    type IRefDiffFile,
+    type IRefDiffResult,
+    type IRefDiffSummary,
     type IMergeRequestDTO,
     type IMergeRequestDiffFileDTO,
     type IWebhookEventDTO,
@@ -62,6 +68,10 @@ type ReposListCommitsResponseItem =
     RestEndpointMethodTypes["repos"]["listCommits"]["response"]["data"][number]
 type ReposGetCommitResponse =
     RestEndpointMethodTypes["repos"]["getCommit"]["response"]["data"]
+type ReposCompareCommitsWithBaseheadResponse =
+    RestEndpointMethodTypes["repos"]["compareCommitsWithBasehead"]["response"]["data"]
+type ReposCompareCommitsWithBaseheadFile =
+    NonNullable<ReposCompareCommitsWithBaseheadResponse["files"]>[number]
 type GitGetTreeResponseItem =
     RestEndpointMethodTypes["git"]["getTree"]["response"]["data"]["tree"][number]
 
@@ -169,6 +179,9 @@ export interface IGitHubOctokitClient {
         readonly getCommit: (
             params: RestEndpointMethodTypes["repos"]["getCommit"]["parameters"],
         ) => Promise<{readonly data: ReposGetCommitResponse}>
+        readonly compareCommitsWithBasehead: (
+            params: RestEndpointMethodTypes["repos"]["compareCommitsWithBasehead"]["parameters"],
+        ) => Promise<{readonly data: ReposCompareCommitsWithBaseheadResponse}>
     }
 
     /**
@@ -478,6 +491,34 @@ export class GitHubProvider implements IGitProvider {
                     }) ?? [],
                 }
             }),
+        )
+    }
+
+    /**
+     * Loads diff between two repository refs.
+     *
+     * @param baseRef Base comparison ref.
+     * @param headRef Head comparison ref.
+     * @returns Aggregated diff payload with file-level changes.
+     */
+    public async getDiffBetweenRefs(
+        baseRef: string,
+        headRef: string,
+    ): Promise<IRefDiffResult> {
+        const normalizedBaseRef = normalizeRequiredText(baseRef, "baseRef")
+        const normalizedHeadRef = normalizeRequiredText(headRef, "headRef")
+        const response = await this.executeRequest(() => {
+            return this.client.repos.compareCommitsWithBasehead({
+                owner: this.owner,
+                repo: this.repo,
+                basehead: `${normalizedBaseRef}...${normalizedHeadRef}`,
+            })
+        })
+
+        return mapGitHubRefDiff(
+            response.data,
+            normalizedBaseRef,
+            normalizedHeadRef,
         )
     }
 
@@ -989,7 +1030,9 @@ function createExternalMergeRequest(
  * @param status Raw GitHub file status.
  * @returns Generic diff status.
  */
-function mapGitHubFileStatus(status: string): string {
+function mapGitHubFileStatus(
+    status: string,
+): IMergeRequestDiffFileDTO["status"] {
     if (status === "added" || status === "removed" || status === "modified" || status === "renamed") {
         return status === "removed" ? "deleted" : status
     }
@@ -1011,6 +1054,151 @@ function splitHunks(patch: string | undefined): readonly string[] {
     return patch.split("\n").filter((line): boolean => {
         return line.length > 0
     })
+}
+
+/**
+ * Maps GitHub compare response to generic ref-diff DTO.
+ *
+ * @param payload Raw GitHub compare payload.
+ * @param baseRef Normalized base ref.
+ * @param headRef Normalized head ref.
+ * @returns Generic ref-diff payload.
+ */
+function mapGitHubRefDiff(
+    payload: ReposCompareCommitsWithBaseheadResponse,
+    baseRef: string,
+    headRef: string,
+): IRefDiffResult {
+    const files = (payload.files ?? []).map(mapGitHubRefDiffFile)
+
+    return {
+        baseRef,
+        headRef,
+        comparisonStatus: mapGitHubComparisonStatus(payload.status),
+        aheadBy: typeof payload.ahead_by === "number" ? payload.ahead_by : 0,
+        behindBy: typeof payload.behind_by === "number" ? payload.behind_by : 0,
+        totalCommits:
+            typeof payload.total_commits === "number" ? payload.total_commits : 0,
+        summary: summarizeRefDiffFiles(files),
+        files,
+    }
+}
+
+/**
+ * Maps one GitHub compare file payload to generic diff-file DTO.
+ *
+ * @param file Raw GitHub compare file payload.
+ * @returns Generic diff-file payload.
+ */
+function mapGitHubRefDiffFile(
+    file: ReposCompareCommitsWithBaseheadFile,
+): IRefDiffFile {
+    const status = mapGitHubFileStatus(
+        typeof file.status === "string" ? file.status : "modified",
+    )
+
+    return {
+        path: normalizeRequiredText(file.filename, "filePath"),
+        status,
+        oldPath: resolveGitHubPreviousFilePath(file, status),
+        additions: typeof file.additions === "number" ? file.additions : 0,
+        deletions: typeof file.deletions === "number" ? file.deletions : 0,
+        changes: typeof file.changes === "number" ? file.changes : 0,
+        patch: file.patch ?? "",
+        hunks: splitHunks(file.patch),
+    }
+}
+
+/**
+ * Resolves previous path for renamed compare files.
+ *
+ * @param file Raw GitHub compare file payload.
+ * @param status Normalized diff status.
+ * @returns Previous file path for rename entries.
+ */
+function resolveGitHubPreviousFilePath(
+    file: ReposCompareCommitsWithBaseheadFile,
+    status: IMergeRequestDiffFileDTO["status"],
+): string | undefined {
+    if (status !== MERGE_REQUEST_DIFF_FILE_STATUS.RENAMED) {
+        return undefined
+    }
+
+    return normalizeRequiredText(file.previous_filename ?? "", "oldPath")
+}
+
+/**
+ * Builds aggregated diff statistics from file-level entries.
+ *
+ * @param files File-level diff entries.
+ * @returns Aggregated summary payload.
+ */
+function summarizeRefDiffFiles(files: readonly IRefDiffFile[]): IRefDiffSummary {
+    let addedFiles = 0
+    let modifiedFiles = 0
+    let deletedFiles = 0
+    let renamedFiles = 0
+    let additions = 0
+    let deletions = 0
+    let changes = 0
+
+    for (const file of files) {
+        additions += file.additions
+        deletions += file.deletions
+        changes += file.changes
+
+        if (file.status === MERGE_REQUEST_DIFF_FILE_STATUS.ADDED) {
+            addedFiles += 1
+            continue
+        }
+
+        if (file.status === MERGE_REQUEST_DIFF_FILE_STATUS.DELETED) {
+            deletedFiles += 1
+            continue
+        }
+
+        if (file.status === MERGE_REQUEST_DIFF_FILE_STATUS.RENAMED) {
+            renamedFiles += 1
+            continue
+        }
+
+        modifiedFiles += 1
+    }
+
+    return {
+        changedFiles: files.length,
+        addedFiles,
+        modifiedFiles,
+        deletedFiles,
+        renamedFiles,
+        additions,
+        deletions,
+        changes,
+    }
+}
+
+/**
+ * Normalizes GitHub compare status to core literal.
+ *
+ * @param status Raw GitHub comparison status.
+ * @returns Core comparison status.
+ */
+function mapGitHubComparisonStatus(
+    status: string | undefined,
+): GitRefComparisonStatus {
+    if (status === GIT_REF_COMPARISON_STATUS.IDENTICAL) {
+        return GIT_REF_COMPARISON_STATUS.IDENTICAL
+    }
+
+    if (status === GIT_REF_COMPARISON_STATUS.AHEAD) {
+        return GIT_REF_COMPARISON_STATUS.AHEAD
+    }
+
+    if (status === GIT_REF_COMPARISON_STATUS.BEHIND) {
+        return GIT_REF_COMPARISON_STATUS.BEHIND
+    }
+
+    return GIT_REF_COMPARISON_STATUS.DIVERGED
 }
 
 /**

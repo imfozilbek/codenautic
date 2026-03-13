@@ -8,6 +8,7 @@ import type {
     ICommitHistoryOptions,
     ICommitInfo,
     IFileTreeNode,
+    IRefDiffResult,
     IMergeRequestDTO,
     IMergeRequestDiffFileDTO,
 } from "../../../dto/git"
@@ -68,6 +69,15 @@ export interface IGitProvider extends IGitBlame {
         ref: string,
         options?: ICommitHistoryOptions,
     ): Promise<readonly ICommitInfo[]>
+
+    /**
+     * Fetches diff between two commit, branch, or tag refs.
+     *
+     * @param baseRef Base comparison ref.
+     * @param headRef Head comparison ref.
+     * @returns Diff summary and file-level changes.
+     */
+    getDiffBetweenRefs(baseRef: string, headRef: string): Promise<IRefDiffResult>
 
     /**
      * Posts regular comment to merge request.

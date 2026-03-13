@@ -42,6 +42,7 @@ type IGitHubMockRepos = {
     readonly getContent?: AsyncMethod<unknown>
     readonly listCommits?: AsyncMethod<unknown>
     readonly getCommit?: AsyncMethod<unknown>
+    readonly compareCommitsWithBasehead?: AsyncMethod<unknown>
 }
 type IGitHubMockGit = {
     readonly getTree?: AsyncMethod<unknown>
@@ -242,6 +243,10 @@ function createGitHubReposMock(
             resolveGitHubMethod(overrides?.listCommits) as IGitHubOctokitClient["repos"]["listCommits"],
         getCommit:
             resolveGitHubMethod(overrides?.getCommit) as IGitHubOctokitClient["repos"]["getCommit"],
+        compareCommitsWithBasehead:
+            resolveGitHubMethod(
+                overrides?.compareCommitsWithBasehead,
+            ) as IGitHubOctokitClient["repos"]["compareCommitsWithBasehead"],
     }
 }
 
@@ -1178,6 +1183,162 @@ describe("GitHubProvider", () => {
         )
 
         expect(error.message).toContain("maxCount must be positive integer")
+    })
+
+    test("loads diff between refs with summary stats and rename metadata", async () => {
+        const compareCommitsWithBasehead = createQueuedAsyncMethod([
+            createDataHandler({
+                status: "ahead",
+                ahead_by: 3,
+                behind_by: 0,
+                total_commits: 3,
+                files: [
+                    {
+                        filename: "src/new.ts",
+                        status: "added",
+                        additions: 8,
+                        deletions: 0,
+                        changes: 8,
+                        patch: "@@ -0,0 +1,8 @@\n+export const value = 1",
+                    },
+                    {
+                        filename: "src/api.ts",
+                        previous_filename: "src/http.ts",
+                        status: "renamed",
+                        additions: 2,
+                        deletions: 3,
+                        changes: 5,
+                        patch: "@@ -1,3 +1,2 @@\n-old\n+new",
+                    },
+                    {
+                        filename: "src/legacy.ts",
+                        status: "removed",
+                        additions: 0,
+                        deletions: 4,
+                        changes: 4,
+                    },
+                ],
+            }),
+        ])
+        const provider = new GitHubProvider({
+            owner: "codenautic",
+            repo: "platform",
+            client: createGitHubClientMock({
+                repos: {
+                    compareCommitsWithBasehead,
+                },
+            }),
+        })
+
+        const diff = await provider.getDiffBetweenRefs("main", "feature/ref-diff")
+
+        expect(diff).toEqual({
+            baseRef: "main",
+            headRef: "feature/ref-diff",
+            comparisonStatus: "ahead",
+            aheadBy: 3,
+            behindBy: 0,
+            totalCommits: 3,
+            summary: {
+                changedFiles: 3,
+                addedFiles: 1,
+                modifiedFiles: 0,
+                deletedFiles: 1,
+                renamedFiles: 1,
+                additions: 10,
+                deletions: 7,
+                changes: 17,
+            },
+            files: [
+                {
+                    path: "src/new.ts",
+                    status: "added",
+                    additions: 8,
+                    deletions: 0,
+                    changes: 8,
+                    patch: "@@ -0,0 +1,8 @@\n+export const value = 1",
+                    hunks: ["@@ -0,0 +1,8 @@", "+export const value = 1"],
+                },
+                {
+                    path: "src/api.ts",
+                    oldPath: "src/http.ts",
+                    status: "renamed",
+                    additions: 2,
+                    deletions: 3,
+                    changes: 5,
+                    patch: "@@ -1,3 +1,2 @@\n-old\n+new",
+                    hunks: ["@@ -1,3 +1,2 @@", "-old", "+new"],
+                },
+                {
+                    path: "src/legacy.ts",
+                    status: "deleted",
+                    additions: 0,
+                    deletions: 4,
+                    changes: 4,
+                    patch: "",
+                    hunks: [],
+                },
+            ],
+        })
+        expect(compareCommitsWithBasehead.calls[0]?.[0]).toMatchObject({
+            owner: "codenautic",
+            repo: "platform",
+            basehead: "main...feature/ref-diff",
+        })
+    })
+
+    test("validates diff refs before compare request", async () => {
+        const provider = new GitHubProvider({
+            owner: "codenautic",
+            repo: "platform",
+            client: createGitHubClientMock({}),
+        })
+
+        const error = await captureRejectedError(() =>
+            provider.getDiffBetweenRefs("main", "   "),
+        )
+
+        expect(error.message).toContain("headRef cannot be empty")
+    })
+
+    test("retries compare request on retryable github errors", async () => {
+        const sleepCalls: number[] = []
+        const compareCommitsWithBasehead = createQueuedAsyncMethod([
+            createErrorHandler(
+                createGitHubApiError("rate limited", {
+                    status: 429,
+                    headers: {
+                        "retry-after": "1",
+                    },
+                }),
+            ),
+            createDataHandler({
+                status: "identical",
+                ahead_by: 0,
+                behind_by: 0,
+                total_commits: 0,
+                files: [],
+            }),
+        ])
+        const provider = new GitHubProvider({
+            owner: "codenautic",
+            repo: "platform",
+            client: createGitHubClientMock({
+                repos: {
+                    compareCommitsWithBasehead,
+                },
+            }),
+            sleep(delayMs: number): Promise<void> {
+                sleepCalls.push(delayMs)
+                return Promise.resolve()
+            },
+        })
+
+        const diff = await provider.getDiffBetweenRefs("main", "feature/ref-diff")
+
+        expect(diff.comparisonStatus).toBe("identical")
+        expect(sleepCalls).toEqual([1000])
+        expect(compareCommitsWithBasehead.calls).toHaveLength(2)
     })
 
     test("loads blame data through graphql request", async () => {
