@@ -102,10 +102,10 @@ export function CityOwnershipOverlay(props: ICityOwnershipOverlayProps): ReactEl
                                         src={owner.ownerAvatarUrl}
                                     />
                                     <div className="min-w-0 flex-1">
-                                        <p className="truncate text-sm font-semibold text-foreground">
+                                        <p className={`truncate ${TYPOGRAPHY.cardTitle}`}>
                                             {owner.ownerName}
                                         </p>
-                                        <p className="text-xs text-muted-foreground">
+                                        <p className={TYPOGRAPHY.captionMuted}>
                                             {t("code-city:cityOwnership.files", { count: fileCount })}
                                         </p>
                                     </div>

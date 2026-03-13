@@ -116,7 +116,7 @@ function ReviewCommentNode(props: IReviewCommentNodeProps): ReactElement {
                         </span>
                     ) : null}
                 </div>
-                <p className="mt-2 text-sm text-foreground">{props.comment.message}</p>
+                <p className={`mt-2 ${TYPOGRAPHY.body}`}>{props.comment.message}</p>
                 <div className="mt-3 flex flex-wrap gap-2">
                     <button
                         className="rounded border border-border px-2 py-1 text-xs"
