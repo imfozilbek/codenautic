@@ -299,6 +299,230 @@ describe("MongoCodeGraphRepository", () => {
         ])
     })
 
+    test("filters queried edges by repository, branch, edge type, endpoint node, and file path", async () => {
+        const collection = new InMemoryMongoCodeGraphCollection()
+        const repository = new MongoCodeGraphRepository({
+            graphs: collection,
+        })
+
+        await repository.saveGraph(
+            "gh:repo-1",
+            createGraph(
+                "gh:repo-1@main",
+                [
+                    createGraphNode("file:src/a.ts", CODE_GRAPH_NODE_TYPE.FILE, "src/a.ts"),
+                    createGraphNode("file:src/b.ts", CODE_GRAPH_NODE_TYPE.FILE, "src/b.ts"),
+                    createGraphNode("file:src/c.ts", CODE_GRAPH_NODE_TYPE.FILE, "src/c.ts"),
+                    createGraphNode(
+                        "function:src/b.ts:run",
+                        CODE_GRAPH_NODE_TYPE.FUNCTION,
+                        "src/b.ts",
+                    ),
+                ],
+                [
+                    createGraphEdge(
+                        "file:src/a.ts",
+                        "file:src/b.ts",
+                        CODE_GRAPH_EDGE_TYPE.IMPORTS,
+                    ),
+                    createGraphEdge(
+                        "file:src/b.ts",
+                        "file:src/c.ts",
+                        CODE_GRAPH_EDGE_TYPE.IMPORTS,
+                    ),
+                    createGraphEdge(
+                        "file:src/b.ts",
+                        "function:src/b.ts:run",
+                        CODE_GRAPH_EDGE_TYPE.HAS_METHOD,
+                    ),
+                ],
+            ),
+            "main",
+        )
+        await repository.saveGraph(
+            "gh:repo-1",
+            createGraph(
+                "gh:repo-1@feature",
+                [
+                    createGraphNode("file:src/a.ts", CODE_GRAPH_NODE_TYPE.FILE, "src/a.ts"),
+                    createGraphNode("file:src/d.ts", CODE_GRAPH_NODE_TYPE.FILE, "src/d.ts"),
+                ],
+                [
+                    createGraphEdge(
+                        "file:src/a.ts",
+                        "file:src/d.ts",
+                        CODE_GRAPH_EDGE_TYPE.IMPORTS,
+                    ),
+                ],
+            ),
+            "feature",
+        )
+
+        const mainImports = await repository.queryEdges({
+            repositoryId: "gh:repo-1",
+            branch: "main",
+            type: CODE_GRAPH_EDGE_TYPE.IMPORTS,
+        })
+        const nodeScopedEdges = await repository.queryEdges({
+            repositoryId: "gh:repo-1",
+            branch: "main",
+            nodeId: "file:src/b.ts",
+            filePath: "src/b.ts",
+        })
+
+        expect(mainImports).toEqual([
+            {
+                source: "file:src/a.ts",
+                target: "file:src/b.ts",
+                type: CODE_GRAPH_EDGE_TYPE.IMPORTS,
+            },
+            {
+                source: "file:src/b.ts",
+                target: "file:src/c.ts",
+                type: CODE_GRAPH_EDGE_TYPE.IMPORTS,
+            },
+        ])
+        expect(nodeScopedEdges).toEqual([
+            {
+                source: "file:src/a.ts",
+                target: "file:src/b.ts",
+                type: CODE_GRAPH_EDGE_TYPE.IMPORTS,
+            },
+            {
+                source: "file:src/b.ts",
+                target: "file:src/c.ts",
+                type: CODE_GRAPH_EDGE_TYPE.IMPORTS,
+            },
+            {
+                source: "file:src/b.ts",
+                target: "function:src/b.ts:run",
+                type: CODE_GRAPH_EDGE_TYPE.HAS_METHOD,
+            },
+        ])
+    })
+
+    test("queries deterministic bounded paths within one repository snapshot", async () => {
+        const collection = new InMemoryMongoCodeGraphCollection()
+        const repository = new MongoCodeGraphRepository({
+            graphs: collection,
+        })
+
+        await repository.saveGraph(
+            "gh:repo-1",
+            createGraph(
+                "gh:repo-1@main",
+                [
+                    createGraphNode("file:src/a.ts", CODE_GRAPH_NODE_TYPE.FILE, "src/a.ts"),
+                    createGraphNode("file:src/b.ts", CODE_GRAPH_NODE_TYPE.FILE, "src/b.ts"),
+                    createGraphNode("file:src/c.ts", CODE_GRAPH_NODE_TYPE.FILE, "src/c.ts"),
+                    createGraphNode("file:src/d.ts", CODE_GRAPH_NODE_TYPE.FILE, "src/d.ts"),
+                ],
+                [
+                    createGraphEdge(
+                        "file:src/a.ts",
+                        "file:src/b.ts",
+                        CODE_GRAPH_EDGE_TYPE.IMPORTS,
+                    ),
+                    createGraphEdge(
+                        "file:src/b.ts",
+                        "file:src/c.ts",
+                        CODE_GRAPH_EDGE_TYPE.IMPORTS,
+                    ),
+                    createGraphEdge(
+                        "file:src/a.ts",
+                        "file:src/c.ts",
+                        CODE_GRAPH_EDGE_TYPE.IMPORTS,
+                    ),
+                    createGraphEdge(
+                        "file:src/a.ts",
+                        "file:src/d.ts",
+                        CODE_GRAPH_EDGE_TYPE.IMPORTS,
+                    ),
+                    createGraphEdge(
+                        "file:src/d.ts",
+                        "file:src/c.ts",
+                        CODE_GRAPH_EDGE_TYPE.IMPORTS,
+                    ),
+                ],
+            ),
+            "main",
+        )
+
+        const paths = await repository.queryPaths({
+            repositoryId: "gh:repo-1",
+            branch: "main",
+            sourceNodeId: "file:src/a.ts",
+            targetNodeId: "file:src/c.ts",
+            edgeTypes: [CODE_GRAPH_EDGE_TYPE.IMPORTS],
+            maxDepth: 2,
+            maxPaths: 2,
+        })
+
+        expect(paths).toHaveLength(2)
+        expect(paths[0]?.nodes.map((node) => node.id)).toEqual([
+            "file:src/a.ts",
+            "file:src/c.ts",
+        ])
+        expect(paths[1]?.nodes.map((node) => node.id)).toEqual([
+            "file:src/a.ts",
+            "file:src/b.ts",
+            "file:src/c.ts",
+        ])
+        expect(paths[0]?.edges.map((edge) => edge.type)).toEqual([
+            CODE_GRAPH_EDGE_TYPE.IMPORTS,
+        ])
+    })
+
+    test("returns empty paths for missing snapshot or disconnected nodes and validates query input", async () => {
+        const collection = new InMemoryMongoCodeGraphCollection()
+        const repository = new MongoCodeGraphRepository({
+            graphs: collection,
+        })
+
+        await repository.saveGraph(
+            "gh:repo-1",
+            createGraph(
+                "gh:repo-1@main",
+                [
+                    createGraphNode("file:src/a.ts", CODE_GRAPH_NODE_TYPE.FILE, "src/a.ts"),
+                    createGraphNode("file:src/b.ts", CODE_GRAPH_NODE_TYPE.FILE, "src/b.ts"),
+                ],
+                [],
+            ),
+            "main",
+        )
+
+        const missingSnapshotPaths = await repository.queryPaths({
+            repositoryId: "gh:repo-1",
+            branch: "feature",
+            sourceNodeId: "file:src/a.ts",
+            targetNodeId: "file:src/b.ts",
+        })
+        const disconnectedPaths = await repository.queryPaths({
+            repositoryId: "gh:repo-1",
+            branch: "main",
+            sourceNodeId: "file:src/a.ts",
+            targetNodeId: "file:src/b.ts",
+        })
+        const invalidDepthError = await captureRejectedError(() =>
+            repository.queryPaths({
+                repositoryId: "gh:repo-1",
+                sourceNodeId: "file:src/a.ts",
+                targetNodeId: "file:src/b.ts",
+                maxDepth: 0,
+            }),
+        )
+
+        expect(missingSnapshotPaths).toEqual([])
+        expect(disconnectedPaths).toEqual([])
+        expect(invalidDepthError).toBeInstanceOf(AstCodeGraphRepositoryError)
+        if (invalidDepthError instanceof AstCodeGraphRepositoryError) {
+            expect(invalidDepthError.code).toBe(
+                AST_CODE_GRAPH_REPOSITORY_ERROR_CODE.INVALID_MAX_DEPTH,
+            )
+        }
+    })
+
     test("rejects graph snapshots with orphan edges before persistence", async () => {
         const collection = new InMemoryMongoCodeGraphCollection()
         const repository = new MongoCodeGraphRepository({

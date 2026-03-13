@@ -45,6 +45,9 @@ export {
     type ICodeGraphEdge,
     type ICodeGraph,
     type IGraphQueryFilter,
+    type IGraphEdgeQueryFilter,
+    type IGraphPathQuery,
+    type IGraphPathResult,
     type ICircularDependency,
     type ImpactAnalysisResult,
 } from "./application/ports/outbound/graph/code-graph.type"

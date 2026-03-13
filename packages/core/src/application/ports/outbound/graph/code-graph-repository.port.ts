@@ -1,7 +1,11 @@
 import type {
     CodeNode,
+    CodeEdge,
     CodeGraph,
     IGraphQueryFilter,
+    IGraphEdgeQueryFilter,
+    IGraphPathQuery,
+    IGraphPathResult,
 } from "./code-graph.type"
 
 /**
@@ -37,4 +41,20 @@ export interface IGraphRepository {
      * @returns Matching graph nodes.
      */
     queryNodes(filter: IGraphQueryFilter): Promise<readonly CodeNode[]>
+
+    /**
+     * Возвращает рёбра, удовлетворяющие фильтру.
+     *
+     * @param filter Filter options.
+     * @returns Matching graph edges.
+     */
+    queryEdges(filter: IGraphEdgeQueryFilter): Promise<readonly CodeEdge[]>
+
+    /**
+     * Возвращает ограниченный набор путей между двумя узлами графа.
+     *
+     * @param query Path query options.
+     * @returns Matching graph paths ordered deterministically.
+     */
+    queryPaths(query: IGraphPathQuery): Promise<readonly IGraphPathResult[]>
 }

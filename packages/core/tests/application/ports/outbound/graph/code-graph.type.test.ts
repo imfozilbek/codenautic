@@ -7,6 +7,9 @@ import {
     type CodeGraphNodeMetadataValue,
     type ICodeGraphEdge,
     type ICodeGraphNode,
+    type IGraphEdgeQueryFilter,
+    type IGraphPathQuery,
+    type IGraphPathResult,
 } from "../../../../../src"
 
 describe("Code graph public exports", () => {
@@ -39,5 +42,52 @@ describe("Code graph public exports", () => {
         }
 
         expect(edge.type).toBe("HAS_METHOD")
+    })
+
+    test("exports edge and path query graph types from package root", () => {
+        const edgeFilter: IGraphEdgeQueryFilter = {
+            repositoryId: "gh:repo-1",
+            branch: "main",
+            type: CODE_GRAPH_EDGE_TYPE.IMPORTS,
+            nodeId: "file:src/index.ts",
+            filePath: "src/index.ts",
+        }
+        const pathQuery: IGraphPathQuery = {
+            repositoryId: "gh:repo-1",
+            branch: "main",
+            sourceNodeId: "file:src/index.ts",
+            targetNodeId: "file:src/utils.ts",
+            edgeTypes: [CODE_GRAPH_EDGE_TYPE.IMPORTS],
+            maxDepth: 3,
+            maxPaths: 2,
+        }
+        const pathResult: IGraphPathResult = {
+            nodes: [
+                {
+                    id: "file:src/index.ts",
+                    type: CODE_GRAPH_NODE_TYPE.FILE,
+                    name: "index.ts",
+                    filePath: "src/index.ts",
+                },
+                {
+                    id: "file:src/utils.ts",
+                    type: CODE_GRAPH_NODE_TYPE.FILE,
+                    name: "utils.ts",
+                    filePath: "src/utils.ts",
+                },
+            ],
+            edges: [
+                {
+                    source: "file:src/index.ts",
+                    target: "file:src/utils.ts",
+                    type: CODE_GRAPH_EDGE_TYPE.IMPORTS,
+                },
+            ],
+        }
+
+        expect(edgeFilter.type).toBe(CODE_GRAPH_EDGE_TYPE.IMPORTS)
+        expect(pathQuery.maxDepth).toBe(3)
+        expect(pathResult.nodes[1]?.id).toBe("file:src/utils.ts")
+        expect(pathResult.edges[0]?.type).toBe(CODE_GRAPH_EDGE_TYPE.IMPORTS)
     })
 })

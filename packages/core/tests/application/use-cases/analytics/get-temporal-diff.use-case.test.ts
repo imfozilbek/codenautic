@@ -10,6 +10,9 @@ import {
     type ICodeGraph,
     type ICodeGraphEdge,
     type ICodeGraphNode,
+    type IGraphEdgeQueryFilter,
+    type IGraphPathQuery,
+    type IGraphPathResult,
 } from "../../../../src/application/ports/outbound/graph/code-graph.type"
 import type {ITemporalDiffResult} from "../../../../src/application/dto/analytics/temporal-diff.dto"
 
@@ -82,6 +85,14 @@ class InMemoryGraphRepository implements IGraphRepository {
         }
 
         return Promise.resolve(this.nodes)
+    }
+
+    public queryEdges(_filter: IGraphEdgeQueryFilter): Promise<readonly ICodeGraphEdge[]> {
+        return Promise.resolve([])
+    }
+
+    public queryPaths(_query: IGraphPathQuery): Promise<readonly IGraphPathResult[]> {
+        return Promise.resolve([])
     }
 }
 

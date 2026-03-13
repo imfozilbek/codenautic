@@ -4,7 +4,11 @@
 export const AST_CODE_GRAPH_REPOSITORY_ERROR_CODE = {
     INVALID_REPOSITORY_ID: "INVALID_REPOSITORY_ID",
     INVALID_BRANCH: "INVALID_BRANCH",
+    INVALID_NODE_ID: "INVALID_NODE_ID",
     INVALID_FILE_PATH: "INVALID_FILE_PATH",
+    INVALID_EDGE_TYPE: "INVALID_EDGE_TYPE",
+    INVALID_MAX_DEPTH: "INVALID_MAX_DEPTH",
+    INVALID_MAX_PATHS: "INVALID_MAX_PATHS",
     INVALID_GRAPH_NODE: "INVALID_GRAPH_NODE",
     INVALID_GRAPH_EDGE: "INVALID_GRAPH_EDGE",
     DUPLICATE_NODE_ID: "DUPLICATE_NODE_ID",
@@ -52,6 +56,16 @@ export interface IAstCodeGraphRepositoryErrorDetails {
     readonly filePath?: string
 
     /**
+     * Edge type involved in the failure when available.
+     */
+    readonly edgeType?: string
+
+    /**
+     * Numeric bound involved in the failure when available.
+     */
+    readonly numericValue?: number
+
+    /**
      * Root cause message from lower-level validation.
      */
     readonly causeMessage?: string
@@ -97,6 +111,16 @@ export class AstCodeGraphRepositoryError extends Error {
     public readonly filePath?: string
 
     /**
+     * Edge type involved in failure when available.
+     */
+    public readonly edgeType?: string
+
+    /**
+     * Numeric bound involved in failure when available.
+     */
+    public readonly numericValue?: number
+
+    /**
      * Lower-level cause message when available.
      */
     public readonly causeMessage?: string
@@ -121,6 +145,8 @@ export class AstCodeGraphRepositoryError extends Error {
         this.sourceNodeId = details.sourceNodeId
         this.targetNodeId = details.targetNodeId
         this.filePath = details.filePath
+        this.edgeType = details.edgeType
+        this.numericValue = details.numericValue
         this.causeMessage = details.causeMessage
     }
 }
@@ -151,8 +177,20 @@ const AST_CODE_GRAPH_REPOSITORY_ERROR_MESSAGE_BUILDERS: Record<
     INVALID_BRANCH: (details: IAstCodeGraphRepositoryErrorDetails): string => {
         return `Invalid branch for Mongo code graph repository: ${details.branch ?? "<empty>"}`
     },
+    INVALID_NODE_ID: (details: IAstCodeGraphRepositoryErrorDetails): string => {
+        return `Invalid node id for Mongo code graph repository: ${details.nodeId ?? "<empty>"}`
+    },
     INVALID_FILE_PATH: (details: IAstCodeGraphRepositoryErrorDetails): string => {
         return `Invalid file path for Mongo code graph repository: ${details.filePath ?? "<empty>"}`
+    },
+    INVALID_EDGE_TYPE: (details: IAstCodeGraphRepositoryErrorDetails): string => {
+        return `Invalid edge type for Mongo code graph repository: ${details.edgeType ?? "<empty>"}`
+    },
+    INVALID_MAX_DEPTH: (details: IAstCodeGraphRepositoryErrorDetails): string => {
+        return `Invalid maxDepth for Mongo code graph repository: ${String(details.numericValue ?? "<empty>")}`
+    },
+    INVALID_MAX_PATHS: (details: IAstCodeGraphRepositoryErrorDetails): string => {
+        return `Invalid maxPaths for Mongo code graph repository: ${String(details.numericValue ?? "<empty>")}`
     },
     INVALID_GRAPH_NODE: (details: IAstCodeGraphRepositoryErrorDetails): string => {
         return `Invalid graph node for Mongo code graph repository: ${details.nodeId ?? "<unknown>"}`

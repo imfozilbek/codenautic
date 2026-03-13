@@ -126,6 +126,16 @@ export type ICodeGraphEdge = ICodeEdge
  */
 export interface IGraphQueryFilter {
     /**
+     * Optional repository identifier to scope lookup to one snapshot family.
+     */
+    readonly repositoryId?: string
+
+    /**
+     * Optional branch reference to scope lookup to one snapshot.
+     */
+    readonly branch?: string
+
+    /**
      * Optional node kind filter.
      */
     readonly type?: CodeGraphNodeType
@@ -140,6 +150,101 @@ export interface IGraphQueryFilter {
  * Backward-compatible query filter interface.
  */
 export type ICodeGraphQueryFilter = IGraphQueryFilter
+
+/**
+ * Filter options for edge queries.
+ */
+export interface IGraphEdgeQueryFilter {
+    /**
+     * Optional repository identifier to scope lookup to one snapshot family.
+     */
+    readonly repositoryId?: string
+
+    /**
+     * Optional branch reference to scope lookup to one snapshot.
+     */
+    readonly branch?: string
+
+    /**
+     * Optional edge semantic type filter.
+     */
+    readonly type?: CodeGraphEdgeType
+
+    /**
+     * Optional exact source node identifier filter.
+     */
+    readonly sourceNodeId?: string
+
+    /**
+     * Optional exact target node identifier filter.
+     */
+    readonly targetNodeId?: string
+
+    /**
+     * Optional node identifier matched against either edge endpoint.
+     */
+    readonly nodeId?: string
+
+    /**
+     * Optional repository-relative file path matched against either endpoint node.
+     */
+    readonly filePath?: string
+}
+
+/**
+ * Bounded path query between two nodes in one repository snapshot.
+ */
+export interface IGraphPathQuery {
+    /**
+     * Repository identifier in `<platform>:<id>` format.
+     */
+    readonly repositoryId: string
+
+    /**
+     * Optional branch reference when querying non-default snapshot.
+     */
+    readonly branch?: string
+
+    /**
+     * Source node identifier.
+     */
+    readonly sourceNodeId: string
+
+    /**
+     * Target node identifier.
+     */
+    readonly targetNodeId: string
+
+    /**
+     * Optional edge-type subset allowed in traversal.
+     */
+    readonly edgeTypes?: readonly CodeGraphEdgeType[]
+
+    /**
+     * Maximum traversal depth in edges.
+     */
+    readonly maxDepth?: number
+
+    /**
+     * Maximum number of paths to return.
+     */
+    readonly maxPaths?: number
+}
+
+/**
+ * One resolved graph path between two nodes.
+ */
+export interface IGraphPathResult {
+    /**
+     * Ordered nodes included in the path.
+     */
+    readonly nodes: readonly ICodeNode[]
+
+    /**
+     * Ordered edges connecting the path nodes.
+     */
+    readonly edges: readonly ICodeEdge[]
+}
 
 /**
  * One possible breaking change during impact analysis.

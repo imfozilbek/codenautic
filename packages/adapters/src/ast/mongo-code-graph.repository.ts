@@ -1,10 +1,17 @@
+import {CODE_GRAPH_EDGE_TYPE} from "@codenautic/core"
+
 import type {
     CodeGraph,
+    CodeEdge,
     CodeNode,
+    CodeGraphEdgeType,
     CodeGraphNodeType,
     CodeGraphNodeMetadataValue,
     ICodeGraphEdge,
     ICodeGraphNode,
+    IGraphEdgeQueryFilter,
+    IGraphPathQuery,
+    IGraphPathResult,
     IGraphQueryFilter,
     IGraphRepository,
 } from "@codenautic/core"
@@ -175,7 +182,12 @@ export class MongoCodeGraphRepository implements IGraphRepository {
      */
     public async queryNodes(filter: IGraphQueryFilter): Promise<readonly CodeNode[]> {
         const normalizedFilter = normalizeGraphQueryFilter(filter)
-        const documents = await this.graphs.find({})
+        const documents = await this.graphs.find(
+            buildSnapshotFilter(
+                normalizedFilter.repositoryId,
+                normalizedFilter.branch,
+            ),
+        )
         const nodes = documents.flatMap((document): readonly ICodeGraphNode[] => {
             return document.nodes
         })
@@ -186,6 +198,70 @@ export class MongoCodeGraphRepository implements IGraphRepository {
             })
             .map(cloneCodeGraphNode)
             .sort(compareCodeGraphNode)
+    }
+
+    /**
+     * Queries persisted edges across stored graph snapshots.
+     *
+     * @param filter Optional edge filters.
+     * @returns Matching edges in deterministic order.
+     */
+    public async queryEdges(
+        filter: IGraphEdgeQueryFilter,
+    ): Promise<readonly CodeEdge[]> {
+        const normalizedFilter = normalizeGraphEdgeQueryFilter(filter)
+        const documents = await this.graphs.find(
+            buildSnapshotFilter(
+                normalizedFilter.repositoryId,
+                normalizedFilter.branch,
+            ),
+        )
+
+        return documents
+            .flatMap((document): readonly CodeEdge[] => {
+                const nodeById = createNodeLookup(document.nodes)
+
+                return document.edges
+                    .filter((edge): boolean => {
+                        return matchesGraphEdgeQueryFilter(
+                            edge,
+                            nodeById,
+                            normalizedFilter,
+                        )
+                    })
+                    .map(cloneCodeGraphEdge)
+            })
+            .sort(compareCodeGraphEdge)
+    }
+
+    /**
+     * Queries bounded deterministic paths inside one repository snapshot.
+     *
+     * @param query Path query options.
+     * @returns Matching graph paths ordered by length and traversal order.
+     */
+    public async queryPaths(
+        query: IGraphPathQuery,
+    ): Promise<readonly IGraphPathResult[]> {
+        const normalizedQuery = normalizeGraphPathQuery(query)
+        const graph = await this.loadGraph(
+            normalizedQuery.repositoryId,
+            normalizedQuery.branch,
+        )
+
+        if (graph === null) {
+            return []
+        }
+
+        const nodeById = createNodeLookup(graph.nodes)
+        if (
+            nodeById.has(normalizedQuery.sourceNodeId) === false ||
+            nodeById.has(normalizedQuery.targetNodeId) === false
+        ) {
+            return []
+        }
+
+        return resolveGraphPaths(graph, normalizedQuery)
     }
 }
 
@@ -384,6 +460,22 @@ function cloneCodeGraphEdge(edge: ICodeGraphEdge): ICodeGraphEdge {
 }
 
 /**
+ * Builds node lookup map by identifier.
+ *
+ * @param nodes Graph nodes.
+ * @returns Node lookup map.
+ */
+function createNodeLookup(
+    nodes: readonly ICodeGraphNode[],
+): ReadonlyMap<string, ICodeGraphNode> {
+    return new Map(
+        nodes.map((node): readonly [string, ICodeGraphNode] => {
+            return [node.id, node]
+        }),
+    )
+}
+
+/**
  * Checks whether node matches query filter.
  *
  * @param node Graph node candidate.
@@ -392,7 +484,12 @@ function cloneCodeGraphEdge(edge: ICodeGraphEdge): ICodeGraphEdge {
  */
 function matchesGraphQueryFilter(
     node: ICodeGraphNode,
-    filter: Readonly<{type?: CodeGraphNodeType; filePath?: string}>,
+    filter: Readonly<{
+        repositoryId?: string
+        branch?: string
+        type?: CodeGraphNodeType
+        filePath?: string
+    }>,
 ): boolean {
     if (filter.type !== undefined && node.type !== filter.type) {
         return false
@@ -403,6 +500,115 @@ function matchesGraphQueryFilter(
     }
 
     return true
+}
+
+/**
+ * Checks whether edge matches query filter.
+ *
+ * @param edge Graph edge candidate.
+ * @param nodeById Node lookup for endpoint file path checks.
+ * @param filter Normalized query filter.
+ * @returns True when edge matches filter.
+ */
+function matchesGraphEdgeQueryFilter(
+    edge: ICodeGraphEdge,
+    nodeById: ReadonlyMap<string, ICodeGraphNode>,
+    filter: Readonly<{
+        repositoryId?: string
+        branch?: string
+        type?: CodeGraphEdgeType
+        sourceNodeId?: string
+        targetNodeId?: string
+        nodeId?: string
+        filePath?: string
+    }>,
+): boolean {
+    return (
+        matchesOptionalEdgeTypeFilter(edge, filter.type) &&
+        matchesOptionalSourceNodeFilter(edge, filter.sourceNodeId) &&
+        matchesOptionalTargetNodeFilter(edge, filter.targetNodeId) &&
+        matchesOptionalEndpointNodeFilter(edge, filter.nodeId) &&
+        matchesOptionalEndpointFilePathFilter(edge, nodeById, filter.filePath)
+    )
+}
+
+/**
+ * Checks optional edge type constraint.
+ *
+ * @param edge Graph edge candidate.
+ * @param edgeType Optional expected edge type.
+ * @returns True when type matches or filter is absent.
+ */
+function matchesOptionalEdgeTypeFilter(
+    edge: ICodeGraphEdge,
+    edgeType: CodeGraphEdgeType | undefined,
+): boolean {
+    return edgeType === undefined || edge.type === edgeType
+}
+
+/**
+ * Checks optional edge source-node constraint.
+ *
+ * @param edge Graph edge candidate.
+ * @param sourceNodeId Optional expected source node id.
+ * @returns True when source matches or filter is absent.
+ */
+function matchesOptionalSourceNodeFilter(
+    edge: ICodeGraphEdge,
+    sourceNodeId: string | undefined,
+): boolean {
+    return sourceNodeId === undefined || edge.source === sourceNodeId
+}
+
+/**
+ * Checks optional edge target-node constraint.
+ *
+ * @param edge Graph edge candidate.
+ * @param targetNodeId Optional expected target node id.
+ * @returns True when target matches or filter is absent.
+ */
+function matchesOptionalTargetNodeFilter(
+    edge: ICodeGraphEdge,
+    targetNodeId: string | undefined,
+): boolean {
+    return targetNodeId === undefined || edge.target === targetNodeId
+}
+
+/**
+ * Checks optional endpoint node-id constraint.
+ *
+ * @param edge Graph edge candidate.
+ * @param nodeId Optional expected node id on either endpoint.
+ * @returns True when endpoint matches or filter is absent.
+ */
+function matchesOptionalEndpointNodeFilter(
+    edge: ICodeGraphEdge,
+    nodeId: string | undefined,
+): boolean {
+    return nodeId === undefined || edge.source === nodeId || edge.target === nodeId
+}
+
+/**
+ * Checks optional endpoint file-path constraint.
+ *
+ * @param edge Graph edge candidate.
+ * @param nodeById Node lookup for endpoint file paths.
+ * @param filePath Optional expected endpoint file path.
+ * @returns True when endpoint matches or filter is absent.
+ */
+function matchesOptionalEndpointFilePathFilter(
+    edge: ICodeGraphEdge,
+    nodeById: ReadonlyMap<string, ICodeGraphNode>,
+    filePath: string | undefined,
+): boolean {
+    if (filePath === undefined) {
+        return true
+    }
+
+    return (
+        nodeById.get(edge.source)?.filePath === filePath ||
+        nodeById.get(edge.target)?.filePath === filePath
+    )
 }
 
 /**
@@ -425,6 +631,25 @@ function compareCodeGraphNode(left: ICodeGraphNode, right: ICodeGraphNode): numb
 }
 
 /**
+ * Orders graph edges deterministically for stable queries and traversal.
+ *
+ * @param left Left graph edge.
+ * @param right Right graph edge.
+ * @returns Sort comparison result.
+ */
+function compareCodeGraphEdge(left: ICodeGraphEdge, right: ICodeGraphEdge): number {
+    if (left.source !== right.source) {
+        return left.source.localeCompare(right.source)
+    }
+
+    if (left.target !== right.target) {
+        return left.target.localeCompare(right.target)
+    }
+
+    return left.type.localeCompare(right.type)
+}
+
+/**
  * Normalizes graph query filter.
  *
  * @param filter Raw query filter.
@@ -432,17 +657,204 @@ function compareCodeGraphNode(left: ICodeGraphNode, right: ICodeGraphNode): numb
  */
 function normalizeGraphQueryFilter(
     filter: IGraphQueryFilter,
-): Readonly<{type?: CodeGraphNodeType; filePath?: string}> {
+): Readonly<{
+    repositoryId?: string
+    branch?: string
+    type?: CodeGraphNodeType
+    filePath?: string
+}> {
     if (filter.filePath === undefined) {
         return {
+            repositoryId: normalizeOptionalRepositoryId(filter.repositoryId),
+            branch: normalizeOptionalBranch(filter.branch),
             type: filter.type,
         }
     }
 
     return {
+        repositoryId: normalizeOptionalRepositoryId(filter.repositoryId),
+        branch: normalizeOptionalBranch(filter.branch),
         type: filter.type,
         filePath: normalizeFilePath(filter.filePath),
     }
+}
+
+/**
+ * Normalizes graph edge query filter.
+ *
+ * @param filter Raw edge query filter.
+ * @returns Normalized edge query filter.
+ */
+function normalizeGraphEdgeQueryFilter(
+    filter: IGraphEdgeQueryFilter,
+): Readonly<{
+    repositoryId?: string
+    branch?: string
+    type?: CodeGraphEdgeType
+    sourceNodeId?: string
+    targetNodeId?: string
+    nodeId?: string
+    filePath?: string
+}> {
+    return {
+        repositoryId: normalizeOptionalRepositoryId(filter.repositoryId),
+        branch: normalizeOptionalBranch(filter.branch),
+        type: normalizeOptionalEdgeType(filter.type),
+        sourceNodeId: normalizeOptionalNodeId(filter.sourceNodeId),
+        targetNodeId: normalizeOptionalNodeId(filter.targetNodeId),
+        nodeId: normalizeOptionalNodeId(filter.nodeId),
+        filePath: normalizeOptionalFilePath(filter.filePath),
+    }
+}
+
+/**
+ * Normalizes bounded graph path query input.
+ *
+ * @param query Raw path query.
+ * @returns Normalized path query.
+ */
+function normalizeGraphPathQuery(
+    query: IGraphPathQuery,
+): Readonly<{
+    repositoryId: string
+    branch?: string
+    sourceNodeId: string
+    targetNodeId: string
+    edgeTypes?: readonly CodeGraphEdgeType[]
+    maxDepth: number
+    maxPaths: number
+}> {
+    return {
+        repositoryId: normalizeRepositoryId(query.repositoryId),
+        branch: normalizeOptionalBranch(query.branch),
+        sourceNodeId: normalizeNodeId(query.sourceNodeId),
+        targetNodeId: normalizeNodeId(query.targetNodeId),
+        edgeTypes: normalizeOptionalEdgeTypeList(query.edgeTypes),
+        maxDepth: normalizePositiveInteger(
+            query.maxDepth,
+            AST_CODE_GRAPH_REPOSITORY_ERROR_CODE.INVALID_MAX_DEPTH,
+            "maxDepth",
+        ) ?? 4,
+        maxPaths: normalizePositiveInteger(
+            query.maxPaths,
+            AST_CODE_GRAPH_REPOSITORY_ERROR_CODE.INVALID_MAX_PATHS,
+            "maxPaths",
+        ) ?? 10,
+    }
+}
+
+/**
+ * Resolves bounded deterministic paths inside one graph snapshot.
+ *
+ * @param graph Graph snapshot.
+ * @param query Normalized path query.
+ * @returns Matching graph paths.
+ */
+function resolveGraphPaths(
+    graph: CodeGraph,
+    query: Readonly<{
+        repositoryId: string
+        branch?: string
+        sourceNodeId: string
+        targetNodeId: string
+        edgeTypes?: readonly CodeGraphEdgeType[]
+        maxDepth: number
+        maxPaths: number
+    }>,
+): readonly IGraphPathResult[] {
+    const nodeById = createNodeLookup(graph.nodes)
+    const adjacency = buildPathAdjacency(graph.edges, query.edgeTypes)
+    const queue: Array<{
+        readonly nodeIds: readonly string[]
+        readonly edges: readonly ICodeGraphEdge[]
+    }> = [{
+        nodeIds: [query.sourceNodeId],
+        edges: [],
+    }]
+    const paths: IGraphPathResult[] = []
+
+    while (queue.length > 0 && paths.length < query.maxPaths) {
+        const current = queue.shift()
+        if (current === undefined) {
+            continue
+        }
+
+        const currentNodeId = current.nodeIds.at(-1)
+        if (currentNodeId === undefined) {
+            continue
+        }
+
+        if (currentNodeId === query.targetNodeId) {
+            paths.push({
+                nodes: current.nodeIds.map((nodeId): ICodeGraphNode => {
+                    const node = nodeById.get(nodeId)
+
+                    if (node === undefined) {
+                        throw new AstCodeGraphRepositoryError(
+                            AST_CODE_GRAPH_REPOSITORY_ERROR_CODE.EDGE_REFERENTIAL_INTEGRITY_VIOLATION,
+                            {
+                                sourceNodeId: current.nodeIds[0],
+                                targetNodeId: nodeId,
+                            },
+                        )
+                    }
+
+                    return cloneCodeGraphNode(node)
+                }),
+                edges: current.edges.map(cloneCodeGraphEdge),
+            })
+            continue
+        }
+
+        if (current.edges.length >= query.maxDepth) {
+            continue
+        }
+
+        const nextEdges = adjacency.get(currentNodeId) ?? []
+        for (const edge of nextEdges) {
+            if (current.nodeIds.includes(edge.target)) {
+                continue
+            }
+
+            queue.push({
+                nodeIds: [...current.nodeIds, edge.target],
+                edges: [...current.edges, edge],
+            })
+        }
+    }
+
+    return paths
+}
+
+/**
+ * Builds deterministic adjacency for bounded path traversal.
+ *
+ * @param edges Graph edges.
+ * @param edgeTypes Optional allowed edge types.
+ * @returns Sorted adjacency map.
+ */
+function buildPathAdjacency(
+    edges: readonly ICodeGraphEdge[],
+    edgeTypes: readonly CodeGraphEdgeType[] | undefined,
+): ReadonlyMap<string, readonly ICodeGraphEdge[]> {
+    const allowedEdgeTypes = edgeTypes === undefined ? undefined : new Set(edgeTypes)
+    const adjacency = new Map<string, ICodeGraphEdge[]>()
+
+    for (const edge of edges) {
+        if (
+            allowedEdgeTypes !== undefined &&
+            allowedEdgeTypes.has(edge.type) === false
+        ) {
+            continue
+        }
+
+        const currentEdges = adjacency.get(edge.source) ?? []
+        currentEdges.push(edge)
+        currentEdges.sort(compareCodeGraphEdge)
+        adjacency.set(edge.source, currentEdges)
+    }
+
+    return adjacency
 }
 
 /**
@@ -463,6 +875,22 @@ function normalizeRepositoryId(repositoryId: string): string {
             },
         )
     }
+}
+
+/**
+ * Normalizes optional repository identifier.
+ *
+ * @param repositoryId Optional repository identifier.
+ * @returns Normalized repository identifier or undefined.
+ */
+function normalizeOptionalRepositoryId(
+    repositoryId: string | undefined,
+): string | undefined {
+    if (repositoryId === undefined) {
+        return undefined
+    }
+
+    return normalizeRepositoryId(repositoryId)
 }
 
 /**
@@ -506,6 +934,153 @@ function normalizeFilePath(filePath: string): string {
                 causeMessage: error instanceof Error ? error.message : String(error),
             },
         )
+    }
+}
+
+/**
+ * Normalizes optional file path.
+ *
+ * @param filePath Optional file path.
+ * @returns Normalized file path or undefined.
+ */
+function normalizeOptionalFilePath(
+    filePath: string | undefined,
+): string | undefined {
+    if (filePath === undefined) {
+        return undefined
+    }
+
+    return normalizeFilePath(filePath)
+}
+
+/**
+ * Normalizes graph node identifier.
+ *
+ * @param nodeId Raw node identifier.
+ * @returns Normalized node identifier.
+ */
+function normalizeNodeId(nodeId: string): string {
+    try {
+        return normalizeRequiredText(nodeId, "nodeId")
+    } catch (error) {
+        throw new AstCodeGraphRepositoryError(
+            AST_CODE_GRAPH_REPOSITORY_ERROR_CODE.INVALID_NODE_ID,
+            {
+                nodeId,
+                causeMessage: error instanceof Error ? error.message : String(error),
+            },
+        )
+    }
+}
+
+/**
+ * Normalizes optional graph node identifier.
+ *
+ * @param nodeId Optional node identifier.
+ * @returns Normalized node identifier or undefined.
+ */
+function normalizeOptionalNodeId(nodeId: string | undefined): string | undefined {
+    if (nodeId === undefined) {
+        return undefined
+    }
+
+    return normalizeNodeId(nodeId)
+}
+
+/**
+ * Normalizes optional edge type.
+ *
+ * @param edgeType Optional edge type.
+ * @returns Normalized edge type or undefined.
+ */
+function normalizeOptionalEdgeType(
+    edgeType: CodeGraphEdgeType | undefined,
+): CodeGraphEdgeType | undefined {
+    if (edgeType === undefined) {
+        return undefined
+    }
+
+    if (Object.values(CODE_GRAPH_EDGE_TYPE).includes(edgeType)) {
+        return edgeType
+    }
+
+    throw new AstCodeGraphRepositoryError(
+        AST_CODE_GRAPH_REPOSITORY_ERROR_CODE.INVALID_EDGE_TYPE,
+        {
+            edgeType,
+        },
+    )
+}
+
+/**
+ * Normalizes optional edge type list with stable deduplication.
+ *
+ * @param edgeTypes Optional edge type list.
+ * @returns Normalized edge type list or undefined.
+ */
+function normalizeOptionalEdgeTypeList(
+    edgeTypes: readonly CodeGraphEdgeType[] | undefined,
+): readonly CodeGraphEdgeType[] | undefined {
+    if (edgeTypes === undefined) {
+        return undefined
+    }
+
+    const normalizedEdgeTypes = new Set<CodeGraphEdgeType>()
+
+    for (const edgeType of edgeTypes) {
+        const normalizedEdgeType = normalizeOptionalEdgeType(edgeType)
+        if (normalizedEdgeType === undefined) {
+            continue
+        }
+
+        normalizedEdgeTypes.add(normalizedEdgeType)
+    }
+
+    return normalizedEdgeTypes.size > 0 ? Array.from(normalizedEdgeTypes) : undefined
+}
+
+/**
+ * Normalizes positive integer bounds used by graph queries.
+ *
+ * @param value Optional numeric value.
+ * @param code Typed repository error code.
+ * @param fieldName Field label.
+ * @returns Normalized positive integer or undefined.
+ */
+function normalizePositiveInteger(
+    value: number | undefined,
+    code: typeof AST_CODE_GRAPH_REPOSITORY_ERROR_CODE.INVALID_MAX_DEPTH
+        | typeof AST_CODE_GRAPH_REPOSITORY_ERROR_CODE.INVALID_MAX_PATHS,
+    fieldName: string,
+): number | undefined {
+    if (value === undefined) {
+        return undefined
+    }
+
+    if (Number.isInteger(value) && value > 0) {
+        return value
+    }
+
+    throw new AstCodeGraphRepositoryError(code, {
+        numericValue: value,
+        causeMessage: `${fieldName} must be positive integer`,
+    })
+}
+
+/**
+ * Builds Mongo-like snapshot filter for repository-scoped queries.
+ *
+ * @param repositoryId Optional normalized repository identifier.
+ * @param branch Optional normalized branch reference.
+ * @returns Mongo-like snapshot filter.
+ */
+function buildSnapshotFilter(
+    repositoryId: string | undefined,
+    branch: string | undefined,
+): Readonly<Record<string, unknown>> {
+    return {
+        ...(repositoryId === undefined ? {} : {repositoryId}),
+        ...(branch === undefined ? {} : {branch}),
     }
 }
 

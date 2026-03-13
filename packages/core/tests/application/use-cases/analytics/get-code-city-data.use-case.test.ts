@@ -210,6 +210,12 @@ function createUseCase(
         queryNodes: (_filter: IGraphQueryFilter): Promise<readonly ICodeGraphNode[]> => {
             return Promise.resolve([])
         },
+        queryEdges: (_filter) => {
+            return Promise.resolve([])
+        },
+        queryPaths: (_query) => {
+            return Promise.resolve([])
+        },
     }
 
     const fileMetricsProvider: IFileMetricsProvider = {
