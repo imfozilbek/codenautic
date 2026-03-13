@@ -177,7 +177,7 @@ function CodeDiffFilePanel(props: ICcrDiffFile): ReactElement {
                 <span className="rounded bg-surface-muted px-2 py-0.5 text-[11px] text-foreground">
                     +{String(lineCounts.added)} / -{String(lineCounts.removed)}
                 </span>
-                <span className="text-xs text-muted-foreground">{t("reviews:codeDiff.language", { language: fileData.language })}</span>
+                <span className={TYPOGRAPHY.captionMuted}>{t("reviews:codeDiff.language", { language: fileData.language })}</span>
             </header>
             <div className="overflow-x-auto">
                 <div

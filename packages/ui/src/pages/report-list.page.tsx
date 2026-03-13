@@ -257,14 +257,14 @@ export function ReportListPage(): ReactElement {
                                                 {report.title}
                                             </p>
                                             <span
-                                                className={`rounded border px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide ${resolveReportStatusBadgeClass(
+                                                className={`rounded border px-1.5 py-0.5 ${TYPOGRAPHY.micro} ${resolveReportStatusBadgeClass(
                                                     report.status,
                                                 )}`}
                                             >
                                                 {report.status}
                                             </span>
                                         </div>
-                                        <p className="text-sm text-foreground">
+                                        <p className={TYPOGRAPHY.body}>
                                             {(t as unknown as (key: string, options: Record<string, string>) => string)(
                                                 "reports:list.typeAndDate",
                                                 {

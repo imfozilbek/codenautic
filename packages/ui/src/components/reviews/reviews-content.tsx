@@ -2,6 +2,7 @@ import { type ReactElement, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { StyledLink } from "@/components/ui"
+import { TYPOGRAPHY } from "@/lib/constants/typography"
 import { useDebounce } from "@/lib/hooks/use-debounce"
 import { EnterpriseDataTable } from "@/components/infrastructure/enterprise-data-table"
 import { InfiniteScrollContainer } from "@/components/infrastructure/infinite-scroll-container"
@@ -121,7 +122,7 @@ export function ReviewsContent(props: IReviewsContentProps): ReactElement {
                             accessor: (row): string => row.id,
                             cell: (row): ReactElement => (
                                 <StyledLink
-                                    className="text-sm font-semibold text-foreground"
+                                    className={TYPOGRAPHY.cardTitle}
                                     params={{ reviewId: row.id }}
                                     to="/reviews/$reviewId"
                                 >
