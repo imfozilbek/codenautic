@@ -133,8 +133,8 @@ export function TrendForecastChart(props: ITrendForecastChartProps): ReactElemen
 
     return (
         <section className="rounded-lg border border-border bg-surface p-3 shadow-sm">
-            <p className="text-sm font-semibold text-foreground">{t("code-city:trendForecast.title")}</p>
-            <p className="mt-1 text-xs text-muted-foreground">
+            <p className={TYPOGRAPHY.cardTitle}>{t("code-city:trendForecast.title")}</p>
+            <p className={`mt-1 ${TYPOGRAPHY.captionMuted}`}>
                 {t("code-city:trendForecast.description")}
             </p>
 
@@ -179,7 +179,7 @@ export function TrendForecastChart(props: ITrendForecastChartProps): ReactElemen
                 </svg>
             </div>
 
-            <p className="mt-2 text-xs text-muted-foreground">
+            <p className={`mt-2 ${TYPOGRAPHY.captionMuted}`}>
                 {t("code-city:trendForecast.forecastZoneNote")}
             </p>
 

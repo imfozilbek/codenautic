@@ -196,7 +196,7 @@ export function ReportListPage(): ReactElement {
                             </span>
                             <input
                                 aria-label={t("reports:list.dateFromLabel")}
-                                className="w-full rounded border border-border bg-surface px-2 py-1 text-sm text-foreground"
+                                className={`w-full rounded border border-border bg-surface px-2 py-1 ${TYPOGRAPHY.body}`}
                                 type="date"
                                 value={dateFrom}
                                 onChange={handleDateFromChange}
@@ -208,7 +208,7 @@ export function ReportListPage(): ReactElement {
                             </span>
                             <input
                                 aria-label={t("reports:list.dateToLabel")}
-                                className="w-full rounded border border-border bg-surface px-2 py-1 text-sm text-foreground"
+                                className={`w-full rounded border border-border bg-surface px-2 py-1 ${TYPOGRAPHY.body}`}
                                 type="date"
                                 value={dateTo}
                                 onChange={handleDateToChange}
