@@ -10,6 +10,7 @@ import {
     TableHeader,
     TableRow,
 } from "@/components/ui"
+import { TYPOGRAPHY } from "@/lib/constants/typography"
 import { type TReviewStatus } from "@/lib/types/ccr-types"
 import { ReviewStatusBadge } from "./review-status-badge"
 
@@ -64,7 +65,7 @@ export function ReviewsTable(props: IReviewsTableProps): ReactElement {
                         <TableRow key={row.id}>
                             <TableCell>
                                 <StyledLink
-                                    className="text-sm font-semibold text-foreground"
+                                    className={TYPOGRAPHY.cardTitle}
                                     params={{ reviewId: row.id }}
                                     to="/reviews/$reviewId"
                                 >

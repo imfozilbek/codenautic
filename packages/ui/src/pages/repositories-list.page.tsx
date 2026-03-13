@@ -244,7 +244,7 @@ function RepositoryStatusBadge(props: { status: TRepositoryStatus }): ReactEleme
 
 function RepositoryCountSummary(props: { label: string; value: number }): ReactElement {
     return (
-        <p className="rounded-lg border border-border px-3 py-2 text-sm text-foreground">
+        <p className={`rounded-lg border border-border px-3 py-2 ${TYPOGRAPHY.body}`}>
             {props.label}: <span className="font-semibold">{props.value}</span>
         </p>
     )
@@ -312,7 +312,7 @@ function RepositoriesEmptyState(): ReactElement {
     const { t } = useTranslation(["dashboard"])
     return (
         <section className="rounded-lg border border-dashed border-border bg-surface p-6 text-center">
-            <p className="text-sm font-semibold text-foreground">{t("dashboard:repositoriesList.noRepositories")}</p>
+            <p className={TYPOGRAPHY.cardTitle}>{t("dashboard:repositoriesList.noRepositories")}</p>
             <p className="mt-2 text-sm text-muted-foreground">
                 {t("dashboard:repositoriesList.noRepositoriesHint")}
             </p>
@@ -502,7 +502,7 @@ export function RepositoriesListPage(props: IRepositoryListPageProps): ReactElem
                                 cell: (item): ReactElement => {
                                     if (item.scanError === undefined || item.status !== "error") {
                                         return (
-                                            <span className="text-xs text-muted-foreground">—</span>
+                                            <span className={TYPOGRAPHY.captionMuted}>—</span>
                                         )
                                     }
 
