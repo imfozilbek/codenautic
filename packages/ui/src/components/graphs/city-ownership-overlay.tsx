@@ -2,6 +2,7 @@ import type { ReactElement } from "react"
 import { useTranslation } from "react-i18next"
 
 import { Avatar } from "@/components/ui"
+import { TYPOGRAPHY } from "@/lib/constants/typography"
 
 /**
  * Владелец для ownership overlay.
@@ -60,8 +61,8 @@ export function CityOwnershipOverlay(props: ICityOwnershipOverlayProps): ReactEl
         <section className="rounded-lg border border-border bg-surface p-3 shadow-sm">
             <div className="flex flex-wrap items-center justify-between gap-2">
                 <div>
-                    <p className="text-sm font-semibold text-foreground">{t("code-city:cityOwnership.title")}</p>
-                    <p className="mt-1 text-xs text-muted-foreground">
+                    <p className={TYPOGRAPHY.cardTitle}>{t("code-city:cityOwnership.title")}</p>
+                    <p className={`mt-1 ${TYPOGRAPHY.captionMuted}`}>
                         {t("code-city:cityOwnership.description")}
                     </p>
                 </div>

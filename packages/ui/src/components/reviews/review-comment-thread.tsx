@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState, type ReactElement } from "react"
 import { useTranslation } from "react-i18next"
 
+import { TYPOGRAPHY } from "@/lib/constants/typography"
 import type { IReviewCommentThread, TReviewCommentFeedback } from "@/pages/ccr-data"
 
 interface IReviewCommentThreadProps {
@@ -104,10 +105,10 @@ function ReviewCommentNode(props: IReviewCommentNodeProps): ReactElement {
             <article className="rounded-lg border border-border bg-surface p-3">
                 <div className="flex items-start justify-between gap-2">
                     <div>
-                        <p className="text-sm font-semibold text-foreground">
+                        <p className={TYPOGRAPHY.cardTitle}>
                             {props.comment.author}
                         </p>
-                        <p className="text-xs text-muted-foreground">{props.comment.createdAt}</p>
+                        <p className={TYPOGRAPHY.captionMuted}>{props.comment.createdAt}</p>
                     </div>
                     {props.comment.isResolved ? (
                         <span className="rounded border border-success/30 bg-success/10 px-2 py-0.5 text-[11px] text-success">
