@@ -1,5 +1,12 @@
 import { useEffect, useMemo, useState, type Dispatch, type SetStateAction } from "react"
 
+import {
+    getWindowLocalStorage,
+    safeStorageGetJson,
+    safeStorageRemove,
+    safeStorageSet,
+} from "@/lib/utils/safe-storage"
+
 /** Параметры хука persistence фильтров. */
 export interface IUseFilterPersistenceOptions<TValue> {
     /** Значение фильтров по умолчанию. */
@@ -19,47 +26,19 @@ export interface IUseFilterPersistenceResult<TValue> {
 }
 
 function readPersistedValue<TValue>(options: IUseFilterPersistenceOptions<TValue>): TValue {
-    if (typeof window === "undefined") {
-        return options.defaultValue
-    }
-
-    try {
-        const raw = window.localStorage.getItem(options.storageKey)
-        if (raw === null) {
-            return options.defaultValue
-        }
-
-        const parsedValue = JSON.parse(raw) as TValue
-        return parsedValue
-    } catch (_error: unknown) {
-        return options.defaultValue
-    }
+    return safeStorageGetJson<TValue>(
+        getWindowLocalStorage(),
+        options.storageKey,
+        options.defaultValue,
+    )
 }
 
 function persistValue(storageKey: string, value: string): boolean {
-    if (typeof window === "undefined") {
-        return false
-    }
-
-    try {
-        window.localStorage.setItem(storageKey, value)
-        return true
-    } catch (_error: unknown) {
-        return false
-    }
+    return safeStorageSet(getWindowLocalStorage(), storageKey, value)
 }
 
 function clearPersistedValue(storageKey: string): boolean {
-    if (typeof window === "undefined") {
-        return false
-    }
-
-    try {
-        window.localStorage.removeItem(storageKey)
-        return true
-    } catch (_error: unknown) {
-        return false
-    }
+    return safeStorageRemove(getWindowLocalStorage(), storageKey)
 }
 
 /**

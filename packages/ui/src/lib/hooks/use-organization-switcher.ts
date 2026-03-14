@@ -7,6 +7,13 @@ import {
     TENANT_STORAGE_KEY,
     type TMultiTabSyncMessage,
 } from "@/lib/sync/multi-tab-consistency"
+import {
+    getWindowLocalStorage,
+    getWindowSessionStorage,
+    safeStorageGet,
+    safeStorageRemove,
+    safeStorageSet,
+} from "@/lib/utils/safe-storage"
 
 import type { IHeaderOrganizationOption } from "@/components/layout/header"
 
@@ -45,15 +52,9 @@ function resolveDefaultOrganizationId(): TTenantId {
  * @returns Активный tenant ID.
  */
 function readStoredActiveOrganizationId(fallbackTenantId: TTenantId | undefined): TTenantId {
-    if (typeof window !== "undefined") {
-        try {
-            const storedTenantId = window.localStorage.getItem(TENANT_STORAGE_KEY)
-            if (storedTenantId !== null && isTenantId(storedTenantId)) {
-                return storedTenantId
-            }
-        } catch {
-            return fallbackTenantId ?? DEFAULT_ORGANIZATION_ID
-        }
+    const storedTenantId = safeStorageGet(getWindowLocalStorage(), TENANT_STORAGE_KEY)
+    if (storedTenantId !== undefined && isTenantId(storedTenantId)) {
+        return storedTenantId
     }
 
     return fallbackTenantId ?? DEFAULT_ORGANIZATION_ID
@@ -66,23 +67,30 @@ function readStoredActiveOrganizationId(fallbackTenantId: TTenantId | undefined)
  * @param nextTenantId ID следующей организации.
  */
 function clearTenantScopedStorage(previousTenantId: string, nextTenantId: string): void {
-    if (typeof window === "undefined") {
+    const localStorage = getWindowLocalStorage()
+    if (localStorage === undefined) {
         return
     }
 
-    Object.keys(window.localStorage).forEach((storageKey): void => {
+    Object.keys(localStorage).forEach((storageKey): void => {
         if (storageKey.startsWith("codenautic:tenant:")) {
-            window.localStorage.removeItem(storageKey)
+            safeStorageRemove(localStorage, storageKey)
         }
     })
 
-    window.localStorage.setItem("codenautic:tenant:active", nextTenantId)
-    window.sessionStorage.setItem("codenautic:tenant:last-switch", new Date().toISOString())
-    window.dispatchEvent(
-        new CustomEvent("codenautic:tenant-switched", {
-            detail: { nextTenantId, previousTenantId },
-        }),
+    safeStorageSet(localStorage, "codenautic:tenant:active", nextTenantId)
+    safeStorageSet(
+        getWindowSessionStorage(),
+        "codenautic:tenant:last-switch",
+        new Date().toISOString(),
     )
+    if (typeof window !== "undefined") {
+        window.dispatchEvent(
+            new CustomEvent("codenautic:tenant-switched", {
+                detail: { nextTenantId, previousTenantId },
+            }),
+        )
+    }
 }
 
 /**
@@ -144,7 +152,7 @@ export function useOrganizationSwitcher(): IOrganizationSwitcherResult {
 
         clearTenantScopedStorage(activeOrganizationId, organizationId)
         setActiveOrganizationId(organizationId)
-        window.localStorage.setItem(TENANT_STORAGE_KEY, organizationId)
+        safeStorageSet(getWindowLocalStorage(), TENANT_STORAGE_KEY, organizationId)
         if (typeof window.BroadcastChannel === "function") {
             const channel = new window.BroadcastChannel(MULTI_TAB_SYNC_CHANNEL)
             channel.postMessage({
