@@ -91,12 +91,7 @@ const INITIAL_AUDIT_LOGS: ReadonlyArray<IAuditLogEntry> = [
 
 const EXTRA_AUDIT_LOGS: ReadonlyArray<IAuditLogEntry> = Array.from({ length: 120 }).map(
     (_entry, index): IAuditLogEntry => {
-        const actors: ReadonlyArray<string> = [
-            "Neo Anderson",
-            "Trinity",
-            "Morpheus",
-            "System",
-        ]
+        const actors: ReadonlyArray<string> = ["Neo Anderson", "Trinity", "Morpheus", "System"]
         const actions: ReadonlyArray<TAuditAction> = [
             "member.invited",
             "role.changed",
@@ -287,7 +282,6 @@ export function SettingsAuditLogsPage(props: ISettingsAuditLogsPageProps = {}): 
             title={t("settings:auditLogs.pageTitle")}
             description={t("settings:auditLogs.pageSubtitle")}
         >
-
             <Card>
                 <CardHeader>
                     <p className={TYPOGRAPHY.sectionTitle}>{t("settings:auditLogs.filters")}</p>
@@ -346,11 +340,21 @@ export function SettingsAuditLogsPage(props: ISettingsAuditLogsPageProps = {}): 
                             }}
                         >
                             <option value="all">{t("settings:auditLogs.allActions")}</option>
-                            <option value="member.invited">{t("settings:auditLogs.memberInvited")}</option>
-                            <option value="role.changed">{t("settings:auditLogs.roleChanged")}</option>
-                            <option value="integration.connected">{t("settings:auditLogs.integrationConnected")}</option>
-                            <option value="policy.updated">{t("settings:auditLogs.policyUpdated")}</option>
-                            <option value="schedule.updated">{t("settings:auditLogs.scheduleUpdated")}</option>
+                            <option value="member.invited">
+                                {t("settings:auditLogs.memberInvited")}
+                            </option>
+                            <option value="role.changed">
+                                {t("settings:auditLogs.roleChanged")}
+                            </option>
+                            <option value="integration.connected">
+                                {t("settings:auditLogs.integrationConnected")}
+                            </option>
+                            <option value="policy.updated">
+                                {t("settings:auditLogs.policyUpdated")}
+                            </option>
+                            <option value="schedule.updated">
+                                {t("settings:auditLogs.scheduleUpdated")}
+                            </option>
                         </select>
                         <div className="flex flex-col gap-1">
                             <label
@@ -411,10 +415,17 @@ export function SettingsAuditLogsPage(props: ISettingsAuditLogsPageProps = {}): 
                         </div>
                     </div>
                     <p className="text-sm text-text-secondary">
-                        {t("settings:auditLogs.showingEntries", { filtered: filteredLogs.length, total: sourceLogs.length })}
+                        {t("settings:auditLogs.showingEntries", {
+                            filtered: filteredLogs.length,
+                            total: sourceLogs.length,
+                        })}
                     </p>
                     {exportMessage.length > 0 ? (
-                        <Alert color="success" title={t("settings:auditLogs.exportCompleted")} variant="flat">
+                        <Alert
+                            color="success"
+                            title={t("settings:auditLogs.exportCompleted")}
+                            variant="flat"
+                        >
                             {exportMessage}
                         </Alert>
                     ) : null}

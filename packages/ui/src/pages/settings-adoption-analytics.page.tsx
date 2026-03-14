@@ -1,6 +1,7 @@
 import { type ReactElement, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 
+import { useDynamicTranslation } from "@/lib/i18n"
 import { Alert, Button, Card, CardBody, CardHeader, Chip } from "@/components/ui"
 import { FormLayout } from "@/components/forms/form-layout"
 import { TYPOGRAPHY } from "@/lib/constants/typography"
@@ -138,6 +139,7 @@ function mapHealthColor(health: IWorkflowHealth["health"]): "danger" | "success"
  */
 export function SettingsAdoptionAnalyticsPage(): ReactElement {
     const { t } = useTranslation(["settings"])
+    const { td } = useDynamicTranslation(["settings"])
     const [range, setRange] = useState<TAnalyticsRange>("30d")
 
     const funnelStages = useMemo((): ReadonlyArray<IFunnelStage> => {
@@ -172,7 +174,6 @@ export function SettingsAdoptionAnalyticsPage(): ReactElement {
             title={t("settings:adoptionAnalytics.pageTitle")}
             description={t("settings:adoptionAnalytics.pageSubtitle")}
         >
-
             <div className="flex flex-wrap gap-2">
                 {(["7d", "30d", "90d"] as const).map(
                     (option): ReactElement => (
@@ -220,7 +221,10 @@ export function SettingsAdoptionAnalyticsPage(): ReactElement {
                         </p>
                     </CardHeader>
                     <CardBody className="space-y-2">
-                        <ul aria-label={t("settings:adoptionAnalytics.workflowHealthListAriaLabel")} className="space-y-2">
+                        <ul
+                            aria-label={t("settings:adoptionAnalytics.workflowHealthListAriaLabel")}
+                            className="space-y-2"
+                        >
                             {workflowHealth.map(
                                 (item): ReactElement => (
                                     <li
@@ -229,14 +233,18 @@ export function SettingsAdoptionAnalyticsPage(): ReactElement {
                                     >
                                         <div className="flex flex-wrap items-center gap-2">
                                             <p className="text-sm font-semibold text-foreground">
-                                                {(t as unknown as (key: string) => string)(`settings:adoptionAnalytics.workflowStage.${WORKFLOW_STAGE_KEYS[item.stage] ?? item.stage}`)}
+                                                {td(
+                                                    `settings:adoptionAnalytics.workflowStage.${WORKFLOW_STAGE_KEYS[item.stage] ?? item.stage}`,
+                                                )}
                                             </p>
                                             <Chip
                                                 color={mapHealthColor(item.health)}
                                                 size="sm"
                                                 variant="flat"
                                             >
-                                                {(t as unknown as (key: string) => string)(`settings:adoptionAnalytics.health.${HEALTH_KEYS[item.health]}`)}
+                                                {td(
+                                                    `settings:adoptionAnalytics.health.${HEALTH_KEYS[item.health]}`,
+                                                )}
                                             </Chip>
                                         </div>
                                         <p className="text-xs text-text-secondary">
@@ -257,7 +265,10 @@ export function SettingsAdoptionAnalyticsPage(): ReactElement {
                     </p>
                 </CardHeader>
                 <CardBody className="space-y-2">
-                    <ul aria-label={t("settings:adoptionAnalytics.adoptionFunnelListAriaLabel")} className="space-y-2">
+                    <ul
+                        aria-label={t("settings:adoptionAnalytics.adoptionFunnelListAriaLabel")}
+                        className="space-y-2"
+                    >
                         {funnelStages.map((stage, index): ReactElement => {
                             const previous =
                                 index === 0
@@ -274,14 +285,19 @@ export function SettingsAdoptionAnalyticsPage(): ReactElement {
                                 >
                                     <div className="flex flex-wrap items-center justify-between gap-2">
                                         <p className="text-sm font-semibold text-foreground">
-                                            {(t as unknown as (key: string) => string)(`settings:adoptionAnalytics.funnelStage.${FUNNEL_STAGE_KEYS[stage.id]}`)}
+                                            {td(
+                                                `settings:adoptionAnalytics.funnelStage.${FUNNEL_STAGE_KEYS[stage.id]}`,
+                                            )}
                                         </p>
                                         <Chip size="sm" variant="flat">
                                             {stage.count}
                                         </Chip>
                                     </div>
                                     <p className="text-xs text-text-secondary">
-                                        {(t as unknown as (key: string, options: Record<string, string>) => string)("settings:adoptionAnalytics.conversionDropOff", { conversion: String(conversion), dropOff: String(dropOff) })}
+                                        {td("settings:adoptionAnalytics.conversionDropOff", {
+                                            conversion: String(conversion),
+                                            dropOff: String(dropOff),
+                                        })}
                                     </p>
                                 </li>
                             )
