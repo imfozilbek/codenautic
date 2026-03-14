@@ -1,4 +1,5 @@
 import type { ReactElement } from "react"
+import { useTranslation } from "react-i18next"
 
 import { TYPOGRAPHY } from "@/lib/constants/typography"
 
@@ -47,6 +48,7 @@ function resolveRiskZone(score: number): "green" | "red" | "yellow" {
  * @returns React-компонент gauge.
  */
 export function ChangeRiskGauge(props: IChangeRiskGaugeProps): ReactElement {
+    const { t } = useTranslation(["code-city"])
     const clampedScore = Math.max(0, Math.min(100, props.currentScore))
     const riskZone = resolveRiskZone(clampedScore)
 
@@ -66,9 +68,9 @@ export function ChangeRiskGauge(props: IChangeRiskGaugeProps): ReactElement {
                 <div
                     className={`flex items-center justify-between ${TYPOGRAPHY.micro} text-muted-foreground`}
                 >
-                    <span>Green</span>
-                    <span>Yellow</span>
-                    <span>Red</span>
+                    <span>{t("code-city:riskGauge.green")}</span>
+                    <span>{t("code-city:riskGauge.yellow")}</span>
+                    <span>{t("code-city:riskGauge.red")}</span>
                 </div>
                 <div className="rounded border border-primary/30 bg-primary/10 p-2">
                     <p className={`${TYPOGRAPHY.overline} text-on-primary`}>Current risk score</p>
