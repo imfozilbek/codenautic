@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next"
 import { useNavigate } from "@tanstack/react-router"
 
 import { Alert, Button, Card, CardBody, CardHeader } from "@/components/ui"
+import { PageShell } from "@/components/layout/page-shell"
 import { NATIVE_FORM } from "@/lib/constants/spacing"
 import { TYPOGRAPHY } from "@/lib/constants/typography"
 import { showToastInfo, showToastSuccess } from "@/lib/notifications/toast"
@@ -57,6 +58,16 @@ function resolveReportStatusBadgeClass(status: TReportStatus): string {
         return "border-warning/40 bg-warning/10 text-warning"
     }
     return "border-danger/40 bg-danger/10 text-danger"
+}
+
+function resolveReportStatusBorderClass(status: TReportStatus): string {
+    if (status === "completed") {
+        return "border-l-2 border-l-success"
+    }
+    if (status === "queued") {
+        return "border-l-2 border-l-warning"
+    }
+    return "border-l-2 border-l-danger"
 }
 
 /**
@@ -142,11 +153,10 @@ export function ReportListPage(): ReactElement {
     }
 
     return (
-        <section className="space-y-4">
-            <h1 className={TYPOGRAPHY.pageTitle}>{t("reports:list.pageTitle")}</h1>
-            <p className={TYPOGRAPHY.pageSubtitle}>
-                {t("reports:list.pageSubtitle")}
-            </p>
+        <PageShell
+            subtitle={t("reports:list.pageSubtitle")}
+            title={t("reports:list.pageTitle")}
+        >
             <div className="flex flex-wrap gap-2">
                 <Button size="sm" variant="flat" onPress={handleOpenGenerator}>
                     {t("reports:list.openGenerator")}
@@ -249,7 +259,7 @@ export function ReportListPage(): ReactElement {
                                 (report): ReactElement => (
                                     <li
                                         aria-label={`Report row ${report.id}`}
-                                        className="rounded border border-border bg-surface p-3"
+                                        className={`rounded border border-border bg-surface p-3 ${resolveReportStatusBorderClass(report.status)}`}
                                         key={report.id}
                                     >
                                         <div className="mb-2 flex flex-wrap items-center gap-2">
@@ -321,6 +331,6 @@ export function ReportListPage(): ReactElement {
                     </Alert>
                 </CardBody>
             </Card>
-        </section>
+        </PageShell>
     )
 }
