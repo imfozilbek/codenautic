@@ -1,6 +1,6 @@
 import { type ReactElement, useMemo, useState } from "react"
 
-import { Button, Chip, Drawer, DrawerBody, DrawerContent, DrawerHeader } from "@/components/ui"
+import { Button, Chip, Modal } from "@heroui/react"
 import { useDynamicTranslation } from "@/lib/i18n"
 import { TYPOGRAPHY } from "@/lib/constants/typography"
 
@@ -144,7 +144,7 @@ export function DataFreshnessPanel(props: IDataFreshnessPanelProps): ReactElemen
                             <Chip
                                 color={getFreshnessChipColor(freshnessState)}
                                 size="sm"
-                                variant="flat"
+                                variant="soft"
                             >
                                 {getFreshnessChipLabel(freshnessState, td)}
                             </Chip>
@@ -159,7 +159,7 @@ export function DataFreshnessPanel(props: IDataFreshnessPanelProps): ReactElemen
                     <div className="flex flex-wrap gap-2">
                         <Button
                             size="sm"
-                            variant="flat"
+                            variant="secondary"
                             onPress={(): void => {
                                 if (props.onRefresh !== undefined) {
                                     props.onRefresh()
@@ -170,7 +170,7 @@ export function DataFreshnessPanel(props: IDataFreshnessPanelProps): ReactElemen
                         </Button>
                         <Button
                             size="sm"
-                            variant="flat"
+                            variant="secondary"
                             onPress={(): void => {
                                 if (props.onRescan !== undefined) {
                                     props.onRescan()
@@ -181,7 +181,7 @@ export function DataFreshnessPanel(props: IDataFreshnessPanelProps): ReactElemen
                         </Button>
                         <Button
                             size="sm"
-                            variant="flat"
+                            variant="secondary"
                             onPress={(): void => {
                                 setIsDrawerOpen(true)
                             }}
@@ -192,14 +192,16 @@ export function DataFreshnessPanel(props: IDataFreshnessPanelProps): ReactElemen
                 </div>
             </section>
 
-            <Drawer isOpen={isDrawerOpen} onOpenChange={setIsDrawerOpen}>
-                <DrawerContent className="!m-0 !ml-auto !h-full !w-[min(92vw,420px)] !rounded-none bg-surface text-foreground">
-                    <DrawerHeader className="border-b border-border px-4 py-3">
+            <Modal isOpen={isDrawerOpen} onOpenChange={setIsDrawerOpen}>
+                <Modal.Backdrop>
+                <Modal.Container className="!items-stretch !justify-end !p-0">
+                <Modal.Dialog className="!m-0 !h-full !w-[min(92vw,420px)] !rounded-none bg-surface text-foreground">
+                    <div className="border-b border-border px-4 py-3">
                         <h2 className={TYPOGRAPHY.sectionTitle}>
                             {td("common:freshness.provenanceTitle")}
                         </h2>
-                    </DrawerHeader>
-                    <DrawerBody className="space-y-3 px-4 py-3">
+                    </div>
+                    <div className="flex-1 overflow-y-auto space-y-3 px-4 py-3">
                         <dl className="grid grid-cols-[130px_1fr] gap-x-2 gap-y-2 text-sm">
                             <dt className="text-text-subtle">
                                 {td("common:freshness.provenanceSource")}
@@ -251,7 +253,7 @@ export function DataFreshnessPanel(props: IDataFreshnessPanelProps): ReactElemen
                             </a>
                             <Button
                                 size="sm"
-                                variant="flat"
+                                variant="secondary"
                                 onPress={(): void => {
                                     if (props.onRescan !== undefined) {
                                         props.onRescan()
@@ -261,9 +263,11 @@ export function DataFreshnessPanel(props: IDataFreshnessPanelProps): ReactElemen
                                 {td("common:freshness.refreshRescan")}
                             </Button>
                         </div>
-                    </DrawerBody>
-                </DrawerContent>
-            </Drawer>
+                    </div>
+                </Modal.Dialog>
+                </Modal.Container>
+                </Modal.Backdrop>
+            </Modal>
         </>
     )
 }

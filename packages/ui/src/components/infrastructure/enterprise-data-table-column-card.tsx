@@ -1,7 +1,7 @@
 import { type ReactElement } from "react"
 import { useTranslation } from "react-i18next"
 
-import { Button, Chip, Select, SelectItem, Slider, Tooltip } from "@/components/ui"
+import { type Key, Button, Chip, ListBox, ListBoxItem, Select, Slider, Tooltip } from "@heroui/react"
 
 /**
  * Свойства карточки управления колонкой таблицы.
@@ -37,15 +37,6 @@ export interface IColumnCardProps {
     readonly onWidthChangeEnd: (width: number) => void
 }
 
-/**
- * Форматирует значение ширины колонки для отображения.
- *
- * @param value Ширина в пикселях.
- * @returns Строка вида "200px".
- */
-function formatWidthOutput(value: number): string {
-    return `${String(value)}px`
-}
 
 /**
  * Карточка управления отдельной колонкой enterprise-таблицы.
@@ -67,17 +58,17 @@ export function ColumnCard(props: IColumnCardProps): ReactElement {
             <div className="flex items-center gap-1.5">
                 <p className="text-xs font-semibold uppercase tracking-[0.08em]">{props.header}</p>
                 {props.isVisible === false ? (
-                    <Chip color="default" size="sm" variant="flat">
+                    <Chip size="sm" variant="soft">
                         {t("common:dataTable.columnHidden")}
                     </Chip>
                 ) : null}
                 {props.pinnedSide === "left" ? (
-                    <Chip color="primary" size="sm" variant="flat">
+                    <Chip color="accent" size="sm" variant="soft">
                         {t("common:dataTable.columnPinnedLeft")}
                     </Chip>
                 ) : null}
                 {props.pinnedSide === "right" ? (
-                    <Chip color="primary" size="sm" variant="flat">
+                    <Chip color="accent" size="sm" variant="soft">
                         {t("common:dataTable.columnPinnedRight")}
                     </Chip>
                 ) : null}
@@ -95,7 +86,7 @@ export function ColumnCard(props: IColumnCardProps): ReactElement {
                                   })
                         }
                         size="sm"
-                        variant="flat"
+                        variant="secondary"
                         onPress={props.onToggleVisibility}
                     >
                         {props.isVisible ? t("common:dataTable.hide") : t("common:dataTable.show")}
@@ -106,7 +97,7 @@ export function ColumnCard(props: IColumnCardProps): ReactElement {
                         aria-label={t("common:dataTable.moveLeft")}
                         isDisabled={props.index === 0}
                         size="sm"
-                        variant="flat"
+                        variant="secondary"
                         onPress={props.onMoveLeft}
                     >
                         ←
@@ -117,7 +108,7 @@ export function ColumnCard(props: IColumnCardProps): ReactElement {
                         aria-label={t("common:dataTable.moveRight")}
                         isDisabled={props.index === props.totalColumns - 1}
                         size="sm"
-                        variant="flat"
+                        variant="secondary"
                         onPress={props.onMoveRight}
                     >
                         →
@@ -126,38 +117,41 @@ export function ColumnCard(props: IColumnCardProps): ReactElement {
                 <Select
                     aria-label={t("common:dataTable.pinColumnAriaLabel", { column: props.header })}
                     className="w-36"
-                    selectedKeys={new Set([pinValue])}
-                    size="sm"
-                    onSelectionChange={(keys): void => {
-                        if (keys === "all") {
-                            return
-                        }
-                        const selected = keys.values().next()
-                        if (selected.done === true) {
-                            return
-                        }
-                        const nextValue = String(selected.value)
-                        if (nextValue === "left" || nextValue === "right") {
-                            props.onPinChange(nextValue)
+                    selectedKey={pinValue}
+                    onSelectionChange={(nextValue: Key | null): void => {
+                        const value = String(nextValue)
+                        if (value === "left" || value === "right") {
+                            props.onPinChange(value)
                             return
                         }
                         props.onPinChange(false)
                     }}
                 >
-                    <SelectItem value="none">{t("common:dataTable.pinNone")}</SelectItem>
-                    <SelectItem value="left">{t("common:dataTable.pinLeft")}</SelectItem>
-                    <SelectItem value="right">{t("common:dataTable.pinRight")}</SelectItem>
+                    <Select.Trigger>
+                        <Select.Value />
+                    </Select.Trigger>
+                    <Select.Popover>
+                        <ListBox>
+                            <ListBoxItem id="none" textValue={t("common:dataTable.pinNone")}>{t("common:dataTable.pinNone")}</ListBoxItem>
+                            <ListBoxItem id="left" textValue={t("common:dataTable.pinLeft")}>{t("common:dataTable.pinLeft")}</ListBoxItem>
+                            <ListBoxItem id="right" textValue={t("common:dataTable.pinRight")}>{t("common:dataTable.pinRight")}</ListBoxItem>
+                        </ListBox>
+                    </Select.Popover>
                 </Select>
             </div>
             <Slider
                 aria-label={t("common:dataTable.columnWidth") + ` ${props.header}`}
                 className="mt-2"
-                formatOutput={formatWidthOutput}
                 maxValue={420}
                 minValue={120}
-                onChange={props.onWidthChange}
-                onChangeEnd={props.onWidthChangeEnd}
-                showOutput={true}
+                onChange={(value: number | number[]): void => {
+                    const numericValue = Array.isArray(value) ? (value[0] ?? props.currentWidth) : value
+                    props.onWidthChange(numericValue)
+                }}
+                onChangeEnd={(value: number | number[]): void => {
+                    const numericValue = Array.isArray(value) ? (value[0] ?? props.currentWidth) : value
+                    props.onWidthChangeEnd(numericValue)
+                }}
                 step={10}
                 value={props.currentWidth}
             />
