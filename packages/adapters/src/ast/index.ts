@@ -110,6 +110,12 @@ export {
     type IGoSourceCodeParserOptions,
 } from "./go-source-code-parser"
 export {
+    assertJavaParserLanguage,
+    JavaSourceCodeParser,
+    type IJavaSourceCodeParserOptions,
+    type JavaParserLanguage,
+} from "./java-source-code-parser"
+export {
     assertJavaScriptParserLanguage,
     JavaScriptSourceCodeParser,
     type IJavaScriptSourceCodeParserOptions,

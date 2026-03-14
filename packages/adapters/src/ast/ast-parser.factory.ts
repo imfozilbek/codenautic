@@ -17,6 +17,10 @@ import {
     GoSourceCodeParser,
 } from "./go-source-code-parser"
 import {
+    assertJavaParserLanguage,
+    JavaSourceCodeParser,
+} from "./java-source-code-parser"
+import {
     assertTypeScriptParserLanguage,
     TypeScriptSourceCodeParser,
 } from "./typescript-source-code-parser"
@@ -106,6 +110,11 @@ const DEFAULT_AST_PARSER_CREATORS: Readonly<
     [AST_LANGUAGE.GO](): ISourceCodeParser {
         return new GoSourceCodeParser({
             language: assertGoParserLanguage(AST_LANGUAGE.GO),
+        })
+    },
+    [AST_LANGUAGE.JAVA](): ISourceCodeParser {
+        return new JavaSourceCodeParser({
+            language: assertJavaParserLanguage(AST_LANGUAGE.JAVA),
         })
     },
 }
