@@ -2,6 +2,8 @@ import {
     Activity,
     AlertTriangle,
     Archive,
+    ArrowDownRight,
+    ArrowUpRight,
     Bell,
     BellRing,
     Bug,
@@ -42,12 +44,15 @@ import {
     Users,
     Webhook,
     X,
+    Minus,
 } from "lucide-react"
 
 export {
     Activity,
     AlertTriangle,
     Archive,
+    ArrowDownRight,
+    ArrowUpRight,
     Bell,
     BellRing,
     Bug,
@@ -75,6 +80,7 @@ export {
     LifeBuoy,
     Link2,
     Menu,
+    Minus,
     Moon,
     Paintbrush,
     RefreshCcw,
