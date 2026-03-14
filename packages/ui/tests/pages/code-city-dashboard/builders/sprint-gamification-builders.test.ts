@@ -178,13 +178,13 @@ describe("buildSprintAchievements", (): void => {
 
 describe("buildTeamLeaderboardEntries", (): void => {
     const contributors = [
-        { ownerId: "alice", ownerName: "Alice", commitCount: 50, color: "#ff0000" },
-        { ownerId: "bob", ownerName: "Bob", commitCount: 30, color: "#00ff00" },
+        { ownerId: "neo", ownerName: "Neo", commitCount: 50, color: "#ff0000" },
+        { ownerId: "trinity", ownerName: "Trinity", commitCount: 30, color: "#00ff00" },
     ]
 
     const ownership = [
-        { fileId: "f1", ownerId: "alice" },
-        { fileId: "f2", ownerId: "bob" },
+        { fileId: "f1", ownerId: "neo" },
+        { fileId: "f2", ownerId: "trinity" },
     ]
 
     it("when given files, contributors, and ownership, then returns leaderboard", (): void => {
@@ -234,7 +234,7 @@ describe("buildTeamLeaderboardEntries", (): void => {
     })
 
     it("when ownership references missing file, then skips it", (): void => {
-        const badOwnership = [{ fileId: "nonexistent", ownerId: "alice" }]
+        const badOwnership = [{ fileId: "nonexistent", ownerId: "neo" }]
 
         const entries = buildTeamLeaderboardEntries(testFiles, contributors, badOwnership)
 
@@ -255,12 +255,12 @@ describe("buildTeamLeaderboardEntries", (): void => {
 
     it("when two contributors have same quality sprint, then sorts by name", (): void => {
         const sameQualityContributors = [
-            { ownerId: "bob", ownerName: "Bob", commitCount: 50, color: "#00ff00" },
-            { ownerId: "alice", ownerName: "Alice", commitCount: 50, color: "#ff0000" },
+            { ownerId: "trinity", ownerName: "Trinity", commitCount: 50, color: "#00ff00" },
+            { ownerId: "neo", ownerName: "Neo", commitCount: 50, color: "#ff0000" },
         ]
         const sameOwnership = [
-            { fileId: "f1", ownerId: "alice" },
-            { fileId: "f1", ownerId: "bob" },
+            { fileId: "f1", ownerId: "neo" },
+            { fileId: "f1", ownerId: "trinity" },
         ]
 
         const entries = buildTeamLeaderboardEntries(
@@ -274,14 +274,14 @@ describe("buildTeamLeaderboardEntries", (): void => {
 
     it("when ownership has duplicate fileId for same owner, then deduplicates", (): void => {
         const dupOwnership = [
-            { fileId: "f1", ownerId: "alice" },
-            { fileId: "f1", ownerId: "alice" },
+            { fileId: "f1", ownerId: "neo" },
+            { fileId: "f1", ownerId: "neo" },
         ]
 
         const entries = buildTeamLeaderboardEntries(testFiles, contributors, dupOwnership)
 
-        const aliceEntry = entries.find((e) => e.ownerId === "alice")
-        expect(aliceEntry?.fileIds).toHaveLength(1)
+        const neoEntry = entries.find((e) => e.ownerId === "neo")
+        expect(neoEntry?.fileIds).toHaveLength(1)
     })
 })
 
