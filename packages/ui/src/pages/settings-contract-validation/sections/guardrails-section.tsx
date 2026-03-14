@@ -39,7 +39,9 @@ export function GuardrailsSection({ state }: IGuardrailsSectionProps): ReactElem
                     onValueChange={state.setGuardrailsYaml}
                 />
                 <div className="flex gap-2">
-                    <Button color="primary" onPress={state.handleValidateGuardrails}>Validate guardrails</Button>
+                    <Button color="primary" onPress={state.handleValidateGuardrails}>
+                        Validate guardrails
+                    </Button>
                     <Button variant="flat" onPress={state.handleApplyGuardrails}>
                         Apply guardrails
                     </Button>

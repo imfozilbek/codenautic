@@ -104,7 +104,9 @@ export function DriftViolationsSection({ state }: IDriftViolationsSectionProps):
                         </label>
                     </div>
                     <div className="flex flex-wrap items-center gap-2">
-                        <Button color="primary" onPress={state.handleExportDriftReport}>Export drift report</Button>
+                        <Button color="primary" onPress={state.handleExportDriftReport}>
+                            Export drift report
+                        </Button>
                         <span className="text-xs text-text-secondary">
                             Filtered violations:{" "}
                             {String(state.filteredSortedDriftViolations.length)}

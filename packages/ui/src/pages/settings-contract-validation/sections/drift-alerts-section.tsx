@@ -110,7 +110,9 @@ export function DriftAlertsSection({ state }: IDriftAlertsSectionProps): ReactEl
                         ? " Alert will trigger with current drift data."
                         : " Alert will not trigger with current drift data."}
                 </Alert>
-                <Button color="primary" onPress={state.handleSaveDriftAlertConfig}>Save drift alert config</Button>
+                <Button color="primary" onPress={state.handleSaveDriftAlertConfig}>
+                    Save drift alert config
+                </Button>
                 <Alert color="primary" title="Drift alert save status" variant="flat">
                     {state.driftAlertSaveStatus}
                 </Alert>

@@ -51,7 +51,9 @@ export function BlueprintSection({ state }: IBlueprintSectionProps): ReactElemen
                                 type="file"
                             />
                         </label>
-                        <Button color="primary" onPress={state.handleValidateBlueprint}>Validate blueprint</Button>
+                        <Button color="primary" onPress={state.handleValidateBlueprint}>
+                            Validate blueprint
+                        </Button>
                         <Button variant="flat" onPress={state.handleApplyBlueprint}>
                             Apply blueprint
                         </Button>

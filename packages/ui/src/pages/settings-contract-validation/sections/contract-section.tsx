@@ -38,7 +38,9 @@ export function ContractSection({ state }: IContractSectionProps): ReactElement 
                         onValueChange={state.setRawContract}
                     />
                     <div className="flex gap-2">
-                        <Button color="primary" onPress={state.handleValidateContract}>Validate contract</Button>
+                        <Button color="primary" onPress={state.handleValidateContract}>
+                            Validate contract
+                        </Button>
                         <Button variant="flat" onPress={state.handleApplyContract}>
                             Apply validated contract
                         </Button>
