@@ -1,6 +1,6 @@
 import { type ReactElement } from "react"
 import { type FieldPath, type FieldValues } from "react-hook-form"
-import { Switch } from "@/components/ui"
+import { Switch } from "@heroui/react"
 
 import { FormField, type IFormFieldProps } from "./form-field"
 
@@ -42,9 +42,8 @@ export function FormSwitchField<
                     aria-label={accessibilityLabel}
                     aria-invalid={hasError}
                     name={field.name}
-                    isInvalid={hasError}
                     isSelected={field.value === true}
-                    onValueChange={field.onChange}
+                    onChange={field.onChange}
                 >
                     {props.label}
                 </Switch>

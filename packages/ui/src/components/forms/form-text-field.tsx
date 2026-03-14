@@ -1,7 +1,6 @@
 import { type ReactElement } from "react"
 import { type FieldPath, type FieldValues } from "react-hook-form"
-import { Input } from "@/components/ui"
-import { type InputProps } from "@/components/ui/input"
+import { Input, type InputProps } from "@heroui/react"
 
 import { FormField, type IFormFieldProps } from "./form-field"
 
@@ -15,7 +14,7 @@ export interface IFormTextFieldProps<
     /** Пропсы HeroUI Input без связанных с контролируемым значением полей. */
     readonly inputProps?: Omit<
         InputProps,
-        "name" | "value" | "defaultValue" | "onChange" | "onBlur" | "isInvalid"
+        "name" | "value" | "defaultValue" | "onChange" | "onBlur"
     >
 }
 
@@ -51,7 +50,6 @@ export function FormTextField<
                         aria-invalid={hasError}
                         id={fieldId}
                         disabled={isInputDisabled}
-                        isInvalid={hasError}
                         name={field.name}
                         value={value}
                         onBlur={field.onBlur}
