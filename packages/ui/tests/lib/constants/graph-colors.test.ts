@@ -1,13 +1,6 @@
 import { describe, expect, it } from "vitest"
 
-import {
-    GRAPH_EXPORT_PALETTE,
-    resolveGraphExportPalette,
-    KNOWLEDGE_MAP_BACKGROUND,
-    GRAPH_EXPORT_NODE_STROKE,
-    BUS_FACTOR_SERIES_COLORS,
-    REPORT_DEFAULT_ACCENT_COLOR,
-} from "@/lib/constants/graph-colors"
+import { GRAPH_EXPORT_PALETTE, resolveGraphExportPalette } from "@/lib/constants/graph-colors"
 
 describe("GRAPH_EXPORT_PALETTE", (): void => {
     it("when accessed, then contains all domain groups", (): void => {
@@ -37,11 +30,11 @@ describe("GRAPH_EXPORT_PALETTE", (): void => {
     })
 })
 
-describe("deprecated re-exports", (): void => {
-    it("when legacy constants are imported, then match palette values", (): void => {
-        expect(KNOWLEDGE_MAP_BACKGROUND).toBe(GRAPH_EXPORT_PALETTE.knowledgeMap.background)
-        expect(GRAPH_EXPORT_NODE_STROKE).toBe(GRAPH_EXPORT_PALETTE.graphLayout.nodeStroke)
-        expect(BUS_FACTOR_SERIES_COLORS).toBe(GRAPH_EXPORT_PALETTE.busFactor.seriesColors)
-        expect(REPORT_DEFAULT_ACCENT_COLOR).toBe(GRAPH_EXPORT_PALETTE.report.defaultAccentColor)
+describe("palette property access", (): void => {
+    it("when palette properties are accessed directly, then return correct values", (): void => {
+        expect(GRAPH_EXPORT_PALETTE.knowledgeMap.background).toMatch(/^#[0-9a-f]{6}$/i)
+        expect(GRAPH_EXPORT_PALETTE.graphLayout.nodeStroke).toMatch(/^#[0-9a-f]{6}$/i)
+        expect(GRAPH_EXPORT_PALETTE.busFactor.seriesColors).toHaveLength(5)
+        expect(GRAPH_EXPORT_PALETTE.report.defaultAccentColor).toMatch(/^#[0-9a-f]{6}$/i)
     })
 })

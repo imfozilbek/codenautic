@@ -3,9 +3,6 @@ import { describe, expect, it } from "vitest"
 import {
     CODECITY_PALETTE,
     resolveCodeCityPalette,
-    CAUSAL_ARC_COLOR_DEPENDENCY,
-    SCENE_BACKGROUND,
-    BUILDING_COLOR_HIGH_COVERAGE,
 } from "@/lib/constants/codecity-colors"
 
 describe("CODECITY_PALETTE", (): void => {
@@ -46,12 +43,10 @@ describe("CODECITY_PALETTE", (): void => {
         const resolved = resolveCodeCityPalette()
         expect(resolved).toBe(CODECITY_PALETTE)
     })
-})
 
-describe("deprecated re-exports", (): void => {
-    it("when legacy constants are imported, then match palette values", (): void => {
-        expect(CAUSAL_ARC_COLOR_DEPENDENCY).toBe(CODECITY_PALETTE.causal.dependency)
-        expect(SCENE_BACKGROUND).toBe(CODECITY_PALETTE.scene.background)
-        expect(BUILDING_COLOR_HIGH_COVERAGE).toBe(CODECITY_PALETTE.coverage.high)
+    it("when palette values are accessed directly, then match expected hex colors", (): void => {
+        expect(CODECITY_PALETTE.causal.dependency).toBe("#fb923c")
+        expect(CODECITY_PALETTE.scene.background).toBe("#020617")
+        expect(CODECITY_PALETTE.coverage.high).toBe("#22c55e")
     })
 })
