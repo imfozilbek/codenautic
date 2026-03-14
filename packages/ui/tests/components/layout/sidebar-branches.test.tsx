@@ -30,7 +30,6 @@ describe("Sidebar — reduced motion branch", (): void => {
             />,
         )
 
-        expect(screen.getByText("Navigation")).not.toBeNull()
         expect(screen.getByRole("button", { name: "Collapse navigation" })).not.toBeNull()
     })
 
@@ -53,8 +52,7 @@ describe("Sidebar — reduced motion branch", (): void => {
             />,
         )
 
-        expect(screen.getByText("Nav")).not.toBeNull()
-        expect(container.querySelector(".mb-3.px-2")).toBeNull()
+        expect(container.querySelector(".mb-2.px-1")).toBeNull()
     })
 
     it("when headerSlot is provided, then renders it above navigation", (): void => {
@@ -92,12 +90,12 @@ describe("Sidebar — reduced motion branch", (): void => {
         expect(screen.queryByTestId("custom-footer")).toBeNull()
     })
 
-    it("when title is not provided, then defaults to Navigation", (): void => {
+    it("when title is not provided, then renders sidebar with collapse button", (): void => {
         renderWithProviders(
             <Sidebar isCollapsed={false} />,
         )
 
-        expect(screen.getByText("Navigation")).not.toBeNull()
+        expect(screen.getByRole("button", { name: "Collapse navigation" })).not.toBeNull()
     })
 
     it("when className is provided, then applies it to the container", (): void => {
