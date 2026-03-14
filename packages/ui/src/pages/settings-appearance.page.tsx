@@ -17,6 +17,7 @@ import {
     formatLocalizedNumber,
     useLocale,
 } from "@/lib/i18n"
+import { FormLayout } from "@/components/forms/form-layout"
 import { NATIVE_FORM } from "@/lib/constants/spacing"
 import { TYPOGRAPHY } from "@/lib/constants/typography"
 import {
@@ -1223,12 +1224,10 @@ export function SettingsAppearancePage(): ReactElement {
     }
 
     return (
-        <section className="space-y-4">
-            <h1 className={TYPOGRAPHY.pageTitle}>{t("settings:appearance.pageTitle")}</h1>
-            <p className={TYPOGRAPHY.pageSubtitle}>
-                {t("settings:appearance.pageSubtitle")}
-            </p>
-
+        <FormLayout
+            title={t("settings:appearance.pageTitle")}
+            description={t("settings:appearance.pageSubtitle")}
+        >
             <LanguageSection />
 
             <Card>
@@ -1240,7 +1239,7 @@ export function SettingsAppearancePage(): ReactElement {
                 </CardHeader>
                 <CardBody className="space-y-3">
                     <ThemeToggle />
-                    <div className="flex flex-wrap items-center gap-2 text-xs text-text-secondary">
+                    <div className="sr-only">
                         <Chip size="sm" variant="flat">
                             {t("settings:appearance.chipMode", { value: mode })}
                         </Chip>
@@ -1268,6 +1267,7 @@ export function SettingsAppearancePage(): ReactElement {
                                         aria-label={`Quick preset ${themePreset.label}`}
                                         radius="full"
                                         size="sm"
+                                        color="primary"
                                         variant={themePreset.id === preset ? "solid" : "flat"}
                                         onPress={(): void => {
                                             setPreset(themePreset.id)
@@ -1308,7 +1308,7 @@ export function SettingsAppearancePage(): ReactElement {
                                     {t("settings:appearance.previewPresetHint")}
                                 </p>
                                 <div className="mt-2 flex flex-wrap gap-2">
-                                    <Button size="sm" onPress={handleApplyRandomPreset}>
+                                    <Button color="primary" size="sm" onPress={handleApplyRandomPreset}>
                                         {t("settings:appearance.applyRandomPreset")}
                                     </Button>
                                     <Button
@@ -1383,6 +1383,7 @@ export function SettingsAppearancePage(): ReactElement {
                                             aria-pressed={basePaletteId === tone.id}
                                             radius="full"
                                             size="sm"
+                                            color="primary"
                                             variant={basePaletteId === tone.id ? "solid" : "flat"}
                                             onPress={(): void => {
                                                 setBasePaletteId(tone.id)
@@ -1537,7 +1538,7 @@ export function SettingsAppearancePage(): ReactElement {
                             </select>
                         </div>
                         <div className="flex items-end">
-                            <Button onPress={handleCreateLibraryTheme}>{t("settings:appearance.saveCurrentTheme")}</Button>
+                            <Button color="primary" onPress={handleCreateLibraryTheme}>{t("settings:appearance.saveCurrentTheme")}</Button>
                         </div>
                     </div>
 
@@ -1655,6 +1656,6 @@ export function SettingsAppearancePage(): ReactElement {
                     </p>
                 </CardBody>
             </Card>
-        </section>
+        </FormLayout>
     )
 }
