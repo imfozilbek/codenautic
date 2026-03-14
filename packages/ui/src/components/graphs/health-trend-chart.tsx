@@ -161,7 +161,9 @@ export function HealthTrendChart(props: IHealthTrendChartProps): ReactElement {
         return (
             <div aria-label={title} className="rounded-md border border-default-200 p-3">
                 <p className="text-sm font-semibold">{title}</p>
-                <p className="text-sm text-foreground-500">{t("code-city:healthTrendComp.noData")}</p>
+                <p className="text-sm text-foreground-500">
+                    {t("code-city:healthTrendComp.noData")}
+                </p>
             </div>
         )
     }
@@ -241,7 +243,9 @@ export function HealthTrendChart(props: IHealthTrendChartProps): ReactElement {
                                         y2={PADDING_TOP + 8}
                                     />
                                     <text
-                                        aria-label={t("code-city:healthTrendComp.ariaEvent", { annotation: point.annotation })}
+                                        aria-label={t("code-city:healthTrendComp.ariaEvent", {
+                                            annotation: point.annotation,
+                                        })}
                                         fill="hsl(12, 90%, 55%)"
                                         fontSize="9"
                                         x={x + 3}
@@ -256,8 +260,15 @@ export function HealthTrendChart(props: IHealthTrendChartProps): ReactElement {
                 })}
             </svg>
             {stats === undefined ? null : (
-                <p aria-label={t("code-city:healthTrendComp.ariaStats")} className="text-xs text-foreground-500">
-                    {t("code-city:healthTrendComp.stats", { avg: stats.avg, min: stats.min, max: stats.max })}
+                <p
+                    aria-label={t("code-city:healthTrendComp.ariaStats")}
+                    className="text-xs text-foreground-500"
+                >
+                    {t("code-city:healthTrendComp.stats", {
+                        avg: stats.avg,
+                        min: stats.min,
+                        max: stats.max,
+                    })}
                 </p>
             )}
         </div>
