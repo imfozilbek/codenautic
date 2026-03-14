@@ -21,8 +21,12 @@
 | **API Breaking Changes** | Прямая (pipeline detection) | Средняя (агент должен не ломать) |
 | **Defect Prediction** | Прямая (Predictive Analytics) | Нет |
 | **Refactoring-Aware Reviews** | Прямая (RAID = наш подход) | Нет |
+| **Testing & Test Quality** | Прямая (CheckImplementation) | Средняя (агент должен писать тесты) |
+| **JavaScript / Frontend** | Прямая (React smells, рефакторинги) | Средняя (агент пишет JS/TS) |
+| **Developer Collaboration** | Прямая (Team Metrics, Knowledge Map) | Нет |
+| **Software Metrics** | Прямая (ScoreRisk, CodeCity) | Нет |
 
-## Файлы
+## Файлы (14 тем)
 
 | Файл | Тема |
 |---|---|
@@ -36,3 +40,14 @@
 | [api-evolution.md](./api-evolution.md) | API Breaking Changes, Deprecation, Migration |
 | [defect-prediction.md](./defect-prediction.md) | Defect Prediction, Performance Regression |
 | [code-review-tools.md](./code-review-tools.md) | RAID, Refactoring-Aware Code Reviews |
+| [testing-quality.md](./testing-quality.md) | Test Quality, Coverage, Mocking, Snapshot Testing, BDD |
+| [javascript-frontend.md](./javascript-frontend.md) | React Code Smells, JS Evolution, Framework Adoption |
+| [developer-collaboration.md](./developer-collaboration.md) | Collaboration Networks, OS Maintenance, GitHub Dynamics |
+| [software-metrics.md](./software-metrics.md) | Metric Thresholds, Complexity Evolution, Utility Functions |
+
+## Статистика покрытия
+
+- **~100+ публикаций** проанализировано (2003-2026)
+- **14 тематических файлов** с маппингом на features CodeNautic
+- **3 ACM Distinguished Paper Awards** в покрытых работах
+- **15+ PhD/Master theses** процитировано
