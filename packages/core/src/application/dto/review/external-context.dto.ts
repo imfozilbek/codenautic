@@ -1,7 +1,14 @@
 /**
  * Supported external context source systems.
  */
-export const EXTERNAL_CONTEXT_SOURCE = ["JIRA", "LINEAR", "SENTRY", "DATADOG", "POSTHOG"] as const
+export const EXTERNAL_CONTEXT_SOURCE = [
+    "JIRA",
+    "LINEAR",
+    "SENTRY",
+    "ASANA",
+    "DATADOG",
+    "POSTHOG",
+] as const
 
 /**
  * Union of supported external context source systems.
@@ -162,6 +169,76 @@ export interface ILinearIssue {
      * Optional normalized list of child issues.
      */
     readonly subIssues?: readonly ILinearSubIssue[]
+}
+
+/**
+ * External project hierarchy model for Asana platform.
+ */
+export interface IAsanaProjectHierarchy {
+    /**
+     * Stable Asana project identifier.
+     */
+    readonly projectId: string
+
+    /**
+     * Human-readable Asana project name.
+     */
+    readonly projectName: string
+
+    /**
+     * Optional Asana section identifier.
+     */
+    readonly sectionId?: string
+
+    /**
+     * Optional Asana section name.
+     */
+    readonly sectionName?: string
+}
+
+/**
+ * External task model for Asana platform.
+ */
+export interface IAsanaTask {
+    /**
+     * Stable Asana task identifier.
+     */
+    readonly id: string
+
+    /**
+     * Human-readable task title.
+     */
+    readonly title: string
+
+    /**
+     * Current workflow status label.
+     */
+    readonly status: string
+
+    /**
+     * Optional normalized task description.
+     */
+    readonly description?: string
+
+    /**
+     * Optional normalized assignee name.
+     */
+    readonly assignee?: string
+
+    /**
+     * Optional due date in ISO format.
+     */
+    readonly dueDate?: string
+
+    /**
+     * Optional project hierarchy associated with task.
+     */
+    readonly projectHierarchy?: readonly IAsanaProjectHierarchy[]
+
+    /**
+     * Optional normalized tag labels.
+     */
+    readonly tags?: readonly string[]
 }
 
 /**

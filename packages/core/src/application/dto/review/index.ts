@@ -21,6 +21,8 @@ export {
 export {
     EXTERNAL_CONTEXT_SOURCE,
     type ExternalContextSource,
+    type IAsanaProjectHierarchy,
+    type IAsanaTask,
     type IExternalContext,
     type IJiraTicket,
     type ILinearIssue,

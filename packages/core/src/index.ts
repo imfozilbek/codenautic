@@ -100,6 +100,7 @@ export {
     type IFeedbackRepository,
 } from "./application/ports/outbound/feedback-repository.port"
 export {
+    type IAsanaProvider,
     type IExternalContextProvider,
     type IJiraProvider,
     type ILinearProvider,
@@ -403,6 +404,8 @@ export {
     type IReviewPromptOverrideSeverityFlagsDTO,
     type ValidatedConfig,
     type ExternalContextSource,
+    type IAsanaProjectHierarchy,
+    type IAsanaTask,
     type IExternalContext,
     type ILinearIssue,
     type ILinearProjectContext,

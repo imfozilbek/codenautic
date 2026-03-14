@@ -1,4 +1,5 @@
 import type {
+    IAsanaTask,
     ExternalContextSource,
     IExternalContext,
     IJiraTicket,
@@ -48,6 +49,19 @@ export interface ILinearProvider {
      * @returns Linear issue payload or null when not found.
      */
     getIssue(issueId: string): Promise<ILinearIssue | null>
+}
+
+/**
+ * Asana-specific provider contract.
+ */
+export interface IAsanaProvider {
+    /**
+     * Loads Asana task by identifier.
+     *
+     * @param taskId Asana task identifier.
+     * @returns Asana task payload or null when not found.
+     */
+    getTask(taskId: string): Promise<IAsanaTask | null>
 }
 
 /**
