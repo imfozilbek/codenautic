@@ -4,7 +4,7 @@ import { Suspense, lazy } from "react"
 import { createFileRoute } from "@tanstack/react-router"
 
 import { RouteSuspenseFallback } from "@/app/route-suspense-fallback"
-import { StyledLink } from "@/components/ui"
+import { StyledLink } from "@/components/layout/styled-link"
 import { AuthBoundary } from "@/lib/auth/auth-boundary"
 import { DashboardLayout } from "@/components/layout"
 import type {

@@ -1,12 +1,7 @@
 import type { ReactElement } from "react"
-import { Suspense, lazy } from "react"
 
-import { createFileRoute } from "@tanstack/react-router"
-import { useNavigate } from "@tanstack/react-router"
+import { createFileRoute, Outlet } from "@tanstack/react-router"
 
-import { RouteSuspenseFallback } from "@/app/route-suspense-fallback"
-import { AuthBoundary } from "@/lib/auth/auth-boundary"
-import { DashboardLayout } from "@/components/layout"
 import { type ICcrFilters } from "@/pages/ccr-management.page"
 import {
     getWindowLocalStorage,
@@ -15,30 +10,6 @@ import {
 } from "@/lib/utils/safe-storage"
 
 export const REVIEWS_FILTER_PERSISTENCE_KEY = "reviews:filters:v1"
-
-const LazyCcrManagementPage = lazy(
-    async (): Promise<{
-        default: (
-            props: ICcrFilters & {
-                onFilterChange: (next: ICcrFilters) => void
-            },
-        ) => ReactElement
-    }> => {
-        const pageModule = await import("@/pages/ccr-management.page")
-
-        return {
-            default: (props): ReactElement => (
-                <pageModule.CcrManagementPage
-                    onFilterChange={props.onFilterChange}
-                    repository={props.repository}
-                    search={props.search}
-                    status={props.status}
-                    team={props.team}
-                />
-            ),
-        }
-    },
-)
 
 interface IReviewsSearch {
     /** Search term. */
@@ -51,6 +22,12 @@ interface IReviewsSearch {
     readonly repo?: string
 }
 
+/**
+ * Проверяет наличие явных фильтров в query params.
+ *
+ * @param input Параметры поиска из URL.
+ * @returns true если есть хотя бы один явный фильтр.
+ */
 function hasExplicitRouteFilters(input: IReviewsSearch): boolean {
     const hasSearch = typeof input.q === "string" && input.q.trim().length > 0
     const hasStatus = typeof input.status === "string" && input.status.length > 0
@@ -60,6 +37,11 @@ function hasExplicitRouteFilters(input: IReviewsSearch): boolean {
     return hasSearch || hasStatus || hasTeam || hasRepository
 }
 
+/**
+ * Читает сохранённые фильтры из localStorage.
+ *
+ * @returns Фильтры или null.
+ */
 export function readPersistedReviewsFilters(): ICcrFilters | null {
     const storage = getWindowLocalStorage()
     const parsed = safeStorageGetJson<Record<string, unknown> | null>(
@@ -88,10 +70,21 @@ export function readPersistedReviewsFilters(): ICcrFilters | null {
     }
 }
 
-function persistReviewsFilters(next: ICcrFilters): void {
+/**
+ * Сохраняет фильтры в localStorage.
+ *
+ * @param next Фильтры для сохранения.
+ */
+export function persistReviewsFilters(next: ICcrFilters): void {
     safeStorageSetJson(getWindowLocalStorage(), REVIEWS_FILTER_PERSISTENCE_KEY, next)
 }
 
+/**
+ * Строит фильтры из query params с fallback на persisted.
+ *
+ * @param input Параметры из URL.
+ * @returns Итоговые фильтры.
+ */
 export function buildSearchFromRoute(input: IReviewsSearch): ICcrFilters {
     const routeFilters: ICcrFilters = {
         repository: typeof input.repo === "string" && input.repo.length > 0 ? input.repo : "all",
@@ -112,6 +105,12 @@ export function buildSearchFromRoute(input: IReviewsSearch): ICcrFilters {
     return persistedFilters
 }
 
+/**
+ * Преобразует фильтры обратно в query params для роутера.
+ *
+ * @param next Фильтры.
+ * @returns Query params.
+ */
 export function sanitizeForRouter(next: ICcrFilters): IReviewsSearch {
     return {
         q: next.search.length === 0 ? undefined : next.search,
@@ -121,40 +120,21 @@ export function sanitizeForRouter(next: ICcrFilters): IReviewsSearch {
     }
 }
 
-function ReviewsRouteComponent(): ReactElement {
-    const currentSearch = Route.useSearch()
-    const navigate = useNavigate()
-
-    const initialFilters = buildSearchFromRoute(currentSearch)
-
-    return (
-        <AuthBoundary loginPath="/login">
-            {(context): ReactElement => (
-                <DashboardLayout
-                    onSignOut={context.onSignOut}
-                    title="CCR Management"
-                    userEmail={context.userEmail}
-                    userName={context.userName}
-                >
-                    <Suspense fallback={<RouteSuspenseFallback />}>
-                        <LazyCcrManagementPage
-                            {...initialFilters}
-                            onFilterChange={(next): void => {
-                                persistReviewsFilters(next)
-                                void navigate({
-                                    to: "/reviews",
-                                    search: sanitizeForRouter(next),
-                                    replace: true,
-                                })
-                            }}
-                        />
-                    </Suspense>
-                </DashboardLayout>
-            )}
-        </AuthBoundary>
-    )
+/**
+ * Layout route для /reviews — рендерит Outlet для index и $reviewId child routes.
+ *
+ * @returns Outlet pass-through.
+ */
+function ReviewsLayoutComponent(): ReactElement {
+    return <Outlet />
 }
 
+/**
+ * Валидирует search params для /reviews route.
+ *
+ * @param search Raw query params.
+ * @returns Типизированные search params.
+ */
 export function validateReviewsSearch(search: Record<string, unknown>): IReviewsSearch {
     const q = typeof search.q === "string" && search.q.trim().length > 0 ? search.q : undefined
     const status = typeof search.status === "string" ? search.status : undefined
@@ -171,5 +151,5 @@ export function validateReviewsSearch(search: Record<string, unknown>): IReviews
 
 export const Route = createFileRoute("/reviews")({
     validateSearch: validateReviewsSearch,
-    component: ReviewsRouteComponent,
+    component: ReviewsLayoutComponent,
 })

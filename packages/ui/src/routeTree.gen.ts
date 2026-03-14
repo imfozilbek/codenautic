@@ -44,6 +44,7 @@ import { Route as LoginRouteImport } from './routes/login'
 import { Route as IssuesRouteImport } from './routes/issues'
 import { Route as HelpDiagnosticsRouteImport } from './routes/help-diagnostics'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ReviewsIndexRouteImport } from './routes/reviews.index'
 import { Route as ReviewsReviewIdRouteImport } from './routes/reviews.$reviewId'
 import { Route as RepositoriesRepositoryIdRouteImport } from './routes/repositories.$repositoryId'
 import { Route as ReportsViewerRouteImport } from './routes/reports.viewer'
@@ -229,6 +230,11 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ReviewsIndexRoute = ReviewsIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => ReviewsRoute,
+} as any)
 const ReviewsReviewIdRoute = ReviewsReviewIdRouteImport.update({
   id: '/$reviewId',
   path: '/$reviewId',
@@ -297,6 +303,7 @@ export interface FileRoutesByFullPath {
   '/reports/viewer': typeof ReportsViewerRoute
   '/repositories/$repositoryId': typeof RepositoriesRepositoryIdRoute
   '/reviews/$reviewId': typeof ReviewsReviewIdRoute
+  '/reviews/': typeof ReviewsIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -307,7 +314,6 @@ export interface FileRoutesByTo {
   '/onboarding': typeof OnboardingRoute
   '/reports': typeof ReportsRouteWithChildren
   '/repositories': typeof RepositoriesRouteWithChildren
-  '/reviews': typeof ReviewsRouteWithChildren
   '/scan-error-recovery': typeof ScanErrorRecoveryRoute
   '/scan-progress': typeof ScanProgressRoute
   '/session-recovery': typeof SessionRecoveryRoute
@@ -339,6 +345,7 @@ export interface FileRoutesByTo {
   '/reports/viewer': typeof ReportsViewerRoute
   '/repositories/$repositoryId': typeof RepositoriesRepositoryIdRoute
   '/reviews/$reviewId': typeof ReviewsReviewIdRoute
+  '/reviews': typeof ReviewsIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -382,6 +389,7 @@ export interface FileRoutesById {
   '/reports/viewer': typeof ReportsViewerRoute
   '/repositories/$repositoryId': typeof RepositoriesRepositoryIdRoute
   '/reviews/$reviewId': typeof ReviewsReviewIdRoute
+  '/reviews/': typeof ReviewsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -426,6 +434,7 @@ export interface FileRouteTypes {
     | '/reports/viewer'
     | '/repositories/$repositoryId'
     | '/reviews/$reviewId'
+    | '/reviews/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -436,7 +445,6 @@ export interface FileRouteTypes {
     | '/onboarding'
     | '/reports'
     | '/repositories'
-    | '/reviews'
     | '/scan-error-recovery'
     | '/scan-progress'
     | '/session-recovery'
@@ -468,6 +476,7 @@ export interface FileRouteTypes {
     | '/reports/viewer'
     | '/repositories/$repositoryId'
     | '/reviews/$reviewId'
+    | '/reviews'
   id:
     | '__root__'
     | '/'
@@ -510,6 +519,7 @@ export interface FileRouteTypes {
     | '/reports/viewer'
     | '/repositories/$repositoryId'
     | '/reviews/$reviewId'
+    | '/reviews/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -798,6 +808,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/reviews/': {
+      id: '/reviews/'
+      path: '/'
+      fullPath: '/reviews/'
+      preLoaderRoute: typeof ReviewsIndexRouteImport
+      parentRoute: typeof ReviewsRoute
+    }
     '/reviews/$reviewId': {
       id: '/reviews/$reviewId'
       path: '/$reviewId'
@@ -863,10 +880,12 @@ const RepositoriesRouteWithChildren = RepositoriesRoute._addFileChildren(
 
 interface ReviewsRouteChildren {
   ReviewsReviewIdRoute: typeof ReviewsReviewIdRoute
+  ReviewsIndexRoute: typeof ReviewsIndexRoute
 }
 
 const ReviewsRouteChildren: ReviewsRouteChildren = {
   ReviewsReviewIdRoute: ReviewsReviewIdRoute,
+  ReviewsIndexRoute: ReviewsIndexRoute,
 }
 
 const ReviewsRouteWithChildren =
