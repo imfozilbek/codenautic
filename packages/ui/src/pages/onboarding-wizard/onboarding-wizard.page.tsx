@@ -2,7 +2,7 @@ import type { ReactElement } from "react"
 import { useTranslation } from "react-i18next"
 
 import { Card, CardBody, CardHeader } from "@/components/ui"
-import { TYPOGRAPHY } from "@/lib/constants/typography"
+import { PageShell } from "@/components/layout/page-shell"
 
 import type { IOnboardingWizardPageProps } from "./onboarding-wizard-types"
 import {
@@ -26,10 +26,10 @@ export function OnboardingWizardPage(props: IOnboardingWizardPageProps): ReactEl
     const state = useOnboardingWizardState(props)
 
     return (
-        <section className="space-y-4">
-            <h1 className={TYPOGRAPHY.pageTitle}>{t("onboarding:page.title")}</h1>
-            <p className={TYPOGRAPHY.pageSubtitle}>{t("onboarding:page.subtitle")}</p>
-
+        <PageShell
+            subtitle={t("onboarding:page.subtitle")}
+            title={t("onboarding:page.title")}
+        >
             <Card>
                 <CardHeader>
                     <WizardStepIndicator state={state} />
@@ -50,6 +50,6 @@ export function OnboardingWizardPage(props: IOnboardingWizardPageProps): ReactEl
                     </form>
                 </CardBody>
             </Card>
-        </section>
+        </PageShell>
     )
 }
