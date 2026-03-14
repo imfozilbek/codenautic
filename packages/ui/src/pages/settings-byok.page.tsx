@@ -265,7 +265,6 @@ export function SettingsByokPage(): ReactElement {
             title={t("settings:byok.pageTitle")}
             description={t("settings:byok.pageSubtitle")}
         >
-
             <Card>
                 <CardHeader>
                     <p className={TYPOGRAPHY.sectionTitle}>{t("settings:byok.addApiKey")}</p>
@@ -327,12 +326,20 @@ export function SettingsByokPage(): ReactElement {
                             }}
                         />
                         <div className="flex items-end">
-                            <Button className="w-full md:w-auto" color="primary" onPress={handleCreateKey}>
+                            <Button
+                                className="w-full md:w-auto"
+                                color="primary"
+                                onPress={handleCreateKey}
+                            >
                                 {t("settings:byok.addKey")}
                             </Button>
                         </div>
                     </div>
-                    <Alert color="primary" title={t("settings:byok.secretsMaskedTitle")} variant="flat">
+                    <Alert
+                        color="primary"
+                        title={t("settings:byok.secretsMaskedTitle")}
+                        variant="flat"
+                    >
                         {t("settings:byok.secretsMaskedDescription")}
                     </Alert>
                 </CardBody>
@@ -341,7 +348,9 @@ export function SettingsByokPage(): ReactElement {
             <div className="grid gap-4 md:grid-cols-4">
                 <Card>
                     <CardHeader>
-                        <p className="text-sm font-semibold text-foreground">{t("settings:byok.totalKeys")}</p>
+                        <p className="text-sm font-semibold text-foreground">
+                            {t("settings:byok.totalKeys")}
+                        </p>
                     </CardHeader>
                     <CardBody>
                         <p className="text-2xl font-semibold text-foreground">{stats.totalKeys}</p>
@@ -349,7 +358,9 @@ export function SettingsByokPage(): ReactElement {
                 </Card>
                 <Card>
                     <CardHeader>
-                        <p className="text-sm font-semibold text-foreground">{t("settings:byok.activeKeys")}</p>
+                        <p className="text-sm font-semibold text-foreground">
+                            {t("settings:byok.activeKeys")}
+                        </p>
                     </CardHeader>
                     <CardBody>
                         <p className="text-2xl font-semibold text-foreground">{stats.activeKeys}</p>
@@ -357,7 +368,9 @@ export function SettingsByokPage(): ReactElement {
                 </Card>
                 <Card>
                     <CardHeader>
-                        <p className="text-sm font-semibold text-foreground">{t("settings:byok.usageRequests")}</p>
+                        <p className="text-sm font-semibold text-foreground">
+                            {t("settings:byok.usageRequests")}
+                        </p>
                     </CardHeader>
                     <CardBody>
                         <p className="text-2xl font-semibold text-foreground">
@@ -367,7 +380,9 @@ export function SettingsByokPage(): ReactElement {
                 </Card>
                 <Card>
                     <CardHeader>
-                        <p className="text-sm font-semibold text-foreground">{t("settings:byok.usageTokens")}</p>
+                        <p className="text-sm font-semibold text-foreground">
+                            {t("settings:byok.usageTokens")}
+                        </p>
                     </CardHeader>
                     <CardBody>
                         <p className="text-2xl font-semibold text-foreground">
@@ -379,7 +394,9 @@ export function SettingsByokPage(): ReactElement {
 
             <Card>
                 <CardHeader>
-                    <p className={TYPOGRAPHY.sectionTitle}>{t("settings:byok.providerUsageStats")}</p>
+                    <p className={TYPOGRAPHY.sectionTitle}>
+                        {t("settings:byok.providerUsageStats")}
+                    </p>
                 </CardHeader>
                 <CardBody className="space-y-2">
                     {providerUsage.map(
@@ -392,7 +409,11 @@ export function SettingsByokPage(): ReactElement {
                                     {formatProviderLabel(entry.provider)}
                                 </p>
                                 <p className="text-text-secondary">
-                                    {t("settings:byok.providerStats", { keys: entry.keys, requests: entry.requests, tokens: entry.tokens })}
+                                    {t("settings:byok.providerStats", {
+                                        keys: entry.keys,
+                                        requests: entry.requests,
+                                        tokens: entry.tokens,
+                                    })}
                                 </p>
                             </div>
                         ),
@@ -406,7 +427,11 @@ export function SettingsByokPage(): ReactElement {
                 </CardHeader>
                 <CardBody className="space-y-3">
                     {keys.length === 0 ? (
-                        <Alert color="warning" title={t("settings:byok.noKeysConfiguredTitle")} variant="flat">
+                        <Alert
+                            color="warning"
+                            title={t("settings:byok.noKeysConfiguredTitle")}
+                            variant="flat"
+                        >
                             {t("settings:byok.noKeysConfiguredDescription")}
                         </Alert>
                     ) : (
@@ -422,19 +447,28 @@ export function SettingsByokPage(): ReactElement {
                                                 {entry.label}
                                             </p>
                                             <p className="text-xs text-text-secondary">
-                                                {t("settings:byok.provider", { provider: formatProviderLabel(entry.provider) })}
+                                                {t("settings:byok.provider", {
+                                                    provider: formatProviderLabel(entry.provider),
+                                                })}
                                             </p>
                                             <p className="font-mono text-xs text-text-secondary">
                                                 {entry.maskedSecret}
                                             </p>
                                             <p className="text-xs text-text-secondary">
-                                                {t("settings:byok.rotation", { count: entry.rotationCount })}
+                                                {t("settings:byok.rotation", {
+                                                    count: entry.rotationCount,
+                                                })}
                                             </p>
                                             <p className="text-xs text-text-secondary">
-                                                {t("settings:byok.usage", { requests: entry.usageRequests, tokens: entry.usageTokens })}
+                                                {t("settings:byok.usage", {
+                                                    requests: entry.usageRequests,
+                                                    tokens: entry.usageTokens,
+                                                })}
                                             </p>
                                             <p className="text-xs text-text-secondary">
-                                                {t("settings:byok.lastUsed", { date: formatLastUsed(entry.lastUsedAt) })}
+                                                {t("settings:byok.lastUsed", {
+                                                    date: formatLastUsed(entry.lastUsedAt),
+                                                })}
                                             </p>
                                         </div>
                                         <div className="flex flex-col items-start gap-2">
@@ -443,7 +477,9 @@ export function SettingsByokPage(): ReactElement {
                                                 size="sm"
                                                 variant="flat"
                                             >
-                                                {entry.isActive ? t("settings:byok.active") : t("settings:byok.inactive")}
+                                                {entry.isActive
+                                                    ? t("settings:byok.active")
+                                                    : t("settings:byok.inactive")}
                                             </Chip>
                                             <Switch
                                                 aria-label={`Active key ${entry.label}`}
@@ -463,7 +499,9 @@ export function SettingsByokPage(): ReactElement {
                                                         handleRotateKey(entry.id)
                                                     }}
                                                 >
-                                                    {t("settings:byok.rotateKey", { label: entry.label })}
+                                                    {t("settings:byok.rotateKey", {
+                                                        label: entry.label,
+                                                    })}
                                                 </Button>
                                                 <Button
                                                     color="danger"
@@ -473,7 +511,9 @@ export function SettingsByokPage(): ReactElement {
                                                         handleDeleteKey(entry.id)
                                                     }}
                                                 >
-                                                    {t("settings:byok.removeKey", { label: entry.label })}
+                                                    {t("settings:byok.removeKey", {
+                                                        label: entry.label,
+                                                    })}
                                                 </Button>
                                             </div>
                                         </div>

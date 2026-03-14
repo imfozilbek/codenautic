@@ -338,7 +338,9 @@ export function SettingsBillingPage(): ReactElement {
                     </div>
                 </div>
                 <div className="flex flex-wrap gap-2">
-                    <Button color="primary" onPress={handleApplyBillingChange}>Apply billing change</Button>
+                    <Button color="primary" onPress={handleApplyBillingChange}>
+                        Apply billing change
+                    </Button>
                     {billingSnapshot.status === "past_due" ? (
                         <Button color="success" variant="flat" onPress={handleMarkInvoicePaid}>
                             Mark invoice as paid
