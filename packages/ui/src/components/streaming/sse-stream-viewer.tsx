@@ -1,7 +1,7 @@
 import { type ReactElement, useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
-import { Alert, Button, Card, CardBody, CardHeader } from "@/components/ui"
+import { Alert, Button, Card, CardContent, CardHeader } from "@heroui/react"
 import { TYPOGRAPHY } from "@/lib/constants/typography"
 import { type ISSEStreamEvent, type TSSEEventType, useSSEStream } from "@/lib/hooks/use-sse"
 
@@ -148,9 +148,9 @@ export function SseStreamViewer(props: ISSEStreamViewerProps): ReactElement {
                     <div className="flex gap-2">
                         <Button
                             onPress={start}
-                            radius="sm"
+                            className="rounded-sm"
                             size="sm"
-                            disabled={
+                            isDisabled={
                                 state === "open" ||
                                 state === "connecting" ||
                                 state === "reconnecting"
@@ -160,19 +160,18 @@ export function SseStreamViewer(props: ISSEStreamViewerProps): ReactElement {
                         </Button>
                         <Button
                             onPress={stop}
-                            radius="sm"
-                            color="danger"
+                            className="rounded-sm"
                             size="sm"
-                            variant="light"
-                            disabled={state === "idle" || state === "closed"}
+                            variant="ghost"
+                            isDisabled={state === "idle" || state === "closed"}
                         >
                             Stop
                         </Button>
                     </div>
                 </div>
             </CardHeader>
-            <CardBody className="space-y-3">
-                {error === undefined ? null : <Alert color="danger">{error}</Alert>}
+            <CardContent className="space-y-3">
+                {error === undefined ? null : <Alert status="danger">{error}</Alert>}
 
                 {isProgressVisible === false ? (
                     <p className="text-sm text-muted-foreground">Нет данных о прогрессе.</p>
@@ -216,7 +215,7 @@ export function SseStreamViewer(props: ISSEStreamViewerProps): ReactElement {
                         )}
                     </ul>
                 </div>
-            </CardBody>
+            </CardContent>
         </Card>
     )
 }
