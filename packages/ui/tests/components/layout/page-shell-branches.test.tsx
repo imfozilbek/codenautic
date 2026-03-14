@@ -14,9 +14,7 @@ vi.mock("@/lib/motion", async (importOriginal) => {
 
 describe("PageShell — reduced motion branch", (): void => {
     it("when prefers-reduced-motion is true, then renders static section without motion animation", (): void => {
-        const { container } = renderWithProviders(
-            <PageShell title="Settings">content</PageShell>,
-        )
+        const { container } = renderWithProviders(<PageShell title="Settings">content</PageShell>)
 
         const heading = screen.getByRole("heading", { level: 1, name: "Settings" })
         expect(heading).not.toBeNull()
@@ -43,9 +41,7 @@ describe("PageShell — reduced motion branch", (): void => {
     })
 
     it("when prefers-reduced-motion is true without headerActions, then header div has no flex layout class", (): void => {
-        renderWithProviders(
-            <PageShell title="Simple Page">content</PageShell>,
-        )
+        renderWithProviders(<PageShell title="Simple Page">content</PageShell>)
 
         const heading = screen.getByRole("heading", { level: 1, name: "Simple Page" })
         const headerDiv = heading.parentElement?.parentElement

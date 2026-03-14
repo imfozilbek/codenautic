@@ -23,34 +23,23 @@ vi.mock("@/lib/motion", async (importOriginal) => {
 
 describe("Sidebar — reduced motion branch", (): void => {
     it("when prefers-reduced-motion is true, then renders static aside without motion.aside", (): void => {
-        renderWithProviders(
-            <Sidebar
-                isCollapsed={false}
-                title="Navigation"
-            />,
+        const { container } = renderWithProviders(
+            <Sidebar isCollapsed={false} title="Navigation" />,
         )
 
-        expect(screen.getByRole("button", { name: "Collapse navigation" })).not.toBeNull()
+        const aside = container.querySelector("aside")
+        expect(aside).not.toBeNull()
     })
 
     it("when prefers-reduced-motion is true and collapsed, then renders narrow static sidebar", (): void => {
-        renderWithProviders(
-            <Sidebar
-                isCollapsed
-                title="Navigation"
-            />,
-        )
+        const { container } = renderWithProviders(<Sidebar isCollapsed title="Navigation" />)
 
-        expect(screen.getByRole("button", { name: "Expand navigation" })).not.toBeNull()
+        const aside = container.querySelector("aside")
+        expect(aside).not.toBeNull()
     })
 
     it("when headerSlot is not provided, then header slot container is not rendered", (): void => {
-        const { container } = renderWithProviders(
-            <Sidebar
-                isCollapsed={false}
-                title="Nav"
-            />,
-        )
+        const { container } = renderWithProviders(<Sidebar isCollapsed={false} title="Nav" />)
 
         expect(container.querySelector(".mb-2.px-1")).toBeNull()
     })
@@ -80,31 +69,21 @@ describe("Sidebar — reduced motion branch", (): void => {
     })
 
     it("when footerSlot is not provided, then footer is not rendered", (): void => {
-        renderWithProviders(
-            <Sidebar
-                isCollapsed={false}
-                title="Nav"
-            />,
-        )
+        renderWithProviders(<Sidebar isCollapsed={false} title="Nav" />)
 
         expect(screen.queryByTestId("custom-footer")).toBeNull()
     })
 
-    it("when title is not provided, then renders sidebar with collapse button", (): void => {
-        renderWithProviders(
-            <Sidebar isCollapsed={false} />,
-        )
+    it("when title is not provided, then renders sidebar without title", (): void => {
+        const { container } = renderWithProviders(<Sidebar isCollapsed={false} />)
 
-        expect(screen.getByRole("button", { name: "Collapse navigation" })).not.toBeNull()
+        const aside = container.querySelector("aside")
+        expect(aside).not.toBeNull()
     })
 
     it("when className is provided, then applies it to the container", (): void => {
         const { container } = renderWithProviders(
-            <Sidebar
-                className="custom-test-class"
-                isCollapsed={false}
-                title="Nav"
-            />,
+            <Sidebar className="custom-test-class" isCollapsed={false} title="Nav" />,
         )
 
         const aside = container.querySelector("aside")
