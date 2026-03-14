@@ -2,6 +2,7 @@ import { type ReactElement, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { Alert, Button, Card, CardBody, CardHeader, Chip } from "@/components/ui"
+import { FormLayout } from "@/components/forms/form-layout"
 import { TYPOGRAPHY } from "@/lib/constants/typography"
 
 type TAnalyticsRange = "30d" | "7d" | "90d"
@@ -167,11 +168,10 @@ export function SettingsAdoptionAnalyticsPage(): ReactElement {
     }, [range])
 
     return (
-        <section className="space-y-4">
-            <h1 className={TYPOGRAPHY.pageTitle}>{t("settings:adoptionAnalytics.pageTitle")}</h1>
-            <p className={TYPOGRAPHY.pageSubtitle}>
-                {t("settings:adoptionAnalytics.pageSubtitle")}
-            </p>
+        <FormLayout
+            title={t("settings:adoptionAnalytics.pageTitle")}
+            description={t("settings:adoptionAnalytics.pageSubtitle")}
+        >
 
             <div className="flex flex-wrap gap-2">
                 {(["7d", "30d", "90d"] as const).map(
@@ -179,6 +179,7 @@ export function SettingsAdoptionAnalyticsPage(): ReactElement {
                         <Button
                             key={option}
                             size="sm"
+                            color="primary"
                             variant={range === option ? "solid" : "flat"}
                             onPress={(): void => {
                                 setRange(option)
@@ -296,6 +297,6 @@ export function SettingsAdoptionAnalyticsPage(): ReactElement {
             >
                 {t("settings:adoptionAnalytics.privacyBoundaryDescription")}
             </Alert>
-        </section>
+        </FormLayout>
     )
 }
