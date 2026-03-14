@@ -178,7 +178,10 @@ export function AlertConfigDialog(props: IAlertConfigDialogProps): ReactElement 
                 </label>
             </div>
 
-            <fieldset aria-label={t("code-city:alertConfigComp.ariaChannels")} className="mt-3 space-y-1">
+            <fieldset
+                aria-label={t("code-city:alertConfigComp.ariaChannels")}
+                className="mt-3 space-y-1"
+            >
                 <legend className={TYPOGRAPHY.overline}>
                     {t("code-city:alertConfigComp.channels")}
                 </legend>
@@ -220,13 +223,22 @@ export function AlertConfigDialog(props: IAlertConfigDialogProps): ReactElement 
                         }
                     }}
                 >
-                    <option value="realtime">{t("code-city:alertConfigComp.frequencyOptions.realtime")}</option>
-                    <option value="daily">{t("code-city:alertConfigComp.frequencyOptions.daily")}</option>
-                    <option value="weekly">{t("code-city:alertConfigComp.frequencyOptions.weekly")}</option>
+                    <option value="realtime">
+                        {t("code-city:alertConfigComp.frequencyOptions.realtime")}
+                    </option>
+                    <option value="daily">
+                        {t("code-city:alertConfigComp.frequencyOptions.daily")}
+                    </option>
+                    <option value="weekly">
+                        {t("code-city:alertConfigComp.frequencyOptions.weekly")}
+                    </option>
                 </select>
             </label>
 
-            <fieldset aria-label={t("code-city:alertConfigComp.ariaModules")} className="mt-3 space-y-1">
+            <fieldset
+                aria-label={t("code-city:alertConfigComp.ariaModules")}
+                className="mt-3 space-y-1"
+            >
                 <legend className={TYPOGRAPHY.overline}>
                     {t("code-city:alertConfigComp.perModuleGranularity")}
                 </legend>

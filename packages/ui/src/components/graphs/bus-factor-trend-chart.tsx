@@ -171,7 +171,9 @@ export function BusFactorTrendChart(props: IBusFactorTrendChartProps): ReactElem
                 className="rounded-md border border-default-200 p-3"
             >
                 <p className="text-sm font-semibold">{t("code-city:busFactorTrend.title")}</p>
-                <p className="text-sm text-foreground-500">{t("code-city:busFactorTrend.emptyState")}</p>
+                <p className="text-sm text-foreground-500">
+                    {t("code-city:busFactorTrend.emptyState")}
+                </p>
             </div>
         )
     }
@@ -179,9 +181,7 @@ export function BusFactorTrendChart(props: IBusFactorTrendChartProps): ReactElem
     return (
         <section className="space-y-3 rounded-lg border border-border bg-surface p-3 shadow-sm">
             <p className={TYPOGRAPHY.cardTitle}>{t("code-city:busFactorTrend.title")}</p>
-            <p className={TYPOGRAPHY.captionMuted}>
-                {t("code-city:busFactorTrend.description")}
-            </p>
+            <p className={TYPOGRAPHY.captionMuted}>{t("code-city:busFactorTrend.description")}</p>
             <div
                 aria-label={t("code-city:busFactorTrend.ariaLabel")}
                 className="grid gap-3 lg:grid-cols-[1.4fr_1fr]"
@@ -242,7 +242,13 @@ export function BusFactorTrendChart(props: IBusFactorTrendChartProps): ReactElem
                                                         y2={CHART_PADDING_TOP + 6}
                                                     />
                                                     <text
-                                                        aria-label={t("code-city:busFactorTrend.ariaLabelAnnotation", { moduleLabel: series.moduleLabel, annotation: point.annotation })}
+                                                        aria-label={t(
+                                                            "code-city:busFactorTrend.ariaLabelAnnotation",
+                                                            {
+                                                                moduleLabel: series.moduleLabel,
+                                                                annotation: point.annotation,
+                                                            },
+                                                        )}
                                                         fill={color}
                                                         fontSize={9}
                                                         x={x + 3}
@@ -273,7 +279,10 @@ export function BusFactorTrendChart(props: IBusFactorTrendChartProps): ReactElem
                         )
                     })}
                 </svg>
-                <ul aria-label={t("code-city:busFactorTrend.ariaLabelModules")} className="space-y-2">
+                <ul
+                    aria-label={t("code-city:busFactorTrend.ariaLabelModules")}
+                    className="space-y-2"
+                >
                     {preparedSeries.map((series): ReactElement => {
                         const latestBusFactor = resolveLatestBusFactor(series.points)
                         const isActive = props.activeModuleId === series.moduleId
@@ -287,14 +296,16 @@ export function BusFactorTrendChart(props: IBusFactorTrendChartProps): ReactElem
                                 }
                                 key={series.moduleId}
                             >
-                                <p className={TYPOGRAPHY.cardTitle}>
-                                    {series.moduleLabel}
-                                </p>
+                                <p className={TYPOGRAPHY.cardTitle}>{series.moduleLabel}</p>
                                 <p className={TYPOGRAPHY.captionMuted}>
-                                    {t("code-city:busFactorTrend.latestBusFactor", { value: String(latestBusFactor ?? "n/a") })}
+                                    {t("code-city:busFactorTrend.latestBusFactor", {
+                                        value: String(latestBusFactor ?? "n/a"),
+                                    })}
                                 </p>
                                 <button
-                                    aria-label={t("code-city:busFactorTrend.ariaLabelInspect", { moduleLabel: series.moduleLabel })}
+                                    aria-label={t("code-city:busFactorTrend.ariaLabelInspect", {
+                                        moduleLabel: series.moduleLabel,
+                                    })}
                                     className="mt-2 rounded border border-primary/40 bg-primary/20 px-2 py-1 text-xs font-semibold text-on-primary hover:border-primary"
                                     onClick={(): void => {
                                         props.onSelectSeries?.(series)
