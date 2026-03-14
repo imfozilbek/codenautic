@@ -19,7 +19,23 @@ export {
     type WorkerProcessorResolver,
 } from "./bullmq-worker-runtime.impl"
 export {
+    BullMqDlqManager,
+    DEFAULT_WORKER_DLQ_MAX_ATTEMPTS,
+    type BullMqDlqQueueEventsFactory,
+    type BullMqDlqQueueFactory,
+    type IBullMqDlqJob,
+    type IBullMqDlqManagerOptions,
+    type IBullMqDlqManagerQueueEventsFactoryOptions,
+    type IBullMqDlqQueueFactoryOptions,
+    type IBullMqDlqQueueInstance,
+    type IBullMqFailedEventPayload,
+    type IBullMqQueueEventsInstance,
+    type WorkerDlqAlertHandler,
+    type WorkerDlqErrorHandler,
+} from "./bullmq-dlq-manager.impl"
+export {
     BullMqQueueService,
+    DEFAULT_WORKER_MAX_ATTEMPTS,
     MAX_WORKER_QUEUE_PRIORITY,
     type BullMqQueueFactory,
     type IBullMqQueueFactoryOptions,
@@ -62,6 +78,8 @@ export {
     WORKER_REDIS_CONNECTION_STATUS,
     WORKER_QUEUE_JOB_STATUS,
     WORKER_RUNTIME_STATUS,
+    type IWorkerDlqAlert,
+    type IWorkerDlqManager,
     type IWorkerRedisConnection,
     type IWorkerRedisConnectionHealth,
     type IWorkerRedisConnectionManager,

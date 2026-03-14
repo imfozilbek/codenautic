@@ -3,6 +3,7 @@ import {Container, TOKENS, type ILogger} from "@codenautic/core"
 import {bindConstantSingleton} from "../shared/bind-constant-singleton"
 import {WORKER_TOKENS} from "./worker.tokens"
 import type {
+    IWorkerDlqManager,
     IWorkerProcessorRegistry,
     IWorkerQueueService,
     IWorkerRedisConnectionManager,
@@ -22,6 +23,11 @@ export interface IRegisterWorkerModuleOptions {
      * Optional queue service adapter.
      */
     readonly queueService?: IWorkerQueueService
+
+    /**
+     * Optional DLQ manager adapter.
+     */
+    readonly dlqManager?: IWorkerDlqManager
 
     /**
      * Optional processor registry adapter.
@@ -56,6 +62,10 @@ export function registerWorkerModule(
 
     if (options.queueService !== undefined) {
         bindConstantSingleton(container, WORKER_TOKENS.QueueService, options.queueService)
+    }
+
+    if (options.dlqManager !== undefined) {
+        bindConstantSingleton(container, WORKER_TOKENS.DlqManager, options.dlqManager)
     }
 
     if (options.processorRegistry !== undefined) {

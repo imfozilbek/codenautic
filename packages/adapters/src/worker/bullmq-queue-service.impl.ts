@@ -10,6 +10,7 @@ import {
 
 const DEFAULT_DEQUEUE_LIMIT = 1
 const MAX_BULLMQ_PRIORITY = 2_097_152
+const DEFAULT_MAX_ATTEMPTS = 5
 const DEQUEUE_QUEUE_STATES: readonly JobType[] = [
     "waiting",
     "prioritized",
@@ -19,6 +20,11 @@ const DEQUEUE_QUEUE_STATES: readonly JobType[] = [
  * Maximum supported app-level priority.
  */
 export const MAX_WORKER_QUEUE_PRIORITY = MAX_BULLMQ_PRIORITY
+
+/**
+ * Default max attempts before job lands in failed/DLQ state.
+ */
+export const DEFAULT_WORKER_MAX_ATTEMPTS = DEFAULT_MAX_ATTEMPTS
 
 /**
  * Serialized queue envelope stored in BullMQ.
@@ -87,6 +93,7 @@ export interface IBullMqQueueInstance {
         data: IBullMqQueueEnvelope,
         options?: {
             readonly priority?: number
+            readonly attempts?: number
         },
     ): Promise<IBullMqQueueJob>
 
@@ -150,6 +157,11 @@ export interface IBullMqQueueServiceOptions {
     readonly connection: ConnectionOptions
 
     /**
+     * Maximum attempts before job is marked as failed.
+     */
+    readonly maxAttempts?: number
+
+    /**
      * Optional queue factory override used by tests.
      */
     readonly queueFactory?: BullMqQueueFactory
@@ -160,6 +172,7 @@ export interface IBullMqQueueServiceOptions {
  */
 export class BullMqQueueService implements IWorkerQueueService {
     private readonly queueName: string
+    private readonly maxAttempts: number
     private readonly queue: IBullMqQueueInstance
 
     /**
@@ -169,6 +182,10 @@ export class BullMqQueueService implements IWorkerQueueService {
      */
     public constructor(options: IBullMqQueueServiceOptions) {
         this.queueName = normalizeQueueName(options.queueName)
+        this.maxAttempts = normalizePositiveInteger(
+            options.maxAttempts ?? DEFAULT_MAX_ATTEMPTS,
+            "maxAttempts",
+        )
         const queueFactory = options.queueFactory ?? defaultBullMqQueueFactory
         this.queue = queueFactory({
             queueName: this.queueName,
@@ -184,10 +201,16 @@ export class BullMqQueueService implements IWorkerQueueService {
      */
     public async enqueue(payload: IWorkerJobPayload): Promise<string> {
         const normalizedPayload = normalizeWorkerJobPayload(payload)
-        const addOptions =
+        const addOptions: {
+            readonly attempts: number
+            readonly priority?: number
+        } =
             normalizedPayload.priority === undefined
-                ? undefined
+                ? {
+                      attempts: this.maxAttempts,
+                  }
                 : {
+                      attempts: this.maxAttempts,
                       priority: toBullMqPriority(normalizedPayload.priority),
                   }
 
@@ -269,6 +292,7 @@ function defaultBullMqQueueFactory(
             data: IBullMqQueueEnvelope,
             addOptions?: {
                 readonly priority?: number
+                readonly attempts?: number
             },
         ): Promise<IBullMqQueueJob> {
             const job = await queue.add(name, data, addOptions)

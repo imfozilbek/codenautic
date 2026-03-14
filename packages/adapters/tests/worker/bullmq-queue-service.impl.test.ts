@@ -4,6 +4,7 @@ import type {ConnectionOptions, JobType} from "bullmq"
 
 import {
     BullMqQueueService,
+    DEFAULT_WORKER_MAX_ATTEMPTS,
     MAX_WORKER_QUEUE_PRIORITY,
     WORKER_QUEUE_JOB_STATUS,
     type IBullMqQueueFactoryOptions,
@@ -87,6 +88,7 @@ class InMemoryQueue implements IBullMqQueueInstance {
         }
         readonly options:
             | {
+                  readonly attempts?: number
                   readonly priority?: number
               }
             | undefined
@@ -109,6 +111,7 @@ class InMemoryQueue implements IBullMqQueueInstance {
             readonly payload: unknown
         },
         options?: {
+            readonly attempts?: number
             readonly priority?: number
         },
     ): Promise<IBullMqQueueJob> {
@@ -227,6 +230,7 @@ describe("BullMqQueueService", () => {
                 },
             },
             options: {
+                attempts: DEFAULT_WORKER_MAX_ATTEMPTS,
                 priority: MAX_WORKER_QUEUE_PRIORITY - 10 + 1,
             },
         })
@@ -348,6 +352,14 @@ describe("BullMqQueueService", () => {
             }),
             `priority must be less or equal to ${MAX_WORKER_QUEUE_PRIORITY}`,
         )
+        expect(
+            () =>
+                new BullMqQueueService({
+                    queueName: "review-jobs",
+                    connection: createConnectionOptions(),
+                    maxAttempts: 0,
+                }),
+        ).toThrow("maxAttempts must be greater than zero")
     })
 
     test("rejects dequeue when queued payload has invalid envelope structure", async () => {

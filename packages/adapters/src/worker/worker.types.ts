@@ -311,3 +311,61 @@ export interface IWorkerRedisConnectionManager {
      */
     healthCheck(): Promise<IWorkerRedisConnectionHealth>
 }
+
+/**
+ * Alert payload emitted when job enters DLQ after max attempts.
+ */
+export interface IWorkerDlqAlert {
+    /**
+     * Failed job identifier.
+     */
+    readonly jobId: string
+
+    /**
+     * Failed job type.
+     */
+    readonly jobType: string
+
+    /**
+     * Original failed payload.
+     */
+    readonly payload: unknown
+
+    /**
+     * Attempts made before moving to DLQ.
+     */
+    readonly attemptsMade: number
+
+    /**
+     * Failure reason from queue.
+     */
+    readonly failedReason: string
+
+    /**
+     * Queue name where job failed.
+     */
+    readonly queueName: string
+}
+
+/**
+ * DLQ manager contract used by worker infrastructure adapters.
+ */
+export interface IWorkerDlqManager {
+    /**
+     * Starts DLQ monitoring listeners.
+     */
+    start(): Promise<void>
+
+    /**
+     * Stops DLQ monitoring listeners.
+     */
+    stop(): Promise<void>
+
+    /**
+     * Manually retries failed job from DLQ.
+     *
+     * @param jobId Failed job identifier.
+     * @returns True when retry was triggered.
+     */
+    retry(jobId: string): Promise<boolean>
+}

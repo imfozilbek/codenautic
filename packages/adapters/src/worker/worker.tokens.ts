@@ -1,6 +1,7 @@
 import {createToken, type ILogger} from "@codenautic/core"
 
 import type {
+    IWorkerDlqManager,
     IWorkerProcessorRegistry,
     IWorkerQueueService,
     IWorkerRedisConnectionManager,
@@ -11,6 +12,7 @@ import type {
  * DI tokens for worker adapter domain.
  */
 export const WORKER_TOKENS = {
+    DlqManager: createToken<IWorkerDlqManager>("adapters.worker.dlq-manager"),
     Logger: createToken<ILogger>("adapters.worker.logger"),
     ProcessorRegistry: createToken<IWorkerProcessorRegistry>(
         "adapters.worker.processor-registry",

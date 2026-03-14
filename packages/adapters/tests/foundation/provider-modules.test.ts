@@ -37,6 +37,7 @@ import {registerReviewModule} from "../../src/review"
 import {registerRuleModule} from "../../src/rule"
 import {
     WORKER_TOKENS,
+    type IWorkerDlqManager,
     type IWorkerProcessorRegistry,
     type IWorkerQueueService,
     type IWorkerRedisConnection,
@@ -385,6 +386,17 @@ describe("Provider modules registration", () => {
                 return Promise.resolve(null)
             },
         }
+        const dlqManager: IWorkerDlqManager = {
+            start(): Promise<void> {
+                return Promise.resolve()
+            },
+            stop(): Promise<void> {
+                return Promise.resolve()
+            },
+            retry(_jobId: string): Promise<boolean> {
+                return Promise.resolve(false)
+            },
+        }
         const processorRegistry: IWorkerProcessorRegistry = {
             register(_jobType: string, _processor: (payload: unknown) => Promise<void>): void {
                 return
@@ -450,6 +462,7 @@ describe("Provider modules registration", () => {
         registerWorkerModule(container, {
             logger,
             queueService,
+            dlqManager,
             processorRegistry,
             redisConnectionManager,
             runtime,
@@ -458,6 +471,7 @@ describe("Provider modules registration", () => {
         const resolvedLogger = container.resolve(WORKER_TOKENS.Logger)
         const resolvedCoreLogger = container.resolve(TOKENS.Common.Logger)
         const resolvedQueueService = container.resolve(WORKER_TOKENS.QueueService)
+        const resolvedDlqManager = container.resolve(WORKER_TOKENS.DlqManager)
         const resolvedProcessorRegistry = container.resolve(WORKER_TOKENS.ProcessorRegistry)
         const resolvedRedisConnectionManager = container.resolve(
             WORKER_TOKENS.RedisConnectionManager,
@@ -467,6 +481,7 @@ describe("Provider modules registration", () => {
         expect(resolvedLogger).toBe(logger)
         expect(resolvedCoreLogger).toBe(logger)
         expect(resolvedQueueService).toBe(queueService)
+        expect(resolvedDlqManager).toBe(dlqManager)
         expect(resolvedProcessorRegistry).toBe(processorRegistry)
         expect(resolvedRedisConnectionManager).toBe(redisConnectionManager)
         expect(resolvedRuntime).toBe(runtime)
