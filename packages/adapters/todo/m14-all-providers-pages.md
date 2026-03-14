@@ -106,7 +106,7 @@
 | ID | Задача | Статус | Результат | Acceptance Criteria |
 |----------|--------------------|--------|-----------|---------------------|
 | NOTIF-004 | Реализовать discordProvider | DONE | Реализовано | Реализация: Discord Bot API integration. Готово, если: для NOTIF-004 adapter сохраняет стабильный external -> domain контракт, корректно обрабатывает retry/backoff/error/idempotency сценарии, а интеграционные контрактные тесты фиксируют поведение на happy/failure-path; DoD: `cd packages/adapters && bun run lint && bun run typecheck && bun test`. |
-| NOTIF-005 | Реализовать teamsProvider | TODO | Не начато | Реализация: Microsoft Teams Bot Framework. Готово, если: для NOTIF-005 adapter сохраняет стабильный external -> domain контракт, корректно обрабатывает retry/backoff/error/idempotency сценарии, а интеграционные контрактные тесты фиксируют поведение на happy/failure-path; DoD: `cd packages/adapters && bun run lint && bun run typecheck && bun test`. |
+| NOTIF-005 | Реализовать teamsProvider | DONE | Реализовано | Реализация: Microsoft Teams Bot Framework. Готово, если: для NOTIF-005 adapter сохраняет стабильный external -> domain контракт, корректно обрабатывает retry/backoff/error/idempotency сценарии, а интеграционные контрактные тесты фиксируют поведение на happy/failure-path; DoD: `cd packages/adapters && bun run lint && bun run typecheck && bun test`. |
 
 ---
 

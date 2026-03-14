@@ -22,12 +22,25 @@ export {
     type IDiscordProviderErrorDetails,
 } from "./discord-provider.error"
 export {
+    TEAMS_PROVIDER_ERROR_CODE,
+    TeamsProviderError,
+    type ITeamsProviderErrorDetails,
+    type TeamsProviderErrorCode,
+} from "./teams-provider.error"
+export {
     DiscordProvider,
     type IDiscordCreateMessageRequest,
     type IDiscordCreateMessageResponse,
     type IDiscordProviderOptions,
     type IDiscordRestClient,
 } from "./discord-provider"
+export {
+    TeamsProvider,
+    type ITeamsCreateActivityRequest,
+    type ITeamsCreateActivityResponse,
+    type ITeamsProviderOptions,
+    type ITeamsRestClient,
+} from "./teams-provider"
 export {
     MESSENGER_WEBHOOK_HANDLER_ERROR_CODE,
     MessengerWebhookHandlerError,
