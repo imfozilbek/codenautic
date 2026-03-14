@@ -20,6 +20,24 @@ export {
     type LlmRetryReason,
 } from "./llm-retry-wrapper"
 export {
+    LLM_PROVIDER_CIRCUIT_STATE,
+    LLM_PROVIDER_HEALTH_ERROR_CODE,
+    LLM_PROVIDER_HEALTH_REASON,
+    LLM_PROVIDER_HEALTH_STATUS,
+    LlmProviderHealthError,
+    withLlmProviderHealthMonitor,
+    type ILlmProviderHealthBundle,
+    type ILlmProviderHealthMonitor,
+    type ILlmProviderHealthOptions,
+    type ILlmProviderHealthReport,
+    type ILlmProviderHealthScheduler,
+    type ILlmProviderHealthStatusEvent,
+    type LlmProviderCircuitState,
+    type LlmProviderHealthErrorCode,
+    type LlmProviderHealthReason,
+    type LlmProviderHealthStatus,
+} from "./llm-provider-health-monitor"
+export {
     LLM_PROVIDER_TYPE,
     LlmProviderFactory,
     normalizeLlmProviderType,

@@ -2,6 +2,11 @@ import {Container, type ILLMProvider} from "@codenautic/core"
 
 import {bindConstantSingleton} from "../shared/bind-constant-singleton"
 import type {ILlmProviderFactory} from "./llm-provider.factory"
+import {
+    withLlmProviderHealthMonitor,
+    type ILlmProviderHealthMonitor,
+    type ILlmProviderHealthOptions,
+} from "./llm-provider-health-monitor"
 import {withLlmRateLimit, type ILlmRateLimitOptions} from "./llm-rate-limiter"
 import {withLlmRetry, type ILlmRetryOptions} from "./llm-retry-wrapper"
 import {LLM_TOKENS} from "./llm.tokens"
@@ -26,6 +31,11 @@ export interface IRegisterLlmModuleOptions {
     readonly retry?: ILlmRetryOptions
 
     /**
+     * Optional provider health monitor configuration.
+     */
+    readonly health?: ILlmProviderHealthOptions
+
+    /**
      * Optional LLM provider factory.
      */
     readonly providerFactory?: ILlmProviderFactory
@@ -38,7 +48,8 @@ export interface IRegisterLlmModuleOptions {
  * @param options Module options.
  */
 export function registerLlmModule(container: Container, options: IRegisterLlmModuleOptions): void {
-    const provider = resolveLlmProvider(options)
+    const resolved = resolveLlmProvider(options)
+    const provider = resolved.provider
 
     bindConstantSingleton(container, LLM_TOKENS.Provider, provider)
 
@@ -49,16 +60,30 @@ export function registerLlmModule(container: Container, options: IRegisterLlmMod
             options.providerFactory,
         )
     }
+
+    if (resolved.healthMonitor !== undefined) {
+        bindConstantSingleton(
+            container,
+            LLM_TOKENS.HealthMonitor,
+            resolved.healthMonitor,
+        )
+    }
+}
+
+interface IResolvedLlmProvider {
+    readonly provider: ILLMProvider
+    readonly healthMonitor?: ILlmProviderHealthMonitor
 }
 
 /**
  * Resolves provider instance with optional shared wrappers.
  *
  * @param options LLM module registration options.
- * @returns Decorated provider.
+ * @returns Decorated provider and optional health monitor.
  */
-function resolveLlmProvider(options: IRegisterLlmModuleOptions): ILLMProvider {
+function resolveLlmProvider(options: IRegisterLlmModuleOptions): IResolvedLlmProvider {
     let provider = options.provider
+    let healthMonitor: ILlmProviderHealthMonitor | undefined
 
     if (options.rateLimit !== undefined) {
         provider = withLlmRateLimit(provider, options.rateLimit)
@@ -68,5 +93,14 @@ function resolveLlmProvider(options: IRegisterLlmModuleOptions): ILLMProvider {
         provider = withLlmRetry(provider, options.retry)
     }
 
-    return provider
+    if (options.health !== undefined) {
+        const healthBundle = withLlmProviderHealthMonitor(provider, options.health)
+        provider = healthBundle.provider
+        healthMonitor = healthBundle.monitor
+    }
+
+    return {
+        provider,
+        healthMonitor,
+    }
 }

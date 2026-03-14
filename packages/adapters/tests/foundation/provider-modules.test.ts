@@ -29,8 +29,10 @@ import {
     registerGitModule,
 } from "../../src/git"
 import {
+    LLM_PROVIDER_HEALTH_ERROR_CODE,
     LLM_RATE_LIMIT_TIER,
     LLM_TOKENS,
+    LlmProviderHealthError,
     LlmProviderFactory,
     registerLlmModule,
 } from "../../src/llm"
@@ -371,6 +373,81 @@ describe("Provider modules registration", () => {
         expect(response.content).toBe("ok-retry")
         expect(attempts).toBe(2)
         expect(sleepDelays).toEqual([10])
+    })
+
+    test("registerLlmModule binds optional llm health monitor and applies circuit breaker", async () => {
+        let currentTimeMs = 0
+        let attempts = 0
+        const provider = createLlmProviderMock()
+        provider.chat = (): ReturnType<typeof provider.chat> => {
+            attempts += 1
+            if (attempts === 1) {
+                const retryableError = new Error("temporary llm failure") as Error & {
+                    statusCode: number
+                }
+                retryableError.statusCode = 500
+                return Promise.reject(retryableError)
+            }
+
+            return Promise.resolve({
+                content: "ok-health",
+                usage: {
+                    input: 0,
+                    output: 0,
+                    total: 0,
+                },
+            })
+        }
+        const container = new Container()
+
+        registerLlmModule(container, {
+            provider,
+            health: {
+                autoStart: false,
+                failureThreshold: 1,
+                circuitOpenMs: 100,
+                now: (): number => currentTimeMs,
+                ping: async (): Promise<void> => Promise.resolve(),
+            },
+        })
+
+        const resolvedProvider = container.resolve(LLM_TOKENS.Provider)
+        const healthMonitor = container.resolve(LLM_TOKENS.HealthMonitor)
+
+        expect(healthMonitor.getReport().status).toBe("HEALTHY")
+        await expectPromiseRejectMessage(
+            resolvedProvider.chat({
+                model: "gpt-4o",
+                messages: [
+                    {
+                        role: "user",
+                        content: "open-circuit",
+                    },
+                ],
+            }),
+            "temporary llm failure",
+        )
+
+        try {
+            await resolvedProvider.chat({
+                model: "gpt-4o",
+                messages: [
+                    {
+                        role: "user",
+                        content: "blocked",
+                    },
+                ],
+            })
+        } catch (error) {
+            expect(error).toBeInstanceOf(LlmProviderHealthError)
+            if (error instanceof LlmProviderHealthError) {
+                expect(error.code).toBe(LLM_PROVIDER_HEALTH_ERROR_CODE.CIRCUIT_OPEN)
+            }
+        }
+
+        expect(healthMonitor.getReport().status).toBe("UNHEALTHY")
+        expect(attempts).toBe(1)
+        currentTimeMs += 100
     })
 
     test("registerLlmModule binds optional provider factory token", () => {
