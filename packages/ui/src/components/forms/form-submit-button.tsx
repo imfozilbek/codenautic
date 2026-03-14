@@ -1,6 +1,5 @@
 import { type ReactElement } from "react"
-import { Button } from "@/components/ui"
-import { type ButtonProps } from "@/components/ui/button"
+import { Button, type ButtonProps } from "@heroui/react"
 
 /**
  * Свойства кнопки сабмита формы.
@@ -32,7 +31,6 @@ export function FormSubmitButton(props: IFormSubmitButtonProps): ReactElement {
             {...props.buttonProps}
             aria-busy={props.isSubmitting === true}
             isDisabled={isDisabled}
-            isLoading={props.isSubmitting === true}
             type="submit"
         >
             {props.isSubmitting === true && props.submittingText !== undefined
