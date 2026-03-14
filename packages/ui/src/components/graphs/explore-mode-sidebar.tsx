@@ -59,9 +59,7 @@ export function ExploreModeSidebar(props: IExploreModeSidebarProps): ReactElemen
 
     return (
         <aside className="rounded-lg border border-border bg-surface p-3 shadow-sm">
-            <p className={TYPOGRAPHY.cardTitle}>
-                {t("code-city:exploreSidebar.title")}
-            </p>
+            <p className={TYPOGRAPHY.cardTitle}>{t("code-city:exploreSidebar.title")}</p>
             <p className={`mt-1 ${TYPOGRAPHY.captionMuted}`}>
                 {t("code-city:exploreSidebar.description")}
             </p>
@@ -95,9 +93,7 @@ export function ExploreModeSidebar(props: IExploreModeSidebarProps): ReactElemen
                         <li className="rounded border border-border bg-surface p-2" key={path.id}>
                             <div className="flex items-start justify-between gap-2">
                                 <div>
-                                    <p className={TYPOGRAPHY.cardTitle}>
-                                        {path.title}
-                                    </p>
+                                    <p className={TYPOGRAPHY.cardTitle}>{path.title}</p>
                                     <p className={`mt-1 ${TYPOGRAPHY.captionMuted}`}>
                                         {path.description}
                                     </p>

@@ -1,6 +1,7 @@
 import type { ReactElement } from "react"
 import { useTranslation } from "react-i18next"
 
+import { useDynamicTranslation } from "@/lib/i18n"
 import { TYPOGRAPHY } from "@/lib/constants/typography"
 
 /**
@@ -161,6 +162,7 @@ function TrendDirectionIcon(props: { readonly trend: TDistrictTrendDirection }):
  */
 export function DistrictTrendIndicators(props: IDistrictTrendIndicatorsProps): ReactElement {
     const { t } = useTranslation(["code-city"])
+    const { td } = useDynamicTranslation(["code-city"])
     return (
         <section className="rounded-lg border border-border bg-surface p-3 shadow-sm">
             <p className={TYPOGRAPHY.cardTitle}>{t("code-city:districtTrendComp.title")}</p>
@@ -171,11 +173,13 @@ export function DistrictTrendIndicators(props: IDistrictTrendIndicatorsProps): R
             <ul aria-label={t("code-city:districtTrendComp.ariaList")} className="mt-3 space-y-2">
                 {props.entries.map((entry): ReactElement => {
                     const isActive = props.activeDistrictId === entry.districtId
-                    const trendLabel = (t as unknown as (key: string) => string)(resolveTrendLabelKey(entry.trend))
+                    const trendLabel = td(resolveTrendLabelKey(entry.trend))
                     return (
                         <li key={entry.districtId}>
                             <button
-                                aria-label={t("code-city:districtTrendComp.ariaInspect", { label: entry.districtLabel })}
+                                aria-label={t("code-city:districtTrendComp.ariaInspect", {
+                                    label: entry.districtLabel,
+                                })}
                                 className={resolveRowClassName(isActive)}
                                 onClick={(): void => {
                                     props.onSelectEntry?.(entry)
@@ -188,8 +192,13 @@ export function DistrictTrendIndicators(props: IDistrictTrendIndicatorsProps): R
                                             {entry.districtLabel}
                                         </p>
                                         <p className={`mt-1 ${TYPOGRAPHY.captionMuted}`}>
-                                            {t("code-city:districtTrendComp.filesCount", { count: entry.fileCount })} ·{" "}
-                                            {(t as unknown as (key: string, options: Record<string, unknown>) => string)(resolveDeltaCopyKey(entry.trend), { value: Math.abs(entry.deltaPercentage) })}
+                                            {t("code-city:districtTrendComp.filesCount", {
+                                                count: entry.fileCount,
+                                            })}{" "}
+                                            ·{" "}
+                                            {td(resolveDeltaCopyKey(entry.trend), {
+                                                value: Math.abs(entry.deltaPercentage),
+                                            })}
                                         </p>
                                     </div>
                                     <span
