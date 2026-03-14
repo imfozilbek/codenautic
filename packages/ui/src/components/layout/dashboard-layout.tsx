@@ -1,4 +1,12 @@
-import { type ReactElement, type ReactNode, useCallback, useEffect, useMemo, useRef, useState } from "react"
+import {
+    type ReactElement,
+    type ReactNode,
+    useCallback,
+    useEffect,
+    useMemo,
+    useRef,
+    useState,
+} from "react"
 import { useTranslation } from "react-i18next"
 import { useLocation, useNavigate } from "@tanstack/react-router"
 
@@ -185,6 +193,13 @@ export function DashboardLayout(props: IDashboardLayoutProps): ReactElement {
 
     return (
         <div className="relative grid h-screen grid-cols-1 overflow-hidden text-foreground lg:grid-cols-[auto_1fr]">
+            <a
+                className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:rounded-md focus:bg-background focus:px-4 focus:py-2 focus:text-sm focus:shadow-lg"
+                href="#main-content"
+            >
+                Skip to main content
+            </a>
+
             {/* Sidebar — full height, hidden on mobile/tablet */}
             <div className="hidden lg:block">
                 <Sidebar
@@ -220,7 +235,10 @@ export function DashboardLayout(props: IDashboardLayoutProps): ReactElement {
                         <Menu size={20} />
                     </Button>
                 </div>
-                <div className="flex-1 overflow-y-auto px-4 py-4 sm:px-8 sm:py-6 lg:px-12 xl:px-16">
+                <div
+                    className="flex-1 overflow-y-auto px-4 py-4 sm:px-8 sm:py-6 lg:px-12 xl:px-16"
+                    id="main-content"
+                >
                     <NotificationAlerts
                         multiTabNotice={multiTab.multiTabNotice}
                         policyDriftNotice={policyDrift.policyDriftNotice}
