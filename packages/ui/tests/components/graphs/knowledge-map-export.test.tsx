@@ -6,16 +6,7 @@ import {
     exportKnowledgeMapAsSvg,
     type IKnowledgeMapExportModel,
 } from "@/components/graphs/knowledge-map-export"
-import {
-    KNOWLEDGE_MAP_BACKGROUND,
-    KNOWLEDGE_MAP_FALLBACK_COLOR,
-    KNOWLEDGE_MAP_HEADER_TITLE,
-    KNOWLEDGE_MAP_METADATA_TEXT,
-    KNOWLEDGE_MAP_SECTION_FILL,
-    KNOWLEDGE_MAP_SECTION_STROKE,
-    KNOWLEDGE_MAP_SECTION_TITLE,
-    KNOWLEDGE_MAP_SUBTITLE,
-} from "@/lib/constants/graph-colors"
+import { GRAPH_EXPORT_PALETTE } from "@/lib/constants/graph-colors"
 
 function createTestModel(
     overrides: Partial<IKnowledgeMapExportModel> = {},
@@ -65,8 +56,8 @@ describe("buildKnowledgeMapExportSvg", (): void => {
         const model = createTestModel()
         const svg = buildKnowledgeMapExportSvg(model)
         expect(svg).toContain('<?xml version="1.0" encoding="UTF-8"?>')
-        expect(svg).toContain(`fill="${KNOWLEDGE_MAP_BACKGROUND}"`)
-        expect(svg).toContain(`fill="${KNOWLEDGE_MAP_HEADER_TITLE}"`)
+        expect(svg).toContain(`fill="${GRAPH_EXPORT_PALETTE.knowledgeMap.background}"`)
+        expect(svg).toContain(`fill="${GRAPH_EXPORT_PALETTE.knowledgeMap.headerTitle}"`)
         expect(svg).toContain("Knowledge Map Snapshot")
         expect(svg).toContain("My Repo")
     })
@@ -74,7 +65,7 @@ describe("buildKnowledgeMapExportSvg", (): void => {
     it("when model is provided, then includes subtitle", (): void => {
         const model = createTestModel()
         const svg = buildKnowledgeMapExportSvg(model)
-        expect(svg).toContain(`fill="${KNOWLEDGE_MAP_SUBTITLE}"`)
+        expect(svg).toContain(`fill="${GRAPH_EXPORT_PALETTE.knowledgeMap.subtitle}"`)
         expect(svg).toContain("Exported for architecture documentation")
     })
 
@@ -86,7 +77,7 @@ describe("buildKnowledgeMapExportSvg", (): void => {
         expect(svg).toContain("Generated at: 2026-01-01T00:00:00Z")
         expect(svg).toContain("Total files: 42")
         expect(svg).toContain("Contributors: 5")
-        expect(svg).toContain(`fill="${KNOWLEDGE_MAP_METADATA_TEXT}"`)
+        expect(svg).toContain(`fill="${GRAPH_EXPORT_PALETTE.knowledgeMap.metadataText}"`)
     })
 
     it("when model has owners, then renders ownership legend entries", (): void => {
@@ -105,7 +96,7 @@ describe("buildKnowledgeMapExportSvg", (): void => {
             owners: [{ ownerName: "Morpheus", color: "not-a-color", fileCount: 5 }],
         })
         const svg = buildKnowledgeMapExportSvg(model)
-        expect(svg).toContain(`fill="${KNOWLEDGE_MAP_FALLBACK_COLOR}"`)
+        expect(svg).toContain(`fill="${GRAPH_EXPORT_PALETTE.knowledgeMap.fallbackColor}"`)
     })
 
     it("when owner color is valid 3-char hex, then uses it directly", (): void => {
@@ -164,9 +155,9 @@ describe("buildKnowledgeMapExportSvg", (): void => {
     it("when model has section containers, then renders section fill and stroke", (): void => {
         const model = createTestModel()
         const svg = buildKnowledgeMapExportSvg(model)
-        expect(svg).toContain(`fill="${KNOWLEDGE_MAP_SECTION_FILL}"`)
-        expect(svg).toContain(`stroke="${KNOWLEDGE_MAP_SECTION_STROKE}"`)
-        expect(svg).toContain(`fill="${KNOWLEDGE_MAP_SECTION_TITLE}"`)
+        expect(svg).toContain(`fill="${GRAPH_EXPORT_PALETTE.knowledgeMap.sectionFill}"`)
+        expect(svg).toContain(`stroke="${GRAPH_EXPORT_PALETTE.knowledgeMap.sectionStroke}"`)
+        expect(svg).toContain(`fill="${GRAPH_EXPORT_PALETTE.knowledgeMap.sectionTitle}"`)
     })
 
     it("when metadata contains special characters, then escapes them in SVG", (): void => {

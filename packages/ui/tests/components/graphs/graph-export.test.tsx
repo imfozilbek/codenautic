@@ -8,15 +8,7 @@ import {
     exportGraphAsJson,
 } from "@/components/graphs/graph-export"
 import type { IGraphLayoutNode, IGraphEdge } from "@/components/graphs/xyflow-graph-layout"
-import {
-    GRAPH_EXPORT_BACKGROUND,
-    GRAPH_EXPORT_EMPTY_BACKGROUND,
-    GRAPH_EXPORT_EMPTY_TEXT,
-    GRAPH_EXPORT_NODE_FILL,
-    GRAPH_EXPORT_NODE_STROKE,
-    GRAPH_EXPORT_EDGE_STROKE,
-    GRAPH_EXPORT_TITLE_TEXT,
-} from "@/lib/constants/graph-colors"
+import { GRAPH_EXPORT_PALETTE } from "@/lib/constants/graph-colors"
 
 function createTestNode(overrides: Partial<IGraphLayoutNode> = {}): IGraphLayoutNode {
     return {
@@ -145,8 +137,8 @@ describe("buildGraphSvg", (): void => {
     it("when nodes is empty, then returns empty canvas SVG", (): void => {
         const svg = buildGraphSvg("Test Graph", [], [])
         expect(svg).toContain('<?xml version="1.0" encoding="UTF-8"?>')
-        expect(svg).toContain(`fill="${GRAPH_EXPORT_EMPTY_BACKGROUND}"`)
-        expect(svg).toContain(`fill="${GRAPH_EXPORT_EMPTY_TEXT}"`)
+        expect(svg).toContain(`fill="${GRAPH_EXPORT_PALETTE.graphLayout.emptyBackground}"`)
+        expect(svg).toContain(`fill="${GRAPH_EXPORT_PALETTE.graphLayout.emptyText}"`)
         expect(svg).toContain("No graph data")
         expect(svg).toContain('width="640"')
         expect(svg).toContain('height="320"')
@@ -158,13 +150,13 @@ describe("buildGraphSvg", (): void => {
             createTestNode({ id: "n2", label: "Beta", position: { x: 200, y: 100 } }),
         ]
         const svg = buildGraphSvg("My Graph", nodes, [])
-        expect(svg).toContain(`fill="${GRAPH_EXPORT_BACKGROUND}"`)
-        expect(svg).toContain(`fill="${GRAPH_EXPORT_TITLE_TEXT}"`)
+        expect(svg).toContain(`fill="${GRAPH_EXPORT_PALETTE.graphLayout.background}"`)
+        expect(svg).toContain(`fill="${GRAPH_EXPORT_PALETTE.graphLayout.titleText}"`)
         expect(svg).toContain("My Graph")
         expect(svg).toContain("Alpha")
         expect(svg).toContain("Beta")
-        expect(svg).toContain(`fill="${GRAPH_EXPORT_NODE_FILL}"`)
-        expect(svg).toContain(`stroke="${GRAPH_EXPORT_NODE_STROKE}"`)
+        expect(svg).toContain(`fill="${GRAPH_EXPORT_PALETTE.graphLayout.nodeFill}"`)
+        expect(svg).toContain(`stroke="${GRAPH_EXPORT_PALETTE.graphLayout.nodeStroke}"`)
     })
 
     it("when edges connect valid nodes, then renders lines", (): void => {
@@ -172,7 +164,7 @@ describe("buildGraphSvg", (): void => {
         const nodeB = createTestNode({ id: "n2", label: "B", position: { x: 200, y: 100 } })
         const edge = createTestEdge({ source: "n1", target: "n2" })
         const svg = buildGraphSvg("Edge Graph", [nodeA, nodeB], [edge])
-        expect(svg).toContain(`stroke="${GRAPH_EXPORT_EDGE_STROKE}"`)
+        expect(svg).toContain(`stroke="${GRAPH_EXPORT_PALETTE.graphLayout.edgeStroke}"`)
         expect(svg).toContain('stroke-width="2"')
     })
 
@@ -188,7 +180,7 @@ describe("buildGraphSvg", (): void => {
         const node = createTestNode({ id: "n1", label: "Only" })
         const edge = createTestEdge({ source: "n1", target: "n-missing" })
         const svg = buildGraphSvg("Missing Target", [node], [edge])
-        expect(svg).not.toContain(`stroke="${GRAPH_EXPORT_EDGE_STROKE}"`)
+        expect(svg).not.toContain(`stroke="${GRAPH_EXPORT_PALETTE.graphLayout.edgeStroke}"`)
     })
 
     it("when title contains HTML-like characters, then escapes them", (): void => {
