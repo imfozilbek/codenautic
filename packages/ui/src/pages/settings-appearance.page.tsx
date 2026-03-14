@@ -2,16 +2,8 @@ import { type ReactElement, useCallback, useEffect, useMemo, useRef, useState } 
 import { useTranslation } from "react-i18next"
 
 import { ThemeToggle } from "@/components/layout/theme-toggle"
+import { Button, Card, CardBody, CardHeader, Chip, Input } from "@/components/ui"
 import {
-    Button,
-    Card,
-    CardBody,
-    CardHeader,
-    Chip,
-    Input,
-} from "@/components/ui"
-import {
-    type SupportedLocale,
     SUPPORTED_LOCALES,
     formatLocalizedDateTime,
     formatLocalizedNumber,
@@ -25,557 +17,63 @@ import {
     writeThemeLibraryProfileState,
     type IThemeLibraryProfileTheme,
 } from "@/lib/theme/theme-library-profile-sync"
-import { type ThemeMode, type ThemePresetId, useThemeMode } from "@/lib/theme/theme-provider"
+import { type ThemePresetId, useThemeMode } from "@/lib/theme/theme-provider"
 import {
     SURFACE_TONES,
     DEFAULT_SURFACE_TONE_ID,
-    isSurfaceToneId,
     getSurfaceTone,
     resolveSurfaceTonePalette,
-    type TSurfaceToneId,
 } from "@/lib/theme/theme-surface-tones"
 import { showToastInfo, showToastSuccess } from "@/lib/notifications/toast"
 
-/**
- * @deprecated Алиас для TSurfaceToneId. Используй TSurfaceToneId напрямую.
- */
-type TBasePaletteId = TSurfaceToneId
-
-const APPEARANCE_STORAGE_PREFIX = "codenautic:ui:appearance"
-const APPEARANCE_ACCENT_STORAGE_KEY = `${APPEARANCE_STORAGE_PREFIX}:accent`
-const APPEARANCE_INTENSITY_STORAGE_KEY = `${APPEARANCE_STORAGE_PREFIX}:intensity`
-const APPEARANCE_BASE_PALETTE_STORAGE_KEY = `${APPEARANCE_STORAGE_PREFIX}:base-palette`
-const APPEARANCE_RADIUS_STORAGE_KEY = `${APPEARANCE_STORAGE_PREFIX}:radius-global`
-const APPEARANCE_FORM_RADIUS_STORAGE_KEY = `${APPEARANCE_STORAGE_PREFIX}:radius-form`
-const APPEARANCE_LIBRARY_STORAGE_KEY = `${APPEARANCE_STORAGE_PREFIX}:library`
-const APPEARANCE_LIBRARY_FAVORITE_PRESET_STORAGE_KEY = `${APPEARANCE_STORAGE_PREFIX}:favorite-preset`
-const APPEARANCE_LIBRARY_SYNC_STORAGE_KEY = `${APPEARANCE_STORAGE_PREFIX}:library-sync`
-
-const DEFAULT_ACCENT_COLOR = "#5f6dff"
-const DEFAULT_ACCENT_INTENSITY = 76
-const DEFAULT_GLOBAL_RADIUS = 14
-const DEFAULT_FORM_RADIUS = 12
-const MIN_INTENSITY = 40
-const MAX_INTENSITY = 100
-const MIN_RADIUS = 6
-const MAX_RADIUS = 24
-const MIN_FORM_RADIUS = 4
-const MAX_FORM_RADIUS = 20
-const QUICK_PRESET_KEYWORDS: ReadonlyArray<string> = ["default", "sky", "lavender", "mint"]
-
-function getWindowLocalStorage(): Storage | undefined {
-    if (typeof window === "undefined") {
-        return undefined
-    }
-
-    try {
-        return window.localStorage
-    } catch {
-        return undefined
-    }
-}
-
-function readLocalStorageItem(storageKey: string): string | undefined {
-    const storage = getWindowLocalStorage()
-    if (storage === undefined) {
-        return undefined
-    }
-
-    try {
-        return storage.getItem(storageKey) ?? undefined
-    } catch {
-        return undefined
-    }
-}
-
-function writeLocalStorageItem(storageKey: string, value: string): void {
-    const storage = getWindowLocalStorage()
-    if (storage === undefined) {
-        return
-    }
-
-    try {
-        storage.setItem(storageKey, value)
-    } catch {
-        return
-    }
-}
-
-function removeLocalStorageItem(storageKey: string): void {
-    const storage = getWindowLocalStorage()
-    if (storage === undefined) {
-        return
-    }
-
-    try {
-        storage.removeItem(storageKey)
-    } catch {
-        return
-    }
-}
-
-interface IUserThemeLibraryItem {
-    /** Идентификатор пользовательской темы. */
-    readonly id: string
-    /** Название пользовательской темы. */
-    readonly name: string
-    /** Режим темы. */
-    readonly mode: ThemeMode
-    /** Пресет темы. */
-    readonly presetId: ThemePresetId
-    /** Базовый accent цвет. */
-    readonly accentColor: string
-    /** Интенсивность accent цвета. */
-    readonly accentIntensity: number
-    /** Базовая палитра. */
-    readonly basePaletteId: TBasePaletteId
-    /** Глобальный радиус. */
-    readonly globalRadius: number
-    /** Радиус form-контролов. */
-    readonly formRadius: number
-}
-
-interface IThemeLibraryImportEnvelope {
-    /** Версия структуры payload. */
-    readonly version: number
-    /** Набор тем для импорта. */
-    readonly themes: ReadonlyArray<IUserThemeLibraryItem>
-    /** Опциональный favorite preset. */
-    readonly favoritePresetId?: ThemePresetId
-}
-
-function isHexColor(value: string): boolean {
-    return /^#[0-9a-fA-F]{6}$/.test(value)
-}
-
-function readStoredHexColor(storageKey: string, fallback: string): string {
-    const rawValue = readLocalStorageItem(storageKey)
-    if (rawValue === undefined) {
-        return fallback
-    }
-
-    return isHexColor(rawValue) ? rawValue.toLowerCase() : fallback
-}
-
-function readStoredNumber(storageKey: string, fallback: number, min: number, max: number): number {
-    const rawValue = readLocalStorageItem(storageKey)
-    if (rawValue === undefined) {
-        return fallback
-    }
-
-    const parsed = Number(rawValue)
-    if (Number.isNaN(parsed) || parsed < min || parsed > max) {
-        return fallback
-    }
-
-    return parsed
-}
-
-function readStoredBasePalette(storageKey: string, fallback: TBasePaletteId): TBasePaletteId {
-    const rawValue = readLocalStorageItem(storageKey)
-    if (isSurfaceToneId(rawValue)) {
-        return rawValue
-    }
-
-    return fallback
-}
-
-function getRgbComponents(hex: string): {
-    readonly b: number
-    readonly g: number
-    readonly r: number
-} {
-    const normalized = hex.replace("#", "")
-    const r = Number.parseInt(normalized.slice(0, 2), 16)
-    const g = Number.parseInt(normalized.slice(2, 4), 16)
-    const b = Number.parseInt(normalized.slice(4, 6), 16)
-
-    return { b, g, r }
-}
-
-function toHexColor(value: number): string {
-    return value.toString(16).padStart(2, "0")
-}
-
-function mixHexColors(baseHex: string, targetHex: string, ratio: number): string {
-    const sanitizedRatio = Math.min(Math.max(ratio, 0), 1)
-    const base = getRgbComponents(baseHex)
-    const target = getRgbComponents(targetHex)
-
-    const mixedR = Math.round(base.r + (target.r - base.r) * sanitizedRatio)
-    const mixedG = Math.round(base.g + (target.g - base.g) * sanitizedRatio)
-    const mixedB = Math.round(base.b + (target.b - base.b) * sanitizedRatio)
-
-    return `#${toHexColor(mixedR)}${toHexColor(mixedG)}${toHexColor(mixedB)}`
-}
-
-function createEffectiveAccentColor(
-    accentColor: string,
-    accentIntensity: number,
-    resolvedMode: "dark" | "light",
-): string {
-    const target = resolvedMode === "dark" ? "#e7efff" : "#101727"
-    const ratio = ((100 - accentIntensity) / 100) * 0.55
-
-    return mixHexColors(accentColor, target, ratio)
-}
-
-function toLinearChannel(channel: number): number {
-    const normalizedChannel = channel / 255
-    if (normalizedChannel <= 0.03928) {
-        return normalizedChannel / 12.92
-    }
-    return ((normalizedChannel + 0.055) / 1.055) ** 2.4
-}
-
-/**
- * Извлекает Lightness из OKLCH строки.
- *
- * @param oklchColor OKLCH-строка (oklch(L C H)).
- * @returns Lightness (0-1) или undefined если не удалось распарсить.
- */
-function parseOklchLightness(oklchColor: string): number | undefined {
-    const match = oklchColor.match(/oklch\(\s*([\d.]+)/)
-    if (match === null || match[1] === undefined) {
-        return undefined
-    }
-
-    const lightness = parseFloat(match[1])
-    return Number.isNaN(lightness) ? undefined : lightness
-}
-
-function getRelativeLuminance(color: string): number {
-    const oklchLightness = parseOklchLightness(color)
-    if (oklchLightness !== undefined) {
-        return oklchLightness ** 3
-    }
-
-    const { r, g, b } = getRgbComponents(color)
-    const linearRed = toLinearChannel(r)
-    const linearGreen = toLinearChannel(g)
-    const linearBlue = toLinearChannel(b)
-
-    return 0.2126 * linearRed + 0.7152 * linearGreen + 0.0722 * linearBlue
-}
-
-function getContrastRatio(firstColor: string, secondColor: string): number {
-    const luminanceA = getRelativeLuminance(firstColor)
-    const luminanceB = getRelativeLuminance(secondColor)
-    const lightest = Math.max(luminanceA, luminanceB)
-    const darkest = Math.min(luminanceA, luminanceB)
-
-    return (lightest + 0.05) / (darkest + 0.05)
-}
-
-function clearAppearanceStorage(): void {
-    removeLocalStorageItem(APPEARANCE_ACCENT_STORAGE_KEY)
-    removeLocalStorageItem(APPEARANCE_INTENSITY_STORAGE_KEY)
-    removeLocalStorageItem(APPEARANCE_BASE_PALETTE_STORAGE_KEY)
-    removeLocalStorageItem(APPEARANCE_RADIUS_STORAGE_KEY)
-    removeLocalStorageItem(APPEARANCE_FORM_RADIUS_STORAGE_KEY)
-}
-
-function createThemeLibraryId(prefix: string): string {
-    return `${prefix.toLowerCase().replace(/\s+/g, "-")}-${Date.now().toString(36)}`
-}
-
-function normalizeThemeName(value: string): string {
-    const trimmed = value.trim()
-    if (trimmed.length === 0) {
-        return "Custom Theme"
-    }
-    return trimmed
-}
-
-function resolveThemeNameConflict(baseName: string, existingNames: ReadonlyArray<string>): string {
-    const normalizedBaseName = normalizeThemeName(baseName)
-    const lowerCaseNameSet = new Set<string>(
-        existingNames.map((name): string => name.toLowerCase()),
-    )
-    if (lowerCaseNameSet.has(normalizedBaseName.toLowerCase()) === false) {
-        return normalizedBaseName
-    }
-
-    let suffix = 2
-    while (suffix < 1000) {
-        const candidate = `${normalizedBaseName} (${suffix})`
-        if (lowerCaseNameSet.has(candidate.toLowerCase()) === false) {
-            return candidate
-        }
-        suffix += 1
-    }
-
-    return `${normalizedBaseName} (${Date.now().toString(36)})`
-}
-
-function isThemeModeValue(value: unknown): value is ThemeMode {
-    return value === "dark" || value === "light" || value === "system"
-}
-
-function isThemePresetIdValue(
-    value: unknown,
-    availablePresetIds: ReadonlyArray<ThemePresetId>,
-): value is ThemePresetId {
-    if (typeof value !== "string") {
-        return false
-    }
-    return availablePresetIds.includes(value as ThemePresetId)
-}
-
-/**
- * @deprecated Используй isSurfaceToneId.
- */
-function isBasePaletteValue(value: unknown): value is TBasePaletteId {
-    return isSurfaceToneId(value)
-}
-
-function parseThemeLibraryItem(
-    value: unknown,
-    availablePresetIds: ReadonlyArray<ThemePresetId>,
-): IUserThemeLibraryItem | undefined {
-    if (typeof value !== "object" || value === null || Array.isArray(value)) {
-        return undefined
-    }
-
-    const rawValue = value as Record<string, unknown>
-    if (typeof rawValue.id !== "string" || rawValue.id.trim().length === 0) {
-        return undefined
-    }
-    if (typeof rawValue.name !== "string" || rawValue.name.trim().length === 0) {
-        return undefined
-    }
-    if (typeof rawValue.accentColor !== "string" || isHexColor(rawValue.accentColor) === false) {
-        return undefined
-    }
-    if (
-        typeof rawValue.accentIntensity !== "number" ||
-        rawValue.accentIntensity < MIN_INTENSITY ||
-        rawValue.accentIntensity > MAX_INTENSITY
-    ) {
-        return undefined
-    }
-    if (
-        typeof rawValue.globalRadius !== "number" ||
-        rawValue.globalRadius < MIN_RADIUS ||
-        rawValue.globalRadius > MAX_RADIUS
-    ) {
-        return undefined
-    }
-    if (
-        typeof rawValue.formRadius !== "number" ||
-        rawValue.formRadius < MIN_FORM_RADIUS ||
-        rawValue.formRadius > MAX_FORM_RADIUS
-    ) {
-        return undefined
-    }
-
-    if (isThemeModeValue(rawValue.mode) !== true) {
-        return undefined
-    }
-    if (isBasePaletteValue(rawValue.basePaletteId) !== true) {
-        return undefined
-    }
-    if (isThemePresetIdValue(rawValue.presetId, availablePresetIds) !== true) {
-        return undefined
-    }
-
-    return {
-        accentColor: rawValue.accentColor.toLowerCase(),
-        accentIntensity: rawValue.accentIntensity,
-        basePaletteId: rawValue.basePaletteId,
-        formRadius: rawValue.formRadius,
-        globalRadius: rawValue.globalRadius,
-        id: rawValue.id,
-        mode: rawValue.mode,
-        name: normalizeThemeName(rawValue.name),
-        presetId: rawValue.presetId,
-    }
-}
-
-function readStoredThemeLibrary(
-    availablePresetIds: ReadonlyArray<ThemePresetId>,
-): ReadonlyArray<IUserThemeLibraryItem> {
-    const rawValue = readLocalStorageItem(APPEARANCE_LIBRARY_STORAGE_KEY)
-    if (rawValue === undefined) {
-        return []
-    }
-
-    try {
-        const parsed = JSON.parse(rawValue) as unknown
-        if (Array.isArray(parsed) === false) {
-            return []
-        }
-
-        const normalized: Array<IUserThemeLibraryItem> = []
-        parsed.forEach((entry): void => {
-            const parsedItem = parseThemeLibraryItem(entry, availablePresetIds)
-            if (parsedItem !== undefined) {
-                normalized.push(parsedItem)
-            }
-        })
-
-        return normalized
-    } catch {
-        return []
-    }
-}
-
-function readStoredFavoritePreset(
-    availablePresetIds: ReadonlyArray<ThemePresetId>,
-): ThemePresetId | undefined {
-    const rawValue = readLocalStorageItem(APPEARANCE_LIBRARY_FAVORITE_PRESET_STORAGE_KEY)
-    if (rawValue === undefined) {
-        return undefined
-    }
-
-    if (availablePresetIds.includes(rawValue as ThemePresetId)) {
-        return rawValue as ThemePresetId
-    }
-
-    return undefined
-}
-
-function readStoredThemeLibraryUpdatedAtMs(): number {
-    const rawValue = readLocalStorageItem(APPEARANCE_LIBRARY_SYNC_STORAGE_KEY)
-    if (rawValue === undefined) {
-        return 0
-    }
-
-    try {
-        const parsed = JSON.parse(rawValue) as { updatedAtMs?: unknown }
-        return typeof parsed.updatedAtMs === "number" && Number.isFinite(parsed.updatedAtMs)
-            ? parsed.updatedAtMs
-            : 0
-    } catch {
-        return 0
-    }
-}
-
-function writeStoredThemeLibraryUpdatedAtMs(updatedAtMs: number): void {
-    writeLocalStorageItem(
-        APPEARANCE_LIBRARY_SYNC_STORAGE_KEY,
-        JSON.stringify({
-            updatedAtMs,
-        }),
-    )
-}
-
-function toProfileTheme(theme: IUserThemeLibraryItem): IThemeLibraryProfileTheme {
-    return {
-        accentColor: theme.accentColor,
-        accentIntensity: theme.accentIntensity,
-        basePaletteId: theme.basePaletteId,
-        formRadius: theme.formRadius,
-        globalRadius: theme.globalRadius,
-        id: theme.id,
-        mode: theme.mode,
-        name: theme.name,
-        presetId: theme.presetId,
-    }
-}
-
-function fromProfileTheme(
-    theme: IThemeLibraryProfileTheme,
-    availablePresetIds: ReadonlyArray<ThemePresetId>,
-): IUserThemeLibraryItem | undefined {
-    if (availablePresetIds.includes(theme.presetId as ThemePresetId) === false) {
-        return undefined
-    }
-
-    return {
-        accentColor: theme.accentColor,
-        accentIntensity: theme.accentIntensity,
-        basePaletteId: theme.basePaletteId,
-        formRadius: theme.formRadius,
-        globalRadius: theme.globalRadius,
-        id: theme.id,
-        mode: theme.mode,
-        name: theme.name,
-        presetId: theme.presetId as ThemePresetId,
-    }
-}
-
-function buildThemeLibraryExportPayload(
-    themes: ReadonlyArray<IUserThemeLibraryItem>,
-    favoritePresetId: ThemePresetId | undefined,
-): IThemeLibraryImportEnvelope {
-    return {
-        favoritePresetId,
-        themes,
-        version: 1,
-    }
-}
-
-function parseThemeLibraryImportPayload(
-    rawJson: string,
-    availablePresetIds: ReadonlyArray<ThemePresetId>,
-): IThemeLibraryImportEnvelope | undefined {
-    try {
-        const parsed = JSON.parse(rawJson) as unknown
-        if (typeof parsed !== "object" || parsed === null || Array.isArray(parsed)) {
-            return undefined
-        }
-
-        const record = parsed as Record<string, unknown>
-        if (record.version !== 1) {
-            return undefined
-        }
-        if (Array.isArray(record.themes) === false) {
-            return undefined
-        }
-
-        const themes: Array<IUserThemeLibraryItem> = []
-        record.themes.forEach((entry): void => {
-            const parsedTheme = parseThemeLibraryItem(entry, availablePresetIds)
-            if (parsedTheme !== undefined) {
-                themes.push(parsedTheme)
-            }
-        })
-
-        const favoritePresetId =
-            typeof record.favoritePresetId === "string" &&
-            availablePresetIds.includes(record.favoritePresetId as ThemePresetId)
-                ? (record.favoritePresetId as ThemePresetId)
-                : undefined
-
-        return {
-            favoritePresetId,
-            themes,
-            version: 1,
-        }
-    } catch {
-        return undefined
-    }
-}
-
-function triggerJsonDownload(fileName: string, jsonPayload: string): void {
-    if (typeof window === "undefined" || typeof document === "undefined") {
-        return
-    }
-    if (typeof URL.createObjectURL !== "function") {
-        return
-    }
-
-    const blob = new Blob([jsonPayload], { type: "application/json;charset=utf-8;" })
-    const objectUrl = URL.createObjectURL(blob)
-    const anchor = document.createElement("a")
-
-    anchor.href = objectUrl
-    anchor.download = fileName
-    anchor.style.display = "none"
-    document.body.append(anchor)
-    anchor.click()
-    anchor.remove()
-    URL.revokeObjectURL(objectUrl)
-}
-
-const LOCALE_LABELS: Readonly<Record<SupportedLocale, string>> = {
-    en: "English",
-    ru: "Русский",
-}
-
-const LOCALE_DATE_PREVIEW = new Date("2026-03-09T14:30:00")
-const LOCALE_NUMBER_PREVIEW = 1234567.89
+import {
+    APPEARANCE_ACCENT_STORAGE_KEY,
+    APPEARANCE_BASE_PALETTE_STORAGE_KEY,
+    APPEARANCE_FORM_RADIUS_STORAGE_KEY,
+    APPEARANCE_INTENSITY_STORAGE_KEY,
+    APPEARANCE_LIBRARY_FAVORITE_PRESET_STORAGE_KEY,
+    APPEARANCE_LIBRARY_STORAGE_KEY,
+    APPEARANCE_LIBRARY_SYNC_STORAGE_KEY,
+    APPEARANCE_RADIUS_STORAGE_KEY,
+    DEFAULT_ACCENT_COLOR,
+    DEFAULT_ACCENT_INTENSITY,
+    DEFAULT_FORM_RADIUS,
+    DEFAULT_GLOBAL_RADIUS,
+    LOCALE_DATE_PREVIEW,
+    LOCALE_LABELS,
+    LOCALE_NUMBER_PREVIEW,
+    MAX_FORM_RADIUS,
+    MAX_INTENSITY,
+    MAX_RADIUS,
+    MIN_FORM_RADIUS,
+    MIN_INTENSITY,
+    MIN_RADIUS,
+    QUICK_PRESET_KEYWORDS,
+} from "./settings-appearance/appearance-settings.constants"
+
+import {
+    type IUserThemeLibraryItem,
+    type TBasePaletteId,
+    buildThemeLibraryExportPayload,
+    clearAppearanceStorage,
+    createEffectiveAccentColor,
+    createThemeLibraryId,
+    fromProfileTheme,
+    getContrastRatio,
+    parseThemeLibraryImportPayload,
+    readStoredBasePalette,
+    readStoredFavoritePreset,
+    readStoredHexColor,
+    readStoredNumber,
+    readStoredThemeLibrary,
+    readStoredThemeLibraryUpdatedAtMs,
+    removeLocalStorageItem,
+    resolveThemeNameConflict,
+    toProfileTheme,
+    triggerJsonDownload,
+    writeLocalStorageItem,
+    writeStoredThemeLibraryUpdatedAtMs,
+} from "./settings-appearance/appearance-settings.utils"
 
 /**
  * Секция выбора языка интерфейса с preview форматирования.
@@ -591,11 +89,7 @@ function LanguageSection(): ReactElement {
                 <p className={TYPOGRAPHY.sectionTitle}>Language / Язык</p>
             </CardHeader>
             <CardBody className="space-y-3">
-                <div
-                    aria-label="Language selection"
-                    className="flex gap-2"
-                    role="radiogroup"
-                >
+                <div aria-label="Language selection" className="flex gap-2" role="radiogroup">
                     {SUPPORTED_LOCALES.map(
                         (localeOption): ReactElement => (
                             <Button
@@ -603,9 +97,7 @@ function LanguageSection(): ReactElement {
                                 aria-pressed={localeOption === locale}
                                 aria-selected={localeOption === locale}
                                 size="sm"
-                                variant={
-                                    localeOption === locale ? "solid" : "flat"
-                                }
+                                variant={localeOption === locale ? "solid" : "flat"}
                                 onPress={(): void => {
                                     void setLocale(localeOption)
                                 }}
@@ -619,19 +111,13 @@ function LanguageSection(): ReactElement {
                     <p>
                         Date preview:{" "}
                         <span className="font-medium text-foreground">
-                            {formatLocalizedDateTime(
-                                LOCALE_DATE_PREVIEW,
-                                locale,
-                            )}
+                            {formatLocalizedDateTime(LOCALE_DATE_PREVIEW, locale)}
                         </span>
                     </p>
                     <p>
                         Number preview:{" "}
                         <span className="font-medium text-foreground">
-                            {formatLocalizedNumber(
-                                LOCALE_NUMBER_PREVIEW,
-                                locale,
-                            )}
+                            {formatLocalizedNumber(LOCALE_NUMBER_PREVIEW, locale)}
                         </span>
                     </p>
                 </div>
@@ -874,7 +360,9 @@ export function SettingsAppearancePage(): ReactElement {
         setThemeLibrary((previous): ReadonlyArray<IUserThemeLibraryItem> => [snapshot, ...previous])
         setSelectedThemeId(snapshot.id)
         setThemeDraftName("")
-        showToastSuccess(t("settings:appearance.toast.themeSavedToLibrary", { name: snapshot.name }))
+        showToastSuccess(
+            t("settings:appearance.toast.themeSavedToLibrary", { name: snapshot.name }),
+        )
     }
 
     const handleRenameLibraryTheme = (): void => {
@@ -1232,7 +720,9 @@ export function SettingsAppearancePage(): ReactElement {
 
             <Card>
                 <CardHeader className="flex flex-wrap items-center justify-between gap-2">
-                    <p className={TYPOGRAPHY.sectionTitle}>{t("settings:appearance.themeControls")}</p>
+                    <p className={TYPOGRAPHY.sectionTitle}>
+                        {t("settings:appearance.themeControls")}
+                    </p>
                     <Button variant="flat" onPress={handleResetTheme}>
                         {t("settings:appearance.resetToDefault")}
                     </Button>
@@ -1251,7 +741,9 @@ export function SettingsAppearancePage(): ReactElement {
                         </Chip>
                         {lastAppliedRandomPreset !== undefined ? (
                             <Chip size="sm" variant="flat">
-                                {t("settings:appearance.chipLastRandom", { value: lastAppliedRandomPreset.label })}
+                                {t("settings:appearance.chipLastRandom", {
+                                    value: lastAppliedRandomPreset.label,
+                                })}
                             </Chip>
                         ) : null}
                     </div>
@@ -1302,13 +794,19 @@ export function SettingsAppearancePage(): ReactElement {
                         {pendingRandomPreset !== undefined ? (
                             <div className="rounded-lg border border-border bg-surface-muted p-3">
                                 <p className="text-sm font-semibold text-foreground">
-                                    {t("settings:appearance.previewPreset", { label: pendingRandomPreset.label })}
+                                    {t("settings:appearance.previewPreset", {
+                                        label: pendingRandomPreset.label,
+                                    })}
                                 </p>
                                 <p className="mt-1 text-xs text-text-secondary">
                                     {t("settings:appearance.previewPresetHint")}
                                 </p>
                                 <div className="mt-2 flex flex-wrap gap-2">
-                                    <Button color="primary" size="sm" onPress={handleApplyRandomPreset}>
+                                    <Button
+                                        color="primary"
+                                        size="sm"
+                                        onPress={handleApplyRandomPreset}
+                                    >
                                         {t("settings:appearance.applyRandomPreset")}
                                     </Button>
                                     <Button
@@ -1329,12 +827,16 @@ export function SettingsAppearancePage(): ReactElement {
 
             <Card>
                 <CardHeader>
-                    <p className={TYPOGRAPHY.sectionTitle}>{t("settings:appearance.advancedControls")}</p>
+                    <p className={TYPOGRAPHY.sectionTitle}>
+                        {t("settings:appearance.advancedControls")}
+                    </p>
                 </CardHeader>
                 <CardBody className="space-y-4">
                     <div className="grid gap-4 xl:grid-cols-2">
                         <div className="space-y-3 rounded-lg border border-border bg-surface p-3">
-                            <p className="text-sm font-semibold text-foreground">{t("settings:appearance.accentControl")}</p>
+                            <p className="text-sm font-semibold text-foreground">
+                                {t("settings:appearance.accentControl")}
+                            </p>
                             <div className="flex items-center gap-3">
                                 <input
                                     aria-label="Accent color picker"
@@ -1353,7 +855,9 @@ export function SettingsAppearancePage(): ReactElement {
                                 className="text-xs uppercase tracking-[0.12em] text-text-subtle"
                                 htmlFor="accent-intensity-slider"
                             >
-                                {t("settings:appearance.accentIntensity", { value: accentIntensity })}
+                                {t("settings:appearance.accentIntensity", {
+                                    value: accentIntensity,
+                                })}
                             </label>
                             <input
                                 aria-label="Accent intensity slider"
@@ -1370,7 +874,9 @@ export function SettingsAppearancePage(): ReactElement {
                         </div>
 
                         <div className="space-y-3 rounded-lg border border-border bg-surface p-3">
-                            <p className="text-sm font-semibold text-foreground">{t("settings:appearance.basePalette")}</p>
+                            <p className="text-sm font-semibold text-foreground">
+                                {t("settings:appearance.basePalette")}
+                            </p>
                             <div
                                 aria-label="Base palette picker"
                                 className="flex flex-wrap gap-2"
@@ -1458,7 +964,10 @@ export function SettingsAppearancePage(): ReactElement {
                             size="sm"
                             variant="flat"
                         >
-                            {t("settings:appearance.chipContrast", { value: contrastRatio.toFixed(2), level: isAccessibleContrast ? "AA" : "check" })}
+                            {t("settings:appearance.chipContrast", {
+                                value: contrastRatio.toFixed(2),
+                                level: isAccessibleContrast ? "AA" : "check",
+                            })}
                         </Chip>
                     </div>
                 </CardBody>
@@ -1466,7 +975,9 @@ export function SettingsAppearancePage(): ReactElement {
 
             <Card>
                 <CardHeader className="flex flex-wrap items-center justify-between gap-2">
-                    <p className={TYPOGRAPHY.sectionTitle}>{t("settings:appearance.themeLibrary")}</p>
+                    <p className={TYPOGRAPHY.sectionTitle}>
+                        {t("settings:appearance.themeLibrary")}
+                    </p>
                     <Chip
                         color={
                             librarySyncStatus === "synced"
@@ -1483,7 +994,9 @@ export function SettingsAppearancePage(): ReactElement {
                 </CardHeader>
                 <CardBody className="space-y-4">
                     <div className="rounded-lg border border-border bg-surface p-3">
-                        <p className="text-sm font-semibold text-foreground">{t("settings:appearance.favoritePreset")}</p>
+                        <p className="text-sm font-semibold text-foreground">
+                            {t("settings:appearance.favoritePreset")}
+                        </p>
                         <p className="mt-1 text-xs text-text-secondary">
                             {t("settings:appearance.chipPinned", { value: favoritePresetLabel })}
                         </p>
@@ -1538,7 +1051,9 @@ export function SettingsAppearancePage(): ReactElement {
                             </select>
                         </div>
                         <div className="flex items-end">
-                            <Button color="primary" onPress={handleCreateLibraryTheme}>{t("settings:appearance.saveCurrentTheme")}</Button>
+                            <Button color="primary" onPress={handleCreateLibraryTheme}>
+                                {t("settings:appearance.saveCurrentTheme")}
+                            </Button>
                         </div>
                     </div>
 
@@ -1605,7 +1120,9 @@ export function SettingsAppearancePage(): ReactElement {
 
             <Card>
                 <CardHeader>
-                    <p className={TYPOGRAPHY.sectionTitle}>{t("settings:appearance.livePreview")}</p>
+                    <p className={TYPOGRAPHY.sectionTitle}>
+                        {t("settings:appearance.livePreview")}
+                    </p>
                 </CardHeader>
                 <CardBody className="space-y-3">
                     <div className="grid gap-3 md:grid-cols-3">
@@ -1652,7 +1169,11 @@ export function SettingsAppearancePage(): ReactElement {
                         </div>
                     </div>
                     <p className="text-xs text-text-secondary">
-                        {t("settings:appearance.presetOptions", { list: presets.map((themePreset): string => themePreset.label).join(", ") })}
+                        {t("settings:appearance.presetOptions", {
+                            list: presets
+                                .map((themePreset): string => themePreset.label)
+                                .join(", "),
+                        })}
                     </p>
                 </CardBody>
             </Card>
