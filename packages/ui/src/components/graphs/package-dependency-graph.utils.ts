@@ -4,6 +4,11 @@
  */
 
 import type { IGraphEdge, IGraphNode } from "@/components/graphs/xyflow-graph-layout"
+import {
+    getWindowLocalStorage,
+    safeStorageGetJson,
+    safeStorageSetJson,
+} from "@/lib/utils/safe-storage"
 
 import type { IPackageDependencyNode, IPackageDependencyRelation } from "./package-dependency-graph"
 import {
@@ -185,36 +190,31 @@ export function parseClusterLayer(nodeId: string): IPackageDependencyNode["layer
  * @returns Snapshot или undefined если данных нет или они повреждены.
  */
 export function readLayoutSnapshot(): ILayerLayoutSnapshot | undefined {
-    if (typeof globalThis.localStorage === "undefined") {
+    const parsed = safeStorageGetJson<Partial<ILayerLayoutSnapshot> | null>(
+        getWindowLocalStorage(),
+        "ui.package-graph.layout.v1",
+        null,
+    )
+    if (parsed === null) {
         return undefined
     }
 
-    const rawSnapshot = globalThis.localStorage.getItem("ui.package-graph.layout.v1")
-    if (rawSnapshot === null) {
-        return undefined
-    }
-
-    try {
-        const parsed = JSON.parse(rawSnapshot) as Partial<ILayerLayoutSnapshot>
-        if (
-            (parsed.viewMode === "detailed" || parsed.viewMode === "clustered") &&
-            (parsed.lodMode === "overview" || parsed.lodMode === "details") &&
-            Array.isArray(parsed.expandedLayerIds)
-        ) {
-            return {
-                viewMode: parsed.viewMode,
-                lodMode: parsed.lodMode,
-                expandedLayerIds: parsed.expandedLayerIds
-                    .filter((item): item is string => typeof item === "string")
-                    .map((item): string => item.trim())
-                    .filter(
-                        (item): item is IPackageDependencyNode["layer"] =>
-                            item.length > 0 && isPackageLayer(item),
-                    ),
-            }
+    if (
+        (parsed.viewMode === "detailed" || parsed.viewMode === "clustered") &&
+        (parsed.lodMode === "overview" || parsed.lodMode === "details") &&
+        Array.isArray(parsed.expandedLayerIds)
+    ) {
+        return {
+            viewMode: parsed.viewMode,
+            lodMode: parsed.lodMode,
+            expandedLayerIds: parsed.expandedLayerIds
+                .filter((item): item is string => typeof item === "string")
+                .map((item): string => item.trim())
+                .filter(
+                    (item): item is IPackageDependencyNode["layer"] =>
+                        item.length > 0 && isPackageLayer(item),
+                ),
         }
-    } catch {
-        return undefined
     }
 
     return undefined
@@ -226,11 +226,7 @@ export function readLayoutSnapshot(): ILayerLayoutSnapshot | undefined {
  * @param snapshot - Snapshot для сохранения.
  */
 export function writeLayoutSnapshot(snapshot: ILayerLayoutSnapshot): void {
-    if (typeof globalThis.localStorage === "undefined") {
-        return
-    }
-
-    globalThis.localStorage.setItem("ui.package-graph.layout.v1", JSON.stringify(snapshot))
+    safeStorageSetJson(getWindowLocalStorage(), "ui.package-graph.layout.v1", snapshot)
 }
 
 /**

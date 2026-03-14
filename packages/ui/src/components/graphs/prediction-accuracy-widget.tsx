@@ -6,6 +6,11 @@ import { useDynamicTranslation } from "@/lib/i18n"
 import { TYPOGRAPHY } from "@/lib/constants/typography"
 
 /**
+ * Максимум отображаемых accuracy case записей.
+ */
+const MAX_VISIBLE_ACCURACY_CASES = 4
+
+/**
  * Точка accuracy-trend.
  */
 export interface IPredictionAccuracyPoint {
@@ -114,7 +119,7 @@ export function PredictionAccuracyWidget(props: IPredictionAccuracyWidgetProps):
                 aria-label={t("code-city:predictionAccuracy.ariaLabelCases")}
                 className="mt-3 space-y-2"
             >
-                {props.cases.slice(0, 4).map((entry): ReactElement => {
+                {props.cases.slice(0, MAX_VISIBLE_ACCURACY_CASES).map((entry): ReactElement => {
                     const isActive = props.activeCaseId === entry.id
                     return (
                         <button

@@ -6,6 +6,11 @@ import { useDynamicTranslation } from "@/lib/i18n"
 import { TYPOGRAPHY } from "@/lib/constants/typography"
 
 /**
+ * Максимум отображаемых hotspot / bug-prone записей в prediction dashboard.
+ */
+const MAX_VISIBLE_PREDICTION_ENTRIES = 4
+
+/**
  * Прогнозный hotspot для prediction dashboard.
  */
 export interface IPredictionDashboardHotspotEntry {
@@ -109,31 +114,33 @@ export function PredictionDashboard(props: IPredictionDashboardProps): ReactElem
                 aria-label={t("code-city:predictionDashboard.ariaLabelHotspots")}
                 className="mt-3 space-y-2"
             >
-                {props.hotspots.slice(0, 4).map((entry): ReactElement => {
-                    const isActive = props.activeHotspotId === entry.id
-                    return (
-                        <button
-                            aria-label={t("code-city:predictionDashboard.ariaLabelInspect", {
-                                label: entry.label,
-                            })}
-                            className={resolveHotspotClassName(isActive, entry.riskLevel)}
-                            key={entry.id}
-                            onClick={(): void => {
-                                props.onSelectHotspot?.(entry)
-                            }}
-                            type="button"
-                        >
-                            <p className={TYPOGRAPHY.cardTitle}>{entry.label}</p>
-                            <p className={`mt-1 ${TYPOGRAPHY.captionMuted}`}>
-                                {t("code-city:predictionDashboard.hotspotMeta", {
-                                    risk: td(resolveRiskLabelKey(entry.riskLevel)),
-                                    confidence: String(entry.confidenceScore),
-                                    increase: String(entry.predictedIssueIncrease),
+                {props.hotspots
+                    .slice(0, MAX_VISIBLE_PREDICTION_ENTRIES)
+                    .map((entry): ReactElement => {
+                        const isActive = props.activeHotspotId === entry.id
+                        return (
+                            <button
+                                aria-label={t("code-city:predictionDashboard.ariaLabelInspect", {
+                                    label: entry.label,
                                 })}
-                            </p>
-                        </button>
-                    )
-                })}
+                                className={resolveHotspotClassName(isActive, entry.riskLevel)}
+                                key={entry.id}
+                                onClick={(): void => {
+                                    props.onSelectHotspot?.(entry)
+                                }}
+                                type="button"
+                            >
+                                <p className={TYPOGRAPHY.cardTitle}>{entry.label}</p>
+                                <p className={`mt-1 ${TYPOGRAPHY.captionMuted}`}>
+                                    {t("code-city:predictionDashboard.hotspotMeta", {
+                                        risk: td(resolveRiskLabelKey(entry.riskLevel)),
+                                        confidence: String(entry.confidenceScore),
+                                        increase: String(entry.predictedIssueIncrease),
+                                    })}
+                                </p>
+                            </button>
+                        )
+                    })}
             </div>
 
             <div
@@ -163,14 +170,16 @@ export function PredictionDashboard(props: IPredictionDashboardProps): ReactElem
                     {t("code-city:predictionDashboard.bugProneFiles")}
                 </p>
                 <ul className="mt-1 space-y-1">
-                    {props.bugProneFiles.slice(0, 4).map((entry): ReactElement => {
-                        return (
-                            <li className="text-xs text-foreground" key={entry.fileId}>
-                                {entry.label} · bugs 30d {String(entry.bugIntroductions30d)} ·
-                                confidence {String(entry.confidenceScore)}%
-                            </li>
-                        )
-                    })}
+                    {props.bugProneFiles
+                        .slice(0, MAX_VISIBLE_PREDICTION_ENTRIES)
+                        .map((entry): ReactElement => {
+                            return (
+                                <li className="text-xs text-foreground" key={entry.fileId}>
+                                    {entry.label} · bugs 30d {String(entry.bugIntroductions30d)} ·
+                                    confidence {String(entry.confidenceScore)}%
+                                </li>
+                            )
+                        })}
                 </ul>
             </div>
         </section>

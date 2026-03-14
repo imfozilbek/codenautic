@@ -6,6 +6,11 @@ import { useDynamicTranslation } from "@/lib/i18n"
 import { TYPOGRAPHY } from "@/lib/constants/typography"
 
 /**
+ * Максимум отображаемых записей в explain-панели прогнозов.
+ */
+const MAX_VISIBLE_EXPLAIN_ENTRIES = 6
+
+/**
  * Элемент explain-панели для прогнозного hotspot.
  */
 export interface IPredictionExplainPanelEntry {
@@ -69,7 +74,7 @@ export function PredictionExplainPanel(props: IPredictionExplainPanelProps): Rea
                 aria-label={t("code-city:predictionExplain.ariaLabelEntries")}
                 className="mt-3 space-y-2"
             >
-                {props.entries.slice(0, 6).map((entry): ReactElement => {
+                {props.entries.slice(0, MAX_VISIBLE_EXPLAIN_ENTRIES).map((entry): ReactElement => {
                     const isActive = selectedEntry?.fileId === entry.fileId
                     const className = isActive
                         ? "border-primary bg-primary/10"
