@@ -81,7 +81,7 @@
 | ID | Задача | Статус | Результат | Acceptance Criteria |
 |----------|--------------------|--------|-----------|---------------------|
 | LLM-008 | Реализовать groqProvider | DONE | Реализовано | Реализация: Groq fast inference API. Готово, если: для LLM-008 adapter сохраняет стабильный external -> domain контракт, корректно обрабатывает retry/backoff/error/idempotency сценарии, а интеграционные контрактные тесты фиксируют поведение на happy/failure-path; DoD: `cd packages/adapters && bun run lint && bun run typecheck && bun test`. |
-| LLM-009 | Реализовать openRouterProvider | TODO | Не начато | Реализация: OpenRouter model aggregation. Готово, если: для LLM-009 adapter сохраняет стабильный external -> domain контракт, корректно обрабатывает retry/backoff/error/idempotency сценарии, а интеграционные контрактные тесты фиксируют поведение на happy/failure-path; DoD: `cd packages/adapters && bun run lint && bun run typecheck && bun test`. |
+| LLM-009 | Реализовать openRouterProvider | DONE | Реализовано | Реализация: OpenRouter model aggregation. Готово, если: для LLM-009 adapter сохраняет стабильный external -> domain контракт, корректно обрабатывает retry/backoff/error/idempotency сценарии, а интеграционные контрактные тесты фиксируют поведение на happy/failure-path; DoD: `cd packages/adapters && bun run lint && bun run typecheck && bun test`. |
 
 ---
 

@@ -93,6 +93,15 @@ export {
     type IGroqProviderErrorDetails,
 } from "./groq-provider.error"
 export {
+    OpenRouterProvider,
+    type IOpenRouterClient,
+    type IOpenRouterProviderOptions,
+} from "./openrouter-provider"
+export {
+    OpenRouterProviderError,
+    type IOpenRouterProviderErrorDetails,
+} from "./openrouter-provider.error"
+export {
     AnthropicRequestAcl,
     AnthropicResponseAcl,
     LLM_ACL_PROVIDER,
