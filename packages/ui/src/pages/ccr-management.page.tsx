@@ -5,6 +5,7 @@ import { useTranslation } from "react-i18next"
 import type { ICcrWorkspaceRow } from "@/lib/api/endpoints/ccr-workspace.endpoint"
 import { NATIVE_FORM } from "@/lib/constants/spacing"
 import { TYPOGRAPHY } from "@/lib/constants/typography"
+import { PageShell } from "@/components/layout/page-shell"
 import { FOCUS_REVIEWS_FILTERS_EVENT } from "@/lib/keyboard/shortcut-registry"
 import { useCcrWorkspace } from "@/lib/hooks/queries"
 import { ReviewsContent, type IReviewRow } from "@/components/reviews/reviews-content"
@@ -605,11 +606,11 @@ export function CcrManagementPage(props: ICcrManagementPageProps): ReactElement 
     const filterPresets = useCcrFilterPresets(searchState, updateFilters)
 
     return (
-        <section className="space-y-4">
-            <h1 className={TYPOGRAPHY.pageTitle}>{t("reviews:management.pageTitle")}</h1>
-            <p className={TYPOGRAPHY.pageSubtitle}>
-                {t("reviews:management.pageSubtitle")}
-            </p>
+        <PageShell
+            layout="fluid"
+            title={t("reviews:management.pageTitle")}
+            subtitle={t("reviews:management.pageSubtitle")}
+        >
             {ccrWorkspace.ccrListQuery.error === null ||
             ccrWorkspace.ccrListQuery.error === undefined ? null : (
                 <p className="text-xs text-warning">
@@ -623,23 +624,26 @@ export function CcrManagementPage(props: ICcrManagementPageProps): ReactElement 
                 statusOptions={filterOptions.statusOptions}
                 teamOptions={filterOptions.teamOptions}
             />
-            <CcrFilterPresetsPanel
-                onApplyPreset={filterPresets.applyPreset}
-                onDeletePreset={filterPresets.deletePreset}
-                onFieldChange={filterPresets.setField}
-                onSavePreset={filterPresets.savePreset}
-                onUpdatePreset={filterPresets.updatePreset}
-                presetName={filterPresets.presetName}
-                presets={filterPresets.presets}
-                selectedPresetId={filterPresets.selectedPresetId}
-            />
+            <div className="hidden sm:block">
+                <CcrFilterPresetsPanel
+                    onApplyPreset={filterPresets.applyPreset}
+                    onDeletePreset={filterPresets.deletePreset}
+                    onFieldChange={filterPresets.setField}
+                    onSavePreset={filterPresets.savePreset}
+                    onUpdatePreset={filterPresets.updatePreset}
+                    presetName={filterPresets.presetName}
+                    presets={filterPresets.presets}
+                    selectedPresetId={filterPresets.selectedPresetId}
+                />
+            </div>
             <ReviewsContent
                 hasMore={hasMore}
+                hideTitle
                 isLoadingMore={false}
                 onLoadMore={handleLoadMore}
                 rows={visibleRows}
                 showInlineFilters={false}
             />
-        </section>
+        </PageShell>
     )
 }
