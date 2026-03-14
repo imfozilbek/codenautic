@@ -31,10 +31,15 @@ export interface IActivityTimelineProps {
     readonly items: ReadonlyArray<IActivityTimelineEntry>
 }
 
-/** Собирает events по дню для визуального секционирования. */
-const groupItemsByDay = (
+/**
+ * Собирает events по дню для визуального секционирования.
+ *
+ * @param items Список событий.
+ * @returns Словарь: группа -> события.
+ */
+function groupItemsByDay(
     items: ReadonlyArray<IActivityTimelineEntry>,
-): Record<string, ReadonlyArray<IActivityTimelineEntry>> => {
+): Record<string, ReadonlyArray<IActivityTimelineEntry>> {
     return items.reduce<Record<string, ReadonlyArray<IActivityTimelineEntry>>>(
         (acc, item): Record<string, ReadonlyArray<IActivityTimelineEntry>> => {
             const group = item.group ?? "Today"
@@ -48,7 +53,7 @@ const groupItemsByDay = (
 }
 
 /**
- * Рисует временную шкалу последних активностей.
+ * Рисует временную шкалу последних активностей с dot-connector дизайном.
  *
  * @param props Список событий.
  * @returns Секция timeline.
@@ -57,31 +62,40 @@ export function ActivityTimeline(props: IActivityTimelineProps): ReactElement {
     const groupedEntries = groupItemsByDay(props.items)
 
     return (
-        <Card className="border-l-2 border-l-danger">
-            <CardHeader>
+        <Card className="border border-border/60 bg-surface/80 backdrop-blur-sm">
+            <CardHeader className="border-b border-border/40 pb-3">
                 <h2 className={TYPOGRAPHY.sectionTitle}>Recent activity</h2>
             </CardHeader>
-            <CardBody>
+            <CardBody className="pt-4">
                 {props.items.length === 0 ? (
                     <EmptyState
                         description="No recent activity to display."
                         title="No activity yet"
                     />
                 ) : (
-                    Object.entries(groupedEntries).map(
-                        ([group, items]): ReactElement => (
-                            <section key={group} className="space-y-2">
-                                <h3 className={`mt-2 ${TYPOGRAPHY.cardTitle}`}>{group}</h3>
-                                <ul className="space-y-2" aria-label={`Timeline ${group}`}>
-                                    {items.map(
-                                        (item): ReactElement => (
-                                            <ActivityTimelineItem key={item.id} {...item} />
-                                        ),
-                                    )}
-                                </ul>
-                            </section>
-                        ),
-                    )
+                    <div className="space-y-5">
+                        {Object.entries(groupedEntries).map(
+                            ([group, items]): ReactElement => (
+                                <section key={group}>
+                                    <h3 className={`mb-3 ${TYPOGRAPHY.overline}`}>{group}</h3>
+                                    <ul aria-label={`Timeline ${group}`}>
+                                        {items.map(
+                                            (item, index): ReactElement => (
+                                                <ActivityTimelineItem
+                                                    key={item.id}
+                                                    description={item.description}
+                                                    details={item.details}
+                                                    isLast={index === items.length - 1}
+                                                    time={item.time}
+                                                    title={item.title}
+                                                />
+                                            ),
+                                        )}
+                                    </ul>
+                                </section>
+                            ),
+                        )}
+                    </div>
                 )}
             </CardBody>
         </Card>
