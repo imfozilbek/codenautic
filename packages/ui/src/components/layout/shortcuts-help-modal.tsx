@@ -2,7 +2,7 @@ import { type ReactElement } from "react"
 import { useTranslation } from "react-i18next"
 
 import type { IShortcutDescriptor } from "@/lib/keyboard/shortcut-registry"
-import { Modal, ModalBody, ModalContent, ModalHeader } from "@/components/ui"
+import { Modal } from "@heroui/react"
 
 /**
  * Свойства модального окна помощи по keyboard shortcuts.
@@ -38,9 +38,11 @@ export function ShortcutsHelpModal(props: IShortcutsHelpModalProps): ReactElemen
                 }
             }}
         >
-            <ModalContent>
-                <ModalHeader>{t("navigation:shortcuts.title")}</ModalHeader>
-                <ModalBody>
+            <Modal.Backdrop>
+                <Modal.Container>
+                    <Modal.Dialog>
+                        <Modal.Header>{t("navigation:shortcuts.title")}</Modal.Header>
+                        <Modal.Body>
                     <input
                         aria-label={t("navigation:shortcuts.searchLabel")}
                         className="w-full rounded-md border border-border bg-surface px-2 py-1 text-sm text-foreground"
@@ -77,8 +79,10 @@ export function ShortcutsHelpModal(props: IShortcutsHelpModalProps): ReactElemen
                             ),
                         )}
                     </ul>
-                </ModalBody>
-            </ModalContent>
+                        </Modal.Body>
+                    </Modal.Dialog>
+                </Modal.Container>
+            </Modal.Backdrop>
         </Modal>
     )
 }

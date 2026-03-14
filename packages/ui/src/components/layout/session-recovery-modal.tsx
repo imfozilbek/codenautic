@@ -1,7 +1,7 @@
 import { type ReactElement } from "react"
 import { useTranslation } from "react-i18next"
 
-import { Button, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader } from "@/components/ui"
+import { Button, Modal } from "@heroui/react"
 
 /**
  * Свойства модального окна восстановления сессии.
@@ -27,32 +27,36 @@ export function SessionRecoveryModal(props: ISessionRecoveryModalProps): ReactEl
     const { t } = useTranslation(["navigation"])
     return (
         <Modal isOpen={props.isOpen} onOpenChange={props.onOpenChange}>
-            <ModalContent>
-                <ModalHeader>{t("navigation:sessionRecovery.title")}</ModalHeader>
-                <ModalBody>
-                    <p className="text-sm text-text-tertiary">
-                        Authentication failed with {props.failureCode}. Re-authentication is
-                        required to continue safely.
-                    </p>
-                    <p className="text-xs text-text-secondary">
-                        Drafts and pending intent were autosaved and will be restored after
-                        successful sign-in.
-                    </p>
-                </ModalBody>
-                <ModalFooter>
-                    <Button
-                        variant="flat"
-                        onPress={(): void => {
-                            props.onOpenChange(false)
-                        }}
-                    >
-                        Later
-                    </Button>
-                    <Button color="primary" onPress={props.onReAuthenticate}>
-                        Re-authenticate
-                    </Button>
-                </ModalFooter>
-            </ModalContent>
+            <Modal.Backdrop>
+                <Modal.Container>
+                    <Modal.Dialog>
+                        <Modal.Header>{t("navigation:sessionRecovery.title")}</Modal.Header>
+                        <Modal.Body>
+                            <p className="text-sm text-text-tertiary">
+                                Authentication failed with {props.failureCode}. Re-authentication is
+                                required to continue safely.
+                            </p>
+                            <p className="text-xs text-text-secondary">
+                                Drafts and pending intent were autosaved and will be restored after
+                                successful sign-in.
+                            </p>
+                        </Modal.Body>
+                        <Modal.Footer>
+                            <Button
+                                variant="secondary"
+                                onPress={(): void => {
+                                    props.onOpenChange(false)
+                                }}
+                            >
+                                Later
+                            </Button>
+                            <Button variant="primary" onPress={props.onReAuthenticate}>
+                                Re-authenticate
+                            </Button>
+                        </Modal.Footer>
+                    </Modal.Dialog>
+                </Modal.Container>
+            </Modal.Backdrop>
         </Modal>
     )
 }
