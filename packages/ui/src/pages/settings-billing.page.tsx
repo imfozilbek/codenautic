@@ -294,7 +294,7 @@ export function SettingsBillingPage(): ReactElement {
                 <div className="grid gap-3 md:grid-cols-2">
                     <div className="space-y-1">
                         <select
-                            aria-label="Billing plan"
+                            aria-label={t("settings:ariaLabel.billing.plan")}
                             className={NATIVE_FORM.select}
                             value={draftPlan}
                             onChange={(event): void => {
@@ -315,7 +315,7 @@ export function SettingsBillingPage(): ReactElement {
                     </div>
                     <div className="space-y-1">
                         <select
-                            aria-label="Billing status"
+                            aria-label={t("settings:ariaLabel.billing.status")}
                             className={NATIVE_FORM.select}
                             value={draftStatus}
                             onChange={(event): void => {
@@ -353,7 +353,10 @@ export function SettingsBillingPage(): ReactElement {
             </FormSection>
 
             <FormSection heading="Premium feature lock/unlock state">
-                <ul aria-label="Entitlement features list" className="space-y-2">
+                <ul
+                    aria-label={t("settings:ariaLabel.billing.entitlementFeaturesList")}
+                    className="space-y-2"
+                >
                     {entitledFeatures.map(
                         (feature): ReactElement => (
                             <li
@@ -384,7 +387,7 @@ export function SettingsBillingPage(): ReactElement {
             </FormSection>
 
             <FormSection heading="Plan change history">
-                <ul aria-label="Billing history list" className="space-y-2">
+                <ul aria-label={t("settings:ariaLabel.billing.historyList")} className="space-y-2">
                     {history.map(
                         (entry): ReactElement => (
                             <li

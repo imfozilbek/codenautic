@@ -7,6 +7,11 @@ import { NATIVE_FORM } from "@/lib/constants/spacing"
 import { TYPOGRAPHY } from "@/lib/constants/typography"
 import { showToastError, showToastInfo, showToastSuccess } from "@/lib/notifications/toast"
 
+/**
+ * Количество видимых символов в начале маскированного секрета.
+ */
+const SECRET_PREFIX_LENGTH = 4
+
 type TByokProvider = "anthropic" | "github" | "gitlab" | "openai"
 
 interface IByokKeyEntry {
@@ -81,7 +86,7 @@ function formatProviderLabel(provider: TByokProvider): string {
 
 function maskSecret(value: string): string {
     const normalized = value.trim()
-    const prefix = normalized.slice(0, 4)
+    const prefix = normalized.slice(0, SECRET_PREFIX_LENGTH)
     const suffix = normalized.slice(-3)
     if (normalized.length < 7) {
         return "****"
@@ -272,7 +277,7 @@ export function SettingsByokPage(): ReactElement {
                 <CardBody className="space-y-3">
                     <div className="grid gap-3 md:grid-cols-[180px_1fr_1fr_auto]">
                         <select
-                            aria-label="Provider"
+                            aria-label={t("settings:ariaLabel.byok.provider")}
                             className={NATIVE_FORM.select}
                             id="byok-provider"
                             value={form.provider}

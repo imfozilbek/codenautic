@@ -118,6 +118,11 @@ const EXTRA_AUDIT_LOGS: ReadonlyArray<IAuditLogEntry> = Array.from({ length: 120
 
 const ALL_AUDIT_LOGS: ReadonlyArray<IAuditLogEntry> = [...INITIAL_AUDIT_LOGS, ...EXTRA_AUDIT_LOGS]
 
+/**
+ * Длина даты в ISO-строке (YYYY-MM-DD).
+ */
+const ISO_DATE_LENGTH = 10
+
 function mapActionChipColor(action: TAuditAction): "default" | "primary" | "success" | "warning" {
     if (action === "integration.connected") {
         return "success"
@@ -269,7 +274,7 @@ export function SettingsAuditLogsPage(props: ISettingsAuditLogsPageProps = {}): 
 
     const handleExport = (): void => {
         const payload = buildAuditCsv(filteredLogs)
-        const timestamp = new Date().toISOString().slice(0, 10)
+        const timestamp = new Date().toISOString().slice(0, ISO_DATE_LENGTH)
         const fileName = `audit-logs-${timestamp}.csv`
 
         triggerCsvDownload(payload, fileName)
@@ -289,7 +294,7 @@ export function SettingsAuditLogsPage(props: ISettingsAuditLogsPageProps = {}): 
                 <CardBody className="space-y-3">
                     <div className="grid gap-3 md:grid-cols-[1fr_1fr_180px_180px_auto]">
                         <select
-                            aria-label="Filter by actor"
+                            aria-label={t("settings:ariaLabel.auditLogs.filterByActor")}
                             className={NATIVE_FORM.select}
                             id="audit-filter-actor"
                             value={filters.actor}
@@ -316,7 +321,7 @@ export function SettingsAuditLogsPage(props: ISettingsAuditLogsPageProps = {}): 
                             )}
                         </select>
                         <select
-                            aria-label="Filter by action"
+                            aria-label={t("settings:ariaLabel.auditLogs.filterByAction")}
                             className={NATIVE_FORM.select}
                             id="audit-filter-action"
                             value={filters.action}
@@ -364,7 +369,7 @@ export function SettingsAuditLogsPage(props: ISettingsAuditLogsPageProps = {}): 
                                 {t("settings:auditLogs.dateFrom")}
                             </label>
                             <input
-                                aria-label="Date from"
+                                aria-label={t("settings:ariaLabel.auditLogs.dateFrom")}
                                 className="rounded-lg border border-border bg-surface px-3 py-2 text-sm"
                                 id="audit-filter-date-from"
                                 type="date"
@@ -388,7 +393,7 @@ export function SettingsAuditLogsPage(props: ISettingsAuditLogsPageProps = {}): 
                                 {t("settings:auditLogs.dateTo")}
                             </label>
                             <input
-                                aria-label="Date to"
+                                aria-label={t("settings:ariaLabel.auditLogs.dateTo")}
                                 className="rounded-lg border border-border bg-surface px-3 py-2 text-sm"
                                 id="audit-filter-date-to"
                                 type="date"
