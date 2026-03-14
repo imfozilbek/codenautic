@@ -16,6 +16,12 @@ export {
     type IAstCodeDeduplicationErrorDetails,
 } from "./ast-code-deduplication.error"
 export {
+    AST_SEMANTIC_CODE_UNDERSTANDING_ERROR_CODE,
+    AstSemanticCodeUnderstandingError,
+    type AstSemanticCodeUnderstandingErrorCode,
+    type IAstSemanticCodeUnderstandingErrorDetails,
+} from "./ast-semantic-code-understanding.error"
+export {
     AST_CODE_CHUNK_EMBEDDING_GENERATOR_ERROR_CODE,
     AstCodeChunkEmbeddingGeneratorError,
     type AstCodeChunkEmbeddingGeneratorErrorCode,
@@ -117,6 +123,18 @@ export {
     type IAstCodeDeduplicationSummary,
     type IAstCodeDuplicatePair,
 } from "./ast-code-deduplication.service"
+export {
+    AST_SEMANTIC_MODULE_ROLE,
+    AstSemanticCodeUnderstandingService,
+    type AstSemanticModuleRole,
+    type IAstSemanticCodeUnderstandingInput,
+    type IAstSemanticCodeUnderstandingResult,
+    type IAstSemanticCodeUnderstandingService,
+    type IAstSemanticCodeUnderstandingServiceOptions,
+    type IAstSemanticCodeUnderstandingSummary,
+    type IAstSemanticModuleInsight,
+    type IAstSemanticModuleMetrics,
+} from "./ast-semantic-code-understanding.service"
 export {
     AST_CODE_GRAPH_IMPACT_ANALYSIS_DIRECTION,
     AstCodeGraphImpactAnalysisService,
