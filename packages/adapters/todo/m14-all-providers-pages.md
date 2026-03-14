@@ -40,7 +40,7 @@
 | ID | Задача | Статус | Результат | Acceptance Criteria |
 |----------|--------------------|--------|-----------|---------------------|
 | GIT-006 | Реализовать rate limiting wrapper | DONE | Реализовано | Реализация: Per-org tracking. Tiers: Free 100/15min, Pro 1000/15min. 429 handling. Готово, если: rate limiter соблюдает org-tier quotas и предотвращает burst spikes, при превышении выдаёт наблюдаемый throttling без потери запроса в очереди; DoD: `cd packages/adapters && bun run lint && bun run typecheck && bun test`. |
-| GIT-007 | Реализовать retry with exponential backoff | TODO | Не начато | Реализация: Delay = baseDelay \* 4^attempt. Max 5 attempts. DLQ after failure. Готово, если: retry/backoff применяются только к retryable ошибкам и завершаются DLQ после лимита попыток с сохранением контекста последней ошибки; DoD: `cd packages/adapters && bun run lint && bun run typecheck && bun test`. |
+| GIT-007 | Реализовать retry with exponential backoff | DONE | Реализовано | Реализация: Delay = baseDelay \* 4^attempt. Max 5 attempts. DLQ after failure. Готово, если: retry/backoff применяются только к retryable ошибкам и завершаются DLQ после лимита попыток с сохранением контекста последней ошибки; DoD: `cd packages/adapters && bun run lint && bun run typecheck && bun test`. |
 | GIT-008 | Реализовать провайдер health checks | TODO | Не начато | Реализация: Periodic ping. Circuit breaker. Status reporting. Готово, если: для GIT-008 adapter сохраняет стабильный external -> domain контракт, корректно обрабатывает retry/backoff/error/idempotency сценарии, а интеграционные контрактные тесты фиксируют поведение на happy/failure-path; DoD: `cd packages/adapters && bun run lint && bun run typecheck && bun test`. |
 
 ---

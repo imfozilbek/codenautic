@@ -8,6 +8,7 @@ import {
 import {bindConstantSingleton} from "../shared/bind-constant-singleton"
 import type {IGitProviderFactory} from "./git-provider.factory"
 import {withGitRateLimit, type IGitRateLimitOptions} from "./git-rate-limiter"
+import {withGitRetry, type IGitRetryOptions} from "./git-retry-wrapper"
 import {GIT_TOKENS} from "./git.tokens"
 
 /**
@@ -23,6 +24,11 @@ export interface IRegisterGitModuleOptions {
      * Optional rate limiter configuration for provider calls.
      */
     readonly rateLimit?: IGitRateLimitOptions
+
+    /**
+     * Optional retry policy configuration for provider calls.
+     */
+    readonly retry?: IGitRetryOptions
 
     /**
      * Optional external pipeline status provider.
@@ -88,11 +94,17 @@ export function registerGitModule(container: Container, options: IRegisterGitMod
  * @returns Provider instance used for DI registration.
  */
 function resolveGitProvider(options: IRegisterGitModuleOptions): IGitProvider {
-    if (options.rateLimit === undefined) {
-        return options.provider
+    let provider: IGitProvider = options.provider
+
+    if (options.rateLimit !== undefined) {
+        provider = withGitRateLimit(provider, options.rateLimit)
     }
 
-    return withGitRateLimit(options.provider, options.rateLimit)
+    if (options.retry !== undefined) {
+        provider = withGitRetry(provider, options.retry)
+    }
+
+    return provider
 }
 
 /**

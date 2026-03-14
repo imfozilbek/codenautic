@@ -10,6 +10,15 @@ export {
     type IGitRateLimitOptions,
 } from "./git-rate-limiter"
 export {
+    GIT_RETRY_REASON,
+    withGitRetry,
+    type GitRetryReason,
+    type IGitRetryDlqEntry,
+    type IGitRetryDlqWriter,
+    type IGitRetryEvent,
+    type IGitRetryOptions,
+} from "./git-retry-wrapper"
+export {
     GIT_REPOSITORY_WORKSPACE_PROVIDER_ERROR_CODE,
     GitRepositoryWorkspaceProviderError,
     type GitRepositoryWorkspaceProviderErrorCode,

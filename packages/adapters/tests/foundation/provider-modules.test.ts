@@ -121,6 +121,47 @@ describe("Provider modules registration", () => {
         expect(sleepCalls).toEqual([1_000])
     })
 
+    test("registerGitModule applies optional git retry wrapper", async () => {
+        const container = new Container()
+        let attempts = 0
+        let currentTimeMs = 0
+        const sleepCalls: number[] = []
+        const provider = createGitProviderMock()
+        provider.getMergeRequest = (id: string): Promise<IMergeRequestDTO> => {
+            attempts += 1
+            if (attempts === 1) {
+                const retryableError = new Error("temporary failure") as Error & {
+                    statusCode: number
+                }
+                retryableError.statusCode = 500
+                return Promise.reject(retryableError)
+            }
+
+            return Promise.resolve({id} as IMergeRequestDTO)
+        }
+
+        registerGitModule(container, {
+            provider,
+            retry: {
+                maxAttempts: 2,
+                baseDelayMs: 10,
+                now: (): number => currentTimeMs,
+                sleep: (delayMs: number): Promise<void> => {
+                    sleepCalls.push(delayMs)
+                    currentTimeMs += delayMs
+                    return Promise.resolve()
+                },
+            },
+        })
+
+        const resolvedProvider = container.resolve(GIT_TOKENS.Provider)
+        const mergeRequest = await resolvedProvider.getMergeRequest("mr-retry")
+
+        expect(mergeRequest.id).toBe("mr-retry")
+        expect(attempts).toBe(2)
+        expect(sleepCalls).toEqual([10])
+    })
+
     test("registerLlmModule binds provider to adapters token", () => {
         const container = new Container()
         const provider = createLlmProviderMock()

@@ -1,6 +1,7 @@
 import type {IGitProvider} from "@codenautic/core"
 
 import {GIT_ACL_ERROR_KIND, normalizeGitAclError} from "./acl"
+import {GIT_PROVIDER_OPERATION_NAME_SET} from "./git-provider-operation-names"
 
 /**
  * Supported organization tiers for Git API quotas.
@@ -118,27 +119,6 @@ const DEFAULT_FREE_TIER_LIMIT = 100
 const DEFAULT_PRO_TIER_LIMIT = 1000
 const DEFAULT_MAX_PROVIDER_429_RETRIES = 3
 
-const RATE_LIMITED_OPERATION_NAMES = new Set<string>([
-    "getMergeRequest",
-    "getChangedFiles",
-    "getFileTree",
-    "getFileContentByRef",
-    "getBranches",
-    "getCommitHistory",
-    "getContributorStats",
-    "getTemporalCoupling",
-    "getTags",
-    "getDiffBetweenRefs",
-    "postComment",
-    "postInlineComment",
-    "createCheckRun",
-    "updateCheckRun",
-    "getBlameData",
-    "getBlameDataBatch",
-    "createPipelineStatus",
-    "updatePipelineStatus",
-])
-
 interface IOrganizationRateLimitState {
     /**
      * Window start timestamp in milliseconds.
@@ -189,7 +169,7 @@ export function withGitRateLimit<TProvider extends IGitProvider>(
 
             if (
                 typeof property !== "string" ||
-                !RATE_LIMITED_OPERATION_NAMES.has(property) ||
+                !GIT_PROVIDER_OPERATION_NAME_SET.has(property) ||
                 !isCallable(value)
             ) {
                 return value
