@@ -104,6 +104,12 @@ export {
     type IMongoCodeGraphRepositoryOptions,
 } from "./mongo-code-graph.repository"
 export {
+    assertCSharpParserLanguage,
+    CSharpSourceCodeParser,
+    type CSharpParserLanguage,
+    type ICSharpSourceCodeParserOptions,
+} from "./csharp-source-code-parser"
+export {
     assertGoParserLanguage,
     GoSourceCodeParser,
     type GoParserLanguage,

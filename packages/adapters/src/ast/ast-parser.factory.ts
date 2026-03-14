@@ -17,6 +17,10 @@ import {
     GoSourceCodeParser,
 } from "./go-source-code-parser"
 import {
+    assertCSharpParserLanguage,
+    CSharpSourceCodeParser,
+} from "./csharp-source-code-parser"
+import {
     assertJavaParserLanguage,
     JavaSourceCodeParser,
 } from "./java-source-code-parser"
@@ -133,6 +137,11 @@ const DEFAULT_AST_PARSER_CREATORS: Readonly<
     [AST_LANGUAGE.PHP](): ISourceCodeParser {
         return new PhpSourceCodeParser({
             language: assertPhpParserLanguage(AST_LANGUAGE.PHP),
+        })
+    },
+    [AST_LANGUAGE.CSHARP](): ISourceCodeParser {
+        return new CSharpSourceCodeParser({
+            language: assertCSharpParserLanguage(AST_LANGUAGE.CSHARP),
         })
     },
 }
