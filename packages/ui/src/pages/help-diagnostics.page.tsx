@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next"
 import { useNavigate } from "@tanstack/react-router"
 
 import { useDynamicTranslation } from "@/lib/i18n"
+import { getWindowSessionStorage, safeStorageGet } from "@/lib/utils/safe-storage"
 import { Alert, Button, Card, CardBody, CardHeader, Chip, Textarea } from "@/components/ui"
 import { SystemStateCard } from "@/components/infrastructure/system-state-card"
 import { PageShell } from "@/components/layout/page-shell"
@@ -408,8 +409,7 @@ export function HelpDiagnosticsPage(): ReactElement {
 
     const handleRunDiagnostics = (): void => {
         const hasSessionToken =
-            typeof window !== "undefined" &&
-            window.sessionStorage.getItem("codenautic.ui.auth.session") !== null
+            safeStorageGet(getWindowSessionStorage(), "codenautic.ui.auth.session") !== undefined
         const networkOnline = typeof navigator !== "undefined" && navigator.onLine === true
         const webGlReady =
             typeof document !== "undefined" &&

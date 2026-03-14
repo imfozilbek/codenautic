@@ -26,6 +26,13 @@ import { useUiRole } from "@/lib/permissions/ui-policy"
 import { NATIVE_FORM } from "@/lib/constants/spacing"
 import { TYPOGRAPHY } from "@/lib/constants/typography"
 import { AnimatedAlert, AnimatedMount } from "@/lib/motion"
+import {
+    getWindowLocalStorage,
+    getWindowSessionStorage,
+    safeStorageGetJson,
+    safeStorageSet,
+    safeStorageSetJson,
+} from "@/lib/utils/safe-storage"
 
 import { DashboardSkeleton } from "@/components/skeletons/dashboard-skeleton"
 
@@ -56,90 +63,71 @@ const WORKSPACE_SHORTCUT_OPTIONS = [
 const PERSONALIZATION_STORAGE_KEY = "ui.workspace.personalization.v1"
 
 function readWorkspacePersonalization(): IWorkspacePersonalization {
-    if (typeof window === "undefined") {
-        return {
-            layoutPreset: "balanced",
-            orgScope: "all-orgs",
-            pinnedShortcuts: ["/reviews", "/my-work"],
-            repositoryScope: "all-repos",
-            teamScope: "all-teams",
-        }
+    const defaultPersonalization: IWorkspacePersonalization = {
+        layoutPreset: "balanced",
+        orgScope: "all-orgs",
+        pinnedShortcuts: ["/reviews", "/my-work"],
+        repositoryScope: "all-repos",
+        teamScope: "all-teams",
     }
 
-    const raw = window.localStorage.getItem(PERSONALIZATION_STORAGE_KEY)
-    if (raw === null) {
-        return {
-            layoutPreset: "balanced",
-            orgScope: "all-orgs",
-            pinnedShortcuts: ["/reviews", "/my-work"],
-            repositoryScope: "all-repos",
-            teamScope: "all-teams",
-        }
+    const parsed = safeStorageGetJson<Partial<IWorkspacePersonalization> | null>(
+        getWindowLocalStorage(),
+        PERSONALIZATION_STORAGE_KEY,
+        null,
+    )
+    if (parsed === null) {
+        return defaultPersonalization
     }
 
-    try {
-        const parsed = JSON.parse(raw) as Partial<IWorkspacePersonalization>
-        const orgScope = parsed.orgScope
-        const repositoryScope = parsed.repositoryScope
-        const teamScope = parsed.teamScope
-        const pinnedShortcuts = parsed.pinnedShortcuts
-        const layoutPreset = parsed.layoutPreset
+    const orgScope = parsed.orgScope
+    const repositoryScope = parsed.repositoryScope
+    const teamScope = parsed.teamScope
+    const pinnedShortcuts = parsed.pinnedShortcuts
+    const layoutPreset = parsed.layoutPreset
 
-        return {
-            layoutPreset:
-                layoutPreset === "balanced" || layoutPreset === "focus" || layoutPreset === "ops"
-                    ? layoutPreset
-                    : "balanced",
-            orgScope:
-                orgScope === "all-orgs" ||
-                orgScope === "platform-team" ||
-                orgScope === "frontend-team" ||
-                orgScope === "runtime-team"
-                    ? orgScope
-                    : "all-orgs",
-            pinnedShortcuts: Array.isArray(pinnedShortcuts)
-                ? pinnedShortcuts.filter((shortcut): shortcut is string => {
-                      return (
-                          typeof shortcut === "string" &&
-                          WORKSPACE_SHORTCUT_OPTIONS.includes(
-                              shortcut as (typeof WORKSPACE_SHORTCUT_OPTIONS)[number],
-                          )
+    return {
+        layoutPreset:
+            layoutPreset === "balanced" || layoutPreset === "focus" || layoutPreset === "ops"
+                ? layoutPreset
+                : "balanced",
+        orgScope:
+            orgScope === "all-orgs" ||
+            orgScope === "platform-team" ||
+            orgScope === "frontend-team" ||
+            orgScope === "runtime-team"
+                ? orgScope
+                : "all-orgs",
+        pinnedShortcuts: Array.isArray(pinnedShortcuts)
+            ? pinnedShortcuts.filter((shortcut): shortcut is string => {
+                  return (
+                      typeof shortcut === "string" &&
+                      WORKSPACE_SHORTCUT_OPTIONS.includes(
+                          shortcut as (typeof WORKSPACE_SHORTCUT_OPTIONS)[number],
                       )
-                  })
-                : ["/reviews", "/my-work"],
-            repositoryScope:
-                repositoryScope === "all-repos" ||
-                repositoryScope === "repo-core" ||
-                repositoryScope === "repo-ui" ||
-                repositoryScope === "repo-api"
-                    ? repositoryScope
-                    : "all-repos",
-            teamScope:
-                teamScope === "all-teams" ||
-                teamScope === "runtime" ||
-                teamScope === "frontend" ||
-                teamScope === "backend" ||
-                teamScope === "data"
-                    ? teamScope
-                    : "all-teams",
-        }
-    } catch {
-        return {
-            layoutPreset: "balanced",
-            orgScope: "all-orgs",
-            pinnedShortcuts: ["/reviews", "/my-work"],
-            repositoryScope: "all-repos",
-            teamScope: "all-teams",
-        }
+                  )
+              })
+            : ["/reviews", "/my-work"],
+        repositoryScope:
+            repositoryScope === "all-repos" ||
+            repositoryScope === "repo-core" ||
+            repositoryScope === "repo-ui" ||
+            repositoryScope === "repo-api"
+                ? repositoryScope
+                : "all-repos",
+        teamScope:
+            teamScope === "all-teams" ||
+            teamScope === "runtime" ||
+            teamScope === "frontend" ||
+            teamScope === "backend" ||
+            teamScope === "data"
+                ? teamScope
+                : "all-teams",
     }
 }
 
 function saveWorkspacePersonalization(payload: IWorkspacePersonalization): void {
-    if (typeof window === "undefined") {
-        return
-    }
-
-    window.localStorage.setItem(PERSONALIZATION_STORAGE_KEY, JSON.stringify(payload))
+    safeStorageSetJson(getWindowLocalStorage(), PERSONALIZATION_STORAGE_KEY, payload)
 }
 
 /**
@@ -302,16 +290,17 @@ export function DashboardMissionControlPage(): ReactElement {
 
     const handleGenerateShareLink = (): void => {
         const viewId = `ws-${Date.now().toString(36)}`
-        if (typeof window !== "undefined") {
-            const payload = JSON.stringify({
+        safeStorageSet(
+            getWindowSessionStorage(),
+            `codenautic:share:${viewId}`,
+            JSON.stringify({
                 layoutPreset,
                 orgScope,
                 pinnedShortcuts,
                 repositoryScope,
                 teamScope,
-            })
-            window.sessionStorage.setItem(`codenautic:share:${viewId}`, payload)
-        }
+            }),
+        )
         const origin = typeof window !== "undefined" ? window.location.origin : ""
         setShareLink(`${origin}/?workspaceView=${viewId}`)
     }
