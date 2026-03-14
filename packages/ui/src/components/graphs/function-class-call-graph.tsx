@@ -246,7 +246,8 @@ export function FunctionClassCallGraph(props: IFunctionCallGraphProps): ReactEle
         showImpactPaths: false,
     })
     const title = props.title ?? t("code-city:functionCallGraph.defaultTitle")
-    const emptyStateLabel = props.emptyStateLabel ?? t("code-city:functionCallGraph.defaultEmptyState")
+    const emptyStateLabel =
+        props.emptyStateLabel ?? t("code-city:functionCallGraph.defaultEmptyState")
     const graphData = useMemo(
         (): IFunctionCallGraphData => buildFunctionCallGraphData(props.nodes, props.callRelations),
         [props.callRelations, props.nodes],
@@ -386,21 +387,55 @@ export function FunctionClassCallGraph(props: IFunctionCallGraphProps): ReactEle
                     aria-live="polite"
                     className="rounded-xl border border-default-200 bg-content2 p-4"
                 >
-                    <h4 className={TYPOGRAPHY.cardTitle}>{t("code-city:functionCallGraph.nodeDetails")}</h4>
+                    <h4 className={TYPOGRAPHY.cardTitle}>
+                        {t("code-city:functionCallGraph.nodeDetails")}
+                    </h4>
                     {selectedNode === undefined || selectedCallStats === undefined ? (
                         <p className="mt-2 text-sm text-foreground-500">
                             {t("code-city:functionCallGraph.selectNodePrompt")}
                         </p>
                     ) : (
                         <div className="mt-2 space-y-1 text-sm text-foreground-700">
-                            <p>{t("code-city:functionCallGraph.name", { value: selectedNode.name })}</p>
-                            <p>{t("code-city:functionCallGraph.kind", { value: selectedNode.kind })}</p>
-                            <p>{t("code-city:functionCallGraph.sourceFile", { value: selectedNode.file ?? "n/a" })}</p>
-                            <p>{t("code-city:functionCallGraph.complexity", { value: selectedNode.complexity ?? "n/a" })}</p>
-                            <p>{t("code-city:functionCallGraph.incomingCalls", { value: selectedCallStats.incoming })}</p>
-                            <p>{t("code-city:functionCallGraph.outgoingCalls", { value: selectedCallStats.outgoing })}</p>
-                            <p>{t("code-city:functionCallGraph.impactPathNodes", { value: impactPathHighlight.nodeIds.length })}</p>
-                            <p>{t("code-city:functionCallGraph.impactPathEdges", { value: impactPathHighlight.edgeIds.length })}</p>
+                            <p>
+                                {t("code-city:functionCallGraph.name", {
+                                    value: selectedNode.name,
+                                })}
+                            </p>
+                            <p>
+                                {t("code-city:functionCallGraph.kind", {
+                                    value: selectedNode.kind,
+                                })}
+                            </p>
+                            <p>
+                                {t("code-city:functionCallGraph.sourceFile", {
+                                    value: selectedNode.file ?? "n/a",
+                                })}
+                            </p>
+                            <p>
+                                {t("code-city:functionCallGraph.complexity", {
+                                    value: selectedNode.complexity ?? "n/a",
+                                })}
+                            </p>
+                            <p>
+                                {t("code-city:functionCallGraph.incomingCalls", {
+                                    value: selectedCallStats.incoming,
+                                })}
+                            </p>
+                            <p>
+                                {t("code-city:functionCallGraph.outgoingCalls", {
+                                    value: selectedCallStats.outgoing,
+                                })}
+                            </p>
+                            <p>
+                                {t("code-city:functionCallGraph.impactPathNodes", {
+                                    value: impactPathHighlight.nodeIds.length,
+                                })}
+                            </p>
+                            <p>
+                                {t("code-city:functionCallGraph.impactPathEdges", {
+                                    value: impactPathHighlight.edgeIds.length,
+                                })}
+                            </p>
                         </div>
                     )}
                 </section>

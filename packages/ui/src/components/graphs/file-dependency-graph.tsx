@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next"
 
 import { Button, Card, CardBody, CardHeader, Input } from "@/components/ui"
 import { XyFlowGraph } from "@/components/graphs/xyflow-graph"
+import { useDynamicTranslation } from "@/lib/i18n"
 import { TYPOGRAPHY } from "@/lib/constants/typography"
 import {
     calculateGraphLayout,
@@ -167,7 +168,7 @@ function filterFileDependencyData(
 function createSummaryText(
     nodesCount: number,
     edgesCount: number,
-    tFn: (key: string, options?: Record<string, unknown>) => string,
+    tFn: (key: string, options?: Readonly<Record<string, string | number>>) => string,
 ): string {
     return tFn("code-city:fileDependency.summary", { nodes: nodesCount, edges: edgesCount })
 }
@@ -243,6 +244,7 @@ function calculateImpactPathHighlight(
  */
 export function FileDependencyGraph(props: IFileDependencyGraphProps): ReactElement {
     const { t } = useTranslation(["code-city"])
+    const { td } = useDynamicTranslation(["code-city"])
     const [state, setState] = useState<IFileDependencyGraphState>({
         query: "",
         selectedNodeId: undefined,
@@ -275,7 +277,7 @@ export function FileDependencyGraph(props: IFileDependencyGraphProps): ReactElem
     const summaryText = createSummaryText(
         visibleGraphData.nodes.length,
         visibleGraphData.edges.length,
-        t as unknown as (key: string, options?: Record<string, unknown>) => string,
+        td,
     )
     const filesById = useMemo((): ReadonlyMap<string, IFileDependencyNode> => {
         const nextMap = new Map<string, IFileDependencyNode>()
@@ -401,21 +403,51 @@ export function FileDependencyGraph(props: IFileDependencyGraphProps): ReactElem
                     aria-live="polite"
                     className="rounded-xl border border-default-200 bg-content2 p-4"
                 >
-                    <h4 className={TYPOGRAPHY.cardTitle}>{t("code-city:fileDependency.nodeDetails")}</h4>
+                    <h4 className={TYPOGRAPHY.cardTitle}>
+                        {t("code-city:fileDependency.nodeDetails")}
+                    </h4>
                     {selectedFile === undefined || selectedDependencyStats === undefined ? (
                         <p className="mt-2 text-sm text-foreground-500">
                             {t("code-city:fileDependency.selectNodePrompt")}
                         </p>
                     ) : (
                         <div className="mt-2 space-y-1 text-sm text-foreground-700">
-                            <p>{t("code-city:fileDependency.path", { value: selectedFile.path })}</p>
-                            <p>{t("code-city:fileDependency.nodeId", { value: selectedFile.id })}</p>
-                            <p>{t("code-city:fileDependency.complexity", { value: selectedFile.complexity ?? "n/a" })}</p>
-                            <p>{t("code-city:fileDependency.churn", { value: selectedFile.churn ?? "n/a" })}</p>
-                            <p>{t("code-city:fileDependency.incomingDeps", { value: selectedDependencyStats.incoming })}</p>
-                            <p>{t("code-city:fileDependency.outgoingDeps", { value: selectedDependencyStats.outgoing })}</p>
-                            <p>{t("code-city:fileDependency.impactPathNodes", { value: impactPathHighlight.nodeIds.length })}</p>
-                            <p>{t("code-city:fileDependency.impactPathEdges", { value: impactPathHighlight.edgeIds.length })}</p>
+                            <p>
+                                {t("code-city:fileDependency.path", { value: selectedFile.path })}
+                            </p>
+                            <p>
+                                {t("code-city:fileDependency.nodeId", { value: selectedFile.id })}
+                            </p>
+                            <p>
+                                {t("code-city:fileDependency.complexity", {
+                                    value: selectedFile.complexity ?? "n/a",
+                                })}
+                            </p>
+                            <p>
+                                {t("code-city:fileDependency.churn", {
+                                    value: selectedFile.churn ?? "n/a",
+                                })}
+                            </p>
+                            <p>
+                                {t("code-city:fileDependency.incomingDeps", {
+                                    value: selectedDependencyStats.incoming,
+                                })}
+                            </p>
+                            <p>
+                                {t("code-city:fileDependency.outgoingDeps", {
+                                    value: selectedDependencyStats.outgoing,
+                                })}
+                            </p>
+                            <p>
+                                {t("code-city:fileDependency.impactPathNodes", {
+                                    value: impactPathHighlight.nodeIds.length,
+                                })}
+                            </p>
+                            <p>
+                                {t("code-city:fileDependency.impactPathEdges", {
+                                    value: impactPathHighlight.edgeIds.length,
+                                })}
+                            </p>
                         </div>
                     )}
                 </section>
