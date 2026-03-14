@@ -5,6 +5,7 @@ import { ContextPreview } from "@/components/settings/context-preview"
 import { ContextSourceCard } from "@/components/settings/context-source-card"
 import { TestConnectionButton } from "@/components/settings/test-connection-button"
 import { Button, Card, CardBody, CardHeader, Chip, Input, Switch } from "@/components/ui"
+import { FormLayout } from "@/components/forms/form-layout"
 import { TYPOGRAPHY } from "@/lib/constants/typography"
 import { useExternalContext } from "@/lib/hooks/queries/use-external-context"
 import { showToastError, showToastInfo, showToastSuccess } from "@/lib/notifications/toast"
@@ -405,11 +406,10 @@ export function SettingsIntegrationsPage(): ReactElement {
     )
 
     return (
-        <section className="space-y-4">
-            <h1 className={TYPOGRAPHY.pageTitle}>{t("settings:integrations.pageTitle")}</h1>
-            <p className={TYPOGRAPHY.pageSubtitle}>
-                {t("settings:integrations.pageSubtitle")}
-            </p>
+        <FormLayout
+            title={t("settings:integrations.pageTitle")}
+            description={t("settings:integrations.pageSubtitle")}
+        >
 
             <Card>
                 <CardHeader>
@@ -509,8 +509,9 @@ export function SettingsIntegrationsPage(): ReactElement {
                                             handleToggleConnection(integration.provider)
                                         }}
                                         size="sm"
+                                        color="primary"
                                         variant={
-                                            integration.connected === true ? "secondary" : "solid"
+                                            integration.connected === true ? "flat" : "solid"
                                         }
                                     >
                                         {integration.connected === true
@@ -594,6 +595,6 @@ export function SettingsIntegrationsPage(): ReactElement {
                     )}
                 </CardBody>
             </Card>
-        </section>
+        </FormLayout>
     )
 }
