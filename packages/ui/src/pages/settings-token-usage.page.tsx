@@ -13,6 +13,7 @@ import {
 } from "@/components/dashboard/dashboard-date-range-filter"
 import { type IMetricGridMetric, MetricsGrid } from "@/components/dashboard/metrics-grid"
 import { Alert, Button, Card, CardBody, CardHeader } from "@/components/ui"
+import { FormLayout } from "@/components/forms/form-layout"
 import { TYPOGRAPHY } from "@/lib/constants/typography"
 
 type TUsageTab = "by-ccr" | "by-developer" | "by-model"
@@ -76,7 +77,7 @@ const BASE_USAGE_RECORDS: ReadonlyArray<ITokenUsageRecord> = [
     {
         ccr: "ccr-9001",
         completionTokens: 22000,
-        developer: "Ari",
+        developer: "Neo",
         id: "usage-1",
         model: "gpt-4o-mini",
         promptTokens: 63000,
@@ -84,7 +85,7 @@ const BASE_USAGE_RECORDS: ReadonlyArray<ITokenUsageRecord> = [
     {
         ccr: "ccr-9002",
         completionTokens: 9100,
-        developer: "Nika",
+        developer: "Trinity",
         id: "usage-2",
         model: "claude-3-7-sonnet",
         promptTokens: 41000,
@@ -92,7 +93,7 @@ const BASE_USAGE_RECORDS: ReadonlyArray<ITokenUsageRecord> = [
     {
         ccr: "ccr-9003",
         completionTokens: 14800,
-        developer: "Mila",
+        developer: "Morpheus",
         id: "usage-3",
         model: "gpt-4.1-mini",
         promptTokens: 52000,
@@ -100,7 +101,7 @@ const BASE_USAGE_RECORDS: ReadonlyArray<ITokenUsageRecord> = [
     {
         ccr: "ccr-9004",
         completionTokens: 13200,
-        developer: "Sari",
+        developer: "Niobe",
         id: "usage-4",
         model: "mistral-small-latest",
         promptTokens: 48000,
@@ -108,7 +109,7 @@ const BASE_USAGE_RECORDS: ReadonlyArray<ITokenUsageRecord> = [
     {
         ccr: "ccr-9005",
         completionTokens: 7400,
-        developer: "Ari",
+        developer: "Neo",
         id: "usage-5",
         model: "gpt-4o-mini",
         promptTokens: 27000,
@@ -116,7 +117,7 @@ const BASE_USAGE_RECORDS: ReadonlyArray<ITokenUsageRecord> = [
     {
         ccr: "ccr-9006",
         completionTokens: 11600,
-        developer: "Nika",
+        developer: "Trinity",
         id: "usage-6",
         model: "gpt-4.1-mini",
         promptTokens: 39000,
@@ -124,7 +125,7 @@ const BASE_USAGE_RECORDS: ReadonlyArray<ITokenUsageRecord> = [
     {
         ccr: "ccr-9007",
         completionTokens: 19800,
-        developer: "Ari",
+        developer: "Neo",
         id: "usage-7",
         model: "claude-3-7-sonnet",
         promptTokens: 57000,
@@ -446,14 +447,11 @@ export function SettingsTokenUsagePage(): ReactElement {
     }
 
     return (
-        <section className="space-y-4">
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-                <div>
-                    <h1 className={TYPOGRAPHY.pageTitle}>{t("settings:tokenUsage.pageTitle")}</h1>
-                    <p className={TYPOGRAPHY.pageSubtitle}>
-                        {t("settings:tokenUsage.pageSubtitle")}
-                    </p>
-                </div>
+        <FormLayout
+            title={t("settings:tokenUsage.pageTitle")}
+            description={t("settings:tokenUsage.pageSubtitle")}
+        >
+            <div className="flex justify-end">
                 <DashboardDateRangeFilter
                     value={range}
                     onChange={(nextRange): void => {
@@ -507,27 +505,30 @@ export function SettingsTokenUsagePage(): ReactElement {
                             setSelectedTab("by-model")
                         }}
                         size="sm"
-                        variant={selectedTab === "by-model" ? "solid" : "secondary"}
+                        color="primary"
+                        variant={selectedTab === "by-model" ? "solid" : "flat"}
                     >
                         {t("settings:tokenUsage.byModel")}
                     </Button>
                     <Button
                         aria-pressed={selectedTab === "by-developer"}
+                        color="primary"
                         onPress={(): void => {
                             setSelectedTab("by-developer")
                         }}
                         size="sm"
-                        variant={selectedTab === "by-developer" ? "solid" : "secondary"}
+                        variant={selectedTab === "by-developer" ? "solid" : "flat"}
                     >
                         {t("settings:tokenUsage.byDeveloper")}
                     </Button>
                     <Button
                         aria-pressed={selectedTab === "by-ccr"}
+                        color="primary"
                         onPress={(): void => {
                             setSelectedTab("by-ccr")
                         }}
                         size="sm"
-                        variant={selectedTab === "by-ccr" ? "solid" : "secondary"}
+                        variant={selectedTab === "by-ccr" ? "solid" : "flat"}
                     >
                         {t("settings:tokenUsage.byCcr")}
                     </Button>
@@ -540,6 +541,6 @@ export function SettingsTokenUsagePage(): ReactElement {
                 ) : null}
                 {selectedTab === "by-ccr" ? <UsageTable rows={byCcr} title={t("settings:tokenUsage.usageByCcr")} /> : null}
             </div>
-        </section>
+        </FormLayout>
     )
 }
