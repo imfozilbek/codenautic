@@ -70,7 +70,7 @@ export function ReportScheduleDialog(): ReactElement {
                 </div>
                 {isOpen === false ? null : (
                     <div
-                        aria-label="Report schedule dialog"
+                        aria-label={t("reports:ariaLabel.scheduleDialog.dialog")}
                         className="space-y-3 rounded border border-border bg-surface p-3"
                         role="dialog"
                     >
@@ -127,7 +127,9 @@ export function ReportScheduleDialog(): ReactElement {
                             title={t("reports:scheduleDialog.schedulePreviewTitle")}
                             variant="flat"
                         >
-                            <span aria-label="Schedule preview value">{schedulePreview}</span>
+                            <span aria-label={t("reports:ariaLabel.scheduleDialog.previewValue")}>
+                                {schedulePreview}
+                            </span>
                         </Alert>
                         <div className="flex gap-2">
                             <Button color="primary" onPress={handleSaveSchedule}>

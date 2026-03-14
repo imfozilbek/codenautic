@@ -64,7 +64,7 @@ export function AiSummaryWidget(props: IAiSummaryWidgetProps): ReactElement {
             </CardHeader>
             <CardBody className="space-y-3">
                 <p
-                    aria-label="AI summary text"
+                    aria-label={t("reports:ariaLabel.aiSummary.summaryText")}
                     className="rounded border border-border bg-surface p-3 text-sm"
                 >
                     {summary}
