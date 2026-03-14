@@ -1,9 +1,10 @@
 import { type ReactElement, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import { Alert, Button, Card, CardBody, CardHeader, Chip } from "@/components/ui"
+import { Alert, Button, Chip } from "@/components/ui"
+import { FormLayout } from "@/components/forms/form-layout"
+import { FormSection } from "@/components/forms/form-section"
 import { NATIVE_FORM } from "@/lib/constants/spacing"
-import { TYPOGRAPHY } from "@/lib/constants/typography"
 import { showToastInfo, showToastSuccess } from "@/lib/notifications/toast"
 
 type TPlanName = "enterprise" | "pro" | "starter"
@@ -78,7 +79,7 @@ const INITIAL_HISTORY: ReadonlyArray<IPlanHistoryEntry> = [
     },
     {
         action: "status_change",
-        actor: "Ari Karimov",
+        actor: "Neo Anderson",
         id: "BILL-2002",
         occurredAt: "2026-03-02T10:40:00Z",
         outcome: "Set status to trial for workspace onboarding",
@@ -263,13 +264,10 @@ export function SettingsBillingPage(): ReactElement {
     }
 
     return (
-        <section className="space-y-4">
-            <h1 className={TYPOGRAPHY.pageTitle}>Billing lifecycle</h1>
-            <p className={TYPOGRAPHY.pageSubtitle}>
-                Manage trial/active/past-due/canceled states, feature entitlements, and plan
-                transitions with explicit outcomes.
-            </p>
-
+        <FormLayout
+            title="Billing lifecycle"
+            description="Manage trial/active/past-due/canceled states, feature entitlements, and plan transitions with explicit outcomes."
+        >
             {paywallBanner === null ? (
                 <Alert color="success" title="Billing status is healthy" variant="flat">
                     Premium feature availability follows current plan entitlements.
@@ -280,9 +278,8 @@ export function SettingsBillingPage(): ReactElement {
                 </Alert>
             )}
 
-            <Card>
-                <CardHeader className="flex flex-wrap items-center justify-between gap-2">
-                    <p className={TYPOGRAPHY.sectionTitle}>Current billing snapshot</p>
+            <FormSection heading="Current billing snapshot">
+                <div className="flex flex-wrap items-center gap-2">
                     <Chip
                         color={mapStatusChipColor(billingSnapshot.status)}
                         size="sm"
@@ -290,132 +287,120 @@ export function SettingsBillingPage(): ReactElement {
                     >
                         {billingSnapshot.status}
                     </Chip>
-                </CardHeader>
-                <CardBody className="space-y-3">
-                    <p className="text-sm text-text-tertiary">
-                        Current plan: <strong>{billingSnapshot.plan}</strong>
-                    </p>
-                    <div className="grid gap-3 md:grid-cols-2">
-                        <div className="space-y-1">
-                            <select
-                                aria-label="Billing plan"
-                                className={NATIVE_FORM.select}
-                                value={draftPlan}
-                                onChange={(event): void => {
-                                    const nextPlan = event.currentTarget.value
-                                    if (
-                                        nextPlan === "starter" ||
-                                        nextPlan === "pro" ||
-                                        nextPlan === "enterprise"
-                                    ) {
-                                        setDraftPlan(nextPlan)
-                                    }
-                                }}
-                            >
-                                <option value="starter">starter</option>
-                                <option value="pro">pro</option>
-                                <option value="enterprise">enterprise</option>
-                            </select>
-                        </div>
-                        <div className="space-y-1">
-                            <select
-                                aria-label="Billing status"
-                                className={NATIVE_FORM.select}
-                                value={draftStatus}
-                                onChange={(event): void => {
-                                    const nextStatus = event.currentTarget.value
-                                    if (
-                                        nextStatus === "trial" ||
-                                        nextStatus === "active" ||
-                                        nextStatus === "past_due" ||
-                                        nextStatus === "canceled"
-                                    ) {
-                                        setDraftStatus(nextStatus)
-                                    }
-                                }}
-                            >
-                                <option value="trial">trial</option>
-                                <option value="active">active</option>
-                                <option value="past_due">past_due</option>
-                                <option value="canceled">canceled</option>
-                            </select>
-                        </div>
+                </div>
+                <p className="text-sm text-text-tertiary">
+                    Current plan: <strong>{billingSnapshot.plan}</strong>
+                </p>
+                <div className="grid gap-3 md:grid-cols-2">
+                    <div className="space-y-1">
+                        <select
+                            aria-label="Billing plan"
+                            className={NATIVE_FORM.select}
+                            value={draftPlan}
+                            onChange={(event): void => {
+                                const nextPlan = event.currentTarget.value
+                                if (
+                                    nextPlan === "starter" ||
+                                    nextPlan === "pro" ||
+                                    nextPlan === "enterprise"
+                                ) {
+                                    setDraftPlan(nextPlan)
+                                }
+                            }}
+                        >
+                            <option value="starter">starter</option>
+                            <option value="pro">pro</option>
+                            <option value="enterprise">enterprise</option>
+                        </select>
                     </div>
-                    <div className="flex flex-wrap gap-2">
-                        <Button onPress={handleApplyBillingChange}>Apply billing change</Button>
-                        {billingSnapshot.status === "past_due" ? (
-                            <Button color="success" variant="flat" onPress={handleMarkInvoicePaid}>
-                                Mark invoice as paid
-                            </Button>
-                        ) : null}
+                    <div className="space-y-1">
+                        <select
+                            aria-label="Billing status"
+                            className={NATIVE_FORM.select}
+                            value={draftStatus}
+                            onChange={(event): void => {
+                                const nextStatus = event.currentTarget.value
+                                if (
+                                    nextStatus === "trial" ||
+                                    nextStatus === "active" ||
+                                    nextStatus === "past_due" ||
+                                    nextStatus === "canceled"
+                                ) {
+                                    setDraftStatus(nextStatus)
+                                }
+                            }}
+                        >
+                            <option value="trial">trial</option>
+                            <option value="active">active</option>
+                            <option value="past_due">past_due</option>
+                            <option value="canceled">canceled</option>
+                        </select>
                     </div>
-                    <Alert color="primary" title="Last billing action" variant="flat">
-                        {lastOutcome}
-                    </Alert>
-                </CardBody>
-            </Card>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                    <Button color="primary" onPress={handleApplyBillingChange}>Apply billing change</Button>
+                    {billingSnapshot.status === "past_due" ? (
+                        <Button color="success" variant="flat" onPress={handleMarkInvoicePaid}>
+                            Mark invoice as paid
+                        </Button>
+                    ) : null}
+                </div>
+                <Alert color="primary" title="Last billing action" variant="flat">
+                    {lastOutcome}
+                </Alert>
+            </FormSection>
 
-            <Card>
-                <CardHeader>
-                    <p className={TYPOGRAPHY.sectionTitle}>Premium feature lock/unlock state</p>
-                </CardHeader>
-                <CardBody className="space-y-2">
-                    <ul aria-label="Entitlement features list" className="space-y-2">
-                        {entitledFeatures.map(
-                            (feature): ReactElement => (
-                                <li
-                                    className="rounded-lg border border-border bg-surface p-3"
-                                    key={feature.id}
-                                >
-                                    <div className="flex flex-wrap items-center justify-between gap-2">
-                                        <p className="text-sm font-semibold text-foreground">
-                                            {feature.label}
-                                        </p>
-                                        <Chip
-                                            color={feature.isLocked ? "danger" : "success"}
-                                            size="sm"
-                                            variant="flat"
-                                        >
-                                            {feature.isLocked ? "Locked" : "Unlocked"}
-                                        </Chip>
-                                    </div>
-                                    {feature.lockReason === undefined ? null : (
-                                        <p className="mt-1 text-xs text-text-secondary">
-                                            {feature.lockReason}
-                                        </p>
-                                    )}
-                                </li>
-                            ),
-                        )}
-                    </ul>
-                </CardBody>
-            </Card>
+            <FormSection heading="Premium feature lock/unlock state">
+                <ul aria-label="Entitlement features list" className="space-y-2">
+                    {entitledFeatures.map(
+                        (feature): ReactElement => (
+                            <li
+                                className="rounded-lg border border-border bg-surface p-3"
+                                key={feature.id}
+                            >
+                                <div className="flex flex-wrap items-center justify-between gap-2">
+                                    <p className="text-sm font-semibold text-foreground">
+                                        {feature.label}
+                                    </p>
+                                    <Chip
+                                        color={feature.isLocked ? "danger" : "success"}
+                                        size="sm"
+                                        variant="flat"
+                                    >
+                                        {feature.isLocked ? "Locked" : "Unlocked"}
+                                    </Chip>
+                                </div>
+                                {feature.lockReason === undefined ? null : (
+                                    <p className="mt-1 text-xs text-text-secondary">
+                                        {feature.lockReason}
+                                    </p>
+                                )}
+                            </li>
+                        ),
+                    )}
+                </ul>
+            </FormSection>
 
-            <Card>
-                <CardHeader>
-                    <p className={TYPOGRAPHY.sectionTitle}>Plan change history</p>
-                </CardHeader>
-                <CardBody className="space-y-2">
-                    <ul aria-label="Billing history list" className="space-y-2">
-                        {history.map(
-                            (entry): ReactElement => (
-                                <li
-                                    className="rounded-lg border border-border bg-surface p-3 text-sm"
-                                    key={entry.id}
-                                >
-                                    <p className="font-semibold text-foreground">
-                                        {entry.action} · {entry.actor}
-                                    </p>
-                                    <p className="text-text-tertiary">{entry.outcome}</p>
-                                    <p className="text-xs text-text-secondary">
-                                        {formatTimestamp(entry.occurredAt)}
-                                    </p>
-                                </li>
-                            ),
-                        )}
-                    </ul>
-                </CardBody>
-            </Card>
-        </section>
+            <FormSection heading="Plan change history">
+                <ul aria-label="Billing history list" className="space-y-2">
+                    {history.map(
+                        (entry): ReactElement => (
+                            <li
+                                className="rounded-lg border border-border bg-surface p-3 text-sm"
+                                key={entry.id}
+                            >
+                                <p className="font-semibold text-foreground">
+                                    {entry.action} · {entry.actor}
+                                </p>
+                                <p className="text-text-tertiary">{entry.outcome}</p>
+                                <p className="text-xs text-text-secondary">
+                                    {formatTimestamp(entry.occurredAt)}
+                                </p>
+                            </li>
+                        ),
+                    )}
+                </ul>
+            </FormSection>
+        </FormLayout>
     )
 }
