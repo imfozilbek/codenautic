@@ -93,7 +93,7 @@
 
 | ID | Задача | Статус | Результат | Acceptance Criteria |
 |----------|--------------------|--------|-----------|---------------------|
-| NOTIF-003 | Реализовать messengerWebhookHandler | TODO | Не начато | Реализация: Unified webhook handler for messengers. Готово, если: для NOTIF-003 adapter сохраняет стабильный external -> domain контракт, корректно обрабатывает retry/backoff/error/idempotency сценарии, а интеграционные контрактные тесты фиксируют поведение на happy/failure-path; DoD: `cd packages/adapters && bun run lint && bun run typecheck && bun test`. |
+| NOTIF-003 | Реализовать messengerWebhookHandler | DONE | Реализовано | Реализация: Unified webhook handler for messengers. Готово, если: для NOTIF-003 adapter сохраняет стабильный external -> domain контракт, корректно обрабатывает retry/backoff/error/idempotency сценарии, а интеграционные контрактные тесты фиксируют поведение на happy/failure-path; DoD: `cd packages/adapters && bun run lint && bun run typecheck && bun test`. |
 
 ---
 

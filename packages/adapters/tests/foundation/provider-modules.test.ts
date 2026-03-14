@@ -8,6 +8,7 @@ import {
     type ILogger,
     type IOutboxRelayService,
     type IOutboxRepository,
+    type IWebhookEventDTO,
     UniqueId,
 } from "@codenautic/core"
 
@@ -44,8 +45,13 @@ import {
     registerMessagingModule,
 } from "../../src/messaging"
 import {
+    MESSENGER_WEBHOOK_PARSE_KIND,
+    MessengerWebhookHandler,
     NOTIFICATION_TOKENS,
     NotificationProviderFactory,
+    type IMessengerWebhookParseResult,
+    type IMessengerWebhookParsedEvent,
+    type IMessengerWebhookProcessor,
     registerNotificationsModule,
 } from "../../src/notifications"
 import {registerReviewModule} from "../../src/review"
@@ -97,6 +103,36 @@ async function expectPromiseRejectMessage(
     }
 
     throw new Error("Expected promise to reject with matching message")
+}
+
+/**
+ * Creates minimal messenger webhook processor for DI tests.
+ *
+ * @returns Processor instance.
+ */
+function createMessengerWebhookProcessorMock(): IMessengerWebhookProcessor {
+    return {
+        platform: "slack",
+        verifySignature(_event: IWebhookEventDTO): boolean {
+            return true
+        },
+        parseEvent(_event: IWebhookEventDTO): IMessengerWebhookParseResult {
+            return {
+                kind: MESSENGER_WEBHOOK_PARSE_KIND.EVENT,
+                event: {
+                    dedupeKey: "slack:ev-1",
+                    eventType: "app_mention",
+                    occurredAt: new Date("2026-03-10T10:00:00.000Z"),
+                    payload: {
+                        text: "hello",
+                    },
+                },
+            }
+        },
+        processEvent(_event: IMessengerWebhookParsedEvent): Promise<void> {
+            return Promise.resolve()
+        },
+    }
 }
 
 describe("Provider modules registration", () => {
@@ -540,6 +576,23 @@ describe("Provider modules registration", () => {
         const resolvedFactory = container.resolve(NOTIFICATION_TOKENS.ProviderFactory)
 
         expect(resolvedFactory).toBe(providerFactory)
+    })
+
+    test("registerNotificationsModule binds optional messenger webhook handler token", () => {
+        const container = new Container()
+        const slackProvider = createNotificationProviderMock()
+        const messengerWebhookHandler = new MessengerWebhookHandler({
+            processors: [createMessengerWebhookProcessorMock()],
+        })
+
+        registerNotificationsModule(container, {
+            providers: [slackProvider],
+            messengerWebhookHandler,
+        })
+
+        const resolvedHandler = container.resolve(NOTIFICATION_TOKENS.MessengerWebhookHandler)
+
+        expect(resolvedHandler).toBe(messengerWebhookHandler)
     })
 
     test("registerContextModule binds providers collection and default provider", () => {

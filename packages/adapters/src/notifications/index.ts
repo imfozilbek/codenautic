@@ -16,6 +16,28 @@ export {
     type SlackProviderErrorCode,
 } from "./slack-provider.error"
 export {
+    MESSENGER_WEBHOOK_HANDLER_ERROR_CODE,
+    MessengerWebhookHandlerError,
+    type IMessengerWebhookHandlerErrorDetails,
+    type MessengerWebhookHandlerErrorCode,
+} from "./messenger-webhook-handler.error"
+export {
+    MESSENGER_WEBHOOK_HANDLE_STATUS,
+    MESSENGER_WEBHOOK_PARSE_KIND,
+    MessengerWebhookHandler,
+    createSlackWebhookProcessor,
+    type ICreateSlackWebhookProcessorOptions,
+    type IMessengerWebhookHandleResult,
+    type IMessengerWebhookHandlerOptions,
+    type IMessengerWebhookParseChallengeResult,
+    type IMessengerWebhookParseEventResult,
+    type IMessengerWebhookParseResult,
+    type IMessengerWebhookParsedEvent,
+    type IMessengerWebhookProcessor,
+    type MessengerWebhookHandleStatus,
+    type MessengerWebhookParseKind,
+} from "./messenger-webhook-handler"
+export {
     SlackProvider,
     type ISlackPostMessageRequest,
     type ISlackPostMessageResponse,
