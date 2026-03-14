@@ -13,6 +13,7 @@ import {
     type IReviewRepository,
     type IRuleCategoryRepository,
     type IRuleRepository,
+    type ISystemSettingsRepository,
     type ITaskRepository,
 } from "@codenautic/core"
 
@@ -25,6 +26,7 @@ import {
     MongoReviewRepository,
     MongoRuleCategoryRepository,
     MongoRuleRepository,
+    MongoSystemSettingsRepository,
     MongoTaskRepository,
     type IMongoModel,
     type IMongoRepositoryFactory,
@@ -38,6 +40,7 @@ import type {
     IReviewSchema,
     IRuleCategorySchema,
     IRuleSchema,
+    ISystemSettingSchema,
     ITaskSchema,
 } from "../../src/database/schemas"
 
@@ -49,6 +52,7 @@ type PromptTemplateEntity = Parameters<IPromptTemplateRepository["save"]>[0]
 type PromptConfigurationEntity = Parameters<IPromptConfigurationRepository["save"]>[0]
 type ReviewIssueTicketEntity = Parameters<IReviewIssueTicketRepository["save"]>[0]
 type OrganizationEntity = Parameters<IOrganizationRepository["save"]>[0]
+type SystemSettingRecord = Parameters<ISystemSettingsRepository["upsert"]>[0]
 
 /**
  * In-memory mongo model test double with captured operations.
@@ -478,5 +482,38 @@ describe("Mongo repositories", () => {
             ownerId: "owner-1",
         })
         expect(result).toEqual([entity])
+    })
+
+    test("MongoSystemSettingsRepository upserts by document id", async () => {
+        const record: SystemSettingRecord = {
+            key: "review.defaults",
+            value: {
+                severityThreshold: "HIGH",
+            },
+        }
+        const document: ISystemSettingSchema = {
+            _id: "setting-review-defaults",
+            key: "review.defaults",
+            value: {
+                severityThreshold: "HIGH",
+            },
+        }
+        const model = new MockMongoModel<ISystemSettingSchema>()
+        const repository = new MongoSystemSettingsRepository({
+            model,
+            factory: createFactory(record, document),
+        })
+
+        await repository.upsert(record)
+        model.findOneQueue.push(document)
+        const found = await repository.findByKey("review.defaults")
+
+        expect(model.replaceCalls[0]?.filter).toEqual({
+            _id: "setting-review-defaults",
+        })
+        expect(model.findOneFilters[0]).toEqual({
+            key: "review.defaults",
+        })
+        expect(found).toEqual(record)
     })
 })

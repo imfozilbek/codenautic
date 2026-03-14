@@ -263,6 +263,9 @@ export {
 } from "./vector"
 export {
     DATABASE_TOKENS,
+    type IDatabaseModuleAdapters,
+    type IDatabaseModuleFactories,
+    type IDatabaseModuleRepositories,
     type IDatabaseConnectionManager,
     MongoConnectionManager,
     type IMongoConnectionManagerOptions,

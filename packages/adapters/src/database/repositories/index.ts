@@ -35,6 +35,10 @@ export {
     type IMongoRuleRepositoryOptions,
 } from "./mongo-rule.repository"
 export {
+    MongoSystemSettingsRepository,
+    type IMongoSystemSettingsRepositoryOptions,
+} from "./mongo-system-settings.repository"
+export {
     MongoTaskRepository,
     type IMongoTaskRepositoryOptions,
 } from "./mongo-task.repository"

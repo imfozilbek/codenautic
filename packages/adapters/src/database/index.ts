@@ -1,4 +1,7 @@
 export {
+    type IDatabaseModuleAdapters,
+    type IDatabaseModuleFactories,
+    type IDatabaseModuleRepositories,
     type IRegisterDatabaseModuleOptions,
     registerDatabaseModule,
 } from "./database.module"
