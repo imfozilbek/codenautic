@@ -1,4 +1,5 @@
 import { type ReactElement, useMemo } from "react"
+import { useTranslation } from "react-i18next"
 
 import { Alert, Button, Card, CardBody, CardHeader } from "@/components/ui"
 import { TYPOGRAPHY } from "@/lib/constants/typography"
@@ -108,6 +109,7 @@ function getStatusLabel(type: TSSEEventType): string {
 
 /** SSE-панель с прогрессом и логом событий. */
 export function SseStreamViewer(props: ISSEStreamViewerProps): ReactElement {
+    const { t } = useTranslation(["common"])
     const {
         autoStart,
         eventSourceUrl,
@@ -181,7 +183,7 @@ export function SseStreamViewer(props: ISSEStreamViewerProps): ReactElement {
                         </p>
                         <div className="h-2 rounded-full bg-surface-muted">
                             <div
-                                aria-label="Stream progress"
+                                aria-label={t("common:ariaLabel.sseStreamViewer.streamProgress")}
                                 aria-valuemax={100}
                                 aria-valuemin={0}
                                 aria-valuenow={clampedProgressPercent}
