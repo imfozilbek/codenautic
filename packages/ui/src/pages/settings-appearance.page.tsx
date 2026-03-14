@@ -2,7 +2,7 @@ import { type ReactElement, useCallback, useEffect, useMemo, useRef, useState } 
 import { useTranslation } from "react-i18next"
 
 import { ThemeToggle } from "@/components/layout/theme-toggle"
-import { Button, Card, CardBody, CardHeader, Chip, Input } from "@/components/ui"
+import { Button, Card, CardContent, CardHeader, Chip, Input } from "@heroui/react"
 import {
     SUPPORTED_LOCALES,
     formatLocalizedDateTime,
@@ -23,6 +23,7 @@ import {
     DEFAULT_SURFACE_TONE_ID,
     getSurfaceTone,
     resolveSurfaceTonePalette,
+    type TSurfaceToneId,
 } from "@/lib/theme/theme-surface-tones"
 import { showToastInfo, showToastSuccess } from "@/lib/notifications/toast"
 
@@ -53,7 +54,6 @@ import {
 
 import {
     type IUserThemeLibraryItem,
-    type TBasePaletteId,
     buildThemeLibraryExportPayload,
     clearAppearanceStorage,
     createEffectiveAccentColor,
@@ -94,7 +94,7 @@ function LanguageSection(): ReactElement {
             <CardHeader>
                 <p className={TYPOGRAPHY.sectionTitle}>Language / Язык</p>
             </CardHeader>
-            <CardBody className="space-y-3">
+            <CardContent className="space-y-3">
                 <div
                     aria-label={t("settings:ariaLabel.appearance.languageSelection")}
                     className="flex gap-2"
@@ -107,7 +107,7 @@ function LanguageSection(): ReactElement {
                                 aria-pressed={localeOption === locale}
                                 aria-selected={localeOption === locale}
                                 size="sm"
-                                variant={localeOption === locale ? "solid" : "flat"}
+                                variant={localeOption === locale ? "primary" : "secondary"}
                                 onPress={(): void => {
                                     void setLocale(localeOption)
                                 }}
@@ -131,7 +131,7 @@ function LanguageSection(): ReactElement {
                         </span>
                     </p>
                 </div>
-            </CardBody>
+            </CardContent>
         </Card>
     )
 }
@@ -162,7 +162,7 @@ export function SettingsAppearancePage(): ReactElement {
             MAX_INTENSITY,
         ),
     )
-    const [basePaletteId, setBasePaletteId] = useState<TBasePaletteId>(() =>
+    const [basePaletteId, setBasePaletteId] = useState<TSurfaceToneId>(() =>
         readStoredBasePalette(APPEARANCE_BASE_PALETTE_STORAGE_KEY, DEFAULT_SURFACE_TONE_ID),
     )
     const [globalRadius, setGlobalRadius] = useState<number>(() =>
@@ -733,24 +733,24 @@ export function SettingsAppearancePage(): ReactElement {
                     <p className={TYPOGRAPHY.sectionTitle}>
                         {t("settings:appearance.themeControls")}
                     </p>
-                    <Button variant="flat" onPress={handleResetTheme}>
+                    <Button variant="secondary" onPress={handleResetTheme}>
                         {t("settings:appearance.resetToDefault")}
                     </Button>
                 </CardHeader>
-                <CardBody className="space-y-3">
+                <CardContent className="space-y-3">
                     <ThemeToggle />
                     <div className="sr-only">
-                        <Chip size="sm" variant="flat">
+                        <Chip size="sm" variant="soft">
                             {t("settings:appearance.chipMode", { value: mode })}
                         </Chip>
-                        <Chip size="sm" variant="flat">
+                        <Chip size="sm" variant="soft">
                             {t("settings:appearance.chipPreset", { value: preset })}
                         </Chip>
-                        <Chip size="sm" variant="flat">
+                        <Chip size="sm" variant="soft">
                             {t("settings:appearance.chipResolved", { value: resolvedMode })}
                         </Chip>
                         {lastAppliedRandomPreset !== undefined ? (
-                            <Chip size="sm" variant="flat">
+                            <Chip size="sm" variant="soft">
                                 {t("settings:appearance.chipLastRandom", {
                                     value: lastAppliedRandomPreset.label,
                                 })}
@@ -767,10 +767,9 @@ export function SettingsAppearancePage(): ReactElement {
                                     <Button
                                         key={themePreset.id}
                                         aria-label={`Quick preset ${themePreset.label}`}
-                                        radius="full"
+                                        className="rounded-full"
                                         size="sm"
-                                        color="primary"
-                                        variant={themePreset.id === preset ? "solid" : "flat"}
+                                        variant={themePreset.id === preset ? "primary" : "secondary"}
                                         onPress={(): void => {
                                             setPreset(themePreset.id)
                                         }}
@@ -783,18 +782,18 @@ export function SettingsAppearancePage(): ReactElement {
                         <div className="flex flex-wrap gap-2">
                             <Button
                                 aria-keyshortcuts="Alt+R"
-                                radius="full"
+                                className="rounded-full"
                                 size="sm"
-                                variant="flat"
+                                variant="secondary"
                                 onPress={selectRandomPresetPreview}
                             >
                                 {t("settings:appearance.randomPreset")}
                             </Button>
                             {lastRandomUndoPresetId !== undefined ? (
                                 <Button
-                                    radius="full"
+                                    className="rounded-full"
                                     size="sm"
-                                    variant="flat"
+                                    variant="secondary"
                                     onPress={handleUndoRandomPreset}
                                 >
                                     {t("settings:appearance.undoLastRandom")}
@@ -813,15 +812,15 @@ export function SettingsAppearancePage(): ReactElement {
                                 </p>
                                 <div className="mt-2 flex flex-wrap gap-2">
                                     <Button
-                                        color="primary"
                                         size="sm"
+                                        variant="primary"
                                         onPress={handleApplyRandomPreset}
                                     >
                                         {t("settings:appearance.applyRandomPreset")}
                                     </Button>
                                     <Button
                                         size="sm"
-                                        variant="flat"
+                                        variant="secondary"
                                         onPress={(): void => {
                                             setPendingRandomPresetId(undefined)
                                         }}
@@ -832,7 +831,7 @@ export function SettingsAppearancePage(): ReactElement {
                             </div>
                         ) : null}
                     </div>
-                </CardBody>
+                </CardContent>
             </Card>
 
             <Card>
@@ -841,7 +840,7 @@ export function SettingsAppearancePage(): ReactElement {
                         {t("settings:appearance.advancedControls")}
                     </p>
                 </CardHeader>
-                <CardBody className="space-y-4">
+                <CardContent className="space-y-4">
                     <div className="grid gap-4 xl:grid-cols-2">
                         <div className="space-y-3 rounded-lg border border-border bg-surface p-3">
                             <p className="text-sm font-semibold text-foreground">
@@ -901,10 +900,9 @@ export function SettingsAppearancePage(): ReactElement {
                                         <Button
                                             key={tone.id}
                                             aria-pressed={basePaletteId === tone.id}
-                                            radius="full"
+                                            className="rounded-full"
                                             size="sm"
-                                            color="primary"
-                                            variant={basePaletteId === tone.id ? "solid" : "flat"}
+                                            variant={basePaletteId === tone.id ? "primary" : "secondary"}
                                             onPress={(): void => {
                                                 setBasePaletteId(tone.id)
                                             }}
@@ -964,19 +962,19 @@ export function SettingsAppearancePage(): ReactElement {
                     </div>
 
                     <div className="flex flex-wrap items-center gap-2 text-xs text-text-secondary">
-                        <Chip size="sm" variant="flat">
+                        <Chip size="sm" variant="soft">
                             {t("settings:appearance.chipBase", { value: basePaletteId })}
                         </Chip>
-                        <Chip size="sm" variant="flat">
+                        <Chip size="sm" variant="soft">
                             {t("settings:appearance.chipGlobalRadius", { value: globalRadius })}
                         </Chip>
-                        <Chip size="sm" variant="flat">
+                        <Chip size="sm" variant="soft">
                             {t("settings:appearance.chipFormRadius", { value: formRadius })}
                         </Chip>
                         <Chip
                             color={isAccessibleContrast ? "success" : "warning"}
                             size="sm"
-                            variant="flat"
+                            variant="soft"
                         >
                             {t("settings:appearance.chipContrast", {
                                 value: contrastRatio.toFixed(2),
@@ -984,7 +982,7 @@ export function SettingsAppearancePage(): ReactElement {
                             })}
                         </Chip>
                     </div>
-                </CardBody>
+                </CardContent>
             </Card>
 
             <Card>
@@ -1001,12 +999,12 @@ export function SettingsAppearancePage(): ReactElement {
                                   : "default"
                         }
                         size="sm"
-                        variant="flat"
+                        variant="soft"
                     >
                         {t("settings:appearance.chipSync", { value: librarySyncStatus })}
                     </Chip>
                 </CardHeader>
-                <CardBody className="space-y-4">
+                <CardContent className="space-y-4">
                     <div className="rounded-lg border border-border bg-surface p-3">
                         <p className="text-sm font-semibold text-foreground">
                             {t("settings:appearance.favoritePreset")}
@@ -1015,13 +1013,13 @@ export function SettingsAppearancePage(): ReactElement {
                             {t("settings:appearance.chipPinned", { value: favoritePresetLabel })}
                         </p>
                         <div className="mt-2 flex flex-wrap gap-2">
-                            <Button size="sm" variant="flat" onPress={handlePinCurrentPreset}>
+                            <Button size="sm" variant="secondary" onPress={handlePinCurrentPreset}>
                                 {t("settings:appearance.pinCurrentPreset")}
                             </Button>
                             <Button
                                 isDisabled={favoritePresetId === undefined}
                                 size="sm"
-                                variant="flat"
+                                variant="secondary"
                                 onPress={handleApplyFavoritePreset}
                             >
                                 {t("settings:appearance.applyFavoritePreset")}
@@ -1031,10 +1029,10 @@ export function SettingsAppearancePage(): ReactElement {
 
                     <div className="grid gap-3 md:grid-cols-[1.5fr_1fr_auto]">
                         <Input
-                            label={t("settings:appearance.themeName")}
+                            aria-label={t("settings:appearance.themeName")}
                             placeholder="Security Focus Theme"
                             value={themeDraftName}
-                            onValueChange={setThemeDraftName}
+                            onChange={(e): void => { setThemeDraftName(e.target.value) }}
                         />
                         <div className="flex flex-col gap-1">
                             <label
@@ -1067,7 +1065,7 @@ export function SettingsAppearancePage(): ReactElement {
                             </select>
                         </div>
                         <div className="flex items-end">
-                            <Button color="primary" onPress={handleCreateLibraryTheme}>
+                            <Button variant="primary" onPress={handleCreateLibraryTheme}>
                                 {t("settings:appearance.saveCurrentTheme")}
                             </Button>
                         </div>
@@ -1077,7 +1075,7 @@ export function SettingsAppearancePage(): ReactElement {
                         <Button
                             isDisabled={selectedTheme === undefined}
                             size="sm"
-                            variant="flat"
+                            variant="secondary"
                             onPress={handleApplyLibraryTheme}
                         >
                             {t("settings:appearance.applySelected")}
@@ -1085,7 +1083,7 @@ export function SettingsAppearancePage(): ReactElement {
                         <Button
                             isDisabled={selectedTheme === undefined}
                             size="sm"
-                            variant="flat"
+                            variant="secondary"
                             onPress={handleRenameLibraryTheme}
                         >
                             {t("settings:appearance.renameSelected")}
@@ -1093,16 +1091,15 @@ export function SettingsAppearancePage(): ReactElement {
                         <Button
                             isDisabled={selectedTheme === undefined}
                             size="sm"
-                            variant="flat"
+                            variant="secondary"
                             onPress={handleDuplicateLibraryTheme}
                         >
                             {t("settings:appearance.duplicateSelected")}
                         </Button>
                         <Button
-                            color="danger"
                             isDisabled={selectedTheme === undefined}
                             size="sm"
-                            variant="ghost"
+                            variant="danger"
                             onPress={handleDeleteLibraryTheme}
                         >
                             {t("settings:appearance.deleteSelected")}
@@ -1123,15 +1120,15 @@ export function SettingsAppearancePage(): ReactElement {
                             }}
                         />
                         <div className="flex flex-wrap gap-2">
-                            <Button size="sm" variant="flat" onPress={handleExportThemeLibrary}>
+                            <Button size="sm" variant="secondary" onPress={handleExportThemeLibrary}>
                                 {t("settings:appearance.exportLibraryJson")}
                             </Button>
-                            <Button size="sm" variant="flat" onPress={handleImportThemeLibrary}>
+                            <Button size="sm" variant="secondary" onPress={handleImportThemeLibrary}>
                                 {t("settings:appearance.importLibraryJson")}
                             </Button>
                         </div>
                     </div>
-                </CardBody>
+                </CardContent>
             </Card>
 
             <Card>
@@ -1140,7 +1137,7 @@ export function SettingsAppearancePage(): ReactElement {
                         {t("settings:appearance.livePreview")}
                     </p>
                 </CardHeader>
-                <CardBody className="space-y-3">
+                <CardContent className="space-y-3">
                     <div className="grid gap-3 md:grid-cols-3">
                         <div className="rounded-lg border border-border bg-surface p-3">
                             <p className="text-xs uppercase tracking-[0.14em] text-text-subtle">
@@ -1180,7 +1177,7 @@ export function SettingsAppearancePage(): ReactElement {
                                 placeholder="Preview input"
                                 style={{ borderRadius: `${formRadius}px` }}
                                 value={previewFieldValue}
-                                onValueChange={setPreviewFieldValue}
+                                onChange={(e): void => { setPreviewFieldValue(e.target.value) }}
                             />
                         </div>
                     </div>
@@ -1191,7 +1188,7 @@ export function SettingsAppearancePage(): ReactElement {
                                 .join(", "),
                         })}
                     </p>
-                </CardBody>
+                </CardContent>
             </Card>
         </FormLayout>
     )

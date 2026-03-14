@@ -2,7 +2,7 @@ import { type ReactElement, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { useDynamicTranslation } from "@/lib/i18n"
-import { Alert, Button, Card, CardBody, CardHeader, Chip } from "@/components/ui"
+import { Alert, Button, Card, CardContent, CardHeader, Chip } from "@heroui/react"
 import { FormLayout } from "@/components/forms/form-layout"
 import { TYPOGRAPHY } from "@/lib/constants/typography"
 
@@ -180,8 +180,7 @@ export function SettingsAdoptionAnalyticsPage(): ReactElement {
                         <Button
                             key={option}
                             size="sm"
-                            color="primary"
-                            variant={range === option ? "solid" : "flat"}
+                            variant={range === option ? "primary" : "secondary"}
                             onPress={(): void => {
                                 setRange(option)
                             }}
@@ -199,7 +198,7 @@ export function SettingsAdoptionAnalyticsPage(): ReactElement {
                             {t("settings:adoptionAnalytics.valueRealizationKpis")}
                         </p>
                     </CardHeader>
-                    <CardBody className="space-y-2">
+                    <CardContent className="space-y-2">
                         <p className="text-sm text-foreground">
                             {t("settings:adoptionAnalytics.activeUsers")}{" "}
                             <strong>{activeUsers}</strong>
@@ -211,7 +210,7 @@ export function SettingsAdoptionAnalyticsPage(): ReactElement {
                         <p className="text-xs text-text-secondary">
                             {t("settings:adoptionAnalytics.firstValueDefinition")}
                         </p>
-                    </CardBody>
+                    </CardContent>
                 </Card>
 
                 <Card>
@@ -220,7 +219,7 @@ export function SettingsAdoptionAnalyticsPage(): ReactElement {
                             {t("settings:adoptionAnalytics.workflowHealth")}
                         </p>
                     </CardHeader>
-                    <CardBody className="space-y-2">
+                    <CardContent className="space-y-2">
                         <ul
                             aria-label={t("settings:adoptionAnalytics.workflowHealthListAriaLabel")}
                             className="space-y-2"
@@ -240,7 +239,7 @@ export function SettingsAdoptionAnalyticsPage(): ReactElement {
                                             <Chip
                                                 color={mapHealthColor(item.health)}
                                                 size="sm"
-                                                variant="flat"
+                                                variant="soft"
                                             >
                                                 {td(
                                                     `settings:adoptionAnalytics.health.${HEALTH_KEYS[item.health]}`,
@@ -254,7 +253,7 @@ export function SettingsAdoptionAnalyticsPage(): ReactElement {
                                 ),
                             )}
                         </ul>
-                    </CardBody>
+                    </CardContent>
                 </Card>
             </div>
 
@@ -264,7 +263,7 @@ export function SettingsAdoptionAnalyticsPage(): ReactElement {
                         {t("settings:adoptionAnalytics.adoptionFunnel")}
                     </p>
                 </CardHeader>
-                <CardBody className="space-y-2">
+                <CardContent className="space-y-2">
                     <ul
                         aria-label={t("settings:adoptionAnalytics.adoptionFunnelListAriaLabel")}
                         className="space-y-2"
@@ -289,7 +288,7 @@ export function SettingsAdoptionAnalyticsPage(): ReactElement {
                                                 `settings:adoptionAnalytics.funnelStage.${FUNNEL_STAGE_KEYS[stage.id]}`,
                                             )}
                                         </p>
-                                        <Chip size="sm" variant="flat">
+                                        <Chip size="sm" variant="soft">
                                             {stage.count}
                                         </Chip>
                                     </div>
@@ -303,15 +302,12 @@ export function SettingsAdoptionAnalyticsPage(): ReactElement {
                             )
                         })}
                     </ul>
-                </CardBody>
+                </CardContent>
             </Card>
 
-            <Alert
-                color="warning"
-                title={t("settings:adoptionAnalytics.privacyBoundaryTitle")}
-                variant="flat"
-            >
-                {t("settings:adoptionAnalytics.privacyBoundaryDescription")}
+            <Alert status="warning">
+                <Alert.Title>{t("settings:adoptionAnalytics.privacyBoundaryTitle")}</Alert.Title>
+                <Alert.Description>{t("settings:adoptionAnalytics.privacyBoundaryDescription")}</Alert.Description>
             </Alert>
         </FormLayout>
     )
