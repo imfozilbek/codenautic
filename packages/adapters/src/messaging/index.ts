@@ -24,3 +24,8 @@ export {
     type IOutboxMessageDocument,
     MongoOutboxRepository,
 } from "./mongo-outbox-repository.adapter"
+export {
+    type IOutboxRelayServiceImplOptions,
+    type OutboxRelaySleep,
+    OutboxRelayServiceImpl,
+} from "./outbox-relay-service.impl"

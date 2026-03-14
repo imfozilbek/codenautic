@@ -1,6 +1,12 @@
 import {describe, expect, test} from "bun:test"
 
-import {Container, TOKENS, type IOutboxRepository, UniqueId} from "@codenautic/core"
+import {
+    Container,
+    TOKENS,
+    type IOutboxRelayService,
+    type IOutboxRepository,
+    UniqueId,
+} from "@codenautic/core"
 
 import type {Connection} from "mongoose"
 
@@ -282,21 +288,37 @@ describe("Provider modules registration", () => {
                 return Promise.resolve()
             },
         }
+        const outboxRelayService: IOutboxRelayService = {
+            relay(): ReturnType<IOutboxRelayService["relay"]> {
+                return Promise.resolve({
+                    total: 0,
+                    sent: 0,
+                    failed: 0,
+                    retriable: 0,
+                    permanentlyFailed: 0,
+                })
+            },
+        }
 
         registerMessagingModule(container, {
             outboxWriter,
             inboxDeduplicator,
             outboxRepository,
+            outboxRelayService,
         })
 
         const resolvedOutboxWriter = container.resolve(MESSAGING_TOKENS.OutboxWriter)
         const resolvedInboxDeduplicator = container.resolve(MESSAGING_TOKENS.InboxDeduplicator)
         const resolvedOutboxRepository = container.resolve(MESSAGING_TOKENS.OutboxRepository)
+        const resolvedOutboxRelayService = container.resolve(
+            MESSAGING_TOKENS.OutboxRelayService,
+        )
         const resolvedCoreOutboxRepository = container.resolve(TOKENS.Messaging.OutboxRepository)
 
         expect(resolvedOutboxWriter).toBe(outboxWriter)
         expect(resolvedInboxDeduplicator).toBe(inboxDeduplicator)
         expect(resolvedOutboxRepository).toBe(outboxRepository)
+        expect(resolvedOutboxRelayService).toBe(outboxRelayService)
         expect(resolvedCoreOutboxRepository).toBe(outboxRepository)
     })
 
