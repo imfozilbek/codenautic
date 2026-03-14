@@ -1,5 +1,6 @@
 import type { ReactElement } from "react"
 import { motion } from "motion/react"
+import { AlertTriangle, ChevronRight } from "lucide-react"
 
 import {
     Alert,
@@ -19,7 +20,8 @@ import { StatusDistributionChart, type IStatusDistributionPoint } from "./status
  * Запись в work queue.
  */
 export interface IWorkQueueItem {
-    /** Идентификатор.
+    /**
+     * Идентификатор.
      *
      * @example "ccr-1245"
      */
@@ -46,6 +48,7 @@ export interface IDashboardContentProps {
 
 /**
  * Основной контент dashboard mission control.
+ * Glass morphism cards, severity-aware work queue, timeline.
  *
  * @param props Наборы виджетов.
  * @returns Контент: очереди + сигналы + активность.
@@ -58,20 +61,26 @@ export function DashboardContent(props: IDashboardContentProps): ReactElement {
     return (
         <section className="grid gap-4 lg:grid-cols-[2fr_1fr]">
             <div className="space-y-4">
-                <Card className="border-l-2 border-l-danger">
-                    <CardHeader>
+                <Card className="border border-border/60 bg-surface/80 backdrop-blur-sm">
+                    <CardHeader className="border-b border-border/30 pb-3">
                         <h3 className={TYPOGRAPHY.subsectionTitle}>Signals & Work Queue</h3>
                     </CardHeader>
-                    <CardBody>
+                    <CardBody className="pt-4">
                         {hasCriticalSignals ? (
-                            <Alert className="mb-4" color="warning">
-                                <p className="mb-1 text-sm font-semibold text-on-warning">
-                                    Ops notice
-                                </p>
-                                <p className="text-sm text-on-warning/90">
-                                    Есть критические сигналы, проверьте вкладку CCR Management.
-                                </p>
-                            </Alert>
+                            <div className="mb-4 flex items-start gap-3 rounded-lg border border-warning/30 bg-warning/8 p-3">
+                                <AlertTriangle
+                                    aria-hidden="true"
+                                    className="mt-0.5 h-4 w-4 shrink-0 text-warning"
+                                />
+                                <div>
+                                    <p className={`${TYPOGRAPHY.cardTitle} text-warning`}>
+                                        Ops notice
+                                    </p>
+                                    <p className="mt-0.5 text-sm text-foreground/80">
+                                        Есть критические сигналы, проверьте вкладку CCR Management.
+                                    </p>
+                                </div>
+                            </div>
                         ) : null}
                         {props.workQueue.length === 0 ? (
                             <EmptyState
@@ -82,22 +91,7 @@ export function DashboardContent(props: IDashboardContentProps): ReactElement {
                             <StaggerContainer ariaLabel="Work queue" as="ul" className="space-y-2">
                                 {props.workQueue.map(
                                     (item): ReactElement => (
-                                        <motion.li
-                                            key={item.id}
-                                            className="rounded-lg border border-border bg-surface p-3 transition-colors duration-150 hover:bg-surface-muted"
-                                            variants={STAGGER_ITEM_VARIANTS}
-                                        >
-                                            <p className={TYPOGRAPHY.cardTitle}>{item.title}</p>
-                                            <p className="text-sm text-muted-foreground">
-                                                {item.description}
-                                            </p>
-                                            <StyledLink
-                                                className={`mt-2 inline-block ${TYPOGRAPHY.body}`}
-                                                to={item.route}
-                                            >
-                                                Open {item.id}
-                                            </StyledLink>
-                                        </motion.li>
+                                        <WorkQueueCard key={item.id} item={item} />
                                     ),
                                 )}
                             </StaggerContainer>
@@ -108,5 +102,50 @@ export function DashboardContent(props: IDashboardContentProps): ReactElement {
             </div>
             <ActivityTimeline items={props.timeline} />
         </section>
+    )
+}
+
+/**
+ * Параметры карточки work queue.
+ */
+interface IWorkQueueCardProps {
+    /** Данные элемента очереди. */
+    readonly item: IWorkQueueItem
+}
+
+/**
+ * Карточка элемента work queue с hover-эффектом и chevron.
+ *
+ * @param props Элемент очереди.
+ * @returns Styled work queue card.
+ */
+function WorkQueueCard(props: IWorkQueueCardProps): ReactElement {
+    const { item } = props
+    const isCritical = item.id.startsWith("critical")
+
+    return (
+        <motion.li
+            className={[
+                "group flex items-center justify-between gap-3",
+                "rounded-lg border p-3",
+                "transition-all duration-150",
+                isCritical
+                    ? "border-warning/30 bg-warning/5 hover:bg-warning/10"
+                    : "border-border/50 bg-surface hover:bg-surface-muted",
+            ].join(" ")}
+            variants={STAGGER_ITEM_VARIANTS}
+        >
+            <div className="min-w-0 flex-1">
+                <p className={TYPOGRAPHY.cardTitle}>{item.title}</p>
+                <p className="mt-0.5 text-sm text-muted-foreground">{item.description}</p>
+                <StyledLink
+                    className="mt-1.5 inline-flex items-center gap-1 text-xs font-medium text-primary transition-colors hover:text-primary/80"
+                    to={item.route}
+                >
+                    Open {item.id}
+                    <ChevronRight aria-hidden="true" className="h-3 w-3" />
+                </StyledLink>
+            </div>
+        </motion.li>
     )
 }
