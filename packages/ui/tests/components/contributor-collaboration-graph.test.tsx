@@ -12,31 +12,31 @@ import { renderWithProviders } from "../utils/render"
 const TEST_CONTRIBUTORS: ReadonlyArray<IContributorCollaborationNode> = [
     {
         commitCount: 42,
-        contributorId: "alice",
-        label: "Alice",
+        contributorId: "neo",
+        label: "Neo",
     },
     {
         commitCount: 18,
-        contributorId: "max",
-        label: "Max",
+        contributorId: "trinity",
+        label: "Trinity",
     },
     {
         commitCount: 11,
-        contributorId: "nora",
-        label: "Nora",
+        contributorId: "morpheus",
+        label: "Morpheus",
     },
 ]
 
 const TEST_COLLABORATIONS: ReadonlyArray<IContributorCollaborationEdge> = [
     {
         coAuthorCount: 8,
-        sourceContributorId: "alice",
-        targetContributorId: "max",
+        sourceContributorId: "neo",
+        targetContributorId: "trinity",
     },
     {
         coAuthorCount: 3,
-        sourceContributorId: "max",
-        targetContributorId: "nora",
+        sourceContributorId: "trinity",
+        targetContributorId: "morpheus",
     },
 ]
 
@@ -51,11 +51,11 @@ describe("ContributorCollaborationGraph", (): void => {
 
         expect(screen.getByText("Contributor collaboration graph")).not.toBeNull()
         expect(screen.getByLabelText("Contributor collaboration graph")).not.toBeNull()
-        expect(screen.getByText("Alice")).not.toBeNull()
-        expect(screen.getByText("Max")).not.toBeNull()
+        expect(screen.getByText("Neo")).not.toBeNull()
+        expect(screen.getByText("Trinity")).not.toBeNull()
 
-        const aliceNode = screen.getByTestId("contributor-node-alice")
-        const maxNode = screen.getByTestId("contributor-node-max")
+        const aliceNode = screen.getByTestId("contributor-node-neo")
+        const maxNode = screen.getByTestId("contributor-node-trinity")
         const aliceRadius = Number(aliceNode.getAttribute("r"))
         const maxRadius = Number(maxNode.getAttribute("r"))
         expect(aliceRadius).toBeGreaterThan(maxRadius)
@@ -72,13 +72,13 @@ describe("ContributorCollaborationGraph", (): void => {
             />,
         )
 
-        await user.click(screen.getByRole("button", { name: "Focus contributor Alice" }))
-        const maxNode = screen.getByRole("button", { name: "Focus contributor Max" })
-        maxNode.focus()
-        fireEvent.keyDown(maxNode, { key: "Enter" })
+        await user.click(screen.getByRole("button", { name: "Focus contributor Neo" }))
+        const trinityNode = screen.getByRole("button", { name: "Focus contributor Trinity" })
+        trinityNode.focus()
+        fireEvent.keyDown(trinityNode, { key: "Enter" })
 
         expect(onSelectContributor).toHaveBeenCalledTimes(2)
-        expect(onSelectContributor).toHaveBeenCalledWith("alice")
-        expect(onSelectContributor).toHaveBeenCalledWith("max")
+        expect(onSelectContributor).toHaveBeenCalledWith("neo")
+        expect(onSelectContributor).toHaveBeenCalledWith("trinity")
     })
 })
