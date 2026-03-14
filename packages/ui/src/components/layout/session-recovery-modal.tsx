@@ -1,4 +1,5 @@
 import { type ReactElement } from "react"
+import { useTranslation } from "react-i18next"
 
 import { Button, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader } from "@/components/ui"
 
@@ -23,10 +24,11 @@ export interface ISessionRecoveryModalProps {
  * @returns Модальное окно восстановления сессии.
  */
 export function SessionRecoveryModal(props: ISessionRecoveryModalProps): ReactElement {
+    const { t } = useTranslation(["navigation"])
     return (
         <Modal isOpen={props.isOpen} onOpenChange={props.onOpenChange}>
             <ModalContent>
-                <ModalHeader>Session expired</ModalHeader>
+                <ModalHeader>{t("navigation:sessionRecovery.title")}</ModalHeader>
                 <ModalBody>
                     <p className="text-sm text-text-tertiary">
                         Authentication failed with {props.failureCode}. Re-authentication is
