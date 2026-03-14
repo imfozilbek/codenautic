@@ -287,7 +287,7 @@ export function SettingsRulesLibraryPage(): ReactElement {
                             onValueChange={setSearchQuery}
                         />
                         <select
-                            aria-label="Category"
+                            aria-label={t("settings:ariaLabel.rulesLibrary.category")}
                             className={NATIVE_FORM.select}
                             id="rules-category-filter"
                             value={selectedCategory}
@@ -316,7 +316,10 @@ export function SettingsRulesLibraryPage(): ReactElement {
                         </select>
                     </div>
 
-                    <ul aria-label="Rules catalog" className="space-y-2">
+                    <ul
+                        aria-label={t("settings:ariaLabel.rulesLibrary.rulesCatalog")}
+                        className="space-y-2"
+                    >
                         {filteredRules.map((rule): ReactElement => {
                             const isImported = importedRuleIds.includes(rule.id)
                             return (
@@ -390,7 +393,7 @@ export function SettingsRulesLibraryPage(): ReactElement {
                             onValueChange={setCustomDescription}
                         />
                         <select
-                            aria-label="Category"
+                            aria-label={t("settings:ariaLabel.rulesLibrary.category")}
                             className={NATIVE_FORM.select}
                             id="custom-rule-category"
                             value={customCategory}
@@ -441,7 +444,7 @@ export function SettingsRulesLibraryPage(): ReactElement {
                     </CardHeader>
                     <CardBody className="space-y-3">
                         <select
-                            aria-label="Rule to test"
+                            aria-label={t("settings:ariaLabel.rulesLibrary.ruleToTest")}
                             className={NATIVE_FORM.select}
                             id="rule-test-target"
                             value={testRuleId}
@@ -469,7 +472,7 @@ export function SettingsRulesLibraryPage(): ReactElement {
                                 {t("settings:rulesLibrary.sampleInput")}
                             </label>
                             <textarea
-                                aria-label="Sample input"
+                                aria-label={t("settings:ariaLabel.rulesLibrary.sampleInput")}
                                 className="min-h-28 rounded-lg border border-border bg-surface p-3 text-sm"
                                 id="rule-test-sample-input"
                                 value={testInput}

@@ -166,7 +166,12 @@ export function SettingsProviderDegradationPage(): ReactElement {
                             {t("settings:providerDegradation.noAffectedFeatures")}
                         </p>
                     ) : (
-                        <ul aria-label="Affected features list" className="space-y-1">
+                        <ul
+                            aria-label={t(
+                                "settings:ariaLabel.providerDegradation.affectedFeaturesList",
+                            )}
+                            className="space-y-1"
+                        >
                             {providerState.affectedFeatures.map(
                                 (feature): ReactElement => (
                                     <li className="text-sm text-text-tertiary" key={feature}>
@@ -214,7 +219,12 @@ export function SettingsProviderDegradationPage(): ReactElement {
                             {t("settings:providerDegradation.retryQueuedActions")}
                         </Button>
                     </div>
-                    <ul aria-label="Queued critical actions list" className="space-y-2">
+                    <ul
+                        aria-label={t(
+                            "settings:ariaLabel.providerDegradation.queuedCriticalActionsList",
+                        )}
+                        className="space-y-2"
+                    >
                         {queuedActions.map(
                             (action): ReactElement => (
                                 <li
