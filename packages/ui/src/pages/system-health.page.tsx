@@ -39,7 +39,7 @@ export function SystemHealthPage(): ReactElement {
                 isPending={isPending}
                 isPremiumDashboardEnabled={isPremiumDashboardEnabled}
                 locale={locale}
-                t={t}
+                t={t as unknown as (key: string) => string}
             />
         </section>
     )
