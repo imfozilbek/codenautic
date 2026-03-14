@@ -180,19 +180,20 @@ export function RuleEditor(props: IRuleEditorProps): ReactElement {
             </CardHeader>
             <CardBody className="space-y-3">
                 <div className="flex flex-wrap gap-2">
-                    <Button onPress={formatBold} size="sm" variant="solid">
+                    <Button color="primary" onPress={formatBold} size="sm" variant="solid">
                         {t("settings:ruleEditor.bold")}
                     </Button>
-                    <Button onPress={formatItalic} size="sm" variant="solid">
+                    <Button color="primary" onPress={formatItalic} size="sm" variant="solid">
                         {t("settings:ruleEditor.italic")}
                     </Button>
-                    <Button onPress={formatHeading} size="sm" variant="solid">
+                    <Button color="primary" onPress={formatHeading} size="sm" variant="solid">
                         {t("settings:ruleEditor.heading")}
                     </Button>
-                    <Button onPress={formatCodeBlock} size="sm" variant="solid">
+                    <Button color="primary" onPress={formatCodeBlock} size="sm" variant="solid">
                         {t("settings:ruleEditor.codeBlock")}
                     </Button>
                     <Button
+                        color="primary"
                         onPress={(): void => {
                             setIsPreviewVisible((previousValue): boolean => !previousValue)
                         }}
