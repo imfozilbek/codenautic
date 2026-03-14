@@ -1,14 +1,15 @@
 import { type ReactElement, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import { Button, Card, CardBody, CardHeader } from "@/components/ui"
+import { Button } from "@/components/ui"
 import { showToastError, showToastInfo, showToastSuccess } from "@/lib/notifications/toast"
 import {
     LLM_MODEL_OPTIONS,
     LLM_PROVIDER_OPTIONS,
     type ILlmProviderFormValues,
 } from "@/components/settings/settings-form-schemas"
-import { TYPOGRAPHY } from "@/lib/constants/typography"
+import { FormLayout } from "@/components/forms/form-layout"
+import { FormSection } from "@/components/forms/form-section"
 import { LlmProviderForm } from "@/components/settings/llm-provider-form"
 import { TestConnectionButton } from "@/components/settings/test-connection-button"
 
@@ -172,38 +173,34 @@ function renderProviderCard(
     t: ReturnType<typeof useTranslation<readonly ["settings"]>>["t"],
 ): ReactElement {
     return (
-        <Card key={provider}>
-            <CardHeader>
-                <p className={TYPOGRAPHY.sectionTitle}>{provider}</p>
-            </CardHeader>
-            <CardBody className="space-y-3">
-                <LlmProviderForm
-                    initialValues={{
-                        apiKey: config.apiKey,
-                        endpoint: config.endpoint,
-                        model: config.model,
-                        provider: config.provider,
-                        testAfterSave: config.connected,
+        <FormSection heading={provider} key={provider}>
+            <LlmProviderForm
+                initialValues={{
+                    apiKey: config.apiKey,
+                    endpoint: config.endpoint,
+                    model: config.model,
+                    provider: config.provider,
+                    testAfterSave: config.connected,
+                }}
+                modelOptions={LLM_MODEL_OPTIONS}
+                providers={[...LLM_PROVIDER_OPTIONS]}
+                onSubmit={(next: INormalizedLlmProviderFormValues): void => {
+                    onSave(normalizeFormValues(next))
+                }}
+            />
+            <div className="flex items-center gap-3">
+                <TestConnectionButton providerLabel={provider} onTest={onTest} />
+                <Button
+                    color="primary"
+                    isDisabled={isActionDisabled}
+                    onPress={(): void => {
+                        showToastInfo(t("settings:llmProviders.toast.manualTestTriggered", { provider }))
                     }}
-                    modelOptions={LLM_MODEL_OPTIONS}
-                    providers={[...LLM_PROVIDER_OPTIONS]}
-                    onSubmit={(next: INormalizedLlmProviderFormValues): void => {
-                        onSave(normalizeFormValues(next))
-                    }}
-                />
-                <div className="flex items-center gap-3">
-                    <TestConnectionButton providerLabel={provider} onTest={onTest} />
-                    <Button
-                        isDisabled={isActionDisabled}
-                        onPress={(): void => {
-                            showToastInfo(t("settings:llmProviders.toast.manualTestTriggered", { provider }))
-                        }}
-                    >
-                        {t("settings:llmProviders.validateViaPipeline")}
-                    </Button>
-                </div>
-            </CardBody>
-        </Card>
+                >
+                    {t("settings:llmProviders.validateViaPipeline")}
+                </Button>
+            </div>
+        </FormSection>
     )
 }
 
@@ -261,11 +258,10 @@ export function SettingsLlmProvidersPage(): ReactElement {
     }
 
     return (
-        <section className="space-y-4">
-            <h1 className={TYPOGRAPHY.pageTitle}>{t("settings:llmProviders.pageTitle")}</h1>
-            <p className={TYPOGRAPHY.pageSubtitle}>
-                {t("settings:llmProviders.pageSubtitle")}
-            </p>
+        <FormLayout
+            title={t("settings:llmProviders.pageTitle")}
+            description={t("settings:llmProviders.pageSubtitle")}
+        >
             <div className="rounded-md border border-primary/30 bg-primary/10 p-3 text-sm text-on-primary">
                 {t("settings:llmProviders.byokNotice")}
             </div>
@@ -286,6 +282,6 @@ export function SettingsLlmProvidersPage(): ReactElement {
                     )
                 })}
             </div>
-        </section>
+        </FormLayout>
     )
 }
