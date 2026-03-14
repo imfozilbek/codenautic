@@ -13,10 +13,7 @@ import type { IFormSelectOption } from "@/components/forms"
 
 import type { IOnboardingWizardState } from "../use-onboarding-wizard-state"
 import type { IOnboardingFormValues, TOnboardingTemplateId } from "../onboarding-wizard-types"
-import {
-    PREVIEW_REPOSITORY_LIMIT,
-    PREVIEW_TEMPLATE_DIFF_LIMIT,
-} from "../onboarding-wizard-types"
+import { PREVIEW_REPOSITORY_LIMIT, PREVIEW_TEMPLATE_DIFF_LIMIT } from "../onboarding-wizard-types"
 import {
     formatTemplateTags,
     mapProviderLabel,
@@ -215,13 +212,17 @@ export function ScanConfigurationStep({ state }: IScanConfigurationStepProps): R
                                                     {entry.appliedAt}
                                                 </p>
                                                 <p className="text-xs text-muted-foreground">
-                                                    {(t as unknown as (key: string, options: Record<string, string>) => string)(
-                                                        "onboarding:scan.auditLogFrom",
-                                                        {
-                                                            before: formatTemplateTags(entry.before.tags),
-                                                            after: formatTemplateTags(entry.after.tags),
-                                                        },
-                                                    )}
+                                                    {(
+                                                        t as unknown as (
+                                                            key: string,
+                                                            options: Record<string, string>,
+                                                        ) => string
+                                                    )("onboarding:scan.auditLogFrom", {
+                                                        before: formatTemplateTags(
+                                                            entry.before.tags,
+                                                        ),
+                                                        after: formatTemplateTags(entry.after.tags),
+                                                    })}
                                                 </p>
                                             </article>
                                         ),
@@ -326,7 +327,8 @@ export function ScanConfigurationStep({ state }: IScanConfigurationStepProps): R
                             {state.appliedTemplateMeta.name} ({state.appliedTemplateMeta.version})
                         </p>
                         <p className="text-sm text-foreground">
-                            {t("onboarding:scan.rulesLabel")}: {state.appliedTemplateMeta.rulesPreset}
+                            {t("onboarding:scan.rulesLabel")}:{" "}
+                            {state.appliedTemplateMeta.rulesPreset}
                         </p>
                         <div className="mt-1 flex flex-wrap gap-1">
                             {splitTemplateTagsForPreview(state.appliedTemplateMeta.tags).map(
@@ -344,14 +346,16 @@ export function ScanConfigurationStep({ state }: IScanConfigurationStepProps): R
                                 {t("onboarding:summary.appliedProfile")}
                             </summary>
                             <p className="mt-1 text-sm text-foreground">
-                                {(t as unknown as (key: string, options: Record<string, string>) => string)(
-                                    "onboarding:summary.profileDescription",
-                                    {
-                                        count: String(state.selectedRepositoryUrls.length),
-                                        mode: state.values.scanMode,
-                                        schedule: state.values.scanSchedule,
-                                    },
-                                )}
+                                {(
+                                    t as unknown as (
+                                        key: string,
+                                        options: Record<string, string>,
+                                    ) => string
+                                )("onboarding:summary.profileDescription", {
+                                    count: String(state.selectedRepositoryUrls.length),
+                                    mode: state.values.scanMode,
+                                    schedule: state.values.scanSchedule,
+                                })}
                             </p>
                             {state.selectedRepositoryUrls.length === 0 ? null : (
                                 <ul className="mt-2 list-disc space-y-1 pl-5 text-sm">
@@ -367,15 +371,17 @@ export function ScanConfigurationStep({ state }: IScanConfigurationStepProps): R
                                     {state.selectedRepositoryUrls.length >
                                     PREVIEW_REPOSITORY_LIMIT ? (
                                         <li>
-                                            {(t as unknown as (key: string, options: Record<string, string>) => string)(
-                                                "onboarding:summary.moreRepositories",
-                                                {
-                                                    count: String(
-                                                        state.selectedRepositoryUrls.length -
-                                                            PREVIEW_REPOSITORY_LIMIT,
-                                                    ),
-                                                },
-                                            )}
+                                            {(
+                                                t as unknown as (
+                                                    key: string,
+                                                    options: Record<string, string>,
+                                                ) => string
+                                            )("onboarding:summary.moreRepositories", {
+                                                count: String(
+                                                    state.selectedRepositoryUrls.length -
+                                                        PREVIEW_REPOSITORY_LIMIT,
+                                                ),
+                                            })}
                                         </li>
                                     ) : null}
                                 </ul>
@@ -389,12 +395,11 @@ export function ScanConfigurationStep({ state }: IScanConfigurationStepProps): R
                         {mapProviderLabel(state.values.provider)} (
                         {state.isProviderConnected
                             ? t("onboarding:summary.providerConnected")
-                            : t("onboarding:summary.providerNotConnected")})
+                            : t("onboarding:summary.providerNotConnected")}
+                        )
                     </p>
                     <p className="text-sm">
-                        <span className="font-semibold">
-                            {t("onboarding:summary.modeLabel")}:
-                        </span>{" "}
+                        <span className="font-semibold">{t("onboarding:summary.modeLabel")}:</span>{" "}
                         {state.values.scanMode}
                     </p>
                     <p className="text-sm">
@@ -426,9 +431,7 @@ export function ScanConfigurationStep({ state }: IScanConfigurationStepProps): R
                             : t("onboarding:boolean.no")}
                     </p>
                     <p className="text-sm">
-                        <span className="font-semibold">
-                            {t("onboarding:summary.emailLabel")}:
-                        </span>{" "}
+                        <span className="font-semibold">{t("onboarding:summary.emailLabel")}:</span>{" "}
                         {state.values.notifyEmail.length === 0
                             ? t("onboarding:summary.emailNotSet")
                             : state.values.notifyEmail}
@@ -443,9 +446,7 @@ export function ScanConfigurationStep({ state }: IScanConfigurationStepProps): R
                     </Alert>
                 ) : null}
                 {state.isSingleMode || state.isStarted ? null : (
-                    <Alert color="primary">
-                        {t("onboarding:summary.bulkReadyAlert")}
-                    </Alert>
+                    <Alert color="primary">{t("onboarding:summary.bulkReadyAlert")}</Alert>
                 )}
             </section>
         </>

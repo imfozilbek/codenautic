@@ -1,6 +1,7 @@
 import type { ReactElement } from "react"
 import { useTranslation } from "react-i18next"
 
+import { useDynamicTranslation } from "@/lib/i18n"
 import { Alert, Button } from "@/components/ui"
 
 import type { IOnboardingWizardState } from "../use-onboarding-wizard-state"
@@ -39,6 +40,7 @@ export interface IBulkScanJobsMonitorProps {
  */
 export function BulkScanJobsMonitor({ state }: IBulkScanJobsMonitorProps): ReactElement | null {
     const { t } = useTranslation(["onboarding"])
+    const { td } = useDynamicTranslation(["onboarding"])
 
     if (state.isSingleMode || state.isStarted === false) {
         return null
@@ -91,17 +93,14 @@ export function BulkScanJobsMonitor({ state }: IBulkScanJobsMonitorProps): React
 
             <div className="grid gap-2 rounded-lg border border-border p-2 text-sm">
                 <p>
-                    {(t as unknown as (key: string, options: Record<string, string>) => string)(
-                        "onboarding:bulk.summaryLine",
-                        {
-                            running: String(state.bulkSummary.running),
-                            queued: String(state.bulkSummary.queued),
-                            paused: String(state.bulkSummary.paused),
-                            error: String(state.bulkSummary.error),
-                            completed: String(state.bulkSummary.completed),
-                            cancelled: String(state.bulkSummary.cancelled),
-                        },
-                    )}
+                    {td("onboarding:bulk.summaryLine", {
+                        running: String(state.bulkSummary.running),
+                        queued: String(state.bulkSummary.queued),
+                        paused: String(state.bulkSummary.paused),
+                        error: String(state.bulkSummary.error),
+                        completed: String(state.bulkSummary.completed),
+                        cancelled: String(state.bulkSummary.cancelled),
+                    })}
                 </p>
 
                 {state.bulkJobs.map(
@@ -115,9 +114,7 @@ export function BulkScanJobsMonitor({ state }: IBulkScanJobsMonitorProps): React
                                 <span
                                     className={`rounded-full border px-2 py-1 text-xs ${mapBulkStatusClasses(job.status)}`}
                                 >
-                                    {(t as unknown as (key: string) => string)(
-                                        BULK_STATUS_KEYS[job.status],
-                                    )}
+                                    {td(BULK_STATUS_KEYS[job.status])}
                                 </span>
                             </div>
                             <div className="mt-2 h-2 rounded-full bg-surface-muted">
@@ -134,10 +131,9 @@ export function BulkScanJobsMonitor({ state }: IBulkScanJobsMonitorProps): React
                                 />
                             </div>
                             <p className="mt-1 text-xs text-muted-foreground">
-                                {(t as unknown as (key: string, options: Record<string, string>) => string)(
-                                    "onboarding:bulk.progressLabel",
-                                    { value: String(job.progress) },
-                                )}
+                                {td("onboarding:bulk.progressLabel", {
+                                    value: String(job.progress),
+                                })}
                             </p>
 
                             {job.errorMessage === undefined ? null : (

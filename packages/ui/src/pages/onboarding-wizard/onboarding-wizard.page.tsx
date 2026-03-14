@@ -26,10 +26,7 @@ export function OnboardingWizardPage(props: IOnboardingWizardPageProps): ReactEl
     const state = useOnboardingWizardState(props)
 
     return (
-        <PageShell
-            subtitle={t("onboarding:page.subtitle")}
-            title={t("onboarding:page.title")}
-        >
+        <PageShell subtitle={t("onboarding:page.subtitle")} title={t("onboarding:page.title")}>
             <Card>
                 <CardHeader>
                     <WizardStepIndicator state={state} />

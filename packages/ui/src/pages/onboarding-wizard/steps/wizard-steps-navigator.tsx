@@ -101,17 +101,17 @@ export function WizardStepIndicator({ state }: IWizardStepIndicatorProps): React
                             className={`rounded-md px-2 py-2 ${isActive ? "bg-foreground text-background" : isCompleted ? "bg-surface-muted text-foreground" : "bg-surface text-muted-foreground"}`}
                         >
                             <p className="text-xs font-semibold uppercase tracking-wider">
-                                {(t as unknown as (key: string, options: Record<string, string>) => string)(
-                                    "onboarding:steps.stepLabel",
-                                    { number: String(index + 1) },
-                                )}
+                                {(
+                                    t as unknown as (
+                                        key: string,
+                                        options: Record<string, string>,
+                                    ) => string
+                                )("onboarding:steps.stepLabel", { number: String(index + 1) })}
                             </p>
                             <p className="text-sm font-semibold">
                                 {t(`onboarding:steps.${stepId}.label`)}
                             </p>
-                            <p className="text-xs">
-                                {t(`onboarding:steps.${stepId}.description`)}
-                            </p>
+                            <p className="text-xs">{t(`onboarding:steps.${stepId}.description`)}</p>
                         </div>
                     </button>
                 )

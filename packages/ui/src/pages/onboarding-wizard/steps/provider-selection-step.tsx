@@ -76,10 +76,14 @@ export function ProviderSelectionStep({ state }: IProviderSelectionStepProps): R
                     variant="flat"
                 >
                     {state.isProviderConnected
-                        ? (t as unknown as (key: string, options: Record<string, string>) => string)(
-                              "onboarding:provider.connected",
-                              { provider: mapProviderLabel(state.values.provider) },
-                          )
+                        ? (
+                              t as unknown as (
+                                  key: string,
+                                  options: Record<string, string>,
+                              ) => string
+                          )("onboarding:provider.connected", {
+                              provider: mapProviderLabel(state.values.provider),
+                          })
                         : t("onboarding:provider.notConnected")}
                 </Chip>
             </div>

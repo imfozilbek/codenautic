@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { zodResolver } from "@hookform/resolvers/zod"
+
+import { useDynamicTranslation } from "@/lib/i18n"
 import { useForm, type Resolver, type UseFormReturn } from "react-hook-form"
 
 import { showToastSuccess } from "@/lib/notifications/toast"
@@ -45,6 +47,7 @@ export function useOnboardingWizardState(
     props: IOnboardingWizardPageProps,
 ): IOnboardingWizardStateReturn {
     const { t } = useTranslation(["onboarding"])
+    const { td } = useDynamicTranslation(["onboarding"])
     const [activeStep, setActiveStep] = useState<0 | 1 | 2>(0)
     const [isStarted, setIsStarted] = useState(false)
     const [connectedProvider, setConnectedProvider] = useState<TGitProvider | undefined>(undefined)
@@ -90,7 +93,7 @@ export function useOnboardingWizardState(
         shouldApplyTemplate,
         templateStateFromForm,
         templateStateFromSelection,
-        t as unknown as (key: string) => string,
+        td,
     )
     const hasTemplateChanges = canApplyTemplate
         ? isTemplateStateEqual(templateStateFromForm, templateStateFromSelection) === false
@@ -202,10 +205,9 @@ export function useOnboardingWizardState(
         setConnectedProvider(values.provider)
         setProviderConnectionError(undefined)
         showToastSuccess(
-            (t as unknown as (key: string, options: Record<string, string>) => string)(
-                "onboarding:provider.connectedToast",
-                { provider: mapProviderLabel(values.provider) },
-            ),
+            td("onboarding:provider.connectedToast", {
+                provider: mapProviderLabel(values.provider),
+            }),
         )
     }
 

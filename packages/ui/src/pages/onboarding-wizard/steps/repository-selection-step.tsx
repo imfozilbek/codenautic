@@ -84,13 +84,15 @@ https://github.com/owner/repo-b`,
 
                     <div className="flex items-center justify-between">
                         <p className="text-sm text-foreground">
-                            {(t as unknown as (key: string, options: Record<string, string>) => string)(
-                                "onboarding:repository.selectedCount",
-                                {
-                                    selected: String(state.selectedRepositoryUrls.length),
-                                    total: String(state.parsedBulkList.repositories.length),
-                                },
-                            )}
+                            {(
+                                t as unknown as (
+                                    key: string,
+                                    options: Record<string, string>,
+                                ) => string
+                            )("onboarding:repository.selectedCount", {
+                                selected: String(state.selectedRepositoryUrls.length),
+                                total: String(state.parsedBulkList.repositories.length),
+                            })}
                         </p>
                         <div className="flex gap-2">
                             <Button
@@ -169,9 +171,7 @@ https://github.com/owner/repo-b`,
             )}
 
             {state.isSingleMode || state.isStarted ? null : (
-                <Alert color="primary">
-                    {t("onboarding:repository.bulkInfoNotice")}
-                </Alert>
+                <Alert color="primary">{t("onboarding:repository.bulkInfoNotice")}</Alert>
             )}
         </section>
     )
