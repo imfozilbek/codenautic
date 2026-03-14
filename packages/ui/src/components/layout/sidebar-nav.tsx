@@ -242,7 +242,10 @@ export function SidebarNav(props: ISidebarNavProps): ReactElement {
     }
 
     return (
-        <nav aria-label="Main navigation" className="flex h-full flex-col">
+        <nav
+            aria-label={t("navigation:ariaLabel.sidebarNav.mainNavigation")}
+            className="flex h-full flex-col"
+        >
             <div className="flex-1 space-y-3 overflow-y-auto">
                 {groups.map(
                     (group, groupIndex): ReactElement => (

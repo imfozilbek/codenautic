@@ -1,4 +1,5 @@
 import { type ReactElement } from "react"
+import { useTranslation } from "react-i18next"
 
 import { Laptop, Moon, Sun } from "@/components/icons/app-icons"
 import { Button } from "@/components/ui"
@@ -87,9 +88,11 @@ function ThemeModeButtons({
     readonly currentMode: ThemeMode
     readonly onModeChange: (nextMode: ThemeMode) => void
 }): ReactElement {
+    const { t } = useTranslation(["navigation"])
+
     return (
         <div
-            aria-label="Theme mode"
+            aria-label={t("navigation:ariaLabel.themeToggle.themeMode")}
             className="inline-flex items-center rounded-lg border border-border bg-[color:color-mix(in_oklab,var(--surface)_85%,transparent)] p-1 backdrop-blur"
             role="radiogroup"
         >
