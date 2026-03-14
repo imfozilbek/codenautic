@@ -17,6 +17,7 @@ import {
     TableHeader,
     TableRow,
 } from "@/components/ui"
+import { FormLayout } from "@/components/forms/form-layout"
 import { NATIVE_FORM } from "@/lib/constants/spacing"
 import { TYPOGRAPHY } from "@/lib/constants/typography"
 import { showToastError, showToastInfo, showToastSuccess } from "@/lib/notifications/toast"
@@ -99,21 +100,21 @@ const BILLING_DEFAULT: IBillingState = {
 
 const MEMBERS_DEFAULT: ReadonlyArray<IOrganizationMember> = [
     {
-        email: "ari@acme.dev",
+        email: "neo@acme.dev",
         id: "member-1",
-        name: "Ari Karimov",
+        name: "Neo Anderson",
         role: "admin",
     },
     {
-        email: "nika@acme.dev",
+        email: "trinity@acme.dev",
         id: "member-2",
-        name: "Nika Saryeva",
+        name: "Trinity",
         role: "lead",
     },
     {
-        email: "mila@acme.dev",
+        email: "morpheus@acme.dev",
         id: "member-3",
-        name: "Mila Davletova",
+        name: "Morpheus",
         role: "developer",
     },
 ]
@@ -121,7 +122,7 @@ const MEMBERS_DEFAULT: ReadonlyArray<IOrganizationMember> = [
 const AUDIT_LOGS_DEFAULT: ReadonlyArray<IAuditLogEntry> = [
     {
         action: "organization.profile.updated",
-        actor: "Ari Karimov",
+        actor: "Neo Anderson",
         details: "Name and timezone updated.",
         id: "audit-1",
         timestamp: "2026-03-04 10:42",
@@ -135,14 +136,14 @@ const AUDIT_LOGS_DEFAULT: ReadonlyArray<IAuditLogEntry> = [
     },
     {
         action: "member.role.updated",
-        actor: "Nika Saryeva",
-        details: "Mila role changed to developer.",
+        actor: "Trinity",
+        details: "Morpheus role changed to developer.",
         id: "audit-3",
         timestamp: "2026-03-03 12:21",
     },
     {
         action: "security.byok.rotated",
-        actor: "Ari Karimov",
+        actor: "Neo Anderson",
         details: "BYOK secret rotated for LLM provider.",
         id: "audit-4",
         timestamp: "2026-03-02 08:11",
@@ -245,7 +246,7 @@ function OrganizationProfileCard(props: {
                     />
                 </div>
                 <div className="flex justify-end">
-                    <Button onPress={props.onSave}>
+                    <Button color="primary" onPress={props.onSave}>
                         {t("settings:organization.saveProfile")}
                     </Button>
                 </div>
@@ -379,7 +380,7 @@ function MembersCard(props: {
                         <option value="admin">admin</option>
                     </select>
                     <div className="flex items-end">
-                        <Button onPress={props.onInvite}>
+                        <Button color="primary" onPress={props.onInvite}>
                             {t("settings:organization.inviteMember")}
                         </Button>
                     </div>
@@ -662,14 +663,10 @@ export function SettingsOrganizationPage(): ReactElement {
     }
 
     return (
-        <section className="space-y-4">
-            <h1 className={TYPOGRAPHY.pageTitle}>
-                {t("settings:organization.pageTitle")}
-            </h1>
-            <p className={TYPOGRAPHY.pageSubtitle}>
-                {t("settings:organization.pageSubtitle")}
-            </p>
-
+        <FormLayout
+            title={t("settings:organization.pageTitle")}
+            description={t("settings:organization.pageSubtitle")}
+        >
             {billingError === undefined ? null : <Alert color="danger">{billingError}</Alert>}
 
             <OrganizationProfileCard
@@ -714,6 +711,6 @@ export function SettingsOrganizationPage(): ReactElement {
                 }}
             />
             <AuditLogsCard logs={auditLogs} />
-        </section>
+        </FormLayout>
     )
 }
