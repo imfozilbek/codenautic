@@ -2,7 +2,7 @@ import { screen } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import type { FormEvent, ReactElement } from "react"
 import { useForm } from "react-hook-form"
-import { describe, expect, it, vi } from "vitest"
+import { describe, expect, it } from "vitest"
 
 import { FormNumberField } from "@/components/forms/form-number-field"
 import { renderWithProviders } from "../../utils/render"
