@@ -1,7 +1,7 @@
 import { type FormEvent, type ReactElement } from "react"
 import { useTranslation } from "react-i18next"
 
-import { Button } from "@/components/ui"
+import { Button } from "@heroui/react"
 import { REPO_REVIEW_MODE, type TRepoReviewMode } from "@/lib/api/endpoints/repo-config.endpoint"
 import { NATIVE_FORM } from "@/lib/constants/spacing"
 import { TYPOGRAPHY } from "@/lib/constants/typography"
@@ -139,10 +139,9 @@ export function ConfigurationEditor(props: IConfigurationEditorProps): ReactElem
             <div className="flex flex-wrap items-center gap-3">
                 <Button
                     data-testid="repo-config-save"
-                    color="primary"
-                    disabled={props.isSaveDisabled}
+                    variant="primary"
+                    isDisabled={props.isSaveDisabled}
                     type="submit"
-                    variant="solid"
                 >
                     {t("settings:configurationEditor.saveRepositoryConfig")}
                 </Button>

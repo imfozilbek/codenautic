@@ -1,7 +1,7 @@
 import type { ReactElement } from "react"
 import { useTranslation } from "react-i18next"
 
-import { Card, CardBody, CardHeader } from "@/components/ui"
+import { Card, CardContent, CardHeader } from "@heroui/react"
 import { TYPOGRAPHY } from "@/lib/constants/typography"
 import type { IExternalContextPreviewResponse } from "@/lib/api/endpoints/external-context.endpoint"
 
@@ -39,7 +39,7 @@ export function ContextPreview(props: IContextPreviewProps): ReactElement {
             <CardHeader>
                 <h3 className={TYPOGRAPHY.subsectionTitle}>{title}</h3>
             </CardHeader>
-            <CardBody className="space-y-3">
+            <CardContent className="space-y-3">
                 {props.isLoading === true ? (
                     <p aria-live="polite" className="text-sm text-foreground-500">
                         {t("settings:contextPreview.loading")}
@@ -75,7 +75,7 @@ export function ContextPreview(props: IContextPreviewProps): ReactElement {
                         )}
                     </ul>
                 )}
-            </CardBody>
+            </CardContent>
         </Card>
     )
 }
