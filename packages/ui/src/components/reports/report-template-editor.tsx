@@ -1,9 +1,9 @@
 import { type ChangeEvent, type DragEvent, type ReactElement, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import { Alert, Button, Card, CardBody, CardHeader } from "@/components/ui"
+import { Alert, Button, Card, CardContent, CardHeader } from "@heroui/react"
 import { useDynamicTranslation } from "@/lib/i18n"
-import { REPORT_DEFAULT_ACCENT_COLOR } from "@/lib/constants/graph-colors"
+import { GRAPH_EXPORT_PALETTE } from "@/lib/constants/graph-colors"
 import { showToastInfo, showToastSuccess } from "@/lib/notifications/toast"
 
 interface ITemplateSection {
@@ -67,7 +67,7 @@ export function ReportTemplateEditor(): ReactElement {
     const [brandLogoUrl, setBrandLogoUrl] = useState<string>(
         "https://assets.codenautic.app/logo.svg",
     )
-    const [brandAccentColor, setBrandAccentColor] = useState<string>(REPORT_DEFAULT_ACCENT_COLOR)
+    const [brandAccentColor, setBrandAccentColor] = useState<string>(GRAPH_EXPORT_PALETTE.report.defaultAccentColor)
     const [sections, setSections] =
         useState<ReadonlyArray<ITemplateSection>>(DEFAULT_TEMPLATE_SECTIONS)
     const [draggedSectionId, setDraggedSectionId] = useState<string | undefined>()
@@ -158,7 +158,7 @@ export function ReportTemplateEditor(): ReactElement {
                     {t("reports:templateEditor.title")}
                 </p>
             </CardHeader>
-            <CardBody className="space-y-3">
+            <CardContent className="space-y-3">
                 <div className="grid gap-3 md:grid-cols-3">
                     <label className="space-y-1 text-sm">
                         <span className="font-semibold text-foreground">
@@ -237,7 +237,7 @@ export function ReportTemplateEditor(): ReactElement {
                                     </span>
                                     <Button
                                         size="sm"
-                                        variant="flat"
+                                        variant="secondary"
                                         onPress={(): void => {
                                             handleMoveSection(section.id, "up")
                                         }}
@@ -248,7 +248,7 @@ export function ReportTemplateEditor(): ReactElement {
                                     </Button>
                                     <Button
                                         size="sm"
-                                        variant="flat"
+                                        variant="secondary"
                                         onPress={(): void => {
                                             handleMoveSection(section.id, "down")
                                         }}
@@ -262,26 +262,22 @@ export function ReportTemplateEditor(): ReactElement {
                         ),
                     )}
                 </ul>
-                <Alert
-                    color="primary"
-                    title={t("reports:templateEditor.templatePreviewTitle")}
-                    variant="flat"
-                >
-                    <span aria-label={t("reports:ariaLabel.templateEditor.previewSummary")}>
-                        {templatePreviewSummary}
-                    </span>
+                <Alert status="accent">
+                    <Alert.Title>{t("reports:templateEditor.templatePreviewTitle")}</Alert.Title>
+                    <Alert.Description>
+                        <span aria-label={t("reports:ariaLabel.templateEditor.previewSummary")}>
+                            {templatePreviewSummary}
+                        </span>
+                    </Alert.Description>
                 </Alert>
-                <Button color="primary" onPress={handleSaveTemplate}>
+                <Button variant="primary" onPress={handleSaveTemplate}>
                     {t("reports:templateEditor.saveTemplate")}
                 </Button>
-                <Alert
-                    color="primary"
-                    title={t("reports:templateEditor.templateStatusTitle")}
-                    variant="flat"
-                >
-                    {status}
+                <Alert status="accent">
+                    <Alert.Title>{t("reports:templateEditor.templateStatusTitle")}</Alert.Title>
+                    <Alert.Description>{status}</Alert.Description>
                 </Alert>
-            </CardBody>
+            </CardContent>
         </Card>
     )
 }
