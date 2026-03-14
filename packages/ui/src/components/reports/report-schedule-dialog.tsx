@@ -1,7 +1,7 @@
 import { type ChangeEvent, type ReactElement, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import { Alert, Button, Card, CardBody, CardHeader } from "@/components/ui"
+import { Alert, Button, Card, CardContent, CardHeader } from "@heroui/react"
 import { useDynamicTranslation } from "@/lib/i18n"
 import { NATIVE_FORM } from "@/lib/constants/spacing"
 import { showToastInfo, showToastSuccess } from "@/lib/notifications/toast"
@@ -57,7 +57,7 @@ export function ReportScheduleDialog(): ReactElement {
                     {t("reports:scheduleDialog.title")}
                 </p>
             </CardHeader>
-            <CardBody className="space-y-3">
+            <CardContent className="space-y-3">
                 <div className="flex gap-2">
                     <Button
                         onPress={(): void => {
@@ -122,21 +122,20 @@ export function ReportScheduleDialog(): ReactElement {
                                 <option value="html">html</option>
                             </select>
                         </label>
-                        <Alert
-                            color="primary"
-                            title={t("reports:scheduleDialog.schedulePreviewTitle")}
-                            variant="flat"
-                        >
-                            <span aria-label={t("reports:ariaLabel.scheduleDialog.previewValue")}>
-                                {schedulePreview}
-                            </span>
+                        <Alert status="accent">
+                            <Alert.Title>{t("reports:scheduleDialog.schedulePreviewTitle")}</Alert.Title>
+                            <Alert.Description>
+                                <span aria-label={t("reports:ariaLabel.scheduleDialog.previewValue")}>
+                                    {schedulePreview}
+                                </span>
+                            </Alert.Description>
                         </Alert>
                         <div className="flex gap-2">
-                            <Button color="primary" onPress={handleSaveSchedule}>
+                            <Button variant="primary" onPress={handleSaveSchedule}>
                                 {t("reports:scheduleDialog.saveSchedule")}
                             </Button>
                             <Button
-                                variant="flat"
+                                variant="secondary"
                                 onPress={(): void => {
                                     setIsOpen(false)
                                 }}
@@ -146,14 +145,11 @@ export function ReportScheduleDialog(): ReactElement {
                         </div>
                     </div>
                 )}
-                <Alert
-                    color="primary"
-                    title={t("reports:scheduleDialog.scheduleStatusTitle")}
-                    variant="flat"
-                >
-                    {status}
+                <Alert status="accent">
+                    <Alert.Title>{t("reports:scheduleDialog.scheduleStatusTitle")}</Alert.Title>
+                    <Alert.Description>{status}</Alert.Description>
                 </Alert>
-            </CardBody>
+            </CardContent>
         </Card>
     )
 }

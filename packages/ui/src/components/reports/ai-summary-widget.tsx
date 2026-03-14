@@ -1,7 +1,7 @@
 import { type ReactElement, useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import { Alert, Button, Card, CardBody, CardHeader } from "@/components/ui"
+import { Alert, Button, Card, CardContent, CardHeader } from "@heroui/react"
 import { showToastError, showToastInfo, showToastSuccess } from "@/lib/notifications/toast"
 
 const REGENERATED_SUMMARIES: ReadonlyArray<string> = [
@@ -62,7 +62,7 @@ export function AiSummaryWidget(props: IAiSummaryWidgetProps): ReactElement {
                     {t("reports:aiSummary.title")}
                 </p>
             </CardHeader>
-            <CardBody className="space-y-3">
+            <CardContent className="space-y-3">
                 <p
                     aria-label={t("reports:ariaLabel.aiSummary.summaryText")}
                     className="rounded border border-border bg-surface p-3 text-sm"
@@ -70,17 +70,18 @@ export function AiSummaryWidget(props: IAiSummaryWidgetProps): ReactElement {
                     {summary}
                 </p>
                 <div className="flex gap-2">
-                    <Button color="primary" onPress={handleRegenerate}>
+                    <Button variant="primary" onPress={handleRegenerate}>
                         {t("reports:aiSummary.regenerateSummary")}
                     </Button>
-                    <Button variant="flat" onPress={handleCopySummary}>
+                    <Button variant="secondary" onPress={handleCopySummary}>
                         {t("reports:aiSummary.copySummary")}
                     </Button>
                 </div>
-                <Alert color="primary" title={t("reports:aiSummary.statusTitle")} variant="flat">
-                    {status}
+                <Alert status="accent">
+                    <Alert.Title>{t("reports:aiSummary.statusTitle")}</Alert.Title>
+                    <Alert.Description>{status}</Alert.Description>
                 </Alert>
-            </CardBody>
+            </CardContent>
         </Card>
     )
 }
