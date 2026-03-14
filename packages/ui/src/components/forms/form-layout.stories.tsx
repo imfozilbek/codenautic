@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react"
 
-import { Button, Input } from "@/components/ui"
+import { Button, Input } from "@heroui/react"
 import { FormSection } from "./form-section"
 import { FormGroup } from "./form-group"
 import { FormLayout } from "./form-layout"
@@ -20,20 +20,20 @@ export const Complete: TStory = {
         description: "Configure the automated review pipeline for your repositories.",
         actions: (
             <>
-                <Button color="primary">Save changes</Button>
-                <Button variant="flat">Cancel</Button>
+                <Button variant="primary">Save changes</Button>
+                <Button variant="secondary">Cancel</Button>
             </>
         ),
         children: (
             <>
                 <FormSection heading="General" description="Basic review configuration.">
                     <FormGroup withDivider>
-                        <Input label="Max suggestions per CCR" placeholder="10" />
-                        <Input label="Review timeout (ms)" placeholder="30000" />
+                        <Input aria-label="Max suggestions per CCR" placeholder="10" />
+                        <Input aria-label="Review timeout (ms)" placeholder="30000" />
                     </FormGroup>
                 </FormSection>
                 <FormSection heading="Notifications">
-                    <Input label="Slack channel" placeholder="#code-reviews" />
+                    <Input aria-label="Slack channel" placeholder="#code-reviews" />
                 </FormSection>
             </>
         ),

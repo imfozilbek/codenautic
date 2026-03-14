@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react"
 
-import { Input } from "@/components/ui"
+import { Input } from "@heroui/react"
 import { FormSection } from "./form-section"
 
 const meta: Meta<typeof FormSection> = {
@@ -18,8 +18,8 @@ export const WithDescription: TStory = {
         description: "Configure how code reviews are processed and displayed.",
         children: (
             <div className="space-y-3">
-                <Input label="Max suggestions" placeholder="10" type="number" />
-                <Input label="Review timeout (ms)" placeholder="30000" type="number" />
+                <Input aria-label="Max suggestions" placeholder="10" type="number" />
+                <Input aria-label="Review timeout (ms)" placeholder="30000" type="number" />
             </div>
         ),
     },
@@ -30,7 +30,7 @@ export const WithoutDescription: TStory = {
         heading: "Notifications",
         children: (
             <div className="space-y-3">
-                <Input label="Slack channel" placeholder="#code-reviews" />
+                <Input aria-label="Slack channel" placeholder="#code-reviews" />
             </div>
         ),
     },
