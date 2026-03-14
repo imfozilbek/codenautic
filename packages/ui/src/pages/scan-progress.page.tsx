@@ -3,7 +3,7 @@ import { useEffect, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { useDynamicTranslation } from "@/lib/i18n"
-import { Alert, Button, Card, CardBody, CardHeader } from "@/components/ui"
+import { Alert, Button, Card, CardContent, CardHeader } from "@heroui/react"
 import { PageShell } from "@/components/layout/page-shell"
 import { TYPOGRAPHY } from "@/lib/constants/typography"
 
@@ -394,7 +394,7 @@ export function ScanProgressPage(props: IScanProgressPageProps): ReactElement {
                 <CardHeader>
                     <p className={TYPOGRAPHY.cardTitle}>{t("system:scanProgress.currentStatus")}</p>
                 </CardHeader>
-                <CardBody className="space-y-4">
+                <CardContent className="space-y-4">
                     <div className="rounded-lg border border-border bg-surface p-3">
                         <p className={`mb-2 ${TYPOGRAPHY.cardTitle}`}>
                             {progressState.currentMessage.length > 0
@@ -462,31 +462,29 @@ export function ScanProgressPage(props: IScanProgressPageProps): ReactElement {
                     </div>
 
                     <div className="flex flex-wrap gap-2">
-                        <Button onPress={props.onRetry} size="sm" type="button" variant="light">
+                        <Button onPress={props.onRetry} size="sm" type="button" variant="ghost">
                             {t("system:scanProgress.retryButton")}
                         </Button>
                         <Button
-                            color="danger"
+                            variant="danger"
                             onPress={props.onCancel}
                             size="sm"
                             type="button"
-                            variant="ghost"
                         >
                             {t("system:scanProgress.cancelButton")}
                         </Button>
                         {progressState.isDone && props.repositoryId !== undefined ? (
                             <Button
-                                color="success"
+                                variant="tertiary"
                                 onPress={props.onOpenRepositoryOverview}
                                 size="sm"
                                 type="button"
-                                variant="solid"
                             >
                                 {t("system:scanProgress.openRepositoryOverview")}
                             </Button>
                         ) : null}
                     </div>
-                </CardBody>
+                </CardContent>
             </Card>
 
             <Card>
@@ -504,9 +502,9 @@ export function ScanProgressPage(props: IScanProgressPageProps): ReactElement {
                         </p>
                     </div>
                 </CardHeader>
-                <CardBody>
+                <CardContent>
                     {state.errorMessage !== undefined ? (
-                        <Alert color="danger">{state.errorMessage}</Alert>
+                        <Alert status="danger">{state.errorMessage}</Alert>
                     ) : null}
 
                     <ul
@@ -536,7 +534,7 @@ export function ScanProgressPage(props: IScanProgressPageProps): ReactElement {
                             ),
                         )}
                     </ul>
-                </CardBody>
+                </CardContent>
             </Card>
         </PageShell>
     )
