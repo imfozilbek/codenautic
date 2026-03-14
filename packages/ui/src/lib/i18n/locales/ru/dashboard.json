@@ -163,5 +163,18 @@
         "partialFilesSummaryWithTotal": "Проанализировано файлов до ошибки: {{scanned}} из {{total}}",
         "errorDetails": "Подробнее об ошибке",
         "retryScan": "Повторить сканирование"
+    },
+    "ariaLabel": {
+        "scopeFilters": {
+            "organizationScope": "Область организации",
+            "repositoryScope": "Область репозитория",
+            "teamScope": "Область команды"
+        },
+        "statusDistribution": {
+            "statusLegend": "Легенда статусов"
+        },
+        "dateRangeFilter": {
+            "dateRange": "Диапазон дат дашборда"
+        }
     }
 }

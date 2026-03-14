@@ -166,6 +166,28 @@
         "partialDataState": "Частичные данные",
         "emptyState": "Пустое состояние"
     },
+    "ariaLabel": {
+        "chatPanel": {
+            "close": "Закрыть панель чата"
+        },
+        "chatThreadList": {
+            "threads": "Потоки чата",
+            "filterByRepo": "Фильтр по репозиторию",
+            "filterByCcr": "Фильтр по CCR",
+            "conversationThreads": "Потоки обсуждений"
+        },
+        "activationChecklist": {
+            "steps": "Шаги чеклиста активации"
+        },
+        "explainabilityPanel": {
+            "factors": "Факторы объяснимости",
+            "limitations": "Ограничения объяснимости",
+            "exportSnippet": "Фрагмент экспорта объяснимости"
+        },
+        "sseStreamViewer": {
+            "streamProgress": "Прогресс потока"
+        }
+    },
     "freshness": {
         "stale": "устарело",
         "refreshing": "обновляется",
