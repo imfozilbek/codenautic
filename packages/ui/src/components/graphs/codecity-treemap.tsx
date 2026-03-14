@@ -1366,7 +1366,7 @@ export function CodeCityTreemap(props: ICodeCityTreemapProps): ReactElement {
                 <CardHeader>
                     <h3 className={TYPOGRAPHY.subsectionTitle}>{title}</h3>
                     <p className="text-sm text-foreground-500">{t("code-city:treemap.noFilesForPackage")}</p>
-                    <Button onPress={handleResetSelection}>Back</Button>
+                    <Button color="primary" onPress={handleResetSelection}>Back</Button>
                 </CardHeader>
                 <CardBody>
                     <p>{emptyStateLabel}</p>
@@ -1398,7 +1398,7 @@ export function CodeCityTreemap(props: ICodeCityTreemapProps): ReactElement {
                     <p className="text-sm text-foreground-500">{t("code-city:treemap.colorMetric", { metric: metricLabel })}</p>
                     <div className="flex flex-wrap items-end gap-2">
                         {showBackButton ? (
-                            <Button onPress={handleResetSelection} size="sm">
+                            <Button color="primary" onPress={handleResetSelection} size="sm">
                                 Back
                             </Button>
                         ) : null}
