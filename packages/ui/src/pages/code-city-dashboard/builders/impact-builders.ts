@@ -10,6 +10,26 @@ import type { IWhatIfOption } from "@/components/graphs/what-if-panel"
 import type { IHealthTrendPoint } from "@/components/graphs/health-trend-chart"
 
 /**
+ * Максимум refactoring-таргетов для отображения.
+ */
+const MAX_REFACTORING_TARGETS = 6
+
+/**
+ * Максимум overlay entries (refactoring, impact, timeline).
+ */
+const MAX_OVERLAY_ENTRIES = 5
+
+/**
+ * Максимум impact seeds / graph nodes / what-if options.
+ */
+const MAX_IMPACT_SEEDS = 6
+
+/**
+ * Количество top seeds для расчёта среднего risk score.
+ */
+const RISK_AVERAGE_SAMPLE_SIZE = 3
+
+/**
  * Формирует список refactoring targets с приоритетами ROI/risk/effort.
  *
  * @param files Файлы текущего профиля.
@@ -39,7 +59,7 @@ export function buildRefactoringTargets(
 
     return [...targets]
         .sort((leftTarget, rightTarget): number => rightTarget.roiScore - leftTarget.roiScore)
-        .slice(0, 6)
+        .slice(0, MAX_REFACTORING_TARGETS)
 }
 
 /**
@@ -51,17 +71,19 @@ export function buildRefactoringTargets(
 export function buildCityRefactoringOverlayEntries(
     targets: ReadonlyArray<IRefactoringTargetDescriptor>,
 ): ReadonlyArray<ICityRefactoringOverlayEntry> {
-    return targets.slice(0, 5).map((target, index): ICityRefactoringOverlayEntry => {
-        const priority: ICityRefactoringOverlayEntry["priority"] =
-            index === 0 ? "critical" : index < 3 ? "high" : "medium"
+    return targets
+        .slice(0, MAX_OVERLAY_ENTRIES)
+        .map((target, index): ICityRefactoringOverlayEntry => {
+            const priority: ICityRefactoringOverlayEntry["priority"] =
+                index === 0 ? "critical" : index < 3 ? "high" : "medium"
 
-        return {
-            details: `ROI ${String(target.roiScore)} · Risk ${String(target.riskScore)} · Effort ${String(target.effortScore)}`,
-            fileId: target.fileId,
-            label: target.title,
-            priority,
-        }
-    })
+            return {
+                details: `ROI ${String(target.roiScore)} · Risk ${String(target.riskScore)} · Effort ${String(target.effortScore)}`,
+                fileId: target.fileId,
+                label: target.title,
+                priority,
+            }
+        })
 }
 
 /**
@@ -73,27 +95,29 @@ export function buildCityRefactoringOverlayEntries(
 export function buildRefactoringTimelineTasks(
     targets: ReadonlyArray<IRefactoringTargetDescriptor>,
 ): ReadonlyArray<IRefactoringTimelineTask> {
-    return targets.slice(0, 5).map((target, index, sourceTargets): IRefactoringTimelineTask => {
-        const previousTarget = sourceTargets[index - 1]
-        const previousPreviousTarget = sourceTargets[index - 2]
-        const dependencies: Array<string> = []
+    return targets
+        .slice(0, MAX_OVERLAY_ENTRIES)
+        .map((target, index, sourceTargets): IRefactoringTimelineTask => {
+            const previousTarget = sourceTargets[index - 1]
+            const previousPreviousTarget = sourceTargets[index - 2]
+            const dependencies: Array<string> = []
 
-        if (previousTarget !== undefined) {
-            dependencies.push(previousTarget.title)
-        }
-        if (index >= 3 && previousPreviousTarget !== undefined) {
-            dependencies.push(previousPreviousTarget.title)
-        }
+            if (previousTarget !== undefined) {
+                dependencies.push(previousTarget.title)
+            }
+            if (index >= 3 && previousPreviousTarget !== undefined) {
+                dependencies.push(previousPreviousTarget.title)
+            }
 
-        return {
-            dependencies,
-            durationWeeks: Math.max(1, Math.min(6, Math.round(target.effortScore / 2))),
-            fileId: target.fileId,
-            id: `timeline-${target.id}`,
-            startWeek: index * 2 + 1,
-            title: target.title,
-        }
-    })
+            return {
+                dependencies,
+                durationWeeks: Math.max(1, Math.min(6, Math.round(target.effortScore / 2))),
+                fileId: target.fileId,
+                id: `timeline-${target.id}`,
+                startWeek: index * 2 + 1,
+                title: target.title,
+            }
+        })
 }
 
 /**
@@ -105,7 +129,7 @@ export function buildRefactoringTimelineTasks(
 export function buildImpactAnalysisSeeds(
     files: ReadonlyArray<ICodeCityTreemapFileDescriptor>,
 ): ReadonlyArray<IImpactAnalysisSeed> {
-    return files.slice(0, 6).map((file, index, sourceFiles): IImpactAnalysisSeed => {
+    return files.slice(0, MAX_IMPACT_SEEDS).map((file, index, sourceFiles): IImpactAnalysisSeed => {
         const nextFile = sourceFiles[index + 1] ?? sourceFiles[0]
         const secondNextFile = sourceFiles[index + 2] ?? sourceFiles[1] ?? nextFile
         const bugCount = file.bugIntroductions?.["30d"] ?? 0
@@ -140,7 +164,7 @@ export function buildImpactAnalysisSeeds(
 export function buildCityImpactOverlayEntries(
     seeds: ReadonlyArray<IImpactAnalysisSeed>,
 ): ReadonlyArray<ICityImpactOverlayEntry> {
-    return seeds.slice(0, 5).map((seed): ICityImpactOverlayEntry => {
+    return seeds.slice(0, MAX_OVERLAY_ENTRIES).map((seed): ICityImpactOverlayEntry => {
         return {
             details: `Affected files ${String(seed.affectedFiles.length)} · Tests ${String(seed.affectedTests.length)} · Consumers ${String(seed.affectedConsumers.length)}`,
             fileId: seed.fileId,
@@ -168,8 +192,10 @@ export function buildChangeRiskGaugeModel(
         seeds.length === 0
             ? 0
             : Math.round(
-                  seeds.slice(0, 3).reduce((total, seed): number => total + seed.riskScore, 0) /
-                      Math.min(3, seeds.length),
+                  seeds
+                      .slice(0, RISK_AVERAGE_SAMPLE_SIZE)
+                      .reduce((total, seed): number => total + seed.riskScore, 0) /
+                      Math.min(RISK_AVERAGE_SAMPLE_SIZE, seeds.length),
               )
 
     const historicalPoints = healthTrend.slice(-3).map((point): IChangeRiskGaugePoint => {
@@ -197,7 +223,7 @@ export function buildImpactGraphModel(seeds: ReadonlyArray<IImpactAnalysisSeed>)
     readonly nodes: ReadonlyArray<IImpactGraphNode>
     readonly edges: ReadonlyArray<IImpactGraphEdge>
 } {
-    const nodes = seeds.slice(0, 6).map((seed, index): IImpactGraphNode => {
+    const nodes = seeds.slice(0, MAX_IMPACT_SEEDS).map((seed, index): IImpactGraphNode => {
         return {
             depth: index === 0 ? 0 : 1,
             id: seed.fileId,
@@ -234,7 +260,7 @@ export function buildImpactGraphModel(seeds: ReadonlyArray<IImpactAnalysisSeed>)
 export function buildWhatIfOptions(
     seeds: ReadonlyArray<IImpactAnalysisSeed>,
 ): ReadonlyArray<IWhatIfOption> {
-    return seeds.slice(0, 6).map((seed): IWhatIfOption => {
+    return seeds.slice(0, MAX_IMPACT_SEEDS).map((seed): IWhatIfOption => {
         return {
             affectedCount:
                 seed.affectedFiles.length +

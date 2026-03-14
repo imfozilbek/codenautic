@@ -6,6 +6,16 @@ import type { IHotAreaHighlightDescriptor } from "@/components/graphs/hot-area-h
 import { CODE_CITY_DASHBOARD_ONBOARDING_AREAS } from "../code-city-dashboard-mock-data"
 
 /**
+ * Максимум файлов в цепочке пути исследования.
+ */
+const MAX_PATH_CHAIN_FILES = 3
+
+/**
+ * Максимум горячих зон для подсветки на карте.
+ */
+const MAX_HOT_AREA_HIGHLIGHTS = 4
+
+/**
  * Формирует модули прогресса onboarding из списка исследованных областей.
  *
  * @param exploredAreaIds Идентификаторы уже исследованных областей.
@@ -35,17 +45,17 @@ export function buildExploreModePaths(
 ): ReadonlyArray<IExploreModePathDescriptor> {
     const topBackendFiles = files
         .filter((file): boolean => /api|service|worker|backend/i.test(file.path))
-        .slice(0, 3)
+        .slice(0, MAX_PATH_CHAIN_FILES)
         .map((file): string => file.id)
     const topFrontendFiles = files
         .filter((file): boolean => /ui|component|page|frontend/i.test(file.path))
-        .slice(0, 3)
+        .slice(0, MAX_PATH_CHAIN_FILES)
         .map((file): string => file.id)
     const topArchitectureFiles = files
         .filter((file): boolean => /domain|core|graph|architecture/i.test(file.path))
-        .slice(0, 3)
+        .slice(0, MAX_PATH_CHAIN_FILES)
         .map((file): string => file.id)
-    const defaultChain = files.slice(0, 3).map((file): string => file.id)
+    const defaultChain = files.slice(0, MAX_PATH_CHAIN_FILES).map((file): string => file.id)
 
     return [
         {
@@ -89,7 +99,7 @@ export function buildHotAreaHighlights(
                 (rightFile.complexity ?? 0) + (rightFile.bugIntroductions?.["30d"] ?? 0) * 2
             return rightRiskScore - leftRiskScore
         })
-        .slice(0, 4)
+        .slice(0, MAX_HOT_AREA_HIGHLIGHTS)
 
     return rankedFiles.map((file, index): IHotAreaHighlightDescriptor => {
         const severity: IHotAreaHighlightDescriptor["severity"] =

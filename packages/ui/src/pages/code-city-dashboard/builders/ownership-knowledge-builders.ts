@@ -28,6 +28,16 @@ import type {
 import { resolveDistrictName, resolveDashboardMetricLabel } from "../code-city-dashboard-utils"
 
 /**
+ * Максимум серий тренда bus factor для графика.
+ */
+const MAX_BUS_FACTOR_TREND_SERIES = 5
+
+/**
+ * Максимум событий ownership transition для отображения.
+ */
+const MAX_OWNERSHIP_TRANSITION_EVENTS = 6
+
+/**
  * Формирует ownership legend entries для overlay по данным профиля.
  *
  * @param files Файлы текущего профиля.
@@ -238,49 +248,51 @@ export function buildBusFactorTrendSeries(
         "2026-02-01T00:00:00.000Z",
     ] as const
 
-    return entries.slice(0, 5).map((entry, index): IBusFactorTrendSeries => {
-        const baseBusFactor = clampBusFactorValue(entry.busFactor)
-        const points = timeline.map((timestamp, pointIndex) => {
-            const pointValue = (() => {
-                if (pointIndex === 0) {
-                    return clampBusFactorValue(baseBusFactor + 1)
-                }
-                if (pointIndex === 1) {
+    return entries
+        .slice(0, MAX_BUS_FACTOR_TREND_SERIES)
+        .map((entry, index): IBusFactorTrendSeries => {
+            const baseBusFactor = clampBusFactorValue(entry.busFactor)
+            const points = timeline.map((timestamp, pointIndex) => {
+                const pointValue = (() => {
+                    if (pointIndex === 0) {
+                        return clampBusFactorValue(baseBusFactor + 1)
+                    }
+                    if (pointIndex === 1) {
+                        return baseBusFactor
+                    }
+                    if (pointIndex === 2) {
+                        return clampBusFactorValue(baseBusFactor - 1)
+                    }
+                    if (pointIndex === 3) {
+                        return clampBusFactorValue(baseBusFactor - 1 + (index % 2))
+                    }
                     return baseBusFactor
-                }
-                if (pointIndex === 2) {
-                    return clampBusFactorValue(baseBusFactor - 1)
-                }
-                if (pointIndex === 3) {
-                    return clampBusFactorValue(baseBusFactor - 1 + (index % 2))
-                }
-                return baseBusFactor
-            })()
+                })()
 
-            const annotation = (() => {
-                if (pointIndex === 1) {
-                    return "Team rotation"
+                const annotation = (() => {
+                    if (pointIndex === 1) {
+                        return "Team rotation"
+                    }
+                    if (pointIndex === 3 && index % 2 === 1) {
+                        return "New maintainer onboarded"
+                    }
+                    return undefined
+                })()
+
+                return {
+                    annotation,
+                    busFactor: pointValue,
+                    timestamp,
                 }
-                if (pointIndex === 3 && index % 2 === 1) {
-                    return "New maintainer onboarded"
-                }
-                return undefined
-            })()
+            })
 
             return {
-                annotation,
-                busFactor: pointValue,
-                timestamp,
+                moduleId: entry.districtId,
+                moduleLabel: entry.districtLabel,
+                points,
+                primaryFileId: entry.primaryFileId,
             }
         })
-
-        return {
-            moduleId: entry.districtId,
-            moduleLabel: entry.districtLabel,
-            points,
-            primaryFileId: entry.primaryFileId,
-        }
-    })
 }
 
 /**
@@ -571,7 +583,7 @@ export function buildOwnershipTransitionEvents(
     )
 
     return ownership
-        .slice(0, 6)
+        .slice(0, MAX_OWNERSHIP_TRANSITION_EVENTS)
         .map((entry, index): IOwnershipTransitionEvent | undefined => {
             const file = fileById.get(entry.fileId)
             if (file === undefined) {
