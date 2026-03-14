@@ -30,8 +30,8 @@ function createTestModel(
             totalContributors: 5,
         },
         owners: [
-            { ownerName: "Alice", color: "#ff0000", fileCount: 12 },
-            { ownerName: "Bob", color: "#00ff00", fileCount: 8 },
+            { ownerName: "Neo", color: "#ff0000", fileCount: 12 },
+            { ownerName: "Trinity", color: "#00ff00", fileCount: 8 },
         ],
         districts: [
             { districtLabel: "src/api", busFactor: 1, riskLabel: "critical" },
@@ -92,9 +92,9 @@ describe("buildKnowledgeMapExportSvg", (): void => {
     it("when model has owners, then renders ownership legend entries", (): void => {
         const model = createTestModel()
         const svg = buildKnowledgeMapExportSvg(model)
-        expect(svg).toContain("Alice")
+        expect(svg).toContain("Neo")
         expect(svg).toContain("files 12")
-        expect(svg).toContain("Bob")
+        expect(svg).toContain("Trinity")
         expect(svg).toContain("files 8")
         expect(svg).toContain('fill="#ff0000"')
         expect(svg).toContain('fill="#00ff00"')
@@ -102,7 +102,7 @@ describe("buildKnowledgeMapExportSvg", (): void => {
 
     it("when owner color is invalid, then uses fallback color", (): void => {
         const model = createTestModel({
-            owners: [{ ownerName: "Charlie", color: "not-a-color", fileCount: 5 }],
+            owners: [{ ownerName: "Morpheus", color: "not-a-color", fileCount: 5 }],
         })
         const svg = buildKnowledgeMapExportSvg(model)
         expect(svg).toContain(`fill="${KNOWLEDGE_MAP_FALLBACK_COLOR}"`)
@@ -110,7 +110,7 @@ describe("buildKnowledgeMapExportSvg", (): void => {
 
     it("when owner color is valid 3-char hex, then uses it directly", (): void => {
         const model = createTestModel({
-            owners: [{ ownerName: "Dan", color: "#f00", fileCount: 3 }],
+            owners: [{ ownerName: "Cypher", color: "#f00", fileCount: 3 }],
         })
         const svg = buildKnowledgeMapExportSvg(model)
         expect(svg).toContain('fill="#f00"')
