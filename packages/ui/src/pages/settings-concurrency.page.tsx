@@ -279,7 +279,7 @@ export function SettingsConcurrencyPage(): ReactElement {
                     }}
                 />
                 <select
-                    aria-label="Concurrency severity threshold"
+                    aria-label={t("settings:ariaLabel.concurrency.severityThreshold")}
                     className={NATIVE_FORM.select}
                     id="concurrency-severity"
                     value={localDraft.values.severityThreshold}
@@ -303,7 +303,7 @@ export function SettingsConcurrencyPage(): ReactElement {
                     <option value="high">high</option>
                 </select>
                 <Switch
-                    aria-label="Require reviewer approval"
+                    aria-label={t("settings:ariaLabel.concurrency.requireReviewerApproval")}
                     isSelected={localDraft.values.requireReviewerApproval}
                     onValueChange={(value): void => {
                         setLocalDraft(
@@ -339,7 +339,10 @@ export function SettingsConcurrencyPage(): ReactElement {
                         {t("settings:concurrency.noConcurrencyDecisionsDescription")}
                     </Alert>
                 ) : (
-                    <ul aria-label="Concurrency audit list" className="space-y-2">
+                    <ul
+                        aria-label={t("settings:ariaLabel.concurrency.auditList")}
+                        className="space-y-2"
+                    >
                         {audit.map(
                             (entry): ReactElement => (
                                 <li
@@ -374,7 +377,10 @@ export function SettingsConcurrencyPage(): ReactElement {
                         <p className="text-sm text-text-tertiary">
                             {t("settings:concurrency.conflictDescription")}
                         </p>
-                        <ul aria-label="Conflict diff list" className="space-y-2">
+                        <ul
+                            aria-label={t("settings:ariaLabel.concurrency.conflictDiffList")}
+                            className="space-y-2"
+                        >
                             {diffRows.map(
                                 (row): ReactElement => (
                                     <li

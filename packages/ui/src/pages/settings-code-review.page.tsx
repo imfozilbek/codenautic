@@ -414,7 +414,7 @@ export function SettingsCodeReviewPage(): ReactElement {
                 </FormGroup>
                 <FormGroup>
                     <select
-                        aria-label="Summary detail level"
+                        aria-label={t("settings:ariaLabel.codeReview.summaryDetailLevel")}
                         className={NATIVE_FORM.select}
                         id="ccr-summary-detail-level"
                         value={ccrSummarySettings.detailLevel}
@@ -536,7 +536,7 @@ export function SettingsCodeReviewPage(): ReactElement {
                         {t("settings:codeReview.enableIdeSync")}
                     </label>
                     <select
-                        aria-label="IDE provider scope"
+                        aria-label={t("settings:ariaLabel.codeReview.ideProviderScope")}
                         className={NATIVE_FORM.select}
                         id="ide-sync-provider"
                         value={ideSyncSettings.provider}
