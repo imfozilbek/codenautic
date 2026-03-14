@@ -89,8 +89,9 @@ export function writeLocalStorageItem(storageKey: string, value: string): void {
 
     try {
         storage.setItem(storageKey, value)
-    } catch {
-        return
+    } catch (error: unknown) {
+        // eslint-disable-next-line no-console -- infrastructure-level storage error, ILogger not available here
+        console.warn(`[theme-storage] Failed to write "${storageKey}":`, error)
     }
 }
 

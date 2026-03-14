@@ -235,17 +235,20 @@ export function ThemeProvider(props: TThemeProviderProps): ReactElement {
     })
     useThemeStorageEffect(setMode, setPreset)
 
+    const contextValue = useMemo(
+        () => ({
+            mode,
+            preset,
+            presets: THEME_PRESETS,
+            resolvedMode,
+            setMode,
+            setPreset,
+        }),
+        [mode, preset, resolvedMode, setMode, setPreset],
+    )
+
     return (
-        <ThemeContext.Provider
-            value={{
-                mode,
-                preset,
-                presets: THEME_PRESETS,
-                resolvedMode,
-                setMode,
-                setPreset,
-            }}
-        >
+        <ThemeContext.Provider value={contextValue}>
             {children}
         </ThemeContext.Provider>
     )

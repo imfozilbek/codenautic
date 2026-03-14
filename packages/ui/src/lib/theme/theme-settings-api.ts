@@ -84,7 +84,7 @@ export async function fetchThemeProfileFromApi(
         const response = await client.request<unknown>({
             method: "GET",
             path: endpoint,
-            credentials: "include",
+            credentials: "same-origin",
             signal,
         })
 
@@ -131,7 +131,7 @@ export async function saveThemeProfileToApi(
                 method,
                 path: endpoint,
                 body: payload,
-                credentials: "include",
+                credentials: "same-origin",
                 signal,
             })
             return true
