@@ -539,7 +539,7 @@ export function MyWorkPage(): ReactElement {
                     <div className="flex flex-wrap gap-2">
                         <select
                             aria-label={t("dashboard:myWork.triageScopeAriaLabel")}
-                            className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground md:max-w-[220px]"
+                            className="w-full rounded-lg border border-border/50 bg-surface/80 px-3 py-2 text-sm text-foreground outline-none backdrop-blur-sm transition-colors duration-150 focus:border-primary/50 focus:ring-1 focus:ring-primary/20 md:max-w-[220px]"
                             value={scope}
                             onChange={(event): void => {
                                 const nextScope = event.currentTarget.value
@@ -559,7 +559,7 @@ export function MyWorkPage(): ReactElement {
 
                         <select
                             aria-label={t("dashboard:myWork.reviewerRoleAriaLabel")}
-                            className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground md:max-w-[220px]"
+                            className="w-full rounded-lg border border-border/50 bg-surface/80 px-3 py-2 text-sm text-foreground outline-none backdrop-blur-sm transition-colors duration-150 focus:border-primary/50 focus:ring-1 focus:ring-primary/20 md:max-w-[220px]"
                             value={reviewerRole}
                             onChange={(event): void => {
                                 const nextRole = event.currentTarget.value
