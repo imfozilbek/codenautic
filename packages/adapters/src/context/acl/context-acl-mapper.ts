@@ -1,6 +1,8 @@
 import type {
     IAsanaProjectHierarchy,
     IAsanaTask,
+    IClickUpCustomField,
+    IClickUpTask,
     IExternalContext,
     IJiraTicket,
     ILinearIssue,
@@ -94,6 +96,34 @@ export function mapExternalAsanaTask(payload: unknown): IAsanaTask {
 }
 
 /**
+ * Normalizes external ClickUp payload to shared task DTO.
+ *
+ * @param payload External ClickUp payload.
+ * @returns Normalized ClickUp task DTO.
+ */
+export function mapExternalClickUpTask(payload: unknown): IClickUpTask {
+    const root = toRecord(payload) ?? EMPTY_RECORD
+    const description = resolveClickUpDescription(root)
+    const assignee = resolveClickUpAssignee(root)
+    const dueDate = resolveClickUpDueDate(root)
+    const listName = resolveClickUpListName(root)
+    const tags = resolveClickUpTags(root)
+    const customFields = resolveClickUpCustomFields(root)
+
+    return {
+        id: readIdentifier(root, ["id", "taskId"], "UNKNOWN"),
+        title: readText(root, ["name", "title"], "(no title)"),
+        status: resolveClickUpStatus(root),
+        ...(description !== undefined ? {description} : {}),
+        ...(assignee !== undefined ? {assignee} : {}),
+        ...(dueDate !== undefined ? {dueDate} : {}),
+        ...(listName !== undefined ? {listName} : {}),
+        ...(tags !== undefined ? {tags} : {}),
+        ...(customFields !== undefined ? {customFields} : {}),
+    }
+}
+
+/**
  * Normalizes external Sentry payload to shared error DTO.
  *
  * @param payload External Sentry payload.
@@ -182,6 +212,30 @@ export function mapAsanaContext(payload: unknown): IExternalContext {
             ...(task.dueDate !== undefined ? {dueDate: task.dueDate} : {}),
             ...(task.projectHierarchy !== undefined ? {projectHierarchy: task.projectHierarchy} : {}),
             ...(task.tags !== undefined ? {tags: task.tags} : {}),
+        },
+        fetchedAt: resolveFetchedAt(root),
+    }
+}
+
+/**
+ * Normalizes external ClickUp context payload.
+ *
+ * @param payload External ClickUp payload.
+ * @returns Shared external context.
+ */
+export function mapClickUpContext(payload: unknown): IExternalContext {
+    const root = toRecord(payload) ?? EMPTY_RECORD
+    const task = mapExternalClickUpTask(payload)
+
+    return {
+        source: "CLICKUP",
+        data: {
+            task,
+            ...(task.assignee !== undefined ? {assignee: task.assignee} : {}),
+            ...(task.dueDate !== undefined ? {dueDate: task.dueDate} : {}),
+            ...(task.listName !== undefined ? {listName: task.listName} : {}),
+            ...(task.tags !== undefined ? {tags: task.tags} : {}),
+            ...(task.customFields !== undefined ? {customFields: task.customFields} : {}),
         },
         fetchedAt: resolveFetchedAt(root),
     }
@@ -598,6 +652,316 @@ function mapAsanaProjectHierarchy(
  */
 function buildAsanaProjectHierarchyKey(hierarchy: IAsanaProjectHierarchy): string {
     return `${hierarchy.projectId}::${hierarchy.sectionId ?? ""}`
+}
+
+/**
+ * Resolves normalized ClickUp task status.
+ *
+ * @param root ClickUp root payload.
+ * @returns Status label.
+ */
+function resolveClickUpStatus(root: Readonly<Record<string, unknown>>): string {
+    const status = toRecord(root["status"])
+    const resolvedStatus = readText(status, ["status", "name", "type"], readText(root, ["status"]))
+
+    return resolvedStatus.length > 0 ? resolvedStatus : "unknown"
+}
+
+/**
+ * Resolves normalized ClickUp task description.
+ *
+ * @param root ClickUp root payload.
+ * @returns Description when available.
+ */
+function resolveClickUpDescription(root: Readonly<Record<string, unknown>>): string | undefined {
+    return extractRichText(root["description"] ?? root["text_content"] ?? root["markdown_description"])
+}
+
+/**
+ * Resolves normalized ClickUp assignee.
+ *
+ * @param root ClickUp root payload.
+ * @returns Assignee name when available.
+ */
+function resolveClickUpAssignee(root: Readonly<Record<string, unknown>>): string | undefined {
+    const assignees = toArray(root["assignees"])
+    for (const assigneeCandidate of assignees) {
+        const assignee = toRecord(assigneeCandidate)
+        if (assignee === null) {
+            continue
+        }
+
+        const assigneeName = readText(assignee, ["username", "name", "email"])
+        if (assigneeName.length > 0) {
+            return assigneeName
+        }
+    }
+
+    const assignee = toRecord(root["assignee"])
+    const fallbackAssigneeName = readText(
+        assignee,
+        ["username", "name", "email"],
+        readText(root, ["assigneeName"]),
+    )
+
+    return fallbackAssigneeName.length > 0 ? fallbackAssigneeName : undefined
+}
+
+/**
+ * Resolves ClickUp due date in ISO format.
+ *
+ * @param root ClickUp root payload.
+ * @returns ISO due date when available.
+ */
+function resolveClickUpDueDate(root: Readonly<Record<string, unknown>>): string | undefined {
+    const dueDateCandidates: readonly unknown[] = [
+        root["due_date"],
+        root["dueDate"],
+        root["due_at"],
+        root["dueOn"],
+    ]
+
+    for (const dueDateCandidate of dueDateCandidates) {
+        const dueDate = normalizeClickUpDate(dueDateCandidate)
+        if (dueDate !== undefined) {
+            return dueDate
+        }
+    }
+
+    return undefined
+}
+
+/**
+ * Resolves ClickUp parent list name.
+ *
+ * @param root ClickUp root payload.
+ * @returns List name when available.
+ */
+function resolveClickUpListName(root: Readonly<Record<string, unknown>>): string | undefined {
+    const list = toRecord(root["list"])
+    const listName = readText(list, ["name"], readText(root, ["listName"]))
+
+    return listName.length > 0 ? listName : undefined
+}
+
+/**
+ * Resolves normalized ClickUp task tags.
+ *
+ * @param root ClickUp root payload.
+ * @returns Tag labels when available.
+ */
+function resolveClickUpTags(root: Readonly<Record<string, unknown>>): readonly string[] | undefined {
+    const tags: string[] = []
+
+    for (const tagCandidate of toArray(root["tags"])) {
+        if (typeof tagCandidate === "string") {
+            const normalizedTag = normalizeSingleLineText(tagCandidate)
+            if (normalizedTag.length > 0) {
+                tags.push(normalizedTag)
+            }
+
+            continue
+        }
+
+        const tag = toRecord(tagCandidate)
+        const tagName = readText(tag, ["name", "tag"])
+        if (tagName.length > 0) {
+            tags.push(tagName)
+        }
+    }
+
+    if (tags.length === 0) {
+        return undefined
+    }
+
+    return deduplicateTextList(tags)
+}
+
+/**
+ * Resolves normalized ClickUp custom fields.
+ *
+ * @param root ClickUp root payload.
+ * @returns Custom fields when available.
+ */
+function resolveClickUpCustomFields(
+    root: Readonly<Record<string, unknown>>,
+): readonly IClickUpCustomField[] | undefined {
+    const customFields: IClickUpCustomField[] = []
+    const seen = new Set<string>()
+
+    for (const customFieldCandidate of toArray(root["custom_fields"])) {
+        const customField = toRecord(customFieldCandidate)
+        if (customField === null) {
+            continue
+        }
+
+        const id = readIdentifier(customField, ["id", "custom_field_id"])
+        const name = readText(customField, ["name", "label"])
+        const value = normalizeClickUpCustomFieldValue(customField)
+
+        if (id.length === 0 || name.length === 0 || value === undefined || seen.has(id)) {
+            continue
+        }
+
+        seen.add(id)
+        customFields.push({
+            id,
+            name,
+            value,
+        })
+    }
+
+    return customFields.length > 0 ? customFields : undefined
+}
+
+/**
+ * Resolves normalized ClickUp custom-field value.
+ *
+ * @param customField ClickUp custom-field payload.
+ * @returns String value when available.
+ */
+function normalizeClickUpCustomFieldValue(
+    customField: Readonly<Record<string, unknown>>,
+): string | undefined {
+    const rawValue = customField["value"]
+    if (rawValue === undefined || rawValue === null) {
+        return undefined
+    }
+
+    if (Array.isArray(rawValue)) {
+        const values = rawValue
+            .map((entry) => {
+                return normalizeClickUpCustomFieldOption(customField, entry)
+                    ?? normalizeClickUpValueFragment(entry)
+            })
+            .filter((entry): entry is string => {
+                return entry !== undefined
+            })
+
+        if (values.length === 0) {
+            return undefined
+        }
+
+        return values.join(", ")
+    }
+
+    return normalizeClickUpCustomFieldOption(customField, rawValue)
+        ?? normalizeClickUpValueFragment(rawValue)
+}
+
+/**
+ * Resolves ClickUp dropdown-like custom-field values using option metadata.
+ *
+ * @param customField ClickUp custom-field payload.
+ * @param rawValue Raw field value.
+ * @returns Option label when available.
+ */
+function normalizeClickUpCustomFieldOption(
+    customField: Readonly<Record<string, unknown>>,
+    rawValue: unknown,
+): string | undefined {
+    const rawIdentifier = normalizeOptionalTextValue(rawValue)
+    if (rawIdentifier === undefined) {
+        return undefined
+    }
+
+    const typeConfig = toRecord(customField["type_config"])
+    for (const optionCandidate of toArray(typeConfig?.["options"])) {
+        const option = toRecord(optionCandidate)
+        if (option === null) {
+            continue
+        }
+
+        const optionId = readIdentifier(option, ["id"])
+        const optionName = readText(option, ["name", "label"])
+        if (optionId === rawIdentifier && optionName.length > 0) {
+            return optionName
+        }
+    }
+
+    return undefined
+}
+
+/**
+ * Normalizes generic ClickUp custom-field value fragment.
+ *
+ * @param value Raw value fragment.
+ * @returns Normalized value string.
+ */
+function normalizeClickUpValueFragment(value: unknown): string | undefined {
+    if (typeof value === "string") {
+        const normalized = normalizeSingleLineText(value)
+        return normalized.length > 0 ? normalized : undefined
+    }
+
+    if (typeof value === "number" && Number.isFinite(value)) {
+        return String(value)
+    }
+
+    if (typeof value === "boolean") {
+        return value ? "true" : "false"
+    }
+
+    const richTextValue = extractRichText(value)
+    if (richTextValue !== undefined && richTextValue.length > 0) {
+        return richTextValue
+    }
+
+    return undefined
+}
+
+/**
+ * Normalizes ClickUp date candidates into ISO format.
+ *
+ * @param value Raw date candidate.
+ * @returns ISO date string when valid.
+ */
+function normalizeClickUpDate(value: unknown): string | undefined {
+    if (typeof value === "number" && Number.isFinite(value)) {
+        const parsedFromNumber = new Date(value)
+        return Number.isNaN(parsedFromNumber.valueOf()) ? undefined : parsedFromNumber.toISOString()
+    }
+
+    if (typeof value !== "string") {
+        return undefined
+    }
+
+    const normalized = value.trim()
+    if (normalized.length === 0) {
+        return undefined
+    }
+
+    if (/^\d+$/.test(normalized)) {
+        const parsedTimestamp = Number(normalized)
+        if (Number.isFinite(parsedTimestamp)) {
+            const parsedFromTimestamp = new Date(parsedTimestamp)
+            if (Number.isNaN(parsedFromTimestamp.valueOf()) === false) {
+                return parsedFromTimestamp.toISOString()
+            }
+        }
+    }
+
+    const parsedDate = new Date(normalized)
+    return Number.isNaN(parsedDate.valueOf()) ? undefined : parsedDate.toISOString()
+}
+
+/**
+ * Normalizes raw value to text for option matching.
+ *
+ * @param value Raw value.
+ * @returns Trimmed text.
+ */
+function normalizeOptionalTextValue(value: unknown): string | undefined {
+    if (typeof value === "string") {
+        const normalizedText = value.trim()
+        return normalizedText.length > 0 ? normalizedText : undefined
+    }
+
+    if (typeof value === "number" && Number.isFinite(value)) {
+        return String(value)
+    }
+
+    return undefined
 }
 
 /**
@@ -1548,6 +1912,8 @@ function resolveFetchedAt(root: Readonly<Record<string, unknown>>): Date {
         root["fetchedAt"],
         root["modified_at"],
         root["modifiedAt"],
+        root["date_updated"],
+        root["dateUpdated"],
         root["updatedAt"],
         root["updated_at"],
         root["lastSeen"],

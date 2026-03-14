@@ -1,6 +1,7 @@
 import type {
     IAntiCorruptionLayer,
     IAsanaTask,
+    IClickUpTask,
     IExternalContext,
     IJiraTicket,
     ILinearIssue,
@@ -9,7 +10,9 @@ import type {
 
 import {
     mapAsanaContext,
+    mapClickUpContext,
     mapExternalAsanaTask,
+    mapExternalClickUpTask,
     mapExternalJiraTicket,
     mapExternalLinearIssue,
     mapExternalSentryError,
@@ -79,6 +82,26 @@ export class AsanaTaskAcl implements IAntiCorruptionLayer<unknown, IAsanaTask> {
 }
 
 /**
+ * ClickUp task ACL adapter.
+ */
+export class ClickUpTaskAcl implements IAntiCorruptionLayer<unknown, IClickUpTask> {
+    /**
+     * Creates ClickUp task ACL adapter.
+     */
+    public constructor() {}
+
+    /**
+     * Converts external ClickUp payload to domain DTO.
+     *
+     * @param external External ClickUp payload.
+     * @returns Domain ClickUp task DTO.
+     */
+    public toDomain(external: unknown): IClickUpTask {
+        return mapExternalClickUpTask(external)
+    }
+}
+
+/**
  * Jira context ACL adapter.
  */
 export class JiraContextAcl implements IAntiCorruptionLayer<unknown, IExternalContext> {
@@ -135,6 +158,26 @@ export class AsanaContextAcl implements IAntiCorruptionLayer<unknown, IExternalC
      */
     public toDomain(external: unknown): IExternalContext {
         return mapAsanaContext(external)
+    }
+}
+
+/**
+ * ClickUp context ACL adapter.
+ */
+export class ClickUpContextAcl implements IAntiCorruptionLayer<unknown, IExternalContext> {
+    /**
+     * Creates ClickUp context ACL adapter.
+     */
+    public constructor() {}
+
+    /**
+     * Converts external ClickUp payload to shared external context.
+     *
+     * @param external External ClickUp payload.
+     * @returns Shared external context.
+     */
+    public toDomain(external: unknown): IExternalContext {
+        return mapClickUpContext(external)
     }
 }
 

@@ -23,6 +23,8 @@ export {
     type ExternalContextSource,
     type IAsanaProjectHierarchy,
     type IAsanaTask,
+    type IClickUpCustomField,
+    type IClickUpTask,
     type IExternalContext,
     type IJiraTicket,
     type ILinearIssue,

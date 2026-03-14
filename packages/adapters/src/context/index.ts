@@ -6,6 +6,8 @@ export {CONTEXT_TOKENS} from "./context.tokens"
 export {
     AsanaContextAcl,
     AsanaTaskAcl,
+    ClickUpContextAcl,
+    ClickUpTaskAcl,
     JiraContextAcl,
     JiraTicketAcl,
     LinearContextAcl,
@@ -13,7 +15,9 @@ export {
     SentryContextAcl,
     SentryErrorAcl,
     mapAsanaContext,
+    mapClickUpContext,
     mapExternalAsanaTask,
+    mapExternalClickUpTask,
     mapExternalJiraTicket,
     mapExternalLinearIssue,
     mapExternalSentryError,
@@ -29,6 +33,14 @@ export {
     type IAsanaProviderOptions,
     type IAsanaResponseHeaders,
 } from "./asana-provider"
+export {
+    ClickUpProvider,
+    type IClickUpApiClient,
+    type IClickUpApiResponse,
+    type IClickUpGetTaskRequest,
+    type IClickUpProviderOptions,
+    type IClickUpResponseHeaders,
+} from "./clickup-provider"
 export {
     JiraProvider,
     type IJiraApiClient,
@@ -65,6 +77,10 @@ export {
     AsanaProviderError,
     type IAsanaProviderErrorDetails,
 } from "./asana-provider.error"
+export {
+    ClickUpProviderError,
+    type IClickUpProviderErrorDetails,
+} from "./clickup-provider.error"
 export {
     JiraProviderError,
     type IJiraProviderErrorDetails,

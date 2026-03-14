@@ -3,6 +3,8 @@ import {describe, expect, test} from "bun:test"
 import {
     AsanaContextAcl,
     AsanaTaskAcl,
+    ClickUpContextAcl,
+    ClickUpTaskAcl,
     JiraContextAcl,
     JiraTicketAcl,
     LinearContextAcl,
@@ -10,7 +12,9 @@ import {
     SentryContextAcl,
     SentryErrorAcl,
     mapAsanaContext,
+    mapClickUpContext,
     mapExternalAsanaTask,
+    mapExternalClickUpTask,
     mapExternalJiraTicket,
     mapExternalLinearIssue,
     mapExternalSentryError,
@@ -970,6 +974,220 @@ describe("Context ACL contract", () => {
         })
     })
 
+    test("maps ClickUp task details, tags and custom fields into deterministic DTO", () => {
+        const task = mapExternalClickUpTask({
+            id: "task-44",
+            name: "  Stabilize clickup context provider  ",
+            status: {
+                status: "  in progress  ",
+            },
+            description: "  Preserve list metadata and custom fields.  ",
+            assignees: [
+                {
+                    username: "  Alan Turing  ",
+                },
+            ],
+            due_date: "1762819200000",
+            list: {
+                name: "  Integration Backlog  ",
+            },
+            tags: [
+                {
+                    name: "  integration  ",
+                },
+                "context",
+            ],
+            custom_fields: [
+                {
+                    id: "cf-priority",
+                    name: "Priority",
+                    value: "high",
+                },
+                {
+                    id: "cf-stage",
+                    name: "Stage",
+                    value: "opt-2",
+                    type_config: {
+                        options: [
+                            {
+                                id: "opt-1",
+                                name: "Todo",
+                            },
+                            {
+                                id: "opt-2",
+                                name: "In Progress",
+                            },
+                        ],
+                    },
+                },
+            ],
+        })
+        const context = mapClickUpContext({
+            id: "task-44",
+            name: "Stabilize clickup context provider",
+            status: {
+                status: "in progress",
+            },
+            description: "Preserve list metadata and custom fields.",
+            assignees: [
+                {
+                    username: "Alan Turing",
+                },
+            ],
+            due_date: "1762819200000",
+            list: {
+                name: "Integration Backlog",
+            },
+            tags: [
+                {
+                    name: "integration",
+                },
+                "context",
+            ],
+            custom_fields: [
+                {
+                    id: "cf-priority",
+                    name: "Priority",
+                    value: "high",
+                },
+                {
+                    id: "cf-stage",
+                    name: "Stage",
+                    value: "opt-2",
+                    type_config: {
+                        options: [
+                            {
+                                id: "opt-2",
+                                name: "In Progress",
+                            },
+                        ],
+                    },
+                },
+            ],
+            date_updated: "2026-03-12T08:00:00.000Z",
+        })
+
+        expect(task).toEqual({
+            id: "task-44",
+            title: "Stabilize clickup context provider",
+            status: "in progress",
+            description: "Preserve list metadata and custom fields.",
+            assignee: "Alan Turing",
+            dueDate: "2025-11-11T00:00:00.000Z",
+            listName: "Integration Backlog",
+            tags: [
+                "integration",
+                "context",
+            ],
+            customFields: [
+                {
+                    id: "cf-priority",
+                    name: "Priority",
+                    value: "high",
+                },
+                {
+                    id: "cf-stage",
+                    name: "Stage",
+                    value: "In Progress",
+                },
+            ],
+        })
+        expect(context).toEqual({
+            source: "CLICKUP",
+            data: {
+                task: {
+                    id: "task-44",
+                    title: "Stabilize clickup context provider",
+                    status: "in progress",
+                    description: "Preserve list metadata and custom fields.",
+                    assignee: "Alan Turing",
+                    dueDate: "2025-11-11T00:00:00.000Z",
+                    listName: "Integration Backlog",
+                    tags: [
+                        "integration",
+                        "context",
+                    ],
+                    customFields: [
+                        {
+                            id: "cf-priority",
+                            name: "Priority",
+                            value: "high",
+                        },
+                        {
+                            id: "cf-stage",
+                            name: "Stage",
+                            value: "In Progress",
+                        },
+                    ],
+                },
+                assignee: "Alan Turing",
+                dueDate: "2025-11-11T00:00:00.000Z",
+                listName: "Integration Backlog",
+                tags: [
+                    "integration",
+                    "context",
+                ],
+                customFields: [
+                    {
+                        id: "cf-priority",
+                        name: "Priority",
+                        value: "high",
+                    },
+                    {
+                        id: "cf-stage",
+                        name: "Stage",
+                        value: "In Progress",
+                    },
+                ],
+            },
+            fetchedAt: new Date("2026-03-12T08:00:00.000Z"),
+        })
+    })
+
+    test("normalizes malformed ClickUp payload without breaking domain model", () => {
+        const task = mapExternalClickUpTask({
+            id: 708,
+            name: "   ",
+            status: null,
+            due_date: "invalid",
+            assignees: [
+                {
+                    username: "   ",
+                },
+            ],
+            custom_fields: [
+                {
+                    id: "cf-1",
+                    name: "Toggle",
+                    value: true,
+                },
+                {
+                    id: "cf-1",
+                    name: "Duplicate",
+                    value: "ignored",
+                },
+                {
+                    id: "cf-2",
+                    name: "   ",
+                    value: "missing-name",
+                },
+            ],
+        })
+
+        expect(task).toEqual({
+            id: "708",
+            title: "(no title)",
+            status: "unknown",
+            customFields: [
+                {
+                    id: "cf-1",
+                    name: "Toggle",
+                    value: "true",
+                },
+            ],
+        })
+    })
+
     test("maps Sentry error stack trace, frequency and affected users into deterministic DTO", () => {
         const error = mapExternalSentryError({
             id: "issue-7788",
@@ -1069,14 +1287,16 @@ describe("Context ACL contract", () => {
         })
     })
 
-    test("exposes class-based ACL wrappers for Jira, Linear, Asana and Sentry", () => {
+    test("exposes class-based ACL wrappers for Jira, Linear, Asana, ClickUp and Sentry", () => {
         const jiraTicketAcl = new JiraTicketAcl()
         const linearIssueAcl = new LinearIssueAcl()
         const asanaTaskAcl = new AsanaTaskAcl()
+        const clickUpTaskAcl = new ClickUpTaskAcl()
         const sentryErrorAcl = new SentryErrorAcl()
         const jiraContextAcl = new JiraContextAcl()
         const linearContextAcl = new LinearContextAcl()
         const asanaContextAcl = new AsanaContextAcl()
+        const clickUpContextAcl = new ClickUpContextAcl()
         const sentryContextAcl = new SentryContextAcl()
 
         const jiraTicket = jiraTicketAcl.toDomain({
@@ -1093,6 +1313,13 @@ describe("Context ACL contract", () => {
             gid: "task-9",
             name: "Asana task",
             status: "In Progress",
+        })
+        const clickUpTask = clickUpTaskAcl.toDomain({
+            id: "clk-5",
+            name: "ClickUp task",
+            status: {
+                status: "In Progress",
+            },
         })
         const sentryError = sentryErrorAcl.toDomain({
             id: "issue-5",
@@ -1117,6 +1344,14 @@ describe("Context ACL contract", () => {
             status: "In Progress",
             modified_at: "2026-03-11T10:00:00.000Z",
         })
+        const clickUpContext = clickUpContextAcl.toDomain({
+            id: "clk-5",
+            name: "ClickUp task",
+            status: {
+                status: "In Progress",
+            },
+            date_updated: "2026-03-11T11:00:00.000Z",
+        })
         const sentryContext = sentryContextAcl.toDomain({
             id: "issue-5",
             title: "Worker exploded",
@@ -1139,6 +1374,11 @@ describe("Context ACL contract", () => {
             title: "Asana task",
             status: "In Progress",
         })
+        expect(clickUpTask).toEqual({
+            id: "clk-5",
+            title: "ClickUp task",
+            status: "In Progress",
+        })
         expect(sentryError).toEqual({
             id: "issue-5",
             title: "Worker exploded",
@@ -1150,6 +1390,7 @@ describe("Context ACL contract", () => {
         expect(jiraContext.source).toBe("JIRA")
         expect(linearContext.source).toBe("LINEAR")
         expect(asanaContext.source).toBe("ASANA")
+        expect(clickUpContext.source).toBe("CLICKUP")
         expect(sentryContext.source).toBe("SENTRY")
     })
 
@@ -1177,9 +1418,17 @@ describe("Context ACL contract", () => {
             status: "Open",
             sdkRootField: "must-not-leak",
         })
+        const clickup = mapClickUpContext({
+            id: "CLK-1",
+            name: "D",
+            status: {
+                status: "Open",
+            },
+            sdkRootField: "must-not-leak",
+        })
         const sentry = mapSentryContext({
             id: "issue-1",
-            title: "D",
+            title: "E",
             stackTrace: "Error: C",
             sdkRootField: "must-not-leak",
         })
@@ -1191,6 +1440,9 @@ describe("Context ACL contract", () => {
             "issue",
         ])
         expect(Object.keys(asana.data as Record<string, unknown>).sort()).toEqual([
+            "task",
+        ])
+        expect(Object.keys(clickup.data as Record<string, unknown>).sort()).toEqual([
             "task",
         ])
         expect(Object.keys(sentry.data as Record<string, unknown>).sort()).toEqual([

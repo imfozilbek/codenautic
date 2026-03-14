@@ -1,6 +1,8 @@
 export {
     mapAsanaContext,
+    mapClickUpContext,
     mapExternalAsanaTask,
+    mapExternalClickUpTask,
     mapExternalJiraTicket,
     mapExternalLinearIssue,
     mapExternalSentryError,
@@ -11,6 +13,8 @@ export {
 export {
     AsanaContextAcl,
     AsanaTaskAcl,
+    ClickUpContextAcl,
+    ClickUpTaskAcl,
     JiraTicketAcl,
     LinearIssueAcl,
     SentryErrorAcl,

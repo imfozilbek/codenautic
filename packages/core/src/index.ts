@@ -101,6 +101,7 @@ export {
 } from "./application/ports/outbound/feedback-repository.port"
 export {
     type IAsanaProvider,
+    type IClickUpProvider,
     type IExternalContextProvider,
     type IJiraProvider,
     type ILinearProvider,
@@ -406,6 +407,8 @@ export {
     type ExternalContextSource,
     type IAsanaProjectHierarchy,
     type IAsanaTask,
+    type IClickUpCustomField,
+    type IClickUpTask,
     type IExternalContext,
     type ILinearIssue,
     type ILinearProjectContext,

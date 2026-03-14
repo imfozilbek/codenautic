@@ -1,5 +1,6 @@
 import type {
     IAsanaTask,
+    IClickUpTask,
     ExternalContextSource,
     IExternalContext,
     IJiraTicket,
@@ -62,6 +63,19 @@ export interface IAsanaProvider {
      * @returns Asana task payload or null when not found.
      */
     getTask(taskId: string): Promise<IAsanaTask | null>
+}
+
+/**
+ * ClickUp-specific provider contract.
+ */
+export interface IClickUpProvider {
+    /**
+     * Loads ClickUp task by identifier.
+     *
+     * @param taskId ClickUp task identifier.
+     * @returns ClickUp task payload or null when not found.
+     */
+    getTask(taskId: string): Promise<IClickUpTask | null>
 }
 
 /**

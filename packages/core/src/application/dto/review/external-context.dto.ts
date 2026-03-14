@@ -6,6 +6,7 @@ export const EXTERNAL_CONTEXT_SOURCE = [
     "LINEAR",
     "SENTRY",
     "ASANA",
+    "CLICKUP",
     "DATADOG",
     "POSTHOG",
 ] as const
@@ -239,6 +240,76 @@ export interface IAsanaTask {
      * Optional normalized tag labels.
      */
     readonly tags?: readonly string[]
+}
+
+/**
+ * External custom-field model for ClickUp task metadata.
+ */
+export interface IClickUpCustomField {
+    /**
+     * Stable custom-field identifier.
+     */
+    readonly id: string
+
+    /**
+     * Human-readable custom-field name.
+     */
+    readonly name: string
+
+    /**
+     * Normalized custom-field value.
+     */
+    readonly value: string
+}
+
+/**
+ * External task model for ClickUp platform.
+ */
+export interface IClickUpTask {
+    /**
+     * Stable ClickUp task identifier.
+     */
+    readonly id: string
+
+    /**
+     * Human-readable task title.
+     */
+    readonly title: string
+
+    /**
+     * Current workflow status label.
+     */
+    readonly status: string
+
+    /**
+     * Optional normalized task description.
+     */
+    readonly description?: string
+
+    /**
+     * Optional normalized assignee name.
+     */
+    readonly assignee?: string
+
+    /**
+     * Optional due date in ISO format.
+     */
+    readonly dueDate?: string
+
+    /**
+     * Optional parent list name.
+     */
+    readonly listName?: string
+
+    /**
+     * Optional normalized task tags.
+     */
+    readonly tags?: readonly string[]
+
+    /**
+     * Optional normalized task custom fields.
+     */
+    readonly customFields?: readonly IClickUpCustomField[]
 }
 
 /**
