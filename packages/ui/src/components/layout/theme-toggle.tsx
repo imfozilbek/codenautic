@@ -104,6 +104,7 @@ function ThemeModeButtons({
                         aria-pressed={isSelected}
                         aria-selected={isSelected}
                         className="min-w-0 px-2"
+                        color="primary"
                         radius="full"
                         size="sm"
                         variant={isSelected ? "solid" : "light"}
@@ -147,6 +148,7 @@ function ThemePresetButtons({
                         className="min-w-0"
                         radius="full"
                         size="sm"
+                        color="primary"
                         style={style}
                         variant={isActive ? "solid" : "light"}
                         onPress={(): void => {
