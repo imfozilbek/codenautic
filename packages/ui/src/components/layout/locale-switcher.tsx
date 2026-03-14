@@ -82,6 +82,7 @@ export function LocaleSwitcher(props: ILocaleSwitcherProps): ReactElement {
                             aria-pressed={isSelected}
                             aria-selected={isSelected}
                             className="min-w-0 px-2 text-xs font-medium"
+                            color="primary"
                             radius="full"
                             size="sm"
                             variant={isSelected ? "solid" : "light"}
