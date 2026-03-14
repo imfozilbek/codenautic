@@ -15,6 +15,12 @@ export {
     type IAstCodeChunkEmbeddingGeneratorOptions,
 } from "./ast-code-chunk-embedding-generator"
 export {
+    AST_CODE_GRAPH_CLUSTERING_ERROR_CODE,
+    AstCodeGraphClusteringError,
+    type AstCodeGraphClusteringErrorCode,
+    type IAstCodeGraphClusteringErrorDetails,
+} from "./ast-code-graph-clustering.error"
+export {
     AST_CODE_GRAPH_IMPACT_ANALYSIS_ERROR_CODE,
     AstCodeGraphImpactAnalysisError,
     type AstCodeGraphImpactAnalysisErrorCode,
@@ -62,6 +68,10 @@ export {
     type IAstCodeGraphEnrichmentInput,
     type IAstCodeGraphEnrichmentResult,
 } from "./ast-code-graph.enricher"
+export {
+    AstCodeGraphClusteringService,
+    type IAstCodeGraphClusteringServiceOptions,
+} from "./ast-code-graph-clustering.service"
 export {
     AstCodeGraphPageRankService,
     type IAstCodeGraphPageRankServiceOptions,

@@ -12,6 +12,7 @@ import type {IFeedbackRepository} from "../application/ports/outbound/feedback-r
 import type {IGitBlame} from "../application/ports/outbound/git/git-blame.port"
 import type {IGitPipelineStatusProvider} from "../application/ports/outbound/git/git-pipeline-status.port"
 import type {IGitProvider} from "../application/ports/outbound/git/git-provider.port"
+import type {ICodeGraphClusteringService} from "../application/ports/outbound/graph/code-graph-clustering-service.port"
 import type {ICodeGraphPageRankService} from "../application/ports/outbound/graph/code-graph-page-rank-service.port"
 import type {IGraphRepository} from "../application/ports/outbound/graph/code-graph-repository.port"
 import type {ILLMProvider} from "../application/ports/outbound/llm/llm-provider.port"
@@ -58,6 +59,9 @@ export const TOKENS = {
         Service: createToken<IAnalyticsService>("core.analytics.service"),
     },
     Analysis: {
+        CodeGraphClusteringService: createToken<ICodeGraphClusteringService>(
+            "core.analysis.code-graph-clustering-service",
+        ),
         CodeGraphPageRankService: createToken<ICodeGraphPageRankService>(
             "core.analysis.code-graph-page-rank-service",
         ),

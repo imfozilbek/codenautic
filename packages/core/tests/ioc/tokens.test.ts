@@ -11,6 +11,7 @@ import type {IFeedbackRepository} from "../../src/application/ports/outbound/fee
 import type {IGitBlame} from "../../src/application/ports/outbound/git/git-blame.port"
 import type {IGitPipelineStatusProvider} from "../../src/application/ports/outbound/git/git-pipeline-status.port"
 import type {IGitProvider} from "../../src/application/ports/outbound/git/git-provider.port"
+import type {ICodeGraphClusteringService} from "../../src/application/ports/outbound/graph/code-graph-clustering-service.port"
 import type {ICodeGraphPageRankService} from "../../src/application/ports/outbound/graph/code-graph-page-rank-service.port"
 import type {IGraphRepository} from "../../src/application/ports/outbound/graph/code-graph-repository.port"
 import type {ILLMProvider} from "../../src/application/ports/outbound/llm/llm-provider.port"
@@ -104,6 +105,8 @@ describe("createToken", () => {
 describe("TOKENS", () => {
     test("exposes typed symbols for outbound core ports", () => {
         const analyticsServiceToken: InjectionToken<IAnalyticsService> = TOKENS.Analytics.Service
+        const codeGraphClusteringServiceToken: InjectionToken<ICodeGraphClusteringService> =
+            TOKENS.Analysis.CodeGraphClusteringService
         const codeGraphPageRankServiceToken: InjectionToken<ICodeGraphPageRankService> =
             TOKENS.Analysis.CodeGraphPageRankService
         const fileMetricsProviderToken: InjectionToken<IFileMetricsProvider> =
@@ -185,6 +188,7 @@ describe("TOKENS", () => {
 
         const tokens: readonly InjectionToken<unknown>[] = [
             analyticsServiceToken,
+            codeGraphClusteringServiceToken,
             codeGraphPageRankServiceToken,
             fileMetricsProviderToken,
             graphRepositoryToken,

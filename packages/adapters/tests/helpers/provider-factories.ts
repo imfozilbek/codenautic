@@ -13,6 +13,7 @@ import type {
     ICheckRunDTO,
     ICreatePipelineStatusInput,
     ICodeChunkEmbeddingGenerator,
+    ICodeGraphClusteringService,
     ICodeGraphPageRankService,
     ICommentDTO,
     IExternalContextProvider,
@@ -288,6 +289,24 @@ export function createCodeGraphPageRankServiceMock(): ICodeGraphPageRankService 
             _input: Parameters<ICodeGraphPageRankService["calculateHotspots"]>[0],
         ): ReturnType<ICodeGraphPageRankService["calculateHotspots"]> {
             return Promise.resolve([])
+        },
+    }
+}
+
+/**
+ * Minimal code-graph clustering service for DI tests.
+ *
+ * @returns Service instance.
+ */
+export function createCodeGraphClusteringServiceMock(): ICodeGraphClusteringService {
+    return {
+        detectCommunities(
+            _input: Parameters<ICodeGraphClusteringService["detectCommunities"]>[0],
+        ): ReturnType<ICodeGraphClusteringService["detectCommunities"]> {
+            return Promise.resolve({
+                communities: [],
+                modularity: 0,
+            })
         },
     }
 }

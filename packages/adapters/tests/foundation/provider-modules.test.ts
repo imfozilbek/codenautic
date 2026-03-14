@@ -68,6 +68,7 @@ import {
 } from "../../src/worker"
 import {
     createCodeChunkEmbeddingGeneratorMock,
+    createCodeGraphClusteringServiceMock,
     createCodeGraphPageRankServiceMock,
     createExternalContextProviderMock,
     createGraphRepositoryMock,
@@ -660,12 +661,14 @@ describe("Provider modules registration", () => {
         const graphRepository = createGraphRepositoryMock()
         const embeddingGenerator = createCodeChunkEmbeddingGeneratorMock()
         const pageRankService = createCodeGraphPageRankServiceMock()
+        const clusteringService = createCodeGraphClusteringServiceMock()
 
         registerAstModule(container, {
             sourceCodeParser: parser,
             graphRepository,
             codeChunkEmbeddingGenerator: embeddingGenerator,
             pageRankService,
+            clusteringService,
         })
 
         const resolvedGraphRepository = container.resolve(AST_TOKENS.GraphRepository)
@@ -680,6 +683,12 @@ describe("Provider modules registration", () => {
         const resolvedCorePageRankService = container.resolve(
             TOKENS.Analysis.CodeGraphPageRankService,
         )
+        const resolvedClusteringService = container.resolve(
+            AST_TOKENS.CodeGraphClusteringService,
+        )
+        const resolvedCoreClusteringService = container.resolve(
+            TOKENS.Analysis.CodeGraphClusteringService,
+        )
 
         expect(resolvedGraphRepository).toBe(graphRepository)
         expect(resolvedCoreGraphRepository).toBe(graphRepository)
@@ -687,6 +696,8 @@ describe("Provider modules registration", () => {
         expect(resolvedCoreEmbeddingGenerator).toBe(embeddingGenerator)
         expect(resolvedPageRankService).toBe(pageRankService)
         expect(resolvedCorePageRankService).toBe(pageRankService)
+        expect(resolvedClusteringService).toBe(clusteringService)
+        expect(resolvedCoreClusteringService).toBe(clusteringService)
     })
 
     test("registerMessagingModule binds outbox writer and inbox deduplicator", () => {

@@ -23,6 +23,12 @@ export {
     type ICodeGraphPageRankService,
 } from "./application/ports/outbound/graph/code-graph-page-rank-service.port"
 export {
+    type ICodeGraphClusteringInput,
+    type ICodeGraphClusteringResult,
+    type ICodeGraphClusteringService,
+    type ICodeGraphCommunity,
+} from "./application/ports/outbound/graph/code-graph-clustering-service.port"
+export {
     type MessageBrokerHandler,
     type MessageBrokerPayload,
     type IMessageBroker,
