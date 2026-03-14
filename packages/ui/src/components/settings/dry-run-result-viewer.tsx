@@ -42,6 +42,7 @@ export function DryRunResultViewer(props: IDryRunResultViewerProps): ReactElemen
                 {t("settings:dryRunResultViewer.description")}
             </p>
             <Button
+                color="primary"
                 isDisabled={props.isRunning === true}
                 type="button"
                 variant="solid"
