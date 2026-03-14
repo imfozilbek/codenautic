@@ -73,8 +73,8 @@ export function Slider(props: ISliderProps): ReactElement {
             isDisabled={isDisabled}
             maxValue={maxValue}
             minValue={minValue}
-            onChange={onChange}
-            onChangeEnd={onChangeEnd}
+            onChange={onChange !== undefined ? (v: number | number[]): void => { onChange(Array.isArray(v) ? v[0] ?? 0 : v) } : undefined}
+            onChangeEnd={onChangeEnd !== undefined ? (v: number | number[]): void => { onChangeEnd(Array.isArray(v) ? v[0] ?? 0 : v) } : undefined}
             step={step}
             value={value}
         >
