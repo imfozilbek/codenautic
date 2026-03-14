@@ -6,7 +6,8 @@ import { FunctionClassCallGraph } from "@/components/graphs/function-class-call-
 import { PackageDependencyGraph } from "@/components/graphs/package-dependency-graph"
 import { Alert, Button, Card, CardBody, CardHeader, Chip, StyledLink } from "@/components/ui"
 import { MetricsGrid } from "@/components/dashboard/metrics-grid"
-import { NATIVE_FORM, PAGE_LAYOUT } from "@/lib/constants/spacing"
+import { PageShell } from "@/components/layout/page-shell"
+import { NATIVE_FORM } from "@/lib/constants/spacing"
 import { TYPOGRAPHY } from "@/lib/constants/typography"
 
 import {
@@ -480,17 +481,11 @@ export function RepositoryOverviewPage(props: IRepositoryOverviewProps): ReactEl
     const packageDependencyGraph = getRepositoryPackageDependencyGraph(repository.id)
 
     return (
-        <section className={PAGE_LAYOUT.standard}>
-            <div className="space-y-1">
-                <p className="text-sm text-muted-foreground">Post-scan dashboard</p>
-                <h1 className={TYPOGRAPHY.pageTitle}>
-                    {repository.owner}/{repository.name}
-                </h1>
-                <p className={TYPOGRAPHY.pageSubtitle}>
-                    Отображение health score, архитектуры и ключевых метрик после последнего
-                    сканирования.
-                </p>
-            </div>
+        <PageShell
+            layout="standard"
+            subtitle="Отображение health score, архитектуры и ключевых метрик после последнего сканирования."
+            title={`${repository.owner}/${repository.name}`}
+        >
 
             <Card>
                 <CardHeader>
@@ -579,6 +574,6 @@ export function RepositoryOverviewPage(props: IRepositoryOverviewProps): ReactEl
                 height="440px"
                 title="CodeCity treemap"
             />
-        </section>
+        </PageShell>
     )
 }
