@@ -280,11 +280,11 @@ describe("ccr review detail page", (): void => {
 
         renderWithProviders(<CcrReviewDetailPage ccr={ccr} />)
 
-        expect(screen.getAllByText("Ari").length).toBeGreaterThan(0)
-        expect(screen.getByText("Nika")).not.toBeNull()
-        expect(screen.getByText("Oleg")).not.toBeNull()
+        expect(screen.getAllByText("Neo").length).toBeGreaterThan(0)
+        expect(screen.getByText("Morpheus")).not.toBeNull()
+        expect(screen.getByText("Cypher")).not.toBeNull()
 
-        const likeButton = screen.getByRole("button", { name: /Like comment from Oleg/ })
+        const likeButton = screen.getByRole("button", { name: /Like comment from Cypher/ })
         await user.click(likeButton)
 
         const resolveButtons = screen.getAllByRole("button", { name: "Resolve" })
@@ -294,10 +294,10 @@ describe("ccr review detail page", (): void => {
         }
         expect(screen.getAllByText("Resolved").length).toBeGreaterThan(0)
 
-        const replyButton = screen.getByRole("button", { name: "Reply to Ari" })
+        const replyButton = screen.getByRole("button", { name: "Reply to Neo" })
         await user.click(replyButton)
 
-        const replyTextarea = screen.getByLabelText("Reply textarea for Ari")
+        const replyTextarea = screen.getByLabelText("Reply textarea for Neo")
         await user.type(replyTextarea, "Looks good, let's handle in next refactor.")
         const addReplyButton = screen.getByRole("button", { name: "Add reply" })
         await user.click(addReplyButton)
