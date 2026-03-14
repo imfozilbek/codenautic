@@ -1,6 +1,15 @@
 export {type IRegisterLlmModuleOptions, registerLlmModule} from "./llm.module"
 export {LLM_TOKENS} from "./llm.tokens"
 export {
+    LLM_RATE_LIMIT_REASON,
+    LLM_RATE_LIMIT_TIER,
+    withLlmRateLimit,
+    type ILlmRateLimitEvent,
+    type ILlmRateLimitOptions,
+    type LlmRateLimitReason,
+    type LlmRateLimitTier,
+} from "./llm-rate-limiter"
+export {
     LLM_PROVIDER_TYPE,
     LlmProviderFactory,
     normalizeLlmProviderType,

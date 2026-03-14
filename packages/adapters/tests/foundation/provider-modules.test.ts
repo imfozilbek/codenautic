@@ -28,7 +28,12 @@ import {
     GitProviderFactory,
     registerGitModule,
 } from "../../src/git"
-import {LLM_TOKENS, LlmProviderFactory, registerLlmModule} from "../../src/llm"
+import {
+    LLM_RATE_LIMIT_TIER,
+    LLM_TOKENS,
+    LlmProviderFactory,
+    registerLlmModule,
+} from "../../src/llm"
 import {
     InboxDeduplicationImpl,
     InboxDeduplicator,
@@ -249,6 +254,67 @@ describe("Provider modules registration", () => {
         const resolved = container.resolve(LLM_TOKENS.Provider)
 
         expect(resolved).toBe(provider)
+    })
+
+    test("registerLlmModule applies optional llm rate limiter wrapper", async () => {
+        let currentTimeMs = 0
+        const sleepDelays: number[] = []
+        let callCount = 0
+        const provider = createLlmProviderMock()
+        provider.chat = (): ReturnType<typeof provider.chat> => {
+            callCount += 1
+            return Promise.resolve({
+                content: `ok-${String(callCount)}`,
+                usage: {
+                    input: 0,
+                    output: 0,
+                    total: 0,
+                },
+            })
+        }
+        const container = new Container()
+
+        registerLlmModule(container, {
+            provider,
+            rateLimit: {
+                organizationId: "org-llm-rate-limit",
+                tier: LLM_RATE_LIMIT_TIER.FREE,
+                freeTierLimit: 1,
+                windowMs: 1_000,
+                now: (): number => currentTimeMs,
+                sleep: (delayMs: number): Promise<void> => {
+                    sleepDelays.push(delayMs)
+                    currentTimeMs += delayMs
+                    return Promise.resolve()
+                },
+            },
+        })
+
+        const resolvedProvider = container.resolve(LLM_TOKENS.Provider)
+
+        const firstResponse = await resolvedProvider.chat({
+            model: "gpt-4o",
+            messages: [
+                {
+                    role: "user",
+                    content: "hello",
+                },
+            ],
+        })
+        const secondResponse = await resolvedProvider.chat({
+            model: "gpt-4o",
+            messages: [
+                {
+                    role: "user",
+                    content: "world",
+                },
+            ],
+        })
+
+        expect(firstResponse.content).toBe("ok-1")
+        expect(secondResponse.content).toBe("ok-2")
+        expect(sleepDelays).toEqual([1_000])
+        expect(callCount).toBe(2)
     })
 
     test("registerLlmModule binds optional provider factory token", () => {

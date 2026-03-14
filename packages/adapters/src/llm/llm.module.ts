@@ -2,6 +2,7 @@ import {Container, type ILLMProvider} from "@codenautic/core"
 
 import {bindConstantSingleton} from "../shared/bind-constant-singleton"
 import type {ILlmProviderFactory} from "./llm-provider.factory"
+import {withLlmRateLimit, type ILlmRateLimitOptions} from "./llm-rate-limiter"
 import {LLM_TOKENS} from "./llm.tokens"
 
 /**
@@ -12,6 +13,11 @@ export interface IRegisterLlmModuleOptions {
      * LLM provider implementation.
      */
     readonly provider: ILLMProvider
+
+    /**
+     * Optional rate limiter configuration for provider calls.
+     */
+    readonly rateLimit?: ILlmRateLimitOptions
 
     /**
      * Optional LLM provider factory.
@@ -26,7 +32,9 @@ export interface IRegisterLlmModuleOptions {
  * @param options Module options.
  */
 export function registerLlmModule(container: Container, options: IRegisterLlmModuleOptions): void {
-    bindConstantSingleton(container, LLM_TOKENS.Provider, options.provider)
+    const provider = resolveLlmProvider(options)
+
+    bindConstantSingleton(container, LLM_TOKENS.Provider, provider)
 
     if (options.providerFactory !== undefined) {
         bindConstantSingleton(
@@ -35,4 +43,18 @@ export function registerLlmModule(container: Container, options: IRegisterLlmMod
             options.providerFactory,
         )
     }
+}
+
+/**
+ * Resolves provider instance with optional shared wrappers.
+ *
+ * @param options LLM module registration options.
+ * @returns Decorated provider.
+ */
+function resolveLlmProvider(options: IRegisterLlmModuleOptions): ILLMProvider {
+    if (options.rateLimit === undefined) {
+        return options.provider
+    }
+
+    return withLlmRateLimit(options.provider, options.rateLimit)
 }
