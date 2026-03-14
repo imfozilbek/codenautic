@@ -122,6 +122,12 @@ export {
     type JavaParserLanguage,
 } from "./java-source-code-parser"
 export {
+    assertKotlinParserLanguage,
+    KotlinSourceCodeParser,
+    type IKotlinSourceCodeParserOptions,
+    type KotlinParserLanguage,
+} from "./kotlin-source-code-parser"
+export {
     assertPhpParserLanguage,
     PhpSourceCodeParser,
     type IPhpSourceCodeParserOptions,

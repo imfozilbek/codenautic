@@ -25,6 +25,10 @@ import {
     JavaSourceCodeParser,
 } from "./java-source-code-parser"
 import {
+    assertKotlinParserLanguage,
+    KotlinSourceCodeParser,
+} from "./kotlin-source-code-parser"
+import {
     assertPhpParserLanguage,
     PhpSourceCodeParser,
 } from "./php-source-code-parser"
@@ -151,6 +155,11 @@ const DEFAULT_AST_PARSER_CREATORS: Readonly<
     [AST_LANGUAGE.RUBY](): ISourceCodeParser {
         return new RubySourceCodeParser({
             language: assertRubyParserLanguage(AST_LANGUAGE.RUBY),
+        })
+    },
+    [AST_LANGUAGE.KOTLIN](): ISourceCodeParser {
+        return new KotlinSourceCodeParser({
+            language: assertKotlinParserLanguage(AST_LANGUAGE.KOTLIN),
         })
     },
 }

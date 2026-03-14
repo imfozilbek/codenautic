@@ -11,6 +11,7 @@ import {
     GoSourceCodeParser,
     JavaSourceCodeParser,
     JavaScriptSourceCodeParser,
+    KotlinSourceCodeParser,
     PhpSourceCodeParser,
     PythonSourceCodeParser,
     RubySourceCodeParser,
@@ -92,6 +93,7 @@ describe("AstParserFactory", () => {
         const phpParser = factory.create("php")
         const csharpParser = factory.create("c#")
         const rubyParser = factory.create("rb")
+        const kotlinParser = factory.create("kt")
 
         expect(typescriptParser).toBe(typescriptParserByCanonicalName)
         expect(javascriptParser).toBe(factory.create("javascript"))
@@ -107,6 +109,7 @@ describe("AstParserFactory", () => {
         expect(phpParser).not.toBe(rustParser)
         expect(csharpParser).not.toBe(phpParser)
         expect(rubyParser).not.toBe(csharpParser)
+        expect(kotlinParser).not.toBe(rubyParser)
         expect(typescriptParser).toBeInstanceOf(TypeScriptSourceCodeParser)
         expect(javascriptParser).toBeInstanceOf(JavaScriptSourceCodeParser)
         expect(pythonParser).toBeInstanceOf(PythonSourceCodeParser)
@@ -116,9 +119,10 @@ describe("AstParserFactory", () => {
         expect(phpParser).toBeInstanceOf(PhpSourceCodeParser)
         expect(csharpParser).toBeInstanceOf(CSharpSourceCodeParser)
         expect(rubyParser).toBeInstanceOf(RubySourceCodeParser)
+        expect(kotlinParser).toBeInstanceOf(KotlinSourceCodeParser)
     })
 
-    test("creates typescript, tsx, javascript, jsx, python, go, java, rust, php, csharp and ruby parsers", async () => {
+    test("creates typescript, tsx, javascript, jsx, python, go, java, rust, php, csharp, ruby and kotlin parsers", async () => {
         const factory = new AstParserFactory()
         const typescriptResult = await factory.create("typescript").parse({
             filePath: "src/parser.ts",
@@ -164,6 +168,10 @@ describe("AstParserFactory", () => {
             filePath: "src/parser.rb",
             content: "class Parser; def run; helper(); end; end",
         })
+        const kotlinResult = await factory.create("kotlin").parse({
+            filePath: "src/parser.kt",
+            content: 'class Parser {\n    fun run() {\n        println("ok")\n    }\n}',
+        })
 
         expect(typescriptResult.language).toBe(AST_LANGUAGE.TYPESCRIPT)
         expect(typescriptResult.hasSyntaxErrors).toBe(false)
@@ -187,6 +195,8 @@ describe("AstParserFactory", () => {
         expect(csharpResult.hasSyntaxErrors).toBe(false)
         expect(rubyResult.language).toBe(AST_LANGUAGE.RUBY)
         expect(rubyResult.hasSyntaxErrors).toBe(false)
+        expect(kotlinResult.language).toBe(AST_LANGUAGE.KOTLIN)
+        expect(kotlinResult.hasSyntaxErrors).toBe(false)
     })
 
     test("throws typed error for unknown language", () => {
@@ -199,19 +209,6 @@ describe("AstParserFactory", () => {
         )
         expect(() => factory.create("brainfuck")).toThrow(
             "Unknown AST parser language: brainfuck",
-        )
-    })
-
-    test("throws typed error for known but not yet supported language", () => {
-        const factory = new AstParserFactory()
-
-        expectAstParserFactoryError(
-            () => factory.create("kotlin"),
-            AST_PARSER_FACTORY_ERROR_CODE.LANGUAGE_NOT_SUPPORTED,
-            "kotlin",
-        )
-        expect(() => factory.create("kotlin")).toThrow(
-            "AST parser is not supported for language: kotlin",
         )
     })
 
