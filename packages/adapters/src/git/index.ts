@@ -1,6 +1,24 @@
 export {type IRegisterGitModuleOptions, registerGitModule} from "./git.module"
 export {GIT_TOKENS} from "./git.tokens"
 export {
+    GIT_PROVIDER_CIRCUIT_STATE,
+    GIT_PROVIDER_HEALTH_ERROR_CODE,
+    GIT_PROVIDER_HEALTH_REASON,
+    GIT_PROVIDER_HEALTH_STATUS,
+    GitProviderHealthError,
+    withGitProviderHealthMonitor,
+    type GitProviderCircuitState,
+    type GitProviderHealthErrorCode,
+    type GitProviderHealthReason,
+    type GitProviderHealthStatus,
+    type IGitProviderHealthBundle,
+    type IGitProviderHealthMonitor,
+    type IGitProviderHealthOptions,
+    type IGitProviderHealthReport,
+    type IGitProviderHealthScheduler,
+    type IGitProviderHealthStatusEvent,
+} from "./git-provider-health-monitor"
+export {
     GIT_RATE_LIMIT_REASON,
     GIT_RATE_LIMIT_TIER,
     withGitRateLimit,

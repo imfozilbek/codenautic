@@ -7,6 +7,11 @@ import {
 
 import {bindConstantSingleton} from "../shared/bind-constant-singleton"
 import type {IGitProviderFactory} from "./git-provider.factory"
+import {
+    withGitProviderHealthMonitor,
+    type IGitProviderHealthMonitor,
+    type IGitProviderHealthOptions,
+} from "./git-provider-health-monitor"
 import {withGitRateLimit, type IGitRateLimitOptions} from "./git-rate-limiter"
 import {withGitRetry, type IGitRetryOptions} from "./git-retry-wrapper"
 import {GIT_TOKENS} from "./git.tokens"
@@ -31,6 +36,11 @@ export interface IRegisterGitModuleOptions {
     readonly retry?: IGitRetryOptions
 
     /**
+     * Optional provider health monitor configuration.
+     */
+    readonly health?: IGitProviderHealthOptions
+
+    /**
      * Optional external pipeline status provider.
      */
     readonly pipelineStatusProvider?: IGitPipelineStatusProvider
@@ -53,7 +63,8 @@ export interface IRegisterGitModuleOptions {
  * @param options Module options.
  */
 export function registerGitModule(container: Container, options: IRegisterGitModuleOptions): void {
-    const provider = resolveGitProvider(options)
+    const resolved = resolveGitProvider(options)
+    const provider = resolved.provider
 
     bindConstantSingleton(container, GIT_TOKENS.Blame, provider)
     bindConstantSingleton(container, GIT_TOKENS.Provider, provider)
@@ -78,6 +89,14 @@ export function registerGitModule(container: Container, options: IRegisterGitMod
         )
     }
 
+    if (resolved.healthMonitor !== undefined) {
+        bindConstantSingleton(
+            container,
+            GIT_TOKENS.HealthMonitor,
+            resolved.healthMonitor,
+        )
+    }
+
     if (options.repositoryWorkspaceProvider !== undefined) {
         bindConstantSingleton(
             container,
@@ -93,8 +112,20 @@ export function registerGitModule(container: Container, options: IRegisterGitMod
  * @param options Git module registration options.
  * @returns Provider instance used for DI registration.
  */
-function resolveGitProvider(options: IRegisterGitModuleOptions): IGitProvider {
+interface IResolvedGitProvider {
+    readonly provider: IGitProvider
+    readonly healthMonitor?: IGitProviderHealthMonitor
+}
+
+/**
+ * Resolves provider instance with optional shared wrappers.
+ *
+ * @param options Git module registration options.
+ * @returns Decorated provider and optional health monitor.
+ */
+function resolveGitProvider(options: IRegisterGitModuleOptions): IResolvedGitProvider {
     let provider: IGitProvider = options.provider
+    let healthMonitor: IGitProviderHealthMonitor | undefined
 
     if (options.rateLimit !== undefined) {
         provider = withGitRateLimit(provider, options.rateLimit)
@@ -104,7 +135,16 @@ function resolveGitProvider(options: IRegisterGitModuleOptions): IGitProvider {
         provider = withGitRetry(provider, options.retry)
     }
 
-    return provider
+    if (options.health !== undefined) {
+        const healthBundle = withGitProviderHealthMonitor(provider, options.health)
+        provider = healthBundle.provider
+        healthMonitor = healthBundle.monitor
+    }
+
+    return {
+        provider,
+        healthMonitor,
+    }
 }
 
 /**

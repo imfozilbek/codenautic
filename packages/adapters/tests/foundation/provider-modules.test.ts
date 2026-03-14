@@ -21,8 +21,10 @@ import {
     registerDatabaseModule,
 } from "../../src/database"
 import {
+    GIT_PROVIDER_HEALTH_ERROR_CODE,
     GIT_RATE_LIMIT_TIER,
     GIT_TOKENS,
+    GitProviderHealthError,
     GitProviderFactory,
     registerGitModule,
 } from "../../src/git"
@@ -65,6 +67,30 @@ import {
     createSourceCodeParserMock,
     createRuleRepositoryMock,
 } from "../helpers/provider-factories"
+
+/**
+ * Asserts rejection with expected message fragment.
+ *
+ * @param promise Promise expected to reject.
+ * @param messageFragment Expected message fragment.
+ * @returns Completion promise.
+ */
+async function expectPromiseRejectMessage(
+    promise: Promise<unknown>,
+    messageFragment: string,
+): Promise<void> {
+    try {
+        await promise
+    } catch (error) {
+        expect(error).toBeInstanceOf(Error)
+        if (error instanceof Error) {
+            expect(error.message).toContain(messageFragment)
+            return
+        }
+    }
+
+    throw new Error("Expected promise to reject with matching message")
+}
 
 describe("Provider modules registration", () => {
     test("registerGitModule binds provider to adapters token", () => {
@@ -160,6 +186,58 @@ describe("Provider modules registration", () => {
         expect(mergeRequest.id).toBe("mr-retry")
         expect(attempts).toBe(2)
         expect(sleepCalls).toEqual([10])
+    })
+
+    test("registerGitModule binds optional git health monitor and applies circuit breaker", async () => {
+        const container = new Container()
+        let currentTimeMs = 0
+        let attempts = 0
+        const provider = createGitProviderMock()
+        provider.getMergeRequest = (id: string): Promise<IMergeRequestDTO> => {
+            attempts += 1
+            if (attempts === 1) {
+                const retryableError = new Error("temporary failure") as Error & {
+                    statusCode: number
+                }
+                retryableError.statusCode = 500
+                return Promise.reject(retryableError)
+            }
+
+            return Promise.resolve({id} as IMergeRequestDTO)
+        }
+
+        registerGitModule(container, {
+            provider,
+            health: {
+                autoStart: false,
+                failureThreshold: 1,
+                circuitOpenMs: 100,
+                now: (): number => currentTimeMs,
+                ping: async (): Promise<void> => Promise.resolve(),
+            },
+        })
+
+        const resolvedProvider = container.resolve(GIT_TOKENS.Provider)
+        const healthMonitor = container.resolve(GIT_TOKENS.HealthMonitor)
+
+        expect(healthMonitor.getReport().status).toBe("HEALTHY")
+        await expectPromiseRejectMessage(
+            resolvedProvider.getMergeRequest("mr-open"),
+            "temporary failure",
+        )
+
+        try {
+            await resolvedProvider.getMergeRequest("mr-blocked")
+        } catch (error) {
+            expect(error).toBeInstanceOf(GitProviderHealthError)
+            if (error instanceof GitProviderHealthError) {
+                expect(error.code).toBe(GIT_PROVIDER_HEALTH_ERROR_CODE.CIRCUIT_OPEN)
+            }
+        }
+
+        expect(healthMonitor.getReport().status).toBe("UNHEALTHY")
+        expect(attempts).toBe(1)
+        currentTimeMs += 100
     })
 
     test("registerLlmModule binds provider to adapters token", () => {
