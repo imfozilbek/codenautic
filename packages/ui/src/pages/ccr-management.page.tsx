@@ -3,6 +3,11 @@ import type React from "react"
 import { useTranslation } from "react-i18next"
 
 import type { ICcrWorkspaceRow } from "@/lib/api/endpoints/ccr-workspace.endpoint"
+import {
+    getWindowLocalStorage,
+    safeStorageGetJson,
+    safeStorageSetJson,
+} from "@/lib/utils/safe-storage"
 import { NATIVE_FORM } from "@/lib/constants/spacing"
 import { TYPOGRAPHY } from "@/lib/constants/typography"
 import { PageShell } from "@/components/layout/page-shell"
@@ -134,42 +139,26 @@ function parseStoredPreset(value: unknown): ICcrFilterPreset | null {
 }
 
 function readStoredFilterPresets(): ReadonlyArray<ICcrFilterPreset> {
-    if (typeof window === "undefined") {
+    const parsed = safeStorageGetJson<unknown>(
+        getWindowLocalStorage(),
+        CCR_FILTER_PRESETS_STORAGE_KEY,
+        null,
+    )
+    if (Array.isArray(parsed) === false) {
         return []
     }
 
-    try {
-        const raw = window.localStorage.getItem(CCR_FILTER_PRESETS_STORAGE_KEY)
-        if (raw === null) {
-            return []
+    return parsed.reduce<ICcrFilterPreset[]>((accumulator, item): ICcrFilterPreset[] => {
+        const preset = parseStoredPreset(item)
+        if (preset !== null) {
+            accumulator.push(preset)
         }
-        const parsed = JSON.parse(raw) as unknown
-        if (Array.isArray(parsed) === false) {
-            return []
-        }
-
-        return parsed.reduce<ICcrFilterPreset[]>((accumulator, item): ICcrFilterPreset[] => {
-            const preset = parseStoredPreset(item)
-            if (preset !== null) {
-                accumulator.push(preset)
-            }
-            return accumulator
-        }, [])
-    } catch (_error: unknown) {
-        return []
-    }
+        return accumulator
+    }, [])
 }
 
 function writeStoredFilterPresets(presets: ReadonlyArray<ICcrFilterPreset>): void {
-    if (typeof window === "undefined") {
-        return
-    }
-
-    try {
-        window.localStorage.setItem(CCR_FILTER_PRESETS_STORAGE_KEY, JSON.stringify(presets))
-    } catch (_error: unknown) {
-        return
-    }
+    safeStorageSetJson(getWindowLocalStorage(), CCR_FILTER_PRESETS_STORAGE_KEY, presets)
 }
 
 function createFilterPresetId(): string {

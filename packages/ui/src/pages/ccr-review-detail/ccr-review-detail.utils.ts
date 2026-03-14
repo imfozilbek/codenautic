@@ -19,6 +19,21 @@ import type {
 } from "./ccr-review-detail.types"
 
 /**
+ * Максимум связанных файлов для каждого impact seed.
+ */
+const MAX_RELATED_FILES = 3
+
+/**
+ * Максимум соседних файлов на один файл в review контексте.
+ */
+const MAX_NEIGHBORHOOD_FILES = 4
+
+/**
+ * Максимум зависимостей на файл в окружении.
+ */
+const MAX_FILE_DEPENDENCIES = 5
+
+/**
  * Формирует сообщение для quick action «Explain this file».
  *
  * @param ccr - Данные CCR, для которой строится сообщение.
@@ -139,7 +154,7 @@ function buildReviewImpactSeeds(
         const relatedFiles = diffFiles
             .map((entry): string => entry.filePath)
             .filter((path): boolean => path !== file.filePath)
-            .slice(0, 3)
+            .slice(0, MAX_RELATED_FILES)
 
         return {
             affectedConsumers: relatedFiles.map((filePath): string => {
@@ -193,7 +208,7 @@ function buildReviewNeighborhoodByPath(
 
         return {
             ...mapping,
-            [file.filePath]: orderedNeighbors.slice(0, 4),
+            [file.filePath]: orderedNeighbors.slice(0, MAX_NEIGHBORHOOD_FILES),
         }
     }, {})
 }
@@ -239,7 +254,7 @@ function buildFileNeighborhoodDetails(
         return {
             ...mapping,
             [file.filePath]: {
-                dependencies: dependencies.slice(0, 5),
+                dependencies: dependencies.slice(0, MAX_FILE_DEPENDENCIES),
                 recentChanges,
             },
         }

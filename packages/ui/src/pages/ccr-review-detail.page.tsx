@@ -84,6 +84,11 @@ export interface ICcrReviewDetailPageProps {
     readonly streamSourceUrl?: string
 }
 
+/**
+ * Максимум отображаемых hottest записей истории review.
+ */
+const MAX_HOTTEST_REVIEW_HISTORY_ENTRIES = 4
+
 /** Страница страницы отдельного CCR review с авто-подставленным контекстом чата. */
 export function CcrReviewDetailPage(props: ICcrReviewDetailPageProps): ReactElement {
     const { ccr } = props
@@ -287,7 +292,7 @@ export function CcrReviewDetailPage(props: ICcrReviewDetailPageProps): ReactElem
                     leftEntry.reviewsByWindow[selectedReviewHistoryWindow]
                 )
             })
-            .slice(0, 4)
+            .slice(0, MAX_HOTTEST_REVIEW_HISTORY_ENTRIES)
     }, [reviewHistoryHeatEntries, selectedReviewHistoryWindow])
     const reviewRiskIndicator = useMemo((): IReviewRiskIndicator => {
         return resolveReviewRiskIndicator(ccrDiffFiles, reviewHistoryHeatEntries, reviewImpactSeeds)
@@ -730,7 +735,7 @@ export function CcrReviewDetailPage(props: ICcrReviewDetailPageProps): ReactElem
                                 }
                             />
                             <p
-                                aria-label="Review context map status"
+                                aria-label={t("reviews:ariaLabel.detail.reviewContextMapStatus")}
                                 className={TYPOGRAPHY.captionMuted}
                             >
                                 {isReviewContextMiniMapExpanded
@@ -820,7 +825,10 @@ export function CcrReviewDetailPage(props: ICcrReviewDetailPageProps): ReactElem
                                       })
                                     : t("reviews:detail.heatmapDisabled")}
                             </Alert>
-                            <ul aria-label="Review history heatmap list" className="space-y-1">
+                            <ul
+                                aria-label={t("reviews:ariaLabel.detail.reviewHistoryHeatmapList")}
+                                className="space-y-1"
+                            >
                                 {hottestReviewHistoryEntries.map(
                                     (entry): ReactElement => (
                                         <li
@@ -866,7 +874,9 @@ export function CcrReviewDetailPage(props: ICcrReviewDetailPageProps): ReactElem
                                     </p>
                                 ) : (
                                     <ul
-                                        aria-label="Active file neighborhood list"
+                                        aria-label={t(
+                                            "reviews:ariaLabel.detail.activeFileNeighborhoodList",
+                                        )}
                                         className="mt-2 space-y-1"
                                     >
                                         {activeNeighborhoodFiles.map(
@@ -893,7 +903,9 @@ export function CcrReviewDetailPage(props: ICcrReviewDetailPageProps): ReactElem
                                             {t("reviews:detail.dependencies")}
                                         </p>
                                         <ul
-                                            aria-label="Neighborhood dependency list"
+                                            aria-label={t(
+                                                "reviews:ariaLabel.detail.neighborhoodDependencyList",
+                                            )}
                                             className="mt-1 space-y-1 text-xs text-foreground"
                                         >
                                             {(activeNeighborhoodDetails?.dependencies.length ??
@@ -915,7 +927,9 @@ export function CcrReviewDetailPage(props: ICcrReviewDetailPageProps): ReactElem
                                             {t("reviews:detail.recentChanges")}
                                         </p>
                                         <ul
-                                            aria-label="Neighborhood recent changes list"
+                                            aria-label={t(
+                                                "reviews:ariaLabel.detail.neighborhoodRecentChangesList",
+                                            )}
                                             className="mt-1 space-y-1 text-xs text-foreground"
                                         >
                                             {(activeNeighborhoodDetails?.recentChanges.length ??
@@ -970,7 +984,7 @@ export function CcrReviewDetailPage(props: ICcrReviewDetailPageProps): ReactElem
                                 </p>
                             </div>
                             <ul
-                                aria-label="Review risk drivers list"
+                                aria-label={t("reviews:ariaLabel.detail.reviewRiskDriversList")}
                                 className="space-y-1 text-xs text-foreground"
                             >
                                 {reviewRiskIndicator.reasons.map(
@@ -1007,7 +1021,10 @@ export function CcrReviewDetailPage(props: ICcrReviewDetailPageProps): ReactElem
                                     {t("reviews:detail.filteredOut")} {filteredOutTraceCount}
                                 </Chip>
                             </div>
-                            <ul aria-label="SafeGuard trace list" className="space-y-2">
+                            <ul
+                                aria-label={t("reviews:ariaLabel.detail.safeGuardTraceList")}
+                                className="space-y-2"
+                            >
                                 {safeGuardTraceItems.map((traceItem): ReactElement => {
                                     const isActive = activeSafeGuardTraceItem?.id === traceItem.id
                                     return (
@@ -1053,7 +1070,9 @@ export function CcrReviewDetailPage(props: ICcrReviewDetailPageProps): ReactElem
                                         </p>
                                     )}
                                     <ul
-                                        aria-label="SafeGuard pipeline details"
+                                        aria-label={t(
+                                            "reviews:ariaLabel.detail.safeGuardPipelineDetails",
+                                        )}
                                         className="mt-2 space-y-2 text-xs text-foreground"
                                     >
                                         {activeSafeGuardTraceItem.steps.map(
@@ -1092,14 +1111,14 @@ export function CcrReviewDetailPage(props: ICcrReviewDetailPageProps): ReactElem
                                         return (
                                             <Button
                                                 key={reason}
-                                                aria-label={(
-                                                    t as unknown as (
-                                                        key: string,
-                                                        options: Record<string, string>,
-                                                    ) => string
-                                                )("reviews:detail.quickActionAriaLabel", {
-                                                    reason: translatedFeedbackReasonLabels[reason],
-                                                })}
+                                                aria-label={td(
+                                                    "reviews:detail.quickActionAriaLabel",
+                                                    {
+                                                        reason: translatedFeedbackReasonLabels[
+                                                            reason
+                                                        ],
+                                                    },
+                                                )}
                                                 size="sm"
                                                 type="button"
                                                 color="primary"
@@ -1183,7 +1202,10 @@ export function CcrReviewDetailPage(props: ICcrReviewDetailPageProps): ReactElem
                                     )}
                                 </div>
                             )}
-                            <ul aria-label="Feedback history list" className="space-y-2">
+                            <ul
+                                aria-label={t("reviews:ariaLabel.detail.feedbackHistoryList")}
+                                className="space-y-2"
+                            >
                                 {activeTraceFeedbackHistory.map(
                                     (feedbackRecord): ReactElement => (
                                         <li
