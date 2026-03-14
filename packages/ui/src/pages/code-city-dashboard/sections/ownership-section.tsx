@@ -8,7 +8,7 @@ import { ContributorCollaborationGraph } from "@/components/graphs/contributor-c
 import { KnowledgeMapExportWidget } from "@/components/graphs/knowledge-map-export-widget"
 import { KnowledgeSiloPanel } from "@/components/graphs/knowledge-silo-panel"
 import { OwnershipTransitionWidget } from "@/components/graphs/ownership-transition-widget"
-import { Card, CardBody, CardHeader } from "@/components/ui"
+import { Card, CardContent, CardHeader } from "@heroui/react"
 
 import type { ICodeCityDashboardState } from "../use-code-city-dashboard-state"
 
@@ -37,7 +37,7 @@ export function OwnershipSection({ state }: IOwnershipSectionProps): ReactElemen
                         {t("code-city:ownership.ownershipOverlay")}
                     </p>
                 </CardHeader>
-                <CardBody>
+                <CardContent>
                     <CityOwnershipOverlay
                         activeOwnerId={state.activeOwnershipOwnerId}
                         isEnabled={state.isOwnershipOverlayEnabled}
@@ -62,7 +62,7 @@ export function OwnershipSection({ state }: IOwnershipSectionProps): ReactElemen
                         }}
                         owners={state.ownershipOverlayEntries}
                     />
-                </CardBody>
+                </CardContent>
             </Card>
 
             <Card>
@@ -71,7 +71,7 @@ export function OwnershipSection({ state }: IOwnershipSectionProps): ReactElemen
                         {t("code-city:ownership.busFactorOverlay")}
                     </p>
                 </CardHeader>
-                <CardBody>
+                <CardContent>
                     <CityBusFactorOverlay
                         activeDistrictId={state.activeBusFactorDistrictId}
                         entries={state.busFactorOverlayEntries}
@@ -87,7 +87,7 @@ export function OwnershipSection({ state }: IOwnershipSectionProps): ReactElemen
                             state.markAreaExplored("city-3d")
                         }}
                     />
-                </CardBody>
+                </CardContent>
             </Card>
 
             <Card>
@@ -96,7 +96,7 @@ export function OwnershipSection({ state }: IOwnershipSectionProps): ReactElemen
                         {t("code-city:ownership.busFactorTrendChart")}
                     </p>
                 </CardHeader>
-                <CardBody>
+                <CardContent>
                     <BusFactorTrendChart
                         activeModuleId={state.activeBusFactorTrendModuleId}
                         onSelectSeries={(series): void => {
@@ -113,7 +113,7 @@ export function OwnershipSection({ state }: IOwnershipSectionProps): ReactElemen
                         }}
                         series={state.busFactorTrendSeries}
                     />
-                </CardBody>
+                </CardContent>
             </Card>
 
             <Card>
@@ -122,7 +122,7 @@ export function OwnershipSection({ state }: IOwnershipSectionProps): ReactElemen
                         {t("code-city:ownership.knowledgeSiloPanel")}
                     </p>
                 </CardHeader>
-                <CardBody>
+                <CardContent>
                     <KnowledgeSiloPanel
                         activeSiloId={state.activeKnowledgeSiloId}
                         entries={state.knowledgeSiloEntries}
@@ -138,7 +138,7 @@ export function OwnershipSection({ state }: IOwnershipSectionProps): ReactElemen
                             state.markAreaExplored("city-3d")
                         }}
                     />
-                </CardBody>
+                </CardContent>
             </Card>
 
             <Card>
@@ -147,7 +147,7 @@ export function OwnershipSection({ state }: IOwnershipSectionProps): ReactElemen
                         {t("code-city:ownership.knowledgeMapExport")}
                     </p>
                 </CardHeader>
-                <CardBody>
+                <CardContent>
                     <KnowledgeMapExportWidget
                         model={state.knowledgeMapExportModel}
                         onExport={(format): void => {
@@ -165,7 +165,7 @@ export function OwnershipSection({ state }: IOwnershipSectionProps): ReactElemen
                             state.markAreaExplored("city-3d")
                         }}
                     />
-                </CardBody>
+                </CardContent>
             </Card>
 
             <Card>
@@ -174,7 +174,7 @@ export function OwnershipSection({ state }: IOwnershipSectionProps): ReactElemen
                         {t("code-city:ownership.contributorCollaborationGraph")}
                     </p>
                 </CardHeader>
-                <CardBody>
+                <CardContent>
                     <ContributorCollaborationGraph
                         activeContributorId={state.activeContributorId}
                         collaborations={state.contributorGraphEdges}
@@ -200,7 +200,7 @@ export function OwnershipSection({ state }: IOwnershipSectionProps): ReactElemen
                             state.markAreaExplored("city-3d")
                         }}
                     />
-                </CardBody>
+                </CardContent>
             </Card>
 
             <Card>
@@ -209,7 +209,7 @@ export function OwnershipSection({ state }: IOwnershipSectionProps): ReactElemen
                         {t("code-city:ownership.ownershipTransitionWidget")}
                     </p>
                 </CardHeader>
-                <CardBody>
+                <CardContent>
                     <OwnershipTransitionWidget
                         activeEventId={state.activeOwnershipTransitionId}
                         events={state.ownershipTransitionEvents}
@@ -228,7 +228,7 @@ export function OwnershipSection({ state }: IOwnershipSectionProps): ReactElemen
                             state.markAreaExplored("city-3d")
                         }}
                     />
-                </CardBody>
+                </CardContent>
             </Card>
         </>
     )

@@ -5,7 +5,7 @@ import { ExploreModeSidebar } from "@/components/graphs/explore-mode-sidebar"
 import { HotAreaHighlights } from "@/components/graphs/hot-area-highlights"
 import { OnboardingProgressTracker } from "@/components/graphs/onboarding-progress-tracker"
 import { ProjectOverviewPanel } from "@/components/graphs/project-overview-panel"
-import { Card, CardBody, CardHeader } from "@/components/ui"
+import { Card, CardContent, CardHeader } from "@heroui/react"
 
 import type { ICodeCityDashboardState } from "../use-code-city-dashboard-state"
 
@@ -34,13 +34,13 @@ export function OverviewSection({ state }: IOverviewSectionProps): ReactElement 
                         {t("code-city:overview.projectOverviewPanel")}
                     </p>
                 </CardHeader>
-                <CardBody>
+                <CardContent>
                     <ProjectOverviewPanel
                         files={state.currentProfile.files}
                         repositoryId={state.currentProfile.id}
                         repositoryLabel={state.currentProfile.label}
                     />
-                </CardBody>
+                </CardContent>
             </Card>
 
             <Card>
@@ -49,7 +49,7 @@ export function OverviewSection({ state }: IOverviewSectionProps): ReactElement 
                         {t("code-city:overview.exploreModeSidebar")}
                     </p>
                 </CardHeader>
-                <CardBody>
+                <CardContent>
                     <ExploreModeSidebar
                         onNavigatePath={(path): void => {
                             state.markAreaExplored("explore")
@@ -62,7 +62,7 @@ export function OverviewSection({ state }: IOverviewSectionProps): ReactElement 
                         }}
                         paths={state.exploreModePaths}
                     />
-                </CardBody>
+                </CardContent>
             </Card>
 
             <Card>
@@ -71,7 +71,7 @@ export function OverviewSection({ state }: IOverviewSectionProps): ReactElement 
                         {t("code-city:overview.hotAreaHighlights")}
                     </p>
                 </CardHeader>
-                <CardBody>
+                <CardContent>
                     <HotAreaHighlights
                         highlights={state.hotAreaHighlights}
                         onFocusHotArea={(highlight): void => {
@@ -85,7 +85,7 @@ export function OverviewSection({ state }: IOverviewSectionProps): ReactElement 
                             })
                         }}
                     />
-                </CardBody>
+                </CardContent>
             </Card>
 
             <Card>
@@ -94,9 +94,9 @@ export function OverviewSection({ state }: IOverviewSectionProps): ReactElement 
                         {t("code-city:overview.onboardingProgressTracker")}
                     </p>
                 </CardHeader>
-                <CardBody>
+                <CardContent>
                     <OnboardingProgressTracker modules={state.onboardingProgressModules} />
-                </CardBody>
+                </CardContent>
             </Card>
         </>
     )
