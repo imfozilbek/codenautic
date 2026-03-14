@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next"
 import { useNavigate } from "@tanstack/react-router"
 
 import { Alert, Button, Card, CardBody, CardHeader } from "@/components/ui"
+import { PageShell } from "@/components/layout/page-shell"
 import { TYPOGRAPHY } from "@/lib/constants/typography"
 
 /**
@@ -15,14 +16,10 @@ export function SessionRecoveryPage(): ReactElement {
     const navigate = useNavigate()
 
     return (
-        <section className="space-y-4">
-            <h1 className={TYPOGRAPHY.pageTitle}>
-                {t("system:sessionRecovery.pageTitle")}
-            </h1>
-            <p className={TYPOGRAPHY.pageSubtitle}>
-                {t("system:sessionRecovery.pageSubtitle")}
-            </p>
-
+        <PageShell
+            subtitle={t("system:sessionRecovery.pageSubtitle")}
+            title={t("system:sessionRecovery.pageTitle")}
+        >
             <Alert
                 color="primary"
                 title={t("system:sessionRecovery.guidanceTitle")}
@@ -80,6 +77,6 @@ export function SessionRecoveryPage(): ReactElement {
                     </div>
                 </CardBody>
             </Card>
-        </section>
+        </PageShell>
     )
 }
