@@ -8,6 +8,11 @@ import { RouteSuspenseFallback } from "@/app/route-suspense-fallback"
 import { AuthBoundary } from "@/lib/auth/auth-boundary"
 import { DashboardLayout } from "@/components/layout"
 import { type ICcrFilters } from "@/pages/ccr-management.page"
+import {
+    getWindowLocalStorage,
+    safeStorageGetJson,
+    safeStorageSetJson,
+} from "@/lib/utils/safe-storage"
 
 export const REVIEWS_FILTER_PERSISTENCE_KEY = "reviews:filters:v1"
 
@@ -56,47 +61,35 @@ function hasExplicitRouteFilters(input: IReviewsSearch): boolean {
 }
 
 export function readPersistedReviewsFilters(): ICcrFilters | null {
-    if (typeof window === "undefined") {
+    const storage = getWindowLocalStorage()
+    const parsed = safeStorageGetJson<Record<string, unknown> | null>(
+        storage,
+        REVIEWS_FILTER_PERSISTENCE_KEY,
+        null,
+    )
+    if (parsed === null) {
         return null
     }
 
-    try {
-        const raw = window.localStorage.getItem(REVIEWS_FILTER_PERSISTENCE_KEY)
-        if (raw === null) {
-            return null
-        }
-        const parsed = JSON.parse(raw) as Record<string, unknown>
+    const search = typeof parsed.search === "string" ? parsed.search : ""
+    const status =
+        typeof parsed.status === "string" && parsed.status.length > 0 ? parsed.status : "all"
+    const team = typeof parsed.team === "string" && parsed.team.length > 0 ? parsed.team : "all"
+    const repository =
+        typeof parsed.repository === "string" && parsed.repository.length > 0
+            ? parsed.repository
+            : "all"
 
-        const search = typeof parsed.search === "string" ? parsed.search : ""
-        const status =
-            typeof parsed.status === "string" && parsed.status.length > 0 ? parsed.status : "all"
-        const team = typeof parsed.team === "string" && parsed.team.length > 0 ? parsed.team : "all"
-        const repository =
-            typeof parsed.repository === "string" && parsed.repository.length > 0
-                ? parsed.repository
-                : "all"
-
-        return {
-            repository,
-            search,
-            status,
-            team,
-        }
-    } catch (_error: unknown) {
-        return null
+    return {
+        repository,
+        search,
+        status,
+        team,
     }
 }
 
 function persistReviewsFilters(next: ICcrFilters): void {
-    if (typeof window === "undefined") {
-        return
-    }
-
-    try {
-        window.localStorage.setItem(REVIEWS_FILTER_PERSISTENCE_KEY, JSON.stringify(next))
-    } catch (_error: unknown) {
-        return
-    }
+    safeStorageSetJson(getWindowLocalStorage(), REVIEWS_FILTER_PERSISTENCE_KEY, next)
 }
 
 export function buildSearchFromRoute(input: IReviewsSearch): ICcrFilters {
