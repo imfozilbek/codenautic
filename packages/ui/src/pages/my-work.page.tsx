@@ -246,7 +246,6 @@ function getEscalationColor(
     return "default"
 }
 
-
 /**
  * Unified triage hub "My Work".
  *
@@ -587,7 +586,12 @@ export function MyWorkPage(): ReactElement {
                             title={t("dashboard:myWork.escalationWatchlist")}
                             variant="flat"
                         >
-                            {(t as unknown as (key: string, options: Record<string, string | number>) => string)("dashboard:myWork.slaBreachAlert", { count: String(breachCount) })}
+                            {(
+                                t as unknown as (
+                                    key: string,
+                                    options: Record<string, string | number>,
+                                ) => string
+                            )("dashboard:myWork.slaBreachAlert", { count: String(breachCount) })}
                         </Alert>
                     ) : null}
                 </CardBody>
@@ -623,9 +627,7 @@ export function MyWorkPage(): ReactElement {
                                         key={item.id}
                                     >
                                         <div className="flex flex-wrap items-center gap-2">
-                                            <p className={TYPOGRAPHY.cardTitle}>
-                                                {item.title}
-                                            </p>
+                                            <p className={TYPOGRAPHY.cardTitle}>{item.title}</p>
                                             <Chip size="sm" variant="flat">
                                                 {item.category}
                                             </Chip>
@@ -669,8 +671,7 @@ export function MyWorkPage(): ReactElement {
                                             </Chip>
                                         </div>
                                         <p className="mt-1 text-xs text-text-secondary">
-                                            {item.repository} ·{" "}
-                                            {t("dashboard:myWork.createdLabel")}{" "}
+                                            {item.repository} · {t("dashboard:myWork.createdLabel")}{" "}
                                             {formatTimestamp(item.timestamp)} ·{" "}
                                             {t("dashboard:myWork.dueLabel")}{" "}
                                             {formatTimestamp(item.dueAt)} ·{" "}
@@ -727,10 +728,7 @@ export function MyWorkPage(): ReactElement {
                                             {/* Secondary actions — overflow dropdown */}
                                             <Dropdown>
                                                 <DropdownTrigger>
-                                                    <Button
-                                                        size="sm"
-                                                        variant="flat"
-                                                    >
+                                                    <Button size="sm" variant="flat">
                                                         {t("dashboard:myWork.moreActions")}
                                                     </Button>
                                                 </DropdownTrigger>
