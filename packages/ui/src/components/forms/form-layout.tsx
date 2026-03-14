@@ -25,7 +25,7 @@ export interface IFormLayoutProps {
  */
 export function FormLayout(props: IFormLayoutProps): ReactElement {
     return (
-        <div className={SPACING.section}>
+        <div className={`${SPACING.section} mx-auto max-w-[1400px]`}>
             <div className={SPACING.tight}>
                 <h1 className={TYPOGRAPHY.pageTitle}>{props.title}</h1>
                 {props.description !== undefined ? (
