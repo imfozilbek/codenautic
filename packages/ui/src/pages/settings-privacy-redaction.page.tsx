@@ -142,7 +142,7 @@ export function SettingsPrivacyRedactionPage(): ReactElement {
 
             <FormSection heading={t("settings:privacyRedaction.sourceContent")}>
                 <Textarea
-                    aria-label="Privacy source text"
+                    aria-label={t("settings:ariaLabel.privacyRedaction.sourceText")}
                     minRows={6}
                     value={sourceText}
                     onValueChange={setSourceText}
@@ -159,7 +159,10 @@ export function SettingsPrivacyRedactionPage(): ReactElement {
 
             <FormSection heading={t("settings:privacyRedaction.detectionSummary")}>
                 {hasSensitiveData ? (
-                    <ul aria-label="Sensitive hits list" className="space-y-2">
+                    <ul
+                        aria-label={t("settings:ariaLabel.privacyRedaction.sensitiveHitsList")}
+                        className="space-y-2"
+                    >
                         {sensitiveHits.map(
                             (hit, index): ReactElement => (
                                 <li
@@ -181,7 +184,7 @@ export function SettingsPrivacyRedactionPage(): ReactElement {
 
             <FormSection heading={t("settings:privacyRedaction.redactedPreview")}>
                 <Textarea
-                    aria-label="Privacy redacted preview"
+                    aria-label={t("settings:ariaLabel.privacyRedaction.redactedPreview")}
                     isReadOnly
                     minRows={6}
                     value={redactedText}

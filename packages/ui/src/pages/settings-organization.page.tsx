@@ -380,7 +380,7 @@ function MembersCard(props: {
                     </div>
                 </div>
 
-                <Table aria-label="Organization members">
+                <Table aria-label={t("settings:ariaLabel.organization.membersTable")}>
                     <TableHeader>
                         <TableColumn>{t("settings:organization.tableNameHeader")}</TableColumn>
                         <TableColumn>{t("settings:organization.tableEmailHeader")}</TableColumn>
@@ -502,7 +502,7 @@ function AuditLogsCard(props: { readonly logs: ReadonlyArray<IAuditLogEntry> }):
                 </p>
             </CardHeader>
             <CardBody>
-                <Table aria-label="Organization audit logs">
+                <Table aria-label={t("settings:ariaLabel.organization.auditLogsTable")}>
                     <TableHeader>
                         <TableColumn>{t("settings:organization.auditTimeHeader")}</TableColumn>
                         <TableColumn>{t("settings:organization.auditActorHeader")}</TableColumn>
