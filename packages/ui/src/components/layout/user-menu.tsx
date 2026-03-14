@@ -5,6 +5,11 @@ import { Dropdown, DropdownItem, DropdownMenu, DropdownTrigger } from "@/compone
 import { Avatar } from "@/components/ui"
 
 /**
+ * Количество символов для инициалов пользователя.
+ */
+const INITIALS_LENGTH = 2
+
+/**
  * Настройки отображения пользовательского блока в header.
  */
 export interface IUserMenuProps {
@@ -31,7 +36,8 @@ export interface IUserMenuProps {
 export function UserMenu(props: IUserMenuProps): ReactElement {
     const { t } = useTranslation(["navigation"])
     const defaultName = t("navigation:userMenu.defaultName")
-    const initials = props.userName !== undefined ? props.userName.slice(0, 2).toUpperCase() : "CN"
+    const initials =
+        props.userName !== undefined ? props.userName.slice(0, INITIALS_LENGTH).toUpperCase() : "CN"
 
     return (
         <Dropdown>
