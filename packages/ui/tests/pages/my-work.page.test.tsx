@@ -45,7 +45,10 @@ describe("MyWorkPage", (): void => {
             throw new Error("Critical issue row not found")
         }
 
-        await user.click(within(criticalIssueRow).getByRole("button", { name: "Assign to me" }))
+        const criticalMoreButton = within(criticalIssueRow).getByRole("button", { name: "More" })
+        await user.click(criticalMoreButton)
+        const assignMenuItem = await screen.findByRole("menuitem", { name: "Assign to me" })
+        await user.click(assignMenuItem)
         expect(screen.getByText("Assigned MW-1002 to current reviewer.")).not.toBeNull()
 
         const reviewItem = within(triageList).getByText("CCR #412 needs final response")
@@ -54,7 +57,10 @@ describe("MyWorkPage", (): void => {
             throw new Error("Review row not found")
         }
 
-        await user.click(within(reviewRow).getByRole("button", { name: "Mark read" }))
+        const reviewMoreButton = within(reviewRow).getByRole("button", { name: "More" })
+        await user.click(reviewMoreButton)
+        const markReadMenuItem = await screen.findByRole("menuitem", { name: "Mark read" })
+        await user.click(markReadMenuItem)
         expect(screen.getByText("Marked MW-1001 as read.")).not.toBeNull()
     })
 
@@ -98,7 +104,10 @@ describe("MyWorkPage", (): void => {
                 throw new Error("Review row not found")
             }
 
-            await user.click(within(reviewRow).getByRole("button", { name: "Open review" }))
+            const moreButton = within(reviewRow).getByRole("button", { name: "More" })
+            await user.click(moreButton)
+            const openReviewMenuItem = await screen.findByRole("menuitem", { name: "Open review" })
+            await user.click(openReviewMenuItem)
 
             expect(assignSpy).toHaveBeenCalledWith("/reviews/412")
             expect(screen.getByText("Opened MW-1001 context: /reviews/412")).not.toBeNull()
@@ -118,7 +127,10 @@ describe("MyWorkPage", (): void => {
             throw new Error("Review row not found")
         }
 
-        await user.click(within(reviewRow).getByRole("button", { name: "Snooze" }))
+        const moreButton = within(reviewRow).getByRole("button", { name: "More" })
+        await user.click(moreButton)
+        const snoozeMenuItem = await screen.findByRole("menuitem", { name: "Snooze" })
+        await user.click(snoozeMenuItem)
         expect(screen.getByText("Snoozed MW-1001 until next triage cycle.")).not.toBeNull()
     })
 
@@ -167,7 +179,6 @@ describe("MyWorkPage", (): void => {
             throw new Error("Review row not found")
         }
 
-        expect(within(reviewRow).getByRole("button", { name: "Assign to me" })).toBeDisabled()
         expect(within(reviewRow).getByRole("button", { name: "Start work" })).toBeDisabled()
         expect(within(reviewRow).getByRole("button", { name: "Mark done" })).toBeDisabled()
         expect(within(reviewRow).getByRole("button", { name: "Escalate" })).toBeDisabled()
@@ -236,8 +247,10 @@ describe("MyWorkPage", (): void => {
             throw new Error("Review row not found")
         }
 
-        const assignButton = within(reviewRow).getByRole("button", { name: "Assign to me" })
-        expect(assignButton).toBeDisabled()
+        const moreButton = within(reviewRow).getByRole("button", { name: "More" })
+        await user.click(moreButton)
+        const assignMenuItem = await screen.findByRole("menuitem", { name: "Assign to me" })
+        expect(assignMenuItem).toHaveAttribute("data-disabled", "true")
     })
 
     it("показывает initial action summary text", async (): Promise<void> => {
@@ -284,17 +297,30 @@ describe("MyWorkPage", (): void => {
         expect(within(reviewRow).getByText("escalation: critical")).not.toBeNull()
     })
 
-    it("deep-link рендерит anchor элемент с правильным href", async (): Promise<void> => {
-        renderWithProviders(<MyWorkPage />)
+    it("deep-link доступен через overflow dropdown", async (): Promise<void> => {
+        const user = userEvent.setup()
+        const assignSpy = vi
+            .spyOn(window.location, "assign")
+            .mockImplementation((_url: string | URL): void => undefined)
 
-        const triageList = screen.getByRole("list", { name: "My work triage list" })
-        const reviewItem = within(triageList).getByText("CCR #412 needs final response")
-        const reviewRow = reviewItem.closest("li")
-        if (reviewRow === null) {
-            throw new Error("Review row not found")
+        try {
+            renderWithProviders(<MyWorkPage />)
+
+            const triageList = screen.getByRole("list", { name: "My work triage list" })
+            const reviewItem = within(triageList).getByText("CCR #412 needs final response")
+            const reviewRow = reviewItem.closest("li")
+            if (reviewRow === null) {
+                throw new Error("Review row not found")
+            }
+
+            const moreButton = within(reviewRow).getByRole("button", { name: "More" })
+            await user.click(moreButton)
+            const deepLinkMenuItem = await screen.findByRole("menuitem", { name: "Deep-link" })
+            await user.click(deepLinkMenuItem)
+
+            expect(assignSpy).toHaveBeenCalledWith("/reviews/412")
+        } finally {
+            assignSpy.mockRestore()
         }
-
-        const deepLink = within(reviewRow).getByText("Deep-link")
-        expect(deepLink.closest("a")?.getAttribute("href")).toBe("/reviews/412")
     })
 })
