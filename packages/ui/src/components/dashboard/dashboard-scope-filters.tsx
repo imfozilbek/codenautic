@@ -1,12 +1,11 @@
 import { type ReactElement } from "react"
 import { useTranslation } from "react-i18next"
 
-import { Select, SelectItem } from "@/components/ui"
+import { type Key, ListBox, ListBoxItem, Select } from "@heroui/react"
 import {
     DashboardDateRangeFilter,
     type TDashboardDateRange,
 } from "@/components/dashboard/dashboard-date-range-filter"
-import { createScopeChangeHandler } from "@/components/dashboard/scope-filter-utils"
 
 /**
  * Organization scope options.
@@ -68,6 +67,21 @@ const TEAM_OPTIONS: ReadonlyArray<{ readonly value: TTeamScope; readonly label: 
 ]
 
 /**
+ * Создаёт обработчик изменения scope-фильтра для HeroUI v3 Select.
+ *
+ * @param callback Callback для обновления scope-значения.
+ * @returns Обработчик onSelectionChange.
+ */
+function createScopeHandler<T extends string>(callback: (value: T) => void): (key: Key | null) => void {
+    return (key: Key | null): void => {
+        if (key === null) {
+            return
+        }
+        callback(String(key) as T)
+    }
+}
+
+/**
  * Dashboard scope filter bar with org/repo/team selects and date range.
  * Replaces native `<select>` elements with HeroUI Select components.
  *
@@ -80,47 +94,65 @@ export function DashboardScopeFilters(props: IDashboardScopeFiltersProps): React
         <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
             <Select
                 aria-label={t("dashboard:ariaLabel.scopeFilters.organizationScope")}
-                selectedKeys={new Set([props.orgScope])}
-                size="sm"
-                onSelectionChange={createScopeChangeHandler<TOrgScope>(props.onOrgScopeChange)}
+                selectedKey={props.orgScope}
+                onSelectionChange={createScopeHandler<TOrgScope>(props.onOrgScopeChange)}
             >
-                {ORG_OPTIONS.map(
-                    (option): ReactElement => (
-                        <SelectItem key={option.value} value={option.value}>
-                            {option.label}
-                        </SelectItem>
-                    ),
-                )}
+                <Select.Trigger>
+                    <Select.Value />
+                </Select.Trigger>
+                <Select.Popover>
+                    <ListBox>
+                        {ORG_OPTIONS.map(
+                            (option): ReactElement => (
+                                <ListBoxItem key={option.value} id={option.value} textValue={option.label}>
+                                    {option.label}
+                                </ListBoxItem>
+                            ),
+                        )}
+                    </ListBox>
+                </Select.Popover>
             </Select>
             <Select
                 aria-label={t("dashboard:ariaLabel.scopeFilters.repositoryScope")}
-                selectedKeys={new Set([props.repositoryScope])}
-                size="sm"
-                onSelectionChange={createScopeChangeHandler<TRepositoryScope>(
+                selectedKey={props.repositoryScope}
+                onSelectionChange={createScopeHandler<TRepositoryScope>(
                     props.onRepositoryScopeChange,
                 )}
             >
-                {REPO_OPTIONS.map(
-                    (option): ReactElement => (
-                        <SelectItem key={option.value} value={option.value}>
-                            {option.label}
-                        </SelectItem>
-                    ),
-                )}
+                <Select.Trigger>
+                    <Select.Value />
+                </Select.Trigger>
+                <Select.Popover>
+                    <ListBox>
+                        {REPO_OPTIONS.map(
+                            (option): ReactElement => (
+                                <ListBoxItem key={option.value} id={option.value} textValue={option.label}>
+                                    {option.label}
+                                </ListBoxItem>
+                            ),
+                        )}
+                    </ListBox>
+                </Select.Popover>
             </Select>
             <Select
                 aria-label={t("dashboard:ariaLabel.scopeFilters.teamScope")}
-                selectedKeys={new Set([props.teamScope])}
-                size="sm"
-                onSelectionChange={createScopeChangeHandler<TTeamScope>(props.onTeamScopeChange)}
+                selectedKey={props.teamScope}
+                onSelectionChange={createScopeHandler<TTeamScope>(props.onTeamScopeChange)}
             >
-                {TEAM_OPTIONS.map(
-                    (option): ReactElement => (
-                        <SelectItem key={option.value} value={option.value}>
-                            {option.label}
-                        </SelectItem>
-                    ),
-                )}
+                <Select.Trigger>
+                    <Select.Value />
+                </Select.Trigger>
+                <Select.Popover>
+                    <ListBox>
+                        {TEAM_OPTIONS.map(
+                            (option): ReactElement => (
+                                <ListBoxItem key={option.value} id={option.value} textValue={option.label}>
+                                    {option.label}
+                                </ListBoxItem>
+                            ),
+                        )}
+                    </ListBox>
+                </Select.Popover>
             </Select>
             <DashboardDateRangeFilter value={props.dateRange} onChange={props.onDateRangeChange} />
         </div>
