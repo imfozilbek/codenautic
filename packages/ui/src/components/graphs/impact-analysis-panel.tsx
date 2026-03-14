@@ -146,7 +146,9 @@ export function ImpactAnalysisPanel(props: IImpactAnalysisPanelProps): ReactElem
                             key={seed.id}
                         >
                             <input
-                                aria-label={t("code-city:impactAnalysisComp.ariaSelectFile", { label: seed.label })}
+                                aria-label={t("code-city:impactAnalysisComp.ariaSelectFile", {
+                                    label: seed.label,
+                                })}
                                 checked={selectedSeedIds.includes(seed.id)}
                                 className="mt-0.5 h-4 w-4 rounded border-border"
                                 onChange={(): void => {
@@ -155,11 +157,11 @@ export function ImpactAnalysisPanel(props: IImpactAnalysisPanelProps): ReactElem
                                 type="checkbox"
                             />
                             <div className="min-w-0">
-                                <p className={TYPOGRAPHY.cardTitle}>
-                                    {seed.label}
-                                </p>
+                                <p className={TYPOGRAPHY.cardTitle}>{seed.label}</p>
                                 <p className={TYPOGRAPHY.captionMuted}>
-                                    {t("code-city:impactAnalysisComp.individualRisk", { score: seed.riskScore })}
+                                    {t("code-city:impactAnalysisComp.individualRisk", {
+                                        score: seed.riskScore,
+                                    })}
                                 </p>
                             </div>
                         </li>
@@ -175,13 +177,17 @@ export function ImpactAnalysisPanel(props: IImpactAnalysisPanelProps): ReactElem
                     {String(aggregatedImpact.riskScore)}
                 </p>
                 <p className="text-xs text-on-primary">
-                    {t("code-city:impactAnalysisComp.selectedFiles", { count: selectedSeeds.length })}
+                    {t("code-city:impactAnalysisComp.selectedFiles", {
+                        count: selectedSeeds.length,
+                    })}
                 </p>
             </div>
 
             <div className="mt-3 grid gap-2 md:grid-cols-3">
                 <div className="rounded border border-border bg-surface p-2">
-                    <p className={`${TYPOGRAPHY.micro} text-muted-foreground`}>{t("code-city:impactAnalysisComp.affectedFiles")}</p>
+                    <p className={`${TYPOGRAPHY.micro} text-muted-foreground`}>
+                        {t("code-city:impactAnalysisComp.affectedFiles")}
+                    </p>
                     <p className="mt-1 text-xs text-foreground">
                         {aggregatedImpact.affectedFiles.length === 0
                             ? t("code-city:impactAnalysisComp.none")
@@ -189,7 +195,9 @@ export function ImpactAnalysisPanel(props: IImpactAnalysisPanelProps): ReactElem
                     </p>
                 </div>
                 <div className="rounded border border-border bg-surface p-2">
-                    <p className={`${TYPOGRAPHY.micro} text-muted-foreground`}>{t("code-city:impactAnalysisComp.affectedTests")}</p>
+                    <p className={`${TYPOGRAPHY.micro} text-muted-foreground`}>
+                        {t("code-city:impactAnalysisComp.affectedTests")}
+                    </p>
                     <p className="mt-1 text-xs text-foreground">
                         {aggregatedImpact.affectedTests.length === 0
                             ? t("code-city:impactAnalysisComp.none")
@@ -197,7 +205,9 @@ export function ImpactAnalysisPanel(props: IImpactAnalysisPanelProps): ReactElem
                     </p>
                 </div>
                 <div className="rounded border border-border bg-surface p-2">
-                    <p className={`${TYPOGRAPHY.micro} text-muted-foreground`}>{t("code-city:impactAnalysisComp.consumers")}</p>
+                    <p className={`${TYPOGRAPHY.micro} text-muted-foreground`}>
+                        {t("code-city:impactAnalysisComp.consumers")}
+                    </p>
                     <p className="mt-1 text-xs text-foreground">
                         {aggregatedImpact.affectedConsumers.length === 0
                             ? t("code-city:impactAnalysisComp.none")
