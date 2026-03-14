@@ -1,6 +1,7 @@
 import type { ReactElement } from "react"
 import { useTranslation } from "react-i18next"
 
+import { useDynamicTranslation } from "@/lib/i18n"
 import { TYPOGRAPHY } from "@/lib/constants/typography"
 
 /**
@@ -101,6 +102,7 @@ function BadgeIcon(props: { readonly badge: TAchievementBadge }): ReactElement {
  */
 export function AchievementsPanel(props: IAchievementsPanelProps): ReactElement {
     const { t } = useTranslation(["code-city"])
+    const { td } = useDynamicTranslation(["code-city"])
     return (
         <section className="rounded-lg border border-border bg-surface p-3 shadow-sm">
             <p className={TYPOGRAPHY.cardTitle}>{t("code-city:achievementsComp.title")}</p>
@@ -111,11 +113,13 @@ export function AchievementsPanel(props: IAchievementsPanelProps): ReactElement 
             <ul aria-label={t("code-city:achievementsComp.ariaList")} className="mt-3 space-y-2">
                 {props.achievements.map((entry): ReactElement => {
                     const isActive = props.activeAchievementId === entry.id
-                    const badgeLabel = (t as unknown as (key: string) => string)(resolveBadgeLabelKey(entry.badge))
+                    const badgeLabel = td(resolveBadgeLabelKey(entry.badge))
                     return (
                         <li key={entry.id}>
                             <button
-                                aria-label={t("code-city:achievementsComp.ariaInspect", { title: entry.title })}
+                                aria-label={t("code-city:achievementsComp.ariaInspect", {
+                                    title: entry.title,
+                                })}
                                 className={resolveRowClassName(isActive)}
                                 onClick={(): void => {
                                     props.onSelectAchievement?.(entry)
@@ -131,7 +135,9 @@ export function AchievementsPanel(props: IAchievementsPanelProps): ReactElement 
                                             {entry.summary}
                                         </p>
                                         <p className="mt-1 text-xs font-semibold text-success">
-                                            {t("code-city:achievementsComp.improvement", { percent: String(entry.improvementPercent) })}
+                                            {t("code-city:achievementsComp.improvement", {
+                                                percent: String(entry.improvementPercent),
+                                            })}
                                         </p>
                                     </div>
                                     <span
