@@ -11,12 +11,16 @@ import { initializeWebVitalsMonitoring } from "@/lib/monitoring/web-vitals"
 
 initializeTheme()
 const isSentryInitialized = initializeSentryBrowser(import.meta.env)
-void initializeWebVitalsMonitoring({
+initializeWebVitalsMonitoring({
     enabled: isSentryInitialized,
 })
-void initializeI18n().then((): void => {
-    syncHtmlLangAttribute()
-})
+void initializeI18n()
+    .then((): void => {
+        syncHtmlLangAttribute()
+    })
+    .catch((): void => {
+        /* i18n init failure — app falls back to default locale */
+    })
 
 async function bootstrapApp(): Promise<void> {
     if (import.meta.env.DEV) {
