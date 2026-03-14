@@ -237,7 +237,9 @@ function buildKpiMetrics(
             id: "estimated-cost",
             label: t("settings:tokenUsage.estimatedCostLabel"),
             trendDirection: "up",
-            trendLabel: t("settings:tokenUsage.completionTrend", { value: formatTokens(totalCompletion) }),
+            trendLabel: t("settings:tokenUsage.completionTrend", {
+                value: formatTokens(totalCompletion),
+            }),
             value: formatCostUsd(totalCost),
         },
         {
@@ -384,7 +386,10 @@ export function SettingsTokenUsagePage(): ReactElement {
                 value:
                     topModel === undefined
                         ? t("settings:tokenUsage.noModelData")
-                        : t("settings:tokenUsage.modelConsumed", { model: topModel.key, tokens: formatTokens(topModel.totalTokens) }),
+                        : t("settings:tokenUsage.modelConsumed", {
+                              model: topModel.key,
+                              tokens: formatTokens(topModel.totalTokens),
+                          }),
             },
             {
                 impact: "medium",
@@ -392,7 +397,9 @@ export function SettingsTokenUsagePage(): ReactElement {
                 value:
                     topDeveloper === undefined
                         ? t("settings:tokenUsage.noDeveloperData")
-                        : t("settings:tokenUsage.developerDrivesUsage", { developer: topDeveloper.key }),
+                        : t("settings:tokenUsage.developerDrivesUsage", {
+                              developer: topDeveloper.key,
+                          }),
             },
             {
                 impact: "low",
@@ -400,7 +407,10 @@ export function SettingsTokenUsagePage(): ReactElement {
                 value:
                     topCcr === undefined
                         ? t("settings:tokenUsage.noCcrData")
-                        : t("settings:tokenUsage.topCcrContributes", { ccr: topCcr.key, cost: formatCostUsd(topCcr.estimatedCostUsd) }),
+                        : t("settings:tokenUsage.topCcrContributes", {
+                              ccr: topCcr.key,
+                              cost: formatCostUsd(topCcr.estimatedCostUsd),
+                          }),
             },
         ]
     }, [byCcr, byDeveloper, byModel, t])
@@ -473,7 +483,11 @@ export function SettingsTokenUsagePage(): ReactElement {
                 onRescan={handleRescan}
             />
             {freshnessActionMessage.length > 0 ? (
-                <Alert color="primary" title={t("settings:tokenUsage.freshnessAction")} variant="flat">
+                <Alert
+                    color="primary"
+                    title={t("settings:tokenUsage.freshnessAction")}
+                    variant="flat"
+                >
                     {freshnessActionMessage}
                 </Alert>
             ) : null}
@@ -537,9 +551,14 @@ export function SettingsTokenUsagePage(): ReactElement {
                     <UsageTable rows={byModel} title={t("settings:tokenUsage.usageByModel")} />
                 ) : null}
                 {selectedTab === "by-developer" ? (
-                    <UsageTable rows={byDeveloper} title={t("settings:tokenUsage.usageByDeveloper")} />
+                    <UsageTable
+                        rows={byDeveloper}
+                        title={t("settings:tokenUsage.usageByDeveloper")}
+                    />
                 ) : null}
-                {selectedTab === "by-ccr" ? <UsageTable rows={byCcr} title={t("settings:tokenUsage.usageByCcr")} /> : null}
+                {selectedTab === "by-ccr" ? (
+                    <UsageTable rows={byCcr} title={t("settings:tokenUsage.usageByCcr")} />
+                ) : null}
             </div>
         </FormLayout>
     )

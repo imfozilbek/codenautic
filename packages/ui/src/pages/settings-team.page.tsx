@@ -163,7 +163,10 @@ function TeamDirectoryCard(props: {
                             <p className="text-sm font-semibold text-foreground">{team.name}</p>
                             <p className="text-xs text-text-secondary">{team.description}</p>
                             <p className="mt-1 text-xs text-text-secondary">
-                                {t("settings:team.membersCount", { count: team.members.length, repos: team.repositories.length })}
+                                {t("settings:team.membersCount", {
+                                    count: team.members.length,
+                                    repos: team.repositories.length,
+                                })}
                             </p>
                         </button>
                     )
@@ -304,7 +307,9 @@ function TeamMembersCard(props: {
                 {props.roleManagementPolicy.reason === undefined ||
                 isRoleManagementHidden ? null : (
                     <p className="text-xs text-text-secondary">
-                        {t("settings:team.rolePolicy", { reason: props.roleManagementPolicy.reason })}
+                        {t("settings:team.rolePolicy", {
+                            reason: props.roleManagementPolicy.reason,
+                        })}
                     </p>
                 )}
             </CardBody>
@@ -354,7 +359,9 @@ function TeamRepositoriesCard(props: {
                 {props.assignmentPolicy.reason === undefined ||
                 isAssignmentDisabled === false ? null : (
                     <p className="text-xs text-text-secondary">
-                        {t("settings:team.repositoryPolicy", { reason: props.assignmentPolicy.reason })}
+                        {t("settings:team.repositoryPolicy", {
+                            reason: props.assignmentPolicy.reason,
+                        })}
                     </p>
                 )}
             </CardBody>
@@ -396,7 +403,9 @@ export function SettingsTeamPage(): ReactElement {
 
     const handleCreateTeam = (): void => {
         if (createTeamPolicy.visibility !== "enabled") {
-            showToastError(createTeamPolicy.reason ?? t("settings:team.toast.teamCreationRestricted"))
+            showToastError(
+                createTeamPolicy.reason ?? t("settings:team.toast.teamCreationRestricted"),
+            )
             return
         }
 
@@ -469,7 +478,12 @@ export function SettingsTeamPage(): ReactElement {
                 ),
         )
         setInviteEmail("")
-        showToastSuccess(t("settings:team.toast.memberAdded", { email: nextMember.email, team: activeTeam.name }))
+        showToastSuccess(
+            t("settings:team.toast.memberAdded", {
+                email: nextMember.email,
+                team: activeTeam.name,
+            }),
+        )
     }
 
     const handleRoleUpdate = (memberId: string, role: TTeamMemberRole): void => {
@@ -537,7 +551,9 @@ export function SettingsTeamPage(): ReactElement {
                     }
                 }),
         )
-        showToastInfo(t("settings:team.toast.repositoryAssignmentUpdated", { name: activeTeam.name }))
+        showToastInfo(
+            t("settings:team.toast.repositoryAssignmentUpdated", { name: activeTeam.name }),
+        )
     }
 
     return (
@@ -545,7 +561,11 @@ export function SettingsTeamPage(): ReactElement {
             title={t("settings:team.pageTitle")}
             description={t("settings:team.pageSubtitle")}
         >
-            <Alert color="primary" title={t("settings:team.rbacPreviewRole", { role: activeUiRole })} variant="flat">
+            <Alert
+                color="primary"
+                title={t("settings:team.rbacPreviewRole", { role: activeUiRole })}
+                variant="flat"
+            >
                 {t("settings:team.rbacDescription")}
             </Alert>
 
@@ -591,8 +611,15 @@ export function SettingsTeamPage(): ReactElement {
                     {t("settings:team.noActiveTeamDescription")}
                 </Alert>
             ) : (
-                <Alert color="primary" title={t("settings:team.activeTeamTitle", { name: activeTeam.name })} variant="flat">
-                    {t("settings:team.activeTeamDescription", { members: activeTeam.members.length, repos: activeTeam.repositories.length })}
+                <Alert
+                    color="primary"
+                    title={t("settings:team.activeTeamTitle", { name: activeTeam.name })}
+                    variant="flat"
+                >
+                    {t("settings:team.activeTeamDescription", {
+                        members: activeTeam.members.length,
+                        repos: activeTeam.repositories.length,
+                    })}
                 </Alert>
             )}
 
