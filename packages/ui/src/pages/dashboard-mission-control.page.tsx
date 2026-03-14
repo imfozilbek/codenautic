@@ -1,4 +1,4 @@
-import { type ReactElement, Suspense, lazy, useEffect, useMemo, useState } from "react"
+import { type ReactElement, Suspense, lazy, useCallback, useEffect, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { Alert, Button, Card, CardBody, CardHeader, StyledLink } from "@/components/ui"
@@ -20,8 +20,9 @@ import {
     type TRepositoryScope,
     type TTeamScope,
 } from "@/components/dashboard/dashboard-scope-filters"
+import { PageShell } from "@/components/layout/page-shell"
 import { useUiRole } from "@/lib/permissions/ui-policy"
-import { NATIVE_FORM, PAGE_LAYOUT } from "@/lib/constants/spacing"
+import { NATIVE_FORM } from "@/lib/constants/spacing"
 import { TYPOGRAPHY } from "@/lib/constants/typography"
 import { AnimatedAlert, AnimatedMount } from "@/lib/motion"
 
@@ -168,6 +169,7 @@ export function DashboardMissionControlPage(): ReactElement {
     const [lastUpdatedAt, setLastUpdatedAt] = useState<string>("2026-03-04T10:35:00Z")
     const [isRefreshing, setIsRefreshing] = useState<boolean>(false)
     const [freshnessActionMessage, setFreshnessActionMessage] = useState<string>("")
+    const [isFiltersOpen, setIsFiltersOpen] = useState<boolean>(false)
     const [isPersonalizationOpen, setIsPersonalizationOpen] = useState<boolean>(true)
     const [mockModule, setMockModule] = useState<TMockDataModule | null>(null)
 
@@ -255,6 +257,10 @@ export function DashboardMissionControlPage(): ReactElement {
 
     const activePreset = useMemo(() => resolveDashboardLayoutPreset(layoutPreset), [layoutPreset])
 
+    const toggleFilters = useCallback((): void => {
+        setIsFiltersOpen((prev): boolean => !prev)
+    }, [])
+
     if (mockModule === null) {
         return <DashboardSkeleton />
     }
@@ -306,29 +312,38 @@ export function DashboardMissionControlPage(): ReactElement {
         setShareLink(`${origin}/?workspaceView=${viewPayload}`)
     }
 
+    const scopeSubtitle = `${t("dashboard:missionControl.scopeLabel")} ${orgScope} / ${repositoryScope} / ${teamScope}`
+
     return (
-        <section className={`${PAGE_LAYOUT.spacious} mx-auto max-w-[1400px]`}>
-            {/* Header + Scope filters */}
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-                <div>
-                    <h1 className={TYPOGRAPHY.pageTitle}>{t("dashboard:missionControl.pageTitle")}</h1>
-                    <p className="text-sm text-muted-foreground">
-                        {t("dashboard:missionControl.scopeLabel")} {orgScope} / {repositoryScope} / {teamScope}
-                    </p>
-                </div>
+        <PageShell
+            headerActions={
                 <div className="sm:min-w-[420px]">
-                    <DashboardScopeFilters
-                        dateRange={range}
-                        onDateRangeChange={setRange}
-                        onOrgScopeChange={setOrgScope}
-                        onRepositoryScopeChange={setRepositoryScope}
-                        onTeamScopeChange={setTeamScope}
-                        orgScope={orgScope}
-                        repositoryScope={repositoryScope}
-                        teamScope={teamScope}
-                    />
+                    <button
+                        className="flex items-center gap-1 text-sm text-text-secondary sm:hidden"
+                        type="button"
+                        onClick={toggleFilters}
+                    >
+                        {t("dashboard:missionControl.filters", { defaultValue: "Фильтры" })}{" "}
+                        {isFiltersOpen ? "\u25B2" : "\u25BC"}
+                    </button>
+                    <div className={`${isFiltersOpen ? "block" : "hidden"} sm:block`}>
+                        <DashboardScopeFilters
+                            dateRange={range}
+                            onDateRangeChange={setRange}
+                            onOrgScopeChange={setOrgScope}
+                            onRepositoryScopeChange={setRepositoryScope}
+                            onTeamScopeChange={setTeamScope}
+                            orgScope={orgScope}
+                            repositoryScope={repositoryScope}
+                            teamScope={teamScope}
+                        />
+                    </div>
                 </div>
-            </div>
+            }
+            layout="spacious"
+            subtitle={scopeSubtitle}
+            title={t("dashboard:missionControl.pageTitle")}
+        >
 
             {/* Zone A: Critical signals — always visible */}
             <DashboardCriticalSignals
@@ -348,8 +363,6 @@ export function DashboardMissionControlPage(): ReactElement {
                 onRefresh={handleRefresh}
                 onRescan={handleRescan}
             />
-
-            <ActivationChecklist role={checklistRole} />
 
             {/* Zone A': Hero metric + KPI grid — always visible */}
             <AnimatedMount motionKey={`hero-metrics-${range}`}>
@@ -423,6 +436,8 @@ export function DashboardMissionControlPage(): ReactElement {
                     </div>
                 </div>
             </DashboardZone>
+
+            <ActivationChecklist role={checklistRole} />
 
             {/* Personalization — collapsible */}
             <div>
@@ -525,7 +540,7 @@ export function DashboardMissionControlPage(): ReactElement {
                     </Card>
                 </AnimatedAlert>
             </div>
-        </section>
+        </PageShell>
     )
 }
 
