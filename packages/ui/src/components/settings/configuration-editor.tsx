@@ -139,6 +139,7 @@ export function ConfigurationEditor(props: IConfigurationEditorProps): ReactElem
             <div className="flex flex-wrap items-center gap-3">
                 <Button
                     data-testid="repo-config-save"
+                    color="primary"
                     disabled={props.isSaveDisabled}
                     type="submit"
                     variant="solid"
