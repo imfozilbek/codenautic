@@ -206,7 +206,7 @@ function TeamMembersCard(props: {
                         onValueChange={props.onInviteEmailChange}
                     />
                     <select
-                        aria-label="Invite role"
+                        aria-label={t("settings:ariaLabel.team.inviteRole")}
                         className={NATIVE_FORM.select}
                         id="team-invite-role"
                         value={props.inviteRole}

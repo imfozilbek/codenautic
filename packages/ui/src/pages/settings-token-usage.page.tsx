@@ -509,7 +509,7 @@ export function SettingsTokenUsagePage(): ReactElement {
 
             <div className="space-y-3">
                 <div
-                    aria-label="Token usage group selector"
+                    aria-label={t("settings:ariaLabel.tokenUsage.groupSelector")}
                     className="flex flex-wrap gap-2"
                     role="tablist"
                 >
