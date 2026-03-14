@@ -8,8 +8,7 @@ import {
     safeStorageGetJson,
     safeStorageSetJson,
 } from "@/lib/utils/safe-storage"
-import { NATIVE_FORM } from "@/lib/constants/spacing"
-import { TYPOGRAPHY } from "@/lib/constants/typography"
+
 import { PageShell } from "@/components/layout/page-shell"
 import { FOCUS_REVIEWS_FILTERS_EVENT } from "@/lib/keyboard/shortcut-registry"
 import { useCcrWorkspace } from "@/lib/hooks/queries"
