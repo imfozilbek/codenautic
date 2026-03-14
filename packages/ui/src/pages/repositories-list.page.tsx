@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next"
 import { Link } from "@tanstack/react-router"
 
 import { useDynamicTranslation } from "@/lib/i18n"
-import { Button, Card, CardBody, CardHeader } from "@/components/ui"
+import { Button, Card, CardContent, CardHeader } from "@heroui/react"
 import { EnterpriseDataTable } from "@/components/infrastructure/enterprise-data-table"
 import { PageShell } from "@/components/layout/page-shell"
 import { NATIVE_FORM } from "@/lib/constants/spacing"
@@ -307,14 +307,13 @@ function RepositoryScanErrorRecovery(props: {
                 </details>
             )}
             <Button
-                color="danger"
+                variant="danger"
                 className="mt-2"
                 onPress={(): void => {
                     props.onRetryScan?.(props.repositoryId)
                 }}
                 size="sm"
                 type="button"
-                variant="ghost"
             >
                 {t("dashboard:repositoriesList.retryScan")}
             </Button>
@@ -443,7 +442,7 @@ export function RepositoriesListPage(props: IRepositoryListPageProps): ReactElem
                             </select>
                         </div>
                     </CardHeader>
-                    <CardBody>
+                    <CardContent>
                         <div className="mb-3 grid gap-2 md:grid-cols-3">
                             <RepositoryCountSummary
                                 colorClass="text-success"
@@ -557,7 +556,7 @@ export function RepositoriesListPage(props: IRepositoryListPageProps): ReactElem
                             id="repositories-list-table"
                             rows={visible}
                         />
-                    </CardBody>
+                    </CardContent>
                 </Card>
             )}
         </PageShell>

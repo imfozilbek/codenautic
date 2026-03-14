@@ -16,12 +16,12 @@ import {
 } from "recharts"
 
 import { AiSummaryWidget } from "@/components/reports/ai-summary-widget"
-import { Alert, Button, Card, CardBody, CardHeader } from "@/components/ui"
+import { Alert, Button, Card, CardContent, CardHeader } from "@heroui/react"
 import { PageShell } from "@/components/layout/page-shell"
 import { NATIVE_FORM } from "@/lib/constants/spacing"
 import { TYPOGRAPHY } from "@/lib/constants/typography"
 import { ChartContainer } from "@/components/charts/chart-container"
-import { CHART_GRID_DASH, CHART_STROKE_WIDTH } from "@/lib/constants/chart-constants"
+import { CHART_GRID_DASH, CHART_STROKE_WIDTH } from "@/lib/constants/chart-recharts-defaults"
 import { showToastInfo, showToastSuccess } from "@/lib/notifications/toast"
 
 type TViewerMetric = "riskScore" | "deliveryVelocity"
@@ -129,7 +129,7 @@ export function ReportViewerPage(): ReactElement {
             <div className="flex flex-wrap gap-2">
                 <Button
                     size="sm"
-                    variant="flat"
+                    variant="secondary"
                     onPress={(): void => {
                         void navigate({
                             to: "/reports",
@@ -140,7 +140,7 @@ export function ReportViewerPage(): ReactElement {
                 </Button>
                 <Button
                     size="sm"
-                    variant="flat"
+                    variant="secondary"
                     onPress={(): void => {
                         void navigate({
                             to: "/reports/generate",
@@ -157,13 +157,10 @@ export function ReportViewerPage(): ReactElement {
                         {t("reports:viewer.generatedReportTitle")}
                     </p>
                 </CardHeader>
-                <CardBody className="space-y-3">
-                    <Alert
-                        color="success"
-                        title={t("reports:viewer.reportSummaryTitle")}
-                        variant="flat"
-                    >
-                        {reportHealthSummary}
+                <CardContent className="space-y-3">
+                    <Alert status="success">
+                        <Alert.Title>{t("reports:viewer.reportSummaryTitle")}</Alert.Title>
+                        <Alert.Description>{reportHealthSummary}</Alert.Description>
                     </Alert>
                     <div className="grid gap-3 md:grid-cols-2">
                         <label className="space-y-1 text-sm">
@@ -191,10 +188,10 @@ export function ReportViewerPage(): ReactElement {
                             </select>
                         </label>
                         <div className="flex items-end gap-2">
-                            <Button color="primary" onPress={(): void => handleDownload("PDF")}>
+                            <Button variant="primary" onPress={(): void => handleDownload("PDF")}>
                                 {t("reports:viewer.downloadPdf")}
                             </Button>
-                            <Button variant="flat" onPress={(): void => handleDownload("PNG")}>
+                            <Button variant="secondary" onPress={(): void => handleDownload("PNG")}>
                                 {t("reports:viewer.downloadPng")}
                             </Button>
                         </div>
@@ -251,28 +248,24 @@ export function ReportViewerPage(): ReactElement {
                             </Bar>
                         </BarChart>
                     </ChartContainer>
-                    <Alert
-                        color="primary"
-                        title={t("reports:viewer.downloadStatus")}
-                        variant="flat"
-                    >
-                        {downloadStatus}
+                    <Alert status="accent">
+                        <Alert.Title>{t("reports:viewer.downloadStatus")}</Alert.Title>
+                        <Alert.Description>{downloadStatus}</Alert.Description>
                     </Alert>
                     <div className="flex gap-2">
-                        <Button color="primary" onPress={handleGenerateShareLink}>
+                        <Button variant="primary" onPress={handleGenerateShareLink}>
                             {t("reports:viewer.generateShareLink")}
                         </Button>
                     </div>
-                    <Alert
-                        color="primary"
-                        title={t("reports:viewer.shareLinkTitle")}
-                        variant="flat"
-                    >
-                        <span aria-label={t("reports:ariaLabel.viewer.shareLink")}>
-                            {shareLink}
-                        </span>
+                    <Alert status="accent">
+                        <Alert.Title>{t("reports:viewer.shareLinkTitle")}</Alert.Title>
+                        <Alert.Description>
+                            <span aria-label={t("reports:ariaLabel.viewer.shareLink")}>
+                                {shareLink}
+                            </span>
+                        </Alert.Description>
                     </Alert>
-                </CardBody>
+                </CardContent>
             </Card>
 
             <AiSummaryWidget initialSummary="Delivery velocity improved while report risk score trended down across the selected period." />
