@@ -165,9 +165,7 @@ export function ProjectOverviewPanel(props: IProjectOverviewPanelProps): ReactEl
     return (
         <article className="rounded-lg border border-border bg-surface p-3 shadow-sm">
             <header className="border-b border-border pb-2">
-                <p className={TYPOGRAPHY.cardTitle}>
-                    {t("code-city:projectOverview.title")}
-                </p>
+                <p className={TYPOGRAPHY.cardTitle}>{t("code-city:projectOverview.title")}</p>
                 <p className={TYPOGRAPHY.captionMuted}>
                     {props.repositoryLabel} ({props.repositoryId})
                 </p>
@@ -190,9 +188,7 @@ export function ProjectOverviewPanel(props: IProjectOverviewPanelProps): ReactEl
             </section>
 
             <section className="mt-3 space-y-2">
-                <p className={TYPOGRAPHY.overline}>
-                    {t("code-city:projectOverview.techStack")}
-                </p>
+                <p className={TYPOGRAPHY.overline}>{t("code-city:projectOverview.techStack")}</p>
                 <ul className={`space-y-1 ${TYPOGRAPHY.body}`}>
                     {metrics.techStackSummary.map(
                         (item): ReactElement => (
@@ -206,9 +202,7 @@ export function ProjectOverviewPanel(props: IProjectOverviewPanelProps): ReactEl
             </section>
 
             <section className="mt-3 space-y-2">
-                <p className={TYPOGRAPHY.overline}>
-                    {t("code-city:projectOverview.entryPoints")}
-                </p>
+                <p className={TYPOGRAPHY.overline}>{t("code-city:projectOverview.entryPoints")}</p>
                 {metrics.entryPoints.length > 0 ? (
                     <ul className="space-y-1 text-xs text-foreground">
                         {metrics.entryPoints.map(
