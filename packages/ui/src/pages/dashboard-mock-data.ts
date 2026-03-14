@@ -101,39 +101,39 @@ export function getOpsBanner(range: TDashboardDateRange): { readonly isDegraded:
 export function getTeamActivity(range: TDashboardDateRange): ReadonlyArray<ITeamActivityPoint> {
     if (range === "1d") {
         return [
-            { developer: "Ari", ccrMerged: 3 },
-            { developer: "Mila", ccrMerged: 2 },
-            { developer: "Nika", ccrMerged: 2 },
-            { developer: "Sari", ccrMerged: 1 },
+            { developer: "Neo", ccrMerged: 3 },
+            { developer: "Trinity", ccrMerged: 2 },
+            { developer: "Morpheus", ccrMerged: 2 },
+            { developer: "Niobe", ccrMerged: 1 },
         ]
     }
 
     if (range === "30d") {
         return [
-            { developer: "Ari", ccrMerged: 28 },
-            { developer: "Mila", ccrMerged: 22 },
-            { developer: "Nika", ccrMerged: 18 },
-            { developer: "Sari", ccrMerged: 14 },
-            { developer: "Dan", ccrMerged: 12 },
+            { developer: "Neo", ccrMerged: 28 },
+            { developer: "Trinity", ccrMerged: 22 },
+            { developer: "Morpheus", ccrMerged: 18 },
+            { developer: "Niobe", ccrMerged: 14 },
+            { developer: "Cypher", ccrMerged: 12 },
         ]
     }
 
     if (range === "90d") {
         return [
-            { developer: "Ari", ccrMerged: 74 },
-            { developer: "Mila", ccrMerged: 61 },
-            { developer: "Nika", ccrMerged: 55 },
-            { developer: "Sari", ccrMerged: 41 },
-            { developer: "Dan", ccrMerged: 33 },
-            { developer: "Cara", ccrMerged: 29 },
+            { developer: "Neo", ccrMerged: 74 },
+            { developer: "Trinity", ccrMerged: 61 },
+            { developer: "Morpheus", ccrMerged: 55 },
+            { developer: "Niobe", ccrMerged: 41 },
+            { developer: "Cypher", ccrMerged: 33 },
+            { developer: "Switch", ccrMerged: 29 },
         ]
     }
 
     return [
-        { developer: "Ari", ccrMerged: 11 },
-        { developer: "Mila", ccrMerged: 9 },
-        { developer: "Nika", ccrMerged: 7 },
-        { developer: "Sari", ccrMerged: 5 },
+        { developer: "Neo", ccrMerged: 11 },
+        { developer: "Trinity", ccrMerged: 9 },
+        { developer: "Morpheus", ccrMerged: 7 },
+        { developer: "Niobe", ccrMerged: 5 },
     ]
 }
 
