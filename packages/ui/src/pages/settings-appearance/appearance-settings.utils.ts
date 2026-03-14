@@ -48,11 +48,6 @@ import {
 const HEX_CHANNEL_LENGTH = 2
 
 /**
- * @deprecated Алиас для TSurfaceToneId. Используй TSurfaceToneId напрямую.
- */
-export type TBasePaletteId = TSurfaceToneId
-
-/**
  * Элемент пользовательской библиотеки тем.
  */
 export interface IUserThemeLibraryItem {
@@ -83,7 +78,7 @@ export interface IUserThemeLibraryItem {
     /**
      * Базовая палитра.
      */
-    readonly basePaletteId: TBasePaletteId
+    readonly basePaletteId: TSurfaceToneId
     /**
      * Глобальный радиус.
      */
@@ -204,8 +199,8 @@ export function readStoredNumber(
  */
 export function readStoredBasePalette(
     storageKey: string,
-    fallback: TBasePaletteId,
-): TBasePaletteId {
+    fallback: TSurfaceToneId,
+): TSurfaceToneId {
     const rawValue = readLocalStorageItem(storageKey)
     if (isSurfaceToneId(rawValue)) {
         return rawValue
@@ -448,13 +443,6 @@ export function isThemePresetIdValue(
 }
 
 /**
- * @deprecated Используй isSurfaceToneId.
- */
-export function isBasePaletteValue(value: unknown): value is TBasePaletteId {
-    return isSurfaceToneId(value)
-}
-
-/**
  * Парсит и валидирует элемент библиотеки тем из неизвестного значения.
  *
  * @param value - Сырое значение (из JSON).
@@ -504,7 +492,7 @@ export function parseThemeLibraryItem(
     if (isThemeModeValue(rawValue.mode) !== true) {
         return undefined
     }
-    if (isBasePaletteValue(rawValue.basePaletteId) !== true) {
+    if (isSurfaceToneId(rawValue.basePaletteId) !== true) {
         return undefined
     }
     if (isThemePresetIdValue(rawValue.presetId, availablePresetIds) !== true) {
