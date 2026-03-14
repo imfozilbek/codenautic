@@ -16,7 +16,7 @@ import {
     Rocket,
     Settings,
 } from "@/components/icons/app-icons"
-import { Button } from "@/components/ui"
+import { TYPOGRAPHY } from "@/lib/constants/typography"
 
 /**
  * Sidebar navigation item.
@@ -33,10 +33,20 @@ export interface ISidebarItem {
 }
 
 /**
+ * Grouped section of nav items.
+ */
+interface ISidebarGroup {
+    /** Section label (rendered as overline). */
+    readonly label?: string
+    /** Items in this group. */
+    readonly items: ReadonlyArray<ISidebarItem>
+}
+
+/**
  * Sidebar nav list props.
  */
 export interface ISidebarNavProps {
-    /** Menu items. */
+    /** Menu items (flat list, used when groups not needed). */
     readonly items?: ReadonlyArray<ISidebarItem>
     /** Callback when item is selected (for closing mobile drawer). */
     readonly onNavigate?: (to?: string) => void
@@ -45,60 +55,92 @@ export interface ISidebarNavProps {
 }
 
 /**
- * Создаёт список навигационных элементов sidebar с переведёнными метками.
+ * Создаёт сгруппированные навигационные элементы sidebar.
  *
  * @param t Функция перевода из react-i18next.
- * @returns Массив элементов навигации.
+ * @returns Массив групп навигации.
  */
-function createDefaultSidebarItems(
+function createSidebarGroups(
+    t: TFunction<ReadonlyArray<"navigation">>,
+): ReadonlyArray<ISidebarGroup> {
+    return [
+        {
+            items: [
+                {
+                    icon: <House aria-hidden="true" size={16} />,
+                    label: t("navigation:sidebar.dashboard"),
+                    to: "/",
+                },
+                {
+                    icon: <Building2 aria-hidden="true" size={16} />,
+                    label: t("navigation:sidebar.codeCity"),
+                    to: "/dashboard/code-city",
+                },
+                {
+                    icon: <Inbox aria-hidden="true" size={16} />,
+                    label: t("navigation:sidebar.myWork"),
+                    to: "/my-work",
+                },
+            ],
+        },
+        {
+            label: t("navigation:sidebarGroup.reviews", { defaultValue: "Reviews" }),
+            items: [
+                {
+                    icon: <GitPullRequest aria-hidden="true" size={16} />,
+                    label: t("navigation:sidebar.ccrManagement"),
+                    to: "/reviews",
+                },
+                {
+                    icon: <Bug aria-hidden="true" size={16} />,
+                    label: t("navigation:sidebar.issues"),
+                    to: "/issues",
+                },
+            ],
+        },
+        {
+            label: t("navigation:sidebarGroup.operations", { defaultValue: "Operations" }),
+            items: [
+                {
+                    icon: <Rocket aria-hidden="true" size={16} />,
+                    label: t("navigation:sidebar.onboarding"),
+                    to: "/onboarding",
+                },
+                {
+                    icon: <ChartNoAxesColumn aria-hidden="true" size={16} />,
+                    label: t("navigation:sidebar.scanProgress"),
+                    to: "/scan-progress",
+                },
+                {
+                    icon: <FolderKanban aria-hidden="true" size={16} />,
+                    label: t("navigation:sidebar.repositories"),
+                    to: "/repositories",
+                },
+            ],
+        },
+        {
+            label: t("navigation:sidebarGroup.analytics", { defaultValue: "Analytics" }),
+            items: [
+                {
+                    icon: <ChartPie aria-hidden="true" size={16} />,
+                    label: t("navigation:sidebar.reports"),
+                    to: "/reports",
+                },
+            ],
+        },
+    ]
+}
+
+/**
+ * Bottom utility items (Settings, Help).
+ *
+ * @param t Функция перевода.
+ * @returns Утилитарные nav items.
+ */
+function createUtilityItems(
     t: TFunction<ReadonlyArray<"navigation">>,
 ): ReadonlyArray<ISidebarItem> {
     return [
-        {
-            icon: <House aria-hidden="true" size={16} />,
-            label: t("navigation:sidebar.dashboard"),
-            to: "/",
-        },
-        {
-            icon: <Building2 aria-hidden="true" size={16} />,
-            label: t("navigation:sidebar.codeCity"),
-            to: "/dashboard/code-city",
-        },
-        {
-            icon: <Inbox aria-hidden="true" size={16} />,
-            label: t("navigation:sidebar.myWork"),
-            to: "/my-work",
-        },
-        {
-            icon: <GitPullRequest aria-hidden="true" size={16} />,
-            label: t("navigation:sidebar.ccrManagement"),
-            to: "/reviews",
-        },
-        {
-            icon: <Bug aria-hidden="true" size={16} />,
-            label: t("navigation:sidebar.issues"),
-            to: "/issues",
-        },
-        {
-            icon: <Rocket aria-hidden="true" size={16} />,
-            label: t("navigation:sidebar.onboarding"),
-            to: "/onboarding",
-        },
-        {
-            icon: <ChartNoAxesColumn aria-hidden="true" size={16} />,
-            label: t("navigation:sidebar.scanProgress"),
-            to: "/scan-progress",
-        },
-        {
-            icon: <FolderKanban aria-hidden="true" size={16} />,
-            label: t("navigation:sidebar.repositories"),
-            to: "/repositories",
-        },
-        {
-            icon: <ChartPie aria-hidden="true" size={16} />,
-            label: t("navigation:sidebar.reports"),
-            to: "/reports",
-        },
         {
             icon: <Settings aria-hidden="true" size={16} />,
             label: t("navigation:sidebar.settings"),
@@ -113,17 +155,20 @@ function createDefaultSidebarItems(
 }
 
 /**
- * Sidebar navigation list with icon-only collapsed mode and tooltip.
+ * Sidebar navigation with grouped sections and utility footer items.
  *
  * @param props List of route links.
- * @returns Navigation item list.
+ * @returns Navigation item list with section grouping.
  */
 export function SidebarNav(props: ISidebarNavProps): ReactElement {
     const { t } = useTranslation(["navigation"])
     const currentLocation = useLocation()
     const navigate = useNavigate()
-    const items = props.items ?? createDefaultSidebarItems(t)
     const isCollapsed = props.isCollapsed === true
+
+    const hasCustomItems = props.items !== undefined
+    const groups = hasCustomItems ? [{ items: props.items }] : createSidebarGroups(t)
+    const utilityItems = hasCustomItems ? [] : createUtilityItems(t)
 
     const isItemActive = (to: string): boolean => {
         if (to === "/") {
@@ -133,97 +178,94 @@ export function SidebarNav(props: ISidebarNavProps): ReactElement {
         return currentLocation.pathname === to || currentLocation.pathname.startsWith(`${to}/`)
     }
 
+    const renderItem = (item: ISidebarItem): ReactElement => {
+        const isNavigable = item.to !== undefined && item.isDisabled !== true
+        const isActive =
+            item.to !== undefined && isItemActive(item.to) && item.isDisabled !== true
+
+        const handlePress = (): void => {
+            if (props.onNavigate !== undefined) {
+                props.onNavigate(item.to)
+            }
+
+            if (isNavigable !== true || item.to === undefined) {
+                return
+            }
+
+            if (currentLocation.pathname !== item.to) {
+                void navigate({ to: item.to })
+            }
+        }
+
+        if (isCollapsed) {
+            return (
+                <li key={item.label} title={item.label}>
+                    <button
+                        aria-current={isActive ? "page" : undefined}
+                        aria-disabled={item.isDisabled === true ? true : undefined}
+                        aria-label={item.label}
+                        className={`flex h-8 w-full items-center justify-center rounded-md transition-colors duration-100 ${
+                            isActive
+                                ? "bg-primary/12 text-primary"
+                                : "text-text-secondary hover:bg-surface-hover hover:text-foreground"
+                        } ${item.isDisabled === true ? "pointer-events-none opacity-40" : ""}`}
+                        type="button"
+                        onClick={handlePress}
+                    >
+                        {item.icon}
+                    </button>
+                </li>
+            )
+        }
+
+        return (
+            <li key={item.label}>
+                <button
+                    aria-current={isActive ? "page" : undefined}
+                    aria-disabled={item.isDisabled === true ? true : undefined}
+                    className={`group flex h-8 w-full items-center gap-2.5 rounded-md px-2 text-[13px] transition-colors duration-100 ${
+                        isActive
+                            ? "bg-primary/10 font-medium text-primary"
+                            : "text-text-secondary hover:bg-surface-hover hover:text-foreground"
+                    } ${item.isDisabled === true ? "pointer-events-none opacity-40" : ""}`}
+                    type="button"
+                    onClick={handlePress}
+                >
+                    <span className={`inline-flex shrink-0 items-center justify-center ${isActive ? "text-primary" : "text-text-subtle group-hover:text-foreground"}`}>
+                        {item.icon}
+                    </span>
+                    <span className="truncate">{item.label}</span>
+                </button>
+            </li>
+        )
+    }
+
     return (
-        <nav aria-label="Main navigation">
-            <ul className="flex flex-col gap-1">
-                {items.map((item): ReactElement => {
-                    const isNavigable = item.to !== undefined && item.isDisabled !== true
-                    const isActive =
-                        item.to !== undefined && isItemActive(item.to) && item.isDisabled !== true
+        <nav aria-label="Main navigation" className="flex h-full flex-col">
+            <div className="flex-1 space-y-3 overflow-y-auto">
+                {groups.map((group, groupIndex): ReactElement => (
+                    <div key={group.label ?? `group-${String(groupIndex)}`}>
+                        {group.label !== undefined && isCollapsed !== true ? (
+                            <p className={`mb-1 px-2 ${TYPOGRAPHY.overline}`} style={{ fontSize: "10px" }}>
+                                {group.label}
+                            </p>
+                        ) : null}
+                        {isCollapsed && groupIndex > 0 ? (
+                            <div aria-hidden="true" className="mx-auto mb-1.5 mt-0.5 h-px w-4 bg-border/40" />
+                        ) : null}
+                        <ul className="flex flex-col gap-px">
+                            {group.items.map(renderItem)}
+                        </ul>
+                    </div>
+                ))}
+            </div>
 
-                    const handlePress = (): void => {
-                        if (isNavigable !== true) {
-                            if (props.onNavigate !== undefined) {
-                                props.onNavigate(item.to)
-                            }
-                            return
-                        }
-
-                        if (currentLocation.pathname === item.to) {
-                            if (props.onNavigate !== undefined) {
-                                props.onNavigate(item.to)
-                            }
-                            return
-                        }
-
-                        if (props.onNavigate !== undefined) {
-                            props.onNavigate(item.to)
-                        }
-
-                        if (item.to === undefined) {
-                            return
-                        }
-
-                        void navigate({ to: item.to })
-                    }
-
-                    const startContent =
-                        item.icon === undefined ? undefined : (
-                            <span
-                                aria-hidden="true"
-                                className="inline-flex items-center justify-center"
-                            >
-                                {item.icon}
-                            </span>
-                        )
-
-                    if (isCollapsed) {
-                        return (
-                            <li key={item.label} title={item.label}>
-                                <Button
-                                    aria-current={isActive ? "page" : undefined}
-                                    aria-label={item.label}
-                                    className="w-full justify-center"
-                                    fullWidth
-                                    isDisabled={item.isDisabled}
-                                    isIconOnly
-                                    variant={isActive ? "solid" : "light"}
-                                    onPress={handlePress}
-                                >
-                                    <span
-                                        aria-hidden="true"
-                                        className="inline-flex items-center justify-center"
-                                    >
-                                        {item.icon}
-                                    </span>
-                                </Button>
-                            </li>
-                        )
-                    }
-
-                    return (
-                        <li
-                            key={item.label}
-                            className="relative flex items-stretch transition-colors duration-150"
-                        >
-                            {isActive ? (
-                                <span className="nav-active-indicator absolute left-0 top-1 bottom-1" />
-                            ) : null}
-                            <Button
-                                aria-current={isActive ? "page" : undefined}
-                                className="w-full justify-start"
-                                fullWidth
-                                isDisabled={item.isDisabled}
-                                startContent={startContent}
-                                variant={isActive ? "solid" : "light"}
-                                onPress={handlePress}
-                            >
-                                {item.label}
-                            </Button>
-                        </li>
-                    )
-                })}
-            </ul>
+            {/* Utility items pinned to bottom */}
+            <div className="mt-1 border-t border-border/30 pt-1.5">
+                <ul className="flex flex-col gap-px">
+                    {utilityItems.map(renderItem)}
+                </ul>
+            </div>
         </nav>
     )
 }
