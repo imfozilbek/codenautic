@@ -10,7 +10,7 @@ import { PredictionAccuracyWidget } from "@/components/graphs/prediction-accurac
 import { PredictionDashboard } from "@/components/graphs/prediction-dashboard"
 import { PredictionExplainPanel } from "@/components/graphs/prediction-explain-panel"
 import { TrendForecastChart } from "@/components/graphs/trend-forecast-chart"
-import { Card, CardBody, CardHeader } from "@/components/ui"
+import { Card, CardContent, CardHeader } from "@heroui/react"
 
 import type { ICodeCityDashboardState } from "../use-code-city-dashboard-state"
 
@@ -39,7 +39,7 @@ export function PredictionSection({ state }: IPredictionSectionProps): ReactElem
                         {t("code-city:prediction.predictionOverlay")}
                     </p>
                 </CardHeader>
-                <CardBody>
+                <CardContent>
                     <CityPredictionOverlay
                         activeFileId={state.activePredictionFileId}
                         entries={state.predictionOverlayEntries}
@@ -56,7 +56,7 @@ export function PredictionSection({ state }: IPredictionSectionProps): ReactElem
                             state.markAreaExplored("city-3d")
                         }}
                     />
-                </CardBody>
+                </CardContent>
             </Card>
 
             <Card>
@@ -65,7 +65,7 @@ export function PredictionSection({ state }: IPredictionSectionProps): ReactElem
                         {t("code-city:prediction.predictionDashboard")}
                     </p>
                 </CardHeader>
-                <CardBody>
+                <CardContent>
                     <PredictionDashboard
                         activeHotspotId={state.activePredictionHotspotId}
                         bugProneFiles={state.predictionBugProneFiles}
@@ -84,7 +84,7 @@ export function PredictionSection({ state }: IPredictionSectionProps): ReactElem
                         }}
                         qualityTrendPoints={state.predictionQualityTrendPoints}
                     />
-                </CardBody>
+                </CardContent>
             </Card>
 
             <Card>
@@ -93,7 +93,7 @@ export function PredictionSection({ state }: IPredictionSectionProps): ReactElem
                         {t("code-city:prediction.predictionExplainPanel")}
                     </p>
                 </CardHeader>
-                <CardBody>
+                <CardContent>
                     <PredictionExplainPanel
                         activeFileId={state.activePredictionFileId}
                         entries={state.predictionExplainEntries}
@@ -110,7 +110,7 @@ export function PredictionSection({ state }: IPredictionSectionProps): ReactElem
                             state.markAreaExplored("city-3d")
                         }}
                     />
-                </CardBody>
+                </CardContent>
             </Card>
 
             <Card>
@@ -119,7 +119,7 @@ export function PredictionSection({ state }: IPredictionSectionProps): ReactElem
                         {t("code-city:prediction.trendForecastChart")}
                     </p>
                 </CardHeader>
-                <CardBody>
+                <CardContent>
                     <TrendForecastChart
                         activePointId={state.activeTrendForecastPointId}
                         onSelectPoint={(point): void => {
@@ -139,7 +139,7 @@ export function PredictionSection({ state }: IPredictionSectionProps): ReactElem
                         }}
                         points={state.trendForecastPoints}
                     />
-                </CardBody>
+                </CardContent>
             </Card>
 
             <Card>
@@ -148,7 +148,7 @@ export function PredictionSection({ state }: IPredictionSectionProps): ReactElem
                         {t("code-city:prediction.predictionAccuracyWidget")}
                     </p>
                 </CardHeader>
-                <CardBody>
+                <CardContent>
                     <PredictionAccuracyWidget
                         activeCaseId={state.activePredictionAccuracyCaseId}
                         cases={state.predictionAccuracyCases}
@@ -168,7 +168,7 @@ export function PredictionSection({ state }: IPredictionSectionProps): ReactElem
                         }}
                         points={state.predictionAccuracyPoints}
                     />
-                </CardBody>
+                </CardContent>
             </Card>
 
             <Card>
@@ -177,7 +177,7 @@ export function PredictionSection({ state }: IPredictionSectionProps): ReactElem
                         {t("code-city:prediction.alertConfigDialog")}
                     </p>
                 </CardHeader>
-                <CardBody>
+                <CardContent>
                     <AlertConfigDialog
                         key={`prediction-alert-${state.currentProfile.id}`}
                         modules={state.predictionAlertModules}
@@ -199,7 +199,7 @@ export function PredictionSection({ state }: IPredictionSectionProps): ReactElem
                             state.markAreaExplored("city-3d")
                         }}
                     />
-                </CardBody>
+                </CardContent>
             </Card>
         </>
     )

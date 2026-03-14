@@ -9,7 +9,7 @@ import { RefactoringExportDialog } from "@/components/graphs/refactoring-export-
 import { RefactoringTimeline } from "@/components/graphs/refactoring-timeline"
 import { ROICalculatorWidget } from "@/components/graphs/roi-calculator-widget"
 import { SimulationPanel } from "@/components/graphs/simulation-panel"
-import { Card, CardBody, CardHeader } from "@/components/ui"
+import { Card, CardContent, CardHeader } from "@heroui/react"
 
 import type { ICodeCityDashboardState } from "../use-code-city-dashboard-state"
 
@@ -38,7 +38,7 @@ export function RefactoringSection({ state }: IRefactoringSectionProps): ReactEl
                         {t("code-city:refactoring.refactoringDashboard")}
                     </p>
                 </CardHeader>
-                <CardBody>
+                <CardContent>
                     <RefactoringDashboard
                         onSelectTarget={(target): void => {
                             state.setHighlightedFileId(target.fileId)
@@ -51,7 +51,7 @@ export function RefactoringSection({ state }: IRefactoringSectionProps): ReactEl
                         }}
                         targets={state.refactoringTargets}
                     />
-                </CardBody>
+                </CardContent>
             </Card>
 
             <Card>
@@ -60,7 +60,7 @@ export function RefactoringSection({ state }: IRefactoringSectionProps): ReactEl
                         {t("code-city:refactoring.roiCalculatorWidget")}
                     </p>
                 </CardHeader>
-                <CardBody>
+                <CardContent>
                     <ROICalculatorWidget
                         onApplyScenario={(fileIds): void => {
                             const primaryFileId = fileIds[0]
@@ -76,7 +76,7 @@ export function RefactoringSection({ state }: IRefactoringSectionProps): ReactEl
                         }}
                         targets={state.refactoringTargets}
                     />
-                </CardBody>
+                </CardContent>
             </Card>
 
             <Card>
@@ -85,7 +85,7 @@ export function RefactoringSection({ state }: IRefactoringSectionProps): ReactEl
                         {t("code-city:refactoring.cityRefactoringOverlay")}
                     </p>
                 </CardHeader>
-                <CardBody>
+                <CardContent>
                     <CityRefactoringOverlay
                         entries={state.cityRefactoringOverlayEntries}
                         onSelectEntry={(entry): void => {
@@ -98,7 +98,7 @@ export function RefactoringSection({ state }: IRefactoringSectionProps): ReactEl
                             state.markAreaExplored("city-3d")
                         }}
                     />
-                </CardBody>
+                </CardContent>
             </Card>
 
             <Card>
@@ -107,7 +107,7 @@ export function RefactoringSection({ state }: IRefactoringSectionProps): ReactEl
                         {t("code-city:refactoring.simulationPanel")}
                     </p>
                 </CardHeader>
-                <CardBody>
+                <CardContent>
                     <SimulationPanel
                         onPreviewScenario={(scenario): void => {
                             const primaryFileId = scenario.fileIds[0]
@@ -126,7 +126,7 @@ export function RefactoringSection({ state }: IRefactoringSectionProps): ReactEl
                         }}
                         targets={state.refactoringTargets}
                     />
-                </CardBody>
+                </CardContent>
             </Card>
 
             <Card>
@@ -135,7 +135,7 @@ export function RefactoringSection({ state }: IRefactoringSectionProps): ReactEl
                         {t("code-city:refactoring.refactoringTimeline")}
                     </p>
                 </CardHeader>
-                <CardBody>
+                <CardContent>
                     <RefactoringTimeline
                         onSelectTask={(task): void => {
                             state.setHighlightedFileId(task.fileId)
@@ -148,7 +148,7 @@ export function RefactoringSection({ state }: IRefactoringSectionProps): ReactEl
                         }}
                         tasks={state.refactoringTimelineTasks}
                     />
-                </CardBody>
+                </CardContent>
             </Card>
 
             <Card>
@@ -157,7 +157,7 @@ export function RefactoringSection({ state }: IRefactoringSectionProps): ReactEl
                         {t("code-city:refactoring.refactoringExportDialog")}
                     </p>
                 </CardHeader>
-                <CardBody>
+                <CardContent>
                     <RefactoringExportDialog
                         onExport={(payload): void => {
                             const primaryFileId = payload.fileIds[0]
@@ -173,7 +173,7 @@ export function RefactoringSection({ state }: IRefactoringSectionProps): ReactEl
                         }}
                         targets={state.refactoringTargets}
                     />
-                </CardBody>
+                </CardContent>
             </Card>
 
             <Card>
@@ -182,7 +182,7 @@ export function RefactoringSection({ state }: IRefactoringSectionProps): ReactEl
                         {t("code-city:refactoring.impactAnalysisPanel")}
                     </p>
                 </CardHeader>
-                <CardBody>
+                <CardContent>
                     <ImpactAnalysisPanel
                         onApplyImpact={(selection): void => {
                             state.setHighlightedFileId(selection.fileId)
@@ -200,7 +200,7 @@ export function RefactoringSection({ state }: IRefactoringSectionProps): ReactEl
                         }}
                         seeds={state.impactAnalysisSeeds}
                     />
-                </CardBody>
+                </CardContent>
             </Card>
 
             <Card>
@@ -209,7 +209,7 @@ export function RefactoringSection({ state }: IRefactoringSectionProps): ReactEl
                         {t("code-city:refactoring.cityImpactOverlay")}
                     </p>
                 </CardHeader>
-                <CardBody>
+                <CardContent>
                     <CityImpactOverlay
                         entries={state.cityImpactOverlayEntries}
                         onSelectEntry={(entry): void => {
@@ -222,7 +222,7 @@ export function RefactoringSection({ state }: IRefactoringSectionProps): ReactEl
                             state.markAreaExplored("city-3d")
                         }}
                     />
-                </CardBody>
+                </CardContent>
             </Card>
         </>
     )
