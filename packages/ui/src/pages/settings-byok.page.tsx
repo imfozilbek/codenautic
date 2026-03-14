@@ -298,10 +298,12 @@ export function SettingsByokPage(): ReactElement {
                                 }
                             }}
                         >
-                            <option value="openai">OpenAI</option>
-                            <option value="anthropic">Anthropic</option>
-                            <option value="github">GitHub</option>
-                            <option value="gitlab">GitLab</option>
+                            <option value="openai">{t("settings:byok.providerOpenai")}</option>
+                            <option value="anthropic">
+                                {t("settings:byok.providerAnthropic")}
+                            </option>
+                            <option value="github">{t("settings:byok.providerGithub")}</option>
+                            <option value="gitlab">{t("settings:byok.providerGitlab")}</option>
                         </select>
                         <Input
                             label={t("settings:byok.keyLabel")}
