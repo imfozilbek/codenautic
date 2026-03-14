@@ -11,7 +11,7 @@ import {
     type IChatQuickAction,
 } from "@/components/chat/chat-input"
 import { ChatStreamingResponse } from "@/components/chat/chat-streaming-response"
-import { Button, Card, CardBody, CardHeader } from "@/components/ui"
+import { Button, Card, CardContent, CardHeader } from "@heroui/react"
 import { TYPOGRAPHY } from "@/lib/constants/typography"
 import type { IChatCodeReference } from "@/components/chat/chat-message-bubble"
 
@@ -216,10 +216,9 @@ export function ChatPanel(props: IChatPanelProps): ReactElement {
                     {props.onClose === undefined ? null : (
                         <Button
                             aria-label={t("common:ariaLabel.chatPanel.close")}
-                            isIconOnly
-                            radius="full"
+                            className="rounded-full p-2"
                             size="sm"
-                            variant="light"
+                            variant="ghost"
                             onPress={props.onClose}
                         >
                             <X aria-hidden className="size-4" />
@@ -227,7 +226,7 @@ export function ChatPanel(props: IChatPanelProps): ReactElement {
                     )}
                 </CardHeader>
 
-                <CardBody className="flex min-h-0 flex-1 flex-col gap-3 bg-surface-muted p-0">
+                <CardContent className="flex min-h-0 flex-1 flex-col gap-3 bg-surface-muted p-0">
                     {normalizedContextItems.length === 0 ? null : (
                         <div className="px-3 pt-2">
                             <ChatContextIndicator
@@ -288,7 +287,7 @@ export function ChatPanel(props: IChatPanelProps): ReactElement {
                         onSubmit={handleSubmit}
                         placeholder={inputPlaceholder}
                     />
-                </CardBody>
+                </CardContent>
             </Card>
         </aside>
     )

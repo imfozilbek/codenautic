@@ -4,7 +4,11 @@ import ReactMarkdown from "react-markdown"
 import type { Components } from "react-markdown"
 
 import { ChevronDown, ChevronRight, Copy } from "@/components/icons/app-icons"
-import { Avatar, Button } from "@/components/ui"
+import {
+    Avatar as HeroUIAvatar,
+    AvatarFallback,
+    Button,
+} from "@heroui/react"
 import { TYPOGRAPHY } from "@/lib/constants/typography"
 import { sanitizeText } from "@/lib/validation/schema-validation"
 
@@ -265,24 +269,22 @@ function parseMessageCodeBlock(
                 <div className="flex items-center gap-2">
                     <Button
                         aria-label={`Copy code block ${keyPrefix}`}
-                        isIconOnly
+                        className="rounded-sm p-2"
                         onPress={(): void => {
                             copyCode()
                         }}
-                        radius="sm"
                         size="sm"
-                        variant="light"
+                        variant="ghost"
                     >
                         <Copy aria-hidden className="size-4" />
                     </Button>
                     <Button
                         aria-expanded={isExpanded}
                         aria-label={`${isExpanded ? "Collapse" : "Expand"} code block ${keyPrefix}`}
-                        isIconOnly
+                        className="rounded-sm p-2"
                         onPress={onToggleExpand}
-                        radius="sm"
                         size="sm"
-                        variant="light"
+                        variant="ghost"
                     >
                         {isExpanded ? (
                             <ChevronDown aria-hidden className="size-4" />
@@ -407,20 +409,19 @@ export function ChatMessageBubble(props: IChatMessageBubbleProps): ReactElement 
                 }`}
             >
                 <header className="mb-0.5 flex items-start gap-2">
-                    <Avatar fallback={avatarLabel} name={sender} size="sm" />
+                    <HeroUIAvatar><AvatarFallback>{avatarLabel}</AvatarFallback></HeroUIAvatar>
                     <div className="min-w-0 flex-1">
                         <p className="text-xs font-semibold text-foreground">{sender}</p>
                         <p className="text-xs text-text-secondary">{formattedTime}</p>
                     </div>
                     <Button
                         aria-label={`Copy message ${sender}`}
-                        isIconOnly
+                        className="rounded-sm p-2"
                         onPress={(): void => {
                             copyToClipboard(props.message.content)
                         }}
-                        radius="sm"
                         size="sm"
-                        variant="light"
+                        variant="ghost"
                     >
                         <Copy aria-hidden className="size-4" />
                     </Button>
