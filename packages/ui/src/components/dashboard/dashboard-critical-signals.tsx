@@ -1,7 +1,7 @@
 import type { ReactElement } from "react"
 import { AlertTriangle } from "@/components/icons/app-icons"
 
-import { Alert } from "@/components/ui"
+import { Alert } from "@heroui/react"
 import {
     DataFreshnessPanel,
     type IProvenanceContext,
@@ -78,8 +78,9 @@ export function DashboardCriticalSignals(props: IDashboardCriticalSignalsProps):
                 onRescan={props.onRescan}
             />
             <AnimatedAlert isVisible={props.freshnessActionMessage.length > 0}>
-                <Alert color="primary" title="Freshness action" variant="flat">
-                    {props.freshnessActionMessage}
+                <Alert status="accent">
+                    <Alert.Title>Freshness action</Alert.Title>
+                    <Alert.Description>{props.freshnessActionMessage}</Alert.Description>
                 </Alert>
             </AnimatedAlert>
             <ExplainabilityPanel

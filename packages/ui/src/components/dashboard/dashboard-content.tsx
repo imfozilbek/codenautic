@@ -2,13 +2,8 @@ import type { ReactElement } from "react"
 import { motion } from "motion/react"
 import { AlertTriangle, ChevronRight } from "@/components/icons/app-icons"
 
-import {
-    Card,
-    CardBody,
-    CardHeader,
-    StyledLink,
-    type IStyledLinkProps,
-} from "@/components/ui"
+import { Card, CardContent, CardHeader } from "@heroui/react"
+import { StyledLink, type IStyledLinkProps } from "@/components/layout/styled-link"
 import { StaggerContainer, STAGGER_ITEM_VARIANTS } from "@/lib/motion"
 import { EmptyState } from "@/components/states/empty-state"
 import { TYPOGRAPHY } from "@/lib/constants/typography"
@@ -64,7 +59,7 @@ export function DashboardContent(props: IDashboardContentProps): ReactElement {
                     <CardHeader className="border-b border-border/30 pb-3">
                         <h3 className={TYPOGRAPHY.subsectionTitle}>Signals & Work Queue</h3>
                     </CardHeader>
-                    <CardBody className="pt-4">
+                    <CardContent className="pt-4">
                         {hasCriticalSignals ? (
                             <div className="mb-4 flex items-start gap-3 rounded-lg border border-warning/30 bg-warning/8 p-3">
                                 <AlertTriangle
@@ -95,7 +90,7 @@ export function DashboardContent(props: IDashboardContentProps): ReactElement {
                                 )}
                             </StaggerContainer>
                         )}
-                    </CardBody>
+                    </CardContent>
                 </Card>
                 <StatusDistributionChart data={props.statusDistribution} />
             </div>
