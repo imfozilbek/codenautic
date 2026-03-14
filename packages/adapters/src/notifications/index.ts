@@ -16,6 +16,19 @@ export {
     type SlackProviderErrorCode,
 } from "./slack-provider.error"
 export {
+    DISCORD_PROVIDER_ERROR_CODE,
+    DiscordProviderError,
+    type DiscordProviderErrorCode,
+    type IDiscordProviderErrorDetails,
+} from "./discord-provider.error"
+export {
+    DiscordProvider,
+    type IDiscordCreateMessageRequest,
+    type IDiscordCreateMessageResponse,
+    type IDiscordProviderOptions,
+    type IDiscordRestClient,
+} from "./discord-provider"
+export {
     MESSENGER_WEBHOOK_HANDLER_ERROR_CODE,
     MessengerWebhookHandlerError,
     type IMessengerWebhookHandlerErrorDetails,

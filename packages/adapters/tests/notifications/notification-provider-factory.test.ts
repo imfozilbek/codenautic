@@ -16,35 +16,39 @@ describe("NotificationProviderFactory", () => {
         expect(normalizeNotificationProviderChannel(" MS-Teams ")).toBe(NOTIFICATION_CHANNEL.TEAMS)
         expect(normalizeNotificationProviderChannel("mail")).toBe(NOTIFICATION_CHANNEL.EMAIL)
         expect(normalizeNotificationProviderChannel("hook")).toBe(NOTIFICATION_CHANNEL.WEBHOOK)
+        expect(normalizeNotificationProviderChannel("discord")).toBe(NOTIFICATION_CHANNEL.WEBHOOK)
     })
 
     test("creates configured provider for canonical and alias channel values", () => {
         const slackProvider = createNotificationProviderMock(NOTIFICATION_CHANNEL.SLACK)
         const teamsProvider = createNotificationProviderMock(NOTIFICATION_CHANNEL.TEAMS)
+        const discordProvider = createNotificationProviderMock(NOTIFICATION_CHANNEL.WEBHOOK)
         const factory = new NotificationProviderFactory({
             slack: slackProvider,
             teams: teamsProvider,
+            discord: discordProvider,
         })
 
         expect(factory.create("SLACK")).toBe(slackProvider)
         expect(factory.create("teams")).toBe(teamsProvider)
         expect(factory.create("microsoft-teams")).toBe(teamsProvider)
+        expect(factory.create("discord")).toBe(discordProvider)
     })
 
     test("throws typed error for unknown channel values", () => {
         expect(() => {
-            return normalizeNotificationProviderChannel("discord")
+            return normalizeNotificationProviderChannel("telegram")
         }).toThrowError(NotificationProviderFactoryError)
 
         try {
-            normalizeNotificationProviderChannel("discord")
+            normalizeNotificationProviderChannel("telegram")
             throw new Error("Expected NotificationProviderFactoryError to be thrown")
         } catch (error: unknown) {
             expect(error).toMatchObject({
                 name: "NotificationProviderFactoryError",
                 code: NOTIFICATION_PROVIDER_FACTORY_ERROR_CODE.UNKNOWN_CHANNEL,
-                channel: "discord",
-                message: "Unknown notification channel: discord",
+                channel: "telegram",
+                message: "Unknown notification channel: telegram",
             })
         }
     })

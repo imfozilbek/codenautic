@@ -32,6 +32,11 @@ export interface INotificationProviderFactoryOptions {
      * Webhook provider implementation.
      */
     readonly webhook?: INotificationProvider
+
+    /**
+     * Discord provider implementation mapped to WEBHOOK channel.
+     */
+    readonly discord?: INotificationProvider
 }
 
 /**
@@ -59,6 +64,7 @@ const NOTIFICATION_CHANNEL_ALIAS_TO_TYPE: Readonly<Record<string, NotificationCh
     mail: NOTIFICATION_CHANNEL.EMAIL,
     webhook: NOTIFICATION_CHANNEL.WEBHOOK,
     hook: NOTIFICATION_CHANNEL.WEBHOOK,
+    discord: NOTIFICATION_CHANNEL.WEBHOOK,
 }
 
 /**
@@ -129,11 +135,12 @@ function buildProviderMap(
     options: INotificationProviderFactoryOptions,
 ): ReadonlyMap<NotificationChannel, INotificationProvider> {
     const providers = new Map<NotificationChannel, INotificationProvider>()
+    const webhookProvider = options.webhook ?? options.discord
 
     registerProvider(providers, NOTIFICATION_CHANNEL.SLACK, options.slack)
     registerProvider(providers, NOTIFICATION_CHANNEL.TEAMS, options.teams)
     registerProvider(providers, NOTIFICATION_CHANNEL.EMAIL, options.email)
-    registerProvider(providers, NOTIFICATION_CHANNEL.WEBHOOK, options.webhook)
+    registerProvider(providers, NOTIFICATION_CHANNEL.WEBHOOK, webhookProvider)
 
     return providers
 }
