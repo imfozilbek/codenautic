@@ -26,6 +26,40 @@ import {
 import type { TCodeCityImpactType } from "../codecity-3d-scene"
 
 import {
+    AMBIENT_LIGHT_INTENSITY,
+    BREADCRUMB_EMISSIVE_INTENSITY,
+    BREADCRUMB_SPHERE_RADIUS,
+    BREADCRUMB_SPHERE_SEGMENTS,
+    BUILDING_PHASE_FACTOR,
+    CANVAS_CAMERA_FOV,
+    CANVAS_INITIAL_CAMERA_POSITION,
+    CAUSAL_ARC_PHASE_FACTOR,
+    DIRECTIONAL_LIGHT_INTENSITY,
+    DIRECTIONAL_LIGHT_POSITION,
+    DISTRICT_FLOOR_HEIGHT,
+    DISTRICT_FLOOR_Y,
+    DISTRICT_LABEL_FONT_SIZE_DIVISOR,
+    DISTRICT_LABEL_FONT_SIZE_MAX,
+    DISTRICT_LABEL_FONT_SIZE_MIN,
+    DISTRICT_LABEL_Y,
+    GRID_HELPER_DIVISIONS,
+    GRID_HELPER_SIZE,
+    HEALTH_AURA_PHASE_FACTOR,
+    IMPACT_BUILDING_METALNESS,
+    IMPACT_BUILDING_ROUGHNESS,
+    NAVIGATION_TRAIL_DASH_SCALE,
+    NAVIGATION_TRAIL_DASH_SIZE,
+    NAVIGATION_TRAIL_GAP_SIZE,
+    NAVIGATION_TRAIL_LINE_WIDTH,
+    NAVIGATION_TRAIL_OPACITY,
+    SELECTED_BUILDING_MIN_EMISSIVE_INTENSITY,
+    SELECTED_BUILDING_SCALE,
+} from "./codecity-3d-rendering.constants"
+import {
+    createCodeCityLayoutWorker,
+    resolveCameraPresetTarget,
+} from "./codecity-3d-rendering.utils"
+import {
     createCodeCityCausalArcs,
     createCodeCityNavigationTrail,
     interpolateQuadraticBezierPoint,
@@ -33,7 +67,6 @@ import {
 } from "./codecity-arc-builders"
 import { resolveCodeCityRenderBudget } from "./codecity-render-budget"
 import {
-    BASE_CAMERA_PRESETS,
     CAMERA_LERP_FACTOR,
     MAX_BUG_EMISSION_CLOUDS,
     MAX_CAUSAL_ARCS_HIGH_QUALITY,
@@ -66,49 +99,7 @@ import {
     resolveCodeCityBuildingImpactProfile,
 } from "./codecity-visual-resolvers"
 
-/**
- * Создаёт layout worker для расчёта геометрии CodeCity в фоне.
- *
- * @returns Экземпляр Worker или `undefined`, если инициализация недоступна.
- */
-export function createCodeCityLayoutWorker(): Worker | undefined {
-    if (typeof Worker === "undefined") {
-        return undefined
-    }
-
-    try {
-        return new Worker(new URL("../codecity-3d-layout.worker.ts", import.meta.url), {
-            type: "module",
-        })
-    } catch {
-        return undefined
-    }
-}
-
-/**
- * Рассчитывает целевое положение камеры для выбранного пресета.
- *
- * @param preset Выбранный пресет камеры.
- * @param focusBuilding Опорное здание для focus-режима.
- * @returns Целевые координаты камеры и фокуса.
- */
-function resolveCameraPresetTarget(
-    preset: ICodeCity3DSceneRendererProps["cameraPreset"],
-    focusBuilding: ICodeCityBuildingMesh | undefined,
-): ICameraPresetTarget {
-    if (preset !== "focus-on-building" || focusBuilding === undefined) {
-        return BASE_CAMERA_PRESETS[preset]
-    }
-
-    return {
-        focus: [focusBuilding.x, Math.max(1.5, focusBuilding.height / 2), focusBuilding.z] as const,
-        position: [
-            focusBuilding.x + 8,
-            Math.max(7, focusBuilding.height + 4),
-            focusBuilding.z + 8,
-        ] as const,
-    }
-}
+export { createCodeCityLayoutWorker } from "./codecity-3d-rendering.utils"
 
 interface ICameraPresetControllerProps {
     readonly controlsRef: { current: IOrbitControlsLike | null }
@@ -509,9 +500,13 @@ function ImpactBuildingMesh(props: IImpactBuildingMeshProps): ReactElement {
         >
             <boxGeometry
                 args={[
-                    props.isSelected ? props.building.width * 1.08 : props.building.width,
+                    props.isSelected
+                        ? props.building.width * SELECTED_BUILDING_SCALE
+                        : props.building.width,
                     props.building.height,
-                    props.isSelected ? props.building.depth * 1.08 : props.building.depth,
+                    props.isSelected
+                        ? props.building.depth * SELECTED_BUILDING_SCALE
+                        : props.building.depth,
                 ]}
             />
             <meshStandardMaterial
@@ -519,12 +514,15 @@ function ImpactBuildingMesh(props: IImpactBuildingMeshProps): ReactElement {
                 emissive={impactProfile.emissive}
                 emissiveIntensity={
                     props.isSelected
-                        ? Math.max(impactProfile.baseIntensity, 0.55)
+                        ? Math.max(
+                              impactProfile.baseIntensity,
+                              SELECTED_BUILDING_MIN_EMISSIVE_INTENSITY,
+                          )
                         : impactProfile.baseIntensity
                 }
-                metalness={0.1}
+                metalness={IMPACT_BUILDING_METALNESS}
                 ref={materialRef}
-                roughness={0.6}
+                roughness={IMPACT_BUILDING_ROUGHNESS}
             />
         </mesh>
     )
@@ -684,7 +682,14 @@ export function CodeCity3DSceneRenderer(props: ICodeCity3DSceneRendererProps): R
     }, [focusBuilding, props.cameraPreset])
 
     return (
-        <Canvas camera={{ fov: 45, position: [30, 26, 30] }} dpr={renderBudget.dpr} shadows={false}>
+        <Canvas
+            camera={{
+                fov: CANVAS_CAMERA_FOV,
+                position: [...CANVAS_INITIAL_CAMERA_POSITION],
+            }}
+            dpr={renderBudget.dpr}
+            shadows={false}
+        >
             <CameraPresetController controlsRef={controlsRef} target={cameraPresetTarget} />
             <RenderPerformanceController
                 onSample={(fps): void => {
@@ -692,17 +697,27 @@ export function CodeCity3DSceneRenderer(props: ICodeCity3DSceneRendererProps): R
                 }}
             />
             <color args={[SCENE_BACKGROUND]} attach="background" />
-            <ambientLight intensity={0.55} />
-            <directionalLight intensity={0.9} position={[18, 30, 12]} />
+            <ambientLight intensity={AMBIENT_LIGHT_INTENSITY} />
+            <directionalLight
+                intensity={DIRECTIONAL_LIGHT_INTENSITY}
+                position={[...DIRECTIONAL_LIGHT_POSITION]}
+            />
             <gridHelper
-                args={[100, 80, SCENE_GRID_LINE, SCENE_GRID_DIVISION]}
+                args={[
+                    GRID_HELPER_SIZE,
+                    GRID_HELPER_DIVISIONS,
+                    SCENE_GRID_LINE,
+                    SCENE_GRID_DIVISION,
+                ]}
                 visible={renderBudget.quality !== "low"}
             />
             {districts.map(
                 (district): ReactElement => (
                     <group key={`district-${district.id}`}>
-                        <mesh position={[district.x, -0.03, district.z]}>
-                            <boxGeometry args={[district.width, 0.06, district.depth]} />
+                        <mesh position={[district.x, DISTRICT_FLOOR_Y, district.z]}>
+                            <boxGeometry
+                                args={[district.width, DISTRICT_FLOOR_HEIGHT, district.depth]}
+                            />
                             <meshStandardMaterial
                                 color={SCENE_DISTRICT_FLOOR}
                                 metalness={0.02}
@@ -713,8 +728,14 @@ export function CodeCity3DSceneRenderer(props: ICodeCity3DSceneRendererProps): R
                             anchorX="center"
                             anchorY="middle"
                             color={SCENE_DISTRICT_LABEL}
-                            fontSize={Math.max(0.38, Math.min(0.95, district.width / 6))}
-                            position={[district.x, 0.04, district.z]}
+                            fontSize={Math.max(
+                                DISTRICT_LABEL_FONT_SIZE_MIN,
+                                Math.min(
+                                    DISTRICT_LABEL_FONT_SIZE_MAX,
+                                    district.width / DISTRICT_LABEL_FONT_SIZE_DIVISOR,
+                                ),
+                            )}
+                            position={[district.x, DISTRICT_LABEL_Y, district.z]}
                             rotation={[-Math.PI / 2, 0, 0]}
                         >
                             {district.label}
@@ -727,19 +748,19 @@ export function CodeCity3DSceneRenderer(props: ICodeCity3DSceneRendererProps): R
                     <DistrictHealthAuraMesh
                         aura={aura}
                         key={`${aura.districtId}-health-aura`}
-                        phaseSeed={index * 0.44}
+                        phaseSeed={index * HEALTH_AURA_PHASE_FACTOR}
                     />
                 ),
             )}
             {navigationTrailVectors.length >= 2 ? (
                 <Line
                     color={SCENE_NAVIGATION_TRAIL}
-                    dashScale={2}
-                    dashSize={0.3}
+                    dashScale={NAVIGATION_TRAIL_DASH_SCALE}
+                    dashSize={NAVIGATION_TRAIL_DASH_SIZE}
                     dashed={true}
-                    gapSize={0.18}
-                    lineWidth={1.2}
-                    opacity={0.8}
+                    gapSize={NAVIGATION_TRAIL_GAP_SIZE}
+                    lineWidth={NAVIGATION_TRAIL_LINE_WIDTH}
+                    opacity={NAVIGATION_TRAIL_OPACITY}
                     points={navigationTrailVectors}
                     transparent={true}
                 />
@@ -750,11 +771,17 @@ export function CodeCity3DSceneRenderer(props: ICodeCity3DSceneRendererProps): R
                         key={`breadcrumb-${String(index)}`}
                         position={[point[0], point[1], point[2]]}
                     >
-                        <sphereGeometry args={[0.16, 10, 10]} />
+                        <sphereGeometry
+                            args={[
+                                BREADCRUMB_SPHERE_RADIUS,
+                                BREADCRUMB_SPHERE_SEGMENTS,
+                                BREADCRUMB_SPHERE_SEGMENTS,
+                            ]}
+                        />
                         <meshStandardMaterial
                             color={SCENE_BREADCRUMB_SPHERE}
                             emissive={SCENE_BREADCRUMB_EMISSIVE}
-                            emissiveIntensity={0.9}
+                            emissiveIntensity={BREADCRUMB_EMISSIVE_INTENSITY}
                             toneMapped={false}
                         />
                     </mesh>
@@ -765,7 +792,7 @@ export function CodeCity3DSceneRenderer(props: ICodeCity3DSceneRendererProps): R
                     <CausalArcMesh
                         arc={arc}
                         key={`${arc.sourceFileId}-${arc.targetFileId}-${arc.couplingType}`}
-                        phaseSeed={index * 0.31}
+                        phaseSeed={index * CAUSAL_ARC_PHASE_FACTOR}
                     />
                 ),
             )}
@@ -790,7 +817,7 @@ export function CodeCity3DSceneRenderer(props: ICodeCity3DSceneRendererProps): R
                         key={building.id}
                         onHover={props.onBuildingHover}
                         onSelect={props.onBuildingSelect}
-                        phaseSeed={index * 0.45}
+                        phaseSeed={index * BUILDING_PHASE_FACTOR}
                     />
                 ),
             )}
