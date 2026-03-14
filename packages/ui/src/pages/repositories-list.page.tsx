@@ -4,7 +4,8 @@ import { Link } from "@tanstack/react-router"
 
 import { Button, Card, CardBody, CardHeader } from "@/components/ui"
 import { EnterpriseDataTable } from "@/components/infrastructure/enterprise-data-table"
-import { NATIVE_FORM, PAGE_LAYOUT } from "@/lib/constants/spacing"
+import { PageShell } from "@/components/layout/page-shell"
+import { NATIVE_FORM } from "@/lib/constants/spacing"
 import { TYPOGRAPHY } from "@/lib/constants/typography"
 
 type TRepositoryStatus = "error" | "ready" | "scanning"
@@ -242,10 +243,16 @@ function RepositoryStatusBadge(props: { status: TRepositoryStatus }): ReactEleme
     )
 }
 
-function RepositoryCountSummary(props: { label: string; value: number }): ReactElement {
+function RepositoryCountSummary(props: {
+    label: string
+    value: number
+    colorClass?: string
+}): ReactElement {
+    const valueColor = props.colorClass ?? ""
     return (
         <p className={`rounded-lg border border-border px-3 py-2 ${TYPOGRAPHY.body}`}>
-            {props.label}: <span className="font-semibold">{props.value}</span>
+            {props.label}:{" "}
+            <span className={`font-semibold ${valueColor}`}>{props.value}</span>
         </p>
     )
 }
@@ -376,20 +383,11 @@ export function RepositoriesListPage(props: IRepositoryListPageProps): ReactElem
     }
 
     return (
-        <section className={PAGE_LAYOUT.standard}>
-            <h1 className={TYPOGRAPHY.pageTitle}>
-                {t("dashboard:repositoriesList.pageTitle")}
-            </h1>
-            <p
-                className={
-                    repositories.length === 0
-                        ? "text-sm text-muted-foreground"
-                        : TYPOGRAPHY.pageSubtitle
-                }
-            >
-                {t("dashboard:repositoriesList.pageSubtitle")}
-            </p>
-
+        <PageShell
+            layout="fluid"
+            subtitle={t("dashboard:repositoriesList.pageSubtitle")}
+            title={t("dashboard:repositoriesList.pageTitle")}
+        >
             {repositories.length === 0 ? (
                 <RepositoriesEmptyState />
             ) : (
@@ -461,18 +459,21 @@ export function RepositoriesListPage(props: IRepositoryListPageProps): ReactElem
                     <CardBody>
                         <div className="mb-3 grid gap-2 md:grid-cols-3">
                             <RepositoryCountSummary
+                                colorClass="text-success"
                                 label={t(
                                     "dashboard:repositoriesList.summaryReady",
                                 )}
                                 value={repoReadyCount}
                             />
                             <RepositoryCountSummary
+                                colorClass="text-warning"
                                 label={t(
                                     "dashboard:repositoriesList.summaryScanning",
                                 )}
                                 value={repoScanningCount}
                             />
                             <RepositoryCountSummary
+                                colorClass="text-danger"
                                 label={t(
                                     "dashboard:repositoriesList.summaryError",
                                 )}
@@ -615,6 +616,6 @@ export function RepositoriesListPage(props: IRepositoryListPageProps): ReactElem
                     </CardBody>
                 </Card>
             )}
-        </section>
+        </PageShell>
     )
 }
