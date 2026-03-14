@@ -42,7 +42,7 @@ describe("FormTextareaField", (): void => {
     it("when rendered with default value, then textarea contains value", (): void => {
         renderWithProviders(<TextareaHarness defaultValue="Initial text" />)
 
-        const textarea = screen.getByRole("textbox", { name: "Description" }) as HTMLTextAreaElement
+        const textarea = screen.getByRole("textbox", { name: "Description" })
         expect(textarea.value).toBe("Initial text")
     })
 
