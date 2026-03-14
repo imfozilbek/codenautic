@@ -26,8 +26,8 @@ export function SettingsLayout(props: ISettingsLayoutProps): ReactElement {
     const settingsItems = createSettingsNavItems(t)
 
     return (
-        <div className="grid gap-3 md:gap-4 md:grid-cols-[minmax(180px,220px)_1fr]">
-            <aside className="rounded-lg border border-border/50 bg-sidebar-bg p-3 shadow-sm">
+        <div className="grid gap-3 md:gap-4 md:grid-cols-[minmax(200px,260px)_1fr]">
+            <aside className="hidden rounded-lg border border-border/50 bg-sidebar-bg p-3 shadow-sm md:block">
                 <p className={`px-2 pb-2 ${TYPOGRAPHY.overline}`}>
                     {title}
                 </p>
