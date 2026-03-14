@@ -89,7 +89,7 @@ export function ChatStreamingResponse(props: IChatStreamingResponseProps): React
             left: 0,
             top: props.scrollContainerRef.current.scrollHeight,
         })
-    }, [props.scrollContainerRef, props.isStreaming, renderedText, isTyping])
+    }, [props.isStreaming, renderedText, isTyping])
 
     if (props.isStreaming !== true && renderedText.length === 0) {
         return <></>

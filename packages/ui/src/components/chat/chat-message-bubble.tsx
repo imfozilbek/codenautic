@@ -335,7 +335,9 @@ export function ChatMessageBubble(props: IChatMessageBubbleProps): ReactElement 
 
     const markdownComponents: Components = {
         h1: ({ children }): ReactElement => <h2 className={TYPOGRAPHY.sectionTitle}>{children}</h2>,
-        h2: ({ children }): ReactElement => <h3 className={TYPOGRAPHY.sectionSubtitle}>{children}</h3>,
+        h2: ({ children }): ReactElement => (
+            <h3 className={TYPOGRAPHY.sectionSubtitle}>{children}</h3>
+        ),
         h3: ({ children }): ReactElement => <h4 className={TYPOGRAPHY.cardTitle}>{children}</h4>,
         h4: ({ children }): ReactElement => <h5 className={TYPOGRAPHY.cardTitle}>{children}</h5>,
         h5: ({ children }): ReactElement => <h6 className={TYPOGRAPHY.caption}>{children}</h6>,
