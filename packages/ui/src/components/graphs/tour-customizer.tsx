@@ -129,9 +129,7 @@ export function TourCustomizer(props: ITourCustomizerProps): ReactElement {
     if (props.isAdmin === false) {
         return (
             <section className="rounded-lg border border-border bg-surface p-3 shadow-sm">
-                <p className={TYPOGRAPHY.cardTitle}>
-                    {t("code-city:tourCustomizer.title")}
-                </p>
+                <p className={TYPOGRAPHY.cardTitle}>{t("code-city:tourCustomizer.title")}</p>
                 <p className={`mt-1 ${TYPOGRAPHY.captionMuted}`}>
                     {t("code-city:tourCustomizer.adminRequiredDescription")}
                 </p>
@@ -141,9 +139,7 @@ export function TourCustomizer(props: ITourCustomizerProps): ReactElement {
 
     return (
         <section className="rounded-lg border border-border bg-surface p-3 shadow-sm">
-            <p className={TYPOGRAPHY.cardTitle}>
-                {t("code-city:tourCustomizer.title")}
-            </p>
+            <p className={TYPOGRAPHY.cardTitle}>{t("code-city:tourCustomizer.title")}</p>
             <p className={`mt-1 ${TYPOGRAPHY.captionMuted}`}>
                 {t("code-city:tourCustomizer.description")}
             </p>

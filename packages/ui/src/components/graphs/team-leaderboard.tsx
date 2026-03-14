@@ -119,7 +119,10 @@ export function TeamLeaderboard(props: ITeamLeaderboardProps): ReactElement {
                 {t("code-city:teamLeaderboard.description")}
             </p>
 
-            <div aria-label={t("code-city:teamLeaderboard.ariaLabelMetric")} className="mt-3 flex flex-wrap gap-2">
+            <div
+                aria-label={t("code-city:teamLeaderboard.ariaLabelMetric")}
+                className="mt-3 flex flex-wrap gap-2"
+            >
                 <button
                     className={resolveMetricButtonClassName(activeMetric === "quality")}
                     onClick={(): void => {
@@ -149,7 +152,10 @@ export function TeamLeaderboard(props: ITeamLeaderboardProps): ReactElement {
                 </button>
             </div>
 
-            <div aria-label={t("code-city:teamLeaderboard.ariaLabelPeriod")} className="mt-2 flex flex-wrap gap-2">
+            <div
+                aria-label={t("code-city:teamLeaderboard.ariaLabelPeriod")}
+                className="mt-2 flex flex-wrap gap-2"
+            >
                 <button
                     className={resolvePeriodButtonClassName(activePeriod === "sprint")}
                     onClick={(): void => {
@@ -179,14 +185,19 @@ export function TeamLeaderboard(props: ITeamLeaderboardProps): ReactElement {
                 </button>
             </div>
 
-            <ol aria-label={t("code-city:teamLeaderboard.ariaLabelRanking")} className="mt-3 space-y-2">
+            <ol
+                aria-label={t("code-city:teamLeaderboard.ariaLabelRanking")}
+                className="mt-3 space-y-2"
+            >
                 {orderedEntries.map((entry, index): ReactElement => {
                     const isActive = props.activeOwnerId === entry.ownerId
                     const score = readScoreBySelection(entry, activeMetric, activePeriod)
                     return (
                         <li key={entry.ownerId}>
                             <button
-                                aria-label={t("code-city:teamLeaderboard.ariaLabelInspect", { ownerName: entry.ownerName })}
+                                aria-label={t("code-city:teamLeaderboard.ariaLabelInspect", {
+                                    ownerName: entry.ownerName,
+                                })}
                                 className={resolveRowClassName(isActive)}
                                 onClick={(): void => {
                                     props.onSelectEntry?.(entry)
@@ -199,7 +210,10 @@ export function TeamLeaderboard(props: ITeamLeaderboardProps): ReactElement {
                                             {String(index + 1)}. {entry.ownerName}
                                         </p>
                                         <p className={`mt-1 ${TYPOGRAPHY.captionMuted}`}>
-                                            {t("code-city:teamLeaderboard.scoreMeta", { score: String(score), files: String(entry.fileIds.length) })}
+                                            {t("code-city:teamLeaderboard.scoreMeta", {
+                                                score: String(score),
+                                                files: String(entry.fileIds.length),
+                                            })}
                                         </p>
                                     </div>
                                     <span
