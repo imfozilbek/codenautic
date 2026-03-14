@@ -33,7 +33,11 @@ export function NotificationAlerts(props: INotificationAlertsProps): ReactElemen
     return (
         <>
             <AnimatedAlert isVisible={props.shortcutConflicts.length > 0}>
-                <Alert color="warning" title={t("navigation:notifications.shortcutConflictsTitle")} variant="flat">
+                <Alert
+                    color="warning"
+                    title={t("navigation:notifications.shortcutConflictsTitle")}
+                    variant="flat"
+                >
                     {props.shortcutConflicts
                         .map((conflict): string => {
                             return `${conflict.signature}: ${conflict.ids.join(", ")}`
@@ -42,13 +46,21 @@ export function NotificationAlerts(props: INotificationAlertsProps): ReactElemen
                 </Alert>
             </AnimatedAlert>
             <AnimatedAlert isVisible={props.multiTabNotice !== undefined}>
-                <Alert color="primary" title={t("navigation:notifications.multiTabSyncTitle")} variant="flat">
+                <Alert
+                    color="primary"
+                    title={t("navigation:notifications.multiTabSyncTitle")}
+                    variant="flat"
+                >
                     {props.multiTabNotice}
                 </Alert>
             </AnimatedAlert>
             <AnimatedAlert isVisible={props.providerDegradation !== undefined}>
                 {props.providerDegradation !== undefined ? (
-                    <Alert color="danger" title={t("navigation:notifications.providerDegradationTitle")} variant="flat">
+                    <Alert
+                        color="danger"
+                        title={t("navigation:notifications.providerDegradationTitle")}
+                        variant="flat"
+                    >
                         {t("navigation:notifications.providerDegradationMessage", {
                             provider: props.providerDegradation.provider,
                             features: props.providerDegradation.affectedFeatures.join(", "),
@@ -66,12 +78,20 @@ export function NotificationAlerts(props: INotificationAlertsProps): ReactElemen
                 ) : null}
             </AnimatedAlert>
             <AnimatedAlert isVisible={props.policyDriftNotice !== undefined}>
-                <Alert color="warning" title={t("navigation:notifications.policyDriftTitle")} variant="flat">
+                <Alert
+                    color="warning"
+                    title={t("navigation:notifications.policyDriftTitle")}
+                    variant="flat"
+                >
                     {props.policyDriftNotice}
                 </Alert>
             </AnimatedAlert>
             <AnimatedAlert isVisible={props.restoredDraftMessage !== undefined}>
-                <Alert color="success" title={t("navigation:notifications.sessionRecoveredTitle")} variant="flat">
+                <Alert
+                    color="success"
+                    title={t("navigation:notifications.sessionRecoveredTitle")}
+                    variant="flat"
+                >
                     {props.restoredDraftMessage}
                 </Alert>
             </AnimatedAlert>

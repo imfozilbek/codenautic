@@ -52,7 +52,10 @@ export function ShortcutsHelpModal(props: IShortcutsHelpModalProps): ReactElemen
                         }}
                     />
                     <p className="text-xs text-text-subtle">{t("navigation:shortcuts.helpHint")}</p>
-                    <ul aria-label={t("navigation:shortcuts.listLabel")} className="max-h-72 space-y-2 overflow-y-auto">
+                    <ul
+                        aria-label={t("navigation:shortcuts.listLabel")}
+                        className="max-h-72 space-y-2 overflow-y-auto"
+                    >
                         {props.shortcuts.map(
                             (shortcut): ReactElement => (
                                 <li
