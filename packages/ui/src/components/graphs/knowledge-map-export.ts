@@ -1,14 +1,5 @@
 import { buildGraphExportFileName } from "@/components/graphs/graph-export"
-import {
-    KNOWLEDGE_MAP_BACKGROUND,
-    KNOWLEDGE_MAP_FALLBACK_COLOR,
-    KNOWLEDGE_MAP_HEADER_TITLE,
-    KNOWLEDGE_MAP_METADATA_TEXT,
-    KNOWLEDGE_MAP_SECTION_FILL,
-    KNOWLEDGE_MAP_SECTION_STROKE,
-    KNOWLEDGE_MAP_SECTION_TITLE,
-    KNOWLEDGE_MAP_SUBTITLE,
-} from "@/lib/constants/graph-colors"
+import { GRAPH_EXPORT_PALETTE } from "@/lib/constants/graph-colors"
 
 /**
  * Максимум строк легенды для каждой секции в SVG-экспорте knowledge map.
@@ -110,7 +101,7 @@ function normalizeSvgColor(color: string): string {
     if (/^#[0-9a-f]{3,8}$/i.test(color)) {
         return color
     }
-    return KNOWLEDGE_MAP_FALLBACK_COLOR
+    return GRAPH_EXPORT_PALETTE.knowledgeMap.fallbackColor
 }
 
 /**
@@ -164,7 +155,7 @@ export function buildKnowledgeMapExportSvg(model: IKnowledgeMapExportModel): str
 
     const metadataTextSvg = metadataRows
         .map((row, index): string => {
-            return `<text x="44" y="${String(116 + index * 24)}" fill="${KNOWLEDGE_MAP_METADATA_TEXT}" font-size="14" font-family="Arial, sans-serif">${escapeSvgText(row)}</text>`
+            return `<text x="44" y="${String(116 + index * 24)}" fill="${GRAPH_EXPORT_PALETTE.knowledgeMap.metadataText}" font-size="14" font-family="Arial, sans-serif">${escapeSvgText(row)}</text>`
         })
         .join("\n")
 
@@ -173,7 +164,7 @@ export function buildKnowledgeMapExportSvg(model: IKnowledgeMapExportModel): str
             const y = 306 + index * 30
             return `<g>
   <rect x="44" y="${String(y - 12)}" width="14" height="14" rx="3" fill="${normalizeSvgColor(owner.color)}" />
-  <text x="68" y="${String(y)}" fill="${KNOWLEDGE_MAP_SECTION_TITLE}" font-size="13" font-family="Arial, sans-serif">${escapeSvgText(owner.ownerName)} • files ${String(owner.fileCount)}</text>
+  <text x="68" y="${String(y)}" fill="${GRAPH_EXPORT_PALETTE.knowledgeMap.sectionTitle}" font-size="13" font-family="Arial, sans-serif">${escapeSvgText(owner.ownerName)} • files ${String(owner.fileCount)}</text>
 </g>`
         })
         .join("\n")
@@ -181,14 +172,14 @@ export function buildKnowledgeMapExportSvg(model: IKnowledgeMapExportModel): str
     const districtRiskSvg = districtRows
         .map((district, index): string => {
             const y = 306 + index * 30
-            return `<text x="550" y="${String(y)}" fill="${KNOWLEDGE_MAP_SECTION_TITLE}" font-size="13" font-family="Arial, sans-serif">${escapeSvgText(district.districtLabel)} • bus factor ${String(district.busFactor)} • ${escapeSvgText(district.riskLabel)}</text>`
+            return `<text x="550" y="${String(y)}" fill="${GRAPH_EXPORT_PALETTE.knowledgeMap.sectionTitle}" font-size="13" font-family="Arial, sans-serif">${escapeSvgText(district.districtLabel)} • bus factor ${String(district.busFactor)} • ${escapeSvgText(district.riskLabel)}</text>`
         })
         .join("\n")
 
     const siloSummarySvg = siloRows
         .map((silo, index): string => {
             const y = 586 + index * 22
-            return `<text x="44" y="${String(y)}" fill="${KNOWLEDGE_MAP_METADATA_TEXT}" font-size="12" font-family="Arial, sans-serif">${escapeSvgText(silo.siloLabel)} • risk ${String(silo.riskScore)} • contributors ${String(silo.contributorCount)} • files ${String(silo.fileCount)}</text>`
+            return `<text x="44" y="${String(y)}" fill="${GRAPH_EXPORT_PALETTE.knowledgeMap.metadataText}" font-size="12" font-family="Arial, sans-serif">${escapeSvgText(silo.siloLabel)} • risk ${String(silo.riskScore)} • contributors ${String(silo.contributorCount)} • files ${String(silo.fileCount)}</text>`
         })
         .join("\n")
 
@@ -196,26 +187,26 @@ export function buildKnowledgeMapExportSvg(model: IKnowledgeMapExportModel): str
 
     return `<?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" width="${String(canvasWidth)}" height="${String(canvasHeight)}" viewBox="0 0 ${String(canvasWidth)} ${String(canvasHeight)}">
-  <rect width="${String(canvasWidth)}" height="${String(canvasHeight)}" fill="${KNOWLEDGE_MAP_BACKGROUND}" />
+  <rect width="${String(canvasWidth)}" height="${String(canvasHeight)}" fill="${GRAPH_EXPORT_PALETTE.knowledgeMap.background}" />
   <metadata>${metadataPayload}</metadata>
 
-  <text x="44" y="58" fill="${KNOWLEDGE_MAP_HEADER_TITLE}" font-size="28" font-family="Arial, sans-serif">${escapeSvgText(headerTitle)}</text>
-  <text x="44" y="84" fill="${KNOWLEDGE_MAP_SUBTITLE}" font-size="14" font-family="Arial, sans-serif">Exported for architecture documentation</text>
+  <text x="44" y="58" fill="${GRAPH_EXPORT_PALETTE.knowledgeMap.headerTitle}" font-size="28" font-family="Arial, sans-serif">${escapeSvgText(headerTitle)}</text>
+  <text x="44" y="84" fill="${GRAPH_EXPORT_PALETTE.knowledgeMap.subtitle}" font-size="14" font-family="Arial, sans-serif">Exported for architecture documentation</text>
 
-  <rect x="28" y="98" width="486" height="154" rx="12" fill="${KNOWLEDGE_MAP_SECTION_FILL}" stroke="${KNOWLEDGE_MAP_SECTION_STROKE}" />
-  <text x="44" y="132" fill="${KNOWLEDGE_MAP_SECTION_TITLE}" font-size="16" font-family="Arial, sans-serif">Metadata</text>
+  <rect x="28" y="98" width="486" height="154" rx="12" fill="${GRAPH_EXPORT_PALETTE.knowledgeMap.sectionFill}" stroke="${GRAPH_EXPORT_PALETTE.knowledgeMap.sectionStroke}" />
+  <text x="44" y="132" fill="${GRAPH_EXPORT_PALETTE.knowledgeMap.sectionTitle}" font-size="16" font-family="Arial, sans-serif">Metadata</text>
 ${metadataTextSvg}
 
-  <rect x="28" y="274" width="486" height="254" rx="12" fill="${KNOWLEDGE_MAP_SECTION_FILL}" stroke="${KNOWLEDGE_MAP_SECTION_STROKE}" />
-  <text x="44" y="306" fill="${KNOWLEDGE_MAP_SECTION_TITLE}" font-size="16" font-family="Arial, sans-serif">Legend — Ownership</text>
+  <rect x="28" y="274" width="486" height="254" rx="12" fill="${GRAPH_EXPORT_PALETTE.knowledgeMap.sectionFill}" stroke="${GRAPH_EXPORT_PALETTE.knowledgeMap.sectionStroke}" />
+  <text x="44" y="306" fill="${GRAPH_EXPORT_PALETTE.knowledgeMap.sectionTitle}" font-size="16" font-family="Arial, sans-serif">Legend — Ownership</text>
 ${ownerLegendSvg}
 
-  <rect x="534" y="274" width="478" height="254" rx="12" fill="${KNOWLEDGE_MAP_SECTION_FILL}" stroke="${KNOWLEDGE_MAP_SECTION_STROKE}" />
-  <text x="550" y="306" fill="${KNOWLEDGE_MAP_SECTION_TITLE}" font-size="16" font-family="Arial, sans-serif">Legend — Bus Factor Risk</text>
+  <rect x="534" y="274" width="478" height="254" rx="12" fill="${GRAPH_EXPORT_PALETTE.knowledgeMap.sectionFill}" stroke="${GRAPH_EXPORT_PALETTE.knowledgeMap.sectionStroke}" />
+  <text x="550" y="306" fill="${GRAPH_EXPORT_PALETTE.knowledgeMap.sectionTitle}" font-size="16" font-family="Arial, sans-serif">Legend — Bus Factor Risk</text>
 ${districtRiskSvg}
 
-  <rect x="28" y="548" width="984" height="148" rx="12" fill="${KNOWLEDGE_MAP_SECTION_FILL}" stroke="${KNOWLEDGE_MAP_SECTION_STROKE}" />
-  <text x="44" y="572" fill="${KNOWLEDGE_MAP_SECTION_TITLE}" font-size="16" font-family="Arial, sans-serif">Knowledge Silos</text>
+  <rect x="28" y="548" width="984" height="148" rx="12" fill="${GRAPH_EXPORT_PALETTE.knowledgeMap.sectionFill}" stroke="${GRAPH_EXPORT_PALETTE.knowledgeMap.sectionStroke}" />
+  <text x="44" y="572" fill="${GRAPH_EXPORT_PALETTE.knowledgeMap.sectionTitle}" font-size="16" font-family="Arial, sans-serif">Knowledge Silos</text>
 ${siloSummarySvg}
 </svg>`
 }
