@@ -27,23 +27,3 @@ export const VIOLATION_SCORE_MULTIPLIER = 5
  * Fallback цвет для chart элементов через CSS-переменную.
  */
 export const CHART_FALLBACK_COLOR = "var(--chart-primary)"
-
-/**
- * @deprecated Перенесён в `chart-recharts-defaults.ts`. Используй импорт оттуда.
- */
-export { CHART_STROKE_WIDTH } from "./chart-recharts-defaults"
-
-/**
- * @deprecated Перенесён в `chart-recharts-defaults.ts`. Используй импорт оттуда.
- */
-export { CHART_GRID_DASH } from "./chart-recharts-defaults"
-
-/**
- * @deprecated Перенесён в `chart-recharts-defaults.ts`. Используй импорт оттуда.
- */
-export { CHART_FILL_OPACITY } from "./chart-recharts-defaults"
-
-/**
- * @deprecated Перенесён в `chart-recharts-defaults.ts`. Используй импорт оттуда.
- */
-export { PIE_OUTER_RADIUS } from "./chart-recharts-defaults"
