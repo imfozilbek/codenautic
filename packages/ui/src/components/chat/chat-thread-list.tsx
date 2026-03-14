@@ -1,5 +1,6 @@
 import type { ChangeEvent, ReactElement } from "react"
 import { useMemo, useState } from "react"
+import { useTranslation } from "react-i18next"
 
 import { Archive, X } from "@/components/icons/app-icons"
 import { Button, Input } from "@/components/ui"
@@ -51,6 +52,7 @@ function normalizeText(value: string): string {
  * Сайдбар списка conversational-тредов.
  */
 export function ChatThreadList(props: IChatThreadListProps): ReactElement {
+    const { t } = useTranslation(["common"])
     const [repoFilter, setRepoFilter] = useState("")
     const [ccrFilter, setCcrFilter] = useState("")
     const normalizedRepoFilter = normalizeText(repoFilter)
@@ -87,7 +89,10 @@ export function ChatThreadList(props: IChatThreadListProps): ReactElement {
     }
 
     return (
-        <aside aria-label="Chat threads" className="h-full min-w-0 bg-surface-muted p-3">
+        <aside
+            aria-label={t("common:ariaLabel.chatThreadList.threads")}
+            className="h-full min-w-0 bg-surface-muted p-3"
+        >
             <div className="mb-3 flex items-center justify-between gap-2">
                 <h3 className="text-sm font-semibold">Threads</h3>
                 <Button color="primary" onPress={props.onNewThread} size="sm">
@@ -97,13 +102,13 @@ export function ChatThreadList(props: IChatThreadListProps): ReactElement {
 
             <div className="mb-3 grid gap-2 sm:grid-cols-2">
                 <Input
-                    aria-label="Filter by repo"
+                    aria-label={t("common:ariaLabel.chatThreadList.filterByRepo")}
                     onChange={handleRepoFilter}
                     placeholder="Filter by repo"
                     value={repoFilter}
                 />
                 <Input
-                    aria-label="Filter by CCR"
+                    aria-label={t("common:ariaLabel.chatThreadList.filterByCcr")}
                     onChange={handleCcrFilter}
                     placeholder="Filter by CCR"
                     value={ccrFilter}
@@ -112,7 +117,7 @@ export function ChatThreadList(props: IChatThreadListProps): ReactElement {
 
             <ul
                 aria-live="polite"
-                aria-label="Conversation threads"
+                aria-label={t("common:ariaLabel.chatThreadList.conversationThreads")}
                 className="space-y-2"
                 role="list"
             >

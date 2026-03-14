@@ -1,5 +1,6 @@
 import type { ReactElement } from "react"
 import { useEffect, useMemo, useRef, useState } from "react"
+import { useTranslation } from "react-i18next"
 
 import { ChatMessageBubble } from "@/components/chat/chat-message-bubble"
 import { ChatContextIndicator } from "@/components/chat/chat-context-indicator"
@@ -111,6 +112,7 @@ export interface IChatPanelProps {
  * Sliding-кнопка чата с сообщениями и полем ввода.
  */
 export function ChatPanel(props: IChatPanelProps): ReactElement {
+    const { t } = useTranslation(["common"])
     const [draftMessage, setDraftMessage] = useState("")
     const [selectedContextId, setSelectedContextId] = useState("")
     const isPanelOpen = props.isOpen === true
@@ -213,7 +215,7 @@ export function ChatPanel(props: IChatPanelProps): ReactElement {
                     <h2 className="text-sm font-semibold">{title}</h2>
                     {props.onClose === undefined ? null : (
                         <Button
-                            aria-label="Close chat panel"
+                            aria-label={t("common:ariaLabel.chatPanel.close")}
                             isIconOnly
                             radius="full"
                             size="sm"
