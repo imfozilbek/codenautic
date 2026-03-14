@@ -97,6 +97,33 @@ async function submitFeedback(
     setFeedbackStatus(`accepted:${result.acceptedCount}`)
 }
 
+function DisabledCodeReviewProbe(): ReactElement {
+    const hook = useCodeReview({
+        reviewId: "review-101",
+        enabled: false,
+    })
+
+    return (
+        <div>
+            <p data-testid="query-pending">{String(hook.codeReviewQuery.isPending)}</p>
+            <p data-testid="query-fetched">{String(hook.codeReviewQuery.isFetched)}</p>
+        </div>
+    )
+}
+
+function EmptyIdCodeReviewProbe(): ReactElement {
+    const hook = useCodeReview({
+        reviewId: "   ",
+    })
+
+    return (
+        <div>
+            <p data-testid="query-pending">{String(hook.codeReviewQuery.isPending)}</p>
+            <p data-testid="query-fetched">{String(hook.codeReviewQuery.isFetched)}</p>
+        </div>
+    )
+}
+
 describe("useCodeReview", (): void => {
     it("загружает code review по ID", async (): Promise<void> => {
         let callCount = 0
@@ -173,5 +200,55 @@ describe("useCodeReview", (): void => {
         await userEvent.click(screen.getByTestId("submit-feedback"))
         const completedFeedback = await screen.findByText("accepted:1")
         expect(completedFeedback).toBeTruthy()
+    })
+
+    it("не загружает данные когда enabled=false", async (): Promise<void> => {
+        let callCount = 0
+        server.use(
+            http.get("http://localhost:7120/api/v1/reviews/:reviewId", () => {
+                callCount += 1
+                return HttpResponse.json({
+                    reviewId: "review-101",
+                    repositoryId: "repo-1",
+                    mergeRequestId: "mr-1",
+                    status: "completed",
+                    issues: [],
+                    metrics: null,
+                })
+            }),
+        )
+
+        renderWithProviders(<DisabledCodeReviewProbe />)
+
+        await new Promise((resolve): void => {
+            setTimeout(resolve, 50)
+        })
+        expect(screen.getByTestId("query-fetched")).toHaveTextContent("false")
+        expect(callCount).toBe(0)
+    })
+
+    it("не загружает данные для пустого reviewId", async (): Promise<void> => {
+        let callCount = 0
+        server.use(
+            http.get("http://localhost:7120/api/v1/reviews/:reviewId", () => {
+                callCount += 1
+                return HttpResponse.json({
+                    reviewId: "review-101",
+                    repositoryId: "repo-1",
+                    mergeRequestId: "mr-1",
+                    status: "completed",
+                    issues: [],
+                    metrics: null,
+                })
+            }),
+        )
+
+        renderWithProviders(<EmptyIdCodeReviewProbe />)
+
+        await new Promise((resolve): void => {
+            setTimeout(resolve, 50)
+        })
+        expect(screen.getByTestId("query-fetched")).toHaveTextContent("false")
+        expect(callCount).toBe(0)
     })
 })
