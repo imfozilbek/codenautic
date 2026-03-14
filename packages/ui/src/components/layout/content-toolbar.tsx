@@ -1,12 +1,7 @@
 import { type ReactElement } from "react"
 import { useTranslation } from "react-i18next"
 
-import {
-    Bell,
-    ChevronRight,
-    Menu,
-    Search,
-} from "@/components/icons/app-icons"
+import { Bell, ChevronRight, Menu, Search } from "@/components/icons/app-icons"
 import { TYPOGRAPHY } from "@/lib/constants/typography"
 import { Button } from "@/components/ui"
 import type { IBreadcrumbSegment } from "@/lib/navigation/route-guard-map"
@@ -51,8 +46,7 @@ export interface IContentToolbarProps {
  */
 export function ContentToolbar(props: IContentToolbarProps): ReactElement {
     const { t } = useTranslation(["navigation"])
-    const hasNotifications =
-        props.notificationCount !== undefined && props.notificationCount > 0
+    const hasNotifications = props.notificationCount !== undefined && props.notificationCount > 0
 
     const lastBreadcrumb =
         props.breadcrumbs !== undefined && props.breadcrumbs.length > 0
@@ -77,51 +71,41 @@ export function ContentToolbar(props: IContentToolbarProps): ReactElement {
 
             {/* Desktop breadcrumbs */}
             {props.breadcrumbs !== undefined && props.breadcrumbs.length > 0 ? (
-                <nav
-                    aria-label="Breadcrumb"
-                    className="hidden min-w-0 flex-1 md:flex"
-                >
+                <nav aria-label="Breadcrumb" className="hidden min-w-0 flex-1 md:flex">
                     <ol className="flex items-center gap-1.5 text-sm">
-                        {props.breadcrumbs.map(
-                            (segment, index): ReactElement => {
-                                const isLast =
-                                    index ===
-                                    (props.breadcrumbs?.length ?? 0) - 1
+                        {props.breadcrumbs.map((segment, index): ReactElement => {
+                            const isLast = index === (props.breadcrumbs?.length ?? 0) - 1
 
-                                return (
-                                    <li
-                                        key={`${segment.label}-${String(index)}`}
-                                        className="flex items-center gap-1.5"
-                                    >
-                                        {index > 0 ? (
-                                            <ChevronRight
-                                                aria-hidden="true"
-                                                className="text-text-subtle"
-                                                size={14}
-                                            />
-                                        ) : null}
-                                        {segment.path !== undefined &&
-                                        !isLast ? (
-                                            <button
-                                                className="rounded-sm text-text-secondary transition-colors duration-150 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
-                                                type="button"
-                                                onClick={(): void => {
-                                                    props.onBreadcrumbNavigate?.(
-                                                        segment.path as string,
-                                                    )
-                                                }}
-                                            >
-                                                {segment.label}
-                                            </button>
-                                        ) : (
-                                            <span className="font-medium text-foreground">
-                                                {segment.label}
-                                            </span>
-                                        )}
-                                    </li>
-                                )
-                            },
-                        )}
+                            return (
+                                <li
+                                    key={`${segment.label}-${String(index)}`}
+                                    className="flex items-center gap-1.5"
+                                >
+                                    {index > 0 ? (
+                                        <ChevronRight
+                                            aria-hidden="true"
+                                            className="text-text-subtle"
+                                            size={14}
+                                        />
+                                    ) : null}
+                                    {segment.path !== undefined && !isLast ? (
+                                        <button
+                                            className="rounded-sm text-text-secondary transition-colors duration-150 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+                                            type="button"
+                                            onClick={(): void => {
+                                                props.onBreadcrumbNavigate?.(segment.path as string)
+                                            }}
+                                        >
+                                            {segment.label}
+                                        </button>
+                                    ) : (
+                                        <span className="font-medium text-foreground">
+                                            {segment.label}
+                                        </span>
+                                    )}
+                                </li>
+                            )
+                        })}
                     </ol>
                 </nav>
             ) : (
@@ -156,15 +140,14 @@ export function ContentToolbar(props: IContentToolbarProps): ReactElement {
                     </kbd>
                 </Button>
 
-                <div
-                    aria-hidden="true"
-                    className="mx-1 hidden h-5 w-px bg-border sm:block"
-                />
+                <div aria-hidden="true" className="mx-1 hidden h-5 w-px bg-border sm:block" />
 
                 {/* Notification bell */}
                 <Button
                     isIconOnly
-                    aria-label={t("navigation:toolbar.notifications", { count: props.notificationCount ?? 0 })}
+                    aria-label={t("navigation:toolbar.notifications", {
+                        count: props.notificationCount ?? 0,
+                    })}
                     radius="full"
                     size="sm"
                     variant="light"

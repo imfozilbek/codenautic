@@ -1,40 +1,38 @@
-import { type KeyboardEvent as ReactKeyboardEvent, type ReactElement, type RefObject, useCallback, useEffect, useMemo, useRef, useState } from "react"
+import {
+    type KeyboardEvent as ReactKeyboardEvent,
+    type ReactElement,
+    type RefObject,
+    useCallback,
+    useEffect,
+    useMemo,
+    useRef,
+    useState,
+} from "react"
 import { useTranslation } from "react-i18next"
 import { AnimatePresence, motion } from "motion/react"
 
+import { useDynamicTranslation } from "@/lib/i18n"
 import { TYPOGRAPHY } from "@/lib/constants/typography"
 import { DURATION, EASING, useReducedMotion } from "@/lib/motion"
 
-/**
- * Command palette item group category key (maps to `navigation:commandPalette.group.*`).
- */
-type TCommandPaletteGroup =
-    | "ccrs"
-    | "issues"
-    | "repos"
-    | "reports"
-    | "settings"
-    | "actions"
-    | "general"
-
-/**
- * Single command palette item.
- */
-interface ICommandPaletteItem {
-    readonly group: TCommandPaletteGroup
-    readonly id: string
-    readonly keywords: string
-    readonly label: string
-    readonly path: string
-}
-
-/**
- * Grouped section of command palette items.
- */
-interface ICommandPaletteGroupSection {
-    readonly group: TCommandPaletteGroup
-    readonly items: ReadonlyArray<ICommandPaletteItem>
-}
+import type {
+    ICommandPaletteGroupSection,
+    ICommandPaletteItem,
+    TCommandPaletteGroup,
+} from "./command-palette.constants"
+import {
+    COMMAND_PALETTE_PINNED_STORAGE_KEY,
+    COMMAND_PALETTE_RECENT_STORAGE_KEY,
+    MAX_RECENT_COMMANDS,
+} from "./command-palette.constants"
+import {
+    createCommandPaletteItems,
+    createCommandPaletteOptionId,
+    groupCommandPaletteItems,
+    readStringArrayFromStorage,
+    sortByReferenceOrder,
+    writeStringArrayToStorage,
+} from "./command-palette.utils"
 
 /**
  * Route option for command palette navigation.
@@ -62,194 +60,6 @@ export interface ICommandPaletteProps {
     readonly invokerRef?: RefObject<HTMLElement | null>
 }
 
-const COMMAND_PALETTE_RECENT_STORAGE_KEY = "codenautic:ui:command-palette:recent:v1"
-const COMMAND_PALETTE_PINNED_STORAGE_KEY = "codenautic:ui:command-palette:pinned:v1"
-const MAX_RECENT_COMMANDS = 8
-
-/**
- * Ключи статических команд для i18n (`navigation:commandPalette.*`).
- */
-interface IStaticCommandKey {
-    readonly group: TCommandPaletteGroup
-    readonly id: string
-    readonly keywords: string
-    readonly labelKey: "openCcrManagement" | "openDiagnosticsCenter" | "openRepositories" | "openReportsWorkspace"
-    readonly path: string
-}
-
-const STATIC_COMMAND_KEYS: ReadonlyArray<IStaticCommandKey> = [
-    {
-        group: "actions",
-        id: "action-open-reviews",
-        keywords: "review ccr management triage",
-        labelKey: "openCcrManagement",
-        path: "/reviews",
-    },
-    {
-        group: "actions",
-        id: "action-open-diagnostics",
-        keywords: "diagnostics degradation help support",
-        labelKey: "openDiagnosticsCenter",
-        path: "/help-diagnostics",
-    },
-    {
-        group: "actions",
-        id: "action-open-repositories",
-        keywords: "repositories onboarding scan",
-        labelKey: "openRepositories",
-        path: "/repositories",
-    },
-    {
-        group: "actions",
-        id: "action-open-reports",
-        keywords: "reports analytics export generation viewer",
-        labelKey: "openReportsWorkspace",
-        path: "/reports",
-    },
-]
-
-function inferCommandPaletteGroup(path: string): TCommandPaletteGroup {
-    if (path.startsWith("/reviews")) {
-        return "ccrs"
-    }
-    if (path.startsWith("/issues")) {
-        return "issues"
-    }
-    if (path.startsWith("/repositories")) {
-        return "repos"
-    }
-    if (path.startsWith("/reports")) {
-        return "reports"
-    }
-    if (path.startsWith("/settings")) {
-        return "settings"
-    }
-    return "general"
-}
-
-function createCommandPaletteOptionId(itemId: string, itemIndex: number): string {
-    const normalized = itemId
-        .toLowerCase()
-        .replace(/[^a-z0-9_-]+/g, "-")
-        .replace(/^-+|-+$/g, "")
-    const safePart = normalized.length > 0 ? normalized : "item"
-
-    return `header-command-palette-option-${safePart}-${String(itemIndex)}`
-}
-
-function readStringArrayFromStorage(storageKey: string): ReadonlyArray<string> {
-    if (typeof window === "undefined") {
-        return []
-    }
-
-    try {
-        const raw = window.localStorage.getItem(storageKey)
-        if (raw === null) {
-            return []
-        }
-
-        const parsed = JSON.parse(raw) as unknown
-        if (Array.isArray(parsed) === false) {
-            return []
-        }
-
-        return parsed.filter((item): item is string => typeof item === "string")
-    } catch (_error: unknown) {
-        return []
-    }
-}
-
-function writeStringArrayToStorage(storageKey: string, value: ReadonlyArray<string>): void {
-    if (typeof window === "undefined") {
-        return
-    }
-
-    try {
-        window.localStorage.setItem(storageKey, JSON.stringify(value))
-    } catch (_error: unknown) {
-        return
-    }
-}
-
-function createCommandPaletteItems(
-    routes: ReadonlyArray<ICommandPaletteRouteOption>,
-    translateCommandLabel: (key: string) => string,
-): ReadonlyArray<ICommandPaletteItem> {
-    const routeItems = routes.map((route): ICommandPaletteItem => {
-        return {
-            group: inferCommandPaletteGroup(route.path),
-            id: `route-${route.path}`,
-            keywords: `${route.label} ${route.path}`.toLowerCase(),
-            label: route.label,
-            path: route.path,
-        }
-    })
-    const routePaths = new Set(routes.map((route): string => route.path))
-    const actionItems = STATIC_COMMAND_KEYS.filter((definition): boolean => {
-        return routePaths.has(definition.path)
-    }).map((definition): ICommandPaletteItem => {
-        return {
-            group: definition.group,
-            id: definition.id,
-            keywords: definition.keywords,
-            label: translateCommandLabel(definition.labelKey),
-            path: definition.path,
-        }
-    })
-
-    return [...actionItems, ...routeItems]
-}
-
-function sortByReferenceOrder<TValue extends { readonly path: string }>(
-    items: ReadonlyArray<TValue>,
-    orderedPaths: ReadonlyArray<string>,
-): ReadonlyArray<TValue> {
-    const positions = new Map<string, number>()
-    orderedPaths.forEach((path, index): void => {
-        positions.set(path, index)
-    })
-
-    return [...items].sort((left, right): number => {
-        const leftPosition = positions.get(left.path)
-        const rightPosition = positions.get(right.path)
-        if (leftPosition === undefined && rightPosition === undefined) {
-            return left.path.localeCompare(right.path)
-        }
-        if (leftPosition === undefined) {
-            return 1
-        }
-        if (rightPosition === undefined) {
-            return -1
-        }
-        return leftPosition - rightPosition
-    })
-}
-
-function groupCommandPaletteItems(
-    items: ReadonlyArray<ICommandPaletteItem>,
-): ReadonlyArray<ICommandPaletteGroupSection> {
-    const order: TCommandPaletteGroup[] = []
-    const map = new Map<TCommandPaletteGroup, ICommandPaletteItem[]>()
-
-    items.forEach((item): void => {
-        const existing = map.get(item.group)
-        if (existing === undefined) {
-            order.push(item.group)
-            map.set(item.group, [item])
-            return
-        }
-
-        existing.push(item)
-    })
-
-    return order.map((group): ICommandPaletteGroupSection => {
-        return {
-            group,
-            items: map.get(group) ?? [],
-        }
-    })
-}
-
 /**
  * Global command palette with search, pin, recents, and keyboard navigation.
  * Extracts the full command palette UI from Header into a standalone component.
@@ -271,23 +81,20 @@ export function CommandPalette(props: ICommandPaletteProps): ReactElement | null
     const dialogRef = useRef<HTMLDivElement | null>(null)
     const prefersReducedMotion = useReducedMotion()
 
-    const tDynamic = useMemo(
-        () => t as unknown as (key: string) => string,
-        [t],
-    )
+    const { td } = useDynamicTranslation(["navigation"])
 
     const translateCommandLabel = useMemo(
         () =>
             (key: string): string =>
-                tDynamic(`navigation:commandPalette.${key}`),
-        [tDynamic],
+                td(`navigation:commandPalette.${key}`),
+        [td],
     )
 
     const translateGroupLabel = useMemo(
         () =>
             (group: TCommandPaletteGroup): string =>
-                tDynamic(`navigation:commandPalette.group.${group}`),
-        [tDynamic],
+                td(`navigation:commandPalette.group.${group}`),
+        [td],
     )
 
     const allItems = useMemo((): ReadonlyArray<ICommandPaletteItem> => {
@@ -567,7 +374,9 @@ export function CommandPalette(props: ICommandPaletteProps): ReactElement | null
                                                         togglePinned(item.path)
                                                     }}
                                                 >
-                                                    {isPinned ? t("navigation:commandPalette.pinned") : t("navigation:commandPalette.pin")}
+                                                    {isPinned
+                                                        ? t("navigation:commandPalette.pinned")
+                                                        : t("navigation:commandPalette.pin")}
                                                 </button>
                                             </div>
                                         )
