@@ -128,7 +128,7 @@
 
 | ID | Задача | Статус | Результат | Acceptance Criteria |
 |----------|--------------------|--------|-----------|---------------------|
-| MSG-003 | Реализовать InboxRepositoryImpl | TODO | Не начато | Реализация: MongoDB inbox repository. Готово, если: inbox repository обеспечивает exactly-once семантику на уровне messageId/consumerId, повторный ingest не запускает повторную обработку; DoD: `cd packages/adapters && bun run lint && bun run typecheck && bun test`. |
+| MSG-003 | Реализовать InboxRepositoryImpl | DONE | Реализовано | Реализация: Добавлен `MongoInboxRepository` (`src/messaging/mongo-inbox-repository.adapter.ts`) как реализация `IInboxRepository`: `save/findById/findByMessageId/markProcessed` с upsert-паттерном и обновлением `processedAt`. Расширены `MESSAGING_TOKENS` (`InboxRepository`) и `registerMessagingModule` (optional binding в `TOKENS.Messaging.InboxRepository`), обновлены barrel exports (`src/messaging/index.ts`, `src/index.ts`). Добавлены тесты `tests/messaging/mongo-inbox-repository.test.ts`, расширен foundation wiring тест. Готово, если: inbox repository обеспечивает exactly-once семантику на уровне messageId/consumerId, повторный ingest не запускает повторную обработку; DoD: `cd packages/adapters && bun run lint && bun run typecheck && bun test`. |
 | MSG-004 | Реализовать inboxDeduplicationImpl | TODO | Не начато | Реализация: Inbox deduplication implementation. Готово, если: deduplication корректно различает новый и повторный payload, работает при конкурентной обработке и не даёт race-condition дублей; DoD: `cd packages/adapters && bun run lint && bun run typecheck && bun test`. |
 
 ---

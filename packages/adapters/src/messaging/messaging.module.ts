@@ -1,6 +1,7 @@
 import {
     Container,
     TOKENS,
+    type IInboxRepository,
     type IOutboxRelayService,
     type IOutboxRepository,
 } from "@codenautic/core"
@@ -28,6 +29,11 @@ export interface IRegisterMessagingModuleOptions {
      * Optional outbox repository implementation.
      */
     readonly outboxRepository?: IOutboxRepository
+
+    /**
+     * Optional inbox repository implementation.
+     */
+    readonly inboxRepository?: IInboxRepository
 
     /**
      * Optional outbox relay service implementation.
@@ -62,6 +68,19 @@ export function registerMessagingModule(
             container,
             TOKENS.Messaging.OutboxRepository,
             options.outboxRepository,
+        )
+    }
+
+    if (options.inboxRepository !== undefined) {
+        bindConstantSingleton(
+            container,
+            MESSAGING_TOKENS.InboxRepository,
+            options.inboxRepository,
+        )
+        bindConstantSingleton(
+            container,
+            TOKENS.Messaging.InboxRepository,
+            options.inboxRepository,
         )
     }
 

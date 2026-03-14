@@ -25,6 +25,12 @@ export {
     MongoOutboxRepository,
 } from "./mongo-outbox-repository.adapter"
 export {
+    type IInboxMessageDocument,
+    type IMongoInboxModel,
+    type IMongoInboxRepositoryOptions,
+    MongoInboxRepository,
+} from "./mongo-inbox-repository.adapter"
+export {
     type IOutboxRelayServiceImplOptions,
     type OutboxRelaySleep,
     OutboxRelayServiceImpl,

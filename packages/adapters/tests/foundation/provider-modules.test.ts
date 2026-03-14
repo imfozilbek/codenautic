@@ -3,6 +3,7 @@ import {describe, expect, test} from "bun:test"
 import {
     Container,
     TOKENS,
+    type IInboxRepository,
     type IOutboxRelayService,
     type IOutboxRepository,
     UniqueId,
@@ -288,6 +289,20 @@ describe("Provider modules registration", () => {
                 return Promise.resolve()
             },
         }
+        const inboxRepository: IInboxRepository = {
+            findById(_id): ReturnType<IInboxRepository["findById"]> {
+                return Promise.resolve(null)
+            },
+            save(_entity): ReturnType<IInboxRepository["save"]> {
+                return Promise.resolve()
+            },
+            findByMessageId(_messageId): ReturnType<IInboxRepository["findByMessageId"]> {
+                return Promise.resolve(null)
+            },
+            markProcessed(_id: string | UniqueId): ReturnType<IInboxRepository["markProcessed"]> {
+                return Promise.resolve()
+            },
+        }
         const outboxRelayService: IOutboxRelayService = {
             relay(): ReturnType<IOutboxRelayService["relay"]> {
                 return Promise.resolve({
@@ -304,22 +319,27 @@ describe("Provider modules registration", () => {
             outboxWriter,
             inboxDeduplicator,
             outboxRepository,
+            inboxRepository,
             outboxRelayService,
         })
 
         const resolvedOutboxWriter = container.resolve(MESSAGING_TOKENS.OutboxWriter)
         const resolvedInboxDeduplicator = container.resolve(MESSAGING_TOKENS.InboxDeduplicator)
         const resolvedOutboxRepository = container.resolve(MESSAGING_TOKENS.OutboxRepository)
+        const resolvedInboxRepository = container.resolve(MESSAGING_TOKENS.InboxRepository)
         const resolvedOutboxRelayService = container.resolve(
             MESSAGING_TOKENS.OutboxRelayService,
         )
         const resolvedCoreOutboxRepository = container.resolve(TOKENS.Messaging.OutboxRepository)
+        const resolvedCoreInboxRepository = container.resolve(TOKENS.Messaging.InboxRepository)
 
         expect(resolvedOutboxWriter).toBe(outboxWriter)
         expect(resolvedInboxDeduplicator).toBe(inboxDeduplicator)
         expect(resolvedOutboxRepository).toBe(outboxRepository)
+        expect(resolvedInboxRepository).toBe(inboxRepository)
         expect(resolvedOutboxRelayService).toBe(outboxRelayService)
         expect(resolvedCoreOutboxRepository).toBe(outboxRepository)
+        expect(resolvedCoreInboxRepository).toBe(inboxRepository)
     })
 
     test("registerWorkerModule binds optional worker adapters", () => {

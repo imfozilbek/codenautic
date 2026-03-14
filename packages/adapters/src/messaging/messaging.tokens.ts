@@ -1,5 +1,6 @@
 import {
     createToken,
+    type IInboxRepository,
     type IOutboxRelayService,
     type IOutboxRepository,
 } from "@codenautic/core"
@@ -12,6 +13,7 @@ import type {OutboxWriter} from "./outbox-writer.adapter"
  */
 export const MESSAGING_TOKENS = {
     InboxDeduplicator: createToken<InboxDeduplicator>("adapters.messaging.inbox-deduplicator"),
+    InboxRepository: createToken<IInboxRepository>("adapters.messaging.inbox-repository"),
     OutboxRelayService: createToken<IOutboxRelayService>(
         "adapters.messaging.outbox-relay-service",
     ),
