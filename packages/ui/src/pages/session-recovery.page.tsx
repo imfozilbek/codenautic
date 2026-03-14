@@ -2,7 +2,7 @@ import { type ReactElement } from "react"
 import { useTranslation } from "react-i18next"
 import { useNavigate } from "@tanstack/react-router"
 
-import { Alert, Button, Card, CardBody, CardHeader } from "@/components/ui"
+import { Alert, Button, Card, CardContent, CardHeader } from "@heroui/react"
 import { PageShell } from "@/components/layout/page-shell"
 import { TYPOGRAPHY } from "@/lib/constants/typography"
 
@@ -20,8 +20,9 @@ export function SessionRecoveryPage(): ReactElement {
             subtitle={t("system:sessionRecovery.pageSubtitle")}
             title={t("system:sessionRecovery.pageTitle")}
         >
-            <Alert color="primary" title={t("system:sessionRecovery.guidanceTitle")} variant="flat">
-                {t("system:sessionRecovery.guidanceMessage")}
+            <Alert status="accent">
+                <Alert.Title>{t("system:sessionRecovery.guidanceTitle")}</Alert.Title>
+                <Alert.Description>{t("system:sessionRecovery.guidanceMessage")}</Alert.Description>
             </Alert>
 
             <Card>
@@ -30,7 +31,7 @@ export function SessionRecoveryPage(): ReactElement {
                         {t("system:sessionRecovery.recoveryStepsTitle")}
                     </p>
                 </CardHeader>
-                <CardBody className="space-y-3">
+                <CardContent className="space-y-3">
                     <ol className="list-decimal space-y-2 pl-5 text-sm text-foreground/85">
                         <li>{t("system:sessionRecovery.step1")}</li>
                         <li>{t("system:sessionRecovery.step2")}</li>
@@ -39,7 +40,7 @@ export function SessionRecoveryPage(): ReactElement {
                     <div className="flex flex-wrap gap-2">
                         <Button
                             size="sm"
-                            variant="flat"
+                            variant="secondary"
                             onPress={(): void => {
                                 void navigate({
                                     to: "/settings-organization",
@@ -50,7 +51,7 @@ export function SessionRecoveryPage(): ReactElement {
                         </Button>
                         <Button
                             size="sm"
-                            variant="flat"
+                            variant="secondary"
                             onPress={(): void => {
                                 void navigate({
                                     to: "/login",
@@ -61,7 +62,7 @@ export function SessionRecoveryPage(): ReactElement {
                         </Button>
                         <Button
                             size="sm"
-                            variant="flat"
+                            variant="secondary"
                             onPress={(): void => {
                                 void navigate({
                                     to: "/help-diagnostics",
@@ -71,7 +72,7 @@ export function SessionRecoveryPage(): ReactElement {
                             {t("system:sessionRecovery.backToDiagnostics")}
                         </Button>
                     </div>
-                </CardBody>
+                </CardContent>
             </Card>
         </PageShell>
     )
