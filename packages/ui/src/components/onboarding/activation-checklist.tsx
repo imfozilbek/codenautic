@@ -1,7 +1,13 @@
 import { type ReactElement, useMemo, useState } from "react"
+import { useTranslation } from "react-i18next"
 import { Link } from "@tanstack/react-router"
 
 import { Alert, Button, Card, CardBody, CardHeader, Chip } from "@/components/ui"
+import {
+    getWindowLocalStorage,
+    safeStorageGetJson,
+    safeStorageSetJson,
+} from "@/lib/utils/safe-storage"
 
 type TActivationChecklistRole = "admin" | "developer"
 
@@ -92,48 +98,31 @@ const ACTIVATION_STEPS: ReadonlyArray<IActivationStep> = [
 ]
 
 function readChecklistState(): IActivationChecklistState {
-    if (typeof window === "undefined") {
-        return {
-            completedStepIds: [],
-            dismissed: false,
-        }
+    const defaultState: IActivationChecklistState = {
+        completedStepIds: [],
+        dismissed: false,
     }
 
-    const rawState = window.localStorage.getItem(ACTIVATION_STORAGE_KEY)
-    if (rawState === null) {
-        return {
-            completedStepIds: [],
-            dismissed: false,
-        }
+    const parsed = safeStorageGetJson<{
+        readonly completedStepIds?: unknown
+        readonly dismissed?: unknown
+    } | null>(getWindowLocalStorage(), ACTIVATION_STORAGE_KEY, null)
+    if (parsed === null) {
+        return defaultState
     }
 
-    try {
-        const parsed = JSON.parse(rawState) as {
-            readonly completedStepIds?: unknown
-            readonly dismissed?: unknown
-        }
-        return {
-            completedStepIds: Array.isArray(parsed.completedStepIds)
-                ? parsed.completedStepIds.filter(
-                      (stepId): stepId is string => typeof stepId === "string",
-                  )
-                : [],
-            dismissed: parsed.dismissed === true,
-        }
-    } catch (_error: unknown) {
-        return {
-            completedStepIds: [],
-            dismissed: false,
-        }
+    return {
+        completedStepIds: Array.isArray(parsed.completedStepIds)
+            ? parsed.completedStepIds.filter(
+                  (stepId): stepId is string => typeof stepId === "string",
+              )
+            : [],
+        dismissed: parsed.dismissed === true,
     }
 }
 
 function writeChecklistState(nextState: IActivationChecklistState): void {
-    if (typeof window === "undefined") {
-        return
-    }
-
-    window.localStorage.setItem(ACTIVATION_STORAGE_KEY, JSON.stringify(nextState))
+    safeStorageSetJson(getWindowLocalStorage(), ACTIVATION_STORAGE_KEY, nextState)
 }
 
 async function syncChecklistStateToProfileApi(nextState: IActivationChecklistState): Promise<void> {
@@ -159,6 +148,7 @@ async function syncChecklistStateToProfileApi(nextState: IActivationChecklistSta
  * @returns Role-aware checklist с deep-links и прогрессом.
  */
 export function ActivationChecklist(props: IActivationChecklistProps): ReactElement | null {
+    const { t } = useTranslation(["common"])
     const [state, setState] = useState<IActivationChecklistState>(readChecklistState)
 
     const visibleSteps = useMemo((): ReadonlyArray<IActivationStep> => {
@@ -209,7 +199,10 @@ export function ActivationChecklist(props: IActivationChecklistProps): ReactElem
                 <Alert color="primary" title="Path to first value" variant="flat">
                     Complete steps to reach first successful scan and visible insights.
                 </Alert>
-                <ul aria-label="Activation checklist steps" className="space-y-2">
+                <ul
+                    aria-label={t("common:ariaLabel.activationChecklist.steps")}
+                    className="space-y-2"
+                >
                     {visibleSteps.map((step): ReactElement => {
                         const isCompleted = state.completedStepIds.includes(step.id)
 
