@@ -22,7 +22,7 @@ const messageList: ReadonlyArray<IChatPanelMessage> = [
         createdAt: "2026-03-03T10:01:00.000Z",
         id: "msg-user",
         role: "user",
-        sender: "Alice",
+        sender: "Neo",
     },
     {
         content: "- Важный пункт\n```ts\nconst ok = true\nreturn ok\n```\n[Docs](/settings)",
