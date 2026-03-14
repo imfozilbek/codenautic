@@ -131,7 +131,7 @@ export function ReportScheduleDialog(): ReactElement {
                             <span aria-label="Schedule preview value">{schedulePreview}</span>
                         </Alert>
                         <div className="flex gap-2">
-                            <Button onPress={handleSaveSchedule}>
+                            <Button color="primary" onPress={handleSaveSchedule}>
                                 {t("reports:scheduleDialog.saveSchedule")}
                             </Button>
                             <Button
