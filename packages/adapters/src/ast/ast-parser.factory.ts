@@ -29,6 +29,10 @@ import {
     PhpSourceCodeParser,
 } from "./php-source-code-parser"
 import {
+    assertRubyParserLanguage,
+    RubySourceCodeParser,
+} from "./ruby-source-code-parser"
+import {
     assertRustParserLanguage,
     RustSourceCodeParser,
 } from "./rust-source-code-parser"
@@ -142,6 +146,11 @@ const DEFAULT_AST_PARSER_CREATORS: Readonly<
     [AST_LANGUAGE.CSHARP](): ISourceCodeParser {
         return new CSharpSourceCodeParser({
             language: assertCSharpParserLanguage(AST_LANGUAGE.CSHARP),
+        })
+    },
+    [AST_LANGUAGE.RUBY](): ISourceCodeParser {
+        return new RubySourceCodeParser({
+            language: assertRubyParserLanguage(AST_LANGUAGE.RUBY),
         })
     },
 }

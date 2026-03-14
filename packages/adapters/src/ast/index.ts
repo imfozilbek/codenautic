@@ -128,6 +128,12 @@ export {
     type PhpParserLanguage,
 } from "./php-source-code-parser"
 export {
+    assertRubyParserLanguage,
+    RubySourceCodeParser,
+    type IRubySourceCodeParserOptions,
+    type RubyParserLanguage,
+} from "./ruby-source-code-parser"
+export {
     assertRustParserLanguage,
     RustSourceCodeParser,
     type IRustSourceCodeParserOptions,
