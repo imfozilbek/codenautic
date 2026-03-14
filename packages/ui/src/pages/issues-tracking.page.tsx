@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState, type ChangeEvent, type ReactElement } from "react"
 import { useTranslation } from "react-i18next"
 
+import { useDynamicTranslation } from "@/lib/i18n"
 import { Button, Card, CardBody } from "@/components/ui"
 import { EnterpriseDataTable } from "@/components/infrastructure/enterprise-data-table"
 import { PageShell } from "@/components/layout/page-shell"
@@ -60,7 +61,9 @@ function createIssueActionLabels(t: (key: string) => string): Record<TIssueTrack
     }
 }
 
-function createIssueSeverityLabels(t: (key: string) => string): Record<TIssueTrackingSeverity, string> {
+function createIssueSeverityLabels(
+    t: (key: string) => string,
+): Record<TIssueTrackingSeverity, string> {
     return {
         critical: t("dashboard:issuesTracking.severityCritical"),
         high: t("dashboard:issuesTracking.severityHigh"),
@@ -260,9 +263,10 @@ function estimateIssueRowHeight(
  */
 export function IssuesTrackingPage(props: IIssueTrackingPageProps = {}): ReactElement {
     const { t } = useTranslation(["dashboard"])
-    const ISSUE_ACTION_LABELS = useMemo(() => createIssueActionLabels(t as unknown as (key: string) => string), [t])
-    const ISSUE_SEVERITY_LABELS = useMemo(() => createIssueSeverityLabels(t as unknown as (key: string) => string), [t])
-    const ISSUE_STATUS_LABELS = useMemo(() => createIssueStatusLabels(t as unknown as (key: string) => string), [t])
+    const { td } = useDynamicTranslation(["dashboard"])
+    const ISSUE_ACTION_LABELS = useMemo(() => createIssueActionLabels(td), [td])
+    const ISSUE_SEVERITY_LABELS = useMemo(() => createIssueSeverityLabels(td), [td])
+    const ISSUE_STATUS_LABELS = useMemo(() => createIssueStatusLabels(td), [td])
     const sourceIssues = props.issues ?? ALL_ISSUES
     const [visibleItems, setVisibleItems] = useState<number>(ISSUE_PAGE_SIZE)
     const persistedFilters = useFilterPersistence<IIssueTrackingFilters>({
@@ -404,7 +408,9 @@ export function IssuesTrackingPage(props: IIssueTrackingPageProps = {}): ReactEl
                             value={filters.severity}
                             onChange={handleSelectChange("severity")}
                         >
-                            <option value="all">{t("dashboard:issuesTracking.allSeverities")}</option>
+                            <option value="all">
+                                {t("dashboard:issuesTracking.allSeverities")}
+                            </option>
                             {ISSUE_SEVERITY_OPTIONS.map(
                                 (severity): ReactElement => (
                                     <option key={severity} value={severity}>
@@ -413,8 +419,13 @@ export function IssuesTrackingPage(props: IIssueTrackingPageProps = {}): ReactEl
                                 ),
                             )}
                         </select>
-                        <p className={`rounded-lg border border-border px-3 py-2 ${TYPOGRAPHY.body}`}>
-                            {(t as unknown as (key: string, options: Record<string, string>) => string)("dashboard:issuesTracking.issueCount", { filtered: String(filteredIssues.length), total: String(sourceIssues.length) })}
+                        <p
+                            className={`rounded-lg border border-border px-3 py-2 ${TYPOGRAPHY.body}`}
+                        >
+                            {td("dashboard:issuesTracking.issueCount", {
+                                filtered: String(filteredIssues.length),
+                                total: String(sourceIssues.length),
+                            })}
                         </p>
                     </div>
                 </CardBody>

@@ -2,6 +2,7 @@ import { type ReactElement, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { useNavigate } from "@tanstack/react-router"
 
+import { useDynamicTranslation } from "@/lib/i18n"
 import { Alert, Button, Card, CardBody, CardHeader, Chip, Textarea } from "@/components/ui"
 import { SystemStateCard } from "@/components/infrastructure/system-state-card"
 import { PageShell } from "@/components/layout/page-shell"
@@ -217,19 +218,20 @@ export function runDiagnosticsChecks(
         return "system:helpDiagnostics.diagnosticDetails.providerNone"
     })()
 
-    const providerDetailsParams: Record<string, string> | undefined =
-        ((): Record<string, string> | undefined => {
-            if (snapshot.providersErrorMessage !== undefined) {
-                return { errorMessage: snapshot.providersErrorMessage }
-            }
-            if (snapshot.providerDegradedCount > 0) {
-                return { count: String(snapshot.providerDegradedCount) }
-            }
-            if (snapshot.providerConnectedCount > 0) {
-                return { count: String(snapshot.providerConnectedCount) }
-            }
-            return undefined
-        })()
+    const providerDetailsParams: Record<string, string> | undefined = (():
+        | Record<string, string>
+        | undefined => {
+        if (snapshot.providersErrorMessage !== undefined) {
+            return { errorMessage: snapshot.providersErrorMessage }
+        }
+        if (snapshot.providerDegradedCount > 0) {
+            return { count: String(snapshot.providerDegradedCount) }
+        }
+        if (snapshot.providerConnectedCount > 0) {
+            return { count: String(snapshot.providerConnectedCount) }
+        }
+        return undefined
+    })()
 
     const featureFlagsStatus: TDiagnosticStatus = (() => {
         if (snapshot.featureFlagsPending === true) {
@@ -367,6 +369,7 @@ function buildSuggestedActions(
  */
 export function HelpDiagnosticsPage(): ReactElement {
     const { t } = useTranslation(["system"])
+    const { td } = useDynamicTranslation(["system"])
     const navigate = useNavigate()
     const { featureFlagsQuery: featureFlags } = useFeatureFlagsQuery()
     const externalContext = useExternalContext({
@@ -377,8 +380,6 @@ export function HelpDiagnosticsPage(): ReactElement {
     const [checks, setChecks] = useState<ReadonlyArray<IDiagnosticCheck>>(INITIAL_CHECKS)
     const [supportBundle, setSupportBundle] = useState<string>("")
     const [bundleMessage, setBundleMessage] = useState<string>("")
-
-    const tDynamic = t as unknown as (key: string, options?: Record<string, string>) => string
 
     const sourceContext = useMemo((): string => {
         if (typeof window === "undefined") {
@@ -392,22 +393,23 @@ export function HelpDiagnosticsPage(): ReactElement {
         const normalizedQuery = normalize(search)
         return HELP_ARTICLES.filter((article): boolean => {
             const categoryMatches = category === "all" || article.category === category
-            const translatedTitle = normalize(tDynamic(article.titleKey))
-            const translatedSummary = normalize(tDynamic(article.summaryKey))
+            const translatedTitle = normalize(td(article.titleKey))
+            const translatedSummary = normalize(td(article.summaryKey))
             const queryMatches =
                 normalizedQuery.length === 0 ||
                 translatedTitle.includes(normalizedQuery) ||
                 translatedSummary.includes(normalizedQuery)
             return categoryMatches && queryMatches
         })
-    }, [category, search, tDynamic])
+    }, [category, search, td])
     const suggestedActions = useMemo((): ReadonlyArray<IDiagnosticSuggestedAction> => {
         return buildSuggestedActions(checks)
     }, [checks])
 
     const handleRunDiagnostics = (): void => {
         const hasSessionToken =
-            typeof window !== "undefined" && window.localStorage.getItem("session-token") !== null
+            typeof window !== "undefined" &&
+            window.sessionStorage.getItem("codenautic.ui.auth.session") !== null
         const networkOnline = typeof navigator !== "undefined" && navigator.onLine === true
         const webGlReady =
             typeof document !== "undefined" &&
@@ -587,10 +589,10 @@ export function HelpDiagnosticsPage(): ReactElement {
                                         key={article.id}
                                     >
                                         <p className={TYPOGRAPHY.cardTitle}>
-                                            {tDynamic(article.titleKey)}
+                                            {td(article.titleKey)}
                                         </p>
                                         <p className="text-xs text-text-secondary">
-                                            {tDynamic(article.summaryKey)}
+                                            {td(article.summaryKey)}
                                         </p>
                                         <a
                                             className="mt-1 inline-flex text-xs underline underline-offset-4"
@@ -654,11 +656,7 @@ export function HelpDiagnosticsPage(): ReactElement {
                             >
                                 {t("system:helpDiagnostics.openSessionRecovery")}
                             </Button>
-                            <Button
-                                size="sm"
-                                variant="flat"
-                                onPress={handleGenerateSupportBundle}
-                            >
+                            <Button size="sm" variant="flat" onPress={handleGenerateSupportBundle}>
                                 {t("system:helpDiagnostics.generateSupportBundle")}
                             </Button>
                         </div>
@@ -674,9 +672,7 @@ export function HelpDiagnosticsPage(): ReactElement {
                                     key={check.id}
                                 >
                                     <div className="flex flex-wrap items-center gap-2">
-                                        <p className={TYPOGRAPHY.cardTitle}>
-                                            {tDynamic(check.labelKey)}
-                                        </p>
+                                        <p className={TYPOGRAPHY.cardTitle}>{td(check.labelKey)}</p>
                                         <Chip
                                             color={mapStatusColor(check.status)}
                                             size="sm"
@@ -686,7 +682,7 @@ export function HelpDiagnosticsPage(): ReactElement {
                                         </Chip>
                                     </div>
                                     <p className="text-xs text-text-secondary">
-                                        {tDynamic(check.detailsKey, check.detailsParams)}
+                                        {td(check.detailsKey, check.detailsParams)}
                                     </p>
                                     <a
                                         className="inline-flex text-xs underline underline-offset-4"
@@ -713,10 +709,10 @@ export function HelpDiagnosticsPage(): ReactElement {
                                         key={action.id}
                                     >
                                         <p className={TYPOGRAPHY.cardTitle}>
-                                            {tDynamic(action.labelKey)}
+                                            {td(action.labelKey)}
                                         </p>
                                         <p className="text-xs text-text-secondary">
-                                            {tDynamic(action.descriptionKey)}
+                                            {td(action.descriptionKey)}
                                         </p>
                                         {action.path !== undefined ? (
                                             <Button
