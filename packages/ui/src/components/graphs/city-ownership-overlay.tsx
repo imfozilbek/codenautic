@@ -1,7 +1,7 @@
 import type { ReactElement } from "react"
 import { useTranslation } from "react-i18next"
 
-import { Avatar } from "@/components/ui"
+import { Avatar as HeroUIAvatar, AvatarFallback, AvatarImage } from "@heroui/react"
 import { TYPOGRAPHY } from "@/lib/constants/typography"
 
 /**
@@ -100,12 +100,10 @@ export function CityOwnershipOverlay(props: ICityOwnershipOverlayProps): ReactEl
                                 }}
                             >
                                 <div className="flex items-center gap-2">
-                                    <Avatar
-                                        className="h-7 w-7 shrink-0 bg-surface-muted text-xs text-foreground"
-                                        label={owner.ownerName}
-                                        name={owner.ownerName}
-                                        src={owner.ownerAvatarUrl}
-                                    />
+                                    <HeroUIAvatar className="h-7 w-7 shrink-0 bg-surface-muted text-xs text-foreground">
+                                        {owner.ownerAvatarUrl !== undefined ? <AvatarImage src={owner.ownerAvatarUrl} alt={owner.ownerName} /> : null}
+                                        <AvatarFallback>{owner.ownerName.slice(0, 2).toUpperCase()}</AvatarFallback>
+                                    </HeroUIAvatar>
                                     <div className="min-w-0 flex-1">
                                         <p className={`truncate ${TYPOGRAPHY.cardTitle}`}>
                                             {owner.ownerName}

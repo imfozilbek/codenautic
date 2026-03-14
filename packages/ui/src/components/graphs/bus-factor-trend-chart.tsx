@@ -2,7 +2,7 @@ import type { ReactElement } from "react"
 import { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
-import { BUS_FACTOR_SERIES_COLORS } from "@/lib/constants/graph-colors"
+import { GRAPH_EXPORT_PALETTE } from "@/lib/constants/graph-colors"
 import { TYPOGRAPHY } from "@/lib/constants/typography"
 
 const SVG_WIDTH = 520
@@ -201,9 +201,9 @@ export function BusFactorTrendChart(props: IBusFactorTrendChartProps): ReactElem
                     />
                     {preparedSeries.map((series, seriesIndex): ReactElement => {
                         const color =
-                            BUS_FACTOR_SERIES_COLORS[
-                                seriesIndex % BUS_FACTOR_SERIES_COLORS.length
-                            ] ?? BUS_FACTOR_SERIES_COLORS[0]
+                            GRAPH_EXPORT_PALETTE.busFactor.seriesColors[
+                                seriesIndex % GRAPH_EXPORT_PALETTE.busFactor.seriesColors.length
+                            ] ?? GRAPH_EXPORT_PALETTE.busFactor.seriesColors[0]
                         return (
                             <g key={series.moduleId}>
                                 <path
