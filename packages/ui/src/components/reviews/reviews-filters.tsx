@@ -1,30 +1,7 @@
 import type { ReactElement } from "react"
 import { useTranslation } from "react-i18next"
 
-import { Button, Input, Select, SelectItem } from "@/components/ui"
-
-/**
- * Возвращает выбранный ключ из структуры выбора HeroUI.
- *
- * @param keys Значение из onSelectionChange.
- * @returns Строковый ключ или `all`.
- */
-function getSelectedKey(keys: unknown): string {
-    if (keys === "all") {
-        return "all"
-    }
-
-    if (isReadableSetOfString(keys) === false) {
-        return "all"
-    }
-
-    const nextValue = keys.values().next().value
-    return typeof nextValue === "string" ? nextValue : "all"
-}
-
-function isReadableSetOfString(value: unknown): value is ReadonlySet<unknown> {
-    return value instanceof Set
-}
+import { type Key, Button, Input, ListBox, ListBoxItem, Select } from "@heroui/react"
 
 /**
  * Параметры поиска и фильтрации CCR.
@@ -65,41 +42,55 @@ export function ReviewsFilters(props: IReviewsFiltersProps): ReactElement {
                 aria-label={t("reviews:filters.searchAriaLabel")}
                 placeholder={t("reviews:filters.searchPlaceholder")}
                 value={props.search}
-                onValueChange={props.onSearchChange}
+                onChange={(event): void => {
+                    props.onSearchChange(event.target.value)
+                }}
             />
             <Select
                 aria-label={t("reviews:filters.filterByStatus")}
-                placeholder={t("reviews:filters.allStatuses")}
-                selectedKeys={new Set([props.status])}
-                onSelectionChange={(keys): void => {
-                    props.onStatusChange(getSelectedKey(keys))
+                selectedKey={props.status}
+                onSelectionChange={(key: Key | null): void => {
+                    props.onStatusChange(String(key))
                 }}
             >
-                <SelectItem value="all">{t("reviews:filters.allStatuses")}</SelectItem>
-                {props.statusOptions.map(
-                    (status): ReactElement => (
-                        <SelectItem key={status} value={status}>
-                            {status}
-                        </SelectItem>
-                    ),
-                )}
+                <Select.Trigger>
+                    <Select.Value />
+                </Select.Trigger>
+                <Select.Popover>
+                    <ListBox>
+                        <ListBoxItem id="all" textValue={t("reviews:filters.allStatuses")}>{t("reviews:filters.allStatuses")}</ListBoxItem>
+                        {props.statusOptions.map(
+                            (status): ReactElement => (
+                                <ListBoxItem key={status} id={status} textValue={status}>
+                                    {status}
+                                </ListBoxItem>
+                            ),
+                        )}
+                    </ListBox>
+                </Select.Popover>
             </Select>
             <Select
                 aria-label={t("reviews:filters.filterByAssignee")}
-                placeholder={t("reviews:filters.allAssignees")}
-                selectedKeys={new Set([props.assignee])}
-                onSelectionChange={(keys): void => {
-                    props.onAssigneeChange(getSelectedKey(keys))
+                selectedKey={props.assignee}
+                onSelectionChange={(key: Key | null): void => {
+                    props.onAssigneeChange(String(key))
                 }}
             >
-                <SelectItem value="all">{t("reviews:filters.allAssignees")}</SelectItem>
-                {props.assigneeOptions.map(
-                    (assignee): ReactElement => (
-                        <SelectItem key={assignee} value={assignee}>
-                            {assignee}
-                        </SelectItem>
-                    ),
-                )}
+                <Select.Trigger>
+                    <Select.Value />
+                </Select.Trigger>
+                <Select.Popover>
+                    <ListBox>
+                        <ListBoxItem id="all" textValue={t("reviews:filters.allAssignees")}>{t("reviews:filters.allAssignees")}</ListBoxItem>
+                        {props.assigneeOptions.map(
+                            (assignee): ReactElement => (
+                                <ListBoxItem key={assignee} id={assignee} textValue={assignee}>
+                                    {assignee}
+                                </ListBoxItem>
+                            ),
+                        )}
+                    </ListBox>
+                </Select.Popover>
             </Select>
             <Button variant="tertiary" onPress={props.onReset}>
                 {t("reviews:filters.reset")}

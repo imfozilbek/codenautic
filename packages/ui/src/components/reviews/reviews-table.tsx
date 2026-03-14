@@ -1,15 +1,7 @@
 import type { ReactElement } from "react"
 import { useTranslation } from "react-i18next"
 
-import {
-    StyledLink,
-    Table,
-    TableBody,
-    TableCell,
-    TableColumn,
-    TableHeader,
-    TableRow,
-} from "@/components/ui"
+import { StyledLink } from "@/components/layout/styled-link"
 import { TYPOGRAPHY } from "@/lib/constants/typography"
 import { type TReviewStatus } from "@/lib/types/ccr-types"
 import { ReviewStatusBadge } from "./review-status-badge"
@@ -49,41 +41,51 @@ export function ReviewsTable(props: IReviewsTableProps): ReactElement {
     const { t } = useTranslation(["reviews"])
 
     return (
-        <Table aria-label={t("reviews:table.ariaLabel")}>
-            <TableHeader>
-                <TableColumn>{t("reviews:table.columnCcr")}</TableColumn>
-                <TableColumn>{t("reviews:table.columnTitle")}</TableColumn>
-                <TableColumn>{t("reviews:table.columnRepository")}</TableColumn>
-                <TableColumn>{t("reviews:table.columnAssignee")}</TableColumn>
-                <TableColumn>{t("reviews:table.columnComments")}</TableColumn>
-                <TableColumn>{t("reviews:table.columnUpdated")}</TableColumn>
-                <TableColumn>{t("reviews:table.columnStatus")}</TableColumn>
-            </TableHeader>
-            <TableBody emptyContent={t("reviews:table.emptyContent")}>
-                {props.rows.map(
-                    (row): ReactElement => (
-                        <TableRow key={row.id}>
-                            <TableCell>
-                                <StyledLink
-                                    className={TYPOGRAPHY.cardTitle}
-                                    params={{ reviewId: row.id }}
-                                    to="/reviews/$reviewId"
-                                >
-                                    {row.id}
-                                </StyledLink>
-                            </TableCell>
-                            <TableCell>{row.title}</TableCell>
-                            <TableCell>{row.repository}</TableCell>
-                            <TableCell>{row.assignee}</TableCell>
-                            <TableCell>{row.comments}</TableCell>
-                            <TableCell>{row.updatedAt}</TableCell>
-                            <TableCell>
-                                <ReviewStatusBadge status={row.status} />
-                            </TableCell>
-                        </TableRow>
-                    ),
+        <table aria-label={t("reviews:table.ariaLabel")} className="w-full text-left text-sm">
+            <thead>
+                <tr className="border-b border-border">
+                    <th className="px-3 py-2 font-medium">{t("reviews:table.columnCcr")}</th>
+                    <th className="px-3 py-2 font-medium">{t("reviews:table.columnTitle")}</th>
+                    <th className="px-3 py-2 font-medium">{t("reviews:table.columnRepository")}</th>
+                    <th className="px-3 py-2 font-medium">{t("reviews:table.columnAssignee")}</th>
+                    <th className="px-3 py-2 font-medium">{t("reviews:table.columnComments")}</th>
+                    <th className="px-3 py-2 font-medium">{t("reviews:table.columnUpdated")}</th>
+                    <th className="px-3 py-2 font-medium">{t("reviews:table.columnStatus")}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {props.rows.length === 0 ? (
+                    <tr>
+                        <td className="px-3 py-4 text-center text-text-secondary" colSpan={7}>
+                            {t("reviews:table.emptyContent")}
+                        </td>
+                    </tr>
+                ) : (
+                    props.rows.map(
+                        (row): ReactElement => (
+                            <tr key={row.id} className="border-b border-border">
+                                <td className="px-3 py-2">
+                                    <StyledLink
+                                        className={TYPOGRAPHY.cardTitle}
+                                        params={{ reviewId: row.id }}
+                                        to="/reviews/$reviewId"
+                                    >
+                                        {row.id}
+                                    </StyledLink>
+                                </td>
+                                <td className="px-3 py-2">{row.title}</td>
+                                <td className="px-3 py-2">{row.repository}</td>
+                                <td className="px-3 py-2">{row.assignee}</td>
+                                <td className="px-3 py-2">{row.comments}</td>
+                                <td className="px-3 py-2">{row.updatedAt}</td>
+                                <td className="px-3 py-2">
+                                    <ReviewStatusBadge status={row.status} />
+                                </td>
+                            </tr>
+                        ),
+                    )
                 )}
-            </TableBody>
-        </Table>
+            </tbody>
+        </table>
     )
 }
