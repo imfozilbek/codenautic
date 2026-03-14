@@ -1,7 +1,7 @@
 import type { ReactElement } from "react"
 import { useTranslation } from "react-i18next"
 
-import { Alert, Button, Card, CardBody, CardHeader, Textarea } from "@/components/ui"
+import { Alert, Button, Card, CardContent, CardHeader, TextArea } from "@heroui/react"
 import { TYPOGRAPHY } from "@/lib/constants/typography"
 
 import type { IContractValidationState } from "../use-contract-validation-state"
@@ -30,42 +30,46 @@ export function GuardrailsSection({ state }: IGuardrailsSectionProps): ReactElem
             <CardHeader>
                 <p className={TYPOGRAPHY.sectionTitle}>Architecture guardrails</p>
             </CardHeader>
-            <CardBody className="space-y-3">
+            <CardContent className="space-y-3">
                 <p className="text-sm text-text-secondary">
                     Configure allowed and forbidden import rules with YAML and visual rule preview.
                 </p>
-                <Textarea
+                <TextArea
                     aria-label={t("settings:ariaLabel.contractValidation.guardrailsYaml")}
-                    minRows={10}
+                    className="min-h-[250px]"
                     value={state.guardrailsYaml}
-                    onValueChange={state.setGuardrailsYaml}
+                    onChange={(e): void => { state.setGuardrailsYaml(e.target.value) }}
                 />
                 <div className="flex gap-2">
-                    <Button color="primary" onPress={state.handleValidateGuardrails}>
+                    <Button variant="primary" onPress={state.handleValidateGuardrails}>
                         Validate guardrails
                     </Button>
-                    <Button variant="flat" onPress={state.handleApplyGuardrails}>
+                    <Button variant="secondary" onPress={state.handleApplyGuardrails}>
                         Apply guardrails
                     </Button>
                 </div>
                 {state.guardrailsValidationResult.errors.length === 0 ? (
-                    <Alert color="success" title="Guardrails are valid" variant="flat">
-                        {`Parsed ${String(state.guardrailsValidationResult.rules.length)} guardrail rules.`}
+                    <Alert status="success">
+                        <Alert.Title>Guardrails are valid</Alert.Title>
+                        <Alert.Description>{`Parsed ${String(state.guardrailsValidationResult.rules.length)} guardrail rules.`}</Alert.Description>
                     </Alert>
                 ) : (
-                    <Alert color="danger" title="Guardrails validation errors" variant="flat">
-                        <ul
-                            aria-label={t(
-                                "settings:ariaLabel.contractValidation.guardrailsErrorsList",
-                            )}
-                            className="space-y-1"
-                        >
-                            {state.guardrailsValidationResult.errors.map(
-                                (error): ReactElement => (
-                                    <li key={error}>{error}</li>
-                                ),
-                            )}
-                        </ul>
+                    <Alert status="danger">
+                        <Alert.Title>Guardrails validation errors</Alert.Title>
+                        <Alert.Description>
+                            <ul
+                                aria-label={t(
+                                    "settings:ariaLabel.contractValidation.guardrailsErrorsList",
+                                )}
+                                className="space-y-1"
+                            >
+                                {state.guardrailsValidationResult.errors.map(
+                                    (error): ReactElement => (
+                                        <li key={error}>{error}</li>
+                                    ),
+                                )}
+                            </ul>
+                        </Alert.Description>
                     </Alert>
                 )}
                 <ul
@@ -101,10 +105,11 @@ export function GuardrailsSection({ state }: IGuardrailsSectionProps): ReactElem
                         ),
                     )}
                 </ul>
-                <Alert color="primary" title="Guardrails apply status" variant="flat">
-                    {state.guardrailsApplyStatus}
+                <Alert status="accent">
+                    <Alert.Title>Guardrails apply status</Alert.Title>
+                    <Alert.Description>{state.guardrailsApplyStatus}</Alert.Description>
                 </Alert>
-            </CardBody>
+            </CardContent>
         </Card>
     )
 }
