@@ -205,5 +205,22 @@
         "stepApplied": "applied",
         "stepFilteredOut": "filtered out",
         "stepPassed": "passed"
+    },
+    "ariaLabel": {
+        "detail": {
+            "reviewContextMapStatus": "Review context map status",
+            "reviewHistoryHeatmapList": "Review history heatmap list",
+            "activeFileNeighborhoodList": "Active file neighborhood list",
+            "neighborhoodDependencyList": "Neighborhood dependency list",
+            "neighborhoodRecentChangesList": "Neighborhood recent changes list",
+            "reviewRiskDriversList": "Review risk drivers list",
+            "safeGuardTraceList": "SafeGuard trace list",
+            "safeGuardPipelineDetails": "SafeGuard pipeline details",
+            "feedbackHistoryList": "Feedback history list"
+        },
+        "repositoryOverview": {
+            "healthScore": "Repository health score",
+            "keyMetrics": "Key metrics"
+        }
     }
 }

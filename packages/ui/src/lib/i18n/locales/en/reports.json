@@ -136,5 +136,30 @@
         "summaryCopiedToast": "AI summary copied.",
         "copyFailed": "Failed to copy summary.",
         "copyFailedToast": "Failed to copy AI summary."
+    },
+    "ariaLabel": {
+        "list": {
+            "generatedReportsList": "Generated reports list"
+        },
+        "generator": {
+            "selectedSectionsList": "Selected report sections",
+            "previewPayload": "Report preview payload"
+        },
+        "viewer": {
+            "trendChart": "Report trend chart",
+            "sectionsDistributionChart": "Report sections distribution chart",
+            "shareLink": "Report share link"
+        },
+        "scheduleDialog": {
+            "dialog": "Report schedule dialog",
+            "previewValue": "Schedule preview value"
+        },
+        "templateEditor": {
+            "sectionsList": "Template sections list",
+            "previewSummary": "Template preview summary"
+        },
+        "aiSummary": {
+            "summaryText": "AI summary text"
+        }
     }
 }

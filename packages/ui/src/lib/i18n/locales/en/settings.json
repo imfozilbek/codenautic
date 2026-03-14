@@ -876,5 +876,116 @@
             "triggeredManualTest": "Triggered manual test for {{provider}}.",
             "providerConfigSaved": "Saved {{provider}} provider config."
         }
+    },
+    "ariaLabel": {
+        "jobs": {
+            "scheduleTarget": "Schedule target",
+            "userTimezone": "User timezone",
+            "organizationTimezoneOverride": "Organization timezone override",
+            "scheduleFrequency": "Schedule frequency",
+            "intervalHours": "Interval hours",
+            "scheduleWeekday": "Schedule weekday",
+            "scheduleHour": "Schedule hour",
+            "scheduleMinute": "Schedule minute",
+            "schedulePreviewList": "Schedule preview list",
+            "operationsJobsList": "Operations jobs list",
+            "jobsAuditTrailList": "Jobs audit trail list"
+        },
+        "tokenUsage": {
+            "groupSelector": "Token usage group selector"
+        },
+        "webhooks": {
+            "filterByStatus": "Filter webhooks by status"
+        },
+        "byok": {
+            "provider": "Provider"
+        },
+        "privacyRedaction": {
+            "sourceText": "Privacy source text",
+            "sensitiveHitsList": "Sensitive hits list",
+            "redactedPreview": "Privacy redacted preview"
+        },
+        "concurrency": {
+            "severityThreshold": "Concurrency severity threshold",
+            "requireReviewerApproval": "Require reviewer approval",
+            "auditList": "Concurrency audit list",
+            "conflictDiffList": "Conflict diff list"
+        },
+        "codeReview": {
+            "summaryDetailLevel": "Summary detail level",
+            "ideProviderScope": "IDE provider scope"
+        },
+        "team": {
+            "inviteRole": "Invite role"
+        },
+        "billing": {
+            "plan": "Billing plan",
+            "status": "Billing status",
+            "entitlementFeaturesList": "Entitlement features list",
+            "historyList": "Billing history list"
+        },
+        "organization": {
+            "membersTable": "Organization members",
+            "auditLogsTable": "Organization audit logs"
+        },
+        "notifications": {
+            "filterEventType": "Filter event type",
+            "inboxList": "Notification inbox list",
+            "bulkActionAuditList": "Bulk action audit list"
+        },
+        "auditLogs": {
+            "filterByActor": "Filter by actor",
+            "filterByAction": "Filter by action",
+            "dateFrom": "Date from",
+            "dateTo": "Date to"
+        },
+        "appearance": {
+            "languageSelection": "Language selection",
+            "accentColorPicker": "Accent color picker",
+            "accentIntensitySlider": "Accent intensity slider",
+            "basePalettePicker": "Base palette picker",
+            "globalRadiusSlider": "Global radius slider",
+            "formRadiusSlider": "Form radius slider",
+            "themeLibrarySelection": "Theme library selection",
+            "themeLibraryJson": "Theme library json",
+            "previewInput": "Appearance preview input"
+        },
+        "rulesLibrary": {
+            "category": "Category",
+            "rulesCatalog": "Rules catalog",
+            "ruleToTest": "Rule to test",
+            "sampleInput": "Sample input"
+        },
+        "providerDegradation": {
+            "affectedFeaturesList": "Affected features list",
+            "queuedCriticalActionsList": "Queued critical actions list"
+        },
+        "contractValidation": {
+            "driftAlertSeverityThreshold": "Drift alert severity threshold",
+            "driftAlertViolationThreshold": "Drift alert violation threshold",
+            "driftReportSearchQuery": "Drift report search query",
+            "driftSeverityFilter": "Drift severity filter",
+            "driftReportSortMode": "Drift report sort mode",
+            "driftViolationsList": "Drift violations list",
+            "driftReportExportPayload": "Drift report export payload",
+            "driftOverlayFileShortcuts": "Drift overlay file shortcuts",
+            "selectedDriftFileViolations": "Selected drift file violations",
+            "guardrailsYaml": "Architecture guardrails yaml",
+            "guardrailsErrorsList": "Guardrails errors list",
+            "guardrailVisualRulesList": "Guardrail visual rules list",
+            "blueprintYaml": "Architecture blueprint yaml",
+            "uploadBlueprintYaml": "Upload blueprint yaml",
+            "blueprintErrorsList": "Blueprint errors list",
+            "blueprintSyntaxHighlightPreview": "Blueprint syntax highlight preview",
+            "blueprintVisualNodesList": "Blueprint visual nodes list",
+            "contractJson": "Contract json",
+            "contractErrorsList": "Contract errors list",
+            "contractMigrationHintsList": "Contract migration hints list",
+            "blueprintIntendedArchitectureList": "Blueprint intended architecture list",
+            "realityArchitectureList": "Reality architecture list",
+            "architectureDifferencesList": "Architecture differences list",
+            "driftScoreTrendChart": "Drift score trend chart",
+            "architectureChangeAnnotationsList": "Architecture change annotations list"
+        }
     }
 }

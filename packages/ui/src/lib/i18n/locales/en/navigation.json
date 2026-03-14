@@ -216,5 +216,25 @@
         "expandAriaLabel": "Expand navigation",
         "collapseAriaLabel": "Collapse navigation"
     },
-    "userMenuAriaLabel": "User menu"
+    "userMenuAriaLabel": "User menu",
+    "ariaLabel": {
+        "sidebarNav": {
+            "mainNavigation": "Main navigation"
+        },
+        "header": {
+            "breadcrumb": "Breadcrumb"
+        },
+        "contentToolbar": {
+            "breadcrumb": "Breadcrumb"
+        },
+        "commandPalette": {
+            "globalPalette": "Global command palette",
+            "closePalette": "Close command palette",
+            "searchInput": "Command palette search",
+            "results": "Command palette results"
+        },
+        "themeToggle": {
+            "themeMode": "Theme mode"
+        }
+    }
 }
