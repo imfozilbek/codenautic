@@ -87,7 +87,9 @@
         "cannotClose": "Current role cannot close triage items.",
         "slaBreachLabel": "SLA breach",
         "slaWarningLabel": "SLA warning",
-        "slaHealthyLabel": "SLA healthy"
+        "slaHealthyLabel": "SLA healthy",
+        "moreActions": "More",
+        "secondaryActionsAriaLabel": "Secondary actions"
     },
     "issuesTracking": {
         "pageTitle": "Issues tracking",
