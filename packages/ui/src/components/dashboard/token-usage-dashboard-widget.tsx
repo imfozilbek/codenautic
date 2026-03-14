@@ -1,4 +1,4 @@
-import type { ReactElement } from "react"
+import { type ReactElement, useId } from "react"
 
 import {
     Area,
@@ -16,7 +16,6 @@ import { Card, CardBody, CardHeader } from "@/components/ui"
 import { EmptyState } from "@/components/states/empty-state"
 import { ChartContainer } from "@/components/charts/chart-container"
 import { TYPOGRAPHY } from "@/lib/constants/typography"
-import { CARD_SURFACE } from "@/lib/constants/spacing"
 import {
     CHART_FALLBACK_COLOR,
     CHART_GRID_DASH,
@@ -55,17 +54,20 @@ const PIE_COLORS = [
 
 /**
  * Dashboard widget for token usage, cost breakdown, and trend.
+ * Glass morphism card с gradient area fill.
  *
  * @param props Данные usage/cost.
  * @returns Карточка token usage dashboard.
  */
 export function TokenUsageDashboardWidget(props: ITokenUsageDashboardWidgetProps): ReactElement {
+    const areaGradientId = useId()
+
     return (
-        <Card className={CARD_SURFACE.flat}>
-            <CardHeader>
+        <Card className="border border-border/60 bg-surface/80 backdrop-blur-sm">
+            <CardHeader className="border-b border-border/30 pb-3">
                 <p className={TYPOGRAPHY.sectionTitle}>Token usage dashboard</p>
             </CardHeader>
-            <CardBody className="space-y-3">
+            <CardBody className="space-y-3 pt-4">
                 <p className={TYPOGRAPHY.bodyMuted}>
                     Usage by model, cost breakdown and trend chart for selected range.
                 </p>
@@ -84,8 +86,11 @@ export function TokenUsageDashboardWidget(props: ITokenUsageDashboardWidgetProps
                                     cy="50%"
                                     data={props.byModel}
                                     dataKey="tokens"
+                                    innerRadius={40}
                                     nameKey="model"
                                     outerRadius={PIE_OUTER_RADIUS}
+                                    paddingAngle={2}
+                                    strokeWidth={0}
                                 >
                                     {props.byModel.map(
                                         (entry, index): ReactElement => (
@@ -104,16 +109,44 @@ export function TokenUsageDashboardWidget(props: ITokenUsageDashboardWidgetProps
                         </ChartContainer>
                         <ChartContainer height="sm">
                             <AreaChart data={props.costTrend}>
-                                <CartesianGrid strokeDasharray={CHART_GRID_DASH} />
-                                <XAxis dataKey="period" />
-                                <YAxis />
+                                <defs>
+                                    <linearGradient id={areaGradientId} x1="0" x2="0" y1="0" y2="1">
+                                        <stop
+                                            offset="0%"
+                                            stopColor="var(--chart-primary)"
+                                            stopOpacity={0.3}
+                                        />
+                                        <stop
+                                            offset="100%"
+                                            stopColor="var(--chart-primary)"
+                                            stopOpacity={0.02}
+                                        />
+                                    </linearGradient>
+                                </defs>
+                                <CartesianGrid
+                                    stroke="var(--chart-grid)"
+                                    strokeDasharray={CHART_GRID_DASH}
+                                    strokeOpacity={0.5}
+                                />
+                                <XAxis
+                                    dataKey="period"
+                                    stroke="var(--muted-foreground)"
+                                    tick={{ fontSize: 11 }}
+                                    tickLine={false}
+                                />
+                                <YAxis
+                                    stroke="var(--muted-foreground)"
+                                    tick={{ fontSize: 11 }}
+                                    tickLine={false}
+                                />
                                 <Tooltip />
                                 <Area
                                     {...CHART_DATA_TRANSITION}
                                     dataKey="costUsd"
-                                    fill="var(--chart-primary-light)"
+                                    fill={`url(#${areaGradientId})`}
                                     name="Cost USD"
                                     stroke="var(--chart-primary)"
+                                    strokeWidth={2}
                                     type="monotone"
                                 />
                             </AreaChart>
