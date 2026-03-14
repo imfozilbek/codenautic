@@ -87,7 +87,9 @@
         "cannotClose": "Текущая роль не может закрывать элементы триажа.",
         "slaBreachLabel": "Нарушение SLA",
         "slaWarningLabel": "Предупреждение SLA",
-        "slaHealthyLabel": "SLA в норме"
+        "slaHealthyLabel": "SLA в норме",
+        "moreActions": "Ещё",
+        "secondaryActionsAriaLabel": "Дополнительные действия"
     },
     "issuesTracking": {
         "pageTitle": "Отслеживание проблем",
