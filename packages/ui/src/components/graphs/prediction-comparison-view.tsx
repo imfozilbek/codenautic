@@ -44,12 +44,17 @@ export function PredictionComparisonView(props: IPredictionComparisonViewProps):
                 {t("code-city:predictionComparison.description")}
             </p>
 
-            <div aria-label={t("code-city:predictionComparison.ariaLabelSnapshots")} className="mt-3 space-y-2">
+            <div
+                aria-label={t("code-city:predictionComparison.ariaLabelSnapshots")}
+                className="mt-3 space-y-2"
+            >
                 {props.snapshots.map((snapshot): ReactElement => {
                     const isActive = snapshot.id === selectedSnapshot?.id
                     return (
                         <button
-                            aria-label={t("code-city:predictionComparison.ariaLabelInspect", { periodLabel: snapshot.periodLabel })}
+                            aria-label={t("code-city:predictionComparison.ariaLabelInspect", {
+                                periodLabel: snapshot.periodLabel,
+                            })}
                             className={`w-full rounded border p-2 text-left text-xs transition ${
                                 isActive
                                     ? "border-primary bg-primary/10 text-on-primary"
@@ -61,7 +66,12 @@ export function PredictionComparisonView(props: IPredictionComparisonViewProps):
                             }}
                             type="button"
                         >
-                            {t("code-city:predictionComparison.snapshotText", { periodLabel: snapshot.periodLabel, predicted: String(snapshot.predictedHotspots), actual: String(snapshot.actualHotspots), accuracy: String(snapshot.accuracyScore) })}
+                            {t("code-city:predictionComparison.snapshotText", {
+                                periodLabel: snapshot.periodLabel,
+                                predicted: String(snapshot.predictedHotspots),
+                                actual: String(snapshot.actualHotspots),
+                                accuracy: String(snapshot.accuracyScore),
+                            })}
                         </button>
                     )
                 })}

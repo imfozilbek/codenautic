@@ -2,6 +2,7 @@ import type { ReactElement } from "react"
 import { useTranslation } from "react-i18next"
 
 import type { TCodeCityTreemapPredictionRiskLevel } from "@/components/graphs/codecity-treemap"
+import { useDynamicTranslation } from "@/lib/i18n"
 import { TYPOGRAPHY } from "@/lib/constants/typography"
 
 /**
@@ -68,6 +69,7 @@ function resolvePredictedLabelKey(riskLevel: TCodeCityTreemapPredictionRiskLevel
  */
 export function PredictionAccuracyWidget(props: IPredictionAccuracyWidgetProps): ReactElement {
     const { t } = useTranslation(["code-city"])
+    const { td } = useDynamicTranslation(["code-city"])
     return (
         <section className="rounded-lg border border-border bg-surface p-3 shadow-sm">
             <p className={TYPOGRAPHY.cardTitle}>{t("code-city:predictionAccuracy.title")}</p>
@@ -75,7 +77,10 @@ export function PredictionAccuracyWidget(props: IPredictionAccuracyWidgetProps):
                 {t("code-city:predictionAccuracy.description")}
             </p>
 
-            <div aria-label={t("code-city:predictionAccuracy.ariaLabelTrend")} className="mt-3 space-y-1">
+            <div
+                aria-label={t("code-city:predictionAccuracy.ariaLabelTrend")}
+                className="mt-3 space-y-1"
+            >
                 {props.points.map((point): ReactElement => {
                     return (
                         <p className="text-xs text-foreground" key={point.timestamp}>
@@ -105,12 +110,17 @@ export function PredictionAccuracyWidget(props: IPredictionAccuracyWidgetProps):
                 </p>
             </div>
 
-            <div aria-label={t("code-city:predictionAccuracy.ariaLabelCases")} className="mt-3 space-y-2">
+            <div
+                aria-label={t("code-city:predictionAccuracy.ariaLabelCases")}
+                className="mt-3 space-y-2"
+            >
                 {props.cases.slice(0, 4).map((entry): ReactElement => {
                     const isActive = props.activeCaseId === entry.id
                     return (
                         <button
-                            aria-label={t("code-city:predictionAccuracy.ariaLabelInspect", { label: entry.label })}
+                            aria-label={t("code-city:predictionAccuracy.ariaLabelInspect", {
+                                label: entry.label,
+                            })}
                             className={`w-full rounded border p-2 text-left text-xs transition ${
                                 isActive
                                     ? "border-primary bg-primary/10 text-on-primary"
@@ -122,7 +132,11 @@ export function PredictionAccuracyWidget(props: IPredictionAccuracyWidgetProps):
                             }}
                             type="button"
                         >
-                            {t("code-city:predictionAccuracy.caseText", { predicted: (t as unknown as (key: string) => string)(resolvePredictedLabelKey(entry.predictedRiskLevel)), label: entry.label, outcome: entry.actualOutcome })}
+                            {t("code-city:predictionAccuracy.caseText", {
+                                predicted: td(resolvePredictedLabelKey(entry.predictedRiskLevel)),
+                                label: entry.label,
+                                outcome: entry.actualOutcome,
+                            })}
                         </button>
                     )
                 })}

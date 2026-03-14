@@ -2,6 +2,7 @@ import type { ReactElement } from "react"
 import { useTranslation } from "react-i18next"
 
 import type { TCodeCityTreemapPredictionRiskLevel } from "@/components/graphs/codecity-treemap"
+import { useDynamicTranslation } from "@/lib/i18n"
 import { TYPOGRAPHY } from "@/lib/constants/typography"
 
 /**
@@ -96,6 +97,7 @@ function resolveHotspotClassName(
  */
 export function PredictionDashboard(props: IPredictionDashboardProps): ReactElement {
     const { t } = useTranslation(["code-city"])
+    const { td } = useDynamicTranslation(["code-city"])
     return (
         <section className="rounded-lg border border-border bg-surface p-3 shadow-sm">
             <p className={TYPOGRAPHY.cardTitle}>{t("code-city:predictionDashboard.title")}</p>
@@ -103,12 +105,17 @@ export function PredictionDashboard(props: IPredictionDashboardProps): ReactElem
                 {t("code-city:predictionDashboard.description")}
             </p>
 
-            <div aria-label={t("code-city:predictionDashboard.ariaLabelHotspots")} className="mt-3 space-y-2">
+            <div
+                aria-label={t("code-city:predictionDashboard.ariaLabelHotspots")}
+                className="mt-3 space-y-2"
+            >
                 {props.hotspots.slice(0, 4).map((entry): ReactElement => {
                     const isActive = props.activeHotspotId === entry.id
                     return (
                         <button
-                            aria-label={t("code-city:predictionDashboard.ariaLabelInspect", { label: entry.label })}
+                            aria-label={t("code-city:predictionDashboard.ariaLabelInspect", {
+                                label: entry.label,
+                            })}
                             className={resolveHotspotClassName(isActive, entry.riskLevel)}
                             key={entry.id}
                             onClick={(): void => {
@@ -118,7 +125,11 @@ export function PredictionDashboard(props: IPredictionDashboardProps): ReactElem
                         >
                             <p className={TYPOGRAPHY.cardTitle}>{entry.label}</p>
                             <p className={`mt-1 ${TYPOGRAPHY.captionMuted}`}>
-                                {t("code-city:predictionDashboard.hotspotMeta", { risk: (t as unknown as (key: string) => string)(resolveRiskLabelKey(entry.riskLevel)), confidence: String(entry.confidenceScore), increase: String(entry.predictedIssueIncrease) })}
+                                {t("code-city:predictionDashboard.hotspotMeta", {
+                                    risk: td(resolveRiskLabelKey(entry.riskLevel)),
+                                    confidence: String(entry.confidenceScore),
+                                    increase: String(entry.predictedIssueIncrease),
+                                })}
                             </p>
                         </button>
                     )

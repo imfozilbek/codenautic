@@ -2,6 +2,7 @@ import type { ReactElement } from "react"
 import { useTranslation } from "react-i18next"
 
 import type { TCodeCityTreemapPredictionRiskLevel } from "@/components/graphs/codecity-treemap"
+import { useDynamicTranslation } from "@/lib/i18n"
 import { TYPOGRAPHY } from "@/lib/constants/typography"
 
 /**
@@ -52,6 +53,7 @@ function resolveRiskLabelKey(riskLevel: TCodeCityTreemapPredictionRiskLevel): st
  */
 export function PredictionExplainPanel(props: IPredictionExplainPanelProps): ReactElement {
     const { t } = useTranslation(["code-city"])
+    const { td } = useDynamicTranslation(["code-city"])
     const selectedEntry =
         props.entries.find((entry): boolean => entry.fileId === props.activeFileId) ??
         props.entries[0]
@@ -63,7 +65,10 @@ export function PredictionExplainPanel(props: IPredictionExplainPanelProps): Rea
                 {t("code-city:predictionExplain.description")}
             </p>
 
-            <div aria-label={t("code-city:predictionExplain.ariaLabelEntries")} className="mt-3 space-y-2">
+            <div
+                aria-label={t("code-city:predictionExplain.ariaLabelEntries")}
+                className="mt-3 space-y-2"
+            >
                 {props.entries.slice(0, 6).map((entry): ReactElement => {
                     const isActive = selectedEntry?.fileId === entry.fileId
                     const className = isActive
@@ -71,7 +76,9 @@ export function PredictionExplainPanel(props: IPredictionExplainPanelProps): Rea
                         : "border-border bg-surface hover:border-border"
                     return (
                         <button
-                            aria-label={t("code-city:predictionExplain.ariaLabelInspect", { label: entry.label })}
+                            aria-label={t("code-city:predictionExplain.ariaLabelInspect", {
+                                label: entry.label,
+                            })}
                             className={`w-full rounded-lg border p-2 text-left transition ${className}`}
                             key={entry.fileId}
                             onClick={(): void => {
@@ -81,7 +88,10 @@ export function PredictionExplainPanel(props: IPredictionExplainPanelProps): Rea
                         >
                             <p className={TYPOGRAPHY.cardTitle}>{entry.label}</p>
                             <p className={`mt-1 ${TYPOGRAPHY.captionMuted}`}>
-                                {t("code-city:predictionExplain.riskAndConfidence", { risk: (t as unknown as (key: string) => string)(resolveRiskLabelKey(entry.riskLevel)), confidence: String(entry.confidenceScore) })}
+                                {t("code-city:predictionExplain.riskAndConfidence", {
+                                    risk: td(resolveRiskLabelKey(entry.riskLevel)),
+                                    confidence: String(entry.confidenceScore),
+                                })}
                             </p>
                         </button>
                     )
@@ -92,9 +102,7 @@ export function PredictionExplainPanel(props: IPredictionExplainPanelProps): Rea
                 aria-label={t("code-city:predictionExplain.ariaLabelDetails")}
                 className="mt-3 rounded border border-border bg-surface p-2"
             >
-                <p className={TYPOGRAPHY.overline}>
-                    {t("code-city:predictionExplain.whyHotspot")}
-                </p>
+                <p className={TYPOGRAPHY.overline}>{t("code-city:predictionExplain.whyHotspot")}</p>
                 <p className="mt-1 text-xs text-foreground">
                     {selectedEntry === undefined
                         ? t("code-city:predictionExplain.noSelection")
