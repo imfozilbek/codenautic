@@ -1,8 +1,9 @@
 import { type ReactElement, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import { Alert, Button, Card, CardBody, CardHeader, Textarea } from "@/components/ui"
-import { TYPOGRAPHY } from "@/lib/constants/typography"
+import { Alert, Button, Textarea } from "@/components/ui"
+import { FormLayout } from "@/components/forms/form-layout"
+import { FormSection } from "@/components/forms/form-section"
 import { showToastError, showToastInfo, showToastSuccess } from "@/lib/notifications/toast"
 
 type TSensitiveType = "api_key" | "email" | "secret" | "token"
@@ -117,11 +118,10 @@ export function SettingsPrivacyRedactionPage(): ReactElement {
     }
 
     return (
-        <section className="space-y-4">
-            <h1 className={TYPOGRAPHY.pageTitle}>{t("settings:privacyRedaction.pageTitle")}</h1>
-            <p className={TYPOGRAPHY.pageSubtitle}>
-                {t("settings:privacyRedaction.pageSubtitle")}
-            </p>
+        <FormLayout
+            title={t("settings:privacyRedaction.pageTitle")}
+            description={t("settings:privacyRedaction.pageSubtitle")}
+        >
 
             {hasSensitiveData ? (
                 <Alert color="danger" title={t("settings:privacyRedaction.sensitiveFragmentsDetectedTitle")} variant="flat">
@@ -133,69 +133,54 @@ export function SettingsPrivacyRedactionPage(): ReactElement {
                 </Alert>
             )}
 
-            <Card>
-                <CardHeader>
-                    <p className={TYPOGRAPHY.sectionTitle}>{t("settings:privacyRedaction.sourceContent")}</p>
-                </CardHeader>
-                <CardBody className="space-y-3">
-                    <Textarea
-                        aria-label="Privacy source text"
-                        minRows={6}
-                        value={sourceText}
-                        onValueChange={setSourceText}
-                    />
-                    <div className="flex flex-wrap gap-2">
-                        <Button onPress={handleApplyRedaction}>{t("settings:privacyRedaction.applyRedactionSuggestions")}</Button>
-                        <Button variant="flat" onPress={handleExport}>
-                            {t("settings:privacyRedaction.confirmSafeExport")}
-                        </Button>
-                    </div>
-                </CardBody>
-            </Card>
+            <FormSection heading={t("settings:privacyRedaction.sourceContent")}>
+                <Textarea
+                    aria-label="Privacy source text"
+                    minRows={6}
+                    value={sourceText}
+                    onValueChange={setSourceText}
+                />
+                <div className="flex flex-wrap gap-2">
+                    <Button color="primary" onPress={handleApplyRedaction}>{t("settings:privacyRedaction.applyRedactionSuggestions")}</Button>
+                    <Button variant="flat" onPress={handleExport}>
+                        {t("settings:privacyRedaction.confirmSafeExport")}
+                    </Button>
+                </div>
+            </FormSection>
 
-            <Card>
-                <CardHeader>
-                    <p className={TYPOGRAPHY.sectionTitle}>{t("settings:privacyRedaction.detectionSummary")}</p>
-                </CardHeader>
-                <CardBody className="space-y-2">
-                    {hasSensitiveData ? (
-                        <ul aria-label="Sensitive hits list" className="space-y-2">
-                            {sensitiveHits.map(
-                                (hit, index): ReactElement => (
-                                    <li
-                                        className="rounded-lg border border-border bg-surface p-3 text-sm"
-                                        key={`${hit.type}-${String(index)}`}
-                                    >
-                                        <p className="font-semibold text-foreground">{hit.type}</p>
-                                        <p className="text-text-secondary">{hit.value}</p>
-                                    </li>
-                                ),
-                            )}
-                        </ul>
-                    ) : (
-                        <p className="text-sm text-text-secondary">
-                            {t("settings:privacyRedaction.noHitsMessage")}
-                        </p>
-                    )}
-                </CardBody>
-            </Card>
+            <FormSection heading={t("settings:privacyRedaction.detectionSummary")}>
+                {hasSensitiveData ? (
+                    <ul aria-label="Sensitive hits list" className="space-y-2">
+                        {sensitiveHits.map(
+                            (hit, index): ReactElement => (
+                                <li
+                                    className="rounded-lg border border-border bg-surface p-3 text-sm"
+                                    key={`${hit.type}-${String(index)}`}
+                                >
+                                    <p className="font-semibold text-foreground">{hit.type}</p>
+                                    <p className="text-text-secondary">{hit.value}</p>
+                                </li>
+                            ),
+                        )}
+                    </ul>
+                ) : (
+                    <p className="text-sm text-text-secondary">
+                        {t("settings:privacyRedaction.noHitsMessage")}
+                    </p>
+                )}
+            </FormSection>
 
-            <Card>
-                <CardHeader>
-                    <p className={TYPOGRAPHY.sectionTitle}>{t("settings:privacyRedaction.redactedPreview")}</p>
-                </CardHeader>
-                <CardBody className="space-y-2">
-                    <Textarea
-                        aria-label="Privacy redacted preview"
-                        isReadOnly
-                        minRows={6}
-                        value={redactedText}
-                    />
-                    <Alert color="primary" title={t("settings:privacyRedaction.exportState")} variant="flat">
-                        {lastExportState}
-                    </Alert>
-                </CardBody>
-            </Card>
-        </section>
+            <FormSection heading={t("settings:privacyRedaction.redactedPreview")}>
+                <Textarea
+                    aria-label="Privacy redacted preview"
+                    isReadOnly
+                    minRows={6}
+                    value={redactedText}
+                />
+                <Alert color="primary" title={t("settings:privacyRedaction.exportState")} variant="flat">
+                    {lastExportState}
+                </Alert>
+            </FormSection>
+        </FormLayout>
     )
 }
