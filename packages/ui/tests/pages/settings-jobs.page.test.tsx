@@ -300,7 +300,7 @@ describe("SettingsJobsPage", (): void => {
         renderWithProviders(<SettingsJobsPage />)
 
         const auditList = screen.getByRole("list", { name: "Jobs audit trail list" })
-        expect(within(auditList).getByText(/JOB-4055 · retry · Nika Saryeva/)).not.toBeNull()
+        expect(within(auditList).getByText(/JOB-4055 · retry · Morpheus/)).not.toBeNull()
         expect(
             within(auditList).getByText("Retry accepted by queue worker."),
         ).not.toBeNull()
