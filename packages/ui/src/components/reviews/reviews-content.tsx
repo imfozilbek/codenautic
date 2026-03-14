@@ -1,7 +1,7 @@
 import { type ReactElement, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import { StyledLink } from "@/components/ui"
+import { StyledLink } from "@/components/layout/styled-link"
 import { TYPOGRAPHY } from "@/lib/constants/typography"
 import { useDebounce } from "@/lib/hooks/use-debounce"
 import { EnterpriseDataTable } from "@/components/infrastructure/enterprise-data-table"

@@ -1,7 +1,7 @@
 import type { ReactElement } from "react"
 import { useTranslation } from "react-i18next"
 
-import { Chip } from "@/components/ui"
+import { Chip } from "@heroui/react"
 import { type TReviewStatus } from "@/lib/types/ccr-types"
 
 /**
