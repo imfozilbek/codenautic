@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type ReactElement, type ReactNode } from "react"
 
-import { Button } from "@/components/ui"
+import { Button } from "@heroui/react"
 
 /** Параметры отображения стримингового ответа чата. */
 export interface IChatStreamingResponseProps {
@@ -116,7 +116,7 @@ export function ChatStreamingResponse(props: IChatStreamingResponseProps): React
                         isDisabled={props.onCancel === undefined}
                         onPress={handleCancel}
                         size="sm"
-                        variant="light"
+                        variant="ghost"
                     >
                         Cancel
                     </Button>

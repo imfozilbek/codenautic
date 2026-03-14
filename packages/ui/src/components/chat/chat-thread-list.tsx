@@ -3,7 +3,7 @@ import { useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { Archive, X } from "@/components/icons/app-icons"
-import { Button, Input } from "@/components/ui"
+import { Button, Input } from "@heroui/react"
 import { TYPOGRAPHY } from "@/lib/constants/typography"
 
 /** Параметры одного треда чата. */
@@ -95,7 +95,7 @@ export function ChatThreadList(props: IChatThreadListProps): ReactElement {
         >
             <div className="mb-3 flex items-center justify-between gap-2">
                 <h3 className="text-sm font-semibold">Threads</h3>
-                <Button color="primary" onPress={props.onNewThread} size="sm">
+                <Button variant="primary" onPress={props.onNewThread} size="sm">
                     + New thread
                 </Button>
             </div>
@@ -159,25 +159,23 @@ export function ChatThreadList(props: IChatThreadListProps): ReactElement {
                                     <div className="flex items-center gap-1">
                                         <Button
                                             aria-label={`Close thread ${thread.title}`}
-                                            isIconOnly
+                                            className="rounded-full p-2"
                                             onPress={(): void => {
                                                 handleCloseThread(thread.id)
                                             }}
-                                            radius="full"
                                             size="sm"
-                                            variant="light"
+                                            variant="ghost"
                                         >
                                             <X aria-hidden="true" size={14} />
                                         </Button>
                                         <Button
                                             aria-label={`Archive thread ${thread.title}`}
-                                            isIconOnly
+                                            className="rounded-full p-2"
                                             onPress={(): void => {
                                                 handleArchiveThread(thread.id)
                                             }}
-                                            radius="full"
                                             size="sm"
-                                            variant="light"
+                                            variant="ghost"
                                         >
                                             <Archive aria-hidden="true" size={14} />
                                         </Button>
