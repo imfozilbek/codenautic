@@ -1,12 +1,16 @@
 import {describe, expect, test} from "bun:test"
 
 import {
+    AsanaContextAcl,
+    AsanaTaskAcl,
     JiraContextAcl,
     JiraTicketAcl,
     LinearContextAcl,
     LinearIssueAcl,
     SentryContextAcl,
     SentryErrorAcl,
+    mapAsanaContext,
+    mapExternalAsanaTask,
     mapExternalJiraTicket,
     mapExternalLinearIssue,
     mapExternalSentryError,
@@ -782,6 +786,190 @@ describe("Context ACL contract", () => {
         })
     })
 
+    test("maps Asana task details, hierarchy and tags into deterministic DTO fields", () => {
+        const task = mapExternalAsanaTask({
+            gid: "1200300400",
+            name: "  Ship context adapter  ",
+            completed: false,
+            notes: "  Expose normalized Asana task context.  ",
+            assignee: {
+                name: "  Ada Lovelace  ",
+            },
+            due_on: "2026-03-11",
+            memberships: [
+                {
+                    project: {
+                        gid: "project-1",
+                        name: "  External Context  ",
+                    },
+                    section: {
+                        gid: "section-1",
+                        name: "  In Progress  ",
+                    },
+                },
+            ],
+            tags: [
+                {
+                    name: "  integration  ",
+                },
+                {
+                    name: "external-context",
+                },
+            ],
+        })
+        const context = mapAsanaContext({
+            gid: "1200300400",
+            name: "Ship context adapter",
+            completed: false,
+            notes: "Expose normalized Asana task context.",
+            assignee: {
+                name: "Ada Lovelace",
+            },
+            due_at: "2026-03-11T15:30:00.000Z",
+            memberships: [
+                {
+                    project: {
+                        gid: "project-1",
+                        name: "External Context",
+                    },
+                    section: {
+                        gid: "section-1",
+                        name: "In Progress",
+                    },
+                },
+            ],
+            tags: [
+                {
+                    name: "integration",
+                },
+                {
+                    name: "external-context",
+                },
+            ],
+            modified_at: "2026-03-10T10:00:00.000Z",
+        })
+
+        expect(task).toEqual({
+            id: "1200300400",
+            title: "Ship context adapter",
+            status: "unknown",
+            description: "Expose normalized Asana task context.",
+            assignee: "Ada Lovelace",
+            dueDate: "2026-03-11T00:00:00.000Z",
+            projectHierarchy: [
+                {
+                    projectId: "project-1",
+                    projectName: "External Context",
+                    sectionId: "section-1",
+                    sectionName: "In Progress",
+                },
+            ],
+            tags: [
+                "integration",
+                "external-context",
+            ],
+        })
+        expect(context).toEqual({
+            source: "ASANA",
+            data: {
+                task: {
+                    id: "1200300400",
+                    title: "Ship context adapter",
+                    status: "unknown",
+                    description: "Expose normalized Asana task context.",
+                    assignee: "Ada Lovelace",
+                    dueDate: "2026-03-11T15:30:00.000Z",
+                    projectHierarchy: [
+                        {
+                            projectId: "project-1",
+                            projectName: "External Context",
+                            sectionId: "section-1",
+                            sectionName: "In Progress",
+                        },
+                    ],
+                    tags: [
+                        "integration",
+                        "external-context",
+                    ],
+                },
+                assignee: "Ada Lovelace",
+                dueDate: "2026-03-11T15:30:00.000Z",
+                projectHierarchy: [
+                    {
+                        projectId: "project-1",
+                        projectName: "External Context",
+                        sectionId: "section-1",
+                        sectionName: "In Progress",
+                    },
+                ],
+                tags: [
+                    "integration",
+                    "external-context",
+                ],
+            },
+            fetchedAt: new Date("2026-03-10T10:00:00.000Z"),
+        })
+    })
+
+    test("normalizes malformed Asana payload without breaking domain model", () => {
+        const task = mapExternalAsanaTask({
+            id: 404,
+            name: "   ",
+            completed: true,
+            assignee: {
+                name: "   ",
+            },
+            due_on: "not-a-date",
+            custom_fields: [
+                {
+                    name: "Status",
+                    enum_value: {
+                        name: "  Blocked  ",
+                    },
+                },
+            ],
+            memberships: [
+                {
+                    project: {
+                        gid: "   ",
+                        name: "Ignored project",
+                    },
+                },
+            ],
+            projects: [
+                {
+                    gid: "project-fallback",
+                    name: "Fallback project",
+                },
+            ],
+            tags: [
+                "",
+                {
+                    name: "  ",
+                },
+                {
+                    name: "backend",
+                },
+                "backend",
+            ],
+        })
+
+        expect(task).toEqual({
+            id: "404",
+            title: "(no title)",
+            status: "Completed",
+            projectHierarchy: [
+                {
+                    projectId: "project-fallback",
+                    projectName: "Fallback project",
+                },
+            ],
+            tags: [
+                "backend",
+            ],
+        })
+    })
+
     test("maps Sentry error stack trace, frequency and affected users into deterministic DTO", () => {
         const error = mapExternalSentryError({
             id: "issue-7788",
@@ -881,12 +1069,14 @@ describe("Context ACL contract", () => {
         })
     })
 
-    test("exposes class-based ACL wrappers for Jira, Linear and Sentry", () => {
+    test("exposes class-based ACL wrappers for Jira, Linear, Asana and Sentry", () => {
         const jiraTicketAcl = new JiraTicketAcl()
         const linearIssueAcl = new LinearIssueAcl()
+        const asanaTaskAcl = new AsanaTaskAcl()
         const sentryErrorAcl = new SentryErrorAcl()
         const jiraContextAcl = new JiraContextAcl()
         const linearContextAcl = new LinearContextAcl()
+        const asanaContextAcl = new AsanaContextAcl()
         const sentryContextAcl = new SentryContextAcl()
 
         const jiraTicket = jiraTicketAcl.toDomain({
@@ -898,6 +1088,11 @@ describe("Context ACL contract", () => {
             id: "LIN-3",
             title: "Issue",
             state: "Todo",
+        })
+        const asanaTask = asanaTaskAcl.toDomain({
+            gid: "task-9",
+            name: "Asana task",
+            status: "In Progress",
         })
         const sentryError = sentryErrorAcl.toDomain({
             id: "issue-5",
@@ -916,6 +1111,12 @@ describe("Context ACL contract", () => {
             state: "Todo",
             timestamp: 0,
         })
+        const asanaContext = asanaContextAcl.toDomain({
+            gid: "task-9",
+            name: "Asana task",
+            status: "In Progress",
+            modified_at: "2026-03-11T10:00:00.000Z",
+        })
         const sentryContext = sentryContextAcl.toDomain({
             id: "issue-5",
             title: "Worker exploded",
@@ -933,6 +1134,11 @@ describe("Context ACL contract", () => {
             title: "Issue",
             state: "Todo",
         })
+        expect(asanaTask).toEqual({
+            id: "task-9",
+            title: "Asana task",
+            status: "In Progress",
+        })
         expect(sentryError).toEqual({
             id: "issue-5",
             title: "Worker exploded",
@@ -943,6 +1149,7 @@ describe("Context ACL contract", () => {
         })
         expect(jiraContext.source).toBe("JIRA")
         expect(linearContext.source).toBe("LINEAR")
+        expect(asanaContext.source).toBe("ASANA")
         expect(sentryContext.source).toBe("SENTRY")
     })
 
@@ -964,9 +1171,15 @@ describe("Context ACL contract", () => {
             state: "Done",
             sdkRootField: "must-not-leak",
         })
+        const asana = mapAsanaContext({
+            gid: "AS-1",
+            name: "C",
+            status: "Open",
+            sdkRootField: "must-not-leak",
+        })
         const sentry = mapSentryContext({
             id: "issue-1",
-            title: "C",
+            title: "D",
             stackTrace: "Error: C",
             sdkRootField: "must-not-leak",
         })
@@ -976,6 +1189,9 @@ describe("Context ACL contract", () => {
         ])
         expect(Object.keys(linear.data as Record<string, unknown>).sort()).toEqual([
             "issue",
+        ])
+        expect(Object.keys(asana.data as Record<string, unknown>).sort()).toEqual([
+            "task",
         ])
         expect(Object.keys(sentry.data as Record<string, unknown>).sort()).toEqual([
             "error",

@@ -1,5 +1,6 @@
 import type {
     IAntiCorruptionLayer,
+    IAsanaTask,
     IExternalContext,
     IJiraTicket,
     ILinearIssue,
@@ -7,6 +8,8 @@ import type {
 } from "@codenautic/core"
 
 import {
+    mapAsanaContext,
+    mapExternalAsanaTask,
     mapExternalJiraTicket,
     mapExternalLinearIssue,
     mapExternalSentryError,
@@ -56,6 +59,26 @@ export class LinearIssueAcl implements IAntiCorruptionLayer<unknown, ILinearIssu
 }
 
 /**
+ * Asana task ACL adapter.
+ */
+export class AsanaTaskAcl implements IAntiCorruptionLayer<unknown, IAsanaTask> {
+    /**
+     * Creates Asana task ACL adapter.
+     */
+    public constructor() {}
+
+    /**
+     * Converts external Asana payload to domain DTO.
+     *
+     * @param external External Asana payload.
+     * @returns Domain Asana task DTO.
+     */
+    public toDomain(external: unknown): IAsanaTask {
+        return mapExternalAsanaTask(external)
+    }
+}
+
+/**
  * Jira context ACL adapter.
  */
 export class JiraContextAcl implements IAntiCorruptionLayer<unknown, IExternalContext> {
@@ -92,6 +115,26 @@ export class LinearContextAcl implements IAntiCorruptionLayer<unknown, IExternal
      */
     public toDomain(external: unknown): IExternalContext {
         return mapLinearContext(external)
+    }
+}
+
+/**
+ * Asana context ACL adapter.
+ */
+export class AsanaContextAcl implements IAntiCorruptionLayer<unknown, IExternalContext> {
+    /**
+     * Creates Asana context ACL adapter.
+     */
+    public constructor() {}
+
+    /**
+     * Converts external Asana payload to shared external context.
+     *
+     * @param external External Asana payload.
+     * @returns Shared external context.
+     */
+    public toDomain(external: unknown): IExternalContext {
+        return mapAsanaContext(external)
     }
 }
 

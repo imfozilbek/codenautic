@@ -1,4 +1,6 @@
 import type {
+    IAsanaProjectHierarchy,
+    IAsanaTask,
     IExternalContext,
     IJiraTicket,
     ILinearIssue,
@@ -62,6 +64,32 @@ export function mapExternalLinearIssue(payload: unknown): ILinearIssue {
         ...(cycle !== undefined ? {cycle} : {}),
         ...(project !== undefined ? {project} : {}),
         ...(subIssues !== undefined ? {subIssues} : {}),
+    }
+}
+
+/**
+ * Normalizes external Asana payload to shared task DTO.
+ *
+ * @param payload External Asana payload.
+ * @returns Normalized Asana task DTO.
+ */
+export function mapExternalAsanaTask(payload: unknown): IAsanaTask {
+    const root = toRecord(payload) ?? EMPTY_RECORD
+    const description = resolveAsanaDescription(root)
+    const assignee = resolveAsanaAssignee(root)
+    const dueDate = resolveAsanaDueDate(root)
+    const projectHierarchy = resolveAsanaProjectHierarchy(root)
+    const tags = resolveAsanaTags(root)
+
+    return {
+        id: readIdentifier(root, ["gid", "id", "taskId"], "UNKNOWN"),
+        title: readText(root, ["name", "title"], "(no title)"),
+        status: resolveAsanaStatus(root),
+        ...(description !== undefined ? {description} : {}),
+        ...(assignee !== undefined ? {assignee} : {}),
+        ...(dueDate !== undefined ? {dueDate} : {}),
+        ...(projectHierarchy !== undefined ? {projectHierarchy} : {}),
+        ...(tags !== undefined ? {tags} : {}),
     }
 }
 
@@ -131,6 +159,29 @@ export function mapLinearContext(payload: unknown): IExternalContext {
             ...(cycle !== undefined ? {cycle} : {}),
             ...(issue.project !== undefined ? {project: issue.project} : {}),
             ...(issue.subIssues !== undefined ? {subIssues: issue.subIssues} : {}),
+        },
+        fetchedAt: resolveFetchedAt(root),
+    }
+}
+
+/**
+ * Normalizes external Asana context payload.
+ *
+ * @param payload External Asana payload.
+ * @returns Shared external context.
+ */
+export function mapAsanaContext(payload: unknown): IExternalContext {
+    const root = toRecord(payload) ?? EMPTY_RECORD
+    const task = mapExternalAsanaTask(payload)
+
+    return {
+        source: "ASANA",
+        data: {
+            task,
+            ...(task.assignee !== undefined ? {assignee: task.assignee} : {}),
+            ...(task.dueDate !== undefined ? {dueDate: task.dueDate} : {}),
+            ...(task.projectHierarchy !== undefined ? {projectHierarchy: task.projectHierarchy} : {}),
+            ...(task.tags !== undefined ? {tags: task.tags} : {}),
         },
         fetchedAt: resolveFetchedAt(root),
     }
@@ -314,6 +365,239 @@ function resolveLinearPriority(root: Readonly<Record<string, unknown>>): string 
     }
 
     return normalizeLinearPriority(root["priority"])
+}
+
+/**
+ * Resolves normalized Asana task status.
+ *
+ * @param root Asana root payload.
+ * @returns Status label.
+ */
+function resolveAsanaStatus(root: Readonly<Record<string, unknown>>): string {
+    if (root["completed"] === true) {
+        return "Completed"
+    }
+
+    const completedAt = readText(root, ["completed_at", "completedAt"])
+    if (completedAt.length > 0) {
+        return "Completed"
+    }
+
+    const customStatus = resolveAsanaStatusFromCustomFields(root)
+    if (customStatus !== undefined) {
+        return customStatus
+    }
+
+    const status = readText(root, ["status", "resource_subtype", "approval_status"], "unknown")
+    return status
+}
+
+/**
+ * Resolves normalized Asana task description.
+ *
+ * @param root Asana root payload.
+ * @returns Description when available.
+ */
+function resolveAsanaDescription(root: Readonly<Record<string, unknown>>): string | undefined {
+    return extractRichText(root["notes"] ?? root["description"] ?? root["html_notes"])
+}
+
+/**
+ * Resolves normalized Asana task assignee.
+ *
+ * @param root Asana root payload.
+ * @returns Assignee name when available.
+ */
+function resolveAsanaAssignee(root: Readonly<Record<string, unknown>>): string | undefined {
+    const assignee = toRecord(root["assignee"])
+    const assigneeName = readText(assignee, ["name"], readText(root, ["assigneeName"]))
+
+    return assigneeName.length > 0 ? assigneeName : undefined
+}
+
+/**
+ * Resolves normalized Asana due date in ISO format.
+ *
+ * @param root Asana root payload.
+ * @returns ISO due date when available.
+ */
+function resolveAsanaDueDate(root: Readonly<Record<string, unknown>>): string | undefined {
+    const dueDateValue = readText(root, ["due_at", "due_on", "dueAt", "dueDate"])
+    if (dueDateValue.length === 0) {
+        return undefined
+    }
+
+    const parsedDueDate = new Date(dueDateValue)
+    if (Number.isNaN(parsedDueDate.valueOf())) {
+        return undefined
+    }
+
+    return parsedDueDate.toISOString()
+}
+
+/**
+ * Resolves Asana project hierarchy with optional section context.
+ *
+ * @param root Asana root payload.
+ * @returns Project hierarchy list when available.
+ */
+function resolveAsanaProjectHierarchy(
+    root: Readonly<Record<string, unknown>>,
+): readonly IAsanaProjectHierarchy[] | undefined {
+    const hierarchy: IAsanaProjectHierarchy[] = []
+    const seen = new Set<string>()
+
+    const memberships = toArray(root["memberships"])
+    for (const membershipCandidate of memberships) {
+        const membership = toRecord(membershipCandidate)
+        if (membership === null) {
+            continue
+        }
+
+        const projectHierarchy = mapAsanaProjectHierarchy(
+            membership["project"],
+            membership["section"],
+        )
+
+        if (projectHierarchy === undefined) {
+            continue
+        }
+
+        const key = buildAsanaProjectHierarchyKey(projectHierarchy)
+        if (seen.has(key)) {
+            continue
+        }
+
+        seen.add(key)
+        hierarchy.push(projectHierarchy)
+    }
+
+    const projects = toArray(root["projects"])
+    for (const projectCandidate of projects) {
+        const projectHierarchy = mapAsanaProjectHierarchy(projectCandidate, undefined)
+        if (projectHierarchy === undefined) {
+            continue
+        }
+
+        const key = buildAsanaProjectHierarchyKey(projectHierarchy)
+        if (seen.has(key)) {
+            continue
+        }
+
+        seen.add(key)
+        hierarchy.push(projectHierarchy)
+    }
+
+    return hierarchy.length > 0 ? hierarchy : undefined
+}
+
+/**
+ * Resolves normalized Asana tag labels.
+ *
+ * @param root Asana root payload.
+ * @returns Tag labels when available.
+ */
+function resolveAsanaTags(root: Readonly<Record<string, unknown>>): readonly string[] | undefined {
+    const tags: string[] = []
+
+    for (const tagCandidate of toArray(root["tags"])) {
+        if (typeof tagCandidate === "string") {
+            const normalizedTag = normalizeSingleLineText(tagCandidate)
+            if (normalizedTag.length > 0) {
+                tags.push(normalizedTag)
+            }
+
+            continue
+        }
+
+        const tag = toRecord(tagCandidate)
+        const tagName = readText(tag, ["name"])
+        if (tagName.length > 0) {
+            tags.push(tagName)
+        }
+    }
+
+    if (tags.length === 0) {
+        return undefined
+    }
+
+    return deduplicateTextList(tags)
+}
+
+/**
+ * Resolves Asana task status from supported custom field shapes.
+ *
+ * @param root Asana root payload.
+ * @returns Status label when custom status exists.
+ */
+function resolveAsanaStatusFromCustomFields(
+    root: Readonly<Record<string, unknown>>,
+): string | undefined {
+    for (const fieldCandidate of toArray(root["custom_fields"])) {
+        const field = toRecord(fieldCandidate)
+        if (field === null) {
+            continue
+        }
+
+        const fieldName = readText(field, ["name"]).toLowerCase()
+        if (fieldName !== "status" && fieldName !== "state") {
+            continue
+        }
+
+        const enumValue = toRecord(field["enum_value"])
+        const displayValue = readText(
+            enumValue,
+            ["name"],
+            readText(field, ["display_value", "text_value"]),
+        )
+
+        if (displayValue.length > 0) {
+            return displayValue
+        }
+    }
+
+    return undefined
+}
+
+/**
+ * Maps Asana project and section payload into hierarchy DTO.
+ *
+ * @param projectCandidate External project payload.
+ * @param sectionCandidate External section payload.
+ * @returns Normalized hierarchy item when project data is valid.
+ */
+function mapAsanaProjectHierarchy(
+    projectCandidate: unknown,
+    sectionCandidate: unknown,
+): IAsanaProjectHierarchy | undefined {
+    const project = toRecord(projectCandidate)
+    const section = toRecord(sectionCandidate)
+
+    const projectId = readIdentifier(project, ["gid", "id", "projectId"])
+    const projectName = readText(project, ["name", "projectName"])
+    if (projectId.length === 0 || projectName.length === 0) {
+        return undefined
+    }
+
+    const sectionId = readIdentifier(section, ["gid", "id", "sectionId"])
+    const sectionName = readText(section, ["name", "sectionName"])
+
+    return {
+        projectId,
+        projectName,
+        ...(sectionId.length > 0 ? {sectionId} : {}),
+        ...(sectionName.length > 0 ? {sectionName} : {}),
+    }
+}
+
+/**
+ * Builds deterministic deduplication key for Asana project hierarchy.
+ *
+ * @param hierarchy Normalized hierarchy item.
+ * @returns Stable deduplication key.
+ */
+function buildAsanaProjectHierarchyKey(hierarchy: IAsanaProjectHierarchy): string {
+    return `${hierarchy.projectId}::${hierarchy.sectionId ?? ""}`
 }
 
 /**
@@ -1262,6 +1546,8 @@ function appendRichTextBlockBreak(
 function resolveFetchedAt(root: Readonly<Record<string, unknown>>): Date {
     const candidates: readonly unknown[] = [
         root["fetchedAt"],
+        root["modified_at"],
+        root["modifiedAt"],
         root["updatedAt"],
         root["updated_at"],
         root["lastSeen"],

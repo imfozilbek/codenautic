@@ -4,12 +4,16 @@ export {
 } from "./context.module"
 export {CONTEXT_TOKENS} from "./context.tokens"
 export {
+    AsanaContextAcl,
+    AsanaTaskAcl,
     JiraContextAcl,
     JiraTicketAcl,
     LinearContextAcl,
     LinearIssueAcl,
     SentryContextAcl,
     SentryErrorAcl,
+    mapAsanaContext,
+    mapExternalAsanaTask,
     mapExternalJiraTicket,
     mapExternalLinearIssue,
     mapExternalSentryError,
@@ -17,6 +21,14 @@ export {
     mapLinearContext,
     mapSentryContext,
 } from "./acl"
+export {
+    AsanaProvider,
+    type IAsanaApiClient,
+    type IAsanaApiResponse,
+    type IAsanaGetTaskRequest,
+    type IAsanaProviderOptions,
+    type IAsanaResponseHeaders,
+} from "./asana-provider"
 export {
     JiraProvider,
     type IJiraApiClient,
@@ -49,6 +61,10 @@ export {
     type ISentryProviderOptions,
     type ISentryResponseHeaders,
 } from "./sentry-provider"
+export {
+    AsanaProviderError,
+    type IAsanaProviderErrorDetails,
+} from "./asana-provider.error"
 export {
     JiraProviderError,
     type IJiraProviderErrorDetails,

@@ -118,7 +118,7 @@
 
 | ID | Задача | Статус | Результат | Acceptance Criteria |
 |----------|--------------------|--------|-----------|---------------------|
-| CTX-004 | Реализовать asanaProvider | TODO | Не начато | Реализация: Интеграция через REST API. Task details, project hierarchy. Готово, если: для CTX-004 adapter сохраняет стабильный external -> domain контракт, корректно обрабатывает retry/backoff/error/idempotency сценарии, а интеграционные контрактные тесты фиксируют поведение на happy/failure-path; DoD: `cd packages/adapters && bun run lint && bun run typecheck && bun test`. |
+| CTX-004 | Реализовать asanaProvider | DONE | Реализовано | Реализация: Интеграция через REST API. Task details, project hierarchy. Готово, если: для CTX-004 adapter сохраняет стабильный external -> domain контракт, корректно обрабатывает retry/backoff/error/idempotency сценарии, а интеграционные контрактные тесты фиксируют поведение на happy/failure-path; DoD: `cd packages/adapters && bun run lint && bun run typecheck && bun test`. |
 | CTX-005 | Реализовать clickUpProvider | TODO | Не начато | Реализация: Интеграция через REST API. Task details, custom fields. Готово, если: для CTX-005 adapter сохраняет стабильный external -> domain контракт, корректно обрабатывает retry/backoff/error/idempotency сценарии, а интеграционные контрактные тесты фиксируют поведение на happy/failure-path; DoD: `cd packages/adapters && bun run lint && bun run typecheck && bun test`. |
 
 ---

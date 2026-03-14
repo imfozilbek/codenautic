@@ -1,4 +1,6 @@
 export {
+    mapAsanaContext,
+    mapExternalAsanaTask,
     mapExternalJiraTicket,
     mapExternalLinearIssue,
     mapExternalSentryError,
@@ -7,6 +9,8 @@ export {
     mapSentryContext,
 } from "./context-acl-mapper"
 export {
+    AsanaContextAcl,
+    AsanaTaskAcl,
     JiraTicketAcl,
     LinearIssueAcl,
     SentryErrorAcl,
