@@ -5,18 +5,12 @@ import {
     Alert,
     Button,
     Card,
-    CardBody,
+    CardContent,
     CardHeader,
     Chip,
     Input,
     Switch,
-    Table,
-    TableBody,
-    TableCell,
-    TableColumn,
-    TableHeader,
-    TableRow,
-} from "@/components/ui"
+} from "@heroui/react"
 import { FormLayout } from "@/components/forms/form-layout"
 import { NATIVE_FORM } from "@/lib/constants/spacing"
 import { TYPOGRAPHY } from "@/lib/constants/typography"
@@ -166,9 +160,9 @@ function mapBillingStatusColor(
 
 function mapMemberRoleColor(
     role: TMemberRole,
-): "danger" | "primary" | "success" | "warning" | "default" {
+): "danger" | "accent" | "success" | "warning" | "default" {
     if (role === "admin") {
-        return "primary"
+        return "accent"
     }
 
     if (role === "lead") {
@@ -210,45 +204,45 @@ function OrganizationProfileCard(props: {
             <CardHeader>
                 <p className={TYPOGRAPHY.sectionTitle}>{t("settings:organization.profileTitle")}</p>
             </CardHeader>
-            <CardBody className="space-y-3">
+            <CardContent className="space-y-3">
                 <div className="grid gap-3 md:grid-cols-3">
                     <Input
-                        label={t("settings:organization.organizationName")}
-                        onValueChange={(value): void => {
+                        aria-label={t("settings:organization.organizationName")}
+                        onChange={(e): void => {
                             props.onProfileChange({
                                 ...props.profile,
-                                name: value,
+                                name: e.target.value,
                             })
                         }}
                         value={props.profile.name}
                     />
                     <Input
-                        label={t("settings:organization.slug")}
-                        onValueChange={(value): void => {
+                        aria-label={t("settings:organization.slug")}
+                        onChange={(e): void => {
                             props.onProfileChange({
                                 ...props.profile,
-                                slug: value,
+                                slug: e.target.value,
                             })
                         }}
                         value={props.profile.slug}
                     />
                     <Input
-                        label={t("settings:organization.timezone")}
-                        onValueChange={(value): void => {
+                        aria-label={t("settings:organization.timezone")}
+                        onChange={(e): void => {
                             props.onProfileChange({
                                 ...props.profile,
-                                timezone: value,
+                                timezone: e.target.value,
                             })
                         }}
                         value={props.profile.timezone}
                     />
                 </div>
                 <div className="flex justify-end">
-                    <Button color="primary" onPress={props.onSave}>
+                    <Button variant="primary" onPress={props.onSave}>
                         {t("settings:organization.saveProfile")}
                     </Button>
                 </div>
-            </CardBody>
+            </CardContent>
         </Card>
     )
 }
@@ -266,11 +260,11 @@ function BillingCard(props: {
         <Card>
             <CardHeader className="flex items-center justify-between">
                 <p className={TYPOGRAPHY.sectionTitle}>{t("settings:organization.billingTitle")}</p>
-                <Chip color={mapBillingStatusColor(props.billing.status)} size="sm" variant="flat">
+                <Chip color={mapBillingStatusColor(props.billing.status)} size="sm" variant="soft">
                     {props.billing.status}
                 </Chip>
             </CardHeader>
-            <CardBody className="space-y-3">
+            <CardContent className="space-y-3">
                 <div className="grid gap-3 text-sm md:grid-cols-2">
                     <p>
                         {t("settings:organization.plan")}:{" "}
@@ -309,19 +303,18 @@ function BillingCard(props: {
                         <option value="pro">pro</option>
                         <option value="enterprise">enterprise</option>
                     </select>
-                    <Button onPress={props.onRetryPayment} size="sm" variant="light">
+                    <Button onPress={props.onRetryPayment} size="sm" variant="ghost">
                         {t("settings:organization.retryPayment")}
                     </Button>
                     <Button
-                        color="danger"
                         onPress={props.onConfirmCriticalAction}
                         size="sm"
-                        variant="ghost"
+                        variant="danger"
                     >
                         {t("settings:organization.confirmBillingAction")}
                     </Button>
                 </div>
-            </CardBody>
+            </CardContent>
         </Card>
     )
 }
@@ -343,11 +336,11 @@ function MembersCard(props: {
             <CardHeader>
                 <p className={TYPOGRAPHY.sectionTitle}>{t("settings:organization.membersTitle")}</p>
             </CardHeader>
-            <CardBody className="space-y-3">
+            <CardContent className="space-y-3">
                 <div className="grid gap-3 md:grid-cols-[1fr_180px_auto]">
                     <Input
-                        label={t("settings:organization.inviteByEmail")}
-                        onValueChange={props.onInviteEmailChange}
+                        aria-label={t("settings:organization.inviteByEmail")}
+                        onChange={(e): void => { props.onInviteEmailChange(e.target.value) }}
                         placeholder="new.member@acme.dev"
                         value={props.inviteEmail}
                     />
@@ -374,75 +367,87 @@ function MembersCard(props: {
                         <option value="admin">admin</option>
                     </select>
                     <div className="flex items-end">
-                        <Button color="primary" onPress={props.onInvite}>
+                        <Button variant="primary" onPress={props.onInvite}>
                             {t("settings:organization.inviteMember")}
                         </Button>
                     </div>
                 </div>
 
-                <Table aria-label={t("settings:ariaLabel.organization.membersTable")}>
-                    <TableHeader>
-                        <TableColumn>{t("settings:organization.tableNameHeader")}</TableColumn>
-                        <TableColumn>{t("settings:organization.tableEmailHeader")}</TableColumn>
-                        <TableColumn>{t("settings:organization.tableRoleHeader")}</TableColumn>
-                        <TableColumn>{t("settings:organization.tableActionsHeader")}</TableColumn>
-                    </TableHeader>
-                    <TableBody emptyContent={t("settings:organization.noMembersFound")}>
-                        {props.members.map(
-                            (member): ReactElement => (
-                                <TableRow key={member.id}>
-                                    <TableCell>{member.name}</TableCell>
-                                    <TableCell>{member.email}</TableCell>
-                                    <TableCell>
-                                        <div className="flex items-center gap-2">
-                                            <Chip
-                                                color={mapMemberRoleColor(member.role)}
-                                                size="sm"
-                                                variant="flat"
-                                            >
-                                                {member.role}
-                                            </Chip>
-                                            <select
-                                                aria-label={`Role for ${member.email}`}
-                                                className={NATIVE_FORM.select}
-                                                value={member.role}
-                                                onChange={(event): void => {
-                                                    const role = event.currentTarget.value
-                                                    if (
-                                                        role === "viewer" ||
-                                                        role === "developer" ||
-                                                        role === "lead" ||
-                                                        role === "admin"
-                                                    ) {
-                                                        props.onRoleChange(member.id, role)
-                                                    }
+                <table
+                    aria-label={t("settings:ariaLabel.organization.membersTable")}
+                    className="w-full text-sm"
+                >
+                    <thead>
+                        <tr className="border-b border-border text-left text-xs text-text-secondary">
+                            <th className="px-3 py-2">{t("settings:organization.tableNameHeader")}</th>
+                            <th className="px-3 py-2">{t("settings:organization.tableEmailHeader")}</th>
+                            <th className="px-3 py-2">{t("settings:organization.tableRoleHeader")}</th>
+                            <th className="px-3 py-2">{t("settings:organization.tableActionsHeader")}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {props.members.length === 0 ? (
+                            <tr>
+                                <td className="px-3 py-4 text-center text-text-secondary" colSpan={4}>
+                                    {t("settings:organization.noMembersFound")}
+                                </td>
+                            </tr>
+                        ) : (
+                            props.members.map(
+                                (member): ReactElement => (
+                                    <tr key={member.id} className="border-b border-border">
+                                        <td className="px-3 py-2">{member.name}</td>
+                                        <td className="px-3 py-2">{member.email}</td>
+                                        <td className="px-3 py-2">
+                                            <div className="flex items-center gap-2">
+                                                <Chip
+                                                    color={mapMemberRoleColor(member.role)}
+                                                    size="sm"
+                                                    variant="soft"
+                                                >
+                                                    {member.role}
+                                                </Chip>
+                                                <select
+                                                    aria-label={`Role for ${member.email}`}
+                                                    className={NATIVE_FORM.select}
+                                                    value={member.role}
+                                                    onChange={(event): void => {
+                                                        const role = event.currentTarget.value
+                                                        if (
+                                                            role === "viewer" ||
+                                                            role === "developer" ||
+                                                            role === "lead" ||
+                                                            role === "admin"
+                                                        ) {
+                                                            props.onRoleChange(member.id, role)
+                                                        }
+                                                    }}
+                                                >
+                                                    <option value="viewer">viewer</option>
+                                                    <option value="developer">developer</option>
+                                                    <option value="lead">lead</option>
+                                                    <option value="admin">admin</option>
+                                                </select>
+                                            </div>
+                                        </td>
+                                        <td className="px-3 py-2">
+                                            <Button
+                                                onPress={(): void => {
+                                                    props.onRemoveMember(member.id)
                                                 }}
+                                                size="sm"
+                                                variant="danger"
                                             >
-                                                <option value="viewer">viewer</option>
-                                                <option value="developer">developer</option>
-                                                <option value="lead">lead</option>
-                                                <option value="admin">admin</option>
-                                            </select>
-                                        </div>
-                                    </TableCell>
-                                    <TableCell>
-                                        <Button
-                                            color="danger"
-                                            onPress={(): void => {
-                                                props.onRemoveMember(member.id)
-                                            }}
-                                            size="sm"
-                                            variant="ghost"
-                                        >
-                                            {t("settings:organization.remove")}
-                                        </Button>
-                                    </TableCell>
-                                </TableRow>
-                            ),
+                                                {t("settings:organization.remove")}
+                                            </Button>
+                                        </td>
+                                    </tr>
+                                ),
+                            )
                         )}
-                    </TableBody>
-                </Table>
-            </CardBody>
+                    </tbody>
+                </table>
+            </CardContent>
         </Card>
     )
 }
@@ -460,20 +465,20 @@ function ByokCard(props: {
             <CardHeader>
                 <p className={TYPOGRAPHY.sectionTitle}>{t("settings:organization.byokTitle")}</p>
             </CardHeader>
-            <CardBody className="space-y-3">
+            <CardContent className="space-y-3">
                 <p className="text-sm text-muted-foreground">
                     {t("settings:organization.byokDescription")}
                 </p>
                 <div className="flex flex-wrap items-center gap-4">
                     <Switch
                         isSelected={props.byok.gitProviderTokenConfigured}
-                        onValueChange={props.onToggleGitToken}
+                        onChange={props.onToggleGitToken}
                     >
                         {t("settings:organization.gitProviderKeyConfigured")}
                     </Switch>
                     <Switch
                         isSelected={props.byok.llmKeyConfigured}
-                        onValueChange={props.onToggleLlmToken}
+                        onChange={props.onToggleLlmToken}
                     >
                         {t("settings:organization.llmKeyConfigured")}
                     </Switch>
@@ -482,11 +487,11 @@ function ByokCard(props: {
                     {t("settings:organization.activeKeyRef")}: {props.byok.maskedKeyRef}
                 </p>
                 <div>
-                    <Button onPress={props.onRotate} size="sm" variant="light">
+                    <Button onPress={props.onRotate} size="sm" variant="ghost">
                         {t("settings:organization.rotateByokSecret")}
                     </Button>
                 </div>
-            </CardBody>
+            </CardContent>
         </Card>
     )
 }
@@ -501,28 +506,41 @@ function AuditLogsCard(props: { readonly logs: ReadonlyArray<IAuditLogEntry> }):
                     {t("settings:organization.auditLogsTitle")}
                 </p>
             </CardHeader>
-            <CardBody>
-                <Table aria-label={t("settings:ariaLabel.organization.auditLogsTable")}>
-                    <TableHeader>
-                        <TableColumn>{t("settings:organization.auditTimeHeader")}</TableColumn>
-                        <TableColumn>{t("settings:organization.auditActorHeader")}</TableColumn>
-                        <TableColumn>{t("settings:organization.auditActionHeader")}</TableColumn>
-                        <TableColumn>{t("settings:organization.auditDetailsHeader")}</TableColumn>
-                    </TableHeader>
-                    <TableBody emptyContent={t("settings:organization.noAuditEntries")}>
-                        {props.logs.map(
-                            (log): ReactElement => (
-                                <TableRow key={log.id}>
-                                    <TableCell>{log.timestamp}</TableCell>
-                                    <TableCell>{log.actor}</TableCell>
-                                    <TableCell>{log.action}</TableCell>
-                                    <TableCell>{log.details}</TableCell>
-                                </TableRow>
-                            ),
+            <CardContent>
+                <table
+                    aria-label={t("settings:ariaLabel.organization.auditLogsTable")}
+                    className="w-full text-sm"
+                >
+                    <thead>
+                        <tr className="border-b border-border text-left text-xs text-text-secondary">
+                            <th className="px-3 py-2">{t("settings:organization.auditTimeHeader")}</th>
+                            <th className="px-3 py-2">{t("settings:organization.auditActorHeader")}</th>
+                            <th className="px-3 py-2">{t("settings:organization.auditActionHeader")}</th>
+                            <th className="px-3 py-2">{t("settings:organization.auditDetailsHeader")}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {props.logs.length === 0 ? (
+                            <tr>
+                                <td className="px-3 py-4 text-center text-text-secondary" colSpan={4}>
+                                    {t("settings:organization.noAuditEntries")}
+                                </td>
+                            </tr>
+                        ) : (
+                            props.logs.map(
+                                (log): ReactElement => (
+                                    <tr key={log.id} className="border-b border-border">
+                                        <td className="px-3 py-2">{log.timestamp}</td>
+                                        <td className="px-3 py-2">{log.actor}</td>
+                                        <td className="px-3 py-2">{log.action}</td>
+                                        <td className="px-3 py-2">{log.details}</td>
+                                    </tr>
+                                ),
+                            )
                         )}
-                    </TableBody>
-                </Table>
-            </CardBody>
+                    </tbody>
+                </table>
+            </CardContent>
         </Card>
     )
 }

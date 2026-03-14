@@ -2,7 +2,7 @@ import { type ReactElement, useEffect, useMemo, useRef, useState } from "react"
 import { useNavigate } from "@tanstack/react-router"
 import { useTranslation } from "react-i18next"
 
-import { Alert, Button, Card, CardBody, CardHeader, Chip, Input, Switch } from "@/components/ui"
+import { Alert, Button, Card, CardContent, CardHeader, Chip, Input, Switch } from "@heroui/react"
 import { getWindowLocalStorage, safeStorageGet, safeStorageSet } from "@/lib/utils/safe-storage"
 import { useAuthAccess } from "@/lib/auth/auth-access"
 import { resolveDeepLinkGuard } from "@/lib/navigation/deep-link-guard"
@@ -445,77 +445,72 @@ export function SettingsNotificationsPage(): ReactElement {
                     <Button
                         isDisabled={unreadCount === 0}
                         size="sm"
-                        variant="flat"
+                        variant="secondary"
                         onPress={handleMarkAllAsRead}
                     >
                         {t("settings:notifications.markAllAsRead")}
                     </Button>
                 </CardHeader>
-                <CardBody className="space-y-3">
+                <CardContent className="space-y-3">
                     <div className="flex flex-wrap items-center gap-2 text-xs text-text-secondary">
-                        <Chip size="sm" variant="flat">
+                        <Chip size="sm" variant="soft">
                             {t("settings:notifications.total", { count: notifications.length })}
                         </Chip>
-                        <Chip size="sm" variant="flat">
+                        <Chip size="sm" variant="soft">
                             {t("settings:notifications.unread", { count: unreadCount })}
                         </Chip>
-                        <Chip size="sm" variant="flat">
+                        <Chip size="sm" variant="soft">
                             {t("settings:notifications.activeChannels", {
                                 count: activeChannelCount,
                             })}
                         </Chip>
-                        <Chip size="sm" variant="flat">
+                        <Chip size="sm" variant="soft">
                             {t("settings:notifications.selected", {
                                 count: selectedNotificationIds.length,
                             })}
                         </Chip>
                     </div>
                     {deepLinkGuardNotice === undefined ? null : (
-                        <Alert
-                            color="primary"
-                            title={t("settings:notifications.deepLinkGuardTitle")}
-                            variant="flat"
-                        >
-                            {deepLinkGuardNotice}
+                        <Alert status="accent">
+                            <Alert.Title>{t("settings:notifications.deepLinkGuardTitle")}</Alert.Title>
+                            <Alert.Description>{deepLinkGuardNotice}</Alert.Description>
                         </Alert>
                     )}
                     {selectedNotificationIds.length === 0 ? null : (
-                        <Alert
-                            color="primary"
-                            title={t("settings:notifications.bulkActionsTitle")}
-                            variant="flat"
-                        >
-                            {t("settings:notifications.notificationsSelected", {
-                                count: selectedNotificationIds.length,
-                            })}
-                            <div className="mt-2 flex flex-wrap gap-2">
-                                <Button size="sm" variant="flat" onPress={handleBulkMarkRead}>
-                                    {t("settings:notifications.markSelectedAsRead")}
-                                </Button>
-                                <Button
-                                    size="sm"
-                                    variant="flat"
-                                    onPress={(): void => {
-                                        setSelectedNotificationIds([])
-                                    }}
-                                >
-                                    {t("settings:notifications.clearSelection")}
-                                </Button>
-                            </div>
+                        <Alert status="accent">
+                            <Alert.Title>{t("settings:notifications.bulkActionsTitle")}</Alert.Title>
+                            <Alert.Description>
+                                {t("settings:notifications.notificationsSelected", {
+                                    count: selectedNotificationIds.length,
+                                })}
+                                <div className="mt-2 flex flex-wrap gap-2">
+                                    <Button size="sm" variant="secondary" onPress={handleBulkMarkRead}>
+                                        {t("settings:notifications.markSelectedAsRead")}
+                                    </Button>
+                                    <Button
+                                        size="sm"
+                                        variant="secondary"
+                                        onPress={(): void => {
+                                            setSelectedNotificationIds([])
+                                        }}
+                                    >
+                                        {t("settings:notifications.clearSelection")}
+                                    </Button>
+                                </div>
+                            </Alert.Description>
                         </Alert>
                     )}
                     {bulkPendingState === undefined ? null : (
-                        <Alert
-                            color="warning"
-                            title={t("settings:notifications.bulkActionPendingSyncTitle")}
-                            variant="flat"
-                        >
-                            {t("settings:notifications.bulkActionPendingSyncDescription")}
-                            <div className="mt-2">
-                                <Button size="sm" variant="flat" onPress={handleUndoBulkAction}>
-                                    {t("settings:notifications.undoBulkAction")}
-                                </Button>
-                            </div>
+                        <Alert status="warning">
+                            <Alert.Title>{t("settings:notifications.bulkActionPendingSyncTitle")}</Alert.Title>
+                            <Alert.Description>
+                                {t("settings:notifications.bulkActionPendingSyncDescription")}
+                                <div className="mt-2">
+                                    <Button size="sm" variant="secondary" onPress={handleUndoBulkAction}>
+                                        {t("settings:notifications.undoBulkAction")}
+                                    </Button>
+                                </div>
+                            </Alert.Description>
                         </Alert>
                     )}
                     <div className="md:max-w-[260px]">
@@ -582,13 +577,13 @@ export function SettingsNotificationsPage(): ReactElement {
                                         </p>
                                         <Chip
                                             size="sm"
-                                            variant={notification.isRead ? "flat" : "solid"}
+                                            variant={notification.isRead ? "secondary" : "primary"}
                                         >
                                             {notification.isRead
                                                 ? t("settings:notifications.read")
                                                 : t("settings:notifications.unreadLabel")}
                                         </Chip>
-                                        <Chip size="sm" variant="flat">
+                                        <Chip size="sm" variant="soft">
                                             {EVENT_TYPE_LABELS[notification.type]}
                                         </Chip>
                                         <p className="text-xs text-text-secondary">
@@ -601,7 +596,7 @@ export function SettingsNotificationsPage(): ReactElement {
                                     <div className="mt-2 flex flex-wrap items-center gap-2">
                                         <Button
                                             size="sm"
-                                            variant="flat"
+                                            variant="secondary"
                                             onPress={(): void => {
                                                 handleToggleRead(notification.id)
                                             }}
@@ -617,7 +612,7 @@ export function SettingsNotificationsPage(): ReactElement {
                                         <Button
                                             aria-label={`Open ${notification.id} context`}
                                             size="sm"
-                                            variant="flat"
+                                            variant="secondary"
                                             onPress={(): void => {
                                                 handleOpenDeepLink(notification.targetHref)
                                             }}
@@ -630,15 +625,12 @@ export function SettingsNotificationsPage(): ReactElement {
                         )}
                     </ul>
                     {filteredNotifications.length === 0 ? (
-                        <Alert
-                            color="warning"
-                            title={t("settings:notifications.noNotificationsFoundTitle")}
-                            variant="flat"
-                        >
-                            {t("settings:notifications.noNotificationsFoundDescription")}
+                        <Alert status="warning">
+                            <Alert.Title>{t("settings:notifications.noNotificationsFoundTitle")}</Alert.Title>
+                            <Alert.Description>{t("settings:notifications.noNotificationsFoundDescription")}</Alert.Description>
                         </Alert>
                     ) : null}
-                </CardBody>
+                </CardContent>
             </Card>
 
             <Card>
@@ -647,7 +639,7 @@ export function SettingsNotificationsPage(): ReactElement {
                         {t("settings:notifications.deliveryPreferences")}
                     </p>
                 </CardHeader>
-                <CardBody className="space-y-3">
+                <CardContent className="space-y-3">
                     {(["slack", "discord", "teams", "inApp"] as const).map(
                         (channelId): ReactElement => {
                             const channel = channelPreferences[channelId]
@@ -662,7 +654,7 @@ export function SettingsNotificationsPage(): ReactElement {
                                             { channel: CHANNEL_LABELS[channelId] },
                                         )}
                                         isSelected={channel.enabled}
-                                        onValueChange={(isSelected): void => {
+                                        onChange={(isSelected: boolean): void => {
                                             setChannelPreferences((previous) => ({
                                                 ...previous,
                                                 [channelId]: {
@@ -677,8 +669,8 @@ export function SettingsNotificationsPage(): ReactElement {
                                         })}
                                     </Switch>
                                     <Input
-                                        isDisabled={channel.enabled !== true}
-                                        label={t("settings:notifications.channelTarget", {
+                                        disabled={channel.enabled !== true}
+                                        aria-label={t("settings:notifications.channelTarget", {
                                             channel: CHANNEL_LABELS[channelId],
                                         })}
                                         placeholder={
@@ -691,12 +683,12 @@ export function SettingsNotificationsPage(): ReactElement {
                                                     : "inbox"
                                         }
                                         value={channel.target}
-                                        onValueChange={(nextValue): void => {
+                                        onChange={(e): void => {
                                             setChannelPreferences((previous) => ({
                                                 ...previous,
                                                 [channelId]: {
                                                     ...previous[channelId],
-                                                    target: nextValue,
+                                                    target: e.target.value,
                                                 },
                                             }))
                                         }}
@@ -706,11 +698,11 @@ export function SettingsNotificationsPage(): ReactElement {
                         },
                     )}
                     <div className="flex justify-end">
-                        <Button variant="flat" onPress={handleSaveDeliveryPreferences}>
+                        <Button variant="secondary" onPress={handleSaveDeliveryPreferences}>
                             {t("settings:notifications.saveDeliveryPreferences")}
                         </Button>
                     </div>
-                </CardBody>
+                </CardContent>
             </Card>
 
             <Card>
@@ -719,14 +711,14 @@ export function SettingsNotificationsPage(): ReactElement {
                         {t("settings:notifications.inAppMuteRules")}
                     </p>
                 </CardHeader>
-                <CardBody className="space-y-3">
+                <CardContent className="space-y-3">
                     <div className="flex flex-wrap items-center gap-2 text-xs text-text-secondary">
-                        <Chip size="sm" variant="flat">
+                        <Chip size="sm" variant="soft">
                             {t("settings:notifications.enabledRules", {
                                 count: enabledMuteRulesCount,
                             })}
                         </Chip>
-                        <Chip size="sm" variant="flat">
+                        <Chip size="sm" variant="soft">
                             {t("settings:notifications.quietHours", {
                                 start: muteRules.quietHoursStart,
                                 end: muteRules.quietHoursEnd,
@@ -736,11 +728,11 @@ export function SettingsNotificationsPage(): ReactElement {
                     <Switch
                         aria-label={t("settings:notifications.muteNonCritical")}
                         isSelected={muteRules.muteNonCriticalAtNight}
-                        onValueChange={(value): void => {
+                        onChange={(isSelected: boolean): void => {
                             setMuteRules(
                                 (previous): IInAppMuteRules => ({
                                     ...previous,
-                                    muteNonCriticalAtNight: value,
+                                    muteNonCriticalAtNight: isSelected,
                                 }),
                             )
                         }}
@@ -750,11 +742,11 @@ export function SettingsNotificationsPage(): ReactElement {
                     <Switch
                         aria-label={t("settings:notifications.mutePredictions")}
                         isSelected={muteRules.mutePredictionsForArchivedRepos}
-                        onValueChange={(value): void => {
+                        onChange={(isSelected: boolean): void => {
                             setMuteRules(
                                 (previous): IInAppMuteRules => ({
                                     ...previous,
-                                    mutePredictionsForArchivedRepos: value,
+                                    mutePredictionsForArchivedRepos: isSelected,
                                 }),
                             )
                         }}
@@ -763,33 +755,33 @@ export function SettingsNotificationsPage(): ReactElement {
                     </Switch>
                     <div className="grid gap-3 md:grid-cols-2">
                         <Input
-                            label={t("settings:notifications.quietHoursStart")}
+                            aria-label={t("settings:notifications.quietHoursStart")}
                             type="time"
                             value={muteRules.quietHoursStart}
-                            onValueChange={(value): void => {
+                            onChange={(e): void => {
                                 setMuteRules(
                                     (previous): IInAppMuteRules => ({
                                         ...previous,
-                                        quietHoursStart: value,
+                                        quietHoursStart: e.target.value,
                                     }),
                                 )
                             }}
                         />
                         <Input
-                            label={t("settings:notifications.quietHoursEnd")}
+                            aria-label={t("settings:notifications.quietHoursEnd")}
                             type="time"
                             value={muteRules.quietHoursEnd}
-                            onValueChange={(value): void => {
+                            onChange={(e): void => {
                                 setMuteRules(
                                     (previous): IInAppMuteRules => ({
                                         ...previous,
-                                        quietHoursEnd: value,
+                                        quietHoursEnd: e.target.value,
                                     }),
                                 )
                             }}
                         />
                     </div>
-                </CardBody>
+                </CardContent>
             </Card>
 
             <Card>
@@ -798,7 +790,7 @@ export function SettingsNotificationsPage(): ReactElement {
                         {t("settings:notifications.bulkActionAudit")}
                     </p>
                 </CardHeader>
-                <CardBody className="space-y-2">
+                <CardContent className="space-y-2">
                     {bulkAudit.length === 0 ? (
                         <p className="text-sm text-text-secondary">
                             {t("settings:notifications.noBulkOperations")}
@@ -828,7 +820,7 @@ export function SettingsNotificationsPage(): ReactElement {
                             )}
                         </ul>
                     )}
-                </CardBody>
+                </CardContent>
             </Card>
         </FormLayout>
     )
