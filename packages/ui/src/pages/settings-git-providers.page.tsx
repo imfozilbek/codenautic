@@ -7,7 +7,7 @@ import {
     type IGitProviderConnection,
 } from "@/lib/api/endpoints/git-providers.endpoint"
 import { useGitProviders } from "@/lib/hooks/queries"
-import { TYPOGRAPHY } from "@/lib/constants/typography"
+import { FormLayout } from "@/components/forms/form-layout"
 import { GitProvidersList } from "@/components/settings/git-providers-list"
 import type { IGitProviderCardProps } from "@/components/settings/git-provider-card"
 import { TestConnectionButton } from "@/components/settings/test-connection-button"
@@ -113,11 +113,10 @@ export function SettingsGitProvidersPage(): ReactElement {
     const isTokenConfigured = hasAnyConfiguredToken(sourceProviders)
 
     return (
-        <section className="space-y-4">
-            <h1 className={TYPOGRAPHY.pageTitle}>{t("settings:gitProviders.pageTitle")}</h1>
-            <p className={TYPOGRAPHY.pageSubtitle}>
-                {t("settings:gitProviders.pageSubtitle")}
-            </p>
+        <FormLayout
+            title={t("settings:gitProviders.pageTitle")}
+            description={t("settings:gitProviders.pageSubtitle")}
+        >
             <GitProvidersList providers={providerCards} />
             <Card>
                 <CardBody className="space-y-3">
@@ -139,7 +138,8 @@ export function SettingsGitProvidersPage(): ReactElement {
                                     />
                                     <Button
                                         size="sm"
-                                        variant="secondary"
+                                        color="primary"
+                                        variant="flat"
                                         onPress={(): void => {
                                             void gitProviders.updateConnection.mutateAsync({
                                                 connected: provider.connected !== true,
@@ -162,6 +162,6 @@ export function SettingsGitProvidersPage(): ReactElement {
                     </p>
                 </CardBody>
             </Card>
-        </section>
+        </FormLayout>
     )
 }
