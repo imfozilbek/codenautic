@@ -21,6 +21,12 @@ export {
     type IAstCodeGraphClusteringErrorDetails,
 } from "./ast-code-graph-clustering.error"
 export {
+    AST_CODE_GRAPH_DIFF_ERROR_CODE,
+    AstCodeGraphDiffError,
+    type AstCodeGraphDiffErrorCode,
+    type IAstCodeGraphDiffErrorDetails,
+} from "./ast-code-graph-diff.error"
+export {
     AST_CODE_GRAPH_IMPACT_ANALYSIS_ERROR_CODE,
     AstCodeGraphImpactAnalysisError,
     type AstCodeGraphImpactAnalysisErrorCode,
@@ -72,6 +78,7 @@ export {
     AstCodeGraphClusteringService,
     type IAstCodeGraphClusteringServiceOptions,
 } from "./ast-code-graph-clustering.service"
+export {AstCodeGraphDiffService} from "./ast-code-graph-diff.service"
 export {
     AstCodeGraphPageRankService,
     type IAstCodeGraphPageRankServiceOptions,

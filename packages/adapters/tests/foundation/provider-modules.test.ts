@@ -69,6 +69,7 @@ import {
 import {
     createCodeChunkEmbeddingGeneratorMock,
     createCodeGraphClusteringServiceMock,
+    createCodeGraphDiffServiceMock,
     createCodeGraphPageRankServiceMock,
     createExternalContextProviderMock,
     createGraphRepositoryMock,
@@ -662,6 +663,7 @@ describe("Provider modules registration", () => {
         const embeddingGenerator = createCodeChunkEmbeddingGeneratorMock()
         const pageRankService = createCodeGraphPageRankServiceMock()
         const clusteringService = createCodeGraphClusteringServiceMock()
+        const graphDiffService = createCodeGraphDiffServiceMock()
 
         registerAstModule(container, {
             sourceCodeParser: parser,
@@ -669,6 +671,7 @@ describe("Provider modules registration", () => {
             codeChunkEmbeddingGenerator: embeddingGenerator,
             pageRankService,
             clusteringService,
+            graphDiffService,
         })
 
         const resolvedGraphRepository = container.resolve(AST_TOKENS.GraphRepository)
@@ -689,6 +692,10 @@ describe("Provider modules registration", () => {
         const resolvedCoreClusteringService = container.resolve(
             TOKENS.Analysis.CodeGraphClusteringService,
         )
+        const resolvedGraphDiffService = container.resolve(AST_TOKENS.CodeGraphDiffService)
+        const resolvedCoreGraphDiffService = container.resolve(
+            TOKENS.Analysis.CodeGraphDiffService,
+        )
 
         expect(resolvedGraphRepository).toBe(graphRepository)
         expect(resolvedCoreGraphRepository).toBe(graphRepository)
@@ -698,6 +705,8 @@ describe("Provider modules registration", () => {
         expect(resolvedCorePageRankService).toBe(pageRankService)
         expect(resolvedClusteringService).toBe(clusteringService)
         expect(resolvedCoreClusteringService).toBe(clusteringService)
+        expect(resolvedGraphDiffService).toBe(graphDiffService)
+        expect(resolvedCoreGraphDiffService).toBe(graphDiffService)
     })
 
     test("registerMessagingModule binds outbox writer and inbox deduplicator", () => {

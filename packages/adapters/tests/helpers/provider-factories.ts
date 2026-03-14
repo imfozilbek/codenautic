@@ -14,6 +14,7 @@ import type {
     ICreatePipelineStatusInput,
     ICodeChunkEmbeddingGenerator,
     ICodeGraphClusteringService,
+    ICodeGraphDiffService,
     ICodeGraphPageRankService,
     ICommentDTO,
     IExternalContextProvider,
@@ -306,6 +307,27 @@ export function createCodeGraphClusteringServiceMock(): ICodeGraphClusteringServ
             return Promise.resolve({
                 communities: [],
                 modularity: 0,
+            })
+        },
+    }
+}
+
+/**
+ * Minimal code-graph diff service for DI tests.
+ *
+ * @returns Service instance.
+ */
+export function createCodeGraphDiffServiceMock(): ICodeGraphDiffService {
+    return {
+        calculateDiff(
+            _input: Parameters<ICodeGraphDiffService["calculateDiff"]>[0],
+        ): ReturnType<ICodeGraphDiffService["calculateDiff"]> {
+            return Promise.resolve({
+                addedNodes: [],
+                removedNodes: [],
+                changedNodes: [],
+                addedEdges: [],
+                removedEdges: [],
             })
         },
     }

@@ -23,6 +23,12 @@ export {
     type ICodeGraphPageRankService,
 } from "./application/ports/outbound/graph/code-graph-page-rank-service.port"
 export {
+    type ICodeGraphDiffInput,
+    type ICodeGraphDiffResult,
+    type ICodeGraphDiffService,
+    type ICodeGraphNodeChange,
+} from "./application/ports/outbound/graph/code-graph-diff-service.port"
+export {
     type ICodeGraphClusteringInput,
     type ICodeGraphClusteringResult,
     type ICodeGraphClusteringService,

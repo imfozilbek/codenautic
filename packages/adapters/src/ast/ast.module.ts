@@ -3,6 +3,7 @@ import {
     TOKENS,
     type ICodeChunkEmbeddingGenerator,
     type ICodeGraphClusteringService,
+    type ICodeGraphDiffService,
     type ICodeGraphPageRankService,
     type IGraphRepository,
     type ISourceCodeParser,
@@ -39,6 +40,11 @@ export interface IRegisterAstModuleOptions {
      * Optional graph community detection service.
      */
     readonly clusteringService?: ICodeGraphClusteringService
+
+    /**
+     * Optional graph diff service.
+     */
+    readonly graphDiffService?: ICodeGraphDiffService
 }
 
 /**
@@ -88,6 +94,19 @@ export function registerAstModule(container: Container, options: IRegisterAstMod
             container,
             TOKENS.Analysis.CodeGraphClusteringService,
             options.clusteringService,
+        )
+    }
+
+    if (options.graphDiffService !== undefined) {
+        bindConstantSingleton(
+            container,
+            AST_TOKENS.CodeGraphDiffService,
+            options.graphDiffService,
+        )
+        bindConstantSingleton(
+            container,
+            TOKENS.Analysis.CodeGraphDiffService,
+            options.graphDiffService,
         )
     }
 }

@@ -2,6 +2,7 @@ import {
     createToken,
     type ICodeChunkEmbeddingGenerator,
     type ICodeGraphClusteringService,
+    type ICodeGraphDiffService,
     type ICodeGraphPageRankService,
     type IGraphRepository,
     type ISourceCodeParser,
@@ -16,6 +17,9 @@ export const AST_TOKENS = {
     ),
     CodeGraphClusteringService: createToken<ICodeGraphClusteringService>(
         "adapters.ast.code-graph-clustering-service",
+    ),
+    CodeGraphDiffService: createToken<ICodeGraphDiffService>(
+        "adapters.ast.code-graph-diff-service",
     ),
     GraphRepository: createToken<IGraphRepository>("adapters.ast.graph-repository"),
     PageRankService: createToken<ICodeGraphPageRankService>("adapters.ast.page-rank-service"),
