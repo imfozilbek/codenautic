@@ -7,20 +7,20 @@ import {
     createCodeCityDistrictHealthAuras,
     resolveCodeCityBuildingImpactProfile,
 } from "@/components/graphs/codecity-3d/codecity-visual-resolvers"
-import {
-    BUILDING_COLOR_CRITICAL_COVERAGE,
-    BUILDING_COLOR_HIGH_COVERAGE,
-    BUILDING_COLOR_LOW_COVERAGE,
-    BUILDING_COLOR_MEDIUM_COVERAGE,
-    BUILDING_COLOR_UNDEFINED_COVERAGE,
-    BUG_EMISSION_COLOR_HIGH,
-    BUG_EMISSION_COLOR_LOW,
-    BUG_EMISSION_COLOR_MEDIUM,
-    IMPACT_EMISSIVE_CHANGED,
-    IMPACT_EMISSIVE_IMPACTED,
-    IMPACT_EMISSIVE_NEUTRAL,
-    IMPACT_EMISSIVE_RIPPLE,
-} from "@/lib/constants/codecity-colors"
+import { CODECITY_PALETTE } from "@/lib/constants/codecity-colors"
+
+const BUILDING_COLOR_UNDEFINED_COVERAGE = CODECITY_PALETTE.coverage.undefined
+const BUILDING_COLOR_HIGH_COVERAGE = CODECITY_PALETTE.coverage.high
+const BUILDING_COLOR_MEDIUM_COVERAGE = CODECITY_PALETTE.coverage.medium
+const BUILDING_COLOR_LOW_COVERAGE = CODECITY_PALETTE.coverage.low
+const BUILDING_COLOR_CRITICAL_COVERAGE = CODECITY_PALETTE.coverage.critical
+const BUG_EMISSION_COLOR_HIGH = CODECITY_PALETTE.bug.high
+const BUG_EMISSION_COLOR_MEDIUM = CODECITY_PALETTE.bug.medium
+const BUG_EMISSION_COLOR_LOW = CODECITY_PALETTE.bug.low
+const IMPACT_EMISSIVE_CHANGED = CODECITY_PALETTE.impact.changed
+const IMPACT_EMISSIVE_IMPACTED = CODECITY_PALETTE.impact.impacted
+const IMPACT_EMISSIVE_RIPPLE = CODECITY_PALETTE.impact.ripple
+const IMPACT_EMISSIVE_NEUTRAL = CODECITY_PALETTE.impact.neutral
 import type {
     ICodeCityBuildingMesh,
     ICodeCityDistrictMesh,

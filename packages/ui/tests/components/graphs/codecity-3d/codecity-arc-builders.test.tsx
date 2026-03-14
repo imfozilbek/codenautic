@@ -7,11 +7,11 @@ import {
     createCodeCityCausalArcs,
     createCodeCityNavigationTrail,
 } from "@/components/graphs/codecity-3d/codecity-arc-builders"
-import {
-    CAUSAL_ARC_COLOR_DEFAULT,
-    CAUSAL_ARC_COLOR_DEPENDENCY,
-    CAUSAL_ARC_COLOR_OWNERSHIP,
-} from "@/lib/constants/codecity-colors"
+import { CODECITY_PALETTE } from "@/lib/constants/codecity-colors"
+
+const CAUSAL_ARC_COLOR_DEFAULT = CODECITY_PALETTE.causal.default
+const CAUSAL_ARC_COLOR_DEPENDENCY = CODECITY_PALETTE.causal.dependency
+const CAUSAL_ARC_COLOR_OWNERSHIP = CODECITY_PALETTE.causal.ownership
 import {
     CAUSAL_ARC_BASE_LIFT,
     CAUSAL_ARC_SEGMENTS,
