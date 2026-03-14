@@ -274,7 +274,7 @@ export function ReportTemplateEditor(): ReactElement {
                 >
                     <span aria-label="Template preview summary">{templatePreviewSummary}</span>
                 </Alert>
-                <Button onPress={handleSaveTemplate}>
+                <Button color="primary" onPress={handleSaveTemplate}>
                     {t("reports:templateEditor.saveTemplate")}
                 </Button>
                 <Alert
