@@ -18,6 +18,17 @@ export {
     type LlmProviderFactoryErrorCode,
 } from "./llm-provider-factory.error"
 export {
+    AnthropicProvider,
+    type IAnthropicClient,
+    type IAnthropicProviderOptions,
+    type IVoyageEmbeddingClient,
+} from "./anthropic-provider"
+export {
+    AnthropicProviderError,
+    type IAnthropicProviderErrorDetails,
+    type AnthropicProviderErrorSource,
+} from "./anthropic-provider.error"
+export {
     OpenAIProvider,
     type IOpenAIClient,
     type IOpenAIProviderOptions,

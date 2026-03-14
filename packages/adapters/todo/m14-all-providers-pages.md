@@ -53,7 +53,7 @@
 
 | ID | Задача | Статус | Результат | Acceptance Criteria |
 |----------|--------------------|--------|-----------|---------------------|
-| LLM-003 | Реализовать anthropicProvider | TODO | Не начато | Реализация: Интеграция через @anthropic-ai/sdk. Claude 3/4. Streaming. Поддержка tool use. Voyage for embeddings. Готово, если: для LLM-003 adapter сохраняет стабильный external -> domain контракт, корректно обрабатывает retry/backoff/error/idempotency сценарии, а интеграционные контрактные тесты фиксируют поведение на happy/failure-path; DoD: `cd packages/adapters && bun run lint && bun run typecheck && bun test`. |
+| LLM-003 | Реализовать anthropicProvider | DONE | Реализовано | Реализация: Интеграция через @anthropic-ai/sdk. Claude 3/4. Streaming. Поддержка tool use. Voyage for embeddings. Готово, если: для LLM-003 adapter сохраняет стабильный external -> domain контракт, корректно обрабатывает retry/backoff/error/idempotency сценарии, а интеграционные контрактные тесты фиксируют поведение на happy/failure-path; DoD: `cd packages/adapters && bun run lint && bun run typecheck && bun test`. |
 | LLM-004 | Реализовать googleProvider | TODO | Не начато | Реализация: Интеграция через @google/genai. Gemini 2.x. Streaming. text-embedding-004. Готово, если: для LLM-004 adapter сохраняет стабильный external -> domain контракт, корректно обрабатывает retry/backoff/error/idempotency сценарии, а интеграционные контрактные тесты фиксируют поведение на happy/failure-path; DoD: `cd packages/adapters && bun run lint && bun run typecheck && bun test`. |
 
 ---
