@@ -1,6 +1,7 @@
 import type { ReactElement } from "react"
 import { useTranslation } from "react-i18next"
 
+import { useDynamicTranslation } from "@/lib/i18n"
 import { TYPOGRAPHY } from "@/lib/constants/typography"
 
 /**
@@ -87,16 +88,23 @@ function formatTransitionDate(changedAt: string): string {
  */
 export function OwnershipTransitionWidget(props: IOwnershipTransitionWidgetProps): ReactElement {
     const { t } = useTranslation(["code-city"])
+    const { td } = useDynamicTranslation(["code-city"])
     return (
         <section className="rounded-lg border border-border bg-surface p-3 shadow-sm">
             <p className={TYPOGRAPHY.cardTitle}>{t("code-city:ownershipTransition.title")}</p>
             <p className={`mt-1 ${TYPOGRAPHY.captionMuted}`}>
                 {t("code-city:ownershipTransition.description")}
             </p>
-            <ul aria-label={t("code-city:ownershipTransition.ariaLabelTransitions")} className="mt-3 space-y-2">
+            <ul
+                aria-label={t("code-city:ownershipTransition.ariaLabelTransitions")}
+                className="mt-3 space-y-2"
+            >
                 {props.events.map((event): ReactElement => {
                     const isActive = props.activeEventId === event.id
-                    const scopeLabel = event.scopeType === "module" ? t("code-city:ownershipTransition.scopeModule") : t("code-city:ownershipTransition.scopeFile")
+                    const scopeLabel =
+                        event.scopeType === "module"
+                            ? t("code-city:ownershipTransition.scopeModule")
+                            : t("code-city:ownershipTransition.scopeFile")
 
                     return (
                         <li
@@ -108,16 +116,12 @@ export function OwnershipTransitionWidget(props: IOwnershipTransitionWidgetProps
                             key={event.id}
                         >
                             <div className="flex flex-wrap items-center justify-between gap-2">
-                                <span className={TYPOGRAPHY.overline}>
-                                    {scopeLabel}
-                                </span>
+                                <span className={TYPOGRAPHY.overline}>{scopeLabel}</span>
                                 <span className={TYPOGRAPHY.captionMuted}>
                                     {formatTransitionDate(event.changedAt)}
                                 </span>
                             </div>
-                            <p className={`mt-1 ${TYPOGRAPHY.cardTitle}`}>
-                                {event.scopeLabel}
-                            </p>
+                            <p className={`mt-1 ${TYPOGRAPHY.cardTitle}`}>{event.scopeLabel}</p>
                             <p className={`mt-1 ${TYPOGRAPHY.captionMuted}`}>
                                 {event.fromOwnerName} → {event.toOwnerName}
                             </p>
@@ -125,14 +129,14 @@ export function OwnershipTransitionWidget(props: IOwnershipTransitionWidgetProps
                                 <span
                                     className={`rounded border px-2 py-0.5 ${TYPOGRAPHY.micro} ${resolveHandoffBadgeClassName(event.handoffSeverity)}`}
                                 >
-                                    {(t as unknown as (key: string) => string)(resolveHandoffLabelKey(event.handoffSeverity))}
+                                    {td(resolveHandoffLabelKey(event.handoffSeverity))}
                                 </span>
-                                <span className={TYPOGRAPHY.captionMuted}>
-                                    {event.reason}
-                                </span>
+                                <span className={TYPOGRAPHY.captionMuted}>{event.reason}</span>
                             </div>
                             <button
-                                aria-label={t("code-city:ownershipTransition.ariaLabelInspect", { scopeLabel: event.scopeLabel })}
+                                aria-label={t("code-city:ownershipTransition.ariaLabelInspect", {
+                                    scopeLabel: event.scopeLabel,
+                                })}
                                 className="mt-2 rounded border border-primary/40 bg-primary/20 px-2 py-1 text-xs font-semibold text-on-primary hover:border-primary"
                                 onClick={(): void => {
                                     props.onSelectEvent?.(event)
