@@ -1,6 +1,7 @@
 import { type ReactElement, Suspense, lazy, useCallback, useEffect, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 
+import { useDynamicTranslation } from "@/lib/i18n"
 import { Alert, Button, Card, CardBody, CardHeader, StyledLink } from "@/components/ui"
 import { ActivationChecklist } from "@/components/onboarding/activation-checklist"
 import { type IProvenanceContext } from "@/components/infrastructure/data-freshness-panel"
@@ -149,6 +150,7 @@ function saveWorkspacePersonalization(payload: IWorkspacePersonalization): void 
  */
 export function DashboardMissionControlPage(): ReactElement {
     const { t } = useTranslation(["dashboard"])
+    const { td } = useDynamicTranslation(["dashboard"])
     const uiRole = useUiRole()
     const checklistRole = uiRole === "admin" ? "admin" : "developer"
     const personalizationDefaults = readWorkspacePersonalization()
@@ -299,17 +301,19 @@ export function DashboardMissionControlPage(): ReactElement {
     }
 
     const handleGenerateShareLink = (): void => {
-        const viewPayload = encodeURIComponent(
-            JSON.stringify({
+        const viewId = `ws-${Date.now().toString(36)}`
+        if (typeof window !== "undefined") {
+            const payload = JSON.stringify({
                 layoutPreset,
                 orgScope,
                 pinnedShortcuts,
                 repositoryScope,
                 teamScope,
-            }),
-        )
+            })
+            window.sessionStorage.setItem(`codenautic:share:${viewId}`, payload)
+        }
         const origin = typeof window !== "undefined" ? window.location.origin : ""
-        setShareLink(`${origin}/?workspaceView=${viewPayload}`)
+        setShareLink(`${origin}/?workspaceView=${viewId}`)
     }
 
     const scopeSubtitle = `${t("dashboard:missionControl.scopeLabel")} ${orgScope} / ${repositoryScope} / ${teamScope}`
@@ -344,7 +348,6 @@ export function DashboardMissionControlPage(): ReactElement {
             subtitle={scopeSubtitle}
             title={t("dashboard:missionControl.pageTitle")}
         >
-
             {/* Zone A: Critical signals — always visible */}
             <DashboardCriticalSignals
                 confidence="0.82"
@@ -370,7 +373,9 @@ export function DashboardMissionControlPage(): ReactElement {
                     <DashboardHeroMetric
                         color="var(--primary)"
                         label={t("dashboard:missionControl.releaseHealth")}
-                        subtitle={(t as unknown as (key: string, options: Record<string, string>) => string)("dashboard:missionControl.violations", { count: String(architectureHealth.layerViolations) })}
+                        subtitle={td("dashboard:missionControl.violations", {
+                            count: String(architectureHealth.layerViolations),
+                        })}
                         value={architectureHealth.healthScore}
                     />
                     <MetricsGrid metrics={metrics} />
@@ -378,7 +383,11 @@ export function DashboardMissionControlPage(): ReactElement {
             </AnimatedMount>
 
             {/* Zone B: Primary charts — collapsible */}
-            <DashboardZone isVisible={activePreset.showZoneB} priority="primary" title={t("dashboard:missionControl.primaryCharts")}>
+            <DashboardZone
+                isVisible={activePreset.showZoneB}
+                priority="primary"
+                title={t("dashboard:missionControl.primaryCharts")}
+            >
                 <AnimatedMount motionKey={`charts-primary-${range}`}>
                     <div className="grid gap-3 md:gap-4 lg:grid-cols-2">
                         <FlowMetricsWidget
@@ -392,7 +401,11 @@ export function DashboardMissionControlPage(): ReactElement {
             </DashboardZone>
 
             {/* Zone C: Operations — work queue + timeline */}
-            <DashboardZone isVisible={activePreset.showZoneC} priority="primary" title={t("dashboard:missionControl.operations")}>
+            <DashboardZone
+                isVisible={activePreset.showZoneC}
+                priority="primary"
+                title={t("dashboard:missionControl.operations")}
+            >
                 <Suspense fallback={<DashboardSkeleton />}>
                     <DashboardContent
                         statusDistribution={statusDistribution}
@@ -403,7 +416,10 @@ export function DashboardMissionControlPage(): ReactElement {
             </DashboardZone>
 
             {/* Zone D: Analytics — secondary charts */}
-            <DashboardZone isVisible={activePreset.showZoneD} title={t("dashboard:missionControl.analytics")}>
+            <DashboardZone
+                isVisible={activePreset.showZoneD}
+                title={t("dashboard:missionControl.analytics")}
+            >
                 <AnimatedMount motionKey={`charts-secondary-${range}`}>
                     <div className="grid gap-3 md:gap-4 lg:grid-cols-2">
                         <TokenUsageDashboardWidget
@@ -420,14 +436,22 @@ export function DashboardMissionControlPage(): ReactElement {
             </DashboardZone>
 
             {/* Zone E: Explore + Signals */}
-            <DashboardZone isVisible={activePreset.showZoneE} priority="tertiary" title={t("dashboard:missionControl.explore")}>
+            <DashboardZone
+                isVisible={activePreset.showZoneE}
+                priority="tertiary"
+                title={t("dashboard:missionControl.explore")}
+            >
                 <div className="grid gap-3 md:gap-4 md:grid-cols-2">
                     <div className="space-y-2">
-                        <p className={TYPOGRAPHY.sectionTitle}>{t("dashboard:missionControl.explore")}</p>
-                        <ul className="space-y-1.5">{renderExploreLinks(t as unknown as (key: string) => string)}</ul>
+                        <p className={TYPOGRAPHY.sectionTitle}>
+                            {t("dashboard:missionControl.explore")}
+                        </p>
+                        <ul className="space-y-1.5">{renderExploreLinks(td)}</ul>
                     </div>
                     <div className="space-y-2">
-                        <p className={TYPOGRAPHY.sectionTitle}>{t("dashboard:missionControl.signals")}</p>
+                        <p className={TYPOGRAPHY.sectionTitle}>
+                            {t("dashboard:missionControl.signals")}
+                        </p>
                         <ul className="space-y-1.5 text-sm text-text-secondary">
                             <li>{t("dashboard:missionControl.signalsDrift")}</li>
                             <li>{t("dashboard:missionControl.signalsPredictions")}</li>
@@ -448,7 +472,9 @@ export function DashboardMissionControlPage(): ReactElement {
                         setIsPersonalizationOpen((prev): boolean => !prev)
                     }}
                 >
-                    {isPersonalizationOpen ? t("dashboard:missionControl.hidePersonalization") : t("dashboard:missionControl.workspacePersonalization")}
+                    {isPersonalizationOpen
+                        ? t("dashboard:missionControl.hidePersonalization")
+                        : t("dashboard:missionControl.workspacePersonalization")}
                 </Button>
                 <AnimatedAlert isVisible={isPersonalizationOpen}>
                     <Card className="mt-3">
@@ -482,7 +508,9 @@ export function DashboardMissionControlPage(): ReactElement {
                             </label>
 
                             <div className="space-y-1">
-                                <p className={TYPOGRAPHY.body}>{t("dashboard:missionControl.pinnedShortcuts")}</p>
+                                <p className={TYPOGRAPHY.body}>
+                                    {t("dashboard:missionControl.pinnedShortcuts")}
+                                </p>
                                 <div className="grid gap-2 sm:grid-cols-2">
                                     {WORKSPACE_SHORTCUT_OPTIONS.map(
                                         (shortcut): ReactElement => (
@@ -491,7 +519,10 @@ export function DashboardMissionControlPage(): ReactElement {
                                                 key={shortcut}
                                             >
                                                 <input
-                                                    aria-label={(t as unknown as (key: string, options: Record<string, string>) => string)("dashboard:missionControl.pinAriaLabel", { shortcut })}
+                                                    aria-label={td(
+                                                        "dashboard:missionControl.pinAriaLabel",
+                                                        { shortcut },
+                                                    )}
                                                     checked={pinnedShortcuts.includes(shortcut)}
                                                     type="checkbox"
                                                     onChange={(): void => {
@@ -554,16 +585,40 @@ function renderExploreLinks(t: (key: string) => string): ReadonlyArray<ReactElem
         { to: "/reviews", labelKey: "dashboard:missionControl.exploreOpenCcr" },
         { to: "/issues", labelKey: "dashboard:missionControl.exploreOpenIssues" },
         { to: "/dashboard/code-city", labelKey: "dashboard:missionControl.exploreOpenCodeCity" },
-        { to: "/dashboard/code-city", labelKey: "dashboard:missionControl.exploreOpenGraphExplorer" },
-        { to: "/dashboard/code-city", labelKey: "dashboard:missionControl.exploreOpenCausalAnalysis" },
-        { to: "/dashboard/code-city", labelKey: "dashboard:missionControl.exploreOpenImpactPlanning" },
-        { to: "/dashboard/code-city", labelKey: "dashboard:missionControl.exploreOpenRefactoringPlanner" },
-        { to: "/dashboard/code-city", labelKey: "dashboard:missionControl.exploreOpenKnowledgeMap" },
+        {
+            to: "/dashboard/code-city",
+            labelKey: "dashboard:missionControl.exploreOpenGraphExplorer",
+        },
+        {
+            to: "/dashboard/code-city",
+            labelKey: "dashboard:missionControl.exploreOpenCausalAnalysis",
+        },
+        {
+            to: "/dashboard/code-city",
+            labelKey: "dashboard:missionControl.exploreOpenImpactPlanning",
+        },
+        {
+            to: "/dashboard/code-city",
+            labelKey: "dashboard:missionControl.exploreOpenRefactoringPlanner",
+        },
+        {
+            to: "/dashboard/code-city",
+            labelKey: "dashboard:missionControl.exploreOpenKnowledgeMap",
+        },
         { to: "/reports", labelKey: "dashboard:missionControl.exploreOpenReports" },
         { to: "/reports/generate", labelKey: "dashboard:missionControl.exploreGenerateReport" },
-        { to: "/settings-code-review", labelKey: "dashboard:missionControl.exploreCodeReviewConfig" },
-        { to: "/settings-llm-providers", labelKey: "dashboard:missionControl.exploreLlmProviderConfig" },
-        { to: "/settings-git-providers", labelKey: "dashboard:missionControl.exploreGitProviderConfig" },
+        {
+            to: "/settings-code-review",
+            labelKey: "dashboard:missionControl.exploreCodeReviewConfig",
+        },
+        {
+            to: "/settings-llm-providers",
+            labelKey: "dashboard:missionControl.exploreLlmProviderConfig",
+        },
+        {
+            to: "/settings-git-providers",
+            labelKey: "dashboard:missionControl.exploreGitProviderConfig",
+        },
     ] as const
 
     return links.map(
