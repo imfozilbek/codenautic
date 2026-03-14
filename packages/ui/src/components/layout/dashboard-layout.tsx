@@ -25,7 +25,7 @@ import { OPEN_COMMAND_PALETTE_EVENT } from "@/lib/keyboard/shortcut-registry"
 
 import { AnimatedMount } from "@/lib/motion"
 import { Menu } from "@/components/icons/app-icons"
-import { Button } from "@/components/ui"
+import { Button } from "@heroui/react"
 
 import { CommandPalette } from "./command-palette"
 import { Sidebar } from "./sidebar"
@@ -223,11 +223,10 @@ export function DashboardLayout(props: IDashboardLayoutProps): ReactElement {
                 {/* Mobile menu button — visible only on small screens */}
                 <div className="flex items-center gap-2 p-3 lg:hidden">
                     <Button
-                        isIconOnly
                         aria-label={t("navigation:toolbar.openNavigationMenu")}
-                        radius="full"
+                        className="rounded-full p-2"
                         size="sm"
-                        variant="light"
+                        variant="ghost"
                         onPress={(): void => {
                             setIsMobileSidebarOpen(true)
                         }}

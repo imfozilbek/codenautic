@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next"
 
 import { Bell, ChevronRight, Menu, Search } from "@/components/icons/app-icons"
 import { TYPOGRAPHY } from "@/lib/constants/typography"
-import { Button } from "@/components/ui"
+import { Button } from "@heroui/react"
 import type { IBreadcrumbSegment } from "@/lib/navigation/route-guard-map"
 
 import { ThemeModeToggle } from "./theme-mode-toggle"
@@ -58,11 +58,10 @@ export function ContentToolbar(props: IContentToolbarProps): ReactElement {
             {/* Mobile menu button */}
             <div className="flex shrink-0 items-center md:hidden">
                 <Button
-                    isIconOnly
                     aria-label={t("navigation:toolbar.openNavigationMenu")}
-                    radius="full"
+                    className="rounded-full p-2"
                     size="sm"
-                    variant="light"
+                    variant="ghost"
                     onPress={props.onMobileMenuOpen}
                 >
                     <Menu size={18} />
@@ -129,10 +128,9 @@ export function ContentToolbar(props: IContentToolbarProps): ReactElement {
                 {/* Search trigger → opens Command Palette */}
                 <Button
                     aria-label={t("navigation:toolbar.openCommandPalette")}
-                    className="hidden gap-1.5 px-2.5 sm:inline-flex"
-                    radius="md"
+                    className="hidden gap-1.5 rounded-md px-2.5 sm:inline-flex"
                     size="sm"
-                    variant="flat"
+                    variant="secondary"
                     onPress={props.onOpenCommandPalette}
                 >
                     <Search size={15} />
@@ -147,13 +145,12 @@ export function ContentToolbar(props: IContentToolbarProps): ReactElement {
 
                 {/* Notification bell */}
                 <Button
-                    isIconOnly
                     aria-label={t("navigation:toolbar.notifications", {
                         count: props.notificationCount ?? 0,
                     })}
-                    radius="full"
+                    className="rounded-full p-2"
                     size="sm"
-                    variant="light"
+                    variant="ghost"
                 >
                     <span className="relative inline-flex">
                         <Bell size={16} />
