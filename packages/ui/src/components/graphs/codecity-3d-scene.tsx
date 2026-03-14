@@ -12,6 +12,11 @@ import { useTranslation } from "react-i18next"
 import { useDynamicTranslation } from "@/lib/i18n"
 import { TYPOGRAPHY } from "@/lib/constants/typography"
 
+/**
+ * Максимум файлов для 2D fallback-представления.
+ */
+const MAX_FALLBACK_2D_FILES = 24
+
 interface ICodeCity3DSceneFileDescriptor {
     /** Уникальный ID файла. */
     readonly id: string
@@ -462,7 +467,7 @@ export function CodeCity3DScene(props: ICodeCity3DSceneProps): ReactElement {
     }, [navigationChainFileIds, props.navigationActiveFileId])
 
     if (renderCapability.shouldUse2DFallback) {
-        const fallbackFiles = currentSnapshot.files.slice(0, 24)
+        const fallbackFiles = currentSnapshot.files.slice(0, MAX_FALLBACK_2D_FILES)
 
         return (
             <section className="w-full rounded-lg border border-border bg-surface p-3">

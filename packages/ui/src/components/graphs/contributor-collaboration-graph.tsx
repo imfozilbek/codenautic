@@ -3,6 +3,11 @@ import { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
 /**
+ * Количество символов для инициалов контрибьютора в графе.
+ */
+const CONTRIBUTOR_INITIALS_LENGTH = 2
+
+/**
  * Узел графа контрибьютора.
  */
 export interface IContributorCollaborationNode {
@@ -306,7 +311,9 @@ export function ContributorCollaborationGraph(
                                     x={layout.x}
                                     y={layout.y + 4}
                                 >
-                                    {contributor.label.slice(0, 2).toUpperCase()}
+                                    {contributor.label
+                                        .slice(0, CONTRIBUTOR_INITIALS_LENGTH)
+                                        .toUpperCase()}
                                 </text>
                                 <text
                                     fill="hsl(222 47% 11%)"
