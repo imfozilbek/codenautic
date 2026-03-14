@@ -123,7 +123,7 @@ describe("SettingsTeamPage", (): void => {
         await user.click(screen.getByRole("button", { name: /Review Enablement/ }))
 
         expect(screen.getByText("Active team: Review Enablement")).not.toBeNull()
-        expect(screen.getByText("ari@acme.dev")).not.toBeNull()
+        expect(screen.getByText("neo@acme.dev")).not.toBeNull()
     })
 
     it("снимает назначение репозитория при unchecking", async (): Promise<void> => {
