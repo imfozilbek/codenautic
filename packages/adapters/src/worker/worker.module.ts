@@ -5,6 +5,7 @@ import {WORKER_TOKENS} from "./worker.tokens"
 import type {
     IWorkerProcessorRegistry,
     IWorkerQueueService,
+    IWorkerRedisConnectionManager,
     IWorkerRuntime,
 } from "./worker.types"
 
@@ -21,6 +22,11 @@ export interface IRegisterWorkerModuleOptions {
      * Optional processor registry adapter.
      */
     readonly processorRegistry?: IWorkerProcessorRegistry
+
+    /**
+     * Optional Redis connection manager adapter.
+     */
+    readonly redisConnectionManager?: IWorkerRedisConnectionManager
 
     /**
      * Optional worker runtime adapter.
@@ -50,8 +56,15 @@ export function registerWorkerModule(
         )
     }
 
+    if (options.redisConnectionManager !== undefined) {
+        bindConstantSingleton(
+            container,
+            WORKER_TOKENS.RedisConnectionManager,
+            options.redisConnectionManager,
+        )
+    }
+
     if (options.runtime !== undefined) {
         bindConstantSingleton(container, WORKER_TOKENS.Runtime, options.runtime)
     }
 }
-

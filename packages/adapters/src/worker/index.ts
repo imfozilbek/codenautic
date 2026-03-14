@@ -30,17 +30,35 @@ export {
     type IWorkerProcessorMetrics,
 } from "./base-worker-processor.impl"
 export {
+    DEFAULT_REDIS_INITIAL_BACKOFF_MS,
+    DEFAULT_REDIS_MAX_BACKOFF_MS,
+    DEFAULT_REDIS_MAX_RECONNECT_ATTEMPTS,
+    DEFAULT_REDIS_POOL_SIZE,
+    REDIS_HEALTH_CHECK_PING_MESSAGE,
+    RedisConnectionManager,
+    type IRedisConnectionLike,
+    type IRedisConnectionManagerFactoryOptions,
+    type IRedisConnectionManagerOptions,
+    type RedisConnectionFactory,
+    type RedisConnectionSleep,
+} from "./redis-connection-manager.impl"
+export {
     WorkerProcessorRegistry,
     type IWorkerProcessorRegistryOptions,
 } from "./worker-processor-registry.impl"
 export {WORKER_TOKENS} from "./worker.tokens"
 export {
+    WORKER_REDIS_CONNECTION_STATUS,
     WORKER_QUEUE_JOB_STATUS,
     WORKER_RUNTIME_STATUS,
+    type IWorkerRedisConnection,
+    type IWorkerRedisConnectionHealth,
+    type IWorkerRedisConnectionManager,
     type IWorkerDequeuedJob,
     type IWorkerJobPayload,
     type IWorkerProcessorRegistry,
     type WorkerProcessor,
+    type WorkerRedisConnectionStatus,
     type WorkerQueueJobStatus,
     type IWorkerQueueService,
     type IWorkerRuntime,

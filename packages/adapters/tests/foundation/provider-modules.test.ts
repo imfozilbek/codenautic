@@ -38,6 +38,8 @@ import {
     WORKER_TOKENS,
     type IWorkerProcessorRegistry,
     type IWorkerQueueService,
+    type IWorkerRedisConnection,
+    type IWorkerRedisConnectionManager,
     type IWorkerRuntime,
     registerWorkerModule,
 } from "../../src/worker"
@@ -394,19 +396,56 @@ describe("Provider modules registration", () => {
                 }
             },
         }
+        const redisConnectionManager: IWorkerRedisConnectionManager = {
+            connect(): Promise<void> {
+                return Promise.resolve()
+            },
+            disconnect(): Promise<void> {
+                return Promise.resolve()
+            },
+            getConnection(): IWorkerRedisConnection {
+                return {
+                    connect(): Promise<void> {
+                        return Promise.resolve()
+                    },
+                    quit(): Promise<void> {
+                        return Promise.resolve()
+                    },
+                    ping(_message?: string): Promise<string> {
+                        return Promise.resolve("PONG")
+                    },
+                }
+            },
+            healthCheck(): ReturnType<IWorkerRedisConnectionManager["healthCheck"]> {
+                return Promise.resolve({
+                    status: "IDLE",
+                    isHealthy: false,
+                    poolSize: 0,
+                    connectedConnections: 0,
+                    degradedConnections: 0,
+                    lastFailure: null,
+                    checkedAt: new Date("2026-03-14T21:30:00.000Z"),
+                })
+            },
+        }
 
         registerWorkerModule(container, {
             queueService,
             processorRegistry,
+            redisConnectionManager,
             runtime,
         })
 
         const resolvedQueueService = container.resolve(WORKER_TOKENS.QueueService)
         const resolvedProcessorRegistry = container.resolve(WORKER_TOKENS.ProcessorRegistry)
+        const resolvedRedisConnectionManager = container.resolve(
+            WORKER_TOKENS.RedisConnectionManager,
+        )
         const resolvedRuntime = container.resolve(WORKER_TOKENS.Runtime)
 
         expect(resolvedQueueService).toBe(queueService)
         expect(resolvedProcessorRegistry).toBe(processorRegistry)
+        expect(resolvedRedisConnectionManager).toBe(redisConnectionManager)
         expect(resolvedRuntime).toBe(runtime)
     })
 

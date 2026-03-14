@@ -204,3 +204,110 @@ export interface IWorkerRuntime {
      */
     healthCheck(): IWorkerRuntimeHealth
 }
+
+/**
+ * Runtime lifecycle statuses for Redis connection manager.
+ */
+export const WORKER_REDIS_CONNECTION_STATUS = {
+    Idle: "IDLE",
+    Connecting: "CONNECTING",
+    Connected: "CONNECTED",
+    Degraded: "DEGRADED",
+    Disconnected: "DISCONNECTED",
+} as const
+
+/**
+ * Redis connection manager lifecycle status.
+ */
+export type WorkerRedisConnectionStatus =
+    (typeof WORKER_REDIS_CONNECTION_STATUS)[keyof typeof WORKER_REDIS_CONNECTION_STATUS]
+
+/**
+ * Minimal Redis connection contract required by worker infrastructure.
+ */
+export interface IWorkerRedisConnection {
+    /**
+     * Opens connection to Redis.
+     */
+    connect(): Promise<void>
+
+    /**
+     * Closes active Redis connection gracefully.
+     */
+    quit(): Promise<unknown>
+
+    /**
+     * Sends Redis ping command.
+     *
+     * @param message Optional ping payload.
+     * @returns Redis response payload.
+     */
+    ping(message?: string): Promise<string>
+}
+
+/**
+ * Health snapshot for worker Redis connection pool.
+ */
+export interface IWorkerRedisConnectionHealth {
+    /**
+     * Current pool status.
+     */
+    readonly status: WorkerRedisConnectionStatus
+
+    /**
+     * True when all pooled connections are healthy.
+     */
+    readonly isHealthy: boolean
+
+    /**
+     * Number of pooled connections currently managed.
+     */
+    readonly poolSize: number
+
+    /**
+     * Connections that passed ping check.
+     */
+    readonly connectedConnections: number
+
+    /**
+     * Connections that failed ping check.
+     */
+    readonly degradedConnections: number
+
+    /**
+     * Last captured failure message.
+     */
+    readonly lastFailure: string | null
+
+    /**
+     * Health check timestamp.
+     */
+    readonly checkedAt: Date
+}
+
+/**
+ * Redis connection manager contract used by worker adapters.
+ */
+export interface IWorkerRedisConnectionManager {
+    /**
+     * Initializes Redis connection pool.
+     */
+    connect(): Promise<void>
+
+    /**
+     * Closes Redis connection pool.
+     */
+    disconnect(): Promise<void>
+
+    /**
+     * Returns next connection from pool in round-robin order.
+     */
+    getConnection(): IWorkerRedisConnection
+
+    /**
+     * Returns current connection pool health snapshot.
+     *
+     * @returns Health data.
+     */
+    healthCheck(): Promise<IWorkerRedisConnectionHealth>
+}
