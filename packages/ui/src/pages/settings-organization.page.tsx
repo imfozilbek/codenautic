@@ -208,9 +208,7 @@ function OrganizationProfileCard(props: {
     return (
         <Card>
             <CardHeader>
-                <p className={TYPOGRAPHY.sectionTitle}>
-                    {t("settings:organization.profileTitle")}
-                </p>
+                <p className={TYPOGRAPHY.sectionTitle}>{t("settings:organization.profileTitle")}</p>
             </CardHeader>
             <CardBody className="space-y-3">
                 <div className="grid gap-3 md:grid-cols-3">
@@ -267,9 +265,7 @@ function BillingCard(props: {
     return (
         <Card>
             <CardHeader className="flex items-center justify-between">
-                <p className={TYPOGRAPHY.sectionTitle}>
-                    {t("settings:organization.billingTitle")}
-                </p>
+                <p className={TYPOGRAPHY.sectionTitle}>{t("settings:organization.billingTitle")}</p>
                 <Chip color={mapBillingStatusColor(props.billing.status)} size="sm" variant="flat">
                     {props.billing.status}
                 </Chip>
@@ -345,9 +341,7 @@ function MembersCard(props: {
     return (
         <Card>
             <CardHeader>
-                <p className={TYPOGRAPHY.sectionTitle}>
-                    {t("settings:organization.membersTitle")}
-                </p>
+                <p className={TYPOGRAPHY.sectionTitle}>{t("settings:organization.membersTitle")}</p>
             </CardHeader>
             <CardBody className="space-y-3">
                 <div className="grid gap-3 md:grid-cols-[1fr_180px_auto]">
@@ -464,9 +458,7 @@ function ByokCard(props: {
     return (
         <Card>
             <CardHeader>
-                <p className={TYPOGRAPHY.sectionTitle}>
-                    {t("settings:organization.byokTitle")}
-                </p>
+                <p className={TYPOGRAPHY.sectionTitle}>{t("settings:organization.byokTitle")}</p>
             </CardHeader>
             <CardBody className="space-y-3">
                 <p className="text-sm text-muted-foreground">

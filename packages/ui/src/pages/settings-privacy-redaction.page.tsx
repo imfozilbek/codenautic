@@ -28,11 +28,11 @@ const DETECTION_PATTERNS: ReadonlyArray<{
         type: "api_key",
     },
     {
-        pattern: /\b(?:token|bearer)\s*[:=]?\s*[A-Za-z0-9._-]{10,}\b/gi,
+        pattern: /\b(?:token|bearer)\s*[:=]?\s*[A-Za-z0-9._-]{10,256}\b/gi,
         type: "token",
     },
     {
-        pattern: /\b(?:secret|password)\s*[:=]\s*[^\s,;]{6,}\b/gi,
+        pattern: /\b(?:secret|password)\s*[:=]\s*[^\s,;]{6,256}\b/gi,
         type: "secret",
     },
 ]
@@ -76,7 +76,9 @@ export function SettingsPrivacyRedactionPage(): ReactElement {
     )
     const [redactedText, setRedactedText] = useState("")
     const [redactedSourceText, setRedactedSourceText] = useState("")
-    const [lastExportState, setLastExportState] = useState<string>(t("settings:privacyRedaction.noExportYet"))
+    const [lastExportState, setLastExportState] = useState<string>(
+        t("settings:privacyRedaction.noExportYet"),
+    )
 
     const sensitiveHits = useMemo((): ReadonlyArray<ISensitiveHit> => {
         return detectSensitiveFragments(sourceText)
@@ -103,9 +105,7 @@ export function SettingsPrivacyRedactionPage(): ReactElement {
             hasSensitiveData === true &&
             (redactedText.length === 0 || redactedSourceText !== sourceText)
         ) {
-            setLastExportState(
-                t("settings:privacyRedaction.exportBlocked"),
-            )
+            setLastExportState(t("settings:privacyRedaction.exportBlocked"))
             showToastError(t("settings:privacyRedaction.toast.exportBlocked"))
             return
         }
@@ -122,13 +122,20 @@ export function SettingsPrivacyRedactionPage(): ReactElement {
             title={t("settings:privacyRedaction.pageTitle")}
             description={t("settings:privacyRedaction.pageSubtitle")}
         >
-
             {hasSensitiveData ? (
-                <Alert color="danger" title={t("settings:privacyRedaction.sensitiveFragmentsDetectedTitle")} variant="flat">
+                <Alert
+                    color="danger"
+                    title={t("settings:privacyRedaction.sensitiveFragmentsDetectedTitle")}
+                    variant="flat"
+                >
                     {t("settings:privacyRedaction.sensitiveFragmentsDetectedDescription")}
                 </Alert>
             ) : (
-                <Alert color="success" title={t("settings:privacyRedaction.noSensitiveFragmentsTitle")} variant="flat">
+                <Alert
+                    color="success"
+                    title={t("settings:privacyRedaction.noSensitiveFragmentsTitle")}
+                    variant="flat"
+                >
                     {t("settings:privacyRedaction.noSensitiveFragmentsDescription")}
                 </Alert>
             )}
@@ -141,7 +148,9 @@ export function SettingsPrivacyRedactionPage(): ReactElement {
                     onValueChange={setSourceText}
                 />
                 <div className="flex flex-wrap gap-2">
-                    <Button color="primary" onPress={handleApplyRedaction}>{t("settings:privacyRedaction.applyRedactionSuggestions")}</Button>
+                    <Button color="primary" onPress={handleApplyRedaction}>
+                        {t("settings:privacyRedaction.applyRedactionSuggestions")}
+                    </Button>
                     <Button variant="flat" onPress={handleExport}>
                         {t("settings:privacyRedaction.confirmSafeExport")}
                     </Button>
@@ -177,7 +186,11 @@ export function SettingsPrivacyRedactionPage(): ReactElement {
                     minRows={6}
                     value={redactedText}
                 />
-                <Alert color="primary" title={t("settings:privacyRedaction.exportState")} variant="flat">
+                <Alert
+                    color="primary"
+                    title={t("settings:privacyRedaction.exportState")}
+                    variant="flat"
+                >
                     {lastExportState}
                 </Alert>
             </FormSection>
