@@ -24,6 +24,12 @@ export {
     type IBullMqQueueServiceOptions,
 } from "./bullmq-queue-service.impl"
 export {
+    BaseWorkerProcessor,
+    type IBaseWorkerProcessorOptions,
+    type IWorkerProcessorJob,
+    type IWorkerProcessorMetrics,
+} from "./base-worker-processor.impl"
+export {
     WorkerProcessorRegistry,
     type IWorkerProcessorRegistryOptions,
 } from "./worker-processor-registry.impl"
