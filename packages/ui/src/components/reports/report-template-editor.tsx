@@ -203,7 +203,10 @@ export function ReportTemplateEditor(): ReactElement {
                         />
                     </label>
                 </div>
-                <ul aria-label="Template sections list" className="space-y-2">
+                <ul
+                    aria-label={t("reports:ariaLabel.templateEditor.sectionsList")}
+                    className="space-y-2"
+                >
                     {sections.map(
                         (section): ReactElement => (
                             <li
@@ -264,7 +267,9 @@ export function ReportTemplateEditor(): ReactElement {
                     title={t("reports:templateEditor.templatePreviewTitle")}
                     variant="flat"
                 >
-                    <span aria-label="Template preview summary">{templatePreviewSummary}</span>
+                    <span aria-label={t("reports:ariaLabel.templateEditor.previewSummary")}>
+                        {templatePreviewSummary}
+                    </span>
                 </Alert>
                 <Button color="primary" onPress={handleSaveTemplate}>
                     {t("reports:templateEditor.saveTemplate")}
