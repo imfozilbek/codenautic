@@ -1,7 +1,7 @@
-import { lazy, Suspense, type ReactElement, useState } from "react"
+import { type ChangeEvent, lazy, Suspense, type ReactElement, useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import { Button, Textarea } from "@/components/ui"
+import { Button, TextArea } from "@heroui/react"
 import { TYPOGRAPHY } from "@/lib/constants/typography"
 import type { IRuleEditorMarkdownPreviewProps } from "./rule-editor-markdown-preview"
 
@@ -33,18 +33,16 @@ export function PromptOverrideEditor(props: IPromptOverrideEditorProps): ReactEl
             <p className={TYPOGRAPHY.captionMuted}>
                 {t("settings:promptOverrideEditor.description")}
             </p>
-            <Textarea
+            <TextArea
                 aria-label={t("settings:promptOverrideEditor.ariaLabel")}
-                minRows={5}
-                onValueChange={props.onChange}
+                onChange={(event: ChangeEvent<HTMLTextAreaElement>): void => { props.onChange(event.target.value) }}
                 placeholder={t("settings:promptOverrideEditor.placeholder")}
                 value={props.value}
             />
             <div className="flex flex-wrap gap-2">
                 <Button
-                    color="primary"
                     size="sm"
-                    variant="solid"
+                    variant="primary"
                     onPress={(): void => {
                         setIsPreviewVisible((previous): boolean => !previous)
                     }}
@@ -53,7 +51,7 @@ export function PromptOverrideEditor(props: IPromptOverrideEditorProps): ReactEl
                         ? t("settings:promptOverrideEditor.hidePromptPreview")
                         : t("settings:promptOverrideEditor.showPromptPreview")}
                 </Button>
-                <Button size="sm" variant="flat" onPress={props.onReset}>
+                <Button size="sm" variant="secondary" onPress={props.onReset}>
                     {t("settings:promptOverrideEditor.resetPromptOverride")}
                 </Button>
             </div>

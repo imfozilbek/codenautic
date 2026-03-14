@@ -1,7 +1,7 @@
 import { type ReactElement, useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
-import { Button } from "@/components/ui"
+import { Button } from "@heroui/react"
 import { TYPOGRAPHY } from "@/lib/constants/typography"
 import { REPO_REVIEW_MODE, type TRepoReviewMode } from "@/lib/api/endpoints/repo-config.endpoint"
 
@@ -101,10 +101,9 @@ export function ReviewCadenceSelector(props: IReviewCadenceSelectorProps): React
                 })}
             </p>
             <Button
-                color="primary"
+                variant="primary"
                 isDisabled={props.isApplyDisabled}
                 type="button"
-                variant="solid"
                 onPress={props.onApply}
             >
                 {t("settings:reviewCadenceSelector.applyCadenceMode")}
