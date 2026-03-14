@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next"
 
 import { TYPOGRAPHY } from "@/lib/constants/typography"
 import { PAGE_LAYOUT } from "@/lib/constants/spacing"
+import type { SupportedLocale } from "@/lib/i18n/i18n"
 import { FEATURE_FLAG_KEYS } from "@/lib/feature-flags/feature-flags"
 import { isFeatureFlagEnabled, useFeatureFlagsQuery, useHealthQuery } from "@/lib/hooks/queries"
 import { formatLocalizedDateTime, getCurrentLocale } from "@/lib/i18n/i18n"
@@ -55,8 +56,8 @@ function SystemHealthContent(props: {
     readonly hasError: boolean
     readonly healthQuery: ReturnType<typeof useHealthQuery>["healthQuery"]
     readonly isPremiumDashboardEnabled: boolean
-    readonly locale: string
-    readonly t: ReturnType<typeof useTranslation>["t"]
+    readonly locale: SupportedLocale
+    readonly t: (key: string) => string
 }): ReactElement {
     if (props.isPending === true) {
         return (
@@ -89,6 +90,10 @@ function SystemHealthContent(props: {
     }
 
     const healthData = props.healthQuery.data
+    if (healthData === undefined) {
+        return <p className="mt-4 text-base text-muted-foreground">—</p>
+    }
+
     const localizedTimestamp = formatLocalizedDateTime(
         healthData.timestamp,
         props.locale,
