@@ -1,7 +1,7 @@
 import type { ReactElement } from "react"
 import { useTranslation } from "react-i18next"
 
-import { Button, Card, CardBody, CardHeader, Chip } from "@/components/ui"
+import { Button, Card, CardContent, CardHeader, Chip } from "@heroui/react"
 import { TYPOGRAPHY } from "@/lib/constants/typography"
 import type {
     IExternalContextSource,
@@ -89,11 +89,11 @@ export function ContextSourceCard(props: IContextSourceCardProps): ReactElement 
                     <h3 className={`truncate ${TYPOGRAPHY.cardTitle}`}>{source.name}</h3>
                     <p className="text-xs text-foreground-500">{source.type}</p>
                 </div>
-                <Chip color={resolveStatusColor(source.status)} size="sm" variant="flat">
+                <Chip color={resolveStatusColor(source.status) === "success" ? "accent" : resolveStatusColor(source.status) === "warning" ? "accent" : undefined} size="sm" variant="soft">
                     {formatStatusLabel(source.status)}
                 </Chip>
             </CardHeader>
-            <CardBody className="space-y-3">
+            <CardContent className="space-y-3">
                 <p className="text-xs text-foreground-600">
                     {t("settings:contextSourceCard.itemsAndSync", {
                         items: source.itemCount,
@@ -104,9 +104,8 @@ export function ContextSourceCard(props: IContextSourceCardProps): ReactElement 
                 <div className="flex flex-wrap gap-2">
                     <Button
                         isDisabled={props.onToggleEnabled === undefined || props.isLoading === true}
-                        color="primary"
                         size="sm"
-                        variant={source.enabled ? "bordered" : "solid"}
+                        variant={source.enabled ? "outline" : "primary"}
                         onPress={(): void => {
                             if (props.onToggleEnabled === undefined) {
                                 return
@@ -121,7 +120,7 @@ export function ContextSourceCard(props: IContextSourceCardProps): ReactElement 
                     <Button
                         isDisabled={props.onRefresh === undefined || props.isLoading === true}
                         size="sm"
-                        variant="flat"
+                        variant="secondary"
                         onPress={(): void => {
                             if (props.onRefresh === undefined) {
                                 return
@@ -132,7 +131,7 @@ export function ContextSourceCard(props: IContextSourceCardProps): ReactElement 
                         {t("settings:contextSourceCard.refresh")}
                     </Button>
                 </div>
-            </CardBody>
+            </CardContent>
         </Card>
     )
 }

@@ -1,7 +1,7 @@
 import { type ReactElement } from "react"
 import { useTranslation } from "react-i18next"
 
-import { Button } from "@/components/ui"
+import { Button } from "@heroui/react"
 import { TYPOGRAPHY } from "@/lib/constants/typography"
 import type { TRepoReviewMode } from "@/lib/api/endpoints/repo-config.endpoint"
 
@@ -40,10 +40,9 @@ export function DryRunResultViewer(props: IDryRunResultViewerProps): ReactElemen
                 {t("settings:dryRunResultViewer.description")}
             </p>
             <Button
-                color="primary"
+                variant="primary"
                 isDisabled={props.isRunning === true}
                 type="button"
-                variant="solid"
                 onPress={props.onRunDryRun}
             >
                 {props.isRunning === true
