@@ -5,7 +5,8 @@ import { FileDependencyGraph } from "@/components/graphs/file-dependency-graph"
 import { CodeCityTreemap } from "@/components/graphs/codecity-treemap"
 import { FunctionClassCallGraph } from "@/components/graphs/function-class-call-graph"
 import { PackageDependencyGraph } from "@/components/graphs/package-dependency-graph"
-import { Alert, Button, Card, CardBody, CardHeader, Chip, StyledLink } from "@/components/ui"
+import { Alert, Button, Card, CardContent, CardHeader, Chip } from "@heroui/react"
+import { StyledLink } from "@/components/layout/styled-link"
 import { MetricsGrid } from "@/components/dashboard/metrics-grid"
 import { PageShell } from "@/components/layout/page-shell"
 import { NATIVE_FORM } from "@/lib/constants/spacing"
@@ -107,7 +108,7 @@ function TechnologyStackList(props: {
             <CardHeader>
                 <p className="text-sm font-semibold text-foreground">Tech stack</p>
             </CardHeader>
-            <CardBody className="space-y-3">
+            <CardContent className="space-y-3">
                 {props.stack.map(
                     (entry): ReactElement => (
                         <div className="space-y-0.5" key={`${entry.name}-${entry.version}`}>
@@ -118,7 +119,7 @@ function TechnologyStackList(props: {
                         </div>
                     ),
                 )}
-            </CardBody>
+            </CardContent>
         </Card>
     )
 }
@@ -137,7 +138,7 @@ function ArchitectureSummaryList(props: {
             <CardHeader>
                 <p className="text-sm font-semibold text-foreground">Architecture summary</p>
             </CardHeader>
-            <CardBody className="space-y-3">
+            <CardContent className="space-y-3">
                 {props.lines.map((line): ReactElement => {
                     const chipColor = mapRiskToChipColor(line.risk)
                     return (
@@ -152,7 +153,7 @@ function ArchitectureSummaryList(props: {
                         </section>
                     )
                 })}
-            </CardBody>
+            </CardContent>
         </Card>
     )
 }
@@ -166,7 +167,7 @@ function ArchitectureSummaryList(props: {
 function RepositoryOverviewNotFound(props: { readonly repositoryId: string }): ReactElement {
     return (
         <section className="space-y-3">
-            <Alert color="warning">Скан-результат репозитория не найден</Alert>
+            <Alert status="warning">Скан-результат репозитория не найден</Alert>
             <p className="text-sm text-foreground">
                 Не найдено overview для ID:{" "}
                 <span className="font-semibold">{props.repositoryId}</span>.
@@ -337,11 +338,11 @@ function RescanScheduleDialog(props: {
                 </p>
 
                 <div className="mt-4 flex justify-end gap-2">
-                    <Button color="default" onPress={props.onClose} type="button" variant="light">
+                    <Button onPress={props.onClose} type="button" variant="ghost">
                         Отменить
                     </Button>
                     <Button
-                        color="primary"
+                        variant="primary"
                         isDisabled={props.isSaveButtonDisabled}
                         onPress={props.onSave}
                         type="button"
@@ -493,7 +494,7 @@ export function RepositoryOverviewPage(props: IRepositoryOverviewProps): ReactEl
                 <CardHeader>
                     <p className="text-sm font-semibold text-foreground">Scan snapshot</p>
                 </CardHeader>
-                <CardBody className="grid gap-3 md:gap-4 lg:grid-cols-2">
+                <CardContent className="grid gap-3 md:gap-4 lg:grid-cols-2">
                     <div className="space-y-2">
                         <p className="text-sm text-foreground">Branch: {repository.branch}</p>
                         <p className="text-sm text-foreground">
@@ -512,14 +513,14 @@ export function RepositoryOverviewPage(props: IRepositoryOverviewProps): ReactEl
                         <Button
                             onPress={openRescheduleDialog}
                             className="mt-1"
-                            color="primary"
+                            variant="primary"
                             type="button"
                         >
                             Настроить расписание рескана
                         </Button>
                     </div>
                     <RepositoryHealthScore score={repository.healthScore} />
-                </CardBody>
+                </CardContent>
             </Card>
 
             {isRescheduleDialogOpen === true ? (
