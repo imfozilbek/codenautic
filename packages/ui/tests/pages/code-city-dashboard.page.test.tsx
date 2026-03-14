@@ -1844,7 +1844,7 @@ describe("CodeCityDashboardPage", (): void => {
     it("рендерит базовый dashboard с переключателями фильтров", (): void => {
         renderWithProviders(<CodeCityDashboardPage />)
 
-        expect(screen.getByText("CodeCity dashboard")).not.toBeNull()
+        expect(screen.getByRole("heading", { level: 1, name: "CodeCity dashboard" })).not.toBeNull()
         expect(screen.getByLabelText("Repository")).not.toBeNull()
         expect(screen.getByLabelText("Metric")).not.toBeNull()
         expect(screen.getByRole("option", { name: "platform-team/api-gateway" })).not.toBeNull()
