@@ -270,18 +270,22 @@ exports[`visual regression contract > фиксирует визуальный sh
 
 exports[`visual regression contract > фиксирует визуальный shell для help diagnostics после запуска checks 1`] = `
 <section
-  class="space-y-4"
+  class="space-y-6 mx-auto max-w-[1400px]"
 >
-  <h1
-    class="font-display text-2xl font-semibold text-foreground"
-  >
-    Help & diagnostics center
-  </h1>
-  <p
-    class="text-sm text-text-secondary"
-  >
-    Search help knowledge base, run diagnostics checks, and generate a redacted support bundle without losing workflow context.
-  </p>
+  <div>
+    <div>
+      <h1
+        class="font-display text-2xl font-semibold text-foreground"
+      >
+        Help & diagnostics center
+      </h1>
+      <p
+        class="text-sm text-text-secondary"
+      >
+        Search help knowledge base, run diagnostics checks, and generate a redacted support bundle without losing workflow context.
+      </p>
+    </div>
+  </div>
   <div
     class="card card--default"
     data-slot="card"
