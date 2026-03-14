@@ -1,8 +1,9 @@
 import { useEffect, useMemo, useState, type ChangeEvent, type ReactElement } from "react"
 import { useTranslation } from "react-i18next"
 
-import { Button, Card, CardBody, CardHeader } from "@/components/ui"
+import { Button, Card, CardBody } from "@/components/ui"
 import { EnterpriseDataTable } from "@/components/infrastructure/enterprise-data-table"
+import { PageShell } from "@/components/layout/page-shell"
 import { NATIVE_FORM } from "@/lib/constants/spacing"
 import { TYPOGRAPHY } from "@/lib/constants/typography"
 import { InfiniteScrollContainer } from "@/components/infrastructure/infinite-scroll-container"
@@ -97,7 +98,7 @@ const DEFAULT_ISSUES: ReadonlyArray<IIssueTrackingIssue> = [
         filePath: "src/api/repository.ts",
         id: "ISS-101",
         message: "Unhandled error path near data parser",
-        owner: "Alice",
+        owner: "Neo",
         repository: "platform-team/api-gateway",
         severity: "critical",
         status: "open",
@@ -108,7 +109,7 @@ const DEFAULT_ISSUES: ReadonlyArray<IIssueTrackingIssue> = [
         filePath: "src/components/chat-panel.tsx",
         id: "ISS-102",
         message: "Potential DOM injection in dynamic markdown renderer",
-        owner: "Bob",
+        owner: "Trinity",
         repository: "frontend-team/ui-dashboard",
         severity: "high",
         status: "in_progress",
@@ -119,7 +120,7 @@ const DEFAULT_ISSUES: ReadonlyArray<IIssueTrackingIssue> = [
         filePath: "src/workers/scan.ts",
         id: "ISS-103",
         message: "High churn + low review ratio in queue handler",
-        owner: "Cara",
+        owner: "Morpheus",
         repository: "backend-core/payment-worker",
         severity: "medium",
         status: "fixed",
@@ -130,7 +131,7 @@ const DEFAULT_ISSUES: ReadonlyArray<IIssueTrackingIssue> = [
         filePath: "src/pages/reviews.tsx",
         id: "ISS-104",
         message: "Unstable key usage in virtualized list",
-        owner: "Dan",
+        owner: "Cypher",
         repository: "frontend-team/ui-dashboard",
         severity: "low",
         status: "dismissed",
@@ -371,12 +372,8 @@ export function IssuesTrackingPage(props: IIssueTrackingPageProps = {}): ReactEl
     }
 
     return (
-        <section className="space-y-4">
-            <h1 className={TYPOGRAPHY.pageTitle}>{t("dashboard:issuesTracking.pageTitle")}</h1>
+        <PageShell layout="fluid" title={t("dashboard:issuesTracking.pageTitle")}>
             <Card>
-                <CardHeader>
-                    <p className={TYPOGRAPHY.cardTitle}>{t("dashboard:issuesTracking.cardTitle")}</p>
-                </CardHeader>
                 <CardBody className="space-y-3">
                     <div className="grid gap-3 md:grid-cols-4">
                         <input
@@ -425,7 +422,6 @@ export function IssuesTrackingPage(props: IIssueTrackingPageProps = {}): ReactEl
 
             <Card>
                 <CardBody className="space-y-2">
-                    <h2 className={TYPOGRAPHY.cardTitle}>{t("dashboard:issuesTracking.issueListTitle")}</h2>
                     <InfiniteScrollContainer
                         hasMore={hasMoreIssues}
                         isLoading={false}
@@ -556,6 +552,6 @@ export function IssuesTrackingPage(props: IIssueTrackingPageProps = {}): ReactEl
                     </InfiniteScrollContainer>
                 </CardBody>
             </Card>
-        </section>
+        </PageShell>
     )
 }
