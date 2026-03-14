@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next"
 import { DistrictTrendIndicators } from "@/components/graphs/district-trend-indicators"
 import { PredictionComparisonView } from "@/components/graphs/prediction-comparison-view"
 import { SprintComparisonView } from "@/components/graphs/sprint-comparison-view"
-import { Card, CardBody, CardHeader } from "@/components/ui"
+import { Card, CardContent, CardHeader } from "@heroui/react"
 
 import type { ICodeCityDashboardState } from "../use-code-city-dashboard-state"
 
@@ -33,7 +33,7 @@ export function ComparisonSection({ state }: IComparisonSectionProps): ReactElem
                         {t("code-city:comparison.predictionComparisonView")}
                     </p>
                 </CardHeader>
-                <CardBody>
+                <CardContent>
                     <PredictionComparisonView
                         activeSnapshotId={state.activePredictionComparisonSnapshotId}
                         onSelectSnapshot={(snapshot): void => {
@@ -54,7 +54,7 @@ export function ComparisonSection({ state }: IComparisonSectionProps): ReactElem
                         }}
                         snapshots={state.predictionComparisonSnapshots}
                     />
-                </CardBody>
+                </CardContent>
             </Card>
 
             <Card>
@@ -63,7 +63,7 @@ export function ComparisonSection({ state }: IComparisonSectionProps): ReactElem
                         {t("code-city:comparison.sprintComparisonView")}
                     </p>
                 </CardHeader>
-                <CardBody>
+                <CardContent>
                     <SprintComparisonView
                         activeSnapshotId={state.activeSprintComparisonSnapshotId}
                         onSelectSnapshot={(snapshot): void => {
@@ -84,7 +84,7 @@ export function ComparisonSection({ state }: IComparisonSectionProps): ReactElem
                         }}
                         snapshots={state.sprintComparisonSnapshots}
                     />
-                </CardBody>
+                </CardContent>
             </Card>
 
             <Card>
@@ -93,7 +93,7 @@ export function ComparisonSection({ state }: IComparisonSectionProps): ReactElem
                         {t("code-city:comparison.districtTrendIndicators")}
                     </p>
                 </CardHeader>
-                <CardBody>
+                <CardContent>
                     <DistrictTrendIndicators
                         activeDistrictId={state.activeDistrictTrendId}
                         entries={state.districtTrendIndicators}
@@ -111,7 +111,7 @@ export function ComparisonSection({ state }: IComparisonSectionProps): ReactElem
                             state.markAreaExplored("city-3d")
                         }}
                     />
-                </CardBody>
+                </CardContent>
             </Card>
         </>
     )

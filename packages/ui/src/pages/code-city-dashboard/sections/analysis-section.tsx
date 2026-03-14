@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next"
 import { ChangeRiskGauge } from "@/components/graphs/change-risk-gauge"
 import { ImpactGraphView } from "@/components/graphs/impact-graph-view"
 import { WhatIfPanel } from "@/components/graphs/what-if-panel"
-import { Card, CardBody, CardHeader } from "@/components/ui"
+import { Card, CardContent, CardHeader } from "@heroui/react"
 
 import type { ICodeCityDashboardState } from "../use-code-city-dashboard-state"
 
@@ -33,7 +33,7 @@ export function AnalysisSection({ state }: IAnalysisSectionProps): ReactElement 
                         {t("code-city:analysis.changeRiskGauge")}
                     </p>
                 </CardHeader>
-                <CardBody>
+                <CardContent>
                     <ChangeRiskGauge
                         currentScore={state.changeRiskGaugeModel.currentScore}
                         historicalPoints={state.changeRiskGaugeModel.historicalPoints}
@@ -54,7 +54,7 @@ export function AnalysisSection({ state }: IAnalysisSectionProps): ReactElement 
                             state.markAreaExplored("city-3d")
                         }}
                     />
-                </CardBody>
+                </CardContent>
             </Card>
 
             <Card>
@@ -63,7 +63,7 @@ export function AnalysisSection({ state }: IAnalysisSectionProps): ReactElement 
                         {t("code-city:analysis.impactGraphView")}
                     </p>
                 </CardHeader>
-                <CardBody>
+                <CardContent>
                     <ImpactGraphView
                         edges={state.impactGraphModel.edges}
                         nodes={state.impactGraphModel.nodes}
@@ -77,7 +77,7 @@ export function AnalysisSection({ state }: IAnalysisSectionProps): ReactElement 
                             state.markAreaExplored("city-3d")
                         }}
                     />
-                </CardBody>
+                </CardContent>
             </Card>
 
             <Card>
@@ -86,7 +86,7 @@ export function AnalysisSection({ state }: IAnalysisSectionProps): ReactElement 
                         {t("code-city:analysis.whatIfPanel")}
                     </p>
                 </CardHeader>
-                <CardBody>
+                <CardContent>
                     <WhatIfPanel
                         onRunScenario={(selection): void => {
                             const primaryFileId = selection.fileIds[0]
@@ -102,7 +102,7 @@ export function AnalysisSection({ state }: IAnalysisSectionProps): ReactElement 
                         }}
                         options={state.whatIfOptions}
                     />
-                </CardBody>
+                </CardContent>
             </Card>
         </>
     )
