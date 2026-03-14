@@ -2,6 +2,7 @@ import { type ChangeEvent, type DragEvent, type ReactElement, useMemo, useState 
 import { useTranslation } from "react-i18next"
 
 import { Alert, Button, Card, CardBody, CardHeader } from "@/components/ui"
+import { useDynamicTranslation } from "@/lib/i18n"
 import { REPORT_DEFAULT_ACCENT_COLOR } from "@/lib/constants/graph-colors"
 import { showToastInfo, showToastSuccess } from "@/lib/notifications/toast"
 
@@ -61,6 +62,7 @@ function reorderTemplateSections(
  */
 export function ReportTemplateEditor(): ReactElement {
     const { t } = useTranslation(["reports"])
+    const { td } = useDynamicTranslation(["reports"])
     const [templateName, setTemplateName] = useState<string>("Weekly engineering report")
     const [brandLogoUrl, setBrandLogoUrl] = useState<string>(
         "https://assets.codenautic.app/logo.svg",
@@ -76,21 +78,15 @@ export function ReportTemplateEditor(): ReactElement {
     }, [sections])
     const templatePreviewSummary = useMemo((): string => {
         const enabledSectionTitles = enabledSections
-            .map(
-                (section): string =>
-                    (t as unknown as (key: string) => string)(section.titleKey),
-            )
+            .map((section): string => td(section.titleKey))
             .join(" -> ")
-        return (t as unknown as (key: string, options: Record<string, string>) => string)(
-            "reports:templateEditor.templatePreview",
-            {
-                accent: brandAccentColor,
-                logo: brandLogoUrl,
-                name: templateName,
-                sections: enabledSectionTitles,
-            },
-        )
-    }, [brandAccentColor, brandLogoUrl, enabledSections, t, templateName])
+        return td("reports:templateEditor.templatePreview", {
+            accent: brandAccentColor,
+            logo: brandLogoUrl,
+            name: templateName,
+            sections: enabledSectionTitles,
+        })
+    }, [brandAccentColor, brandLogoUrl, enabledSections, td, templateName])
 
     const handleSectionToggle = (sectionId: string): void => {
         setSections((currentSections): ReadonlyArray<ITemplateSection> => {
@@ -147,10 +143,10 @@ export function ReportTemplateEditor(): ReactElement {
     }
     const handleSaveTemplate = (): void => {
         setStatus(
-            (t as unknown as (key: string, options: Record<string, string>) => string)(
-                "reports:templateEditor.templateSaved",
-                { count: String(enabledSections.length), name: templateName },
-            ),
+            td("reports:templateEditor.templateSaved", {
+                count: String(enabledSections.length),
+                name: templateName,
+            }),
         )
         showToastSuccess(t("reports:templateEditor.templateSavedToast"))
     }
@@ -234,9 +230,7 @@ export function ReportTemplateEditor(): ReactElement {
                                         }}
                                     />
                                     <span className="text-sm font-semibold text-foreground">
-                                        {(t as unknown as (key: string) => string)(
-                                            section.titleKey,
-                                        )}
+                                        {td(section.titleKey)}
                                     </span>
                                     <Button
                                         size="sm"
@@ -245,10 +239,9 @@ export function ReportTemplateEditor(): ReactElement {
                                             handleMoveSection(section.id, "up")
                                         }}
                                     >
-                                        {(t as unknown as (key: string, options: Record<string, string>) => string)(
-                                            "reports:templateEditor.moveUpSection",
-                                            { id: section.id },
-                                        )}
+                                        {td("reports:templateEditor.moveUpSection", {
+                                            id: section.id,
+                                        })}
                                     </Button>
                                     <Button
                                         size="sm"
@@ -257,10 +250,9 @@ export function ReportTemplateEditor(): ReactElement {
                                             handleMoveSection(section.id, "down")
                                         }}
                                     >
-                                        {(t as unknown as (key: string, options: Record<string, string>) => string)(
-                                            "reports:templateEditor.moveDownSection",
-                                            { id: section.id },
-                                        )}
+                                        {td("reports:templateEditor.moveDownSection", {
+                                            id: section.id,
+                                        })}
                                     </Button>
                                 </div>
                             </li>

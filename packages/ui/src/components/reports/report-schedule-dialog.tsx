@@ -2,6 +2,7 @@ import { type ChangeEvent, type ReactElement, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { Alert, Button, Card, CardBody, CardHeader } from "@/components/ui"
+import { useDynamicTranslation } from "@/lib/i18n"
 import { NATIVE_FORM } from "@/lib/constants/spacing"
 import { showToastInfo, showToastSuccess } from "@/lib/notifications/toast"
 
@@ -14,6 +15,7 @@ type TScheduleFormat = "pdf" | "png" | "html"
  */
 export function ReportScheduleDialog(): ReactElement {
     const { t } = useTranslation(["reports"])
+    const { td } = useDynamicTranslation(["reports"])
     const [isOpen, setIsOpen] = useState<boolean>(false)
     const [recipients, setRecipients] = useState<string>("team@codenautic.app")
     const [cronExpression, setCronExpression] = useState<string>("0 9 * * 1")
@@ -25,15 +27,12 @@ export function ReportScheduleDialog(): ReactElement {
             recipients.trim().length === 0
                 ? t("reports:scheduleDialog.noRecipients")
                 : recipients.trim()
-        return (t as unknown as (key: string, options: Record<string, string>) => string)(
-            "reports:scheduleDialog.schedulePreview",
-            {
-                cron: cronExpression,
-                format: format.toUpperCase(),
-                recipients: normalizedRecipients,
-            },
-        )
-    }, [cronExpression, format, recipients, t])
+        return td("reports:scheduleDialog.schedulePreview", {
+            cron: cronExpression,
+            format: format.toUpperCase(),
+            recipients: normalizedRecipients,
+        })
+    }, [cronExpression, format, recipients, td])
 
     const handleRecipientsChange = (event: ChangeEvent<HTMLInputElement>): void => {
         setRecipients(event.currentTarget.value)
@@ -43,10 +42,10 @@ export function ReportScheduleDialog(): ReactElement {
     }
     const handleSaveSchedule = (): void => {
         setStatus(
-            (t as unknown as (key: string, options: Record<string, string>) => string)(
-                "reports:scheduleDialog.scheduleSaved",
-                { cron: cronExpression, format: format.toUpperCase() },
-            ),
+            td("reports:scheduleDialog.scheduleSaved", {
+                cron: cronExpression,
+                format: format.toUpperCase(),
+            }),
         )
         showToastSuccess(t("reports:scheduleDialog.scheduleSavedToast"))
     }

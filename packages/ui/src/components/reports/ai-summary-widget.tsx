@@ -77,11 +77,7 @@ export function AiSummaryWidget(props: IAiSummaryWidgetProps): ReactElement {
                         {t("reports:aiSummary.copySummary")}
                     </Button>
                 </div>
-                <Alert
-                    color="primary"
-                    title={t("reports:aiSummary.statusTitle")}
-                    variant="flat"
-                >
+                <Alert color="primary" title={t("reports:aiSummary.statusTitle")} variant="flat">
                     {status}
                 </Alert>
             </CardBody>
