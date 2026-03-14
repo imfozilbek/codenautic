@@ -330,7 +330,14 @@ export function useSSEStream(props: IUseSSEStreamProps): IUseSSEStreamResult {
         source.addEventListener("done", onDone)
         source.addEventListener("stream-error", onStreamError)
 
-        listenersRef.current = { onOpen, onConnectionError, onMessage, onProgress, onDone, onStreamError }
+        listenersRef.current = {
+            onOpen,
+            onConnectionError,
+            onMessage,
+            onProgress,
+            onDone,
+            onStreamError,
+        }
     }, [
         appendEvent,
         clearReconnectTimer,

@@ -247,11 +247,7 @@ export function ThemeProvider(props: TThemeProviderProps): ReactElement {
         [mode, preset, resolvedMode, setMode, setPreset],
     )
 
-    return (
-        <ThemeContext.Provider value={contextValue}>
-            {children}
-        </ThemeContext.Provider>
-    )
+    return <ThemeContext.Provider value={contextValue}>{children}</ThemeContext.Provider>
 }
 
 /**

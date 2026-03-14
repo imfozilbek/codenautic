@@ -11,10 +11,7 @@
  * @param key - The storage key to read.
  * @returns The stored value, or `undefined` if absent or inaccessible.
  */
-export function safeStorageGet(
-    storage: Storage | undefined,
-    key: string,
-): string | undefined {
+export function safeStorageGet(storage: Storage | undefined, key: string): string | undefined {
     if (storage === undefined) {
         return undefined
     }
@@ -33,11 +30,7 @@ export function safeStorageGet(
  * @param value - The string value to store.
  * @returns `true` if the write succeeded, `false` otherwise.
  */
-export function safeStorageSet(
-    storage: Storage | undefined,
-    key: string,
-    value: string,
-): boolean {
+export function safeStorageSet(storage: Storage | undefined, key: string, value: string): boolean {
     if (storage === undefined) {
         return false
     }
@@ -56,10 +49,7 @@ export function safeStorageSet(
  * @param key - The storage key to remove.
  * @returns `true` if removal succeeded, `false` otherwise.
  */
-export function safeStorageRemove(
-    storage: Storage | undefined,
-    key: string,
-): boolean {
+export function safeStorageRemove(storage: Storage | undefined, key: string): boolean {
     if (storage === undefined) {
         return false
     }
@@ -79,11 +69,7 @@ export function safeStorageRemove(
  * @param fallback - Value returned when reading or parsing fails.
  * @returns Parsed value or the fallback.
  */
-export function safeStorageGetJson<T>(
-    storage: Storage | undefined,
-    key: string,
-    fallback: T,
-): T {
+export function safeStorageGetJson<T>(storage: Storage | undefined, key: string, fallback: T): T {
     const raw = safeStorageGet(storage, key)
     if (raw === undefined) {
         return fallback
