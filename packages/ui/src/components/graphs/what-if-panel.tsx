@@ -4,6 +4,11 @@ import { useTranslation } from "react-i18next"
 import { TYPOGRAPHY } from "@/lib/constants/typography"
 
 /**
+ * Максимум отображаемых what-if опций.
+ */
+const MAX_VISIBLE_WHAT_IF_OPTIONS = 6
+
+/**
  * Опция файла для what-if сценария.
  */
 export interface IWhatIfOption {
@@ -91,7 +96,7 @@ export function WhatIfPanel(props: IWhatIfPanelProps): ReactElement {
             <p className={`mt-1 ${TYPOGRAPHY.captionMuted}`}>{t("code-city:whatIf.description")}</p>
 
             <ul className="mt-3 space-y-2">
-                {props.options.slice(0, 6).map(
+                {props.options.slice(0, MAX_VISIBLE_WHAT_IF_OPTIONS).map(
                     (option): ReactElement => (
                         <li
                             className="flex items-start gap-2 rounded border border-border bg-surface p-2"

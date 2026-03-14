@@ -5,6 +5,11 @@ import type { IRefactoringTargetDescriptor } from "@/components/graphs/refactori
 import { TYPOGRAPHY } from "@/lib/constants/typography"
 
 /**
+ * Максимум отображаемых ROI-таргетов в калькуляторе.
+ */
+const MAX_VISIBLE_ROI_TARGETS = 6
+
+/**
  * Пропсы ROI calculator widget.
  */
 export interface IROICalculatorWidgetProps {
@@ -87,7 +92,7 @@ export function ROICalculatorWidget(props: IROICalculatorWidgetProps): ReactElem
             </p>
 
             <ul className="mt-3 space-y-2">
-                {props.targets.slice(0, 6).map(
+                {props.targets.slice(0, MAX_VISIBLE_ROI_TARGETS).map(
                     (target): ReactElement => (
                         <li
                             className="flex items-start gap-2 rounded border border-border bg-surface p-2"

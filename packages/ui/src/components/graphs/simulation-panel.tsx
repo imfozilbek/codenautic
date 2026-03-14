@@ -5,6 +5,16 @@ import type { IRefactoringTargetDescriptor } from "@/components/graphs/refactori
 import { TYPOGRAPHY } from "@/lib/constants/typography"
 
 /**
+ * Количество предвыбранных таргетов при инициализации панели.
+ */
+const DEFAULT_SELECTED_TARGETS_COUNT = 2
+
+/**
+ * Максимум отображаемых таргетов в simulation panel.
+ */
+const MAX_VISIBLE_SIMULATION_TARGETS = 5
+
+/**
  * Режим визуализации для панели симуляции.
  */
 export type TRefactoringSimulationMode = "before" | "after"
@@ -108,7 +118,9 @@ export function SimulationPanel(props: ISimulationPanelProps): ReactElement {
     const { t } = useTranslation(["code-city"])
     const [mode, setMode] = useState<TRefactoringSimulationMode>("before")
     const [selectedTargetIds, setSelectedTargetIds] = useState<ReadonlyArray<string>>(() => {
-        return props.targets.slice(0, 2).map((target): string => target.id)
+        return props.targets
+            .slice(0, DEFAULT_SELECTED_TARGETS_COUNT)
+            .map((target): string => target.id)
     })
 
     const selectedTargets = useMemo((): ReadonlyArray<IRefactoringTargetDescriptor> => {
@@ -167,7 +179,7 @@ export function SimulationPanel(props: ISimulationPanelProps): ReactElement {
             </p>
 
             <ul className="mt-3 space-y-2">
-                {props.targets.slice(0, 5).map(
+                {props.targets.slice(0, MAX_VISIBLE_SIMULATION_TARGETS).map(
                     (target): ReactElement => (
                         <li
                             className="flex items-start gap-2 rounded border border-border bg-surface p-2"
