@@ -14,11 +14,23 @@ export {
     type WorkerPayloadProcessor,
     type WorkerProcessorResolver,
 } from "./bullmq-worker-runtime.impl"
+export {
+    BullMqQueueService,
+    MAX_WORKER_QUEUE_PRIORITY,
+    type BullMqQueueFactory,
+    type IBullMqQueueFactoryOptions,
+    type IBullMqQueueInstance,
+    type IBullMqQueueJob,
+    type IBullMqQueueServiceOptions,
+} from "./bullmq-queue-service.impl"
 export {WORKER_TOKENS} from "./worker.tokens"
 export {
+    WORKER_QUEUE_JOB_STATUS,
     WORKER_RUNTIME_STATUS,
+    type IWorkerDequeuedJob,
     type IWorkerJobPayload,
     type IWorkerProcessorRegistry,
+    type WorkerQueueJobStatus,
     type IWorkerQueueService,
     type IWorkerRuntime,
     type IWorkerRuntimeHealth,

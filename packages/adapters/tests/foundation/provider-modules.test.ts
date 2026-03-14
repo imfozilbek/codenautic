@@ -358,6 +358,12 @@ describe("Provider modules registration", () => {
             enqueue(_payload): Promise<string> {
                 return Promise.resolve("job-1")
             },
+            dequeue(_limit?: number): Promise<readonly []> {
+                return Promise.resolve([])
+            },
+            getStatus(_jobId: string): Promise<null> {
+                return Promise.resolve(null)
+            },
         }
         const processorRegistry: IWorkerProcessorRegistry = {
             register(_jobType: string, _processor: (payload: unknown) => Promise<void>): void {

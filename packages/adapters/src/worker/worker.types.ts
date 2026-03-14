@@ -86,6 +86,51 @@ export interface IWorkerRuntimeHealth {
 }
 
 /**
+ * Queue job statuses exposed by queue service.
+ */
+export const WORKER_QUEUE_JOB_STATUS = {
+    Waiting: "WAITING",
+    Prioritized: "PRIORITIZED",
+    Active: "ACTIVE",
+    Completed: "COMPLETED",
+    Failed: "FAILED",
+    Delayed: "DELAYED",
+    Paused: "PAUSED",
+    Unknown: "UNKNOWN",
+} as const
+
+/**
+ * Queue job status.
+ */
+export type WorkerQueueJobStatus =
+    (typeof WORKER_QUEUE_JOB_STATUS)[keyof typeof WORKER_QUEUE_JOB_STATUS]
+
+/**
+ * Dequeued worker job representation.
+ */
+export interface IWorkerDequeuedJob {
+    /**
+     * Stable queue job identifier.
+     */
+    readonly id: string
+
+    /**
+     * Logical job type identifier.
+     */
+    readonly type: string
+
+    /**
+     * Original unvalidated payload.
+     */
+    readonly payload: unknown
+
+    /**
+     * Optional queue priority in app-level scale.
+     */
+    readonly priority?: number
+}
+
+/**
  * Queue service contract used by worker adapters.
  */
 export interface IWorkerQueueService {
@@ -96,6 +141,22 @@ export interface IWorkerQueueService {
      * @returns Stable queue job identifier.
      */
     enqueue(payload: IWorkerJobPayload): Promise<string>
+
+    /**
+     * Dequeues pending jobs from queue and removes them.
+     *
+     * @param limit Maximum number of jobs to dequeue.
+     * @returns Dequeued jobs.
+     */
+    dequeue(limit?: number): Promise<readonly IWorkerDequeuedJob[]>
+
+    /**
+     * Returns current queue status for one job.
+     *
+     * @param jobId Queue job identifier.
+     * @returns Job status or null when not found.
+     */
+    getStatus(jobId: string): Promise<WorkerQueueJobStatus | null>
 }
 
 /**
