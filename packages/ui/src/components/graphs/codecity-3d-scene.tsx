@@ -9,6 +9,7 @@ import {
 } from "react"
 import { useTranslation } from "react-i18next"
 
+import { useDynamicTranslation } from "@/lib/i18n"
 import { TYPOGRAPHY } from "@/lib/constants/typography"
 
 interface ICodeCity3DSceneFileDescriptor {
@@ -281,7 +282,7 @@ function resolveCodeCityRenderCapability(
  */
 export function CodeCity3DScene(props: ICodeCity3DSceneProps): ReactElement {
     const { t } = useTranslation(["code-city"])
-    const tDynamic = t as unknown as (key: string, options?: Record<string, string>) => string
+    const { td } = useDynamicTranslation(["code-city"])
     const [cameraPreset, setCameraPreset] = useState<TCodeCityCameraPreset>("bird-eye")
     const [causalReplayIndex, setCausalReplayIndex] = useState<number>(0)
     const [causalReplaySpeed, setCausalReplaySpeed] = useState<TCausalReplaySpeed>(1)
@@ -469,7 +470,7 @@ export function CodeCity3DScene(props: ICodeCity3DSceneProps): ReactElement {
                     className="rounded-lg border border-warning/40 bg-warning/10 px-3 py-2 text-sm text-warning"
                     role="status"
                 >
-                    {tDynamic(renderCapability.reason)}
+                    {td(renderCapability.reason)}
                 </div>
                 <div className="mt-3">
                     <p className={TYPOGRAPHY.cardTitle}>{t("code-city:scene3d.fallback2d")}</p>
@@ -497,10 +498,14 @@ export function CodeCity3DScene(props: ICodeCity3DSceneProps): ReactElement {
                                         {file.path}
                                     </p>
                                     <p className="mt-1 text-muted-foreground">
-                                        {tDynamic("code-city:scene3d.fallbackLoc", { value: String(file.loc ?? 0) })}
+                                        {td("code-city:scene3d.fallbackLoc", {
+                                            value: String(file.loc ?? 0),
+                                        })}
                                     </p>
                                     <p className="text-muted-foreground">
-                                        {tDynamic("code-city:scene3d.fallbackComplexity", { value: String(file.complexity ?? 0) })}
+                                        {td("code-city:scene3d.fallbackComplexity", {
+                                            value: String(file.complexity ?? 0),
+                                        })}
                                     </p>
                                 </article>
                             )
@@ -522,7 +527,9 @@ export function CodeCity3DScene(props: ICodeCity3DSceneProps): ReactElement {
                 {CAMERA_PRESET_OPTIONS.map(
                     (option): ReactElement => (
                         <button
-                            aria-label={tDynamic("code-city:scene3d.ariaCameraPreset", { label: tDynamic(option.labelKey) })}
+                            aria-label={td("code-city:scene3d.ariaCameraPreset", {
+                                label: td(option.labelKey),
+                            })}
                             aria-pressed={cameraPreset === option.id}
                             className={`rounded-md border px-2 py-1 text-xs font-medium transition ${
                                 cameraPreset === option.id
@@ -535,7 +542,7 @@ export function CodeCity3DScene(props: ICodeCity3DSceneProps): ReactElement {
                             }}
                             type="button"
                         >
-                            {tDynamic(option.labelKey)}
+                            {td(option.labelKey)}
                         </button>
                     ),
                 )}
@@ -544,7 +551,9 @@ export function CodeCity3DScene(props: ICodeCity3DSceneProps): ReactElement {
                 <aside className="absolute left-3 top-14 z-10 max-w-lg rounded-md border border-primary/50 bg-hud-surface/90 px-3 py-2 text-xs text-hud-text shadow-lg">
                     <p className="font-semibold text-hud-accent">
                         {props.navigationLabel !== undefined
-                            ? tDynamic("code-city:scene3d.rootCauseTrailWithLabel", { label: props.navigationLabel })
+                            ? td("code-city:scene3d.rootCauseTrailWithLabel", {
+                                  label: props.navigationLabel,
+                              })
                             : t("code-city:scene3d.rootCauseTrail")}
                     </p>
                     <p className="mt-1 text-hud-text-muted">
@@ -554,16 +563,24 @@ export function CodeCity3DScene(props: ICodeCity3DSceneProps): ReactElement {
             ) : null}
             <div className="absolute right-3 top-3 z-10 w-72 rounded-md border border-hud-border bg-hud-surface/90 p-2.5 text-xs text-hud-text shadow-lg">
                 <div className="flex items-center justify-between">
-                    <p className="font-semibold text-hud-accent">{t("code-city:scene3d.cityTimeLapse")}</p>
+                    <p className="font-semibold text-hud-accent">
+                        {t("code-city:scene3d.cityTimeLapse")}
+                    </p>
                     <button
-                        aria-label={isTimelinePlaying ? t("code-city:scene3d.ariaPauseTimeline") : t("code-city:scene3d.ariaPlayTimeline")}
+                        aria-label={
+                            isTimelinePlaying
+                                ? t("code-city:scene3d.ariaPauseTimeline")
+                                : t("code-city:scene3d.ariaPlayTimeline")
+                        }
                         className="rounded border border-hud-border px-2 py-0.5 text-xs text-hud-text hover:border-primary/40"
                         onClick={(): void => {
                             setIsTimelinePlaying((isPlaying): boolean => !isPlaying)
                         }}
                         type="button"
                     >
-                        {isTimelinePlaying ? t("code-city:scene3d.pause") : t("code-city:scene3d.play")}
+                        {isTimelinePlaying
+                            ? t("code-city:scene3d.pause")
+                            : t("code-city:scene3d.play")}
                     </button>
                 </div>
                 <p className="mt-2 text-hud-text-muted">{currentSnapshot?.label ?? "Commit #1"}</p>
@@ -585,12 +602,17 @@ export function CodeCity3DScene(props: ICodeCity3DSceneProps): ReactElement {
                     value={timelineIndex}
                 />
                 <p className="mt-1 text-hud-text-muted">
-                    {tDynamic("code-city:scene3d.filesCount", { current: String(currentSnapshot?.files.length ?? 0), total: String(props.files.length) })}
+                    {td("code-city:scene3d.filesCount", {
+                        current: String(currentSnapshot?.files.length ?? 0),
+                        total: String(props.files.length),
+                    })}
                 </p>
                 {causalTimelineEvents.length > 0 ? (
                     <div className="mt-3 border-t border-hud-border pt-2">
                         <div className="flex items-center justify-between">
-                            <p className="font-semibold text-hud-accent">{t("code-city:scene3d.causalReplay")}</p>
+                            <p className="font-semibold text-hud-accent">
+                                {t("code-city:scene3d.causalReplay")}
+                            </p>
                             <button
                                 aria-label={
                                     isCausalReplayPlaying
@@ -603,7 +625,9 @@ export function CodeCity3DScene(props: ICodeCity3DSceneProps): ReactElement {
                                 }}
                                 type="button"
                             >
-                                {isCausalReplayPlaying ? t("code-city:scene3d.pause") : t("code-city:scene3d.play")}
+                                {isCausalReplayPlaying
+                                    ? t("code-city:scene3d.pause")
+                                    : t("code-city:scene3d.play")}
                             </button>
                         </div>
                         <p className="mt-2 break-all text-hud-text-muted">
@@ -630,7 +654,9 @@ export function CodeCity3DScene(props: ICodeCity3DSceneProps): ReactElement {
                             {CAUSAL_REPLAY_SPEED_OPTIONS.map(
                                 (speed): ReactElement => (
                                     <button
-                                        aria-label={tDynamic("code-city:scene3d.ariaCausalReplaySpeed", { speed: String(speed) })}
+                                        aria-label={td("code-city:scene3d.ariaCausalReplaySpeed", {
+                                            speed: String(speed),
+                                        })}
                                         aria-pressed={causalReplaySpeed === speed}
                                         className={`rounded border px-2 py-0.5 text-[11px] transition ${
                                             causalReplaySpeed === speed
@@ -649,24 +675,37 @@ export function CodeCity3DScene(props: ICodeCity3DSceneProps): ReactElement {
                             )}
                         </div>
                         <p className="mt-1 text-hud-text-muted">
-                            {tDynamic("code-city:scene3d.eventsCount", { current: String(Math.min(causalReplayIndex + 1, causalTimelineEvents.length)), total: String(causalTimelineEvents.length) })}
+                            {td("code-city:scene3d.eventsCount", {
+                                current: String(
+                                    Math.min(causalReplayIndex + 1, causalTimelineEvents.length),
+                                ),
+                                total: String(causalTimelineEvents.length),
+                            })}
                         </p>
                     </div>
                 ) : null}
             </div>
             {hoveredFile !== undefined ? (
                 <aside className="absolute bottom-3 left-3 z-10 rounded-md border border-primary/50 bg-hud-surface/90 px-3 py-2 text-xs text-hud-text shadow-lg">
-                    <p className="font-semibold text-hud-accent">{t("code-city:scene3d.hoverPreview")}</p>
+                    <p className="font-semibold text-hud-accent">
+                        {t("code-city:scene3d.hoverPreview")}
+                    </p>
                     <p className="mt-1">{hoveredFile.path}</p>
                     <p className="mt-1 text-hud-text-muted">
-                        {tDynamic("code-city:scene3d.hoverMetrics", { complexity: String(hoveredFile.complexity ?? 0), coverage: String(hoveredFile.coverage ?? 0), loc: String(hoveredFile.loc ?? 0) })}
+                        {td("code-city:scene3d.hoverMetrics", {
+                            complexity: String(hoveredFile.complexity ?? 0),
+                            coverage: String(hoveredFile.coverage ?? 0),
+                            loc: String(hoveredFile.loc ?? 0),
+                        })}
                     </p>
                 </aside>
             ) : null}
             {selectedFile !== undefined ? (
                 <aside className="absolute right-3 top-14 z-10 w-72 rounded-lg border border-hud-border bg-hud-surface/95 p-3 text-sm text-hud-text shadow-xl">
                     <div className="flex items-start justify-between gap-3">
-                        <p className="font-semibold text-hud-accent">{t("code-city:scene3d.fileDetails")}</p>
+                        <p className="font-semibold text-hud-accent">
+                            {t("code-city:scene3d.fileDetails")}
+                        </p>
                         <button
                             aria-label={t("code-city:scene3d.ariaCloseFileDetails")}
                             className="rounded border border-hud-border px-2 py-0.5 text-xs text-hud-text hover:border-border"
@@ -683,19 +722,25 @@ export function CodeCity3DScene(props: ICodeCity3DSceneProps): ReactElement {
                     </p>
                     <dl className="mt-3 grid grid-cols-2 gap-2 text-xs">
                         <div className="rounded border border-hud-border bg-hud-surface/70 p-2">
-                            <dt className="text-hud-text-muted">{t("code-city:scene3d.detailLoc")}</dt>
+                            <dt className="text-hud-text-muted">
+                                {t("code-city:scene3d.detailLoc")}
+                            </dt>
                             <dd className="mt-1 font-semibold text-hud-text">
                                 {String(selectedFile.loc ?? 0)}
                             </dd>
                         </div>
                         <div className="rounded border border-hud-border bg-hud-surface/70 p-2">
-                            <dt className="text-hud-text-muted">{t("code-city:scene3d.detailComplexity")}</dt>
+                            <dt className="text-hud-text-muted">
+                                {t("code-city:scene3d.detailComplexity")}
+                            </dt>
                             <dd className="mt-1 font-semibold text-hud-text">
                                 {String(selectedFile.complexity ?? 0)}
                             </dd>
                         </div>
                         <div className="col-span-2 rounded border border-hud-border bg-hud-surface/70 p-2">
-                            <dt className="text-hud-text-muted">{t("code-city:scene3d.detailCoverage")}</dt>
+                            <dt className="text-hud-text-muted">
+                                {t("code-city:scene3d.detailCoverage")}
+                            </dt>
                             <dd className="mt-1 font-semibold text-hud-text">
                                 {String(selectedFile.coverage ?? 0)}%
                             </dd>
