@@ -69,7 +69,7 @@ export function SidebarFooter(props: ISidebarFooterProps): ReactElement {
 
     return (
         <div className="mt-auto border-t border-border/40 pt-2">
-            <Dropdown placement="top-start">
+            <Dropdown>
                 <DropdownTrigger
                     className={`w-full gap-2 rounded-lg px-2 py-1.5 ${isCollapsed ? "justify-center min-w-0" : "justify-start"}`}
                     size="sm"
