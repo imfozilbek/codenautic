@@ -953,4 +953,3 @@ export function resolveFileLoc(file: ICodeCityTreemapFileDescriptor): number {
  * Уровень предсказанного риска для prediction overlay.
  */
 export type TCodeCityTreemapPredictionRiskLevel = "low" | "medium" | "high"
-

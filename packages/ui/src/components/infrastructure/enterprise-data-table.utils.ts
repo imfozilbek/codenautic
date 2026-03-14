@@ -150,9 +150,7 @@ export function readSavedView(tableId: string): IEnterpriseTableSavedView {
     const density = parsed.density === "compact" ? "compact" : "comfortable"
 
     return {
-        columnOrder: Array.isArray(parsed.columnOrder)
-            ? (parsed.columnOrder as string[])
-            : [],
+        columnOrder: Array.isArray(parsed.columnOrder) ? (parsed.columnOrder as string[]) : [],
         columnPinning: parseSavedColumnPinning(parsed.columnPinning),
         columnSizing: parseSavedColumnSizing(parsed.columnSizing),
         columnVisibility:

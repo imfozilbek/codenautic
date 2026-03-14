@@ -189,9 +189,7 @@ export function readLayoutSnapshot(): ILayerLayoutSnapshot | undefined {
         return undefined
     }
 
-    const rawSnapshot = globalThis.localStorage.getItem(
-        "ui.package-graph.layout.v1",
-    )
+    const rawSnapshot = globalThis.localStorage.getItem("ui.package-graph.layout.v1")
     if (rawSnapshot === null) {
         return undefined
     }
@@ -232,10 +230,7 @@ export function writeLayoutSnapshot(snapshot: ILayerLayoutSnapshot): void {
         return
     }
 
-    globalThis.localStorage.setItem(
-        "ui.package-graph.layout.v1",
-        JSON.stringify(snapshot),
-    )
+    globalThis.localStorage.setItem("ui.package-graph.layout.v1", JSON.stringify(snapshot))
 }
 
 /**

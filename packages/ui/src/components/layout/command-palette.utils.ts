@@ -85,10 +85,7 @@ export function readStringArrayFromStorage(storageKey: string): ReadonlyArray<st
  * @param storageKey - The localStorage key to write.
  * @param value - The string array to persist.
  */
-export function writeStringArrayToStorage(
-    storageKey: string,
-    value: ReadonlyArray<string>,
-): void {
+export function writeStringArrayToStorage(storageKey: string, value: ReadonlyArray<string>): void {
     if (typeof window === "undefined") {
         return
     }
