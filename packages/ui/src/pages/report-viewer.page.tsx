@@ -15,6 +15,7 @@ import {
 
 import { AiSummaryWidget } from "@/components/reports/ai-summary-widget"
 import { Alert, Button, Card, CardBody, CardHeader } from "@/components/ui"
+import { PageShell } from "@/components/layout/page-shell"
 import { NATIVE_FORM } from "@/lib/constants/spacing"
 import { TYPOGRAPHY } from "@/lib/constants/typography"
 import { ChartContainer } from "@/components/charts/chart-container"
@@ -133,11 +134,10 @@ export function ReportViewerPage(): ReactElement {
     }
 
     return (
-        <section className="space-y-4">
-            <h1 className={TYPOGRAPHY.pageTitle}>{t("reports:viewer.pageTitle")}</h1>
-            <p className={TYPOGRAPHY.pageSubtitle}>
-                {t("reports:viewer.pageSubtitle")}
-            </p>
+        <PageShell
+            subtitle={t("reports:viewer.pageSubtitle")}
+            title={t("reports:viewer.pageTitle")}
+        >
             <div className="flex flex-wrap gap-2">
                 <Button
                     size="sm"
@@ -205,7 +205,7 @@ export function ReportViewerPage(): ReactElement {
                             </select>
                         </label>
                         <div className="flex items-end gap-2">
-                            <Button onPress={(): void => handleDownload("PDF")}>
+                            <Button color="primary" onPress={(): void => handleDownload("PDF")}>
                                 {t("reports:viewer.downloadPdf")}
                             </Button>
                             <Button variant="flat" onPress={(): void => handleDownload("PNG")}>
@@ -267,7 +267,7 @@ export function ReportViewerPage(): ReactElement {
                         {downloadStatus}
                     </Alert>
                     <div className="flex gap-2">
-                        <Button onPress={handleGenerateShareLink}>
+                        <Button color="primary" onPress={handleGenerateShareLink}>
                             {t("reports:viewer.generateShareLink")}
                         </Button>
                     </div>
@@ -282,6 +282,6 @@ export function ReportViewerPage(): ReactElement {
             </Card>
 
             <AiSummaryWidget initialSummary="Delivery velocity improved while report risk score trended down across the selected period." />
-        </section>
+        </PageShell>
     )
 }
