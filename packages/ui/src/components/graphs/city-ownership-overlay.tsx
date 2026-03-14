@@ -79,7 +79,10 @@ export function CityOwnershipOverlay(props: ICityOwnershipOverlayProps): ReactEl
                 </button>
             </div>
 
-            <ul aria-label={t("code-city:cityOwnership.ariaLabelLegend")} className="mt-3 grid gap-2 sm:grid-cols-2">
+            <ul
+                aria-label={t("code-city:cityOwnership.ariaLabelLegend")}
+                className="mt-3 grid gap-2 sm:grid-cols-2"
+            >
                 {props.owners.map((owner): ReactElement => {
                     const isActive = props.activeOwnerId === owner.ownerId
                     const fileCount = owner.fileIds.length
@@ -87,7 +90,9 @@ export function CityOwnershipOverlay(props: ICityOwnershipOverlayProps): ReactEl
                     return (
                         <li key={owner.ownerId}>
                             <button
-                                aria-label={t("code-city:cityOwnership.ariaLabelFocus", { ownerName: owner.ownerName })}
+                                aria-label={t("code-city:cityOwnership.ariaLabelFocus", {
+                                    ownerName: owner.ownerName,
+                                })}
                                 className={resolveOwnerItemClassName(isActive)}
                                 type="button"
                                 onClick={(): void => {
@@ -106,7 +111,9 @@ export function CityOwnershipOverlay(props: ICityOwnershipOverlayProps): ReactEl
                                             {owner.ownerName}
                                         </p>
                                         <p className={TYPOGRAPHY.captionMuted}>
-                                            {t("code-city:cityOwnership.files", { count: fileCount })}
+                                            {t("code-city:cityOwnership.files", {
+                                                count: fileCount,
+                                            })}
                                         </p>
                                     </div>
                                     <span

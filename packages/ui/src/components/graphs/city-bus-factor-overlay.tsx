@@ -1,6 +1,7 @@
 import type { ReactElement } from "react"
 import { useTranslation } from "react-i18next"
 
+import { useDynamicTranslation } from "@/lib/i18n"
 import { TYPOGRAPHY } from "@/lib/constants/typography"
 
 /**
@@ -68,6 +69,7 @@ function resolveEntryClassName(isActive: boolean): string {
  */
 export function CityBusFactorOverlay(props: ICityBusFactorOverlayProps): ReactElement {
     const { t } = useTranslation(["code-city"])
+    const { td } = useDynamicTranslation(["code-city"])
     return (
         <section className="rounded-lg border border-border bg-surface p-3 shadow-sm">
             <p className={TYPOGRAPHY.cardTitle}>{t("code-city:cityBusFactor.title")}</p>
@@ -75,15 +77,20 @@ export function CityBusFactorOverlay(props: ICityBusFactorOverlayProps): ReactEl
                 {t("code-city:cityBusFactor.description")}
             </p>
 
-            <ul aria-label={t("code-city:cityBusFactor.ariaLabelDistricts")} className="mt-3 grid gap-2 sm:grid-cols-2">
+            <ul
+                aria-label={t("code-city:cityBusFactor.ariaLabelDistricts")}
+                className="mt-3 grid gap-2 sm:grid-cols-2"
+            >
                 {props.entries.map((entry): ReactElement => {
-                    const riskLabel = (t as unknown as (key: string) => string)(resolveBusFactorRiskKey(entry.busFactor))
+                    const riskLabel = td(resolveBusFactorRiskKey(entry.busFactor))
                     const isActive = props.activeDistrictId === entry.districtId
 
                     return (
                         <li key={entry.districtId}>
                             <button
-                                aria-label={t("code-city:cityBusFactor.ariaLabelInspect", { districtLabel: entry.districtLabel })}
+                                aria-label={t("code-city:cityBusFactor.ariaLabelInspect", {
+                                    districtLabel: entry.districtLabel,
+                                })}
                                 className={resolveEntryClassName(isActive)}
                                 type="button"
                                 onClick={(): void => {
@@ -96,7 +103,10 @@ export function CityBusFactorOverlay(props: ICityBusFactorOverlayProps): ReactEl
                                             {entry.districtLabel}
                                         </p>
                                         <p className={`mt-1 ${TYPOGRAPHY.captionMuted}`}>
-                                            {t("code-city:cityBusFactor.filesAndBusFactor", { fileCount: String(entry.fileCount), busFactor: String(entry.busFactor) })}
+                                            {t("code-city:cityBusFactor.filesAndBusFactor", {
+                                                fileCount: String(entry.fileCount),
+                                                busFactor: String(entry.busFactor),
+                                            })}
                                         </p>
                                     </div>
                                     <span

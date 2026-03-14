@@ -2,6 +2,7 @@ import type { ReactElement } from "react"
 import { useTranslation } from "react-i18next"
 
 import type { TCodeCityTreemapPredictionRiskLevel } from "@/components/graphs/codecity-treemap"
+import { useDynamicTranslation } from "@/lib/i18n"
 import { TYPOGRAPHY } from "@/lib/constants/typography"
 
 /**
@@ -74,6 +75,7 @@ function resolveRowClassName(
  */
 export function CityPredictionOverlay(props: ICityPredictionOverlayProps): ReactElement {
     const { t } = useTranslation(["code-city"])
+    const { td } = useDynamicTranslation(["code-city"])
     return (
         <section className="rounded-lg border border-border bg-surface p-3 shadow-sm">
             <p className={TYPOGRAPHY.cardTitle}>{t("code-city:cityPrediction.title")}</p>
@@ -81,15 +83,20 @@ export function CityPredictionOverlay(props: ICityPredictionOverlayProps): React
                 {t("code-city:cityPrediction.description")}
             </p>
 
-            <ul aria-label={t("code-city:cityPrediction.ariaLabelHotspots")} className="mt-3 space-y-2">
+            <ul
+                aria-label={t("code-city:cityPrediction.ariaLabelHotspots")}
+                className="mt-3 space-y-2"
+            >
                 {props.entries.map((entry): ReactElement => {
                     const isActive = props.activeFileId === entry.fileId
-                    const riskLabel = (t as unknown as (key: string) => string)(resolveRiskLabelKey(entry.riskLevel))
+                    const riskLabel = td(resolveRiskLabelKey(entry.riskLevel))
 
                     return (
                         <li key={entry.fileId}>
                             <button
-                                aria-label={t("code-city:cityPrediction.ariaLabelInspect", { label: entry.label })}
+                                aria-label={t("code-city:cityPrediction.ariaLabelInspect", {
+                                    label: entry.label,
+                                })}
                                 className={resolveRowClassName(isActive, entry.riskLevel)}
                                 onClick={(): void => {
                                     props.onSelectEntry?.(entry)
@@ -102,7 +109,10 @@ export function CityPredictionOverlay(props: ICityPredictionOverlayProps): React
                                             {entry.label}
                                         </p>
                                         <p className={`mt-1 ${TYPOGRAPHY.captionMuted}`}>
-                                            {t("code-city:cityPrediction.confidence", { score: String(entry.confidenceScore), reason: entry.reason })}
+                                            {t("code-city:cityPrediction.confidence", {
+                                                score: String(entry.confidenceScore),
+                                                reason: entry.reason,
+                                            })}
                                         </p>
                                     </div>
                                     <span

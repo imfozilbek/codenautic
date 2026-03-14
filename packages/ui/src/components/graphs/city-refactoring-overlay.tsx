@@ -72,9 +72,7 @@ export function CityRefactoringOverlay(props: ICityRefactoringOverlayProps): Rea
                         >
                             <div className="flex items-start justify-between gap-3">
                                 <div>
-                                    <p className={TYPOGRAPHY.cardTitle}>
-                                        {entry.label}
-                                    </p>
+                                    <p className={TYPOGRAPHY.cardTitle}>{entry.label}</p>
                                     <p className={`mt-1 ${TYPOGRAPHY.captionMuted}`}>
                                         {entry.details}
                                     </p>
@@ -86,7 +84,9 @@ export function CityRefactoringOverlay(props: ICityRefactoringOverlayProps): Rea
                                 </span>
                             </div>
                             <button
-                                aria-label={t("code-city:cityRefactoring.ariaLabelInspect", { label: entry.label })}
+                                aria-label={t("code-city:cityRefactoring.ariaLabelInspect", {
+                                    label: entry.label,
+                                })}
                                 className="mt-2 rounded border border-primary/40 bg-primary/20 px-2 py-1 text-xs font-semibold text-on-primary hover:border-primary"
                                 onClick={(): void => {
                                     props.onSelectEntry?.(entry)
