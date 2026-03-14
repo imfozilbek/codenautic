@@ -1522,6 +1522,7 @@ export function CcrReviewDetailPage(props: ICcrReviewDetailPageProps): ReactElem
                                                 aria-label={(t as unknown as (key: string, options: Record<string, string>) => string)("reviews:detail.quickActionAriaLabel", { reason: translatedFeedbackReasonLabels[reason] })}
                                                 size="sm"
                                                 type="button"
+                                                color="primary"
                                                 variant={isSelected ? "solid" : "flat"}
                                                 onPress={(): void => {
                                                     setSelectedFeedbackReason(reason)
