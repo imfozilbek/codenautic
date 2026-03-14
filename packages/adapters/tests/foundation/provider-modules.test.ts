@@ -1,6 +1,6 @@
 import {describe, expect, test} from "bun:test"
 
-import {Container, TOKENS} from "@codenautic/core"
+import {Container, TOKENS, type IOutboxRepository, UniqueId} from "@codenautic/core"
 
 import type {Connection} from "mongoose"
 
@@ -265,17 +265,39 @@ describe("Provider modules registration", () => {
         const container = new Container()
         const outboxWriter = new OutboxWriter()
         const inboxDeduplicator = new InboxDeduplicator()
+        const outboxRepository: IOutboxRepository = {
+            findById(_id): ReturnType<IOutboxRepository["findById"]> {
+                return Promise.resolve(null)
+            },
+            save(_entity): ReturnType<IOutboxRepository["save"]> {
+                return Promise.resolve()
+            },
+            findPending(_limit): ReturnType<IOutboxRepository["findPending"]> {
+                return Promise.resolve([])
+            },
+            markSent(_id: string | UniqueId): ReturnType<IOutboxRepository["markSent"]> {
+                return Promise.resolve()
+            },
+            markFailed(_id: string | UniqueId): ReturnType<IOutboxRepository["markFailed"]> {
+                return Promise.resolve()
+            },
+        }
 
         registerMessagingModule(container, {
             outboxWriter,
             inboxDeduplicator,
+            outboxRepository,
         })
 
         const resolvedOutboxWriter = container.resolve(MESSAGING_TOKENS.OutboxWriter)
         const resolvedInboxDeduplicator = container.resolve(MESSAGING_TOKENS.InboxDeduplicator)
+        const resolvedOutboxRepository = container.resolve(MESSAGING_TOKENS.OutboxRepository)
+        const resolvedCoreOutboxRepository = container.resolve(TOKENS.Messaging.OutboxRepository)
 
         expect(resolvedOutboxWriter).toBe(outboxWriter)
         expect(resolvedInboxDeduplicator).toBe(inboxDeduplicator)
+        expect(resolvedOutboxRepository).toBe(outboxRepository)
+        expect(resolvedCoreOutboxRepository).toBe(outboxRepository)
     })
 
     test("registerWorkerModule binds optional worker adapters", () => {

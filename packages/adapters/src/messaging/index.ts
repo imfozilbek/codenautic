@@ -17,3 +17,10 @@ export {
     type OutboxWriterStatus,
     OutboxWriter,
 } from "./outbox-writer.adapter"
+export {
+    type IMongoOutboxFindOptions,
+    type IMongoOutboxModel,
+    type IMongoOutboxRepositoryOptions,
+    type IOutboxMessageDocument,
+    MongoOutboxRepository,
+} from "./mongo-outbox-repository.adapter"

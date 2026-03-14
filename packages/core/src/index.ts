@@ -787,6 +787,16 @@ export {
     type ReviewIssueTicketStatus,
 } from "./domain/entities/review-issue-ticket.entity"
 export {
+    type IInboxMessageProps,
+    InboxMessage,
+} from "./domain/entities/inbox-message.entity"
+export {
+    OUTBOX_MESSAGE_STATUS,
+    type IOutboxMessageProps,
+    OutboxMessage,
+    type OutboxMessageStatus,
+} from "./domain/entities/outbox-message.entity"
+export {
     type IUserProps,
     User,
 } from "./domain/entities/user.entity"

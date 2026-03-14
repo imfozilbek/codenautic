@@ -1,4 +1,4 @@
-import {Container} from "@codenautic/core"
+import {Container, TOKENS, type IOutboxRepository} from "@codenautic/core"
 
 import {bindConstantSingleton} from "../shared/bind-constant-singleton"
 import type {InboxDeduplicator} from "./inbox-deduplicator.adapter"
@@ -18,6 +18,11 @@ export interface IRegisterMessagingModuleOptions {
      * Inbox deduplication adapter instance.
      */
     readonly inboxDeduplicator: InboxDeduplicator
+
+    /**
+     * Optional outbox repository implementation.
+     */
+    readonly outboxRepository?: IOutboxRepository
 }
 
 /**
@@ -36,5 +41,17 @@ export function registerMessagingModule(
         MESSAGING_TOKENS.InboxDeduplicator,
         options.inboxDeduplicator,
     )
-}
 
+    if (options.outboxRepository !== undefined) {
+        bindConstantSingleton(
+            container,
+            MESSAGING_TOKENS.OutboxRepository,
+            options.outboxRepository,
+        )
+        bindConstantSingleton(
+            container,
+            TOKENS.Messaging.OutboxRepository,
+            options.outboxRepository,
+        )
+    }
+}

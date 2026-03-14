@@ -115,7 +115,7 @@
 
 | ID | Задача | Статус | Результат | Acceptance Criteria |
 |----------|--------------------|--------|-----------|---------------------|
-| MSG-001 | Реализовать OutboxRepositoryImpl | TODO | Не начато | Реализация: MongoDB outbox repository. Готово, если: outbox repository сохраняет событие атомарно с бизнес-транзакцией, relay читает события пакетно и не публикует дубликаты при повторном запуске; DoD: `cd packages/adapters && bun run lint && bun run typecheck && bun test`. |
+| MSG-001 | Реализовать OutboxRepositoryImpl | DONE | Реализовано | Реализация: Добавлен `MongoOutboxRepository` (`src/messaging/mongo-outbox-repository.adapter.ts`) как реализация `IOutboxRepository`: `save/findById/findPending/markSent/markFailed`, пакетная выборка pending с limit+sort и корректные retry/status переходы через доменный `OutboxMessage`. Обновлены `MESSAGING_TOKENS` и `registerMessagingModule` (optional binding `OutboxRepository` + bridge в `TOKENS.Messaging.OutboxRepository`), обновлены barrel exports (`src/messaging/index.ts`, `src/index.ts`). Добавлены тесты `tests/messaging/mongo-outbox-repository.test.ts` и расширен foundation wiring test. Готово, если: outbox repository сохраняет событие атомарно с бизнес-транзакцией, relay читает события пакетно и не публикует дубликаты при повторном запуске; DoD: `cd packages/adapters && bun run lint && bun run typecheck && bun test`. |
 | MSG-002 | Реализовать outboxRelayServiceImpl | TODO | Не начато | Реализация: Outbox message relay implementation. Готово, если: relay service соблюдает retry/backoff политику, помечает permanently failed события и не блокирует очередь при единичных ошибках брокера; DoD: `cd packages/adapters && bun run lint && bun run typecheck && bun test`. |
 
 ---
