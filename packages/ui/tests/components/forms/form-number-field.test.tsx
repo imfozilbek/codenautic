@@ -50,7 +50,7 @@ describe("FormNumberField", (): void => {
     it("when rendered with default value, then displays value", (): void => {
         renderWithProviders(<NumberFieldHarness defaultValue={42} />)
 
-        const input = screen.getByRole("spinbutton", { name: "Limit" }) as HTMLInputElement
+        const input = screen.getByRole("spinbutton", { name: "Limit" })
         expect(input.value).toBe("42")
     })
 
@@ -68,7 +68,7 @@ describe("FormNumberField", (): void => {
     it("when input type is number, then renders with type number", (): void => {
         renderWithProviders(<NumberFieldHarness />)
 
-        const input = screen.getByRole("spinbutton", { name: "Limit" }) as HTMLInputElement
+        const input = screen.getByRole("spinbutton", { name: "Limit" })
         expect(input.type).toBe("number")
     })
 })
