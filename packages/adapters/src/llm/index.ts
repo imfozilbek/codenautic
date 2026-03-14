@@ -10,6 +10,16 @@ export {
     type LlmRateLimitTier,
 } from "./llm-rate-limiter"
 export {
+    LLM_RETRY_REASON,
+    withLlmRetry,
+    type ILlmRetryDlqEntry,
+    type ILlmRetryDlqWriter,
+    type ILlmRetryEvent,
+    type ILlmRetryOptions,
+    type INormalizedLlmRetryError,
+    type LlmRetryReason,
+} from "./llm-retry-wrapper"
+export {
     LLM_PROVIDER_TYPE,
     LlmProviderFactory,
     normalizeLlmProviderType,

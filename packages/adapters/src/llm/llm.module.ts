@@ -3,6 +3,7 @@ import {Container, type ILLMProvider} from "@codenautic/core"
 import {bindConstantSingleton} from "../shared/bind-constant-singleton"
 import type {ILlmProviderFactory} from "./llm-provider.factory"
 import {withLlmRateLimit, type ILlmRateLimitOptions} from "./llm-rate-limiter"
+import {withLlmRetry, type ILlmRetryOptions} from "./llm-retry-wrapper"
 import {LLM_TOKENS} from "./llm.tokens"
 
 /**
@@ -18,6 +19,11 @@ export interface IRegisterLlmModuleOptions {
      * Optional rate limiter configuration for provider calls.
      */
     readonly rateLimit?: ILlmRateLimitOptions
+
+    /**
+     * Optional retry policy configuration for provider calls.
+     */
+    readonly retry?: ILlmRetryOptions
 
     /**
      * Optional LLM provider factory.
@@ -52,9 +58,15 @@ export function registerLlmModule(container: Container, options: IRegisterLlmMod
  * @returns Decorated provider.
  */
 function resolveLlmProvider(options: IRegisterLlmModuleOptions): ILLMProvider {
-    if (options.rateLimit === undefined) {
-        return options.provider
+    let provider = options.provider
+
+    if (options.rateLimit !== undefined) {
+        provider = withLlmRateLimit(provider, options.rateLimit)
     }
 
-    return withLlmRateLimit(options.provider, options.rateLimit)
+    if (options.retry !== undefined) {
+        provider = withLlmRetry(provider, options.retry)
+    }
+
+    return provider
 }

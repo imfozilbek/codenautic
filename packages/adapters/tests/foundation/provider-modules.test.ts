@@ -317,6 +317,62 @@ describe("Provider modules registration", () => {
         expect(callCount).toBe(2)
     })
 
+    test("registerLlmModule applies optional llm retry wrapper", async () => {
+        let currentTimeMs = 0
+        let attempts = 0
+        const sleepDelays: number[] = []
+        const provider = createLlmProviderMock()
+        provider.chat = (): ReturnType<typeof provider.chat> => {
+            attempts += 1
+            if (attempts === 1) {
+                const retryableError = new Error("temporary llm failure") as Error & {
+                    statusCode: number
+                }
+                retryableError.statusCode = 500
+                return Promise.reject(retryableError)
+            }
+
+            return Promise.resolve({
+                content: "ok-retry",
+                usage: {
+                    input: 0,
+                    output: 0,
+                    total: 0,
+                },
+            })
+        }
+        const container = new Container()
+
+        registerLlmModule(container, {
+            provider,
+            retry: {
+                maxAttempts: 2,
+                baseDelayMs: 10,
+                now: (): number => currentTimeMs,
+                sleep: (delayMs: number): Promise<void> => {
+                    sleepDelays.push(delayMs)
+                    currentTimeMs += delayMs
+                    return Promise.resolve()
+                },
+            },
+        })
+
+        const resolvedProvider = container.resolve(LLM_TOKENS.Provider)
+        const response = await resolvedProvider.chat({
+            model: "gpt-4o",
+            messages: [
+                {
+                    role: "user",
+                    content: "retry",
+                },
+            ],
+        })
+
+        expect(response.content).toBe("ok-retry")
+        expect(attempts).toBe(2)
+        expect(sleepDelays).toEqual([10])
+    })
+
     test("registerLlmModule binds optional provider factory token", () => {
         const container = new Container()
         const provider = createLlmProviderMock()
