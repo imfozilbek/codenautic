@@ -62,7 +62,7 @@ function SystemHealthContent(props: {
     readonly t: (key: string) => string
 }): ReactElement {
     if (props.isPending === true) {
-        return <p className="mt-4 text-base text-muted-foreground">{props.t("common:loading")}</p>
+        return <p className="mt-4 text-base text-muted">{props.t("common:loading")}</p>
     }
 
     if (props.hasError === true) {
@@ -85,7 +85,7 @@ function SystemHealthContent(props: {
 
     const healthData = props.healthQuery.data
     if (healthData === undefined) {
-        return <p className="mt-4 text-base text-muted-foreground">—</p>
+        return <p className="mt-4 text-base text-muted">—</p>
     }
 
     const localizedTimestamp = formatLocalizedDateTime(healthData.timestamp, props.locale)
@@ -94,11 +94,11 @@ function SystemHealthContent(props: {
         <>
             <p className={`mt-3 ${TYPOGRAPHY.overline}`}>{props.t("system:healthStatus")}</p>
             <p className="mt-2 text-4xl font-bold text-success">{healthData.status}</p>
-            <p className="mt-4 text-sm text-muted-foreground">
+            <p className="mt-4 text-sm text-muted">
                 {props.t("system:service")}:{" "}
                 <span className="font-medium text-foreground">{healthData.service}</span>
             </p>
-            <p className="mt-1 text-sm text-muted-foreground">
+            <p className="mt-1 text-sm text-muted">
                 {props.t("system:timestamp")}:{" "}
                 <span className="font-medium text-foreground">{localizedTimestamp}</span>
             </p>
@@ -117,11 +117,11 @@ function SystemHealthContent(props: {
                         : props.t("system:premiumDisabled")}
                 </p>
                 {props.isPremiumDashboardEnabled === true ? (
-                    <p className="mt-1 text-sm text-muted-foreground">
+                    <p className="mt-1 text-sm text-muted">
                         {props.t("system:premiumEnabledDescription")}
                     </p>
                 ) : (
-                    <p className="mt-1 text-sm text-muted-foreground">
+                    <p className="mt-1 text-sm text-muted">
                         {props.t("system:premiumDisabledDescription")}
                     </p>
                 )}

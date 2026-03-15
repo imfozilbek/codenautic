@@ -38,11 +38,11 @@ export function SettingsPage(): ReactElement {
                     <motion.div key={group.key} variants={STAGGER_ITEM_VARIANTS}>
                         <Card className="h-full">
                             <CardHeader className="flex flex-row items-center gap-2">
-                                <span className="text-text-secondary">{group.icon}</span>
+                                <span className="text-muted">{group.icon}</span>
                                 <p className={TYPOGRAPHY.sectionTitle}>{group.label}</p>
                             </CardHeader>
                             <CardContent className="space-y-2 text-sm">
-                                <p className="text-text-tertiary">{group.description}</p>
+                                <p className="text-muted">{group.description}</p>
                                 <ul className="space-y-1">
                                     {group.items
                                         .filter((item) => item.to !== "/settings")
