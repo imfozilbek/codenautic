@@ -33,7 +33,7 @@ export function ControlsSection({ state }: IControlsSectionProps): ReactElement 
                 </p>
             </CardHeader>
             <CardContent className="space-y-3">
-                <p className="text-sm text-muted-foreground">{state.currentProfile.description}</p>
+                <p className="text-sm text-muted">{state.currentProfile.description}</p>
                 <div className="grid gap-3 md:grid-cols-2">
                     <label className="space-y-1" htmlFor="dashboard-repository">
                         <span className="text-sm font-semibold text-foreground">

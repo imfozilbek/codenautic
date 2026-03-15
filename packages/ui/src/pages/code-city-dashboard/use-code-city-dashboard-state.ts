@@ -517,7 +517,7 @@ export function useCodeCityDashboardState(initialRepositoryId?: string) {
             return undefined
         }
 
-        return "ring-2 ring-primary/80 ring-offset-2 ring-offset-surface"
+        return "ring-2 ring-accent/80 ring-offset-2 ring-offset-surface"
     }
 
     const handleTourNext = (): void => {
