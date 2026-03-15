@@ -202,9 +202,6 @@ function buildAuditCsv(entries: ReadonlyArray<IAuditLogEntry>): string {
 }
 
 function triggerCsvDownload(csvPayload: string, fileName: string): void {
-    if (typeof window === "undefined" || typeof document === "undefined") {
-        return
-    }
     if (typeof URL.createObjectURL !== "function") {
         return
     }
