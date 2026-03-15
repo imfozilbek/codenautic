@@ -77,7 +77,7 @@ describe("AchievementsPanel", (): void => {
 
         const buttons = container.querySelectorAll("button")
         const secondButton = buttons[1]
-        expect(secondButton?.className).toContain("border-primary")
+        expect(secondButton?.className).toContain("border-accent")
     })
 
     it("when achievements list is empty, then renders section without items", (): void => {
