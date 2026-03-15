@@ -1,9 +1,49 @@
 import { fireEvent, screen, waitFor } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
-import { describe, expect, it } from "vitest"
+import { describe, expect, it, vi } from "vitest"
 
 import { SettingsAppearancePage } from "@/pages/settings-appearance.page"
 import { renderWithProviders } from "../utils/render"
+
+const mockSetMode = vi.fn()
+const mockSetPreset = vi.fn()
+
+const mockState = {
+    mode: "system" as "dark" | "light" | "system",
+    preset: "sunrise" as string,
+    resolvedMode: "light" as "dark" | "light",
+}
+
+vi.mock("@/lib/theme/use-theme", () => ({
+    useTheme: (): {
+        mode: "dark" | "light" | "system"
+        preset: string
+        presets: ReadonlyArray<{ readonly id: string; readonly label: string }>
+        resolvedMode: "dark" | "light"
+        setMode: (m: string) => void
+        setPreset: (p: string) => void
+    } => ({
+        mode: mockState.mode,
+        preset: mockState.preset,
+        presets: [
+            { id: "moonstone", label: "Moonstone" },
+            { id: "cobalt", label: "Cobalt" },
+            { id: "forest", label: "Forest" },
+            { id: "sunrise", label: "Sunrise" },
+            { id: "graphite", label: "Graphite" },
+            { id: "aqua", label: "Aqua" },
+        ],
+        resolvedMode: mockState.resolvedMode,
+        setMode: (m: string): void => {
+            mockState.mode = m as "dark" | "light" | "system"
+            mockSetMode(m)
+        },
+        setPreset: (p: string): void => {
+            mockState.preset = p
+            mockSetPreset(p)
+        },
+    }),
+}))
 
 describe("SettingsAppearancePage", (): void => {
     it("переключает mode/preset, применяет advanced controls и сбрасывает тему к default", async (): Promise<void> => {
