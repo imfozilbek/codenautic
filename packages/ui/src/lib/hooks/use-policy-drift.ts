@@ -43,10 +43,6 @@ export function usePolicyDrift(): IPolicyDriftResult {
     }, [persistedRoleId, policyRoleOverride])
 
     useEffect((): (() => void) | void => {
-        if (typeof window === "undefined") {
-            return
-        }
-
         const handlePolicyDrift = (event: Event): void => {
             const customEvent = event as CustomEvent<unknown>
             const detail = customEvent.detail
