@@ -1,11 +1,13 @@
 import { type ChangeEvent, type ReactElement } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
+import { Controller } from "react-hook-form"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 import { z } from "zod"
 import { Button, Input, ListBox, ListBoxItem, Select, Switch } from "@heroui/react"
 
-import { FormField, type IFormSelectOption } from "@/components/forms"
+import { type IFormSelectOption } from "@/components/forms"
+import { TYPOGRAPHY } from "@/lib/constants/typography"
 import {
     CODE_REVIEW_CADENCE_OPTIONS,
     CODE_REVIEW_SEVERITY_OPTIONS,
@@ -61,192 +63,251 @@ export function CodeReviewForm(props: ICodeReviewFormProps): ReactElement {
 
     return (
         <form className="space-y-4" onSubmit={handleSubmit}>
-            <FormField
+            <Controller
                 control={form.control}
-                id="code-review-cadence"
-                label={t("settings:codeReviewForm.reviewCadence")}
                 name="cadence"
-                renderField={({
-                    field,
-                    hasError,
-                    fieldId,
-                    accessibilityLabel,
-                    ariaDescribedBy,
-                }): ReactElement => {
-                    const selectedKey = field.value === undefined ? null : String(field.value)
+                render={({ field, fieldState }): ReactElement => {
+                    const errorMessage =
+                        typeof fieldState.error?.message === "string"
+                            ? fieldState.error.message
+                            : undefined
+                    const hasError = errorMessage !== undefined
+                    const fieldId = "code-review-cadence"
+                    const helperId = `${fieldId}-helper`
+                    const selectedKey =
+                        field.value === undefined ? null : String(field.value)
+                    const label = t("settings:codeReviewForm.reviewCadence")
 
                     return (
-                        <Select
-                            aria-describedby={ariaDescribedBy}
-                            aria-label={accessibilityLabel}
-                            aria-invalid={hasError}
-                            name={field.name}
-                            id={fieldId}
-                            selectedKey={selectedKey}
-                            onSelectionChange={(key): void => {
-                                const nextValue = typeof key === "string" ? key : undefined
-                                field.onChange(nextValue)
-                            }}
-                        >
-                            <Select.Trigger>
-                                <Select.Value />
-                            </Select.Trigger>
-                            <Select.Popover>
-                                <ListBox>
-                                    {cadenceOptions.map(
-                                        (option): ReactElement => (
-                                            <ListBoxItem
-                                                key={option.value}
-                                                id={option.value}
-                                                textValue={option.label}
-                                                isDisabled={option.isDisabled}
-                                            >
-                                                <div className="flex flex-col">
-                                                    <span>{option.label}</span>
-                                                    {option.description === undefined ? null : (
-                                                        <span className="text-xs text-muted">
-                                                            {option.description}
-                                                        </span>
-                                                    )}
-                                                </div>
-                                            </ListBoxItem>
-                                        ),
-                                    )}
-                                </ListBox>
-                            </Select.Popover>
-                        </Select>
+                        <div className="flex flex-col gap-1.5">
+                            <label className={TYPOGRAPHY.label} htmlFor={fieldId}>
+                                {label}
+                            </label>
+                            <Select
+                                aria-label={label}
+                                aria-invalid={hasError}
+                                name={field.name}
+                                id={fieldId}
+                                selectedKey={selectedKey}
+                                onSelectionChange={(key): void => {
+                                    const nextValue =
+                                        typeof key === "string" ? key : undefined
+                                    field.onChange(nextValue)
+                                }}
+                            >
+                                <Select.Trigger>
+                                    <Select.Value />
+                                </Select.Trigger>
+                                <Select.Popover>
+                                    <ListBox>
+                                        {cadenceOptions.map(
+                                            (option): ReactElement => (
+                                                <ListBoxItem
+                                                    key={option.value}
+                                                    id={option.value}
+                                                    textValue={option.label}
+                                                    isDisabled={option.isDisabled}
+                                                >
+                                                    <div className="flex flex-col">
+                                                        <span>{option.label}</span>
+                                                        {option.description ===
+                                                        undefined ? null : (
+                                                            <span className="text-xs text-muted">
+                                                                {option.description}
+                                                            </span>
+                                                        )}
+                                                    </div>
+                                                </ListBoxItem>
+                                            ),
+                                        )}
+                                    </ListBox>
+                                </Select.Popover>
+                            </Select>
+                            <span id={helperId}>
+                                {hasError ? (
+                                    <p className="text-xs text-danger" role="alert">
+                                        {errorMessage}
+                                    </p>
+                                ) : null}
+                            </span>
+                        </div>
                     )
                 }}
             />
-            <FormField
+            <Controller
                 control={form.control}
-                id="code-review-severity"
-                label={t("settings:codeReviewForm.severityThreshold")}
                 name="severity"
-                renderField={({
-                    field,
-                    hasError,
-                    fieldId,
-                    accessibilityLabel,
-                    ariaDescribedBy,
-                }): ReactElement => {
-                    const selectedKey = field.value === undefined ? null : String(field.value)
+                render={({ field, fieldState }): ReactElement => {
+                    const errorMessage =
+                        typeof fieldState.error?.message === "string"
+                            ? fieldState.error.message
+                            : undefined
+                    const hasError = errorMessage !== undefined
+                    const fieldId = "code-review-severity"
+                    const helperId = `${fieldId}-helper`
+                    const selectedKey =
+                        field.value === undefined ? null : String(field.value)
+                    const label = t("settings:codeReviewForm.severityThreshold")
 
                     return (
-                        <Select
-                            aria-describedby={ariaDescribedBy}
-                            aria-label={accessibilityLabel}
-                            aria-invalid={hasError}
-                            name={field.name}
-                            id={fieldId}
-                            selectedKey={selectedKey}
-                            onSelectionChange={(key): void => {
-                                const nextValue = typeof key === "string" ? key : undefined
-                                field.onChange(nextValue)
-                            }}
-                        >
-                            <Select.Trigger>
-                                <Select.Value />
-                            </Select.Trigger>
-                            <Select.Popover>
-                                <ListBox>
-                                    {severityOptions.map(
-                                        (option): ReactElement => (
-                                            <ListBoxItem
-                                                key={option.value}
-                                                id={option.value}
-                                                textValue={option.label}
-                                                isDisabled={option.isDisabled}
-                                            >
-                                                <div className="flex flex-col">
-                                                    <span>{option.label}</span>
-                                                    {option.description === undefined ? null : (
-                                                        <span className="text-xs text-muted">
-                                                            {option.description}
-                                                        </span>
-                                                    )}
-                                                </div>
-                                            </ListBoxItem>
-                                        ),
-                                    )}
-                                </ListBox>
-                            </Select.Popover>
-                        </Select>
+                        <div className="flex flex-col gap-1.5">
+                            <label className={TYPOGRAPHY.label} htmlFor={fieldId}>
+                                {label}
+                            </label>
+                            <Select
+                                aria-label={label}
+                                aria-invalid={hasError}
+                                name={field.name}
+                                id={fieldId}
+                                selectedKey={selectedKey}
+                                onSelectionChange={(key): void => {
+                                    const nextValue =
+                                        typeof key === "string" ? key : undefined
+                                    field.onChange(nextValue)
+                                }}
+                            >
+                                <Select.Trigger>
+                                    <Select.Value />
+                                </Select.Trigger>
+                                <Select.Popover>
+                                    <ListBox>
+                                        {severityOptions.map(
+                                            (option): ReactElement => (
+                                                <ListBoxItem
+                                                    key={option.value}
+                                                    id={option.value}
+                                                    textValue={option.label}
+                                                    isDisabled={option.isDisabled}
+                                                >
+                                                    <div className="flex flex-col">
+                                                        <span>{option.label}</span>
+                                                        {option.description ===
+                                                        undefined ? null : (
+                                                            <span className="text-xs text-muted">
+                                                                {option.description}
+                                                            </span>
+                                                        )}
+                                                    </div>
+                                                </ListBoxItem>
+                                            ),
+                                        )}
+                                    </ListBox>
+                                </Select.Popover>
+                            </Select>
+                            <span id={helperId}>
+                                {hasError ? (
+                                    <p className="text-xs text-danger" role="alert">
+                                        {errorMessage}
+                                    </p>
+                                ) : null}
+                            </span>
+                        </div>
                     )
                 }}
             />
-            <FormField
+            <Controller
                 control={form.control}
-                id="code-review-suggestions-limit"
-                label={t("settings:codeReviewForm.suggestionsLimit")}
                 name="suggestionsLimit"
-                renderField={({
-                    field,
-                    hasError,
-                    fieldId,
-                    accessibilityLabel,
-                    ariaDescribedBy,
-                }): ReactElement => {
-                    const value = field.value === undefined ? "" : `${field.value as number}`
+                render={({ field, fieldState }): ReactElement => {
+                    const errorMessage =
+                        typeof fieldState.error?.message === "string"
+                            ? fieldState.error.message
+                            : undefined
+                    const hasError = errorMessage !== undefined
+                    const fieldId = "code-review-suggestions-limit"
+                    const helperId = `${fieldId}-helper`
+                    const value =
+                        field.value === undefined ? "" : `${field.value as number}`
+                    const label = t("settings:codeReviewForm.suggestionsLimit")
 
                     return (
-                        <Input
-                            aria-describedby={ariaDescribedBy}
-                            aria-label={accessibilityLabel}
-                            aria-invalid={hasError}
-                            id={fieldId}
-                            inputMode="decimal"
-                            min={1}
-                            name={field.name}
-                            placeholder={t("settings:codeReviewForm.suggestionsLimitPlaceholder")}
-                            type="number"
-                            value={value}
-                            onBlur={field.onBlur}
-                            onChange={(event: ChangeEvent<HTMLInputElement>): void => {
-                                const nextValue = event.target.value
+                        <div className="flex flex-col gap-1.5">
+                            <label className={TYPOGRAPHY.label} htmlFor={fieldId}>
+                                {label}
+                            </label>
+                            <Input
+                                aria-describedby={hasError ? helperId : undefined}
+                                aria-label={label}
+                                aria-invalid={hasError}
+                                id={fieldId}
+                                inputMode="decimal"
+                                min={1}
+                                name={field.name}
+                                placeholder={t(
+                                    "settings:codeReviewForm.suggestionsLimitPlaceholder",
+                                )}
+                                type="number"
+                                value={value}
+                                onBlur={field.onBlur}
+                                onChange={(
+                                    event: ChangeEvent<HTMLInputElement>,
+                                ): void => {
+                                    const nextValue = event.target.value
 
-                                if (nextValue === "") {
-                                    field.onChange(undefined)
-                                    return
-                                }
+                                    if (nextValue === "") {
+                                        field.onChange(undefined)
+                                        return
+                                    }
 
-                                const parsedNumber = Number(nextValue)
-                                if (Number.isNaN(parsedNumber) === true) {
-                                    field.onChange(undefined)
-                                    return
-                                }
+                                    const parsedNumber = Number(nextValue)
+                                    if (Number.isNaN(parsedNumber) === true) {
+                                        field.onChange(undefined)
+                                        return
+                                    }
 
-                                field.onChange(parsedNumber)
-                            }}
-                        />
+                                    field.onChange(parsedNumber)
+                                }}
+                            />
+                            <span id={helperId}>
+                                {hasError ? (
+                                    <p className="text-xs text-danger" role="alert">
+                                        {errorMessage}
+                                    </p>
+                                ) : null}
+                            </span>
+                        </div>
                     )
                 }}
             />
-            <FormField
+            <Controller
                 control={form.control}
-                gapClass="gap-1"
-                helperText={t("settings:codeReviewForm.enableDriftSignalsHelper")}
-                hideLabel={true}
-                label={t("settings:codeReviewForm.enableDriftSignals")}
                 name="enableDriftSignals"
-                showRequiredMarker={false}
-                renderField={({
-                    field,
-                    hasError,
-                    accessibilityLabel,
-                    ariaDescribedBy,
-                }): ReactElement => (
-                    <Switch
-                        aria-describedby={ariaDescribedBy}
-                        aria-label={accessibilityLabel}
-                        aria-invalid={hasError}
-                        name={field.name}
-                        isSelected={field.value === true}
-                        onChange={field.onChange}
-                    >
-                        {t("settings:codeReviewForm.enableDriftSignals")}
-                    </Switch>
-                )}
+                render={({ field, fieldState }): ReactElement => {
+                    const errorMessage =
+                        typeof fieldState.error?.message === "string"
+                            ? fieldState.error.message
+                            : undefined
+                    const hasError = errorMessage !== undefined
+                    const helperId = "enableDriftSignals-helper"
+                    const label = t("settings:codeReviewForm.enableDriftSignals")
+                    const helperText = t(
+                        "settings:codeReviewForm.enableDriftSignalsHelper",
+                    )
+
+                    return (
+                        <div className="flex flex-col gap-1">
+                            <Switch
+                                aria-describedby={helperId}
+                                aria-label={label}
+                                aria-invalid={hasError}
+                                name={field.name}
+                                isSelected={field.value === true}
+                                onChange={field.onChange}
+                            >
+                                {label}
+                            </Switch>
+                            <span id={helperId}>
+                                {hasError ? (
+                                    <p className="text-xs text-danger" role="alert">
+                                        {errorMessage}
+                                    </p>
+                                ) : (
+                                    <p className="text-xs text-muted">{helperText}</p>
+                                )}
+                            </span>
+                        </div>
+                    )
+                }}
             />
             <Button
                 aria-busy={form.formState.isSubmitting}
