@@ -1,6 +1,43 @@
 import { screen, waitFor, within } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
-import { describe, expect, it } from "vitest"
+import { describe, expect, it, vi } from "vitest"
+
+import type { ICreateReportRequest, IReport, IReportsListResponse } from "@/lib/api/endpoints/reports.endpoint"
+import type { IUseReportsResult } from "@/lib/hooks/queries/use-reports"
+
+const mockCreateReport = vi.fn()
+
+vi.mock("@/lib/hooks/queries/use-reports", () => {
+    return {
+        useReports: (): IUseReportsResult => {
+            return {
+                reportsQuery: {
+                    data: { reports: [], total: 0 } satisfies IReportsListResponse,
+                    isLoading: false,
+                    isError: false,
+                    error: null,
+                } as unknown as IUseReportsResult["reportsQuery"],
+                createReport: {
+                    mutate: (
+                        request: ICreateReportRequest,
+                        options?: { readonly onSuccess?: () => void },
+                    ): void => {
+                        mockCreateReport(request)
+                        if (options?.onSuccess !== undefined) {
+                            options.onSuccess()
+                        }
+                    },
+                    isPending: false,
+                } as unknown as IUseReportsResult["createReport"],
+                deleteReport: {
+                    mutate: vi.fn(),
+                    isPending: false,
+                } as unknown as IUseReportsResult["deleteReport"],
+            }
+        },
+        useReportData: vi.fn(),
+    }
+})
 
 import { ReportGeneratorPage } from "@/pages/report-generator.page"
 import { renderWithProviders } from "../utils/render"
