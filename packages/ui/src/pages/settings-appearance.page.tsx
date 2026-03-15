@@ -478,10 +478,6 @@ export function SettingsAppearancePage(): ReactElement {
     }, [accentColor, accentIntensity, effectiveAccentColor, formRadius, globalRadius, mode, preset])
 
     useEffect((): (() => void) | void => {
-        if (typeof window === "undefined") {
-            return undefined
-        }
-
         const onKeyDown = (event: KeyboardEvent): void => {
             const isRandomHotkey = event.altKey && event.key.toLowerCase() === "r"
             if (isRandomHotkey !== true) {
@@ -517,10 +513,6 @@ export function SettingsAppearancePage(): ReactElement {
     }, [availablePresetIds, favoritePresetId])
 
     useEffect((): void => {
-        if (typeof window === "undefined") {
-            return
-        }
-
         writeLocalStorageItem(APPEARANCE_LIBRARY_STORAGE_KEY, JSON.stringify(themeLibrary))
         if (favoritePresetId !== undefined) {
             writeLocalStorageItem(APPEARANCE_LIBRARY_FAVORITE_PRESET_STORAGE_KEY, favoritePresetId)
