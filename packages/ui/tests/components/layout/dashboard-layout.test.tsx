@@ -62,24 +62,10 @@ vi.mock("@/lib/hooks/use-dashboard-shortcuts", () => ({
     }),
 }))
 
-vi.mock("@/lib/motion", async (importOriginal) => {
-    const actual = await importOriginal<typeof import("@/lib/motion")>()
+vi.mock("motion/react", async (importOriginal) => {
+    const actual = await importOriginal<typeof import("motion/react")>()
     return {
         ...actual,
-        AnimatedAlert: ({
-            children,
-            isVisible,
-        }: {
-            readonly children: React.ReactNode
-            readonly isVisible: boolean
-        }): React.ReactElement | null => (isVisible ? <div>{children}</div> : null),
-        AnimatedMount: ({
-            children,
-        }: {
-            readonly children: React.ReactNode
-        }): React.ReactElement => <div>{children}</div>,
-        DURATION: { normal: 0 },
-        EASING: { move: [0, 0, 1, 1] },
         useReducedMotion: (): boolean => true,
     }
 })
