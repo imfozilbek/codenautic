@@ -134,7 +134,7 @@ export function useDashboardShortcuts(): IDashboardShortcutsResult {
     )
 
     useHotkeys(
-        "shift+/",
+        "?",
         (): void => {
             setIsShortcutsHelpOpen(true)
         },
