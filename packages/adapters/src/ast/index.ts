@@ -112,6 +112,12 @@ export {
     type IAstStreamingMetricsCollectorErrorDetails,
 } from "./ast-streaming-metrics-collector.error"
 export {
+    AST_GARBAGE_COLLECTION_TRIGGER_ERROR_CODE,
+    AstGarbageCollectionTriggerError,
+    type AstGarbageCollectionTriggerErrorCode,
+    type IAstGarbageCollectionTriggerErrorDetails,
+} from "./ast-garbage-collection-trigger.error"
+export {
     AST_WORKER_TASK_EXECUTOR_ERROR_CODE,
     AstWorkerTaskExecutorError,
     type AstWorkerTaskExecutorErrorCode,
@@ -406,6 +412,21 @@ export {
     type IAstStreamingMetricsCollectorServiceOptions,
     type IAstStreamingMetricsCollectorSnapshot,
 } from "./ast-streaming-metrics-collector.service"
+export {
+    AstGarbageCollectionTriggerService,
+    type AstGarbageCollectionInvoker,
+    type AstGarbageCollectionSnapshotProvider,
+    type AstGarbageCollectionTriggerClearInterval,
+    type AstGarbageCollectionTriggerNow,
+    type AstGarbageCollectionTriggerSetInterval,
+    type AstGarbageCollectionTriggerShouldRetry,
+    type AstGarbageCollectionTriggerSleep,
+    type IAstGarbageCollectionMemorySample,
+    type IAstGarbageCollectionTriggerRetryPolicy,
+    type IAstGarbageCollectionTriggerService,
+    type IAstGarbageCollectionTriggerServiceOptions,
+    type IAstGarbageCollectionTriggerStatus,
+} from "./ast-garbage-collection-trigger.service"
 export {
     AstWorkerTaskExecutorService,
     type AstWorkerTaskExecutorNow,

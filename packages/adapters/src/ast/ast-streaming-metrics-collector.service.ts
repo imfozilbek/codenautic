@@ -507,9 +507,14 @@ export class AstStreamingMetricsCollectorService implements IAstStreamingMetrics
         }
 
         this.inFlightByIdempotencyKey.set(idempotencyKey, promise)
-        void promise.finally(() => {
-            this.inFlightByIdempotencyKey.delete(idempotencyKey)
-        })
+        void promise.then(
+            () => {
+                this.inFlightByIdempotencyKey.delete(idempotencyKey)
+            },
+            () => {
+                this.inFlightByIdempotencyKey.delete(idempotencyKey)
+            },
+        )
     }
 
     /**
