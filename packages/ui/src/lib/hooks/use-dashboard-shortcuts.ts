@@ -138,7 +138,7 @@ export function useDashboardShortcuts(): IDashboardShortcutsResult {
         (): void => {
             setIsShortcutsHelpOpen(true)
         },
-        { preventDefault: true },
+        { preventDefault: true, useKey: true },
     )
 
     const conflicts = useMemo((): ReadonlyArray<IShortcutConflict> => {
