@@ -10,7 +10,7 @@ import type { SupportedLocale } from "@/lib/i18n"
 /**
  * Общий префикс для всех ключей localStorage раздела appearance.
  */
-export const APPEARANCE_STORAGE_PREFIX = "codenautic:ui:appearance"
+export const APPEARANCE_STORAGE_PREFIX = "cn:appearance"
 
 /**
  * Ключ localStorage для accent-цвета.
