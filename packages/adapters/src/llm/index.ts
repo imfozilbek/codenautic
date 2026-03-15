@@ -150,6 +150,18 @@ export {
     type LangSmithTracerErrorCode,
 } from "./langsmith-tracer.error"
 export {
+    PromptTemplateManager,
+    type IPromptTemplateDefinition,
+    type IPromptTemplateManager,
+    type PromptTemplateVariables,
+} from "./prompt-template-manager"
+export {
+    PROMPT_TEMPLATE_MANAGER_ERROR_CODE,
+    PromptTemplateManagerError,
+    type IPromptTemplateManagerErrorDetails,
+    type PromptTemplateManagerErrorCode,
+} from "./prompt-template-manager.error"
+export {
     AnthropicRequestAcl,
     AnthropicResponseAcl,
     LLM_ACL_PROVIDER,
