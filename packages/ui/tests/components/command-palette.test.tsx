@@ -8,8 +8,8 @@ import {
 } from "@/components/layout/command-palette"
 import { renderWithProviders } from "../utils/render"
 
-const RECENT_STORAGE_KEY = "codenautic:ui:command-palette:recent:v1"
-const PINNED_STORAGE_KEY = "codenautic:ui:command-palette:pinned:v1"
+const RECENT_STORAGE_KEY = "cn:command-palette:recent:v1"
+const PINNED_STORAGE_KEY = "cn:command-palette:pinned:v1"
 
 const sampleRoutes: ReadonlyArray<ICommandPaletteRouteOption> = [
     { label: "Dashboard", path: "/" },
