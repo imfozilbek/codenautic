@@ -94,6 +94,12 @@ export {
     type IAstCyclomaticComplexityErrorDetails,
 } from "./ast-cyclomatic-complexity.error"
 export {
+    AST_CHURN_CALCULATOR_ERROR_CODE,
+    AstChurnCalculatorError,
+    type AstChurnCalculatorErrorCode,
+    type IAstChurnCalculatorErrorDetails,
+} from "./ast-churn-calculator.error"
+export {
     AST_SERVICE_MULTI_REPO_GRAPH_FEDERATION_ERROR_CODE,
     AstServiceMultiRepoGraphFederationError,
     type AstServiceMultiRepoGraphFederationErrorCode,
@@ -491,6 +497,17 @@ export {
     type IAstLocCalculatorService,
     type IAstLocCalculatorSummary,
 } from "./ast-loc-calculator.service"
+export {
+    AstChurnCalculatorService,
+    type AstChurnCalculatorExecuteGit,
+    type AstChurnCalculatorNow,
+    type IAstChurnCalculatorInput,
+    type IAstChurnCalculatorItem,
+    type IAstChurnCalculatorResult,
+    type IAstChurnCalculatorService,
+    type IAstChurnCalculatorServiceOptions,
+    type IAstChurnCalculatorSummary,
+} from "./ast-churn-calculator.service"
 export {
     AstCyclomaticComplexityService,
     type IAstCyclomaticComplexityFileInput,
