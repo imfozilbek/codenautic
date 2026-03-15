@@ -1,6 +1,99 @@
 import { screen, waitFor, within } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
-import { describe, expect, it } from "vitest"
+import { describe, expect, it, vi } from "vitest"
+
+import type { IUseWebhooksResult } from "@/lib/hooks/queries/use-webhooks"
+
+vi.mock("@/lib/hooks/queries/use-webhooks", () => {
+    return {
+        useWebhooks: (): IUseWebhooksResult => {
+            return {
+                webhooksQuery: {
+                    data: {
+                        webhooks: [
+                            {
+                                eventTypes: ["review.completed", "review.failed"],
+                                id: "wh-1001",
+                                isEnabled: true,
+                                lastDeliveryAt: "2026-03-04 10:18",
+                                secretPreview: "whsec_****32af",
+                                status: "success",
+                                url: "https://hooks.acme.dev/code-review",
+                            },
+                            {
+                                eventTypes: ["scan.completed", "scan.failed", "scan.partial"],
+                                id: "wh-1002",
+                                isEnabled: true,
+                                lastDeliveryAt: "2026-03-04 10:03",
+                                secretPreview: "whsec_****14bc",
+                                status: "retrying",
+                                url: "https://hooks.acme.dev/scan-events",
+                            },
+                            {
+                                eventTypes: ["provider.degraded", "provider.recovered"],
+                                id: "wh-1003",
+                                isEnabled: false,
+                                lastDeliveryAt: "2026-03-04 09:56",
+                                secretPreview: "whsec_****9e42",
+                                status: "failed",
+                                url: "https://hooks.acme.dev/provider-health",
+                            },
+                        ],
+                        deliveryLogs: [
+                            {
+                                endpointId: "wh-1001",
+                                httpStatus: 200,
+                                id: "log-1",
+                                message: "Delivered review.completed payload.",
+                                status: "success",
+                                timestamp: "2026-03-04 10:18:12",
+                            },
+                            {
+                                endpointId: "wh-1002",
+                                httpStatus: 502,
+                                id: "log-2",
+                                message: "Remote endpoint unavailable, retry scheduled.",
+                                status: "retrying",
+                                timestamp: "2026-03-04 10:03:31",
+                            },
+                            {
+                                endpointId: "wh-1002",
+                                httpStatus: 429,
+                                id: "log-3",
+                                message: "Rate limited by remote endpoint.",
+                                status: "failed",
+                                timestamp: "2026-03-04 09:58:17",
+                            },
+                            {
+                                endpointId: "wh-1003",
+                                httpStatus: 401,
+                                id: "log-4",
+                                message: "Invalid secret signature on receiver side.",
+                                status: "failed",
+                                timestamp: "2026-03-04 09:56:04",
+                            },
+                        ],
+                    },
+                    isLoading: false,
+                    isError: false,
+                    error: null,
+                } as unknown as IUseWebhooksResult["webhooksQuery"],
+                createWebhook: {
+                    mutate: vi.fn(),
+                    isPending: false,
+                } as unknown as IUseWebhooksResult["createWebhook"],
+                updateWebhook: {
+                    mutate: vi.fn(),
+                    isPending: false,
+                } as unknown as IUseWebhooksResult["updateWebhook"],
+                deleteWebhook: {
+                    mutate: vi.fn(),
+                    isPending: false,
+                } as unknown as IUseWebhooksResult["deleteWebhook"],
+            }
+        },
+    }
+})
 
 import { SettingsWebhooksPage } from "@/pages/settings-webhooks.page"
 import { renderWithProviders } from "../utils/render"
