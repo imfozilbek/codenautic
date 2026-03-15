@@ -188,7 +188,7 @@ flowchart TD
 ```
 
 Сетевые порты централизованы в [`config/service-ports.json`](./config/service-ports.json): `ui=7110`, `api=7120`,
-`settings-service=7130`, `webhooks=7140`, `mcp-sse=7210`, `ui-preview=7220`, `storybook=7230`.
+`settings-service=7130`, `webhooks=7140`, `mcp-sse=7210`, `ui-preview=7220`.
 
 ### Package Dependency Graph
 
