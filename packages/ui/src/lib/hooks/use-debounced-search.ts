@@ -1,10 +1,10 @@
-import { useDebounce } from "@/lib/hooks/use-debounce"
 import {
     type UseQueryOptions,
     useQuery,
     type UseQueryResult,
     type QueryKey,
 } from "@tanstack/react-query"
+import { useDebounceValue } from "usehooks-ts"
 
 /**
  * Параметры debounced search + React Query хука.
@@ -43,7 +43,7 @@ export type IUseDebouncedSearchResult<TData, TError> = UseQueryResult<TData, TEr
 export function useDebouncedSearch<TData, TError = Error>(
     options: IUseDebouncedSearchOptions<TData, TError>,
 ): IUseDebouncedSearchResult<TData, TError> {
-    const debouncedSearch = useDebounce(options.search, options.delayMs ?? 400)
+    const [debouncedSearch] = useDebounceValue(options.search, options.delayMs ?? 400)
     const queryResult = useQuery({
         queryKey: [...options.queryKey, debouncedSearch] as QueryKey,
         queryFn: async ({ signal }): Promise<TData> => {
