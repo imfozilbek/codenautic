@@ -76,6 +76,12 @@ export {
     type IAstServiceHorizontalScalingErrorDetails,
 } from "./ast-service-horizontal-scaling.error"
 export {
+    AST_SERVICE_RESULT_CACHING_ERROR_CODE,
+    AstServiceResultCachingError,
+    type AstServiceResultCachingErrorCode,
+    type IAstServiceResultCachingErrorDetails,
+} from "./ast-service-result-caching.error"
+export {
     AST_SEMANTIC_CODE_UNDERSTANDING_ERROR_CODE,
     AstSemanticCodeUnderstandingError,
     type AstSemanticCodeUnderstandingErrorCode,
@@ -444,6 +450,20 @@ export {
     type IAstServiceHorizontalScalingServiceOptions,
     type IAstServiceHorizontalScalingSummary,
 } from "./ast-service-horizontal-scaling.service"
+export {
+    AstServiceResultCachingService,
+    type AstServiceResultCachingNow,
+    type AstServiceResultCachingShouldRetry,
+    type AstServiceResultCachingSleep,
+    type IAstServiceCachedCodeGraphInput,
+    type IAstServiceCachedFetchResult,
+    type IAstServiceCachedFileMetricsInput,
+    type IAstServiceCachedScanStatusInput,
+    type IAstServiceResultCachingBaseInput,
+    type IAstServiceResultCachingRetryPolicyInput,
+    type IAstServiceResultCachingService,
+    type IAstServiceResultCachingServiceOptions,
+} from "./ast-service-result-caching.service"
 export {
     AST_SEMANTIC_MODULE_ROLE,
     AstSemanticCodeUnderstandingService,
