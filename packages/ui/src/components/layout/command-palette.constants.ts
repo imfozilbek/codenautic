@@ -22,14 +22,6 @@ export interface ICommandPaletteItem {
 }
 
 /**
- * Grouped section of command palette items.
- */
-export interface ICommandPaletteGroupSection {
-    readonly group: TCommandPaletteGroup
-    readonly items: ReadonlyArray<ICommandPaletteItem>
-}
-
-/**
  * Static command key definition for i18n (`navigation:commandPalette.*`).
  */
 export interface IStaticCommandKey {
