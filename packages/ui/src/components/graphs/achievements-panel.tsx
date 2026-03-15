@@ -43,12 +43,12 @@ export interface IAchievementsPanelProps {
 
 function resolveBadgeClassName(badge: TAchievementBadge): string {
     if (badge === "gold") {
-        return "border-warning/40 bg-warning/15 text-on-warning"
+        return "border-warning/40 bg-warning/15 text-warning-foreground"
     }
     if (badge === "silver") {
-        return "border-border bg-surface-muted text-foreground"
+        return "border-border bg-surface-secondary text-foreground"
     }
-    return "border-warning/30 bg-warning/10 text-on-warning"
+    return "border-warning/30 bg-warning/10 text-warning-foreground"
 }
 
 function resolveBadgeLabelKey(badge: TAchievementBadge): string {
@@ -63,7 +63,7 @@ function resolveBadgeLabelKey(badge: TAchievementBadge): string {
 
 function resolveRowClassName(isActive: boolean): string {
     const baseClassName = isActive
-        ? "border-primary bg-primary/10"
+        ? "border-accent bg-accent/10"
         : "border-border bg-surface hover:border-border"
     return `w-full rounded-lg border p-2 text-left transition ${baseClassName}`
 }
@@ -74,7 +74,7 @@ function BadgeIcon(props: { readonly badge: TAchievementBadge }): ReactElement {
             ? "text-warning"
             : props.badge === "silver"
               ? "text-foreground"
-              : "text-on-warning"
+              : "text-warning-foreground"
 
     return (
         <svg
