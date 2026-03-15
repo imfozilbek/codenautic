@@ -1,15 +1,20 @@
-import { useMemo, type ReactElement } from "react"
+import { useMemo, type ChangeEvent, type ReactElement } from "react"
 import { useTranslation } from "react-i18next"
 
 import { useDynamicTranslation } from "@/lib/i18n"
-import { Alert, Button, Chip } from "@heroui/react"
 import {
-    FormNumberField,
-    FormRadioGroupField,
-    FormSelectField,
-    FormSwitchField,
-    FormTextField,
-} from "@/components/forms"
+    Alert,
+    Button,
+    Chip,
+    Input,
+    ListBox,
+    ListBoxItem,
+    Radio,
+    RadioGroup,
+    Select,
+    Switch,
+} from "@heroui/react"
+import { FormField } from "@/components/forms"
 import type { IFormSelectOption } from "@/components/forms"
 
 import type { IOnboardingWizardState } from "../use-onboarding-wizard-state"
@@ -123,12 +128,37 @@ export function ScanConfigurationStep({ state }: IScanConfigurationStepProps): R
                         {t("onboarding:scan.templateRegistryHint")}
                     </p>
                     <div className="mt-2">
-                        <FormRadioGroupField<IOnboardingFormValues, "onboardingTemplateId">
+                        <FormField<IOnboardingFormValues, "onboardingTemplateId">
                             control={state.form.control}
                             helperText={t("onboarding:scan.templateFieldHelper")}
                             label={t("onboarding:scan.templateFieldLabel")}
+                            labelElement="span"
                             name="onboardingTemplateId"
-                            options={templateOptions}
+                            renderField={({
+                                field,
+                                hasError,
+                                accessibilityLabel,
+                                ariaDescribedBy,
+                            }): ReactElement => (
+                                <RadioGroup
+                                    aria-describedby={ariaDescribedBy}
+                                    aria-label={accessibilityLabel}
+                                    aria-invalid={hasError}
+                                    name={field.name}
+                                    value={field.value ?? ""}
+                                    onChange={(value: string): void => {
+                                        field.onChange(value)
+                                    }}
+                                >
+                                    {templateOptions.map(
+                                        (option): ReactElement => (
+                                            <Radio key={option.value} value={option.value}>
+                                                {option.label}
+                                            </Radio>
+                                        ),
+                                    )}
+                                </RadioGroup>
+                            )}
                         />
                     </div>
 
@@ -240,65 +270,282 @@ export function ScanConfigurationStep({ state }: IScanConfigurationStepProps): R
                     </details>
                 </div>
 
-                <FormSelectField<IOnboardingFormValues, "scanMode">
+                <FormField<IOnboardingFormValues, "scanMode">
                     control={state.form.control}
                     id="scan-mode"
                     helperText={t("onboarding:scan.scanModeHelper")}
                     label={t("onboarding:scan.scanModeLabel")}
                     name="scanMode"
-                    options={scanModeSelectOptions}
+                    renderField={({
+                        field,
+                        hasError,
+                        fieldId,
+                        accessibilityLabel,
+                        ariaDescribedBy,
+                    }): ReactElement => {
+                        const selectedKey = field.value === undefined ? null : String(field.value)
+
+                        return (
+                            <Select
+                                aria-describedby={ariaDescribedBy}
+                                aria-label={accessibilityLabel}
+                                aria-invalid={hasError}
+                                name={field.name}
+                                id={fieldId}
+                                selectedKey={selectedKey}
+                                onSelectionChange={(key): void => {
+                                    const nextValue = typeof key === "string" ? key : undefined
+                                    field.onChange(nextValue)
+                                }}
+                            >
+                                <Select.Trigger>
+                                    <Select.Value />
+                                </Select.Trigger>
+                                <Select.Popover>
+                                    <ListBox>
+                                        {scanModeSelectOptions.map(
+                                            (option): ReactElement => (
+                                                <ListBoxItem
+                                                    key={option.value}
+                                                    id={option.value}
+                                                    textValue={option.label}
+                                                    isDisabled={option.isDisabled}
+                                                >
+                                                    <div className="flex flex-col">
+                                                        <span>{option.label}</span>
+                                                        {option.description === undefined ? null : (
+                                                            <span className="text-xs text-muted">
+                                                                {option.description}
+                                                            </span>
+                                                        )}
+                                                    </div>
+                                                </ListBoxItem>
+                                            ),
+                                        )}
+                                    </ListBox>
+                                </Select.Popover>
+                            </Select>
+                        )
+                    }}
                 />
-                <FormTextField<IOnboardingFormValues, "tags">
+                <FormField<IOnboardingFormValues, "tags">
                     control={state.form.control}
                     helperText={t("onboarding:scan.tagsHelper")}
                     id="onboarding-tags"
-                    inputProps={{
-                        placeholder: t("onboarding:scan.tagsPlaceholder"),
-                        type: "text",
-                    }}
                     label={t("onboarding:scan.tagsLabel")}
                     name="tags"
+                    renderField={({
+                        field,
+                        hasError,
+                        fieldId,
+                        accessibilityLabel,
+                        ariaDescribedBy,
+                    }): ReactElement => {
+                        const value = typeof field.value === "string" ? field.value : ""
+
+                        return (
+                            <Input
+                                aria-describedby={ariaDescribedBy}
+                                aria-label={accessibilityLabel}
+                                aria-invalid={hasError}
+                                id={fieldId}
+                                name={field.name}
+                                placeholder={t("onboarding:scan.tagsPlaceholder")}
+                                type="text"
+                                value={value}
+                                onBlur={field.onBlur}
+                                onChange={field.onChange}
+                            />
+                        )
+                    }}
                 />
-                <FormSelectField<IOnboardingFormValues, "scanSchedule">
+                <FormField<IOnboardingFormValues, "scanSchedule">
                     control={state.form.control}
                     id="scan-schedule"
                     label={t("onboarding:scan.scheduleLabel")}
                     name="scanSchedule"
-                    options={scanScheduleSelectOptions}
+                    renderField={({
+                        field,
+                        hasError,
+                        fieldId,
+                        accessibilityLabel,
+                        ariaDescribedBy,
+                    }): ReactElement => {
+                        const selectedKey = field.value === undefined ? null : String(field.value)
+
+                        return (
+                            <Select
+                                aria-describedby={ariaDescribedBy}
+                                aria-label={accessibilityLabel}
+                                aria-invalid={hasError}
+                                name={field.name}
+                                id={fieldId}
+                                selectedKey={selectedKey}
+                                onSelectionChange={(key): void => {
+                                    const nextValue = typeof key === "string" ? key : undefined
+                                    field.onChange(nextValue)
+                                }}
+                            >
+                                <Select.Trigger>
+                                    <Select.Value />
+                                </Select.Trigger>
+                                <Select.Popover>
+                                    <ListBox>
+                                        {scanScheduleSelectOptions.map(
+                                            (option): ReactElement => (
+                                                <ListBoxItem
+                                                    key={option.value}
+                                                    id={option.value}
+                                                    textValue={option.label}
+                                                    isDisabled={option.isDisabled}
+                                                >
+                                                    <div className="flex flex-col">
+                                                        <span>{option.label}</span>
+                                                        {option.description === undefined ? null : (
+                                                            <span className="text-xs text-muted">
+                                                                {option.description}
+                                                            </span>
+                                                        )}
+                                                    </div>
+                                                </ListBoxItem>
+                                            ),
+                                        )}
+                                    </ListBox>
+                                </Select.Popover>
+                            </Select>
+                        )
+                    }}
                 />
-                <FormNumberField<IOnboardingFormValues, "scanThreads">
+                <FormField<IOnboardingFormValues, "scanThreads">
                     control={state.form.control}
                     id="scan-threads"
                     helperText={t("onboarding:scan.workersHelper")}
-                    inputProps={{
-                        min: 1,
-                        max: 32,
-                        placeholder: "4",
-                    }}
                     label={t("onboarding:scan.workersLabel")}
                     name="scanThreads"
+                    renderField={({
+                        field,
+                        hasError,
+                        fieldId,
+                        accessibilityLabel,
+                        ariaDescribedBy,
+                    }): ReactElement => {
+                        const value = field.value === undefined ? "" : String(field.value)
+
+                        return (
+                            <Input
+                                aria-describedby={ariaDescribedBy}
+                                aria-label={accessibilityLabel}
+                                aria-invalid={hasError}
+                                id={fieldId}
+                                inputMode="decimal"
+                                max={32}
+                                min={1}
+                                name={field.name}
+                                placeholder="4"
+                                type="number"
+                                value={value}
+                                onBlur={field.onBlur}
+                                onChange={(event: ChangeEvent<HTMLInputElement>): void => {
+                                    const nextValue = event.target.value
+
+                                    if (nextValue === "") {
+                                        field.onChange(undefined)
+                                        return
+                                    }
+
+                                    const parsedNumber = Number(nextValue)
+                                    if (Number.isNaN(parsedNumber) === true) {
+                                        field.onChange(undefined)
+                                        return
+                                    }
+
+                                    field.onChange(parsedNumber)
+                                }}
+                            />
+                        )
+                    }}
                 />
-                <FormSwitchField<IOnboardingFormValues, "includeSubmodules">
+                <FormField<IOnboardingFormValues, "includeSubmodules">
                     control={state.form.control}
+                    gapClass="gap-1"
+                    hideLabel={true}
                     label={t("onboarding:scan.submodulesLabel")}
                     name="includeSubmodules"
+                    showRequiredMarker={false}
+                    renderField={({
+                        field,
+                        hasError,
+                        accessibilityLabel,
+                        ariaDescribedBy,
+                    }): ReactElement => (
+                        <Switch
+                            aria-describedby={ariaDescribedBy}
+                            aria-label={accessibilityLabel}
+                            aria-invalid={hasError}
+                            name={field.name}
+                            isSelected={field.value === true}
+                            onChange={field.onChange}
+                        >
+                            {t("onboarding:scan.submodulesLabel")}
+                        </Switch>
+                    )}
                 />
-                <FormSwitchField<IOnboardingFormValues, "includeHistory">
+                <FormField<IOnboardingFormValues, "includeHistory">
                     control={state.form.control}
+                    gapClass="gap-1"
                     helperText={t("onboarding:scan.historyHelper")}
+                    hideLabel={true}
                     label={t("onboarding:scan.historyLabel")}
                     name="includeHistory"
+                    showRequiredMarker={false}
+                    renderField={({
+                        field,
+                        hasError,
+                        accessibilityLabel,
+                        ariaDescribedBy,
+                    }): ReactElement => (
+                        <Switch
+                            aria-describedby={ariaDescribedBy}
+                            aria-label={accessibilityLabel}
+                            aria-invalid={hasError}
+                            name={field.name}
+                            isSelected={field.value === true}
+                            onChange={field.onChange}
+                        >
+                            {t("onboarding:scan.historyLabel")}
+                        </Switch>
+                    )}
                 />
-                <FormTextField<IOnboardingFormValues, "notifyEmail">
+                <FormField<IOnboardingFormValues, "notifyEmail">
                     control={state.form.control}
                     helperText={t("onboarding:scan.notifyEmailHelper")}
                     id="notify-email"
-                    inputProps={{
-                        placeholder: "dev@company.com",
-                        type: "email",
-                    }}
                     label={t("onboarding:scan.notifyEmailLabel")}
                     name="notifyEmail"
+                    renderField={({
+                        field,
+                        hasError,
+                        fieldId,
+                        accessibilityLabel,
+                        ariaDescribedBy,
+                    }): ReactElement => {
+                        const value = typeof field.value === "string" ? field.value : ""
+
+                        return (
+                            <Input
+                                aria-describedby={ariaDescribedBy}
+                                aria-label={accessibilityLabel}
+                                aria-invalid={hasError}
+                                id={fieldId}
+                                name={field.name}
+                                placeholder="dev@company.com"
+                                type="email"
+                                value={value}
+                                onBlur={field.onBlur}
+                                onChange={field.onChange}
+                            />
+                        )
+                    }}
                 />
             </section>
 
