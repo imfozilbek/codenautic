@@ -10,6 +10,7 @@ import {
     resolveOnboardingAreaFromTourStep,
     resolveDashboardMetricLabel,
     resolveDashboardProfile,
+    resolveDefaultDashboardRepository,
 } from "@/pages/code-city-dashboard/code-city-dashboard-utils"
 import type { ICodeCityDashboardRepositoryProfile } from "@/pages/code-city-dashboard/code-city-dashboard-types"
 
@@ -155,11 +156,76 @@ describe("resolveDashboardMetricLabel", (): void => {
     })
 })
 
+describe("resolveDefaultDashboardRepository", (): void => {
+    it("when given non-empty array, then returns first profile", (): void => {
+        const profiles: ReadonlyArray<ICodeCityDashboardRepositoryProfile> = [
+            {
+                id: "repo-1",
+                label: "Repo 1",
+                description: "",
+                files: [],
+                impactedFiles: [],
+                compareFiles: [],
+                temporalCouplings: [],
+                healthTrend: [],
+                contributors: [],
+                ownership: [],
+                contributorCollaborations: [],
+            },
+        ]
+
+        const result = resolveDefaultDashboardRepository(profiles)
+
+        expect(result.id).toBe("repo-1")
+    })
+
+    it("when given empty array, then throws error", (): void => {
+        expect((): void => {
+            resolveDefaultDashboardRepository([])
+        }).toThrow("CodeCity dashboard requires at least one repository profile")
+    })
+})
+
 describe("resolveDashboardProfile", (): void => {
+    const profiles: ReadonlyArray<ICodeCityDashboardRepositoryProfile> = [
+        {
+            id: "repo-1",
+            label: "Repo 1",
+            description: "",
+            files: [],
+            impactedFiles: [],
+            compareFiles: [],
+            temporalCouplings: [],
+            healthTrend: [],
+            contributors: [],
+            ownership: [],
+            contributorCollaborations: [],
+        },
+        {
+            id: "repo-2",
+            label: "Repo 2",
+            description: "",
+            files: [],
+            impactedFiles: [],
+            compareFiles: [],
+            temporalCouplings: [],
+            healthTrend: [],
+            contributors: [],
+            ownership: [],
+            contributorCollaborations: [],
+        },
+    ]
+
+    it("when repository id matches, then returns matching profile", (): void => {
+        const result = resolveDashboardProfile("repo-2", profiles)
+
+        expect(result.id).toBe("repo-2")
+    })
+
     it("when repository id is unknown, then returns default profile", (): void => {
-        const result = resolveDashboardProfile("nonexistent-repo")
+        const result = resolveDashboardProfile("nonexistent-repo", profiles)
 
         expect(result).toBeDefined()
-        expect(result.id).toBeDefined()
+        expect(result.id).toBe("repo-1")
     })
 })
