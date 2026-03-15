@@ -4,21 +4,21 @@ import { useTranslation } from "react-i18next"
 import { Laptop, Moon, Sun } from "@/components/icons/app-icons"
 import { Button } from "@heroui/react"
 import { useDynamicTranslation } from "@/lib/i18n"
-import { type ThemeMode, useThemeMode } from "@/lib/theme/theme-provider"
+import { type TThemeMode, useTheme } from "@/lib/theme/use-theme"
 
-const MODE_ICONS: Record<ThemeMode, typeof Moon> = {
+const MODE_ICONS: Record<TThemeMode, typeof Moon> = {
     dark: Moon,
     system: Laptop,
     light: Sun,
 }
 
-const MODE_ARIA_KEYS: Record<ThemeMode, string> = {
+const MODE_ARIA_KEYS: Record<TThemeMode, string> = {
     dark: "navigation:themeModeToggle.darkAriaLabel",
     system: "navigation:themeModeToggle.systemAriaLabel",
     light: "navigation:themeModeToggle.lightAriaLabel",
 }
 
-const MODE_VALUES: ReadonlyArray<ThemeMode> = ["dark", "system", "light"]
+const MODE_VALUES: ReadonlyArray<TThemeMode> = ["dark", "system", "light"]
 
 /**
  * Props for compact theme mode toggle.
@@ -38,7 +38,7 @@ export interface IThemeModeToggleProps {
 export function ThemeModeToggle(props: IThemeModeToggleProps): ReactElement {
     const { t } = useTranslation(["navigation"])
     const { td } = useDynamicTranslation(["navigation"])
-    const { mode, resolvedMode, setMode } = useThemeMode()
+    const { mode, resolvedMode, setMode } = useTheme()
 
     const modeOptions = useMemo(
         () =>
