@@ -1,31 +1,71 @@
 import { screen, waitFor } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
+import React from "react"
 import type { ReactElement } from "react"
 import { describe, expect, it, vi } from "vitest"
 
 import type { TThemeMode } from "@/lib/theme/use-theme"
 import { renderWithProviders } from "../utils/render"
 
+const { themeStore } = vi.hoisted(() => {
+    const listeners = new Set<() => void>()
+    let snapshot = { mode: "system", preset: "sunrise" }
+    return {
+        themeStore: {
+            setMode(m: string): void {
+                snapshot = { ...snapshot, mode: m }
+                listeners.forEach((cb): void => { cb() })
+            },
+            setPreset(p: string): void {
+                snapshot = { ...snapshot, preset: p }
+                listeners.forEach((cb): void => { cb() })
+            },
+            subscribe(cb: () => void): () => void {
+                listeners.add(cb)
+                return (): void => { listeners.delete(cb) }
+            },
+            getSnapshot(): { mode: string; preset: string } {
+                return snapshot
+            },
+            reset(): void {
+                snapshot = { mode: "system", preset: "sunrise" }
+            },
+        },
+    }
+})
+
 vi.mock("@/lib/theme/use-theme", () => ({
     useTheme: (): {
-        mode: "dark" | "light" | "system"
+        mode: string
         preset: string
         presets: ReadonlyArray<{ readonly id: string; readonly label: string }>
         resolvedMode: "dark" | "light"
         setMode: (m: string) => void
         setPreset: (p: string) => void
-    } => ({
-        mode: "system",
-        preset: "sunrise",
-        presets: [
-            { id: "moonstone", label: "Moonstone" },
-            { id: "sunrise", label: "Sunrise" },
-        ],
-        resolvedMode: "light",
-        setMode: (): void => {},
-        setPreset: (): void => {},
-    }),
+    } => {
+        const snap = React.useSyncExternalStore(
+            themeStore.subscribe,
+            themeStore.getSnapshot,
+            themeStore.getSnapshot,
+        )
+        return {
+            mode: snap.mode,
+            preset: snap.preset,
+            presets: [
+                { id: "moonstone", label: "Moonstone" },
+                { id: "cobalt", label: "Cobalt" },
+                { id: "forest", label: "Forest" },
+                { id: "sunrise", label: "Sunrise" },
+                { id: "graphite", label: "Graphite" },
+                { id: "aqua", label: "Aqua" },
+            ],
+            resolvedMode: snap.mode === "dark" ? "dark" : "light",
+            setMode: themeStore.setMode,
+            setPreset: themeStore.setPreset,
+        }
+    },
 }))
+
 import {
     DashboardLayout,
     Header,
