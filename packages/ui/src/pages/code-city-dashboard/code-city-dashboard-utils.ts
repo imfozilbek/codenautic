@@ -5,21 +5,17 @@ import type {
     ICodeCityDashboardRepositoryProfile,
     TDashboardOnboardingAreaId,
 } from "./code-city-dashboard-types"
-import { CODE_CITY_DASHBOARD_REPOSITORIES } from "./code-city-dashboard-mock-data"
-
-/**
- * Профиль репозитория по умолчанию (первый элемент массива).
- */
-export const DEFAULT_DASHBOARD_REPOSITORY: ICodeCityDashboardRepositoryProfile =
-    getDefaultDashboardRepository()
 
 /**
  * Возвращает первый репозиторий из массива или выбрасывает ошибку.
  *
+ * @param repositories Массив профилей репозиториев.
  * @returns Профиль репозитория по умолчанию.
  */
-function getDefaultDashboardRepository(): ICodeCityDashboardRepositoryProfile {
-    const defaultRepository = CODE_CITY_DASHBOARD_REPOSITORIES[0]
+export function resolveDefaultDashboardRepository(
+    repositories: ReadonlyArray<ICodeCityDashboardRepositoryProfile>,
+): ICodeCityDashboardRepositoryProfile {
+    const defaultRepository = repositories[0]
     if (defaultRepository === undefined) {
         throw new Error("CodeCity dashboard requires at least one repository profile")
     }
@@ -31,13 +27,16 @@ function getDefaultDashboardRepository(): ICodeCityDashboardRepositoryProfile {
  * Резолвит профиль dashboard по идентификатору репозитория.
  *
  * @param repositoryId Идентификатор репозитория.
+ * @param repositories Массив профилей репозиториев.
  * @returns Профиль репозитория или значение по умолчанию.
  */
-export function resolveDashboardProfile(repositoryId: string): ICodeCityDashboardRepositoryProfile {
-    const selected = CODE_CITY_DASHBOARD_REPOSITORIES.find(
-        (entry): boolean => entry.id === repositoryId,
-    )
-    return selected ?? DEFAULT_DASHBOARD_REPOSITORY
+export function resolveDashboardProfile(
+    repositoryId: string,
+    repositories: ReadonlyArray<ICodeCityDashboardRepositoryProfile>,
+): ICodeCityDashboardRepositoryProfile {
+    const defaultRepository = resolveDefaultDashboardRepository(repositories)
+    const selected = repositories.find((entry): boolean => entry.id === repositoryId)
+    return selected ?? defaultRepository
 }
 
 /**
