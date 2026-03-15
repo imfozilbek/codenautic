@@ -1,5 +1,15 @@
 import { MockStore } from "./mock-store"
-import { seedAuth, seedProviders, seedReviews, seedRules, seedSettings } from "./seed"
+import {
+    seedAuth,
+    seedCodeCity,
+    seedContractValidation,
+    seedDashboard,
+    seedProviders,
+    seedRepositories,
+    seedReviews,
+    seedRules,
+    seedSettings,
+} from "./seed"
 
 /**
  * Singleton-экземпляр MockStore.
@@ -17,10 +27,14 @@ let instance: MockStore | undefined
 export function createMockStore(): MockStore {
     const store = new MockStore()
     seedAuth(store.auth)
+    seedContractValidation(store.contractValidation)
+    seedDashboard(store.dashboard)
     seedSettings(store.settings)
     seedRules(store.rules)
     seedProviders(store.providers)
     seedReviews(store.reviews)
+    seedRepositories(store.repositories)
+    seedCodeCity(store.codeCity)
     return store
 }
 
@@ -49,9 +63,13 @@ export function resetMockStore(): void {
     if (instance !== undefined) {
         instance.reset()
         seedAuth(instance.auth)
+        seedContractValidation(instance.contractValidation)
+        seedDashboard(instance.dashboard)
         seedSettings(instance.settings)
         seedRules(instance.rules)
         seedProviders(instance.providers)
         seedReviews(instance.reviews)
+        seedRepositories(instance.repositories)
+        seedCodeCity(instance.codeCity)
     }
 }
