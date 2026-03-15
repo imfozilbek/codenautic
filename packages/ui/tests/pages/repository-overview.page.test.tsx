@@ -1,9 +1,30 @@
-import { screen } from "@testing-library/react"
+import { screen, waitFor } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
+import { http, HttpResponse } from "msw"
+import { QueryClient } from "@tanstack/react-query"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
 import { RepositoryOverviewPage } from "@/pages/repository-overview"
 import { renderWithProviders } from "../utils/render"
+import { server } from "../mocks/server"
+
+const API_BASE = "http://localhost:7120/api/v1"
+
+/**
+ * QueryClient без retry для тестов, ожидающих быструю ошибку (404).
+ *
+ * @returns QueryClient с отключёнными повторами.
+ */
+function createNoRetryQueryClient(): QueryClient {
+    return new QueryClient({
+        defaultOptions: {
+            queries: {
+                retry: false,
+                gcTime: 0,
+            },
+        },
+    })
+}
 
 const {
     mockCodeCityTreemap,
@@ -86,23 +107,92 @@ vi.mock("@/components/codecity/codecity-treemap", () => ({
     CodeCityTreemap: mockCodeCityTreemap,
 }))
 
+/**
+ * Регистрирует MSW handler для overview известного репозитория.
+ *
+ * Возвращает данные, соответствующие IRepositoryOverviewResponse.
+ */
+function registerOverviewHandler(): void {
+    server.use(
+        http.get(`${API_BASE}/repositories/:repositoryId/overview`, ({ params }) => {
+            const repositoryId = decodeURIComponent(String(params.repositoryId))
+
+            if (repositoryId === "frontend-team/ui-dashboard") {
+                return HttpResponse.json({
+                    overview: {
+                        repository: {
+                            id: "frontend-team/ui-dashboard",
+                            name: "ui-dashboard",
+                            owner: "frontend-team",
+                            defaultBranch: "main",
+                            lastScanAt: "2026-03-01T10:00:00.000Z",
+                            status: "ready",
+                            issueCount: 5,
+                            healthScore: 85,
+                        },
+                        architectureSummary: [
+                            {
+                                area: "Component layer",
+                                risk: "low",
+                                summary: "Clean separation of concerns.",
+                            },
+                            {
+                                area: "State management",
+                                risk: "high",
+                                summary: "Prop drilling in several pages.",
+                            },
+                        ],
+                        keyMetrics: [
+                            {
+                                id: "coverage",
+                                label: "Test coverage",
+                                value: "88%",
+                                caption: "Target 90%",
+                                trendDirection: "up",
+                                trendLabel: "+3%",
+                            },
+                        ],
+                        techStack: [
+                            {
+                                name: "React",
+                                version: "19.0",
+                                note: "UI framework",
+                            },
+                        ],
+                        healthScore: 85,
+                    },
+                })
+            }
+
+            return HttpResponse.json(
+                { message: "Not found" },
+                { status: 404 },
+            )
+        }),
+    )
+}
+
 beforeEach((): void => {
     mockFileDependencyGraph.mockClear()
     mockFunctionClassCallGraph.mockClear()
     mockPackageDependencyGraph.mockClear()
     mockCodeCityTreemap.mockClear()
+    registerOverviewHandler()
 })
 
 describe("repository overview page", (): void => {
-    it("рендерит ключевые метрики и архитектурный summary для известного репозитория", (): void => {
+    it("рендерит ключевые метрики и архитектурный summary для известного репозитория", async (): Promise<void> => {
         renderWithProviders(<RepositoryOverviewPage repositoryId="frontend-team/ui-dashboard" />)
 
-        expect(screen.getByText("frontend-team/ui-dashboard")).not.toBeNull()
+        expect(await screen.findByText("frontend-team/ui-dashboard")).not.toBeNull()
         expect(screen.getByText("File dependency graph")).not.toBeNull()
-        const firstRenderCall = mockFileDependencyGraph.mock.calls[0]?.[0]
-        expect(firstRenderCall).not.toBeUndefined()
-        expect(firstRenderCall?.title).toBe("File dependency graph")
-        expect(firstRenderCall?.files.length).toBeGreaterThan(0)
+
+        await waitFor((): void => {
+            const firstRenderCall = mockFileDependencyGraph.mock.calls[0]?.[0]
+            expect(firstRenderCall).not.toBeUndefined()
+            expect(firstRenderCall?.title).toBe("File dependency graph")
+            expect(firstRenderCall?.files.length).toBeGreaterThan(0)
+        })
 
         const secondRenderCall = mockFunctionClassCallGraph.mock.calls[0]?.[0]
         expect(secondRenderCall).not.toBeUndefined()
@@ -122,10 +212,13 @@ describe("repository overview page", (): void => {
         expect(screen.getByLabelText("Repository health score")).not.toBeNull()
     })
 
-    it("показывает fallback для неизвестного репозитория", (): void => {
-        renderWithProviders(<RepositoryOverviewPage repositoryId="unknown/repo" />)
+    it("показывает fallback для неизвестного репозитория", async (): Promise<void> => {
+        renderWithProviders(
+            <RepositoryOverviewPage repositoryId="unknown/repo" />,
+            { queryClient: createNoRetryQueryClient() },
+        )
 
-        expect(screen.getByText("Скан-результат репозитория не найден")).not.toBeNull()
+        expect(await screen.findByText("Скан-результат репозитория не найден")).not.toBeNull()
         expect(screen.getByText("unknown/repo")).not.toBeNull()
         expect(screen.getByRole("link", { name: "К списку репозиториев" })).not.toBeNull()
     })
@@ -140,6 +233,8 @@ describe("repository overview page", (): void => {
                 repositoryId="frontend-team/ui-dashboard"
             />,
         )
+
+        await screen.findByText("frontend-team/ui-dashboard")
 
         await user.click(screen.getByRole("button", { name: "Настроить расписание рескана" }))
         await user.selectOptions(
@@ -168,6 +263,8 @@ describe("repository overview page", (): void => {
             />,
         )
 
+        await screen.findByText("frontend-team/ui-dashboard")
+
         await user.click(screen.getByRole("button", { name: "Настроить расписание рескана" }))
         expect(screen.getByRole("dialog")).not.toBeNull()
 
@@ -186,6 +283,8 @@ describe("repository overview page", (): void => {
                 repositoryId="frontend-team/ui-dashboard"
             />,
         )
+
+        await screen.findByText("frontend-team/ui-dashboard")
 
         await user.click(screen.getByRole("button", { name: "Настроить расписание рескана" }))
         await user.selectOptions(
@@ -215,6 +314,8 @@ describe("repository overview page", (): void => {
             />,
         )
 
+        await screen.findByText("frontend-team/ui-dashboard")
+
         await user.click(screen.getByRole("button", { name: "Настроить расписание рескана" }))
         await user.selectOptions(
             screen.getByRole("combobox", { name: "Режим расписания рескана" }),
@@ -242,6 +343,8 @@ describe("repository overview page", (): void => {
             />,
         )
 
+        await screen.findByText("frontend-team/ui-dashboard")
+
         await user.click(screen.getByRole("button", { name: "Настроить расписание рескана" }))
         await user.selectOptions(
             screen.getByRole("combobox", { name: "Режим расписания рескана" }),
@@ -260,6 +363,8 @@ describe("repository overview page", (): void => {
         const user = userEvent.setup()
 
         renderWithProviders(<RepositoryOverviewPage repositoryId="frontend-team/ui-dashboard" />)
+
+        await screen.findByText("frontend-team/ui-dashboard")
 
         await user.click(screen.getByRole("button", { name: "Настроить расписание рескана" }))
         await user.selectOptions(
@@ -282,8 +387,10 @@ describe("repository overview page", (): void => {
         expect(saveButtonAfter.disabled).toBe(false)
     })
 
-    it("рендерит health score meter для репозитория", (): void => {
+    it("рендерит health score meter для репозитория", async (): Promise<void> => {
         renderWithProviders(<RepositoryOverviewPage repositoryId="frontend-team/ui-dashboard" />)
+
+        await screen.findByText("frontend-team/ui-dashboard")
 
         const meter = screen.getByRole("meter")
         expect(meter).not.toBeNull()
