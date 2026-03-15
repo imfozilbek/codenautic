@@ -237,7 +237,7 @@ export function SettingsRulesLibraryPage(): ReactElement {
                     </CardHeader>
                     <CardContent>
                         <p className="text-2xl font-semibold text-foreground">{rules.length}</p>
-                        <p className="text-xs text-text-secondary">
+                        <p className="text-xs text-muted">
                             {t("settings:rulesLibrary.totalRules")}
                         </p>
                     </CardContent>
@@ -250,7 +250,7 @@ export function SettingsRulesLibraryPage(): ReactElement {
                     </CardHeader>
                     <CardContent>
                         <p className="text-2xl font-semibold text-foreground">{importedCount}</p>
-                        <p className="text-xs text-text-secondary">
+                        <p className="text-xs text-muted">
                             {t("settings:rulesLibrary.rulesInActiveProfile")}
                         </p>
                     </CardContent>
@@ -265,7 +265,7 @@ export function SettingsRulesLibraryPage(): ReactElement {
                         <p className="text-2xl font-semibold text-foreground">
                             {rules.filter((rule): boolean => rule.source === "custom").length}
                         </p>
-                        <p className="text-xs text-text-secondary">
+                        <p className="text-xs text-muted">
                             {t("settings:rulesLibrary.teamDefinedPolicyRules")}
                         </p>
                     </CardContent>
@@ -284,7 +284,9 @@ export function SettingsRulesLibraryPage(): ReactElement {
                             aria-label={t("settings:rulesLibrary.searchRules")}
                             placeholder={t("settings:rulesLibrary.searchPlaceholder")}
                             value={searchQuery}
-                            onChange={(e): void => { setSearchQuery(e.target.value) }}
+                            onChange={(e): void => {
+                                setSearchQuery(e.target.value)
+                            }}
                         />
                         <select
                             aria-label={t("settings:ariaLabel.rulesLibrary.category")}
@@ -332,7 +334,7 @@ export function SettingsRulesLibraryPage(): ReactElement {
                                             <p className="text-sm font-semibold text-foreground">
                                                 {rule.name}
                                             </p>
-                                            <p className="text-xs text-text-secondary">
+                                            <p className="text-xs text-muted">
                                                 {rule.description}
                                             </p>
                                             <div className="flex items-center gap-2">
@@ -347,7 +349,7 @@ export function SettingsRulesLibraryPage(): ReactElement {
                                                     {rule.source}
                                                 </Chip>
                                             </div>
-                                            <p className="font-mono text-xs text-text-secondary">
+                                            <p className="font-mono text-xs text-muted">
                                                 {rule.expression}
                                             </p>
                                         </div>
@@ -383,13 +385,17 @@ export function SettingsRulesLibraryPage(): ReactElement {
                             aria-label={t("settings:rulesLibrary.ruleName")}
                             placeholder={t("settings:rulesLibrary.ruleNamePlaceholder")}
                             value={customName}
-                            onChange={(e): void => { setCustomName(e.target.value) }}
+                            onChange={(e): void => {
+                                setCustomName(e.target.value)
+                            }}
                         />
                         <Input
                             aria-label={t("settings:rulesLibrary.description")}
                             placeholder={t("settings:rulesLibrary.descriptionPlaceholder")}
                             value={customDescription}
-                            onChange={(e): void => { setCustomDescription(e.target.value) }}
+                            onChange={(e): void => {
+                                setCustomDescription(e.target.value)
+                            }}
                         />
                         <select
                             aria-label={t("settings:ariaLabel.rulesLibrary.category")}
@@ -425,7 +431,9 @@ export function SettingsRulesLibraryPage(): ReactElement {
                             aria-label={t("settings:rulesLibrary.ruleExpression")}
                             placeholder={t("settings:rulesLibrary.ruleExpressionPlaceholder")}
                             value={customExpression}
-                            onChange={(e): void => { setCustomExpression(e.target.value) }}
+                            onChange={(e): void => {
+                                setCustomExpression(e.target.value)
+                            }}
                         />
                         <div className="flex justify-end">
                             <Button variant="primary" onPress={handleCreateCustomRule}>
@@ -465,7 +473,7 @@ export function SettingsRulesLibraryPage(): ReactElement {
                         </select>
                         <div className="flex flex-col gap-1">
                             <label
-                                className="text-sm text-text-tertiary"
+                                className="text-sm text-muted"
                                 htmlFor="rule-test-sample-input"
                             >
                                 {t("settings:rulesLibrary.sampleInput")}

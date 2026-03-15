@@ -159,7 +159,7 @@ export function SettingsProviderDegradationPage(): ReactElement {
                         </Chip>
                     </div>
                     {providerState.affectedFeatures.length === 0 ? (
-                        <p className="text-sm text-text-secondary">
+                        <p className="text-sm text-muted">
                             {t("settings:providerDegradation.noAffectedFeatures")}
                         </p>
                     ) : (
@@ -171,7 +171,7 @@ export function SettingsProviderDegradationPage(): ReactElement {
                         >
                             {providerState.affectedFeatures.map(
                                 (feature): ReactElement => (
-                                    <li className="text-sm text-text-tertiary" key={feature}>
+                                    <li className="text-sm text-muted" key={feature}>
                                         {feature}
                                     </li>
                                 ),
@@ -186,7 +186,7 @@ export function SettingsProviderDegradationPage(): ReactElement {
                             {t("settings:providerDegradation.markOperational")}
                         </Button>
                         <a
-                            className="inline-flex items-center rounded-full border border-border px-3 py-1 text-sm text-text-tertiary"
+                            className="inline-flex items-center rounded-full border border-border px-3 py-1 text-sm text-muted"
                             href={providerState.runbookUrl}
                             rel="noreferrer"
                             target="_blank"
@@ -231,13 +231,13 @@ export function SettingsProviderDegradationPage(): ReactElement {
                                     <p className="font-semibold text-foreground">
                                         {action.description}
                                     </p>
-                                    <p className="text-text-secondary">Status: {action.status}</p>
+                                    <p className="text-muted">Status: {action.status}</p>
                                 </li>
                             ),
                         )}
                     </ul>
                     {queuedActions.length === 0 ? (
-                        <p className="text-sm text-text-secondary">
+                        <p className="text-sm text-muted">
                             {t("settings:providerDegradation.noCriticalActionsInQueue")}
                         </p>
                     ) : null}
