@@ -40,6 +40,12 @@ export {
     type IAstFunctionBodyExtractorErrorDetails,
 } from "./ast-function-body-extractor.error"
 export {
+    AST_SERVICE_ARCHITECTURE_DESIGN_ERROR_CODE,
+    AstServiceArchitectureDesignError,
+    type AstServiceArchitectureDesignErrorCode,
+    type IAstServiceArchitectureDesignErrorDetails,
+} from "./ast-service-architecture-design.error"
+export {
     AST_SEMANTIC_CODE_UNDERSTANDING_ERROR_CODE,
     AstSemanticCodeUnderstandingError,
     type AstSemanticCodeUnderstandingErrorCode,
@@ -320,6 +326,20 @@ export {
     type IAstFunctionBodyExtractorService,
     type IAstFunctionBodyExtractorSummary,
 } from "./ast-function-body-extractor.service"
+export {
+    AstServiceArchitectureDesignService,
+    type AstServiceArchitectureComponentKind,
+    type IAstServiceArchitectureComponent,
+    type IAstServiceArchitectureDesignInput,
+    type IAstServiceArchitectureDesignResult,
+    type IAstServiceArchitectureDesignService,
+    type IAstServiceArchitectureFlow,
+    type IAstServiceArchitectureQueueNames,
+    type IAstServiceArchitectureQueueNamesInput,
+    type IAstServiceArchitectureRetryPolicy,
+    type IAstServiceArchitectureRetryPolicyInput,
+    type IAstServiceArchitectureSummary,
+} from "./ast-service-architecture-design.service"
 export {
     AST_SEMANTIC_MODULE_ROLE,
     AstSemanticCodeUnderstandingService,
