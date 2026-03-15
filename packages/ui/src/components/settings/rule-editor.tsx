@@ -248,9 +248,7 @@ export function RuleEditor(props: IRuleEditorProps): ReactElement {
                     </p>
                 )}
                 {isPreviewVisible === false ? (
-                    <p className="text-sm text-muted">
-                        {t("settings:ruleEditor.previewHidden")}
-                    </p>
+                    <p className="text-sm text-muted">{t("settings:ruleEditor.previewHidden")}</p>
                 ) : (
                     <section
                         aria-live="polite"
