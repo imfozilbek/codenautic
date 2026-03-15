@@ -57,7 +57,7 @@ export function PredictionComparisonView(props: IPredictionComparisonViewProps):
                             })}
                             className={`w-full rounded border p-2 text-left text-xs transition ${
                                 isActive
-                                    ? "border-primary bg-primary/10 text-on-primary"
+                                    ? "border-accent bg-accent/10 text-accent-foreground"
                                     : "border-border bg-surface text-foreground hover:border-border"
                             }`}
                             key={snapshot.id}

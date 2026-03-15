@@ -281,7 +281,7 @@ export function PackageDependencyGraph(props: IPackageDependencyGraphProps): Rea
                     />
                     {relationTypes.length > 0 ? (
                         <Button
-                                                        onPress={(): void => {
+                            onPress={(): void => {
                                 setState(
                                     (previous): IPackageDependencyGraphState => ({
                                         ...previous,
@@ -296,7 +296,7 @@ export function PackageDependencyGraph(props: IPackageDependencyGraphProps): Rea
                     ) : null}
                     {state.query.length > 0 ? (
                         <Button
-                                                        onPress={(): void => {
+                            onPress={(): void => {
                                 setState(
                                     (previous): IPackageDependencyGraphState => ({
                                         ...previous,
@@ -324,7 +324,7 @@ export function PackageDependencyGraph(props: IPackageDependencyGraphProps): Rea
                         {t("code-city:packageDependency.highlightImpactPaths")}
                     </Button>
                     <Button
-                                                onPress={(): void => {
+                        onPress={(): void => {
                             setState(
                                 (previousState): IPackageDependencyGraphState => ({
                                     ...previousState,
@@ -366,7 +366,7 @@ export function PackageDependencyGraph(props: IPackageDependencyGraphProps): Rea
                         {t("code-city:packageDependency.focusPath")}
                     </Button>
                     <Button
-                                                isDisabled={state.viewMode !== "clustered" || state.isClusterDetailLoading}
+                        isDisabled={state.viewMode !== "clustered" || state.isClusterDetailLoading}
                         onPress={(): void => {
                             if (state.viewMode !== "clustered") {
                                 return
@@ -431,7 +431,7 @@ export function PackageDependencyGraph(props: IPackageDependencyGraphProps): Rea
                     ) : null}
                     {state.viewMode === "clustered" && selectedClusterLayer !== undefined ? (
                         <Button
-                                                        onPress={(): void => {
+                            onPress={(): void => {
                                 setState(
                                     (previousState): IPackageDependencyGraphState => ({
                                         ...previousState,
@@ -461,7 +461,7 @@ export function PackageDependencyGraph(props: IPackageDependencyGraphProps): Rea
                             return (
                                 <Button
                                     key={relationType}
-                                                                        size="sm"
+                                    size="sm"
                                     variant={isActive ? "secondary" : "ghost"}
                                     onPress={(): void => {
                                         const selectedRelationTypes = toggleRelationFilter(

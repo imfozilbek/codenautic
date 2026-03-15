@@ -104,7 +104,7 @@ export function PredictionAccuracyWidget(props: IPredictionAccuracyWidgetProps):
                 <p className="rounded border border-success/30 bg-success/10 px-2 py-1 text-xs text-success">
                     TP {String(props.matrix.truePositive)}
                 </p>
-                <p className="rounded border border-primary/30 bg-primary/10 px-2 py-1 text-xs text-on-primary">
+                <p className="rounded border border-accent/30 bg-accent/10 px-2 py-1 text-xs text-accent-foreground">
                     TN {String(props.matrix.trueNegative)}
                 </p>
                 <p className="rounded border border-warning/30 bg-warning/10 px-2 py-1 text-xs text-warning">
@@ -128,7 +128,7 @@ export function PredictionAccuracyWidget(props: IPredictionAccuracyWidgetProps):
                             })}
                             className={`w-full rounded border p-2 text-left text-xs transition ${
                                 isActive
-                                    ? "border-primary bg-primary/10 text-on-primary"
+                                    ? "border-accent bg-accent/10 text-accent-foreground"
                                     : "border-border bg-surface text-foreground hover:border-border"
                             }`}
                             key={entry.id}
