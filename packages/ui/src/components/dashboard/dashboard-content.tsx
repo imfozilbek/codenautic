@@ -6,24 +6,10 @@ import { Link, type LinkProps } from "@tanstack/react-router"
 
 import { Card, CardContent, CardHeader } from "@heroui/react"
 import { LINK_CLASSES, TYPOGRAPHY } from "@/lib/constants/typography"
-
-/**
- * Stagger item animation variants for work queue cards.
- */
-const STAGGER_ITEM_VARIANTS = {
-    hidden: {
-        opacity: 0,
-        y: 12,
-    },
-    visible: {
-        opacity: 1,
-        y: 0,
-        transition: {
-            duration: 0.25,
-            ease: [0.0, 0.0, 0.2, 1.0],
-        },
-    },
-} as const
+import {
+    STAGGER_CONTAINER_VARIANTS,
+    STAGGER_ITEM_VARIANTS,
+} from "@/lib/constants/animation"
 import { ActivityTimeline, type IActivityTimelineEntry } from "./activity-timeline"
 import { StatusDistributionChart, type IStatusDistributionPoint } from "./status-distribution-chart"
 
@@ -104,13 +90,7 @@ export function DashboardContent(props: IDashboardContentProps): ReactElement {
                                 aria-label="Work queue"
                                 className="space-y-2"
                                 initial="hidden"
-                                variants={{
-                                    hidden: { opacity: 0 },
-                                    visible: {
-                                        opacity: 1,
-                                        transition: { staggerChildren: 0.06 },
-                                    },
-                                }}
+                                variants={STAGGER_CONTAINER_VARIANTS}
                             >
                                 {props.workQueue.map(
                                     (item): ReactElement => (
