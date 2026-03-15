@@ -1,6 +1,7 @@
 import { fireEvent, screen } from "@testing-library/react"
+import { http, HttpResponse } from "msw"
 import userEvent from "@testing-library/user-event"
-import { describe, expect, it } from "vitest"
+import { beforeEach, describe, expect, it } from "vitest"
 
 import { CcrManagementPage } from "@/pages/ccr-management.page"
 import { DashboardMissionControlPage } from "@/pages/dashboard-mission-control.page"
@@ -8,13 +9,49 @@ import { HelpDiagnosticsPage } from "@/pages/help-diagnostics.page"
 import { SettingsContractValidationPage } from "@/pages/settings-contract-validation"
 import { SettingsPage } from "@/pages/settings.page"
 import { renderWithProviders } from "../utils/render"
+import { server } from "../mocks/server"
+
+const API_BASE = "http://localhost:7120/api/v1"
 
 function createPseudoLocaleString(base: string): string {
     const expanded = `${base} ${base} ${base}`
     return `[[!! ${expanded} !!]]`
 }
 
+/**
+ * Регистрирует MSW handlers для dashboard API.
+ */
+function registerDashboardHandlers(): void {
+    server.use(
+        http.get(`${API_BASE}/dashboard/metrics`, () =>
+            HttpResponse.json({ metrics: [] }),
+        ),
+        http.get(`${API_BASE}/dashboard/status-distribution`, () =>
+            HttpResponse.json({ points: [] }),
+        ),
+        http.get(`${API_BASE}/dashboard/team-activity`, () =>
+            HttpResponse.json({ points: [] }),
+        ),
+        http.get(`${API_BASE}/dashboard/flow-metrics`, () =>
+            HttpResponse.json({ points: [] }),
+        ),
+        http.get(`${API_BASE}/dashboard/token-usage`, () =>
+            HttpResponse.json({ byModel: [], costTrend: [] }),
+        ),
+        http.get(`${API_BASE}/dashboard/work-queue`, () =>
+            HttpResponse.json({ entries: [] }),
+        ),
+        http.get(`${API_BASE}/dashboard/timeline`, () =>
+            HttpResponse.json({ entries: [] }),
+        ),
+    )
+}
+
 describe("system e2e regression suite: a11y + i18n", (): void => {
+    beforeEach((): void => {
+        registerDashboardHandlers()
+    })
+
     it("покрывает keyboard-only navigation на dashboard/reviews/settings маршрутах", async (): Promise<void> => {
         const user = userEvent.setup()
 
