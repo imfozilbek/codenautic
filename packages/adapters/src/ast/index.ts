@@ -154,6 +154,17 @@ export {
     type IAstCrossFileAnalyzerInput,
 } from "./ast-cross-file-analyzer"
 export {
+    AST_IMPORT_EXPORT_EDGE_TYPE,
+    AstImportExportGraphBuilder,
+    type AstImportExportEdgeType,
+    type IAstImportExportGraphBuilder,
+    type IAstImportExportGraphBuilderInput,
+    type IAstImportExportGraphEdge,
+    type IAstImportExportGraphResult,
+    type IAstImportExportGraphSummary,
+    type IAstUnresolvedImportExportReference,
+} from "./ast-import-export-graph-builder"
+export {
     AST_CROSS_FILE_REFERENCE_TYPE,
     AstCrossFileReferenceResolutionService,
     type AstCrossFileReferenceType,
