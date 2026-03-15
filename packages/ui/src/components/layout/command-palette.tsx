@@ -279,22 +279,23 @@ export function CommandPalette(props: ICommandPaletteProps): ReactElement | null
         <div
             aria-label={t("navigation:ariaLabel.commandPalette.globalPalette")}
             aria-modal="true"
-            className="fixed inset-0 z-50 flex items-start justify-center p-4 pt-16"
+            className="fixed inset-0 z-50"
             role="dialog"
             onKeyDown={handleDialogKeyDown}
         >
             <button
                 aria-label={t("navigation:ariaLabel.commandPalette.closePalette")}
-                className="absolute inset-0 h-full w-full cursor-default bg-foreground/50"
+                className="fixed inset-0 h-full w-full cursor-default bg-foreground/50"
                 type="button"
                 onClick={handleClose}
             />
-            <div className="relative z-10 w-full max-w-2xl rounded-xl border border-border bg-surface p-3 shadow-2xl">
+            <div className="fixed left-1/2 top-16 z-10 w-[672px] -translate-x-1/2 rounded-xl border border-border bg-surface p-3 shadow-2xl">
                 <Command
-                    className="flex flex-col"
+                    className="flex w-full flex-col"
                     label={t("navigation:ariaLabel.commandPalette.globalPalette")}
                 >
                     <Command.Input
+                        aria-label={t("navigation:ariaLabel.commandPalette.searchInput")}
                         className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground"
                         placeholder={t("navigation:commandPalette.placeholder")}
                     />
@@ -337,29 +338,9 @@ export function CommandPalette(props: ICommandPaletteProps): ReactElement | null
         </div>
     )
 
-    if (prefersReducedMotion === true) {
-        if (props.isOpen !== true) {
-            return null
-        }
-
-        return paletteContent
+    if (props.isOpen !== true) {
+        return null
     }
 
-    return (
-        <AnimatePresence>
-            {props.isOpen === true ? (
-                <motion.div
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.95 }}
-                    initial={{ opacity: 0, scale: 0.95 }}
-                    transition={{
-                        duration: 0.25,
-                        ease: [0.0, 0.0, 0.2, 1.0],
-                    }}
-                >
-                    {paletteContent}
-                </motion.div>
-            ) : null}
-        </AnimatePresence>
-    )
+    return paletteContent
 }
