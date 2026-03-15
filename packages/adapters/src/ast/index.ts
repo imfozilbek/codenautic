@@ -136,6 +136,12 @@ export {
     type IAstModuleBoundaryValidatorErrorDetails,
 } from "./ast-module-boundary-validator.error"
 export {
+    AST_DRIFT_SCORE_CALCULATOR_ERROR_CODE,
+    AstDriftScoreCalculatorError,
+    type AstDriftScoreCalculatorErrorCode,
+    type IAstDriftScoreCalculatorErrorDetails,
+} from "./ast-drift-score-calculator.error"
+export {
     AST_FILE_METRICS_PROVIDER_ERROR_CODE,
     AstFileMetricsProviderError,
     type AstFileMetricsProviderErrorCode,
@@ -675,6 +681,25 @@ export {
     type IAstModuleBoundaryValidatorSummary,
     type IAstModuleBoundaryViolation,
 } from "./ast-module-boundary-validator.service"
+export {
+    AST_DRIFT_TREND_DIRECTION,
+    AstDriftScoreCalculatorService,
+    type AstDriftScoreCalculatorLoadHistory,
+    type AstDriftScoreCalculatorNow,
+    type AstDriftScoreCalculatorSleep,
+    type AstDriftTrendDirection,
+    type IAstDriftCommitRef,
+    type IAstDriftHistoryPointInput,
+    type IAstDriftImportInput,
+    type IAstDriftModuleBreakdownItem,
+    type IAstDriftScoreCalculatorInput,
+    type IAstDriftScoreCalculatorResult,
+    type IAstDriftScoreCalculatorService,
+    type IAstDriftScoreCalculatorServiceOptions,
+    type IAstDriftScoreCalculatorSummary,
+    type IAstDriftTrendPoint,
+    type IAstDriftViolationInput,
+} from "./ast-drift-score-calculator.service"
 export {
     AstFileMetricsProvider,
     type AstFileMetricsProviderReadFile,
