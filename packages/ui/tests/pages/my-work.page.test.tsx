@@ -1,6 +1,191 @@
 import { fireEvent, screen, within } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
-import { describe, expect, it, vi } from "vitest"
+import { beforeEach, describe, expect, it, vi } from "vitest"
+
+import type { ITriageItem } from "@/lib/api/endpoints/triage.endpoint"
+import type { IUseTriageResult } from "@/lib/hooks/queries/use-triage"
+
+const mockPerformAction = vi.fn()
+
+const SEED_ITEMS_MINE: ReadonlyArray<ITriageItem> = [
+    {
+        id: "MW-1001",
+        category: "assigned_ccr",
+        title: "CCR #412 needs final response",
+        severity: "high",
+        repository: "frontend-team/ui-dashboard",
+        owner: "me",
+        deepLink: "/reviews/412",
+        timestamp: "2026-03-14T10:00:00Z",
+        isRead: false,
+        status: "unassigned",
+        dueAt: "2026-03-15T12:00:00Z",
+        slaMinutes: 60,
+        escalationLevel: "none",
+    },
+    {
+        id: "MW-1003",
+        category: "inbox_notification",
+        title: "Notification digest pending confirmation",
+        severity: "medium",
+        repository: "backend-core/notification-worker",
+        owner: "me",
+        deepLink: "/notifications/digest",
+        timestamp: "2026-03-13T08:00:00Z",
+        isRead: true,
+        status: "assigned",
+        dueAt: "2026-03-16T08:00:00Z",
+        slaMinutes: 120,
+        escalationLevel: "none",
+    },
+]
+
+const SEED_ITEMS_TEAM: ReadonlyArray<ITriageItem> = [
+    ...SEED_ITEMS_MINE,
+    {
+        id: "MW-1002",
+        category: "critical_issue",
+        title: "Tenant boundary regression in auth middleware",
+        severity: "critical",
+        repository: "backend-core/auth-service",
+        owner: "team",
+        deepLink: "/issues/1002",
+        timestamp: "2026-03-14T09:00:00Z",
+        isRead: false,
+        status: "unassigned",
+        dueAt: "2026-03-14T08:00:00Z",
+        slaMinutes: 30,
+        escalationLevel: "none",
+    },
+    {
+        id: "MW-1005",
+        category: "pending_approval",
+        title: "Approval pending for CCR #409",
+        severity: "medium",
+        repository: "frontend-team/ui-dashboard",
+        owner: "team",
+        deepLink: "/reviews/409",
+        timestamp: "2026-03-12T07:00:00Z",
+        isRead: false,
+        status: "assigned",
+        dueAt: "2026-03-17T12:00:00Z",
+        slaMinutes: 180,
+        escalationLevel: "none",
+    },
+]
+
+const SEED_ITEMS_REPO: ReadonlyArray<ITriageItem> = [
+    {
+        id: "MW-1004",
+        category: "stuck_job",
+        title: "Scan worker stuck on queue heartbeat",
+        severity: "high",
+        repository: "backend-core/scan-worker",
+        owner: "unassigned",
+        deepLink: "/jobs/stuck/1004",
+        timestamp: "2026-03-14T11:00:00Z",
+        isRead: false,
+        status: "blocked",
+        dueAt: "2026-03-14T14:00:00Z",
+        slaMinutes: 45,
+        escalationLevel: "warn",
+    },
+]
+
+/**
+ * Применяет действие к triage item (зеркало applyTriageAction из хука).
+ *
+ * @param item Исходный item.
+ * @param action Действие.
+ * @returns Обновлённый item.
+ */
+function applyAction(item: ITriageItem, action: string): ITriageItem {
+    if (action === "escalate") {
+        return {
+            ...item,
+            escalationLevel: item.escalationLevel === "none" ? "warn" : "critical",
+            status: item.status === "done" ? item.status : "blocked",
+        }
+    }
+    if (action === "start_work") {
+        return { ...item, status: "in_progress" }
+    }
+    if (action === "mark_done") {
+        return { ...item, status: "done" }
+    }
+    if (action === "snooze") {
+        return { ...item, status: "snoozed" }
+    }
+    if (action === "assign_to_me") {
+        return { ...item, owner: "me" }
+    }
+    if (action === "mark_read") {
+        return { ...item, isRead: true }
+    }
+    return item
+}
+
+/**
+ * Мутабельный стейт для optimistic-подобных обновлений в тестах.
+ * Ключ — scope, значение — текущие items (обновляются через mutate).
+ */
+const itemOverrides: Record<string, ReadonlyArray<ITriageItem>> = {}
+
+/**
+ * Возвращает seed items для scope с учётом optimistic overrides.
+ *
+ * @param scope Scope triage.
+ * @returns Текущие items.
+ */
+function getItemsForScope(scope: string): ReadonlyArray<ITriageItem> {
+    const overridden = itemOverrides[scope]
+    if (overridden !== undefined) {
+        return overridden
+    }
+    if (scope === "team") {
+        return SEED_ITEMS_TEAM
+    }
+    if (scope === "repo") {
+        return SEED_ITEMS_REPO
+    }
+    return SEED_ITEMS_MINE
+}
+
+let currentScope: string = "mine"
+
+vi.mock("@/lib/hooks/queries/use-triage", () => {
+    return {
+        useTriage: (args: { readonly scope?: string }): IUseTriageResult => {
+            const scope = args.scope ?? "mine"
+            currentScope = scope
+
+            const items = getItemsForScope(currentScope)
+
+            return {
+                triageQuery: {
+                    data: { items, total: items.length },
+                    isLoading: false,
+                    isError: false,
+                    error: null,
+                } as unknown as IUseTriageResult["triageQuery"],
+                performAction: {
+                    mutate: (request: { readonly id: string; readonly action: string }): void => {
+                        mockPerformAction(request)
+                        const currentItems = getItemsForScope(currentScope)
+                        const updatedItems = currentItems.map((item): ITriageItem => {
+                            if (item.id === request.id) {
+                                return applyAction(item, request.action)
+                            }
+                            return item
+                        })
+                        itemOverrides[currentScope] = updatedItems
+                    },
+                    isPending: false,
+                } as unknown as IUseTriageResult["performAction"],
+            }
+        },
+    }
+})
 
 import { MyWorkPage } from "@/pages/my-work.page"
 import { renderWithProviders } from "../utils/render"
@@ -25,6 +210,14 @@ async function findActiveMenuItem(name: string): Promise<HTMLElement> {
 }
 
 describe("MyWorkPage", (): void => {
+    beforeEach((): void => {
+        mockPerformAction.mockClear()
+        for (const key of Object.keys(itemOverrides)) {
+            delete itemOverrides[key]
+        }
+        currentScope = "mine"
+    })
+
     it("объединяет triage поток и поддерживает scope filters + keyboard shortcuts", async (): Promise<void> => {
         const user = userEvent.setup()
         renderWithProviders(<MyWorkPage />)
