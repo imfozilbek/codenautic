@@ -2,7 +2,6 @@ import { type ReactElement, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { Alert, Button, Card, CardContent, CardHeader, Chip, Table } from "@heroui/react"
-import { FormLayout } from "@/components/forms/form-layout"
 import { NATIVE_FORM } from "@/lib/constants/spacing"
 import { TYPOGRAPHY } from "@/lib/constants/typography"
 import { showToastSuccess } from "@/lib/notifications/toast"
@@ -282,10 +281,12 @@ export function SettingsAuditLogsPage(props: ISettingsAuditLogsPageProps = {}): 
     }
 
     return (
-        <FormLayout
-            title={t("settings:auditLogs.pageTitle")}
-            description={t("settings:auditLogs.pageSubtitle")}
-        >
+        <div className="space-y-6 mx-auto max-w-[1400px]">
+            <div className="space-y-1.5">
+                <h1 className={TYPOGRAPHY.pageTitle}>{t("settings:auditLogs.pageTitle")}</h1>
+                <p className={TYPOGRAPHY.bodyMuted}>{t("settings:auditLogs.pageSubtitle")}</p>
+            </div>
+            <div className="space-y-6">
             <Card>
                 <CardHeader>
                     <p className={TYPOGRAPHY.sectionTitle}>{t("settings:auditLogs.filters")}</p>
@@ -361,10 +362,7 @@ export function SettingsAuditLogsPage(props: ISettingsAuditLogsPageProps = {}): 
                             </option>
                         </select>
                         <div className="flex flex-col gap-1">
-                            <label
-                                className="text-sm text-muted"
-                                htmlFor="audit-filter-date-from"
-                            >
+                            <label className="text-sm text-muted" htmlFor="audit-filter-date-from">
                                 {t("settings:auditLogs.dateFrom")}
                             </label>
                             <input
@@ -385,10 +383,7 @@ export function SettingsAuditLogsPage(props: ISettingsAuditLogsPageProps = {}): 
                             />
                         </div>
                         <div className="flex flex-col gap-1">
-                            <label
-                                className="text-sm text-muted"
-                                htmlFor="audit-filter-date-to"
-                            >
+                            <label className="text-sm text-muted" htmlFor="audit-filter-date-to">
                                 {t("settings:auditLogs.dateTo")}
                             </label>
                             <input
@@ -493,6 +488,7 @@ export function SettingsAuditLogsPage(props: ISettingsAuditLogsPageProps = {}): 
                     </Table>
                 </CardContent>
             </Card>
-        </FormLayout>
+            </div>
+        </div>
     )
 }
