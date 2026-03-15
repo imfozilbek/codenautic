@@ -154,6 +154,9 @@ export class MockStore {
         this.triage = new TriageCollection()
         this.byok = new ByokCollection()
         this.sso = new SsoCollection()
+        this.jobs = new JobsCollection()
+        this.webhooks = new WebhooksCollection()
+        this.billing = new BillingCollection()
     }
 
     /**
@@ -178,5 +181,8 @@ export class MockStore {
         this.triage.clear()
         this.byok.clear()
         this.sso.clear()
+        this.jobs.clear()
+        this.webhooks.clear()
+        this.billing.clear()
     }
 }
