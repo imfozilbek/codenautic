@@ -1,11 +1,184 @@
 import { screen, waitFor } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
-import { describe, expect, it } from "vitest"
+import { beforeEach, describe, expect, it, vi } from "vitest"
+
+import type {
+    IByokKeyEntry,
+    IByokKeyResponse,
+    ICreateByokKeyRequest,
+    IToggleByokKeyRequest,
+    TByokProvider,
+} from "@/lib/api/endpoints/byok.endpoint"
+import type { IUseByokResult } from "@/lib/hooks/queries/use-byok"
+
+/**
+ * Количество видимых символов в начале маскированного секрета.
+ */
+const SECRET_PREFIX_LENGTH = 4
+
+/**
+ * Маскирует секрет: показывает начало и конец, скрывая середину.
+ *
+ * @param value - Исходный секрет.
+ * @returns Маскированная строка.
+ */
+function maskSecret(value: string): string {
+    const normalized = value.trim()
+    const prefix = normalized.slice(0, SECRET_PREFIX_LENGTH)
+    const suffix = normalized.slice(-3)
+    if (normalized.length < 7) {
+        return "****"
+    }
+
+    return `${prefix}****${suffix}`
+}
+
+const DEFAULT_KEYS: IByokKeyEntry[] = [
+    {
+        id: "byok-1",
+        isActive: true,
+        label: "openai-prod-main",
+        lastUsedAt: "2026-03-04T11:05:00Z",
+        maskedSecret: "sk-p****001",
+        provider: "openai",
+        rotationCount: 1,
+        usageRequests: 1284,
+        usageTokens: 391820,
+    },
+    {
+        id: "byok-2",
+        isActive: true,
+        label: "anthropic-fallback",
+        lastUsedAt: "2026-03-04T10:47:00Z",
+        maskedSecret: "sk-a****873",
+        provider: "anthropic",
+        rotationCount: 2,
+        usageRequests: 402,
+        usageTokens: 116240,
+    },
+]
+
+/**
+ * Мутабельный стейт для ключей.
+ */
+const keyState: { keys: IByokKeyEntry[] } = {
+    keys: DEFAULT_KEYS.map((k): IByokKeyEntry => ({ ...k })),
+}
+
+let nextKeyId = 100
+
+vi.mock("@/lib/hooks/queries/use-byok", async () => {
+    const { useState } = await import("react")
+
+    return {
+        useByok: (): IUseByokResult => {
+            const [keys, setKeys] = useState<IByokKeyEntry[]>(() =>
+                keyState.keys.map((k): IByokKeyEntry => ({ ...k })),
+            )
+
+            return {
+                keysQuery: {
+                    data: { keys, total: keys.length },
+                    isLoading: false,
+                    isError: false,
+                    error: null,
+                } as unknown as IUseByokResult["keysQuery"],
+                createKey: {
+                    mutate: (
+                        data: ICreateByokKeyRequest,
+                        options?: {
+                            readonly onSuccess?: (response: IByokKeyResponse) => void
+                        },
+                    ): void => {
+                        nextKeyId += 1
+                        const newKey: IByokKeyEntry = {
+                            id: `byok-${String(nextKeyId)}`,
+                            provider: data.provider,
+                            label: data.label,
+                            maskedSecret: maskSecret(data.secret),
+                            isActive: true,
+                            rotationCount: 1,
+                            usageRequests: 0,
+                            usageTokens: 0,
+                            lastUsedAt: new Date().toISOString(),
+                        }
+                        setKeys((prev): IByokKeyEntry[] => [newKey, ...prev])
+                        if (options?.onSuccess !== undefined) {
+                            options.onSuccess({ key: newKey })
+                        }
+                    },
+                    isPending: false,
+                } as unknown as IUseByokResult["createKey"],
+                deleteKey: {
+                    mutate: (
+                        keyId: string,
+                        options?: { readonly onSuccess?: () => void },
+                    ): void => {
+                        setKeys(
+                            (prev): IByokKeyEntry[] =>
+                                prev.filter((k): boolean => k.id !== keyId),
+                        )
+                        if (options?.onSuccess !== undefined) {
+                            options.onSuccess()
+                        }
+                    },
+                    isPending: false,
+                } as unknown as IUseByokResult["deleteKey"],
+                rotateKey: {
+                    mutate: (
+                        keyId: string,
+                        options?: { readonly onSuccess?: () => void },
+                    ): void => {
+                        setKeys(
+                            (prev): IByokKeyEntry[] =>
+                                prev.map(
+                                    (k): IByokKeyEntry =>
+                                        k.id === keyId
+                                            ? {
+                                                  ...k,
+                                                  rotationCount: k.rotationCount + 1,
+                                                  maskedSecret: maskSecret(
+                                                      `${k.provider}-${Date.now().toString(36)}-rot`,
+                                                  ),
+                                                  lastUsedAt: new Date().toISOString(),
+                                              }
+                                            : k,
+                                ),
+                        )
+                        if (options?.onSuccess !== undefined) {
+                            options.onSuccess()
+                        }
+                    },
+                    isPending: false,
+                } as unknown as IUseByokResult["rotateKey"],
+                toggleKey: {
+                    mutate: (data: IToggleByokKeyRequest): void => {
+                        setKeys(
+                            (prev): IByokKeyEntry[] =>
+                                prev.map(
+                                    (k): IByokKeyEntry =>
+                                        k.id === data.id
+                                            ? { ...k, isActive: data.isActive }
+                                            : k,
+                                ),
+                        )
+                    },
+                    isPending: false,
+                } as unknown as IUseByokResult["toggleKey"],
+            }
+        },
+    }
+})
 
 import { SettingsByokPage } from "@/pages/settings-byok.page"
 import { renderWithProviders } from "../utils/render"
 
 describe("SettingsByokPage", (): void => {
+    beforeEach((): void => {
+        keyState.keys = DEFAULT_KEYS.map((k): IByokKeyEntry => ({ ...k }))
+        nextKeyId = 100
+    })
+
     it("добавляет ключ с masked display, ротирует его и отражает usage stats", async (): Promise<void> => {
         const user = userEvent.setup()
         renderWithProviders(<SettingsByokPage />)
