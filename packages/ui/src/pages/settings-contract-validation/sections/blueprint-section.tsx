@@ -32,7 +32,7 @@ export function BlueprintSection({ state }: IBlueprintSectionProps): ReactElemen
                     <p className={TYPOGRAPHY.sectionTitle}>Architecture blueprint editor</p>
                 </CardHeader>
                 <CardContent className="space-y-3">
-                    <p className="text-sm text-text-secondary">
+                    <p className="text-sm text-muted">
                         Upload and edit architecture blueprint in YAML format with inline syntax
                         highlight and visual preview.
                     </p>
@@ -40,7 +40,9 @@ export function BlueprintSection({ state }: IBlueprintSectionProps): ReactElemen
                         aria-label={t("settings:ariaLabel.contractValidation.blueprintYaml")}
                         className="min-h-[300px]"
                         value={state.blueprintYaml}
-                        onChange={(e): void => { state.setBlueprintYaml(e.target.value) }}
+                        onChange={(e): void => {
+                            state.setBlueprintYaml(e.target.value)
+                        }}
                     />
                     <div className="flex flex-wrap gap-2">
                         <label className="inline-flex items-center gap-2 rounded-md border border-border px-3 py-2 text-sm font-medium text-foreground">
@@ -65,7 +67,9 @@ export function BlueprintSection({ state }: IBlueprintSectionProps): ReactElemen
                     {state.blueprintValidationResult.errors.length === 0 ? (
                         <Alert status="success">
                             <Alert.Title>Blueprint is valid</Alert.Title>
-                            <Alert.Description>Visual nodes: {String(state.blueprintValidationResult.nodes.length)}</Alert.Description>
+                            <Alert.Description>
+                                Visual nodes: {String(state.blueprintValidationResult.nodes.length)}
+                            </Alert.Description>
                         </Alert>
                     ) : (
                         <Alert status="danger">
@@ -113,7 +117,7 @@ export function BlueprintSection({ state }: IBlueprintSectionProps): ReactElemen
                                     }}
                                 >
                                     {line.comment === undefined ? null : (
-                                        <span className="text-muted-foreground">
+                                        <span className="text-muted">
                                             {line.comment}
                                         </span>
                                     )}
@@ -121,7 +125,7 @@ export function BlueprintSection({ state }: IBlueprintSectionProps): ReactElemen
                                         <span className="text-sky-300">{line.key}</span>
                                     )}
                                     {line.key === undefined ? null : (
-                                        <span className="text-muted-foreground">: </span>
+                                        <span className="text-muted">: </span>
                                     )}
                                     {line.value === undefined ? null : (
                                         <span className="text-emerald-300">{line.value}</span>
@@ -160,7 +164,7 @@ export function BlueprintSection({ state }: IBlueprintSectionProps): ReactElemen
                                         {node.label}
                                     </span>
                                     {node.value === undefined ? null : (
-                                        <span className="text-muted-foreground">{node.value}</span>
+                                        <span className="text-muted">{node.value}</span>
                                     )}
                                 </li>
                             ),

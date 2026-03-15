@@ -331,8 +331,12 @@ export function SettingsConcurrencyPage(): ReactElement {
             <FormSection heading={t("settings:concurrency.conflictResolutionAudit")}>
                 {audit.length === 0 ? (
                     <Alert status="warning">
-                        <Alert.Title>{t("settings:concurrency.noConcurrencyDecisionsTitle")}</Alert.Title>
-                        <Alert.Description>{t("settings:concurrency.noConcurrencyDecisionsDescription")}</Alert.Description>
+                        <Alert.Title>
+                            {t("settings:concurrency.noConcurrencyDecisionsTitle")}
+                        </Alert.Title>
+                        <Alert.Description>
+                            {t("settings:concurrency.noConcurrencyDecisionsDescription")}
+                        </Alert.Description>
                     </Alert>
                 ) : (
                     <ul
@@ -348,8 +352,8 @@ export function SettingsConcurrencyPage(): ReactElement {
                                     <p className="font-semibold text-foreground">
                                         {entry.decision} · etag {entry.resultingEtag}
                                     </p>
-                                    <p className="text-text-tertiary">{entry.summary}</p>
-                                    <p className="text-xs text-text-secondary">
+                                    <p className="text-muted">{entry.summary}</p>
+                                    <p className="text-xs text-muted">
                                         {formatTimestamp(entry.occurredAt)}
                                     </p>
                                 </li>
@@ -369,48 +373,52 @@ export function SettingsConcurrencyPage(): ReactElement {
             >
                 <Modal.Container>
                     <Modal.Dialog>
-                    <ModalHeader>{t("settings:concurrency.configConflictDetected")}</ModalHeader>
-                    <ModalBody>
-                        <p className="text-sm text-text-tertiary">
-                            {t("settings:concurrency.conflictDescription")}
-                        </p>
-                        <ul
-                            aria-label={t("settings:ariaLabel.concurrency.conflictDiffList")}
-                            className="space-y-2"
-                        >
-                            {diffRows.map(
-                                (row): ReactElement => (
-                                    <li
-                                        className="rounded-md border border-border bg-surface p-2 text-xs"
-                                        key={row.field}
-                                    >
-                                        <p className="font-semibold text-foreground">{row.field}</p>
-                                        <p>
-                                            {t("settings:concurrency.local", {
-                                                value: row.localValue,
-                                            })}
-                                        </p>
-                                        <p>
-                                            {t("settings:concurrency.remote", {
-                                                value: row.remoteValue,
-                                            })}
-                                        </p>
-                                    </li>
-                                ),
-                            )}
-                        </ul>
-                    </ModalBody>
-                    <ModalFooter>
-                        <Button variant="secondary" onPress={handleConflictReload}>
-                            {t("settings:concurrency.reloadRemote")}
-                        </Button>
-                        <Button variant="secondary" onPress={handleConflictRetry}>
-                            {t("settings:concurrency.retryWithLatestEtag")}
-                        </Button>
-                        <Button variant="primary" onPress={handleConflictMerge}>
-                            {t("settings:concurrency.mergeAndSave")}
-                        </Button>
-                    </ModalFooter>
+                        <ModalHeader>
+                            {t("settings:concurrency.configConflictDetected")}
+                        </ModalHeader>
+                        <ModalBody>
+                            <p className="text-sm text-muted">
+                                {t("settings:concurrency.conflictDescription")}
+                            </p>
+                            <ul
+                                aria-label={t("settings:ariaLabel.concurrency.conflictDiffList")}
+                                className="space-y-2"
+                            >
+                                {diffRows.map(
+                                    (row): ReactElement => (
+                                        <li
+                                            className="rounded-md border border-border bg-surface p-2 text-xs"
+                                            key={row.field}
+                                        >
+                                            <p className="font-semibold text-foreground">
+                                                {row.field}
+                                            </p>
+                                            <p>
+                                                {t("settings:concurrency.local", {
+                                                    value: row.localValue,
+                                                })}
+                                            </p>
+                                            <p>
+                                                {t("settings:concurrency.remote", {
+                                                    value: row.remoteValue,
+                                                })}
+                                            </p>
+                                        </li>
+                                    ),
+                                )}
+                            </ul>
+                        </ModalBody>
+                        <ModalFooter>
+                            <Button variant="secondary" onPress={handleConflictReload}>
+                                {t("settings:concurrency.reloadRemote")}
+                            </Button>
+                            <Button variant="secondary" onPress={handleConflictRetry}>
+                                {t("settings:concurrency.retryWithLatestEtag")}
+                            </Button>
+                            <Button variant="primary" onPress={handleConflictMerge}>
+                                {t("settings:concurrency.mergeAndSave")}
+                            </Button>
+                        </ModalFooter>
                     </Modal.Dialog>
                 </Modal.Container>
             </Modal>
