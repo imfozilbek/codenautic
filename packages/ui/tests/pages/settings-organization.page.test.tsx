@@ -1,11 +1,222 @@
 import { screen } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
-import { afterEach, describe, expect, it, vi } from "vitest"
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
+
+import type {
+    IBillingState,
+    IInviteOrgMemberRequest,
+    IOrgMember,
+    IOrgMemberResponse,
+    IOrgProfileResponse,
+    IOrganizationProfile,
+    IRemoveOrgMemberRequest,
+    IUpdateOrgMemberRoleRequest,
+    IUpdateOrgProfileRequest,
+    IUpdatePlanRequest,
+    TBillingStatus,
+    TOrgMemberRole,
+    TPlanName,
+} from "@/lib/api/endpoints/organization.endpoint"
+import type { IUseOrganizationResult } from "@/lib/hooks/queries/use-organization"
+
+const DEFAULT_PROFILE: IOrganizationProfile = {
+    name: "Acme Platform",
+    slug: "acme-platform",
+    timezone: "UTC+02:00",
+    domain: "acme.dev",
+}
+
+const DEFAULT_MEMBERS: IOrgMember[] = [
+    { id: "m-1", name: "Neo Anderson", email: "neo@acme.dev", role: "admin" },
+    { id: "m-2", name: "Trinity", email: "trinity@acme.dev", role: "lead" },
+    { id: "m-3", name: "Morpheus", email: "morpheus@acme.dev", role: "developer" },
+]
+
+const DEFAULT_BILLING: IBillingState = {
+    plan: "pro",
+    status: "active",
+    seatsUsed: 18,
+    seatsTotal: 30,
+    renewalAt: "2026-04-01",
+    paymentMethod: "Visa **** 8891",
+}
+
+/**
+ * Мутабельный стейт для optimistic обновлений.
+ */
+const orgState: {
+    profile: IOrganizationProfile
+    members: IOrgMember[]
+    billing: IBillingState
+} = {
+    profile: { ...DEFAULT_PROFILE },
+    members: [...DEFAULT_MEMBERS],
+    billing: { ...DEFAULT_BILLING },
+}
+
+let nextMemberId = 100
+
+vi.mock("@/lib/hooks/queries/use-organization", async () => {
+    const { useState } = await import("react")
+
+    return {
+        useOrganization: (): IUseOrganizationResult => {
+            const [members, setMembers] = useState<IOrgMember[]>(() => [...orgState.members])
+            const [billing, setBilling] = useState<IBillingState>(() => ({ ...orgState.billing }))
+
+            return {
+                profileQuery: {
+                    data: { profile: orgState.profile },
+                    isLoading: false,
+                    isError: false,
+                    error: null,
+                } as unknown as IUseOrganizationResult["profileQuery"],
+                membersQuery: {
+                    data: { members, total: members.length },
+                    isLoading: false,
+                    isError: false,
+                    error: null,
+                } as unknown as IUseOrganizationResult["membersQuery"],
+                billingQuery: {
+                    data: { billing },
+                    isLoading: false,
+                    isError: false,
+                    error: null,
+                } as unknown as IUseOrganizationResult["billingQuery"],
+                updateProfile: {
+                    mutate: (
+                        data: IUpdateOrgProfileRequest,
+                        options?: { readonly onSuccess?: () => void },
+                    ): void => {
+                        orgState.profile = {
+                            ...orgState.profile,
+                            ...data,
+                        }
+                        if (options?.onSuccess !== undefined) {
+                            options.onSuccess()
+                        }
+                    },
+                    isPending: false,
+                } as unknown as IUseOrganizationResult["updateProfile"],
+                inviteMember: {
+                    mutate: (
+                        data: IInviteOrgMemberRequest,
+                        options?: { readonly onSuccess?: () => void },
+                    ): void => {
+                        const localPart = data.email.split("@")[0] ?? ""
+                        const name = localPart
+                            .split(/[.\-_]/)
+                            .map(
+                                (part: string): string =>
+                                    part.charAt(0).toUpperCase() + part.slice(1),
+                            )
+                            .join(" ")
+                        nextMemberId += 1
+                        const newMember: IOrgMember = {
+                            id: `m-${String(nextMemberId)}`,
+                            name,
+                            email: data.email,
+                            role: data.role,
+                        }
+                        setMembers((prev): IOrgMember[] => [...prev, newMember])
+                        if (options?.onSuccess !== undefined) {
+                            options.onSuccess()
+                        }
+                    },
+                    isPending: false,
+                } as unknown as IUseOrganizationResult["inviteMember"],
+                updateMemberRole: {
+                    mutate: (
+                        data: IUpdateOrgMemberRoleRequest,
+                        options?: { readonly onSuccess?: () => void },
+                    ): void => {
+                        setMembers(
+                            (prev): IOrgMember[] =>
+                                prev.map(
+                                    (m): IOrgMember =>
+                                        m.id === data.memberId
+                                            ? { ...m, role: data.role }
+                                            : m,
+                                ),
+                        )
+                        if (options?.onSuccess !== undefined) {
+                            options.onSuccess()
+                        }
+                    },
+                    isPending: false,
+                } as unknown as IUseOrganizationResult["updateMemberRole"],
+                removeMember: {
+                    mutate: (
+                        data: IRemoveOrgMemberRequest,
+                        options?: { readonly onSuccess?: () => void },
+                    ): void => {
+                        setMembers(
+                            (prev): IOrgMember[] =>
+                                prev.filter((m): boolean => m.id !== data.memberId),
+                        )
+                        if (options?.onSuccess !== undefined) {
+                            options.onSuccess()
+                        }
+                    },
+                    isPending: false,
+                } as unknown as IUseOrganizationResult["removeMember"],
+                updatePlan: {
+                    mutate: (
+                        data: IUpdatePlanRequest,
+                        options?: { readonly onSuccess?: () => void },
+                    ): void => {
+                        const nextStatus: TBillingStatus =
+                            data.plan === "starter" ? "trial" : "active"
+                        setBilling(
+                            (prev): IBillingState => ({
+                                ...prev,
+                                plan: data.plan,
+                                status: nextStatus,
+                            }),
+                        )
+                        if (options?.onSuccess !== undefined) {
+                            options.onSuccess()
+                        }
+                    },
+                    isPending: false,
+                } as unknown as IUseOrganizationResult["updatePlan"],
+            }
+        },
+    }
+})
+
+/**
+ * Мок useTeams для SettingsTeamPage (встроенный как вкладка в settings-organization).
+ */
+vi.mock("@/lib/hooks/queries/use-teams", () => {
+    return {
+        useTeams: (): unknown => ({
+            teamsQuery: {
+                data: { teams: [], total: 0 },
+                isLoading: false,
+                isError: false,
+                error: null,
+            },
+            createTeam: { mutate: vi.fn(), isPending: false },
+            inviteMember: { mutate: vi.fn(), isPending: false },
+            updateMemberRole: { mutate: vi.fn(), isPending: false },
+            removeMember: { mutate: vi.fn(), isPending: false },
+            updateRepositories: { mutate: vi.fn(), isPending: false },
+        }),
+    }
+})
 
 import { SettingsOrganizationPage } from "@/pages/settings-organization.page"
 import { renderWithProviders } from "../utils/render"
 
 describe("SettingsOrganizationPage", (): void => {
+    beforeEach((): void => {
+        orgState.profile = { ...DEFAULT_PROFILE }
+        orgState.members = [...DEFAULT_MEMBERS]
+        orgState.billing = { ...DEFAULT_BILLING }
+        nextMemberId = 100
+    })
+
     afterEach((): void => {
         vi.restoreAllMocks()
     })
