@@ -1,8 +1,8 @@
 import type { ReactElement } from "react"
 import { useTranslation } from "react-i18next"
 
-import { GuidedTourOverlay } from "@/components/graphs/guided-tour-overlay"
-import { TourCustomizer } from "@/components/graphs/tour-customizer"
+import { GuidedTourOverlay } from "@/components/codecity/guided-tour-overlay"
+import { TourCustomizer } from "@/components/codecity/tour-customizer"
 import { Card, CardContent, CardHeader } from "@heroui/react"
 
 import type { ICodeCityDashboardState } from "../use-code-city-dashboard-state"

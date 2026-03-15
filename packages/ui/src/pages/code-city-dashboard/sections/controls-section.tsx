@@ -1,7 +1,7 @@
 import type { ReactElement } from "react"
 import { useTranslation } from "react-i18next"
 
-import { CausalOverlaySelector } from "@/components/graphs/causal-overlay-selector"
+import { CausalOverlaySelector } from "@/components/codecity/overlays/causal-overlay-selector"
 import { Card, CardContent, CardHeader } from "@heroui/react"
 import { NATIVE_FORM } from "@/lib/constants/spacing"
 

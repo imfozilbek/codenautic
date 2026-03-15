@@ -1,12 +1,12 @@
 import type { ReactElement } from "react"
 import { useTranslation } from "react-i18next"
 
-import { ChurnComplexityScatter } from "@/components/graphs/churn-complexity-scatter"
-import { CodeCity3DScene } from "@/components/graphs/codecity-3d-scene"
-import { CodeCityTreemap } from "@/components/graphs/codecity-treemap"
-import { HealthTrendChart } from "@/components/graphs/health-trend-chart"
-import { PackageDependencyGraph } from "@/components/graphs/package-dependency-graph"
-import { RootCauseChainViewer } from "@/components/graphs/root-cause-chain-viewer"
+import { ChurnComplexityScatter } from "@/components/codecity/churn-complexity-scatter"
+import { CodeCity3DScene } from "@/components/codecity/codecity-3d-scene"
+import { CodeCityTreemap } from "@/components/codecity/codecity-treemap"
+import { HealthTrendChart } from "@/components/codecity/health-trend-chart"
+import { PackageDependencyGraph } from "@/components/dependency-graphs/package-dependency-graph"
+import { RootCauseChainViewer } from "@/components/codecity/root-cause-chain-viewer"
 import { Card, CardContent, CardHeader } from "@heroui/react"
 
 import {

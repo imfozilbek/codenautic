@@ -1,9 +1,9 @@
 import type { ReactElement } from "react"
 import { useTranslation } from "react-i18next"
 
-import { ChangeRiskGauge } from "@/components/graphs/change-risk-gauge"
-import { ImpactGraphView } from "@/components/graphs/impact-graph-view"
-import { WhatIfPanel } from "@/components/graphs/what-if-panel"
+import { ChangeRiskGauge } from "@/components/predictions/change-risk-gauge"
+import { ImpactGraphView } from "@/components/predictions/impact-graph-view"
+import { WhatIfPanel } from "@/components/predictions/what-if-panel"
 import { Card, CardContent, CardHeader } from "@heroui/react"
 
 import type { ICodeCityDashboardState } from "../use-code-city-dashboard-state"

@@ -4,12 +4,12 @@ import { useTranslation } from "react-i18next"
 import {
     AlertConfigDialog,
     type IAlertConfigDialogValue,
-} from "@/components/graphs/alert-config-dialog"
-import { CityPredictionOverlay } from "@/components/graphs/city-prediction-overlay"
-import { PredictionAccuracyWidget } from "@/components/graphs/prediction-accuracy-widget"
-import { PredictionDashboard } from "@/components/graphs/prediction-dashboard"
-import { PredictionExplainPanel } from "@/components/graphs/prediction-explain-panel"
-import { TrendForecastChart } from "@/components/graphs/trend-forecast-chart"
+} from "@/components/codecity/alert-config-dialog"
+import { CityPredictionOverlay } from "@/components/codecity/overlays/city-prediction-overlay"
+import { PredictionAccuracyWidget } from "@/components/predictions/prediction-accuracy-widget"
+import { PredictionDashboard } from "@/components/predictions/prediction-dashboard"
+import { PredictionExplainPanel } from "@/components/predictions/prediction-explain-panel"
+import { TrendForecastChart } from "@/components/predictions/trend-forecast-chart"
 import { Card, CardContent, CardHeader } from "@heroui/react"
 
 import type { ICodeCityDashboardState } from "../use-code-city-dashboard-state"

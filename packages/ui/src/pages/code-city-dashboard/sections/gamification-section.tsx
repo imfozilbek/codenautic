@@ -1,10 +1,10 @@
 import type { ReactElement } from "react"
 import { useTranslation } from "react-i18next"
 
-import { AchievementsPanel } from "@/components/graphs/achievements-panel"
-import { SprintSummaryCard } from "@/components/graphs/sprint-summary-card"
-import { TeamLeaderboard } from "@/components/graphs/team-leaderboard"
-import { TrendTimelineWidget } from "@/components/graphs/trend-timeline-widget"
+import { AchievementsPanel } from "@/components/team-analytics/achievements-panel"
+import { SprintSummaryCard } from "@/components/team-analytics/sprint-summary-card"
+import { TeamLeaderboard } from "@/components/team-analytics/team-leaderboard"
+import { TrendTimelineWidget } from "@/components/predictions/trend-timeline-widget"
 import { Card, CardContent, CardHeader } from "@heroui/react"
 
 import type { ICodeCityDashboardState } from "../use-code-city-dashboard-state"

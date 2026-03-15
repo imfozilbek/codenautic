@@ -1,9 +1,9 @@
 import type { ReactElement } from "react"
 import { useTranslation } from "react-i18next"
 
-import { DistrictTrendIndicators } from "@/components/graphs/district-trend-indicators"
-import { PredictionComparisonView } from "@/components/graphs/prediction-comparison-view"
-import { SprintComparisonView } from "@/components/graphs/sprint-comparison-view"
+import { DistrictTrendIndicators } from "@/components/codecity/district-trend-indicators"
+import { PredictionComparisonView } from "@/components/predictions/prediction-comparison-view"
+import { SprintComparisonView } from "@/components/team-analytics/sprint-comparison-view"
 import { Card, CardContent, CardHeader } from "@heroui/react"
 
 import type { ICodeCityDashboardState } from "../use-code-city-dashboard-state"

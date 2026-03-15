@@ -1,10 +1,10 @@
 import type { ReactElement } from "react"
 import { useTranslation } from "react-i18next"
 
-import { ExploreModeSidebar } from "@/components/graphs/explore-mode-sidebar"
-import { HotAreaHighlights } from "@/components/graphs/hot-area-highlights"
-import { OnboardingProgressTracker } from "@/components/graphs/onboarding-progress-tracker"
-import { ProjectOverviewPanel } from "@/components/graphs/project-overview-panel"
+import { ExploreModeSidebar } from "@/components/codecity/explore-mode-sidebar"
+import { HotAreaHighlights } from "@/components/codecity/hot-area-highlights"
+import { OnboardingProgressTracker } from "@/components/codecity/onboarding-progress-tracker"
+import { ProjectOverviewPanel } from "@/components/codecity/project-overview-panel"
 import { Card, CardContent, CardHeader } from "@heroui/react"
 
 import type { ICodeCityDashboardState } from "../use-code-city-dashboard-state"
