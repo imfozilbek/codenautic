@@ -1,20 +1,24 @@
 import { screen, waitFor } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
-import type { FormEvent, ReactElement } from "react"
+import type { ChangeEvent, FormEvent, ReactElement } from "react"
+import { useState } from "react"
 import { useForm } from "react-hook-form"
 import { describe, expect, it, vi } from "vitest"
-
 import {
-    FormCheckboxField,
-    FormNumberField,
-    FormPasswordField,
-    FormRadioGroupField,
-    FormSelectField,
-    FormSubmitButton,
-    FormSwitchField,
-    FormTextField,
-    FormTextareaField,
-} from "@/components/forms"
+    Button,
+    Checkbox,
+    Input,
+    ListBox,
+    ListBoxItem,
+    Radio,
+    RadioGroup,
+    Select,
+    Switch,
+    TextArea as Textarea,
+} from "@heroui/react"
+import { Eye, EyeOff } from "@/components/icons/app-icons"
+
+import { FormField } from "@/components/forms"
 import { renderWithProviders } from "../utils/render"
 
 interface IFormValues {
@@ -54,7 +58,7 @@ function TextFieldHarness(props: ITextFieldHarnessProps): ReactElement {
 
     return (
         <form onSubmit={submitForm}>
-            <FormTextField<IFormValues, "email">
+            <FormField<IFormValues, "email">
                 control={form.control}
                 helperText="Введите корпоративный email"
                 label="Email"
@@ -66,10 +70,32 @@ function TextFieldHarness(props: ITextFieldHarnessProps): ReactElement {
                     },
                     required: "Обязательное поле",
                 }}
+                renderField={({
+                    field,
+                    hasError,
+                    fieldId,
+                    accessibilityLabel,
+                    ariaDescribedBy,
+                }): ReactElement => {
+                    const value = typeof field.value === "string" ? field.value : ""
+
+                    return (
+                        <Input
+                            aria-describedby={ariaDescribedBy}
+                            aria-label={accessibilityLabel}
+                            aria-invalid={hasError}
+                            id={fieldId}
+                            name={field.name}
+                            value={value}
+                            onBlur={field.onBlur}
+                            onChange={field.onChange}
+                        />
+                    )
+                }}
             />
-            <FormSubmitButton isSubmitting={false} submittingText="Отправка...">
+            <Button type="submit">
                 Отправить
-            </FormSubmitButton>
+            </Button>
         </form>
     )
 }
@@ -91,12 +117,57 @@ function PasswordHarness(props: IPasswordHarnessProps): ReactElement {
             sendNotifications: false,
         },
     })
+    const [isPasswordVisible, setIsPasswordVisible] = useState(false)
 
     return (
-        <FormPasswordField<IFormValues, "password">
+        <FormField<IFormValues, "password">
             control={form.control}
             label="Password"
             name="password"
+            renderField={({
+                field,
+                hasError,
+                fieldId,
+                accessibilityLabel,
+                ariaDescribedBy,
+            }): ReactElement => {
+                const value = field.value === undefined ? "" : field.value
+
+                return (
+                    <div className="relative">
+                        <Input
+                            aria-describedby={ariaDescribedBy}
+                            aria-label={accessibilityLabel}
+                            aria-invalid={hasError}
+                            className="pe-10"
+                            id={fieldId}
+                            minLength={8}
+                            name={field.name}
+                            placeholder="••••••••"
+                            type={isPasswordVisible ? "text" : "password"}
+                            value={value}
+                            onBlur={field.onBlur}
+                            onChange={field.onChange}
+                        />
+                        <Button
+                            aria-label={
+                                isPasswordVisible ? "Hide password text" : "Show password text"
+                            }
+                            className="absolute right-1 top-1/2 -translate-y-1/2"
+                            isIconOnly
+                            size="sm"
+                            variant="ghost"
+                            onPress={(): void => {
+                                setIsPasswordVisible(
+                                    (previousValue: boolean): boolean => !previousValue,
+                                )
+                            }}
+                        >
+                            {isPasswordVisible ? <Eye size={16} /> : <EyeOff size={16} />}
+                        </Button>
+                    </div>
+                )
+            }}
         />
     )
 }
@@ -118,6 +189,7 @@ function FullFormHarness(props: IFormSubmitCaptureProps): ReactElement {
             sendNotifications: false,
         },
     })
+    const [isPasswordVisible, setIsPasswordVisible] = useState(false)
 
     const submitForm = (event: FormEvent<HTMLFormElement>): void => {
         void form.handleSubmit((values): void => {
@@ -127,7 +199,7 @@ function FullFormHarness(props: IFormSubmitCaptureProps): ReactElement {
 
     return (
         <form onSubmit={submitForm}>
-            <FormTextField<IFormValues, "email">
+            <FormField<IFormValues, "email">
                 control={form.control}
                 helperText="Корпоративный email"
                 label="Email"
@@ -139,8 +211,30 @@ function FullFormHarness(props: IFormSubmitCaptureProps): ReactElement {
                     },
                     required: "Email обязателен",
                 }}
+                renderField={({
+                    field,
+                    hasError,
+                    fieldId,
+                    accessibilityLabel,
+                    ariaDescribedBy,
+                }): ReactElement => {
+                    const value = typeof field.value === "string" ? field.value : ""
+
+                    return (
+                        <Input
+                            aria-describedby={ariaDescribedBy}
+                            aria-label={accessibilityLabel}
+                            aria-invalid={hasError}
+                            id={fieldId}
+                            name={field.name}
+                            value={value}
+                            onBlur={field.onBlur}
+                            onChange={field.onChange}
+                        />
+                    )
+                }}
             />
-            <FormPasswordField<IFormValues, "password">
+            <FormField<IFormValues, "password">
                 control={form.control}
                 label="Password"
                 name="password"
@@ -151,45 +245,149 @@ function FullFormHarness(props: IFormSubmitCaptureProps): ReactElement {
                     },
                     required: "Пароль обязателен",
                 }}
+                renderField={({
+                    field,
+                    hasError,
+                    fieldId,
+                    accessibilityLabel,
+                    ariaDescribedBy,
+                }): ReactElement => {
+                    const value = field.value === undefined ? "" : field.value
+
+                    return (
+                        <div className="relative">
+                            <Input
+                                aria-describedby={ariaDescribedBy}
+                                aria-label={accessibilityLabel}
+                                aria-invalid={hasError}
+                                className="pe-10"
+                                id={fieldId}
+                                minLength={8}
+                                name={field.name}
+                                placeholder="••••••••"
+                                type={isPasswordVisible ? "text" : "password"}
+                                value={value}
+                                onBlur={field.onBlur}
+                                onChange={field.onChange}
+                            />
+                            <Button
+                                aria-label={
+                                    isPasswordVisible ? "Hide password text" : "Show password text"
+                                }
+                                className="absolute right-1 top-1/2 -translate-y-1/2"
+                                isIconOnly
+                                size="sm"
+                                variant="ghost"
+                                onPress={(): void => {
+                                    setIsPasswordVisible(
+                                        (previousValue: boolean): boolean => !previousValue,
+                                    )
+                                }}
+                            >
+                                {isPasswordVisible ? <Eye size={16} /> : <EyeOff size={16} />}
+                            </Button>
+                        </div>
+                    )
+                }}
             />
-            <FormTextareaField<IFormValues, "description">
+            <FormField<IFormValues, "description">
                 control={form.control}
                 label="Описание"
                 name="description"
                 rules={{
                     required: "Описание обязательно",
                 }}
+                renderField={({
+                    field,
+                    hasError,
+                    fieldId,
+                    accessibilityLabel,
+                    ariaDescribedBy,
+                }): ReactElement => {
+                    const value = field.value === undefined ? "" : field.value
+
+                    return (
+                        <Textarea
+                            aria-describedby={ariaDescribedBy}
+                            aria-label={accessibilityLabel}
+                            aria-invalid={hasError}
+                            id={fieldId}
+                            name={field.name}
+                            value={value}
+                            onBlur={field.onBlur}
+                            onChange={(event: ChangeEvent<HTMLTextAreaElement>): void => {
+                                field.onChange(event.target.value)
+                            }}
+                        />
+                    )
+                }}
             />
-            <FormSelectField<IFormValues, "provider">
+            <FormField<IFormValues, "provider">
                 control={form.control}
                 label="Поставщик"
                 name="provider"
-                options={[
-                    {
-                        label: "OpenAI",
-                        value: "openai",
-                    },
-                    {
-                        label: "Anthropic",
-                        value: "anthropic",
-                    },
-                    {
-                        description: "Локальная модель",
-                        label: "Ollama",
-                        value: "ollama",
-                    },
-                ]}
                 rules={{
                     required: "Выберите поставщика",
                 }}
+                renderField={({
+                    field,
+                    hasError,
+                    fieldId,
+                    accessibilityLabel,
+                    ariaDescribedBy,
+                }): ReactElement => {
+                    const selectedKey = field.value === undefined ? null : String(field.value)
+
+                    return (
+                        <Select
+                            aria-describedby={ariaDescribedBy}
+                            aria-label={accessibilityLabel}
+                            aria-invalid={hasError}
+                            name={field.name}
+                            id={fieldId}
+                            selectedKey={selectedKey}
+                            onSelectionChange={(key): void => {
+                                const nextValue = typeof key === "string" ? key : undefined
+                                field.onChange(nextValue)
+                            }}
+                        >
+                            <Select.Trigger>
+                                <Select.Value />
+                            </Select.Trigger>
+                            <Select.Popover>
+                                <ListBox>
+                                    <ListBoxItem key="openai" id="openai" textValue="OpenAI">
+                                        <div className="flex flex-col">
+                                            <span>OpenAI</span>
+                                        </div>
+                                    </ListBoxItem>
+                                    <ListBoxItem
+                                        key="anthropic"
+                                        id="anthropic"
+                                        textValue="Anthropic"
+                                    >
+                                        <div className="flex flex-col">
+                                            <span>Anthropic</span>
+                                        </div>
+                                    </ListBoxItem>
+                                    <ListBoxItem key="ollama" id="ollama" textValue="Ollama">
+                                        <div className="flex flex-col">
+                                            <span>Ollama</span>
+                                            <span className="text-xs text-muted">
+                                                Локальная модель
+                                            </span>
+                                        </div>
+                                    </ListBoxItem>
+                                </ListBox>
+                            </Select.Popover>
+                        </Select>
+                    )
+                }}
             />
-            <FormNumberField<IFormValues, "issueLimit">
+            <FormField<IFormValues, "issueLimit">
                 control={form.control}
                 label="Лимит задач"
                 name="issueLimit"
-                inputProps={{
-                    min: 1,
-                }}
                 rules={{
                     min: {
                         message: "Лимит не может быть меньше 1",
@@ -197,38 +395,134 @@ function FullFormHarness(props: IFormSubmitCaptureProps): ReactElement {
                     },
                     required: "Лимит обязателен",
                 }}
+                renderField={({
+                    field,
+                    hasError,
+                    fieldId,
+                    accessibilityLabel,
+                    ariaDescribedBy,
+                }): ReactElement => {
+                    const value = field.value === undefined ? "" : String(field.value)
+
+                    return (
+                        <Input
+                            aria-describedby={ariaDescribedBy}
+                            aria-label={accessibilityLabel}
+                            aria-invalid={hasError}
+                            id={fieldId}
+                            inputMode="decimal"
+                            min={1}
+                            name={field.name}
+                            placeholder="0"
+                            type="number"
+                            value={value}
+                            onBlur={field.onBlur}
+                            onChange={(event: ChangeEvent<HTMLInputElement>): void => {
+                                const nextValue = event.target.value
+
+                                if (nextValue === "") {
+                                    field.onChange(undefined)
+                                    return
+                                }
+
+                                const parsedNumber = Number(nextValue)
+                                if (Number.isNaN(parsedNumber) === true) {
+                                    field.onChange(undefined)
+                                    return
+                                }
+
+                                field.onChange(parsedNumber)
+                            }}
+                        />
+                    )
+                }}
             />
-            <FormCheckboxField<IFormValues, "enableFeature">
+            <FormField<IFormValues, "enableFeature">
                 control={form.control}
+                gapClass="gap-1"
+                hideLabel={true}
                 label="Включить функцию"
                 name="enableFeature"
+                showRequiredMarker={false}
+                renderField={({
+                    field,
+                    hasError,
+                    accessibilityLabel,
+                    ariaDescribedBy,
+                }): ReactElement => (
+                    <Checkbox
+                        aria-describedby={ariaDescribedBy}
+                        aria-label={accessibilityLabel}
+                        aria-invalid={hasError}
+                        isSelected={field.value === true}
+                        name={field.name}
+                        onChange={field.onChange}
+                    >
+                        Включить функцию
+                    </Checkbox>
+                )}
             />
-            <FormSwitchField<IFormValues, "sendNotifications">
+            <FormField<IFormValues, "sendNotifications">
                 control={form.control}
+                gapClass="gap-1"
+                hideLabel={true}
                 label="Уведомления"
                 name="sendNotifications"
+                showRequiredMarker={false}
+                renderField={({
+                    field,
+                    hasError,
+                    accessibilityLabel,
+                    ariaDescribedBy,
+                }): ReactElement => (
+                    <Switch
+                        aria-describedby={ariaDescribedBy}
+                        aria-label={accessibilityLabel}
+                        aria-invalid={hasError}
+                        name={field.name}
+                        isSelected={field.value === true}
+                        onChange={field.onChange}
+                    >
+                        Уведомления
+                    </Switch>
+                )}
             />
-            <FormRadioGroupField<IFormValues, "mode">
+            <FormField<IFormValues, "mode">
                 control={form.control}
                 label="Режим"
+                labelElement="span"
                 name="mode"
-                options={[
-                    {
-                        label: "Строгий",
-                        value: "strict",
-                    },
-                    {
-                        label: "Свободный",
-                        value: "relaxed",
-                    },
-                ]}
                 rules={{
                     required: "Выберите режим",
                 }}
+                renderField={({
+                    field,
+                    hasError,
+                    accessibilityLabel,
+                    ariaDescribedBy,
+                }): ReactElement => (
+                    <RadioGroup
+                        aria-describedby={ariaDescribedBy}
+                        aria-label={accessibilityLabel}
+                        aria-invalid={hasError}
+                        name={field.name}
+                        value={field.value ?? ""}
+                        onChange={(value: string): void => {
+                            field.onChange(value)
+                        }}
+                    >
+                        <Radio key="strict" value="strict">
+                            Строгий
+                        </Radio>
+                        <Radio key="relaxed" value="relaxed">
+                            Свободный
+                        </Radio>
+                    </RadioGroup>
+                )}
             />
-            <FormSubmitButton isSubmitting={false} submittingText="Сохраняем...">
+            <Button type="submit">
                 Сохранить
-            </FormSubmitButton>
+            </Button>
         </form>
     )
 }
@@ -335,19 +629,20 @@ describe("form components", (): void => {
         })
     })
 
-    it("показывает loading-состояние на submit-кнопке", (): void => {
+    it("показывает disabled-состояние на submit-кнопке", (): void => {
         renderWithProviders(
             <form>
-                <FormSubmitButton isSubmitting={true} submittingText="Сохраняем...">
+                <Button aria-busy={true} isDisabled={true} type="submit">
                     Сохранить
-                </FormSubmitButton>
+                </Button>
             </form>,
         )
 
         const button = screen.getByRole<HTMLButtonElement>("button", {
-            name: "Сохраняем...",
+            name: "Сохранить",
         })
-        expect(button.disabled).toBe(true)
-        expect(button.textContent).toBe("Сохраняем...")
+        expect(
+            button.hasAttribute("disabled") || button.getAttribute("data-disabled") === "true",
+        ).toBe(true)
     })
 })
