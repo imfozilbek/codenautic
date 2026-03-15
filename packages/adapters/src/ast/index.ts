@@ -94,6 +94,12 @@ export {
     type IAstApiSurfaceChangeDetectorErrorDetails,
 } from "./ast-api-surface-change-detector.error"
 export {
+    AST_BATCH_PROCESSING_ERROR_CODE,
+    AstBatchProcessingError,
+    type AstBatchProcessingErrorCode,
+    type IAstBatchProcessingErrorDetails,
+} from "./ast-batch-processing.error"
+export {
     AST_PISCINA_WORKER_POOL_ERROR_CODE,
     AstPiscinaWorkerPoolError,
     type AstPiscinaWorkerPoolErrorCode,
@@ -344,6 +350,18 @@ export {
     type IAstApiSurfaceChangeDetectorServiceOptions,
     type IAstApiSurfaceChangeDetectorSummary,
 } from "./ast-api-surface-change-detector.service"
+export {
+    AstBatchProcessingService,
+    type AstBatchProcessingNow,
+    type AstBatchProcessingShouldRetry,
+    type AstBatchProcessingSleep,
+    type IAstBatchProcessingInput,
+    type IAstBatchProcessingResult,
+    type IAstBatchProcessingRetryPolicy,
+    type IAstBatchProcessingService,
+    type IAstBatchProcessingServiceOptions,
+    type IAstBatchProcessingSummary,
+} from "./ast-batch-processing.service"
 export {
     AstPiscinaWorkerPoolService,
     type AstPiscinaWorkerPoolShouldRetry,
