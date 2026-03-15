@@ -3,6 +3,11 @@ import { useTranslation } from "react-i18next"
 import { useNavigate } from "@tanstack/react-router"
 
 import { useDynamicTranslation } from "@/lib/i18n"
+import type {
+    IReportSectionDistribution,
+    IReportTrendPoint,
+} from "@/lib/api/endpoints/reports.endpoint"
+import { useReportData } from "@/lib/hooks/queries/use-reports"
 import {
     Bar,
     BarChart,
@@ -26,59 +31,6 @@ import { showToastInfo, showToastSuccess } from "@/lib/notifications/toast"
 
 type TViewerMetric = "riskScore" | "deliveryVelocity"
 
-interface IReportTrendPoint {
-    readonly period: string
-    readonly riskScore: number
-    readonly deliveryVelocity: number
-}
-
-interface ISectionDistributionPoint {
-    readonly section: string
-    readonly value: number
-}
-
-const REPORT_TREND_POINTS: ReadonlyArray<IReportTrendPoint> = [
-    {
-        deliveryVelocity: 39,
-        period: "Week 1",
-        riskScore: 72,
-    },
-    {
-        deliveryVelocity: 43,
-        period: "Week 2",
-        riskScore: 66,
-    },
-    {
-        deliveryVelocity: 48,
-        period: "Week 3",
-        riskScore: 58,
-    },
-    {
-        deliveryVelocity: 52,
-        period: "Week 4",
-        riskScore: 51,
-    },
-]
-
-const SECTION_DISTRIBUTION_POINTS: ReadonlyArray<ISectionDistributionPoint> = [
-    {
-        section: "Architecture",
-        value: 34,
-    },
-    {
-        section: "Delivery",
-        value: 28,
-    },
-    {
-        section: "Risk",
-        value: 22,
-    },
-    {
-        section: "Quality",
-        value: 16,
-    },
-]
-
 const SECTION_COLORS: ReadonlyArray<string> = ["#2563eb", "#16a34a", "#f59e0b", "#dc2626"]
 
 /**
@@ -90,9 +42,15 @@ export function ReportViewerPage(): ReactElement {
     const { t } = useTranslation(["reports"])
     const { td } = useDynamicTranslation(["reports"])
     const navigate = useNavigate()
+    const { reportDataQuery } = useReportData({ reportId: "report-001" })
     const [selectedMetric, setSelectedMetric] = useState<TViewerMetric>("riskScore")
     const [downloadStatus, setDownloadStatus] = useState<string>(t("reports:viewer.noDownloadYet"))
     const [shareLink, setShareLink] = useState<string>(t("reports:viewer.noShareLinkYet"))
+
+    const trendPoints: ReadonlyArray<IReportTrendPoint> =
+        reportDataQuery.data?.trends ?? []
+    const distributionPoints: ReadonlyArray<IReportSectionDistribution> =
+        reportDataQuery.data?.distribution ?? []
 
     const metricLabel = useMemo((): string => {
         return selectedMetric === "riskScore"
@@ -100,7 +58,7 @@ export function ReportViewerPage(): ReactElement {
             : t("reports:viewer.deliveryVelocity")
     }, [selectedMetric, t])
     const reportHealthSummary = useMemo((): string => {
-        const latestPoint = REPORT_TREND_POINTS.at(-1)
+        const latestPoint = trendPoints.at(-1)
         if (latestPoint === undefined) {
             return t("reports:viewer.noTrendData")
         }
@@ -109,7 +67,7 @@ export function ReportViewerPage(): ReactElement {
             risk: String(latestPoint.riskScore),
             velocity: String(latestPoint.deliveryVelocity),
         })
-    }, [td])
+    }, [td, trendPoints])
 
     const handleDownload = (format: "PDF" | "PNG"): void => {
         setDownloadStatus(td("reports:viewer.downloadPrepared", { format }))
@@ -198,7 +156,7 @@ export function ReportViewerPage(): ReactElement {
                     </div>
                     <div aria-label={t("reports:ariaLabel.viewer.trendChart")} className="h-72 w-full"><ResponsiveContainer height="100%" minHeight={1} minWidth={1} width="100%">
                         <LineChart
-                            data={REPORT_TREND_POINTS}
+                            data={trendPoints}
                             margin={{ bottom: 8, left: 8, right: 12, top: 12 }}
                         >
                             <CartesianGrid strokeDasharray={CHART_GRID_DASH} />
@@ -223,7 +181,7 @@ export function ReportViewerPage(): ReactElement {
                     </ResponsiveContainer></div>
                     <div aria-label={t("reports:ariaLabel.viewer.sectionsDistributionChart")} className="h-72 w-full"><ResponsiveContainer height="100%" minHeight={1} minWidth={1} width="100%">
                         <BarChart
-                            data={SECTION_DISTRIBUTION_POINTS}
+                            data={distributionPoints}
                             margin={{ bottom: 8, left: 8, right: 12, top: 12 }}
                         >
                             <CartesianGrid strokeDasharray={CHART_GRID_DASH} />
@@ -231,7 +189,7 @@ export function ReportViewerPage(): ReactElement {
                             <YAxis domain={[0, 40]} />
                             <Tooltip />
                             <Bar dataKey="value" name={t("reports:viewer.sectionContribution")}>
-                                {SECTION_DISTRIBUTION_POINTS.map(
+                                {distributionPoints.map(
                                     (entry, index): ReactElement => (
                                         <Cell
                                             fill={SECTION_COLORS[index % SECTION_COLORS.length]}
