@@ -9,7 +9,6 @@ const FALLBACK_UI_SERVICE_PORTS = {
     ui: 7110,
     api: 7120,
     uiPreview: 7220,
-    storybook: 7230,
 } as const
 
 const uiServicePortsSchema = z.object({
@@ -17,7 +16,6 @@ const uiServicePortsSchema = z.object({
         ui: z.number().int().min(1).max(65535),
         api: z.number().int().min(1).max(65535),
         uiPreview: z.number().int().min(1).max(65535),
-        storybook: z.number().int().min(1).max(65535),
     }),
 })
 
@@ -28,7 +26,6 @@ export interface IUiServicePorts {
     readonly ui: number
     readonly api: number
     readonly uiPreview: number
-    readonly storybook: number
 }
 
 /**
@@ -52,7 +49,6 @@ export function loadUiServicePorts(startDirectory = process.cwd()): IUiServicePo
             ui: parsedRegistry.services.ui,
             api: parsedRegistry.services.api,
             uiPreview: parsedRegistry.services.uiPreview,
-            storybook: parsedRegistry.services.storybook,
         }
     } catch {
         return FALLBACK_UI_SERVICE_PORTS
