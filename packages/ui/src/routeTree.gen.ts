@@ -14,15 +14,19 @@ import { Route as SettingsWebhooksRouteImport } from './routes/settings-webhooks
 import { Route as SettingsTokenUsageRouteImport } from './routes/settings-token-usage'
 import { Route as SettingsTeamRouteImport } from './routes/settings-team'
 import { Route as SettingsSsoRouteImport } from './routes/settings-sso'
+import { Route as SettingsSecurityRouteImport } from './routes/settings-security'
 import { Route as SettingsRulesLibraryRouteImport } from './routes/settings-rules-library'
+import { Route as SettingsProvidersRouteImport } from './routes/settings-providers'
 import { Route as SettingsProviderDegradationRouteImport } from './routes/settings-provider-degradation'
 import { Route as SettingsPrivacyRedactionRouteImport } from './routes/settings-privacy-redaction'
 import { Route as SettingsOrganizationRouteImport } from './routes/settings-organization'
+import { Route as SettingsOperationsRouteImport } from './routes/settings-operations'
 import { Route as SettingsNotificationsRouteImport } from './routes/settings-notifications'
 import { Route as SettingsLlmProvidersRouteImport } from './routes/settings-llm-providers'
 import { Route as SettingsJobsRouteImport } from './routes/settings-jobs'
 import { Route as SettingsIntegrationsRouteImport } from './routes/settings-integrations'
 import { Route as SettingsGitProvidersRouteImport } from './routes/settings-git-providers'
+import { Route as SettingsGeneralRouteImport } from './routes/settings-general'
 import { Route as SettingsContractValidationRouteImport } from './routes/settings-contract-validation'
 import { Route as SettingsConcurrencyRouteImport } from './routes/settings-concurrency'
 import { Route as SettingsCodeReviewRouteImport } from './routes/settings-code-review'
@@ -43,6 +47,7 @@ import { Route as MyWorkRouteImport } from './routes/my-work'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as IssuesRouteImport } from './routes/issues'
 import { Route as HelpDiagnosticsRouteImport } from './routes/help-diagnostics'
+import { Route as AdoptionAnalyticsRouteImport } from './routes/adoption-analytics'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ReviewsIndexRouteImport } from './routes/reviews.index'
 import { Route as ReviewsReviewIdRouteImport } from './routes/reviews.$reviewId'
@@ -76,9 +81,19 @@ const SettingsSsoRoute = SettingsSsoRouteImport.update({
   path: '/settings-sso',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SettingsSecurityRoute = SettingsSecurityRouteImport.update({
+  id: '/settings-security',
+  path: '/settings-security',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SettingsRulesLibraryRoute = SettingsRulesLibraryRouteImport.update({
   id: '/settings-rules-library',
   path: '/settings-rules-library',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SettingsProvidersRoute = SettingsProvidersRouteImport.update({
+  id: '/settings-providers',
+  path: '/settings-providers',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SettingsProviderDegradationRoute =
@@ -96,6 +111,11 @@ const SettingsPrivacyRedactionRoute =
 const SettingsOrganizationRoute = SettingsOrganizationRouteImport.update({
   id: '/settings-organization',
   path: '/settings-organization',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SettingsOperationsRoute = SettingsOperationsRouteImport.update({
+  id: '/settings-operations',
+  path: '/settings-operations',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SettingsNotificationsRoute = SettingsNotificationsRouteImport.update({
@@ -121,6 +141,11 @@ const SettingsIntegrationsRoute = SettingsIntegrationsRouteImport.update({
 const SettingsGitProvidersRoute = SettingsGitProvidersRouteImport.update({
   id: '/settings-git-providers',
   path: '/settings-git-providers',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SettingsGeneralRoute = SettingsGeneralRouteImport.update({
+  id: '/settings-general',
+  path: '/settings-general',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SettingsContractValidationRoute =
@@ -225,6 +250,11 @@ const HelpDiagnosticsRoute = HelpDiagnosticsRouteImport.update({
   path: '/help-diagnostics',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdoptionAnalyticsRoute = AdoptionAnalyticsRouteImport.update({
+  id: '/adoption-analytics',
+  path: '/adoption-analytics',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -264,6 +294,7 @@ const DashboardCodeCityRoute = DashboardCodeCityRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/adoption-analytics': typeof AdoptionAnalyticsRoute
   '/help-diagnostics': typeof HelpDiagnosticsRoute
   '/issues': typeof IssuesRoute
   '/login': typeof LoginRoute
@@ -284,15 +315,19 @@ export interface FileRoutesByFullPath {
   '/settings-code-review': typeof SettingsCodeReviewRoute
   '/settings-concurrency': typeof SettingsConcurrencyRoute
   '/settings-contract-validation': typeof SettingsContractValidationRoute
+  '/settings-general': typeof SettingsGeneralRoute
   '/settings-git-providers': typeof SettingsGitProvidersRoute
   '/settings-integrations': typeof SettingsIntegrationsRoute
   '/settings-jobs': typeof SettingsJobsRoute
   '/settings-llm-providers': typeof SettingsLlmProvidersRoute
   '/settings-notifications': typeof SettingsNotificationsRoute
+  '/settings-operations': typeof SettingsOperationsRoute
   '/settings-organization': typeof SettingsOrganizationRoute
   '/settings-privacy-redaction': typeof SettingsPrivacyRedactionRoute
   '/settings-provider-degradation': typeof SettingsProviderDegradationRoute
+  '/settings-providers': typeof SettingsProvidersRoute
   '/settings-rules-library': typeof SettingsRulesLibraryRoute
+  '/settings-security': typeof SettingsSecurityRoute
   '/settings-sso': typeof SettingsSsoRoute
   '/settings-team': typeof SettingsTeamRoute
   '/settings-token-usage': typeof SettingsTokenUsageRoute
@@ -307,6 +342,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/adoption-analytics': typeof AdoptionAnalyticsRoute
   '/help-diagnostics': typeof HelpDiagnosticsRoute
   '/issues': typeof IssuesRoute
   '/login': typeof LoginRoute
@@ -326,15 +362,19 @@ export interface FileRoutesByTo {
   '/settings-code-review': typeof SettingsCodeReviewRoute
   '/settings-concurrency': typeof SettingsConcurrencyRoute
   '/settings-contract-validation': typeof SettingsContractValidationRoute
+  '/settings-general': typeof SettingsGeneralRoute
   '/settings-git-providers': typeof SettingsGitProvidersRoute
   '/settings-integrations': typeof SettingsIntegrationsRoute
   '/settings-jobs': typeof SettingsJobsRoute
   '/settings-llm-providers': typeof SettingsLlmProvidersRoute
   '/settings-notifications': typeof SettingsNotificationsRoute
+  '/settings-operations': typeof SettingsOperationsRoute
   '/settings-organization': typeof SettingsOrganizationRoute
   '/settings-privacy-redaction': typeof SettingsPrivacyRedactionRoute
   '/settings-provider-degradation': typeof SettingsProviderDegradationRoute
+  '/settings-providers': typeof SettingsProvidersRoute
   '/settings-rules-library': typeof SettingsRulesLibraryRoute
+  '/settings-security': typeof SettingsSecurityRoute
   '/settings-sso': typeof SettingsSsoRoute
   '/settings-team': typeof SettingsTeamRoute
   '/settings-token-usage': typeof SettingsTokenUsageRoute
@@ -350,6 +390,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/adoption-analytics': typeof AdoptionAnalyticsRoute
   '/help-diagnostics': typeof HelpDiagnosticsRoute
   '/issues': typeof IssuesRoute
   '/login': typeof LoginRoute
@@ -370,15 +411,19 @@ export interface FileRoutesById {
   '/settings-code-review': typeof SettingsCodeReviewRoute
   '/settings-concurrency': typeof SettingsConcurrencyRoute
   '/settings-contract-validation': typeof SettingsContractValidationRoute
+  '/settings-general': typeof SettingsGeneralRoute
   '/settings-git-providers': typeof SettingsGitProvidersRoute
   '/settings-integrations': typeof SettingsIntegrationsRoute
   '/settings-jobs': typeof SettingsJobsRoute
   '/settings-llm-providers': typeof SettingsLlmProvidersRoute
   '/settings-notifications': typeof SettingsNotificationsRoute
+  '/settings-operations': typeof SettingsOperationsRoute
   '/settings-organization': typeof SettingsOrganizationRoute
   '/settings-privacy-redaction': typeof SettingsPrivacyRedactionRoute
   '/settings-provider-degradation': typeof SettingsProviderDegradationRoute
+  '/settings-providers': typeof SettingsProvidersRoute
   '/settings-rules-library': typeof SettingsRulesLibraryRoute
+  '/settings-security': typeof SettingsSecurityRoute
   '/settings-sso': typeof SettingsSsoRoute
   '/settings-team': typeof SettingsTeamRoute
   '/settings-token-usage': typeof SettingsTokenUsageRoute
@@ -395,6 +440,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/adoption-analytics'
     | '/help-diagnostics'
     | '/issues'
     | '/login'
@@ -415,15 +461,19 @@ export interface FileRouteTypes {
     | '/settings-code-review'
     | '/settings-concurrency'
     | '/settings-contract-validation'
+    | '/settings-general'
     | '/settings-git-providers'
     | '/settings-integrations'
     | '/settings-jobs'
     | '/settings-llm-providers'
     | '/settings-notifications'
+    | '/settings-operations'
     | '/settings-organization'
     | '/settings-privacy-redaction'
     | '/settings-provider-degradation'
+    | '/settings-providers'
     | '/settings-rules-library'
+    | '/settings-security'
     | '/settings-sso'
     | '/settings-team'
     | '/settings-token-usage'
@@ -438,6 +488,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/adoption-analytics'
     | '/help-diagnostics'
     | '/issues'
     | '/login'
@@ -457,15 +508,19 @@ export interface FileRouteTypes {
     | '/settings-code-review'
     | '/settings-concurrency'
     | '/settings-contract-validation'
+    | '/settings-general'
     | '/settings-git-providers'
     | '/settings-integrations'
     | '/settings-jobs'
     | '/settings-llm-providers'
     | '/settings-notifications'
+    | '/settings-operations'
     | '/settings-organization'
     | '/settings-privacy-redaction'
     | '/settings-provider-degradation'
+    | '/settings-providers'
     | '/settings-rules-library'
+    | '/settings-security'
     | '/settings-sso'
     | '/settings-team'
     | '/settings-token-usage'
@@ -480,6 +535,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/adoption-analytics'
     | '/help-diagnostics'
     | '/issues'
     | '/login'
@@ -500,15 +556,19 @@ export interface FileRouteTypes {
     | '/settings-code-review'
     | '/settings-concurrency'
     | '/settings-contract-validation'
+    | '/settings-general'
     | '/settings-git-providers'
     | '/settings-integrations'
     | '/settings-jobs'
     | '/settings-llm-providers'
     | '/settings-notifications'
+    | '/settings-operations'
     | '/settings-organization'
     | '/settings-privacy-redaction'
     | '/settings-provider-degradation'
+    | '/settings-providers'
     | '/settings-rules-library'
+    | '/settings-security'
     | '/settings-sso'
     | '/settings-team'
     | '/settings-token-usage'
@@ -524,6 +584,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AdoptionAnalyticsRoute: typeof AdoptionAnalyticsRoute
   HelpDiagnosticsRoute: typeof HelpDiagnosticsRoute
   IssuesRoute: typeof IssuesRoute
   LoginRoute: typeof LoginRoute
@@ -544,15 +605,19 @@ export interface RootRouteChildren {
   SettingsCodeReviewRoute: typeof SettingsCodeReviewRoute
   SettingsConcurrencyRoute: typeof SettingsConcurrencyRoute
   SettingsContractValidationRoute: typeof SettingsContractValidationRoute
+  SettingsGeneralRoute: typeof SettingsGeneralRoute
   SettingsGitProvidersRoute: typeof SettingsGitProvidersRoute
   SettingsIntegrationsRoute: typeof SettingsIntegrationsRoute
   SettingsJobsRoute: typeof SettingsJobsRoute
   SettingsLlmProvidersRoute: typeof SettingsLlmProvidersRoute
   SettingsNotificationsRoute: typeof SettingsNotificationsRoute
+  SettingsOperationsRoute: typeof SettingsOperationsRoute
   SettingsOrganizationRoute: typeof SettingsOrganizationRoute
   SettingsPrivacyRedactionRoute: typeof SettingsPrivacyRedactionRoute
   SettingsProviderDegradationRoute: typeof SettingsProviderDegradationRoute
+  SettingsProvidersRoute: typeof SettingsProvidersRoute
   SettingsRulesLibraryRoute: typeof SettingsRulesLibraryRoute
+  SettingsSecurityRoute: typeof SettingsSecurityRoute
   SettingsSsoRoute: typeof SettingsSsoRoute
   SettingsTeamRoute: typeof SettingsTeamRoute
   SettingsTokenUsageRoute: typeof SettingsTokenUsageRoute
@@ -598,11 +663,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SettingsSsoRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/settings-security': {
+      id: '/settings-security'
+      path: '/settings-security'
+      fullPath: '/settings-security'
+      preLoaderRoute: typeof SettingsSecurityRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/settings-rules-library': {
       id: '/settings-rules-library'
       path: '/settings-rules-library'
       fullPath: '/settings-rules-library'
       preLoaderRoute: typeof SettingsRulesLibraryRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/settings-providers': {
+      id: '/settings-providers'
+      path: '/settings-providers'
+      fullPath: '/settings-providers'
+      preLoaderRoute: typeof SettingsProvidersRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/settings-provider-degradation': {
@@ -624,6 +703,13 @@ declare module '@tanstack/react-router' {
       path: '/settings-organization'
       fullPath: '/settings-organization'
       preLoaderRoute: typeof SettingsOrganizationRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/settings-operations': {
+      id: '/settings-operations'
+      path: '/settings-operations'
+      fullPath: '/settings-operations'
+      preLoaderRoute: typeof SettingsOperationsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/settings-notifications': {
@@ -659,6 +745,13 @@ declare module '@tanstack/react-router' {
       path: '/settings-git-providers'
       fullPath: '/settings-git-providers'
       preLoaderRoute: typeof SettingsGitProvidersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/settings-general': {
+      id: '/settings-general'
+      path: '/settings-general'
+      fullPath: '/settings-general'
+      preLoaderRoute: typeof SettingsGeneralRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/settings-contract-validation': {
@@ -801,6 +894,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof HelpDiagnosticsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/adoption-analytics': {
+      id: '/adoption-analytics'
+      path: '/adoption-analytics'
+      fullPath: '/adoption-analytics'
+      preLoaderRoute: typeof AdoptionAnalyticsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -893,6 +993,7 @@ const ReviewsRouteWithChildren =
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AdoptionAnalyticsRoute: AdoptionAnalyticsRoute,
   HelpDiagnosticsRoute: HelpDiagnosticsRoute,
   IssuesRoute: IssuesRoute,
   LoginRoute: LoginRoute,
@@ -913,15 +1014,19 @@ const rootRouteChildren: RootRouteChildren = {
   SettingsCodeReviewRoute: SettingsCodeReviewRoute,
   SettingsConcurrencyRoute: SettingsConcurrencyRoute,
   SettingsContractValidationRoute: SettingsContractValidationRoute,
+  SettingsGeneralRoute: SettingsGeneralRoute,
   SettingsGitProvidersRoute: SettingsGitProvidersRoute,
   SettingsIntegrationsRoute: SettingsIntegrationsRoute,
   SettingsJobsRoute: SettingsJobsRoute,
   SettingsLlmProvidersRoute: SettingsLlmProvidersRoute,
   SettingsNotificationsRoute: SettingsNotificationsRoute,
+  SettingsOperationsRoute: SettingsOperationsRoute,
   SettingsOrganizationRoute: SettingsOrganizationRoute,
   SettingsPrivacyRedactionRoute: SettingsPrivacyRedactionRoute,
   SettingsProviderDegradationRoute: SettingsProviderDegradationRoute,
+  SettingsProvidersRoute: SettingsProvidersRoute,
   SettingsRulesLibraryRoute: SettingsRulesLibraryRoute,
+  SettingsSecurityRoute: SettingsSecurityRoute,
   SettingsSsoRoute: SettingsSsoRoute,
   SettingsTeamRoute: SettingsTeamRoute,
   SettingsTokenUsageRoute: SettingsTokenUsageRoute,

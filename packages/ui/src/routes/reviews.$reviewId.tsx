@@ -21,7 +21,7 @@ const LazyCcrReviewDetailPage = lazy(
             workspaceContext?: ICcrWorkspaceContextResponse
         }) => ReactElement
     }> => {
-        const pageModule = await import("@/pages/ccr-review-detail.page")
+        const pageModule = await import("@/pages/ccr-review-detail/ccr-review-detail.page")
 
         return {
             default: (props): ReactElement => (
