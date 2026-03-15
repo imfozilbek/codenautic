@@ -92,7 +92,7 @@ describe("DashboardZone", (): void => {
 
         const section = container.querySelector("section")
         expect(section?.className).toContain("border-l-4")
-        expect(section?.className).toContain("border-l-primary/60")
+        expect(section?.className).toContain("border-l-accent/60")
     })
 
     it("when priority is tertiary, then applies tertiary styles with opacity", (): void => {
