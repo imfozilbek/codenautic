@@ -2,7 +2,7 @@ import { screen } from "@testing-library/react"
 import { describe, expect, it } from "vitest"
 
 import { ReviewCommentThread } from "@/components/reviews/review-comment-thread"
-import type { IReviewCommentThread } from "@/pages/ccr-data"
+import type { IReviewCommentThread } from "@/lib/types/ccr-types"
 import { renderWithProviders } from "../utils/render"
 
 function createThread(
