@@ -94,6 +94,12 @@ export {
     type IAstApiSurfaceChangeDetectorErrorDetails,
 } from "./ast-api-surface-change-detector.error"
 export {
+    AST_PISCINA_WORKER_POOL_ERROR_CODE,
+    AstPiscinaWorkerPoolError,
+    type AstPiscinaWorkerPoolErrorCode,
+    type IAstPiscinaWorkerPoolErrorDetails,
+} from "./ast-piscina-worker-pool.error"
+export {
     AST_CODE_CHUNK_EMBEDDING_GENERATOR_ERROR_CODE,
     AstCodeChunkEmbeddingGeneratorError,
     type AstCodeChunkEmbeddingGeneratorErrorCode,
@@ -338,6 +344,16 @@ export {
     type IAstApiSurfaceChangeDetectorServiceOptions,
     type IAstApiSurfaceChangeDetectorSummary,
 } from "./ast-api-surface-change-detector.service"
+export {
+    AstPiscinaWorkerPoolService,
+    type AstPiscinaWorkerPoolShouldRetry,
+    type AstPiscinaWorkerPoolSleep,
+    type IAstPiscinaWorkerPoolRetryPolicy,
+    type IAstPiscinaWorkerPoolService,
+    type IAstPiscinaWorkerPoolServiceOptions,
+    type IAstPiscinaWorkerPoolStats,
+    type IAstPiscinaWorkerPoolTaskRequest,
+} from "./ast-piscina-worker-pool.service"
 export {
     AstDependencyChainResolverService,
     type IAstDependencyChain,
