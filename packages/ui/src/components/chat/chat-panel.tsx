@@ -226,7 +226,7 @@ export function ChatPanel(props: IChatPanelProps): ReactElement {
                     )}
                 </CardHeader>
 
-                <CardContent className="flex min-h-0 flex-1 flex-col gap-3 bg-surface-muted p-0">
+                <CardContent className="flex min-h-0 flex-1 flex-col gap-3 bg-surface-secondary p-0">
                     {normalizedContextItems.length === 0 ? null : (
                         <div className="px-3 pt-2">
                             <ChatContextIndicator

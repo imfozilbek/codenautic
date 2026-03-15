@@ -4,11 +4,7 @@ import ReactMarkdown from "react-markdown"
 import type { Components } from "react-markdown"
 
 import { ChevronDown, ChevronRight, Copy } from "@/components/icons/app-icons"
-import {
-    Avatar as HeroUIAvatar,
-    AvatarFallback,
-    Button,
-} from "@heroui/react"
+import { Avatar as HeroUIAvatar, AvatarFallback, Button } from "@heroui/react"
 import { TYPOGRAPHY } from "@/lib/constants/typography"
 import { sanitizeText } from "@/lib/validation/schema-validation"
 
@@ -152,7 +148,7 @@ function renderCodeReferenceLink(
     if (reference === undefined) {
         return (
             <a
-                className="text-primary underline underline-offset-4"
+                className="text-accent underline underline-offset-4"
                 href={href}
                 onClick={(event: MouseEvent<HTMLAnchorElement>): void => {
                     const isInternalHref = href.startsWith("/")
@@ -183,7 +179,7 @@ function renderCodeReferenceLink(
     return (
         <a
             aria-label={`Code reference ${buildReferenceLabel(reference)}`}
-            className="text-primary underline underline-offset-4"
+            className="text-accent underline underline-offset-4"
             href={shouldHandle ? "#" : href}
             onClick={(event: MouseEvent<HTMLAnchorElement>): void => {
                 if (onCodeReferenceClick === undefined) {
@@ -265,7 +261,7 @@ function parseMessageCodeBlock(
     return (
         <section aria-label={`Code block ${keyPrefix}`} className="space-y-2" key={keyPrefix}>
             <div className="flex items-center justify-between gap-2">
-                <p className={`${TYPOGRAPHY.overline} text-text-secondary`}>{language}</p>
+                <p className={`${TYPOGRAPHY.overline} text-muted`}>{language}</p>
                 <div className="flex items-center gap-2">
                     <Button
                         aria-label={`Copy code block ${keyPrefix}`}
@@ -361,7 +357,7 @@ export function ChatMessageBubble(props: IChatMessageBubbleProps): ReactElement 
                 markdownCodeProps.className === undefined && sourceValue.includes("\n") === false
             if (isInline === true) {
                 return (
-                    <code className="rounded bg-surface-muted px-1 py-0.5 font-mono text-sm">
+                    <code className="rounded bg-surface-secondary px-1 py-0.5 font-mono text-sm">
                         {markdownCodeProps.children}
                     </code>
                 )
@@ -404,15 +400,17 @@ export function ChatMessageBubble(props: IChatMessageBubbleProps): ReactElement 
                 aria-label={`Сообщение от ${sender}`}
                 className={`flex min-w-0 flex-col gap-2 rounded-xl border p-3 text-sm ${compactClass} ${
                     isUser
-                        ? "border-primary bg-[color:color-mix(in oklab, var(--primary) 12%, var(--surface))]"
+                        ? "border-accent bg-[color:color-mix(in oklab, var(--accent) 12%, var(--surface))]"
                         : "border-border bg-surface"
                 }`}
             >
                 <header className="mb-0.5 flex items-start gap-2">
-                    <HeroUIAvatar><AvatarFallback>{avatarLabel}</AvatarFallback></HeroUIAvatar>
+                    <HeroUIAvatar>
+                        <AvatarFallback>{avatarLabel}</AvatarFallback>
+                    </HeroUIAvatar>
                     <div className="min-w-0 flex-1">
                         <p className="text-xs font-semibold text-foreground">{sender}</p>
-                        <p className="text-xs text-text-secondary">{formattedTime}</p>
+                        <p className="text-xs text-muted">{formattedTime}</p>
                     </div>
                     <Button
                         aria-label={`Copy message ${sender}`}
@@ -429,7 +427,7 @@ export function ChatMessageBubble(props: IChatMessageBubbleProps): ReactElement 
 
                 <div className="space-y-2">
                     {messageContent.length === 0 ? (
-                        <p className="text-sm text-text-subtle">—</p>
+                        <p className="text-sm text-muted">—</p>
                     ) : (
                         <ReactMarkdown components={markdownComponents}>
                             {messageContent}
