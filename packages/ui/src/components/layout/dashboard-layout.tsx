@@ -130,10 +130,10 @@ export function DashboardLayout(props: IDashboardLayoutProps): ReactElement {
             openCommandPalette()
         }
 
-        window.addEventListener("keydown", handleKeyboardShortcut)
+        document.addEventListener("keydown", handleKeyboardShortcut)
 
         return (): void => {
-            window.removeEventListener("keydown", handleKeyboardShortcut)
+            document.removeEventListener("keydown", handleKeyboardShortcut)
         }
     }, [openCommandPalette])
 
