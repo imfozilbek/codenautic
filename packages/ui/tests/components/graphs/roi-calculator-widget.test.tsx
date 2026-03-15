@@ -2,8 +2,8 @@ import { screen } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { describe, expect, it, vi } from "vitest"
 
-import { ROICalculatorWidget } from "@/components/graphs/roi-calculator-widget"
-import type { IRefactoringTargetDescriptor } from "@/components/graphs/refactoring-dashboard"
+import { ROICalculatorWidget } from "@/components/refactoring/roi-calculator-widget"
+import type { IRefactoringTargetDescriptor } from "@/components/refactoring/refactoring-dashboard"
 import { renderWithProviders } from "../../utils/render"
 
 const MOCK_TARGETS: ReadonlyArray<IRefactoringTargetDescriptor> = [

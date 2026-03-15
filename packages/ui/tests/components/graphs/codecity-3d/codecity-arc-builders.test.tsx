@@ -6,7 +6,7 @@ import {
     sampleQuadraticBezierPath,
     createCodeCityCausalArcs,
     createCodeCityNavigationTrail,
-} from "@/components/graphs/codecity-3d/codecity-arc-builders"
+} from "@/components/codecity/codecity-3d/codecity-arc-builders"
 import { CODECITY_PALETTE } from "@/lib/constants/codecity-colors"
 
 const CAUSAL_ARC_COLOR_DEFAULT = CODECITY_PALETTE.causal.default
@@ -15,9 +15,9 @@ const CAUSAL_ARC_COLOR_OWNERSHIP = CODECITY_PALETTE.causal.ownership
 import {
     CAUSAL_ARC_BASE_LIFT,
     CAUSAL_ARC_SEGMENTS,
-} from "@/components/graphs/codecity-3d/codecity-scene-constants"
-import type { ICodeCityBuildingMesh } from "@/components/graphs/codecity-3d/codecity-scene-types"
-import type { ICodeCity3DCausalCouplingDescriptor } from "@/components/graphs/codecity-3d-scene"
+} from "@/components/codecity/codecity-3d/codecity-scene-constants"
+import type { ICodeCityBuildingMesh } from "@/components/codecity/codecity-3d/codecity-scene-types"
+import type { ICodeCity3DCausalCouplingDescriptor } from "@/components/codecity/codecity-3d-scene"
 
 function createTestBuilding(overrides: Partial<ICodeCityBuildingMesh> = {}): ICodeCityBuildingMesh {
     return {

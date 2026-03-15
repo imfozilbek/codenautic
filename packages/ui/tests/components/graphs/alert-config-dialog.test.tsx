@@ -5,7 +5,7 @@ import { describe, expect, it, vi } from "vitest"
 import {
     AlertConfigDialog,
     type IAlertConfigDialogModule,
-} from "@/components/graphs/alert-config-dialog"
+} from "@/components/codecity/alert-config-dialog"
 import { renderWithProviders } from "../../utils/render"
 
 const MOCK_MODULES: ReadonlyArray<IAlertConfigDialogModule> = [

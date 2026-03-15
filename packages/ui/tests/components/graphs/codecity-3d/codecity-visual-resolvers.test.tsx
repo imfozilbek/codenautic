@@ -6,7 +6,7 @@ import {
     resolveCodeCityHealthAuraColor,
     createCodeCityDistrictHealthAuras,
     resolveCodeCityBuildingImpactProfile,
-} from "@/components/graphs/codecity-3d/codecity-visual-resolvers"
+} from "@/components/codecity/codecity-3d/codecity-visual-resolvers"
 import { CODECITY_PALETTE } from "@/lib/constants/codecity-colors"
 
 const BUILDING_COLOR_UNDEFINED_COVERAGE = CODECITY_PALETTE.coverage.undefined
@@ -24,7 +24,7 @@ const IMPACT_EMISSIVE_NEUTRAL = CODECITY_PALETTE.impact.neutral
 import type {
     ICodeCityBuildingMesh,
     ICodeCityDistrictMesh,
-} from "@/components/graphs/codecity-3d/codecity-scene-types"
+} from "@/components/codecity/codecity-3d/codecity-scene-types"
 
 function createTestBuilding(overrides: Partial<ICodeCityBuildingMesh> = {}): ICodeCityBuildingMesh {
     return {

@@ -5,7 +5,7 @@ import { describe, expect, it, vi } from "vitest"
 import {
     OwnershipTransitionWidget,
     type IOwnershipTransitionEvent,
-} from "@/components/graphs/ownership-transition-widget"
+} from "@/components/team-analytics/ownership-transition-widget"
 import { renderWithProviders } from "../../utils/render"
 
 const MOCK_EVENTS: ReadonlyArray<IOwnershipTransitionEvent> = [

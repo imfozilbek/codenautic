@@ -6,7 +6,7 @@ import {
     ContributorCollaborationGraph,
     type IContributorCollaborationNode,
     type IContributorCollaborationEdge,
-} from "@/components/graphs/contributor-collaboration-graph"
+} from "@/components/team-analytics/contributor-collaboration-graph"
 import { renderWithProviders } from "../../utils/render"
 
 const MOCK_CONTRIBUTORS: ReadonlyArray<IContributorCollaborationNode> = [

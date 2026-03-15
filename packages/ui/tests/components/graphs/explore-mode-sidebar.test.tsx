@@ -5,7 +5,7 @@ import { describe, expect, it, vi } from "vitest"
 import {
     ExploreModeSidebar,
     type IExploreModePathDescriptor,
-} from "@/components/graphs/explore-mode-sidebar"
+} from "@/components/codecity/explore-mode-sidebar"
 import { renderWithProviders } from "../../utils/render"
 
 const MOCK_PATHS: ReadonlyArray<IExploreModePathDescriptor> = [

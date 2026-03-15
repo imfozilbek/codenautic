@@ -5,7 +5,7 @@ import {
     buildKnowledgeMapExportSvg,
     exportKnowledgeMapAsSvg,
     type IKnowledgeMapExportModel,
-} from "@/components/graphs/knowledge-map-export"
+} from "@/components/team-analytics/knowledge-map-export"
 import { GRAPH_EXPORT_PALETTE } from "@/lib/constants/graph-colors"
 
 function createTestModel(

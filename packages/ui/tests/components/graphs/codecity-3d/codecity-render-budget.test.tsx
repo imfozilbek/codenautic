@@ -1,13 +1,13 @@
 import { describe, expect, it } from "vitest"
 
-import { resolveCodeCityRenderBudget } from "@/components/graphs/codecity-3d/codecity-render-budget"
+import { resolveCodeCityRenderBudget } from "@/components/codecity/codecity-3d/codecity-render-budget"
 import {
     CRITICAL_FPS,
     HIGH_QUALITY_MAX_BUILDINGS,
     LOW_QUALITY_MAX_BUILDINGS,
     MEDIUM_QUALITY_MAX_BUILDINGS,
     WARNING_FPS,
-} from "@/components/graphs/codecity-3d/codecity-scene-constants"
+} from "@/components/codecity/codecity-3d/codecity-scene-constants"
 
 describe("resolveCodeCityRenderBudget", (): void => {
     describe("quality by building count", (): void => {

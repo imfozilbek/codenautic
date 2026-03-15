@@ -5,7 +5,7 @@ import { describe, expect, it, vi } from "vitest"
 import {
     CityOwnershipOverlay,
     type ICityOwnershipOverlayOwnerEntry,
-} from "@/components/graphs/city-ownership-overlay"
+} from "@/components/codecity/overlays/city-ownership-overlay"
 import { renderWithProviders } from "../../utils/render"
 
 const MOCK_OWNERS: ReadonlyArray<ICityOwnershipOverlayOwnerEntry> = [

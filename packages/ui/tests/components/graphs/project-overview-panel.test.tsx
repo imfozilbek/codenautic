@@ -4,7 +4,7 @@ import { describe, expect, it } from "vitest"
 import {
     ProjectOverviewPanel,
     type IProjectOverviewFileDescriptor,
-} from "@/components/graphs/project-overview-panel"
+} from "@/components/codecity/project-overview-panel"
 import { renderWithProviders } from "../../utils/render"
 
 const MOCK_FILES: ReadonlyArray<IProjectOverviewFileDescriptor> = [

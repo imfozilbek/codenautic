@@ -5,7 +5,7 @@ import { describe, expect, it, vi } from "vitest"
 import {
     ImpactAnalysisPanel,
     type IImpactAnalysisSeed,
-} from "@/components/graphs/impact-analysis-panel"
+} from "@/components/predictions/impact-analysis-panel"
 import { renderWithProviders } from "../../utils/render"
 
 const MOCK_SEEDS: ReadonlyArray<IImpactAnalysisSeed> = [

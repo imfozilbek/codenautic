@@ -5,7 +5,7 @@ import { describe, expect, it, vi } from "vitest"
 import {
     AchievementsPanel,
     type IAchievementPanelEntry,
-} from "@/components/graphs/achievements-panel"
+} from "@/components/team-analytics/achievements-panel"
 import { renderWithProviders } from "../../utils/render"
 
 const MOCK_ACHIEVEMENTS: ReadonlyArray<IAchievementPanelEntry> = [

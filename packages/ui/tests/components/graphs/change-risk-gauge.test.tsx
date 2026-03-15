@@ -2,7 +2,7 @@ import { screen } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { describe, expect, it, vi } from "vitest"
 
-import { ChangeRiskGauge } from "@/components/graphs/change-risk-gauge"
+import { ChangeRiskGauge } from "@/components/predictions/change-risk-gauge"
 import { renderWithProviders } from "../../utils/render"
 
 describe("ChangeRiskGauge", (): void => {

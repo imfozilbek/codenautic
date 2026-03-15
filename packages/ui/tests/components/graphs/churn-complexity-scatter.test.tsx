@@ -5,7 +5,7 @@ import { describe, expect, it, vi } from "vitest"
 import {
     ChurnComplexityScatter,
     type IChurnComplexityScatterFileDescriptor,
-} from "@/components/graphs/churn-complexity-scatter"
+} from "@/components/codecity/churn-complexity-scatter"
 import { renderWithProviders } from "../../utils/render"
 
 const MOCK_FILES: ReadonlyArray<IChurnComplexityScatterFileDescriptor> = [

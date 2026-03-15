@@ -5,7 +5,7 @@ import { describe, expect, it, vi } from "vitest"
 import {
     BusFactorTrendChart,
     type IBusFactorTrendSeries,
-} from "@/components/graphs/bus-factor-trend-chart"
+} from "@/components/team-analytics/bus-factor-trend-chart"
 import { renderWithProviders } from "../../utils/render"
 
 const MOCK_SERIES: ReadonlyArray<IBusFactorTrendSeries> = [

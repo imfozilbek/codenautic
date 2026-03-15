@@ -5,7 +5,7 @@ import { describe, expect, it, vi } from "vitest"
 import {
     PredictionExplainPanel,
     type IPredictionExplainPanelEntry,
-} from "@/components/graphs/prediction-explain-panel"
+} from "@/components/predictions/prediction-explain-panel"
 import { renderWithProviders } from "../../utils/render"
 
 const MOCK_ENTRIES: ReadonlyArray<IPredictionExplainPanelEntry> = [

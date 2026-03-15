@@ -2,7 +2,7 @@ import { screen } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { describe, expect, it, vi } from "vitest"
 
-import { CausalOverlaySelector } from "@/components/graphs/causal-overlay-selector"
+import { CausalOverlaySelector } from "@/components/codecity/overlays/causal-overlay-selector"
 import { renderWithProviders } from "../../utils/render"
 
 describe("CausalOverlaySelector", (): void => {

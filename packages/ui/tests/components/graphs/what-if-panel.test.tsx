@@ -2,7 +2,7 @@ import { screen } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { describe, expect, it, vi } from "vitest"
 
-import { WhatIfPanel, type IWhatIfOption } from "@/components/graphs/what-if-panel"
+import { WhatIfPanel, type IWhatIfOption } from "@/components/predictions/what-if-panel"
 import { renderWithProviders } from "../../utils/render"
 
 const MOCK_OPTIONS: ReadonlyArray<IWhatIfOption> = [

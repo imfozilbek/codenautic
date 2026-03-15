@@ -7,7 +7,7 @@ import {
     type IPredictionDashboardHotspotEntry,
     type IPredictionDashboardQualityTrendPoint,
     type IPredictionDashboardBugProneFile,
-} from "@/components/graphs/prediction-dashboard"
+} from "@/components/predictions/prediction-dashboard"
 import { renderWithProviders } from "../../utils/render"
 
 const MOCK_HOTSPOTS: ReadonlyArray<IPredictionDashboardHotspotEntry> = [

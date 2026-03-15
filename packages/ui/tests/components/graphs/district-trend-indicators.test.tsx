@@ -5,7 +5,7 @@ import { describe, expect, it, vi } from "vitest"
 import {
     DistrictTrendIndicators,
     type IDistrictTrendIndicatorEntry,
-} from "@/components/graphs/district-trend-indicators"
+} from "@/components/codecity/district-trend-indicators"
 import { renderWithProviders } from "../../utils/render"
 
 const MOCK_ENTRIES: ReadonlyArray<IDistrictTrendIndicatorEntry> = [

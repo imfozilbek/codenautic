@@ -6,8 +6,8 @@ import {
     resolveGraphPngCanvasSize,
     exportGraphAsSvg,
     exportGraphAsJson,
-} from "@/components/graphs/graph-export"
-import type { IGraphLayoutNode, IGraphEdge } from "@/components/graphs/xyflow-graph-layout"
+} from "@/components/dependency-graphs/graph-export"
+import type { IGraphLayoutNode, IGraphEdge } from "@/components/dependency-graphs/xyflow-graph-layout"
 import { GRAPH_EXPORT_PALETTE } from "@/lib/constants/graph-colors"
 
 function createTestNode(overrides: Partial<IGraphLayoutNode> = {}): IGraphLayoutNode {

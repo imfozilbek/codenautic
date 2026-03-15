@@ -2,7 +2,7 @@ import { screen } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { describe, expect, it, vi } from "vitest"
 
-import { GuidedTourOverlay, type IGuidedTourStep } from "@/components/graphs/guided-tour-overlay"
+import { GuidedTourOverlay, type IGuidedTourStep } from "@/components/codecity/guided-tour-overlay"
 import { renderWithProviders } from "../../utils/render"
 
 const MOCK_STEPS: ReadonlyArray<IGuidedTourStep> = [

@@ -5,7 +5,7 @@ import { describe, expect, it, vi } from "vitest"
 import {
     CityImpactOverlay,
     type ICityImpactOverlayEntry,
-} from "@/components/graphs/city-impact-overlay"
+} from "@/components/codecity/overlays/city-impact-overlay"
 import { renderWithProviders } from "../../utils/render"
 
 const MOCK_ENTRIES: ReadonlyArray<ICityImpactOverlayEntry> = [
