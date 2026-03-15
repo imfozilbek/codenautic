@@ -4,7 +4,8 @@
         "repositoryFilter": "Repository filter",
         "repositoryAriaLabel": "Repository",
         "metricSelector": "Metric selector",
-        "metricAriaLabel": "Metric"
+        "metricAriaLabel": "Metric",
+        "noProfilesAvailable": "No CodeCity profiles available. Connect a repository to get started."
     },
     "overview": {
         "projectOverviewPanel": "Project overview panel",
