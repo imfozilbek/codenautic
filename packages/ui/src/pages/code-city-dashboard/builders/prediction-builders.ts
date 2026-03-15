@@ -1,23 +1,23 @@
 import type {
     ICodeCityTreemapFileDescriptor,
     TCodeCityTreemapPredictionRiskLevel,
-} from "@/components/graphs/codecity-treemap"
-import type { ICityPredictionOverlayEntry } from "@/components/graphs/city-prediction-overlay"
+} from "@/components/codecity/codecity-treemap"
+import type { ICityPredictionOverlayEntry } from "@/components/codecity/overlays/city-prediction-overlay"
 import type {
     IPredictionDashboardBugProneFile,
     IPredictionDashboardHotspotEntry,
     IPredictionDashboardQualityTrendPoint,
-} from "@/components/graphs/prediction-dashboard"
-import type { IPredictionExplainPanelEntry } from "@/components/graphs/prediction-explain-panel"
-import type { ITrendForecastChartPoint } from "@/components/graphs/trend-forecast-chart"
+} from "@/components/predictions/prediction-dashboard"
+import type { IPredictionExplainPanelEntry } from "@/components/predictions/prediction-explain-panel"
+import type { ITrendForecastChartPoint } from "@/components/predictions/trend-forecast-chart"
 import type {
     IPredictionAccuracyCase,
     IPredictionAccuracyPoint,
     IPredictionConfusionMatrix,
-} from "@/components/graphs/prediction-accuracy-widget"
-import type { IAlertConfigDialogModule } from "@/components/graphs/alert-config-dialog"
-import type { IPredictionComparisonSnapshot } from "@/components/graphs/prediction-comparison-view"
-import type { IHealthTrendPoint } from "@/components/graphs/health-trend-chart"
+} from "@/components/predictions/prediction-accuracy-widget"
+import type { IAlertConfigDialogModule } from "@/components/codecity/alert-config-dialog"
+import type { IPredictionComparisonSnapshot } from "@/components/predictions/prediction-comparison-view"
+import type { IHealthTrendPoint } from "@/components/codecity/health-trend-chart"
 
 /**
  * Максимум overlay entries для prediction-данных.

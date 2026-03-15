@@ -1,13 +1,13 @@
-import type { ICodeCityTreemapFileDescriptor } from "@/components/graphs/codecity-treemap"
-import type { IChangeRiskGaugePoint } from "@/components/graphs/change-risk-gauge"
-import type { ICityImpactOverlayEntry } from "@/components/graphs/city-impact-overlay"
-import type { ICityRefactoringOverlayEntry } from "@/components/graphs/city-refactoring-overlay"
-import type { IRefactoringTargetDescriptor } from "@/components/graphs/refactoring-dashboard"
-import type { IRefactoringTimelineTask } from "@/components/graphs/refactoring-timeline"
-import type { IImpactAnalysisSeed } from "@/components/graphs/impact-analysis-panel"
-import type { IImpactGraphEdge, IImpactGraphNode } from "@/components/graphs/impact-graph-view"
-import type { IWhatIfOption } from "@/components/graphs/what-if-panel"
-import type { IHealthTrendPoint } from "@/components/graphs/health-trend-chart"
+import type { ICodeCityTreemapFileDescriptor } from "@/components/codecity/codecity-treemap"
+import type { IChangeRiskGaugePoint } from "@/components/predictions/change-risk-gauge"
+import type { ICityImpactOverlayEntry } from "@/components/codecity/overlays/city-impact-overlay"
+import type { ICityRefactoringOverlayEntry } from "@/components/codecity/overlays/city-refactoring-overlay"
+import type { IRefactoringTargetDescriptor } from "@/components/refactoring/refactoring-dashboard"
+import type { IRefactoringTimelineTask } from "@/components/refactoring/refactoring-timeline"
+import type { IImpactAnalysisSeed } from "@/components/predictions/impact-analysis-panel"
+import type { IImpactGraphEdge, IImpactGraphNode } from "@/components/predictions/impact-graph-view"
+import type { IWhatIfOption } from "@/components/predictions/what-if-panel"
+import type { IHealthTrendPoint } from "@/components/codecity/health-trend-chart"
 
 /**
  * Максимум refactoring-таргетов для отображения.

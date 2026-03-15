@@ -1,17 +1,17 @@
-import type { ICodeCityTreemapFileDescriptor } from "@/components/graphs/codecity-treemap"
+import type { ICodeCityTreemapFileDescriptor } from "@/components/codecity/codecity-treemap"
 import type {
     ISprintComparisonMetric,
     ISprintComparisonSnapshot,
-} from "@/components/graphs/sprint-comparison-view"
-import type { IDistrictTrendIndicatorEntry } from "@/components/graphs/district-trend-indicators"
-import type { IAchievementPanelEntry } from "@/components/graphs/achievements-panel"
-import type { ITeamLeaderboardEntry } from "@/components/graphs/team-leaderboard"
+} from "@/components/team-analytics/sprint-comparison-view"
+import type { IDistrictTrendIndicatorEntry } from "@/components/codecity/district-trend-indicators"
+import type { IAchievementPanelEntry } from "@/components/team-analytics/achievements-panel"
+import type { ITeamLeaderboardEntry } from "@/components/team-analytics/team-leaderboard"
 import type {
     ISprintSummaryCardModel,
     ISprintSummaryMetric,
-} from "@/components/graphs/sprint-summary-card"
-import type { ITrendTimelineEntry } from "@/components/graphs/trend-timeline-widget"
-import type { IHealthTrendPoint } from "@/components/graphs/health-trend-chart"
+} from "@/components/team-analytics/sprint-summary-card"
+import type { ITrendTimelineEntry } from "@/components/predictions/trend-timeline-widget"
+import type { IHealthTrendPoint } from "@/components/codecity/health-trend-chart"
 
 /**
  * Максимум файлов-кандидатов для sprint comparison snapshot.

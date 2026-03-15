@@ -1,12 +1,12 @@
 import type {
     ICodeCityTreemapFileDescriptor,
     ICodeCityTreemapTemporalCouplingDescriptor,
-} from "@/components/graphs/codecity-treemap"
+} from "@/components/codecity/codecity-treemap"
 import type {
     ICodeCity3DCausalCouplingDescriptor,
     TCodeCityCausalCouplingType,
-} from "@/components/graphs/codecity-3d-scene"
-import type { IRootCauseIssueDescriptor } from "@/components/graphs/root-cause-chain-viewer"
+} from "@/components/codecity/codecity-3d-scene"
+import type { IRootCauseIssueDescriptor } from "@/components/codecity/root-cause-chain-viewer"
 
 /**
  * Формирует root-cause issues для causal viewer из текущего file-среза.

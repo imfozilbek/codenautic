@@ -1,22 +1,22 @@
-import type { ICodeCityTreemapFileDescriptor } from "@/components/graphs/codecity-treemap"
-import type { ICityOwnershipOverlayOwnerEntry } from "@/components/graphs/city-ownership-overlay"
-import type { ICityBusFactorOverlayEntry } from "@/components/graphs/city-bus-factor-overlay"
-import type { IBusFactorTrendSeries } from "@/components/graphs/bus-factor-trend-chart"
-import type { IKnowledgeSiloPanelEntry } from "@/components/graphs/knowledge-silo-panel"
+import type { ICodeCityTreemapFileDescriptor } from "@/components/codecity/codecity-treemap"
+import type { ICityOwnershipOverlayOwnerEntry } from "@/components/codecity/overlays/city-ownership-overlay"
+import type { ICityBusFactorOverlayEntry } from "@/components/codecity/overlays/city-bus-factor-overlay"
+import type { IBusFactorTrendSeries } from "@/components/team-analytics/bus-factor-trend-chart"
+import type { IKnowledgeSiloPanelEntry } from "@/components/team-analytics/knowledge-silo-panel"
 import type {
     IKnowledgeMapExportDistrictRiskEntry,
     IKnowledgeMapExportModel,
     IKnowledgeMapExportOwnerLegendEntry,
     IKnowledgeMapExportSiloEntry,
-} from "@/components/graphs/knowledge-map-export"
+} from "@/components/team-analytics/knowledge-map-export"
 import type {
     IContributorCollaborationEdge,
     IContributorCollaborationNode,
-} from "@/components/graphs/contributor-collaboration-graph"
+} from "@/components/team-analytics/contributor-collaboration-graph"
 import type {
     IOwnershipTransitionEvent,
     TOwnershipTransitionHandoffSeverity,
-} from "@/components/graphs/ownership-transition-widget"
+} from "@/components/team-analytics/ownership-transition-widget"
 
 import type {
     TCodeCityDashboardMetric,

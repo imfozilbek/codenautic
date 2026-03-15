@@ -1,7 +1,7 @@
-import type { ICodeCityTreemapFileDescriptor } from "@/components/graphs/codecity-treemap"
-import type { IOnboardingProgressModuleDescriptor } from "@/components/graphs/onboarding-progress-tracker"
-import type { IExploreModePathDescriptor } from "@/components/graphs/explore-mode-sidebar"
-import type { IHotAreaHighlightDescriptor } from "@/components/graphs/hot-area-highlights"
+import type { ICodeCityTreemapFileDescriptor } from "@/components/codecity/codecity-treemap"
+import type { IOnboardingProgressModuleDescriptor } from "@/components/codecity/onboarding-progress-tracker"
+import type { IExploreModePathDescriptor } from "@/components/codecity/explore-mode-sidebar"
+import type { IHotAreaHighlightDescriptor } from "@/components/codecity/hot-area-highlights"
 
 import { CODE_CITY_DASHBOARD_ONBOARDING_AREAS } from "../code-city-dashboard-mock-data"
 
