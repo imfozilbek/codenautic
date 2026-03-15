@@ -206,7 +206,7 @@ export function DashboardMissionControlPage(): ReactElement {
     const { td } = useDynamicTranslation(["dashboard"])
     const uiRole = useUiRole()
     const checklistRole = uiRole === "admin" ? "admin" : "developer"
-    const personalizationDefaults = readWorkspacePersonalization()
+    const [personalizationDefaults] = useState(readWorkspacePersonalization)
     const [range, setRange] = useState<TDashboardDateRange>("7d")
     const [orgScope, setOrgScope] = useState<TOrgScope>(personalizationDefaults.orgScope)
     const [repositoryScope, setRepositoryScope] = useState<TRepositoryScope>(
