@@ -134,6 +134,97 @@ export const queryKeys = {
             return ["code-city", "dependency-graph", repoId] as const
         },
     },
+    reports: {
+        all: (): readonly ["reports"] => ["reports"] as const,
+        list: (): readonly ["reports", "list"] => {
+            return ["reports", "list"] as const
+        },
+        byId: (reportId: string): readonly ["reports", "by-id", string] => {
+            return ["reports", "by-id", reportId] as const
+        },
+    },
+    issues: {
+        all: (): readonly ["issues"] => ["issues"] as const,
+        list: (
+            status?: string,
+            severity?: string,
+            search?: string,
+        ): readonly [
+            "issues",
+            "list",
+            {
+                readonly status?: string
+                readonly severity?: string
+                readonly search?: string
+            },
+        ] => {
+            return [
+                "issues",
+                "list",
+                {
+                    status,
+                    severity,
+                    search,
+                },
+            ] as const
+        },
+    },
+    triage: {
+        all: (): readonly ["triage"] => ["triage"] as const,
+        list: (
+            scope?: string,
+        ): readonly [
+            "triage",
+            "list",
+            {
+                readonly scope?: string
+            },
+        ] => {
+            return [
+                "triage",
+                "list",
+                {
+                    scope,
+                },
+            ] as const
+        },
+    },
+    teams: {
+        all: (): readonly ["teams"] => ["teams"] as const,
+        list: (): readonly ["teams", "list"] => {
+            return ["teams", "list"] as const
+        },
+        byId: (teamId: string): readonly ["teams", "by-id", string] => {
+            return ["teams", "by-id", teamId] as const
+        },
+    },
+    byok: {
+        all: (): readonly ["byok"] => ["byok"] as const,
+        list: (): readonly ["byok", "list"] => {
+            return ["byok", "list"] as const
+        },
+    },
+    sso: {
+        all: (): readonly ["sso"] => ["sso"] as const,
+        saml: (): readonly ["sso", "saml"] => {
+            return ["sso", "saml"] as const
+        },
+        oidc: (): readonly ["sso", "oidc"] => {
+            return ["sso", "oidc"] as const
+        },
+    },
+    organization: {
+        all: (): readonly ["organization"] => ["organization"] as const,
+        profile: (): readonly ["organization", "profile"] => {
+            return ["organization", "profile"] as const
+        },
+        members: (): readonly ["organization", "members"] => {
+            return ["organization", "members"] as const
+        },
+        billing: (): readonly ["organization", "billing"] => {
+            return ["organization", "billing"] as const
+        },
+    },
     dashboard: {
         all: (): readonly ["dashboard"] => ["dashboard"] as const,
         metrics: (
