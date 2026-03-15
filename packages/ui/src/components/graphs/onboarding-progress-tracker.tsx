@@ -49,7 +49,7 @@ function resolveModuleBadgeClassName(isComplete: boolean): string {
     if (isComplete) {
         return "border-success/40 bg-success/15 text-success"
     }
-    return "border-border bg-surface-muted text-foreground"
+    return "border-border bg-surface-secondary text-foreground"
 }
 
 /**
@@ -76,13 +76,13 @@ export function OnboardingProgressTracker(props: IOnboardingProgressTrackerProps
                     total: String(totalCount),
                 })}
             </p>
-            <div className="mt-2 h-2 overflow-hidden rounded-full bg-surface-muted">
+            <div className="mt-2 h-2 overflow-hidden rounded-full bg-surface-secondary">
                 <div
                     aria-label={t("code-city:onboardingTracker.progressAriaLabel")}
                     aria-valuemax={100}
                     aria-valuemin={0}
                     aria-valuenow={progressPercent}
-                    className="h-full rounded-full bg-primary transition-[width]"
+                    className="h-full rounded-full bg-accent transition-[width]"
                     role="progressbar"
                     style={{ width: `${String(progressPercent)}%` }}
                 />

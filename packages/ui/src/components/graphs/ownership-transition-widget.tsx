@@ -62,9 +62,9 @@ function resolveHandoffBadgeClassName(severity: TOwnershipTransitionHandoffSever
         return "border-danger/40 bg-danger/15 text-danger"
     }
     if (severity === "watch") {
-        return "border-warning/40 bg-warning/15 text-on-warning"
+        return "border-warning/40 bg-warning/15 text-warning-foreground"
     }
-    return "border-success/40 bg-success/15 text-on-success"
+    return "border-success/40 bg-success/15 text-success-foreground"
 }
 
 function formatTransitionDate(changedAt: string): string {
@@ -110,7 +110,7 @@ export function OwnershipTransitionWidget(props: IOwnershipTransitionWidgetProps
                         <li
                             className={
                                 isActive
-                                    ? "rounded border border-primary/40 bg-primary/10 p-2"
+                                    ? "rounded border border-accent/40 bg-accent/10 p-2"
                                     : "rounded border border-border bg-surface p-2"
                             }
                             key={event.id}
@@ -137,7 +137,7 @@ export function OwnershipTransitionWidget(props: IOwnershipTransitionWidgetProps
                                 aria-label={t("code-city:ownershipTransition.ariaLabelInspect", {
                                     scopeLabel: event.scopeLabel,
                                 })}
-                                className="mt-2 rounded border border-primary/40 bg-primary/20 px-2 py-1 text-xs font-semibold text-on-primary hover:border-primary"
+                                className="mt-2 rounded border border-accent/40 bg-accent/20 px-2 py-1 text-xs font-semibold text-accent-foreground hover:border-accent"
                                 onClick={(): void => {
                                     props.onSelectEvent?.(event)
                                 }}

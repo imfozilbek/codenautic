@@ -40,7 +40,7 @@ function resolveRiskClassName(riskScore: number): string {
         return "border-danger/40 bg-danger/20 text-danger"
     }
     if (riskScore >= 45) {
-        return "border-warning/40 bg-warning/20 text-on-warning"
+        return "border-warning/40 bg-warning/20 text-warning-foreground"
     }
     return "border-success/40 bg-success/20 text-success"
 }
@@ -48,7 +48,7 @@ function resolveRiskClassName(riskScore: number): string {
 function resolveEntryClassName(isActive: boolean): string {
     return [
         "w-full rounded-lg border p-2 text-left transition",
-        isActive ? "border-primary bg-primary/10" : "border-border bg-surface hover:border-border",
+        isActive ? "border-accent bg-accent/10" : "border-border bg-surface hover:border-border",
     ].join(" ")
 }
 
