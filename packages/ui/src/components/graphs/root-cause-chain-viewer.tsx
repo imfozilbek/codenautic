@@ -169,9 +169,7 @@ export function RootCauseChainViewer(props: IRootCauseChainViewerProps): ReactEl
                 {selectedNode !== undefined ? (
                     <article className="rounded-md border border-border bg-surface p-3">
                         <p className={TYPOGRAPHY.cardTitle}>{selectedNode.label}</p>
-                        <p className="mt-1 text-sm text-muted">
-                            {selectedNode.description}
-                        </p>
+                        <p className="mt-1 text-sm text-muted">{selectedNode.description}</p>
                     </article>
                 ) : null}
             </div>
