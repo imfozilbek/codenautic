@@ -5,71 +5,38 @@ import { Alert, Button, Card, CardContent, CardHeader, Chip, Input, Switch } fro
 import { NATIVE_FORM } from "@/lib/constants/spacing"
 import { TYPOGRAPHY } from "@/lib/constants/typography"
 import { showToastError, showToastInfo, showToastSuccess } from "@/lib/notifications/toast"
+import type { IByokKeyEntry, TByokProvider } from "@/lib/api/endpoints/byok.endpoint"
+import { useByok } from "@/lib/hooks/queries/use-byok"
 
 /**
- * Количество видимых символов в начале маскированного секрета.
+ * Локальное состояние формы создания ключа.
  */
-const SECRET_PREFIX_LENGTH = 4
-
-type TByokProvider = "anthropic" | "github" | "gitlab" | "openai"
-
-interface IByokKeyEntry {
-    /** Уникальный идентификатор ключа. */
-    readonly id: string
-    /** Провайдер, к которому относится ключ. */
-    readonly provider: TByokProvider
-    /** Человекочитаемый ярлык ключа. */
-    readonly label: string
-    /** Маскированное значение секрета. */
-    readonly maskedSecret: string
-    /** Признак активности ключа. */
-    readonly isActive: boolean
-    /** Число ротаций ключа. */
-    readonly rotationCount: number
-    /** Количество запросов, выполненных этим ключом. */
-    readonly usageRequests: number
-    /** Количество токенов, потребленных этим ключом. */
-    readonly usageTokens: number
-    /** Время последнего использования. */
-    readonly lastUsedAt: string
-}
-
 interface ICreateKeyFormState {
-    /** Выбранный провайдер. */
+    /**
+     * Выбранный провайдер.
+     */
     readonly provider: TByokProvider
-    /** Ярлык ключа. */
+    /**
+     * Ярлык ключа.
+     */
     readonly label: string
-    /** Введенный секрет. */
+    /**
+     * Введенный секрет.
+     */
     readonly secret: string
 }
 
+/**
+ * Допустимые провайдеры для выбора в форме.
+ */
 const PROVIDER_OPTIONS: ReadonlyArray<TByokProvider> = ["openai", "anthropic", "github", "gitlab"]
 
-const INITIAL_KEYS: ReadonlyArray<IByokKeyEntry> = [
-    {
-        id: "byok-1",
-        isActive: true,
-        label: "openai-prod-main",
-        lastUsedAt: "2026-03-04T11:05:00Z",
-        maskedSecret: "sk-p****001",
-        provider: "openai",
-        rotationCount: 1,
-        usageRequests: 1284,
-        usageTokens: 391820,
-    },
-    {
-        id: "byok-2",
-        isActive: true,
-        label: "anthropic-fallback",
-        lastUsedAt: "2026-03-04T10:47:00Z",
-        maskedSecret: "sk-a****873",
-        provider: "anthropic",
-        rotationCount: 2,
-        usageRequests: 402,
-        usageTokens: 116240,
-    },
-]
-
+/**
+ * Форматирует провайдер в человекочитаемый ярлык.
+ *
+ * @param provider - Идентификатор провайдера.
+ * @returns Отформатированное название провайдера.
+ */
 function formatProviderLabel(provider: TByokProvider): string {
     if (provider === "openai") {
         return "OpenAI"
@@ -83,21 +50,12 @@ function formatProviderLabel(provider: TByokProvider): string {
     return "GitLab"
 }
 
-function maskSecret(value: string): string {
-    const normalized = value.trim()
-    const prefix = normalized.slice(0, SECRET_PREFIX_LENGTH)
-    const suffix = normalized.slice(-3)
-    if (normalized.length < 7) {
-        return "****"
-    }
-
-    return `${prefix}****${suffix}`
-}
-
-function buildKeyId(provider: TByokProvider): string {
-    return `${provider}-${Date.now().toString(36)}`
-}
-
+/**
+ * Форматирует дату последнего использования.
+ *
+ * @param value - ISO 8601 строка даты.
+ * @returns Локализованная строка даты или "Never".
+ */
 function formatLastUsed(value: string): string {
     const parsed = new Date(value)
     if (Number.isNaN(parsed.getTime())) {
@@ -119,7 +77,8 @@ function formatLastUsed(value: string): string {
  */
 export function SettingsByokPage(): ReactElement {
     const { t } = useTranslation(["settings"])
-    const [keys, setKeys] = useState<ReadonlyArray<IByokKeyEntry>>(INITIAL_KEYS)
+    const { keysQuery, createKey, deleteKey, rotateKey, toggleKey } = useByok()
+    const keys: ReadonlyArray<IByokKeyEntry> = keysQuery.data?.keys ?? []
     const [form, setForm] = useState<ICreateKeyFormState>({
         label: "",
         provider: "openai",
@@ -200,68 +159,45 @@ export function SettingsByokPage(): ReactElement {
             return
         }
 
-        const nextKey: IByokKeyEntry = {
-            id: buildKeyId(form.provider),
-            isActive: true,
-            label: normalizedLabel,
-            lastUsedAt: new Date().toISOString(),
-            maskedSecret: maskSecret(normalizedSecret),
-            provider: form.provider,
-            rotationCount: 1,
-            usageRequests: 0,
-            usageTokens: 0,
-        }
-
-        setKeys((previous): ReadonlyArray<IByokKeyEntry> => [nextKey, ...previous])
-        setForm({
-            label: "",
-            provider: form.provider,
-            secret: "",
-        })
-        showToastSuccess(t("settings:byok.toast.keyAdded", { label: nextKey.label }))
+        createKey.mutate(
+            {
+                provider: form.provider,
+                label: normalizedLabel,
+                secret: normalizedSecret,
+            },
+            {
+                onSuccess: (response): void => {
+                    setForm({
+                        label: "",
+                        provider: form.provider,
+                        secret: "",
+                    })
+                    showToastSuccess(
+                        t("settings:byok.toast.keyAdded", { label: response.key.label }),
+                    )
+                },
+            },
+        )
     }
 
     const handleRotateKey = (keyId: string): void => {
-        setKeys(
-            (previous): ReadonlyArray<IByokKeyEntry> =>
-                previous.map((entry): IByokKeyEntry => {
-                    if (entry.id !== keyId) {
-                        return entry
-                    }
-
-                    const syntheticSecret = `${entry.provider}-${Date.now().toString(36)}-rot`
-                    return {
-                        ...entry,
-                        lastUsedAt: new Date().toISOString(),
-                        maskedSecret: maskSecret(syntheticSecret),
-                        rotationCount: entry.rotationCount + 1,
-                    }
-                }),
-        )
-        showToastInfo(t("settings:byok.toast.keyRotated"))
+        rotateKey.mutate(keyId, {
+            onSuccess: (): void => {
+                showToastInfo(t("settings:byok.toast.keyRotated"))
+            },
+        })
     }
 
     const handleToggleActive = (keyId: string, isActive: boolean): void => {
-        setKeys(
-            (previous): ReadonlyArray<IByokKeyEntry> =>
-                previous.map((entry): IByokKeyEntry => {
-                    if (entry.id !== keyId) {
-                        return entry
-                    }
-                    return {
-                        ...entry,
-                        isActive,
-                    }
-                }),
-        )
+        toggleKey.mutate({ id: keyId, isActive })
     }
 
     const handleDeleteKey = (keyId: string): void => {
-        setKeys(
-            (previous): ReadonlyArray<IByokKeyEntry> =>
-                previous.filter((entry): boolean => entry.id !== keyId),
-        )
-        showToastInfo(t("settings:byok.toast.keyRemoved"))
+        deleteKey.mutate(keyId, {
+            onSuccess: (): void => {
+                showToastInfo(t("settings:byok.toast.keyRemoved"))
+            },
+        })
     }
 
     return (
@@ -336,6 +272,7 @@ export function SettingsByokPage(): ReactElement {
                         <div className="flex items-end">
                             <Button
                                 className="w-full md:w-auto"
+                                isLoading={createKey.isPending}
                                 variant="primary"
                                 onPress={handleCreateKey}
                             >
