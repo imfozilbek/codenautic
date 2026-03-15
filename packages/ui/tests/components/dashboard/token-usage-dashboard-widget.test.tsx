@@ -37,26 +37,10 @@ vi.mock("recharts", () => ({
 vi.mock("@/lib/motion", () => ({
     DURATION: { normal: 0 },
     EASING: { move: [0, 0, 1, 1] },
-    useReducedMotion: (): boolean => true,
-    useCountUp: ({ target }: { readonly target: number }): number => target,
     CHART_DATA_TRANSITION: {},
     CHART_DATA_TRANSITION_NONE: {},
     STAGGER_DELAY: 0,
     STAGGER_ITEM_VARIANTS: {},
-    StaggerContainer: ({
-        children,
-        ariaLabel,
-        className,
-    }: {
-        readonly children: React.ReactNode
-        readonly ariaLabel?: string
-        readonly className?: string
-        readonly as?: React.ElementType
-    }): React.ReactElement => (
-        <div aria-label={ariaLabel} className={className}>
-            {children}
-        </div>
-    ),
     AnimatedAlert: ({
         children,
         isVisible,
@@ -70,6 +54,13 @@ vi.mock("@/lib/motion", () => ({
     FADE_VARIANTS: {},
     PAGE_TRANSITION_VARIANTS: {},
     SCALE_FADE_VARIANTS: {},
+}))
+
+vi.mock("react-countup", () => ({
+    default: ({ end }: { readonly end: number }): React.ReactElement => (
+        <span>{String(end)}</span>
+    ),
+    useCountUp: (): { readonly countUp: string } => ({ countUp: "0" }),
 }))
 
 const MODEL_DATA: ReadonlyArray<ITokenUsageModelPoint> = [
