@@ -248,10 +248,6 @@ function resolveAnalyticsUserId(userId: string | undefined, storage: Storage): s
 }
 
 function resolveStorage(): Storage {
-    if (typeof window === "undefined") {
-        return createInMemoryStorage()
-    }
-
     try {
         return window.localStorage
     } catch {
