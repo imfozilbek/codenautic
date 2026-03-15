@@ -246,6 +246,38 @@ describe("AstBaseImportResolver", () => {
         expect(pathExistsCallCount).toBe(1)
     })
 
+    test("caches resolved import paths by normalized source and import when idempotency key is absent", async () => {
+        let pathExistsCallCount = 0
+        const resolver = new TestImportResolver({
+            pathExists: (filePath) => {
+                pathExistsCallCount += 1
+                return Promise.resolve(filePath === "src/cache/target.ts")
+            },
+        })
+
+        const firstResult = await resolver.resolveImport({
+            sourceFilePath: "src/cache/source.ts",
+            importSource: "./target",
+        })
+        const callCountAfterFirstResolution = pathExistsCallCount
+        const cachedResult = await resolver.resolveImport({
+            sourceFilePath: "src/cache/source.ts",
+            importSource: "   ./target   ",
+        })
+        expect(pathExistsCallCount).toBe(callCountAfterFirstResolution)
+
+        const differentImportResult = await resolver.resolveImport({
+            sourceFilePath: "src/cache/source.ts",
+            importSource: "./other-target",
+        })
+
+        expect(firstResult).toEqual(cachedResult)
+        expect(cachedResult.resolvedFilePath).toBe("src/cache/target.ts")
+        expect(pathExistsCallCount).toBeGreaterThan(callCountAfterFirstResolution)
+        expect(callCountAfterFirstResolution).toBe(1)
+        expect(differentImportResult.resolvedFilePath).toBeNull()
+    })
+
     test("throws typed errors for invalid options input candidates and terminal failures", async () => {
         expectAstBaseImportResolverError(
             () => {

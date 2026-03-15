@@ -417,6 +417,10 @@ export {
     type IAstBaseNonRelativeImportResolutionInput,
 } from "./ast-base-import-resolver"
 export {
+    AstImportResolutionCache,
+    type IAstImportResolutionCacheKeyInput,
+} from "./ast-import-resolution-cache"
+export {
     AstTypeScriptImportResolver,
     type AstTypeScriptImportResolverReadDirectory,
     type AstTypeScriptImportResolverReadFile,

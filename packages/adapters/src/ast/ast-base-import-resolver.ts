@@ -8,6 +8,7 @@ import {
     AstBaseImportResolverError,
     type AstBaseImportResolverErrorCode,
 } from "./ast-base-import-resolver.error"
+import {AstImportResolutionCache} from "./ast-import-resolution-cache"
 
 const DEFAULT_FILE_EXTENSION_CANDIDATES = [
     ".ts",
@@ -206,7 +207,7 @@ interface IAstBaseImportResolverNormalizedInput {
     readonly sourceFilePath: string
     readonly sourceDirectoryPath: string
     readonly importSource: string
-    readonly idempotencyKey: string | undefined
+    readonly cacheKey: string
     readonly retryPolicy: IAstBaseImportResolverNormalizedRetryPolicy
 }
 
@@ -220,9 +221,7 @@ export abstract class AstBaseImportResolver {
     private readonly sleep: AstBaseImportResolverSleep
     private readonly now: AstBaseImportResolverNow
     private readonly idempotencyCacheSize: number
-    private readonly inFlightByIdempotencyKey = new Map<string, Promise<IAstBaseImportResolutionResult>>()
-    private readonly resolvedByIdempotencyKey = new Map<string, IAstBaseImportResolutionResult>()
-    private readonly idempotencyOrder: string[] = []
+    private readonly importResolutionCache: AstImportResolutionCache<IAstBaseImportResolutionResult>
 
     /**
      * Creates base import resolver.
@@ -240,6 +239,9 @@ export abstract class AstBaseImportResolver {
         this.idempotencyCacheSize = validateIdempotencyCacheSize(
             options.idempotencyCacheSize ?? DEFAULT_IDEMPOTENCY_CACHE_SIZE,
         )
+        this.importResolutionCache = new AstImportResolutionCache<IAstBaseImportResolutionResult>(
+            this.idempotencyCacheSize,
+        )
     }
 
     /**
@@ -250,19 +252,19 @@ export abstract class AstBaseImportResolver {
      */
     public resolveImport(input: IAstBaseImportResolutionInput): Promise<IAstBaseImportResolutionResult> {
         const normalizedInput = this.normalizeInput(input)
-        const cachedResult = this.findCachedResult(normalizedInput.idempotencyKey)
+        const cachedResult = this.importResolutionCache.findResolved(normalizedInput.cacheKey)
 
         if (cachedResult !== undefined) {
             return Promise.resolve(cachedResult)
         }
 
-        const inFlightResult = this.findInFlightResult(normalizedInput.idempotencyKey)
+        const inFlightResult = this.importResolutionCache.findInFlight(normalizedInput.cacheKey)
         if (inFlightResult !== undefined) {
             return inFlightResult
         }
 
         const resolutionPromise = this.executeResolveWithRetry(normalizedInput)
-        this.trackInFlight(normalizedInput.idempotencyKey, resolutionPromise)
+        this.importResolutionCache.trackInFlight(normalizedInput.cacheKey, resolutionPromise)
         return resolutionPromise
     }
 
@@ -288,12 +290,17 @@ export abstract class AstBaseImportResolver {
         const importSource = normalizeImportSource(input.importSource)
         const idempotencyKey = normalizeIdempotencyKey(input.idempotencyKey)
         const retryPolicy = mergeRetryPolicy(input.retryPolicy, this.retryPolicy)
+        const cacheKey = this.importResolutionCache.resolveCacheKey({
+            sourceFilePath,
+            importSource,
+            idempotencyKey,
+        })
 
         return {
             sourceFilePath,
             sourceDirectoryPath,
             importSource,
-            idempotencyKey,
+            cacheKey,
             retryPolicy,
         }
     }
@@ -315,7 +322,7 @@ export abstract class AstBaseImportResolver {
 
             try {
                 const resolved = await this.resolveOnce(input, attempt, startedAtMs)
-                this.cacheResolvedResult(input.idempotencyKey, resolved)
+                this.importResolutionCache.cacheResolved(input.cacheKey, resolved)
                 return resolved
             } catch (error: unknown) {
                 if (isNonRetryableError(error)) {
@@ -436,88 +443,6 @@ export abstract class AstBaseImportResolver {
         return null
     }
 
-    /**
-     * Returns in-flight result by idempotency key.
-     *
-     * @param idempotencyKey Optional normalized idempotency key.
-     * @returns In-flight result promise when present.
-     */
-    private findInFlightResult(
-        idempotencyKey: string | undefined,
-    ): Promise<IAstBaseImportResolutionResult> | undefined {
-        if (idempotencyKey === undefined) {
-            return undefined
-        }
-
-        return this.inFlightByIdempotencyKey.get(idempotencyKey)
-    }
-
-    /**
-     * Returns cached resolved result by idempotency key.
-     *
-     * @param idempotencyKey Optional normalized idempotency key.
-     * @returns Cached result when present.
-     */
-    private findCachedResult(
-        idempotencyKey: string | undefined,
-    ): IAstBaseImportResolutionResult | undefined {
-        if (idempotencyKey === undefined) {
-            return undefined
-        }
-
-        return this.resolvedByIdempotencyKey.get(idempotencyKey)
-    }
-
-    /**
-     * Tracks one in-flight resolution by idempotency key.
-     *
-     * @param idempotencyKey Optional normalized idempotency key.
-     * @param promise In-flight resolution promise.
-     */
-    private trackInFlight(
-        idempotencyKey: string | undefined,
-        promise: Promise<IAstBaseImportResolutionResult>,
-    ): void {
-        if (idempotencyKey === undefined) {
-            return
-        }
-
-        this.inFlightByIdempotencyKey.set(idempotencyKey, promise)
-        void promise.then(
-            () => {
-                this.inFlightByIdempotencyKey.delete(idempotencyKey)
-            },
-            () => {
-                this.inFlightByIdempotencyKey.delete(idempotencyKey)
-            },
-        )
-    }
-
-    /**
-     * Caches resolved result by idempotency key.
-     *
-     * @param idempotencyKey Optional normalized idempotency key.
-     * @param result Resolved result.
-     */
-    private cacheResolvedResult(
-        idempotencyKey: string | undefined,
-        result: IAstBaseImportResolutionResult,
-    ): void {
-        if (idempotencyKey === undefined || this.resolvedByIdempotencyKey.has(idempotencyKey)) {
-            return
-        }
-
-        this.resolvedByIdempotencyKey.set(idempotencyKey, result)
-        this.idempotencyOrder.push(idempotencyKey)
-
-        while (this.idempotencyOrder.length > this.idempotencyCacheSize) {
-            const oldestKey = this.idempotencyOrder.shift()
-
-            if (oldestKey !== undefined) {
-                this.resolvedByIdempotencyKey.delete(oldestKey)
-            }
-        }
-    }
 }
 
 /**
