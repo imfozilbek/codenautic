@@ -1,6 +1,6 @@
-import { type ReactElement, useMemo, useState } from "react"
+import { type ReactElement, useMemo } from "react"
 
-import { Button, Chip, Modal } from "@heroui/react"
+import { Button, Chip, Drawer, useOverlayState } from "@heroui/react"
 import { useDynamicTranslation } from "@/lib/i18n"
 import { TYPOGRAPHY } from "@/lib/constants/typography"
 
@@ -128,7 +128,7 @@ function getFreshnessChipLabel(state: TFreshnessState, t: (key: string) => strin
  */
 export function DataFreshnessPanel(props: IDataFreshnessPanelProps): ReactElement {
     const { td } = useDynamicTranslation(["common"])
-    const [isDrawerOpen, setIsDrawerOpen] = useState(false)
+    const drawerState = useOverlayState()
     const freshnessState = useMemo(
         (): TFreshnessState => resolveFreshnessState(props),
         [props.isRefreshing, props.lastUpdatedAt, props.staleThresholdMinutes],
@@ -183,7 +183,7 @@ export function DataFreshnessPanel(props: IDataFreshnessPanelProps): ReactElemen
                             size="sm"
                             variant="secondary"
                             onPress={(): void => {
-                                setIsDrawerOpen(true)
+                                drawerState.open()
                             }}
                         >
                             {td("common:freshness.openProvenance")}
@@ -192,16 +192,16 @@ export function DataFreshnessPanel(props: IDataFreshnessPanelProps): ReactElemen
                 </div>
             </section>
 
-            <Modal isOpen={isDrawerOpen} onOpenChange={setIsDrawerOpen}>
-                <Modal.Backdrop>
-                    <Modal.Container className="!items-stretch !justify-end !p-0">
-                        <Modal.Dialog className="!m-0 !h-full !w-[min(92vw,420px)] !rounded-none bg-surface text-foreground">
-                            <div className="border-b border-border px-4 py-3">
+            <Drawer state={drawerState}>
+                <Drawer.Backdrop>
+                    <Drawer.Content placement="right">
+                        <Drawer.Dialog>
+                            <Drawer.Header>
                                 <h2 className={TYPOGRAPHY.sectionTitle}>
                                     {td("common:freshness.provenanceTitle")}
                                 </h2>
-                            </div>
-                            <div className="flex-1 overflow-y-auto space-y-3 px-4 py-3">
+                            </Drawer.Header>
+                            <Drawer.Body>
                                 <dl className="grid grid-cols-[130px_1fr] gap-x-2 gap-y-2 text-sm">
                                     <dt className="text-muted">
                                         {td("common:freshness.provenanceSource")}
@@ -263,11 +263,11 @@ export function DataFreshnessPanel(props: IDataFreshnessPanelProps): ReactElemen
                                         {td("common:freshness.refreshRescan")}
                                     </Button>
                                 </div>
-                            </div>
-                        </Modal.Dialog>
-                    </Modal.Container>
-                </Modal.Backdrop>
-            </Modal>
+                            </Drawer.Body>
+                        </Drawer.Dialog>
+                    </Drawer.Content>
+                </Drawer.Backdrop>
+            </Drawer>
         </>
     )
 }
