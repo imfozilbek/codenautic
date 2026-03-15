@@ -1,5 +1,6 @@
 import { useMemo, type ChangeEvent, type ReactElement } from "react"
 import { useTranslation } from "react-i18next"
+import { Controller } from "react-hook-form"
 
 import { useDynamicTranslation } from "@/lib/i18n"
 import {
@@ -14,8 +15,8 @@ import {
     Select,
     Switch,
 } from "@heroui/react"
-import { FormField } from "@/components/forms"
 import type { IFormSelectOption } from "@/components/forms"
+import { TYPOGRAPHY } from "@/lib/constants/typography"
 
 import type { IOnboardingWizardState } from "../use-onboarding-wizard-state"
 import type { IOnboardingFormValues, TOnboardingTemplateId } from "../onboarding-wizard-types"
@@ -128,37 +129,64 @@ export function ScanConfigurationStep({ state }: IScanConfigurationStepProps): R
                         {t("onboarding:scan.templateRegistryHint")}
                     </p>
                     <div className="mt-2">
-                        <FormField<IOnboardingFormValues, "onboardingTemplateId">
+                        <Controller<IOnboardingFormValues, "onboardingTemplateId">
                             control={state.form.control}
-                            helperText={t("onboarding:scan.templateFieldHelper")}
-                            label={t("onboarding:scan.templateFieldLabel")}
-                            labelElement="span"
                             name="onboardingTemplateId"
-                            renderField={({
-                                field,
-                                hasError,
-                                accessibilityLabel,
-                                ariaDescribedBy,
-                            }): ReactElement => (
-                                <RadioGroup
-                                    aria-describedby={ariaDescribedBy}
-                                    aria-label={accessibilityLabel}
-                                    aria-invalid={hasError}
-                                    name={field.name}
-                                    value={field.value ?? ""}
-                                    onChange={(value: string): void => {
-                                        field.onChange(value)
-                                    }}
-                                >
-                                    {templateOptions.map(
-                                        (option): ReactElement => (
-                                            <Radio key={option.value} value={option.value}>
-                                                {option.label}
-                                            </Radio>
-                                        ),
-                                    )}
-                                </RadioGroup>
-                            )}
+                            render={({ field, fieldState }): ReactElement => {
+                                const errorMessage =
+                                    typeof fieldState.error?.message === "string"
+                                        ? fieldState.error.message
+                                        : undefined
+                                const hasError = errorMessage !== undefined
+                                const helperId = "onboardingTemplateId-helper"
+                                const label = t("onboarding:scan.templateFieldLabel")
+                                const helperText = t(
+                                    "onboarding:scan.templateFieldHelper",
+                                )
+
+                                return (
+                                    <div className="flex flex-col gap-1.5">
+                                        <span className={TYPOGRAPHY.label}>
+                                            {label}
+                                        </span>
+                                        <RadioGroup
+                                            aria-describedby={helperId}
+                                            aria-label={label}
+                                            aria-invalid={hasError}
+                                            name={field.name}
+                                            value={field.value ?? ""}
+                                            onChange={(value: string): void => {
+                                                field.onChange(value)
+                                            }}
+                                        >
+                                            {templateOptions.map(
+                                                (option): ReactElement => (
+                                                    <Radio
+                                                        key={option.value}
+                                                        value={option.value}
+                                                    >
+                                                        {option.label}
+                                                    </Radio>
+                                                ),
+                                            )}
+                                        </RadioGroup>
+                                        <span id={helperId}>
+                                            {hasError ? (
+                                                <p
+                                                    className="text-xs text-danger"
+                                                    role="alert"
+                                                >
+                                                    {errorMessage}
+                                                </p>
+                                            ) : (
+                                                <p className="text-xs text-muted">
+                                                    {helperText}
+                                                </p>
+                                            )}
+                                        </span>
+                                    </div>
+                                )
+                            }}
                         />
                     </div>
 
@@ -270,280 +298,404 @@ export function ScanConfigurationStep({ state }: IScanConfigurationStepProps): R
                     </details>
                 </div>
 
-                <FormField<IOnboardingFormValues, "scanMode">
+                <Controller<IOnboardingFormValues, "scanMode">
                     control={state.form.control}
-                    id="scan-mode"
-                    helperText={t("onboarding:scan.scanModeHelper")}
-                    label={t("onboarding:scan.scanModeLabel")}
                     name="scanMode"
-                    renderField={({
-                        field,
-                        hasError,
-                        fieldId,
-                        accessibilityLabel,
-                        ariaDescribedBy,
-                    }): ReactElement => {
-                        const selectedKey = field.value === undefined ? null : String(field.value)
+                    render={({ field, fieldState }): ReactElement => {
+                        const errorMessage =
+                            typeof fieldState.error?.message === "string"
+                                ? fieldState.error.message
+                                : undefined
+                        const hasError = errorMessage !== undefined
+                        const fieldId = "scan-mode"
+                        const helperId = `${fieldId}-helper`
+                        const selectedKey =
+                            field.value === undefined ? null : String(field.value)
+                        const label = t("onboarding:scan.scanModeLabel")
+                        const helperText = t("onboarding:scan.scanModeHelper")
 
                         return (
-                            <Select
-                                aria-describedby={ariaDescribedBy}
-                                aria-label={accessibilityLabel}
-                                aria-invalid={hasError}
-                                name={field.name}
-                                id={fieldId}
-                                selectedKey={selectedKey}
-                                onSelectionChange={(key): void => {
-                                    const nextValue = typeof key === "string" ? key : undefined
-                                    field.onChange(nextValue)
-                                }}
-                            >
-                                <Select.Trigger>
-                                    <Select.Value />
-                                </Select.Trigger>
-                                <Select.Popover>
-                                    <ListBox>
-                                        {scanModeSelectOptions.map(
-                                            (option): ReactElement => (
-                                                <ListBoxItem
-                                                    key={option.value}
-                                                    id={option.value}
-                                                    textValue={option.label}
-                                                    isDisabled={option.isDisabled}
-                                                >
-                                                    <div className="flex flex-col">
-                                                        <span>{option.label}</span>
-                                                        {option.description === undefined ? null : (
-                                                            <span className="text-xs text-muted">
-                                                                {option.description}
-                                                            </span>
-                                                        )}
-                                                    </div>
-                                                </ListBoxItem>
-                                            ),
-                                        )}
-                                    </ListBox>
-                                </Select.Popover>
-                            </Select>
+                            <div className="flex flex-col gap-1.5">
+                                <label className={TYPOGRAPHY.label} htmlFor={fieldId}>
+                                    {label}
+                                </label>
+                                <Select
+                                    aria-describedby={helperId}
+                                    aria-label={label}
+                                    aria-invalid={hasError}
+                                    name={field.name}
+                                    id={fieldId}
+                                    selectedKey={selectedKey}
+                                    onSelectionChange={(key): void => {
+                                        const nextValue =
+                                            typeof key === "string" ? key : undefined
+                                        field.onChange(nextValue)
+                                    }}
+                                >
+                                    <Select.Trigger>
+                                        <Select.Value />
+                                    </Select.Trigger>
+                                    <Select.Popover>
+                                        <ListBox>
+                                            {scanModeSelectOptions.map(
+                                                (option): ReactElement => (
+                                                    <ListBoxItem
+                                                        key={option.value}
+                                                        id={option.value}
+                                                        textValue={option.label}
+                                                        isDisabled={option.isDisabled}
+                                                    >
+                                                        <div className="flex flex-col">
+                                                            <span>{option.label}</span>
+                                                            {option.description ===
+                                                            undefined ? null : (
+                                                                <span className="text-xs text-muted">
+                                                                    {option.description}
+                                                                </span>
+                                                            )}
+                                                        </div>
+                                                    </ListBoxItem>
+                                                ),
+                                            )}
+                                        </ListBox>
+                                    </Select.Popover>
+                                </Select>
+                                <span id={helperId}>
+                                    {hasError ? (
+                                        <p className="text-xs text-danger" role="alert">
+                                            {errorMessage}
+                                        </p>
+                                    ) : (
+                                        <p className="text-xs text-muted">{helperText}</p>
+                                    )}
+                                </span>
+                            </div>
                         )
                     }}
                 />
-                <FormField<IOnboardingFormValues, "tags">
+                <Controller<IOnboardingFormValues, "tags">
                     control={state.form.control}
-                    helperText={t("onboarding:scan.tagsHelper")}
-                    id="onboarding-tags"
-                    label={t("onboarding:scan.tagsLabel")}
                     name="tags"
-                    renderField={({
-                        field,
-                        hasError,
-                        fieldId,
-                        accessibilityLabel,
-                        ariaDescribedBy,
-                    }): ReactElement => {
+                    render={({ field, fieldState }): ReactElement => {
+                        const errorMessage =
+                            typeof fieldState.error?.message === "string"
+                                ? fieldState.error.message
+                                : undefined
+                        const hasError = errorMessage !== undefined
+                        const fieldId = "onboarding-tags"
+                        const helperId = `${fieldId}-helper`
                         const value = typeof field.value === "string" ? field.value : ""
+                        const label = t("onboarding:scan.tagsLabel")
+                        const helperText = t("onboarding:scan.tagsHelper")
 
                         return (
-                            <Input
-                                aria-describedby={ariaDescribedBy}
-                                aria-label={accessibilityLabel}
-                                aria-invalid={hasError}
-                                id={fieldId}
-                                name={field.name}
-                                placeholder={t("onboarding:scan.tagsPlaceholder")}
-                                type="text"
-                                value={value}
-                                onBlur={field.onBlur}
-                                onChange={field.onChange}
-                            />
+                            <div className="flex flex-col gap-1.5">
+                                <label className={TYPOGRAPHY.label} htmlFor={fieldId}>
+                                    {label}
+                                </label>
+                                <Input
+                                    aria-describedby={helperId}
+                                    aria-label={label}
+                                    aria-invalid={hasError}
+                                    id={fieldId}
+                                    name={field.name}
+                                    placeholder={t("onboarding:scan.tagsPlaceholder")}
+                                    type="text"
+                                    value={value}
+                                    onBlur={field.onBlur}
+                                    onChange={field.onChange}
+                                />
+                                <span id={helperId}>
+                                    {hasError ? (
+                                        <p className="text-xs text-danger" role="alert">
+                                            {errorMessage}
+                                        </p>
+                                    ) : (
+                                        <p className="text-xs text-muted">{helperText}</p>
+                                    )}
+                                </span>
+                            </div>
                         )
                     }}
                 />
-                <FormField<IOnboardingFormValues, "scanSchedule">
+                <Controller<IOnboardingFormValues, "scanSchedule">
                     control={state.form.control}
-                    id="scan-schedule"
-                    label={t("onboarding:scan.scheduleLabel")}
                     name="scanSchedule"
-                    renderField={({
-                        field,
-                        hasError,
-                        fieldId,
-                        accessibilityLabel,
-                        ariaDescribedBy,
-                    }): ReactElement => {
-                        const selectedKey = field.value === undefined ? null : String(field.value)
+                    render={({ field, fieldState }): ReactElement => {
+                        const errorMessage =
+                            typeof fieldState.error?.message === "string"
+                                ? fieldState.error.message
+                                : undefined
+                        const hasError = errorMessage !== undefined
+                        const fieldId = "scan-schedule"
+                        const helperId = `${fieldId}-helper`
+                        const selectedKey =
+                            field.value === undefined ? null : String(field.value)
+                        const label = t("onboarding:scan.scheduleLabel")
 
                         return (
-                            <Select
-                                aria-describedby={ariaDescribedBy}
-                                aria-label={accessibilityLabel}
-                                aria-invalid={hasError}
-                                name={field.name}
-                                id={fieldId}
-                                selectedKey={selectedKey}
-                                onSelectionChange={(key): void => {
-                                    const nextValue = typeof key === "string" ? key : undefined
-                                    field.onChange(nextValue)
-                                }}
-                            >
-                                <Select.Trigger>
-                                    <Select.Value />
-                                </Select.Trigger>
-                                <Select.Popover>
-                                    <ListBox>
-                                        {scanScheduleSelectOptions.map(
-                                            (option): ReactElement => (
-                                                <ListBoxItem
-                                                    key={option.value}
-                                                    id={option.value}
-                                                    textValue={option.label}
-                                                    isDisabled={option.isDisabled}
-                                                >
-                                                    <div className="flex flex-col">
-                                                        <span>{option.label}</span>
-                                                        {option.description === undefined ? null : (
-                                                            <span className="text-xs text-muted">
-                                                                {option.description}
+                            <div className="flex flex-col gap-1.5">
+                                <label className={TYPOGRAPHY.label} htmlFor={fieldId}>
+                                    {label}
+                                </label>
+                                <Select
+                                    aria-describedby={
+                                        hasError ? helperId : undefined
+                                    }
+                                    aria-label={label}
+                                    aria-invalid={hasError}
+                                    name={field.name}
+                                    id={fieldId}
+                                    selectedKey={selectedKey}
+                                    onSelectionChange={(key): void => {
+                                        const nextValue =
+                                            typeof key === "string"
+                                                ? key
+                                                : undefined
+                                        field.onChange(nextValue)
+                                    }}
+                                >
+                                    <Select.Trigger>
+                                        <Select.Value />
+                                    </Select.Trigger>
+                                    <Select.Popover>
+                                        <ListBox>
+                                            {scanScheduleSelectOptions.map(
+                                                (option): ReactElement => (
+                                                    <ListBoxItem
+                                                        key={option.value}
+                                                        id={option.value}
+                                                        textValue={option.label}
+                                                        isDisabled={
+                                                            option.isDisabled
+                                                        }
+                                                    >
+                                                        <div className="flex flex-col">
+                                                            <span>
+                                                                {option.label}
                                                             </span>
-                                                        )}
-                                                    </div>
-                                                </ListBoxItem>
-                                            ),
-                                        )}
-                                    </ListBox>
-                                </Select.Popover>
-                            </Select>
+                                                            {option.description ===
+                                                            undefined ? null : (
+                                                                <span className="text-xs text-muted">
+                                                                    {
+                                                                        option.description
+                                                                    }
+                                                                </span>
+                                                            )}
+                                                        </div>
+                                                    </ListBoxItem>
+                                                ),
+                                            )}
+                                        </ListBox>
+                                    </Select.Popover>
+                                </Select>
+                                <span id={helperId}>
+                                    {hasError ? (
+                                        <p
+                                            className="text-xs text-danger"
+                                            role="alert"
+                                        >
+                                            {errorMessage}
+                                        </p>
+                                    ) : null}
+                                </span>
+                            </div>
                         )
                     }}
                 />
-                <FormField<IOnboardingFormValues, "scanThreads">
+                <Controller<IOnboardingFormValues, "scanThreads">
                     control={state.form.control}
-                    id="scan-threads"
-                    helperText={t("onboarding:scan.workersHelper")}
-                    label={t("onboarding:scan.workersLabel")}
                     name="scanThreads"
-                    renderField={({
-                        field,
-                        hasError,
-                        fieldId,
-                        accessibilityLabel,
-                        ariaDescribedBy,
-                    }): ReactElement => {
-                        const value = field.value === undefined ? "" : String(field.value)
+                    render={({ field, fieldState }): ReactElement => {
+                        const errorMessage =
+                            typeof fieldState.error?.message === "string"
+                                ? fieldState.error.message
+                                : undefined
+                        const hasError = errorMessage !== undefined
+                        const fieldId = "scan-threads"
+                        const helperId = `${fieldId}-helper`
+                        const value =
+                            field.value === undefined ? "" : String(field.value)
+                        const label = t("onboarding:scan.workersLabel")
+                        const helperText = t("onboarding:scan.workersHelper")
 
                         return (
-                            <Input
-                                aria-describedby={ariaDescribedBy}
-                                aria-label={accessibilityLabel}
-                                aria-invalid={hasError}
-                                id={fieldId}
-                                inputMode="decimal"
-                                max={32}
-                                min={1}
-                                name={field.name}
-                                placeholder="4"
-                                type="number"
-                                value={value}
-                                onBlur={field.onBlur}
-                                onChange={(event: ChangeEvent<HTMLInputElement>): void => {
-                                    const nextValue = event.target.value
+                            <div className="flex flex-col gap-1.5">
+                                <label className={TYPOGRAPHY.label} htmlFor={fieldId}>
+                                    {label}
+                                </label>
+                                <Input
+                                    aria-describedby={helperId}
+                                    aria-label={label}
+                                    aria-invalid={hasError}
+                                    id={fieldId}
+                                    inputMode="decimal"
+                                    max={32}
+                                    min={1}
+                                    name={field.name}
+                                    placeholder="4"
+                                    type="number"
+                                    value={value}
+                                    onBlur={field.onBlur}
+                                    onChange={(
+                                        event: ChangeEvent<HTMLInputElement>,
+                                    ): void => {
+                                        const nextValue = event.target.value
 
-                                    if (nextValue === "") {
-                                        field.onChange(undefined)
-                                        return
-                                    }
+                                        if (nextValue === "") {
+                                            field.onChange(undefined)
+                                            return
+                                        }
 
-                                    const parsedNumber = Number(nextValue)
-                                    if (Number.isNaN(parsedNumber) === true) {
-                                        field.onChange(undefined)
-                                        return
-                                    }
+                                        const parsedNumber = Number(nextValue)
+                                        if (Number.isNaN(parsedNumber) === true) {
+                                            field.onChange(undefined)
+                                            return
+                                        }
 
-                                    field.onChange(parsedNumber)
-                                }}
-                            />
+                                        field.onChange(parsedNumber)
+                                    }}
+                                />
+                                <span id={helperId}>
+                                    {hasError ? (
+                                        <p
+                                            className="text-xs text-danger"
+                                            role="alert"
+                                        >
+                                            {errorMessage}
+                                        </p>
+                                    ) : (
+                                        <p className="text-xs text-muted">
+                                            {helperText}
+                                        </p>
+                                    )}
+                                </span>
+                            </div>
                         )
                     }}
                 />
-                <FormField<IOnboardingFormValues, "includeSubmodules">
+                <Controller<IOnboardingFormValues, "includeSubmodules">
                     control={state.form.control}
-                    gapClass="gap-1"
-                    hideLabel={true}
-                    label={t("onboarding:scan.submodulesLabel")}
                     name="includeSubmodules"
-                    showRequiredMarker={false}
-                    renderField={({
-                        field,
-                        hasError,
-                        accessibilityLabel,
-                        ariaDescribedBy,
-                    }): ReactElement => (
-                        <Switch
-                            aria-describedby={ariaDescribedBy}
-                            aria-label={accessibilityLabel}
-                            aria-invalid={hasError}
-                            name={field.name}
-                            isSelected={field.value === true}
-                            onChange={field.onChange}
-                        >
-                            {t("onboarding:scan.submodulesLabel")}
-                        </Switch>
-                    )}
-                />
-                <FormField<IOnboardingFormValues, "includeHistory">
-                    control={state.form.control}
-                    gapClass="gap-1"
-                    helperText={t("onboarding:scan.historyHelper")}
-                    hideLabel={true}
-                    label={t("onboarding:scan.historyLabel")}
-                    name="includeHistory"
-                    showRequiredMarker={false}
-                    renderField={({
-                        field,
-                        hasError,
-                        accessibilityLabel,
-                        ariaDescribedBy,
-                    }): ReactElement => (
-                        <Switch
-                            aria-describedby={ariaDescribedBy}
-                            aria-label={accessibilityLabel}
-                            aria-invalid={hasError}
-                            name={field.name}
-                            isSelected={field.value === true}
-                            onChange={field.onChange}
-                        >
-                            {t("onboarding:scan.historyLabel")}
-                        </Switch>
-                    )}
-                />
-                <FormField<IOnboardingFormValues, "notifyEmail">
-                    control={state.form.control}
-                    helperText={t("onboarding:scan.notifyEmailHelper")}
-                    id="notify-email"
-                    label={t("onboarding:scan.notifyEmailLabel")}
-                    name="notifyEmail"
-                    renderField={({
-                        field,
-                        hasError,
-                        fieldId,
-                        accessibilityLabel,
-                        ariaDescribedBy,
-                    }): ReactElement => {
-                        const value = typeof field.value === "string" ? field.value : ""
+                    render={({ field, fieldState }): ReactElement => {
+                        const errorMessage =
+                            typeof fieldState.error?.message === "string"
+                                ? fieldState.error.message
+                                : undefined
+                        const hasError = errorMessage !== undefined
+                        const label = t("onboarding:scan.submodulesLabel")
 
                         return (
-                            <Input
-                                aria-describedby={ariaDescribedBy}
-                                aria-label={accessibilityLabel}
-                                aria-invalid={hasError}
-                                id={fieldId}
-                                name={field.name}
-                                placeholder="dev@company.com"
-                                type="email"
-                                value={value}
-                                onBlur={field.onBlur}
-                                onChange={field.onChange}
-                            />
+                            <div className="flex flex-col gap-1">
+                                <Switch
+                                    aria-label={label}
+                                    aria-invalid={hasError}
+                                    name={field.name}
+                                    isSelected={field.value === true}
+                                    onChange={field.onChange}
+                                >
+                                    {label}
+                                </Switch>
+                                {hasError ? (
+                                    <p className="text-xs text-danger" role="alert">
+                                        {errorMessage}
+                                    </p>
+                                ) : null}
+                            </div>
+                        )
+                    }}
+                />
+                <Controller<IOnboardingFormValues, "includeHistory">
+                    control={state.form.control}
+                    name="includeHistory"
+                    render={({ field, fieldState }): ReactElement => {
+                        const errorMessage =
+                            typeof fieldState.error?.message === "string"
+                                ? fieldState.error.message
+                                : undefined
+                        const hasError = errorMessage !== undefined
+                        const helperId = "includeHistory-helper"
+                        const label = t("onboarding:scan.historyLabel")
+                        const helperText = t("onboarding:scan.historyHelper")
+
+                        return (
+                            <div className="flex flex-col gap-1">
+                                <Switch
+                                    aria-describedby={helperId}
+                                    aria-label={label}
+                                    aria-invalid={hasError}
+                                    name={field.name}
+                                    isSelected={field.value === true}
+                                    onChange={field.onChange}
+                                >
+                                    {label}
+                                </Switch>
+                                <span id={helperId}>
+                                    {hasError ? (
+                                        <p
+                                            className="text-xs text-danger"
+                                            role="alert"
+                                        >
+                                            {errorMessage}
+                                        </p>
+                                    ) : (
+                                        <p className="text-xs text-muted">
+                                            {helperText}
+                                        </p>
+                                    )}
+                                </span>
+                            </div>
+                        )
+                    }}
+                />
+                <Controller<IOnboardingFormValues, "notifyEmail">
+                    control={state.form.control}
+                    name="notifyEmail"
+                    render={({ field, fieldState }): ReactElement => {
+                        const errorMessage =
+                            typeof fieldState.error?.message === "string"
+                                ? fieldState.error.message
+                                : undefined
+                        const hasError = errorMessage !== undefined
+                        const fieldId = "notify-email"
+                        const helperId = `${fieldId}-helper`
+                        const value =
+                            typeof field.value === "string" ? field.value : ""
+                        const label = t("onboarding:scan.notifyEmailLabel")
+                        const helperText = t("onboarding:scan.notifyEmailHelper")
+
+                        return (
+                            <div className="flex flex-col gap-1.5">
+                                <label className={TYPOGRAPHY.label} htmlFor={fieldId}>
+                                    {label}
+                                </label>
+                                <Input
+                                    aria-describedby={helperId}
+                                    aria-label={label}
+                                    aria-invalid={hasError}
+                                    id={fieldId}
+                                    name={field.name}
+                                    placeholder="dev@company.com"
+                                    type="email"
+                                    value={value}
+                                    onBlur={field.onBlur}
+                                    onChange={field.onChange}
+                                />
+                                <span id={helperId}>
+                                    {hasError ? (
+                                        <p
+                                            className="text-xs text-danger"
+                                            role="alert"
+                                        >
+                                            {errorMessage}
+                                        </p>
+                                    ) : (
+                                        <p className="text-xs text-muted">
+                                            {helperText}
+                                        </p>
+                                    )}
+                                </span>
+                            </div>
                         )
                     }}
                 />
