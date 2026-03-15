@@ -51,8 +51,8 @@ interface ISerializedQueue {
 }
 
 const DEFAULT_SCHEMA_VERSION = 1
-const DEFAULT_QUEUE_STORAGE_KEY = "codenautic:ui:analytics:queue"
-const DEFAULT_SESSION_STORAGE_KEY = "codenautic:ui:analytics:session-id"
+const DEFAULT_QUEUE_STORAGE_KEY = "cn:analytics:queue"
+const DEFAULT_SESSION_STORAGE_KEY = "cn:analytics:session-id"
 const DEFAULT_MAX_BATCH_SIZE = 20
 const DEFAULT_FLUSH_INTERVAL_MS = 4_000
 const DEFAULT_SAMPLING_RATE = 1
