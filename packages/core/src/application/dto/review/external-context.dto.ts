@@ -5,6 +5,7 @@ export const EXTERNAL_CONTEXT_SOURCE = [
     "JIRA",
     "LINEAR",
     "SENTRY",
+    "BUGSNAG",
     "ASANA",
     "CLICKUP",
     "DATADOG",
@@ -335,6 +336,66 @@ export interface ISentryError {
      * Optional normalized issue frequency.
      */
     readonly frequency?: number
+
+    /**
+     * Optional normalized number of affected users.
+     */
+    readonly affectedUsers?: number
+}
+
+/**
+ * External breadcrumb model for Bugsnag platform.
+ */
+export interface IBugsnagBreadcrumb {
+    /**
+     * Breadcrumb message.
+     */
+    readonly message: string
+
+    /**
+     * Optional breadcrumb type.
+     */
+    readonly type?: string
+
+    /**
+     * Optional breadcrumb timestamp in ISO format.
+     */
+    readonly timestamp?: string
+}
+
+/**
+ * External error model for Bugsnag platform.
+ */
+export interface IBugsnagError {
+    /**
+     * Stable Bugsnag error identifier.
+     */
+    readonly id: string
+
+    /**
+     * Human-readable error title.
+     */
+    readonly title: string
+
+    /**
+     * Normalized stack trace lines.
+     */
+    readonly stackTrace: readonly string[]
+
+    /**
+     * Optional normalized severity.
+     */
+    readonly severity?: string
+
+    /**
+     * Optional normalized breadcrumbs.
+     */
+    readonly breadcrumbs?: readonly IBugsnagBreadcrumb[]
+
+    /**
+     * Optional normalized event count.
+     */
+    readonly eventCount?: number
 
     /**
      * Optional normalized number of affected users.

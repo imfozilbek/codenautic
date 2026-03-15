@@ -1,6 +1,7 @@
 import type {
     IAntiCorruptionLayer,
     IAsanaTask,
+    IBugsnagError,
     IClickUpTask,
     IExternalContext,
     IJiraTicket,
@@ -11,9 +12,11 @@ import type {IDatadogAlert, IDatadogLogEntry} from "../datadog.types"
 
 import {
     mapAsanaContext,
+    mapBugsnagContext,
     mapClickUpContext,
     mapDatadogContext,
     mapExternalAsanaTask,
+    mapExternalBugsnagError,
     mapExternalClickUpTask,
     mapExternalDatadogAlert,
     mapExternalDatadogLogs,
@@ -222,6 +225,46 @@ export class SentryContextAcl implements IAntiCorruptionLayer<unknown, IExternal
      */
     public toDomain(external: unknown): IExternalContext {
         return mapSentryContext(external)
+    }
+}
+
+/**
+ * Bugsnag error ACL adapter.
+ */
+export class BugsnagErrorAcl implements IAntiCorruptionLayer<unknown, IBugsnagError> {
+    /**
+     * Creates Bugsnag error ACL adapter.
+     */
+    public constructor() {}
+
+    /**
+     * Converts external Bugsnag error payload to domain DTO.
+     *
+     * @param external External Bugsnag payload.
+     * @returns Domain Bugsnag error DTO.
+     */
+    public toDomain(external: unknown): IBugsnagError {
+        return mapExternalBugsnagError(external)
+    }
+}
+
+/**
+ * Bugsnag context ACL adapter.
+ */
+export class BugsnagContextAcl implements IAntiCorruptionLayer<unknown, IExternalContext> {
+    /**
+     * Creates Bugsnag context ACL adapter.
+     */
+    public constructor() {}
+
+    /**
+     * Converts external Bugsnag payload to shared external context.
+     *
+     * @param external External Bugsnag payload.
+     * @returns Shared external context.
+     */
+    public toDomain(external: unknown): IExternalContext {
+        return mapBugsnagContext(external)
     }
 }
 

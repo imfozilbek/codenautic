@@ -1,6 +1,7 @@
 import {describe, expect, test} from "bun:test"
 
 import type {
+    IBugsnagError,
     IExternalContext,
     IJiraTicket,
     ILinearIssue,
@@ -115,5 +116,44 @@ describe("IExternalContext review DTO", () => {
         expect(error.frequency).toBe(31)
         expect(error.affectedUsers).toBe(7)
         expect(payload.source).toBe("SENTRY")
+    })
+
+    test("supports enriched Bugsnag error payload with breadcrumbs and severity", () => {
+        const error: IBugsnagError = {
+            id: "bug-1122",
+            title: "TypeError in analytics worker",
+            stackTrace: [
+                "TypeError: Cannot read properties of undefined (reading 'length')",
+                "at AnalyticsWorker.handle (/app/src/analytics/worker.ts:91:13)",
+            ],
+            severity: "error",
+            breadcrumbs: [
+                {
+                    message: "Started processing analytics batch",
+                    type: "process",
+                    timestamp: "2026-03-15T09:10:00.000Z",
+                },
+                {
+                    message: "Loaded repository metadata",
+                    type: "state",
+                    timestamp: "2026-03-15T09:10:01.000Z",
+                },
+            ],
+            eventCount: 24,
+            affectedUsers: 6,
+        }
+        const payload: IExternalContext = {
+            source: "BUGSNAG",
+            data: {
+                error,
+                breadcrumbs: error.breadcrumbs,
+            },
+            fetchedAt: new Date("2026-03-15T09:15:00.000Z"),
+        }
+
+        expect(error.severity).toBe("error")
+        expect(error.breadcrumbs).toHaveLength(2)
+        expect(error.eventCount).toBe(24)
+        expect(payload.source).toBe("BUGSNAG")
     })
 })

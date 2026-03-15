@@ -1,6 +1,8 @@
 import type {
     IAsanaProjectHierarchy,
     IAsanaTask,
+    IBugsnagBreadcrumb,
+    IBugsnagError,
     IClickUpCustomField,
     IClickUpTask,
     IExternalContext,
@@ -258,6 +260,56 @@ export function mapSentryContext(payload: unknown): IExternalContext {
             error,
             ...(error.frequency !== undefined ? {frequency: error.frequency} : {}),
             ...(error.affectedUsers !== undefined ? {affectedUsers: error.affectedUsers} : {}),
+        },
+        fetchedAt: resolveFetchedAt(root),
+    }
+}
+
+/**
+ * Normalizes external Bugsnag payload to shared error DTO.
+ *
+ * @param payload External Bugsnag payload.
+ * @returns Normalized Bugsnag error DTO.
+ */
+export function mapExternalBugsnagError(payload: unknown): IBugsnagError {
+    const root = toRecord(payload) ?? EMPTY_RECORD
+    const stackTrace = resolveBugsnagStackTrace(root)
+    const breadcrumbs = resolveBugsnagBreadcrumbs(root)
+    const severity = resolveBugsnagSeverity(root)
+    const eventCount = resolveOptionalSentryMetric(root, ["eventCount", "events", "events_count"])
+    const affectedUsers = resolveOptionalSentryMetric(root, [
+        "affectedUsers",
+        "users",
+        "users_affected",
+    ])
+
+    return {
+        id: readIdentifier(root, ["id", "errorId"], "UNKNOWN"),
+        title: resolveBugsnagTitle(root),
+        stackTrace,
+        ...(severity !== undefined ? {severity} : {}),
+        ...(breadcrumbs.length > 0 ? {breadcrumbs} : {}),
+        ...(eventCount !== undefined ? {eventCount} : {}),
+        ...(affectedUsers !== undefined ? {affectedUsers} : {}),
+    }
+}
+
+/**
+ * Normalizes external Bugsnag context payload.
+ *
+ * @param payload External Bugsnag payload.
+ * @returns Shared external context.
+ */
+export function mapBugsnagContext(payload: unknown): IExternalContext {
+    const root = toRecord(payload) ?? EMPTY_RECORD
+    const error = mapExternalBugsnagError(payload)
+
+    return {
+        source: "BUGSNAG",
+        data: {
+            error,
+            ...(error.breadcrumbs !== undefined ? {breadcrumbs: error.breadcrumbs} : {}),
+            ...(error.severity !== undefined ? {severity: error.severity} : {}),
         },
         fetchedAt: resolveFetchedAt(root),
     }
@@ -1589,6 +1641,277 @@ function formatSentryFrameLocation(
     }
 
     return segments.join(":")
+}
+
+/**
+ * Resolves human-readable Bugsnag error title.
+ *
+ * @param root Bugsnag root payload.
+ * @returns Title with deterministic fallback.
+ */
+function resolveBugsnagTitle(root: Readonly<Record<string, unknown>>): string {
+    const eventCandidates = resolveBugsnagEventCandidates(root)
+
+    for (const event of eventCandidates) {
+        const exception = resolveBugsnagEventException(event)
+        if (exception === null) {
+            continue
+        }
+
+        const errorClass = readText(exception, ["errorClass", "error_class", "type"])
+        const message = readText(exception, ["message", "value"])
+        if (errorClass.length > 0 && message.length > 0) {
+            return `${errorClass}: ${message}`
+        }
+
+        if (message.length > 0) {
+            return message
+        }
+
+        if (errorClass.length > 0) {
+            return errorClass
+        }
+    }
+
+    const rootErrorClass = readText(root, ["errorClass", "error_class"])
+    const rootMessage = readText(root, ["message", "errorMessage", "error_message"])
+    if (rootErrorClass.length > 0 && rootMessage.length > 0) {
+        return `${rootErrorClass}: ${rootMessage}`
+    }
+
+    return readText(root, ["title", "name"], "(no title)")
+}
+
+/**
+ * Resolves optional Bugsnag severity from root and event payloads.
+ *
+ * @param root Bugsnag root payload.
+ * @returns Normalized severity when available.
+ */
+function resolveBugsnagSeverity(
+    root: Readonly<Record<string, unknown>>,
+): string | undefined {
+    const rootSeverity = readText(root, ["severity"])
+    if (rootSeverity.length > 0) {
+        return rootSeverity.toLowerCase()
+    }
+
+    for (const event of resolveBugsnagEventCandidates(root)) {
+        const eventSeverity = readText(event, ["severity"])
+        if (eventSeverity.length > 0) {
+            return eventSeverity.toLowerCase()
+        }
+    }
+
+    return undefined
+}
+
+/**
+ * Resolves normalized stack trace lines from common Bugsnag payload shapes.
+ *
+ * @param root Bugsnag root payload.
+ * @returns Stack trace lines.
+ */
+function resolveBugsnagStackTrace(
+    root: Readonly<Record<string, unknown>>,
+): readonly string[] {
+    const directCandidates: readonly unknown[] = [
+        root["stackTrace"],
+        root["stacktrace"],
+        root["stack"],
+    ]
+
+    for (const candidate of directCandidates) {
+        const directLines = extractBugsnagStackTraceLines(candidate)
+        if (directLines.length > 0) {
+            return directLines
+        }
+    }
+
+    for (const event of resolveBugsnagEventCandidates(root)) {
+        const exception = resolveBugsnagEventException(event)
+        if (exception !== null) {
+            const exceptionStack = extractBugsnagStackTraceLines(
+                exception["stacktrace"] ?? exception["stackTrace"] ?? exception["stack"],
+            )
+            if (exceptionStack.length > 0) {
+                return exceptionStack
+            }
+        }
+
+        const eventStack = extractBugsnagStackTraceLines(event["stacktrace"] ?? event["stack"])
+        if (eventStack.length > 0) {
+            return eventStack
+        }
+    }
+
+    return []
+}
+
+/**
+ * Collects Bugsnag event candidates from direct and nested payloads.
+ *
+ * @param root Bugsnag root payload.
+ * @returns Event candidate list.
+ */
+function resolveBugsnagEventCandidates(
+    root: Readonly<Record<string, unknown>>,
+): readonly Readonly<Record<string, unknown>>[] {
+    const candidates: readonly unknown[] = [
+        root["event"],
+        root["latestEvent"],
+        ...toArray(root["events"]),
+    ]
+
+    return candidates.flatMap((candidate) => {
+        const event = toRecord(candidate)
+        return event === null ? [] : [event]
+    })
+}
+
+/**
+ * Resolves primary exception record from Bugsnag event payload.
+ *
+ * @param event Bugsnag event payload.
+ * @returns Primary exception record or null.
+ */
+function resolveBugsnagEventException(
+    event: Readonly<Record<string, unknown>>,
+): Readonly<Record<string, unknown>> | null {
+    for (const exceptionCandidate of toArray(event["exceptions"])) {
+        const exception = toRecord(exceptionCandidate)
+        if (exception !== null) {
+            return exception
+        }
+    }
+
+    const directException = toRecord(event["exception"])
+    if (directException !== null) {
+        return directException
+    }
+
+    return null
+}
+
+/**
+ * Extracts normalized stack trace lines from Bugsnag frame payloads or textual traces.
+ *
+ * @param value Stack trace candidate.
+ * @returns Stack trace lines.
+ */
+function extractBugsnagStackTraceLines(value: unknown): readonly string[] {
+    if (Array.isArray(value) === false) {
+        return extractNormalizedStackTraceLines(value)
+    }
+
+    const lines = value.flatMap((frameCandidate) => {
+        const frame = toRecord(frameCandidate)
+        if (frame === null) {
+            return []
+        }
+
+        const formatted = formatBugsnagFrame(frame)
+        return formatted === undefined ? [] : [formatted]
+    })
+
+    if (lines.length > 0) {
+        return deduplicateSequentialLines(lines)
+    }
+
+    return extractNormalizedStackTraceLines(value)
+}
+
+/**
+ * Formats one Bugsnag frame into readable stack line.
+ *
+ * @param frame Bugsnag frame payload.
+ * @returns Stack line when frame contains enough data.
+ */
+function formatBugsnagFrame(
+    frame: Readonly<Record<string, unknown>>,
+): string | undefined {
+    const functionName = readText(frame, ["method", "function"])
+    const fileName = readText(frame, ["file", "filename"])
+    const lineNumber = readPositiveInteger(frame["lineNumber"] ?? frame["lineNo"] ?? frame["lineno"])
+    const columnNumber = readPositiveInteger(frame["columnNumber"] ?? frame["colNo"] ?? frame["colno"])
+
+    if (functionName.length === 0 && fileName.length === 0) {
+        return undefined
+    }
+
+    const location = formatSentryFrameLocation(fileName, lineNumber, columnNumber)
+    if (location !== undefined && functionName.length > 0) {
+        return `at ${functionName} (${location})`
+    }
+
+    if (location !== undefined) {
+        return `at ${location}`
+    }
+
+    return `at ${functionName}`
+}
+
+/**
+ * Resolves normalized Bugsnag breadcrumbs.
+ *
+ * @param root Bugsnag root payload.
+ * @returns Breadcrumb list.
+ */
+function resolveBugsnagBreadcrumbs(
+    root: Readonly<Record<string, unknown>>,
+): readonly IBugsnagBreadcrumb[] {
+    for (const event of resolveBugsnagEventCandidates(root)) {
+        const breadcrumbs = mapBugsnagBreadcrumbs(event["breadcrumbs"])
+        if (breadcrumbs.length > 0) {
+            return breadcrumbs
+        }
+    }
+
+    return mapBugsnagBreadcrumbs(root["breadcrumbs"])
+}
+
+/**
+ * Maps unknown breadcrumbs payload into normalized breadcrumb list.
+ *
+ * @param value Breadcrumb payload.
+ * @returns Normalized breadcrumb list.
+ */
+function mapBugsnagBreadcrumbs(value: unknown): readonly IBugsnagBreadcrumb[] {
+    const breadcrumbs = toArray(value).flatMap((breadcrumbCandidate) => {
+        const breadcrumb = toRecord(breadcrumbCandidate)
+        if (breadcrumb === null) {
+            return []
+        }
+
+        const mapped = mapBugsnagBreadcrumb(breadcrumb)
+        return mapped === undefined ? [] : [mapped]
+    })
+
+    return breadcrumbs
+}
+
+/**
+ * Maps Bugsnag breadcrumb payload to normalized breadcrumb DTO.
+ *
+ * @param breadcrumb Bugsnag breadcrumb payload.
+ * @returns Normalized breadcrumb when payload is valid.
+ */
+function mapBugsnagBreadcrumb(
+    breadcrumb: Readonly<Record<string, unknown>>,
+): IBugsnagBreadcrumb | undefined {
+    const message = readText(breadcrumb, ["name", "message", "title"], "")
+    if (message.length === 0) {
+        return undefined
+    }
+
+    const type = readText(breadcrumb, ["type"])
+    const timestamp = normalizeIsoTimestamp(breadcrumb["timestamp"] ?? breadcrumb["ts"])
+
+    return {
+        message,
+        ...(type.length > 0 ? {type} : {}),
+        ...(timestamp !== undefined ? {timestamp} : {}),
+    }
 }
 
 /**

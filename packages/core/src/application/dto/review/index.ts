@@ -23,6 +23,8 @@ export {
     type ExternalContextSource,
     type IAsanaProjectHierarchy,
     type IAsanaTask,
+    type IBugsnagBreadcrumb,
+    type IBugsnagError,
     type IClickUpCustomField,
     type IClickUpTask,
     type IExternalContext,

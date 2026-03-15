@@ -1,5 +1,6 @@
 import type {
     IAsanaTask,
+    IBugsnagError,
     IClickUpTask,
     ExternalContextSource,
     IExternalContext,
@@ -89,4 +90,17 @@ export interface ISentryProvider {
      * @returns Sentry error payload or null when not found.
      */
     getError(errorId: string): Promise<ISentryError | null>
+}
+
+/**
+ * Bugsnag-specific provider contract.
+ */
+export interface IBugsnagProvider {
+    /**
+     * Loads Bugsnag error by identifier.
+     *
+     * @param errorId Bugsnag error identifier.
+     * @returns Bugsnag error payload or null when not found.
+     */
+    getError(errorId: string): Promise<IBugsnagError | null>
 }

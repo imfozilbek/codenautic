@@ -1,8 +1,10 @@
 export {
     mapAsanaContext,
+    mapBugsnagContext,
     mapClickUpContext,
     mapDatadogContext,
     mapExternalAsanaTask,
+    mapExternalBugsnagError,
     mapExternalClickUpTask,
     mapExternalDatadogAlert,
     mapExternalDatadogLogs,
@@ -16,6 +18,8 @@ export {
 export {
     AsanaContextAcl,
     AsanaTaskAcl,
+    BugsnagContextAcl,
+    BugsnagErrorAcl,
     ClickUpContextAcl,
     ClickUpTaskAcl,
     DatadogAlertAcl,

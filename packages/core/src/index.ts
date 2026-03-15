@@ -114,6 +114,7 @@ export {
 } from "./application/ports/outbound/feedback-repository.port"
 export {
     type IAsanaProvider,
+    type IBugsnagProvider,
     type IClickUpProvider,
     type IExternalContextProvider,
     type IJiraProvider,
@@ -429,6 +430,8 @@ export {
     type ExternalContextSource,
     type IAsanaProjectHierarchy,
     type IAsanaTask,
+    type IBugsnagBreadcrumb,
+    type IBugsnagError,
     type IClickUpCustomField,
     type IClickUpTask,
     type IExternalContext,

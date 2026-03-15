@@ -6,6 +6,8 @@ export {CONTEXT_TOKENS} from "./context.tokens"
 export {
     AsanaContextAcl,
     AsanaTaskAcl,
+    BugsnagContextAcl,
+    BugsnagErrorAcl,
     ClickUpContextAcl,
     ClickUpTaskAcl,
     DatadogAlertAcl,
@@ -18,9 +20,11 @@ export {
     SentryContextAcl,
     SentryErrorAcl,
     mapAsanaContext,
+    mapBugsnagContext,
     mapClickUpContext,
     mapDatadogContext,
     mapExternalAsanaTask,
+    mapExternalBugsnagError,
     mapExternalClickUpTask,
     mapExternalDatadogAlert,
     mapExternalDatadogLogs,
@@ -31,6 +35,7 @@ export {
     mapLinearContext,
     mapSentryContext,
 } from "./acl"
+export {type IBugsnagContextData} from "./bugsnag.types"
 export {
     type IDatadogAlert,
     type IDatadogContextData,
@@ -52,6 +57,15 @@ export {
     type IClickUpProviderOptions,
     type IClickUpResponseHeaders,
 } from "./clickup-provider"
+export {
+    BugsnagProvider,
+    type IBugsnagApiClient,
+    type IBugsnagApiResponse,
+    type IBugsnagGetErrorRequest,
+    type IBugsnagListErrorEventsRequest,
+    type IBugsnagProviderOptions,
+    type IBugsnagResponseHeaders,
+} from "./bugsnag-provider"
 export {
     DatadogProvider,
     type IDatadogApiClient,
@@ -102,6 +116,10 @@ export {
     ClickUpProviderError,
     type IClickUpProviderErrorDetails,
 } from "./clickup-provider.error"
+export {
+    BugsnagProviderError,
+    type IBugsnagProviderErrorDetails,
+} from "./bugsnag-provider.error"
 export {
     DatadogProviderError,
     type IDatadogProviderErrorDetails,
