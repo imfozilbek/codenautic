@@ -101,10 +101,6 @@ export function Header(props: IHeaderProps): ReactElement {
     }
 
     useEffect((): (() => void) | void => {
-        if (typeof window === "undefined") {
-            return
-        }
-
         const handleKeyboardShortcut = (event: KeyboardEvent): void => {
             if (
                 (event.ctrlKey !== true && event.metaKey !== true) ||
@@ -125,10 +121,6 @@ export function Header(props: IHeaderProps): ReactElement {
     }, [])
 
     useEffect((): (() => void) | void => {
-        if (typeof window === "undefined") {
-            return
-        }
-
         const handleOpenCommandPalette = (): void => {
             openCommandPalette()
         }
