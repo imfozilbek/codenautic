@@ -1,10 +1,10 @@
 import { type ReactElement, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
+import { useDebounceValue } from "usehooks-ts"
 
 import { Table } from "@heroui/react"
 import { StyledLink } from "@/components/layout/styled-link"
 import { TYPOGRAPHY } from "@/lib/constants/typography"
-import { useDebounce } from "@/lib/hooks/use-debounce"
 import { InfiniteScrollContainer } from "@/components/infrastructure/infinite-scroll-container"
 import { ReviewsFilters } from "./reviews-filters"
 import { type IReviewRow } from "./reviews-table"
@@ -37,7 +37,7 @@ export function ReviewsContent(props: IReviewsContentProps): ReactElement {
     const [search, setSearch] = useState("")
     const [statusFilter, setStatusFilter] = useState<string>("all")
     const [assigneeFilter, setAssigneeFilter] = useState<string>("all")
-    const debouncedSearch = useDebounce(search, 220)
+    const [debouncedSearch] = useDebounceValue(search, 220)
 
     const statusOptions = useMemo((): string[] => {
         const statuses = new Set<string>()
