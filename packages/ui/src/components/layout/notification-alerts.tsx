@@ -34,7 +34,9 @@ export function NotificationAlerts(props: INotificationAlertsProps): ReactElemen
         <>
             <AnimatedAlert isVisible={props.shortcutConflicts.length > 0}>
                 <Alert status="warning">
-                    <Alert.Title>{t("navigation:notifications.shortcutConflictsTitle")}</Alert.Title>
+                    <Alert.Title>
+                        {t("navigation:notifications.shortcutConflictsTitle")}
+                    </Alert.Title>
                     <Alert.Description>
                         {props.shortcutConflicts
                             .map((conflict): string => {
@@ -53,7 +55,9 @@ export function NotificationAlerts(props: INotificationAlertsProps): ReactElemen
             <AnimatedAlert isVisible={props.providerDegradation !== undefined}>
                 {props.providerDegradation !== undefined ? (
                     <Alert status="danger">
-                        <Alert.Title>{t("navigation:notifications.providerDegradationTitle")}</Alert.Title>
+                        <Alert.Title>
+                            {t("navigation:notifications.providerDegradationTitle")}
+                        </Alert.Title>
                         <Alert.Description>
                             {t("navigation:notifications.providerDegradationMessage", {
                                 provider: props.providerDegradation.provider,

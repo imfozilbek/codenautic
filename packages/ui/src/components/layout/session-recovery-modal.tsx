@@ -32,11 +32,11 @@ export function SessionRecoveryModal(props: ISessionRecoveryModalProps): ReactEl
                     <Modal.Dialog>
                         <Modal.Header>{t("navigation:sessionRecovery.title")}</Modal.Header>
                         <Modal.Body>
-                            <p className="text-sm text-text-tertiary">
+                            <p className="text-sm text-muted">
                                 Authentication failed with {props.failureCode}. Re-authentication is
                                 required to continue safely.
                             </p>
-                            <p className="text-xs text-text-secondary">
+                            <p className="text-xs text-muted">
                                 Drafts and pending intent were autosaved and will be restored after
                                 successful sign-in.
                             </p>
