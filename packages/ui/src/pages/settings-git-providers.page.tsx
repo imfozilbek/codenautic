@@ -154,7 +154,7 @@ export function SettingsGitProvidersPage(): ReactElement {
                             ),
                         )}
                     </div>
-                    <p className="text-xs text-muted-foreground">
+                    <p className="text-xs text-muted">
                         {isTokenConfigured
                             ? t("settings:gitProviders.tokenConfigured")
                             : t("settings:gitProviders.noTokensConfigured")}

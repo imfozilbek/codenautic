@@ -31,14 +31,16 @@ export function GuardrailsSection({ state }: IGuardrailsSectionProps): ReactElem
                 <p className={TYPOGRAPHY.sectionTitle}>Architecture guardrails</p>
             </CardHeader>
             <CardContent className="space-y-3">
-                <p className="text-sm text-text-secondary">
+                <p className="text-sm text-muted">
                     Configure allowed and forbidden import rules with YAML and visual rule preview.
                 </p>
                 <TextArea
                     aria-label={t("settings:ariaLabel.contractValidation.guardrailsYaml")}
                     className="min-h-[250px]"
                     value={state.guardrailsYaml}
-                    onChange={(e): void => { state.setGuardrailsYaml(e.target.value) }}
+                    onChange={(e): void => {
+                        state.setGuardrailsYaml(e.target.value)
+                    }}
                 />
                 <div className="flex gap-2">
                     <Button variant="primary" onPress={state.handleValidateGuardrails}>
