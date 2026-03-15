@@ -52,6 +52,12 @@ export {
     type IAstServiceProtobufDefinitionsErrorDetails,
 } from "./ast-service-protobuf-definitions.error"
 export {
+    AST_SERVICE_GRPC_SERVER_ERROR_CODE,
+    AstServiceGrpcServerError,
+    type AstServiceGrpcServerErrorCode,
+    type IAstServiceGrpcServerErrorDetails,
+} from "./ast-service-grpc-server.error"
+export {
     AST_SEMANTIC_CODE_UNDERSTANDING_ERROR_CODE,
     AstSemanticCodeUnderstandingError,
     type AstSemanticCodeUnderstandingErrorCode,
@@ -354,6 +360,18 @@ export {
     type IAstServiceProtobufDefinitionsService,
     type IAstServiceProtobufDefinitionsServiceOptions,
 } from "./ast-service-protobuf-definitions.service"
+export {
+    AstServiceGrpcServer,
+    type AstServiceGrpcServerMethodHandler,
+    type AstServiceGrpcServerNow,
+    type AstServiceGrpcServerShouldRetry,
+    type AstServiceGrpcServerSleep,
+    type IAstServiceGrpcServer,
+    type IAstServiceGrpcServerInvokeInput,
+    type IAstServiceGrpcServerInvokeResult,
+    type IAstServiceGrpcServerOptions,
+    type IAstServiceGrpcServerRetryPolicyInput,
+} from "./ast-service-grpc-server.service"
 export {
     AST_SEMANTIC_MODULE_ROLE,
     AstSemanticCodeUnderstandingService,
