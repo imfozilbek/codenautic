@@ -5,7 +5,7 @@ import { Alert, Button, Card, CardContent, CardHeader } from "@heroui/react"
 import { NATIVE_FORM } from "@/lib/constants/spacing"
 import { TYPOGRAPHY } from "@/lib/constants/typography"
 
-import { DRIFT_ALERT_CHANNEL_OPTIONS } from "../contract-validation-mock-data"
+import { DRIFT_ALERT_CHANNEL_OPTIONS } from "../contract-validation-constants"
 import type { IContractValidationState } from "../use-contract-validation-state"
 
 /**
