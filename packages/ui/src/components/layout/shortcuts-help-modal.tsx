@@ -43,42 +43,44 @@ export function ShortcutsHelpModal(props: IShortcutsHelpModalProps): ReactElemen
                     <Modal.Dialog>
                         <Modal.Header>{t("navigation:shortcuts.title")}</Modal.Header>
                         <Modal.Body>
-                    <input
-                        aria-label={t("navigation:shortcuts.searchLabel")}
-                        className="w-full rounded-md border border-border bg-surface px-2 py-1 text-sm text-foreground"
-                        placeholder={t("navigation:shortcuts.searchPlaceholder")}
-                        type="text"
-                        value={props.query}
-                        onChange={(event): void => {
-                            props.onQueryChange(event.currentTarget.value)
-                        }}
-                    />
-                    <p className="text-xs text-text-subtle">{t("navigation:shortcuts.helpHint")}</p>
-                    <ul
-                        aria-label={t("navigation:shortcuts.listLabel")}
-                        className="max-h-72 space-y-2 overflow-y-auto"
-                    >
-                        {props.shortcuts.map(
-                            (shortcut): ReactElement => (
-                                <li
-                                    key={shortcut.id}
-                                    className="flex items-center justify-between rounded-md border border-border px-2 py-1"
-                                >
-                                    <span className="text-sm text-foreground">
-                                        {shortcut.label}
-                                    </span>
-                                    <span className="flex items-center gap-2 text-xs text-text-secondary">
-                                        <span className="rounded border border-border px-2 py-0.5">
-                                            {shortcut.scope}
-                                        </span>
-                                        <span className="rounded border border-border px-2 py-0.5">
-                                            {shortcut.keys}
-                                        </span>
-                                    </span>
-                                </li>
-                            ),
-                        )}
-                    </ul>
+                            <input
+                                aria-label={t("navigation:shortcuts.searchLabel")}
+                                className="w-full rounded-md border border-border bg-surface px-2 py-1 text-sm text-foreground"
+                                placeholder={t("navigation:shortcuts.searchPlaceholder")}
+                                type="text"
+                                value={props.query}
+                                onChange={(event): void => {
+                                    props.onQueryChange(event.currentTarget.value)
+                                }}
+                            />
+                            <p className="text-xs text-muted">
+                                {t("navigation:shortcuts.helpHint")}
+                            </p>
+                            <ul
+                                aria-label={t("navigation:shortcuts.listLabel")}
+                                className="max-h-72 space-y-2 overflow-y-auto"
+                            >
+                                {props.shortcuts.map(
+                                    (shortcut): ReactElement => (
+                                        <li
+                                            key={shortcut.id}
+                                            className="flex items-center justify-between rounded-md border border-border px-2 py-1"
+                                        >
+                                            <span className="text-sm text-foreground">
+                                                {shortcut.label}
+                                            </span>
+                                            <span className="flex items-center gap-2 text-xs text-muted">
+                                                <span className="rounded border border-border px-2 py-0.5">
+                                                    {shortcut.scope}
+                                                </span>
+                                                <span className="rounded border border-border px-2 py-0.5">
+                                                    {shortcut.keys}
+                                                </span>
+                                            </span>
+                                        </li>
+                                    ),
+                                )}
+                            </ul>
                         </Modal.Body>
                     </Modal.Dialog>
                 </Modal.Container>

@@ -73,7 +73,7 @@ export function SidebarActions(props: ISidebarActionsProps): ReactElement {
         <div className="space-y-1.5">
             <button
                 aria-label={t("navigation:toolbar.openCommandPalette")}
-                className="flex w-full items-center gap-2 rounded-md border border-border bg-surface/40 px-2.5 py-1.5 text-xs text-text-secondary transition-colors hover:bg-surface hover:text-foreground"
+                className="flex w-full items-center gap-2 rounded-md border border-border bg-surface/40 px-2.5 py-1.5 text-xs text-muted transition-colors hover:bg-surface hover:text-foreground"
                 type="button"
                 onClick={(): void => {
                     props.onOpenCommandPalette?.()
@@ -81,7 +81,7 @@ export function SidebarActions(props: ISidebarActionsProps): ReactElement {
             >
                 <Search className="shrink-0" size={13} />
                 <span className="flex-1 text-left">Search...</span>
-                <kbd className="rounded border border-border/60 px-1 py-px text-[10px] font-medium text-text-subtle">
+                <kbd className="rounded border border-border/60 px-1 py-px text-[10px] font-medium text-muted">
                     ⌘K
                 </kbd>
             </button>
