@@ -3,7 +3,6 @@ import type { ReactElement } from "react"
 import { useTranslation } from "react-i18next"
 
 import { TYPOGRAPHY } from "@/lib/constants/typography"
-import { useVirtualizedList } from "@/lib/hooks/use-virtualized-list"
 import type {
     ICcrDiffFile,
     ICcrDiffLine,
@@ -67,7 +66,7 @@ function getTokenClass(token: string): string {
     }
 
     if (token.startsWith("//")) {
-        return "text-muted-foreground italic"
+        return "text-muted italic"
     }
 
     if (/^\d+$/.test(token)) {
@@ -75,7 +74,7 @@ function getTokenClass(token: string): string {
     }
 
     if (DIFF_KEYWORDS.has(token)) {
-        return "text-primary font-semibold"
+        return "text-accent font-semibold"
     }
 
     return "text-foreground"
@@ -122,10 +121,10 @@ function CodeDiffLine(props: ICodeLineProps): ReactElement {
     const lineNumber = isLeft ? props.line.leftLine : props.line.rightLine
     const lineClassName = isLeft
         ? props.diffType === "added"
-            ? "bg-surface-muted text-muted-foreground"
+            ? "bg-surface-secondary text-muted"
             : "bg-surface text-foreground"
         : props.diffType === "removed"
-          ? "bg-surface-muted text-muted-foreground"
+          ? "bg-surface-secondary text-muted"
           : "bg-surface text-foreground"
 
     const code = shouldRenderCode ? renderHighlightedCode(text) : null
@@ -163,18 +162,11 @@ function CodeDiffFilePanel(props: ICcrDiffFile): ReactElement {
         return { added, removed }
     }, [fileData.lines])
 
-    const virtualizer = useVirtualizedList({
-        count: fileData.lines.length,
-        estimateSize: (index): number =>
-            fileData.lines[index]?.comments && fileData.lines[index].comments.length > 0 ? 86 : 44,
-        overscan: 5,
-    })
-
     return (
         <section className="rounded-lg border border-border">
             <header className="flex flex-wrap items-center gap-2 border-b border-border bg-surface px-3 py-2">
                 <h3 className={TYPOGRAPHY.cardTitle}>{fileData.filePath}</h3>
-                <span className="rounded bg-surface-muted px-2 py-0.5 text-[11px] text-foreground">
+                <span className="rounded bg-surface-secondary px-2 py-0.5 text-[11px] text-foreground">
                     +{String(lineCounts.added)} / -{String(lineCounts.removed)}
                 </span>
                 <span className={TYPOGRAPHY.captionMuted}>
@@ -186,63 +178,51 @@ function CodeDiffFilePanel(props: ICcrDiffFile): ReactElement {
                     aria-label={t("reviews:codeDiff.diffLinesAriaLabel", {
                         filePath: fileData.filePath,
                     })}
-                    className="relative max-h-96 overflow-auto border-b border-border"
-                    ref={virtualizer.parentRef}
+                    className="max-h-96 overflow-auto border-b border-border"
                 >
-                    <div
-                        style={{ height: `${virtualizer.totalSize}px` }}
-                        className="relative w-max"
-                    >
-                        {virtualizer.virtualItems.map((virtualItem): ReactElement | null => {
-                            const line = fileData.lines[virtualItem.index]
-                            if (line === undefined) {
-                                return null
-                            }
+                    {fileData.lines.map((line, index): ReactElement => {
+                        const lineStyle = getLineStyleByType(line.type)
+                        const hasComments = (line.comments ?? []).length > 0
 
-                            const lineStyle = getLineStyleByType(line.type)
-                            const hasComments = (line.comments ?? []).length > 0
-
-                            return (
-                                <article
-                                    key={`diff-line-${String(virtualItem.index)}`}
-                                    role="row"
-                                    style={virtualizer.getItemStyle(virtualItem)}
-                                    className={`border-b border-border ${lineStyle}`}
-                                >
-                                    <div className="grid w-full min-w-[56rem] grid-cols-[1fr_1fr]">
-                                        <CodeDiffLine
-                                            diffType={line.type}
-                                            line={line}
-                                            side="left"
-                                        />
-                                        <CodeDiffLine
-                                            diffType={line.type}
-                                            line={line}
-                                            side="right"
-                                        />
-                                    </div>
-                                    {hasComments ? (
-                                        <ul className="px-3 pb-2">
-                                            {line.comments?.map(
-                                                (comment: ICcrDiffComment): ReactElement => (
-                                                    <li
-                                                        key={`${comment.author}-${String(comment.line)}-${comment.side}`}
-                                                        className="mt-1 rounded border border-border bg-surface px-2 py-1 text-xs text-foreground"
-                                                    >
-                                                        <p className="font-medium">
-                                                            {comment.author} ({comment.side}:
-                                                            {comment.line})
-                                                        </p>
-                                                        <p>{comment.message}</p>
-                                                    </li>
-                                                ),
-                                            )}
-                                        </ul>
-                                    ) : null}
-                                </article>
-                            )
-                        })}
-                    </div>
+                        return (
+                            <article
+                                key={`diff-line-${String(index)}`}
+                                role="row"
+                                className={`border-b border-border ${lineStyle}`}
+                            >
+                                <div className="grid w-full min-w-[56rem] grid-cols-[1fr_1fr]">
+                                    <CodeDiffLine
+                                        diffType={line.type}
+                                        line={line}
+                                        side="left"
+                                    />
+                                    <CodeDiffLine
+                                        diffType={line.type}
+                                        line={line}
+                                        side="right"
+                                    />
+                                </div>
+                                {hasComments ? (
+                                    <ul className="px-3 pb-2">
+                                        {line.comments?.map(
+                                            (comment: ICcrDiffComment): ReactElement => (
+                                                <li
+                                                    key={`${comment.author}-${String(comment.line)}-${comment.side}`}
+                                                    className="mt-1 rounded border border-border bg-surface px-2 py-1 text-xs text-foreground"
+                                                >
+                                                    <p className="font-medium">
+                                                        {comment.author} ({comment.side}:
+                                                        {comment.line})
+                                                    </p>
+                                                    <p>{comment.message}</p>
+                                                </li>
+                                            ),
+                                        )}
+                                    </ul>
+                                ) : null}
+                            </article>
+                        )
+                    })}
                 </div>
             </div>
         </section>
@@ -255,7 +235,7 @@ export function CodeDiffViewer(props: ICodeDiffViewerProps): ReactElement {
 
     if (props.files.length === 0) {
         return (
-            <div className="rounded-lg border border-border bg-surface p-4 text-sm text-muted-foreground">
+            <div className="rounded-lg border border-border bg-surface p-4 text-sm text-muted">
                 {t("reviews:codeDiff.noDiffContent")}
             </div>
         )

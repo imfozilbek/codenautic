@@ -254,7 +254,7 @@ export function ReviewCommentThread(props: IReviewCommentThreadProps): ReactElem
 
     if (props.threads.length === 0) {
         return (
-            <section className="rounded-lg border border-border bg-surface p-4 text-sm text-muted-foreground">
+            <section className="rounded-lg border border-border bg-surface p-4 text-sm text-muted">
                 {t("reviews:commentThread.noCommentsYet")}
             </section>
         )
@@ -262,7 +262,7 @@ export function ReviewCommentThread(props: IReviewCommentThreadProps): ReactElem
 
     if (threads.length === 0) {
         return (
-            <section className="rounded-lg border border-border bg-surface p-4 text-sm text-muted-foreground">
+            <section className="rounded-lg border border-border bg-surface p-4 text-sm text-muted">
                 {t("reviews:commentThread.noComments")}
             </section>
         )
