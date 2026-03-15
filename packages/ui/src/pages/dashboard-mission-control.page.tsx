@@ -2,8 +2,9 @@ import { type ReactElement, Suspense, lazy, useCallback, useEffect, useMemo, use
 import { useTranslation } from "react-i18next"
 
 import { useDynamicTranslation } from "@/lib/i18n"
-import { Alert, Button, Card, CardContent, CardHeader } from "@heroui/react"
-import { StyledLink } from "@/components/layout/styled-link"
+import { Link } from "@tanstack/react-router"
+
+import { Alert, Button, Card, CardContent, CardHeader, Skeleton } from "@heroui/react"
 import { ActivationChecklist } from "@/components/onboarding/activation-checklist"
 import { type IProvenanceContext } from "@/components/infrastructure/data-freshness-panel"
 import { DashboardCriticalSignals } from "@/components/dashboard/dashboard-critical-signals"
@@ -25,8 +26,9 @@ import {
 import { PageShell } from "@/components/layout/page-shell"
 import { useUiRole } from "@/lib/permissions/ui-policy"
 import { NATIVE_FORM } from "@/lib/constants/spacing"
-import { TYPOGRAPHY } from "@/lib/constants/typography"
-import { AnimatedAlert, AnimatedMount } from "@/lib/motion"
+import { LINK_CLASSES, TYPOGRAPHY } from "@/lib/constants/typography"
+import { AnimatePresence, motion } from "motion/react"
+
 import {
     getWindowLocalStorage,
     getWindowSessionStorage,
@@ -35,7 +37,69 @@ import {
     safeStorageSetJson,
 } from "@/lib/utils/safe-storage"
 
-import { DashboardSkeleton } from "@/components/skeletons/dashboard-skeleton"
+/**
+ * Inline skeleton placeholder for dashboard loading state.
+ *
+ * @returns Skeleton layout matching KPI/Work Queue/Timeline zones.
+ */
+function DashboardLoadingSkeleton(): ReactElement {
+    return (
+        <div className="space-y-4">
+            <div className="flex flex-wrap gap-2">
+                <Skeleton className="shimmer h-8 w-24 rounded-lg" />
+                <Skeleton className="shimmer h-8 w-40 rounded-lg" />
+            </div>
+            <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+                {Array.from({ length: 4 }).map(
+                    (_, index): ReactElement => (
+                        <Card key={`metric-${String(index)}`}>
+                            <CardHeader>
+                                <Skeleton className="shimmer h-4 w-24" />
+                            </CardHeader>
+                            <CardContent>
+                                <Skeleton className="mb-2 h-8 w-20" />
+                                <Skeleton className="shimmer h-4 w-32" />
+                                <Skeleton className="mt-4 h-4 w-16" />
+                            </CardContent>
+                        </Card>
+                    ),
+                )}
+            </div>
+            <div className="grid gap-4 lg:grid-cols-[2fr_1fr]">
+                <Card>
+                    <CardHeader>
+                        <Skeleton className="shimmer h-4 w-40" />
+                    </CardHeader>
+                    <CardContent className="space-y-2">
+                        {Array.from({ length: 4 }).map(
+                            (_, index): ReactElement => (
+                                <Skeleton
+                                    key={`skeleton-${String(index)}`}
+                                    className="h-16 w-full rounded-lg"
+                                />
+                            ),
+                        )}
+                    </CardContent>
+                </Card>
+                <Card>
+                    <CardHeader>
+                        <Skeleton className="shimmer h-4 w-32" />
+                    </CardHeader>
+                    <CardContent className="space-y-2">
+                        {Array.from({ length: 3 }).map(
+                            (_, index): ReactElement => (
+                                <Skeleton
+                                    key={`timeline-${String(index)}`}
+                                    className="h-14 w-full rounded-lg"
+                                />
+                            ),
+                        )}
+                    </CardContent>
+                </Card>
+            </div>
+        </div>
+    )
+}
 
 type TMockDataModule = typeof import("./dashboard-mock-data")
 
@@ -253,7 +317,7 @@ export function DashboardMissionControlPage(): ReactElement {
     }, [])
 
     if (mockModule === null) {
-        return <DashboardSkeleton />
+        return <DashboardLoadingSkeleton />
     }
 
     const handleRefresh = (): void => {
@@ -358,19 +422,27 @@ export function DashboardMissionControlPage(): ReactElement {
             />
 
             {/* Zone A': Hero metric + KPI grid — always visible */}
-            <AnimatedMount motionKey={`hero-metrics-${range}`}>
-                <div className="grid gap-4 lg:gap-6 lg:grid-cols-[auto_1fr]">
-                    <DashboardHeroMetric
-                        color="var(--accent)"
-                        label={t("dashboard:missionControl.releaseHealth")}
-                        subtitle={td("dashboard:missionControl.violations", {
-                            count: String(architectureHealth.layerViolations),
-                        })}
-                        value={architectureHealth.healthScore}
-                    />
-                    <MetricsGrid metrics={metrics} />
-                </div>
-            </AnimatedMount>
+            <AnimatePresence mode="wait">
+                <motion.div
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0 }}
+                    initial={{ opacity: 0, y: 4 }}
+                    key={`hero-metrics-${range}`}
+                    transition={{ duration: 0.15, ease: [0.0, 0.0, 0.2, 1.0] }}
+                >
+                    <div className="grid gap-4 lg:gap-6 lg:grid-cols-[auto_1fr]">
+                        <DashboardHeroMetric
+                            color="var(--accent)"
+                            label={t("dashboard:missionControl.releaseHealth")}
+                            subtitle={td("dashboard:missionControl.violations", {
+                                count: String(architectureHealth.layerViolations),
+                            })}
+                            value={architectureHealth.healthScore}
+                        />
+                        <MetricsGrid metrics={metrics} />
+                    </div>
+                </motion.div>
+            </AnimatePresence>
 
             {/* Zone B: Primary charts — collapsible */}
             <DashboardZone
@@ -378,16 +450,24 @@ export function DashboardMissionControlPage(): ReactElement {
                 priority="primary"
                 title={t("dashboard:missionControl.primaryCharts")}
             >
-                <AnimatedMount motionKey={`charts-primary-${range}`}>
-                    <div className="grid gap-3 md:gap-4 lg:grid-cols-2">
-                        <FlowMetricsWidget
-                            capacityTrendLabel="+6%"
-                            flowTrendLabel="+4%"
-                            points={flowMetrics}
-                        />
-                        <TeamActivityWidget points={teamActivity} />
-                    </div>
-                </AnimatedMount>
+                <AnimatePresence mode="wait">
+                    <motion.div
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0 }}
+                        initial={{ opacity: 0, y: 4 }}
+                        key={`charts-primary-${range}`}
+                        transition={{ duration: 0.15, ease: [0.0, 0.0, 0.2, 1.0] }}
+                    >
+                        <div className="grid gap-3 md:gap-4 lg:grid-cols-2">
+                            <FlowMetricsWidget
+                                capacityTrendLabel="+6%"
+                                flowTrendLabel="+4%"
+                                points={flowMetrics}
+                            />
+                            <TeamActivityWidget points={teamActivity} />
+                        </div>
+                    </motion.div>
+                </AnimatePresence>
             </DashboardZone>
 
             {/* Zone C: Operations — work queue + timeline */}
@@ -396,7 +476,7 @@ export function DashboardMissionControlPage(): ReactElement {
                 priority="primary"
                 title={t("dashboard:missionControl.operations")}
             >
-                <Suspense fallback={<DashboardSkeleton />}>
+                <Suspense fallback={<DashboardLoadingSkeleton />}>
                     <DashboardContent
                         statusDistribution={statusDistribution}
                         timeline={mockModule.TIMELINE_ENTRIES}
@@ -410,19 +490,27 @@ export function DashboardMissionControlPage(): ReactElement {
                 isVisible={activePreset.showZoneD}
                 title={t("dashboard:missionControl.analytics")}
             >
-                <AnimatedMount motionKey={`charts-secondary-${range}`}>
-                    <div className="grid gap-3 md:gap-4 lg:grid-cols-2">
-                        <TokenUsageDashboardWidget
-                            byModel={tokenUsageByModel}
-                            costTrend={tokenUsageTrend}
-                        />
-                        <ArchitectureHealthWidget
-                            dddCompliance={architectureHealth.dddCompliance}
-                            healthScore={architectureHealth.healthScore}
-                            layerViolations={architectureHealth.layerViolations}
-                        />
-                    </div>
-                </AnimatedMount>
+                <AnimatePresence mode="wait">
+                    <motion.div
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0 }}
+                        initial={{ opacity: 0, y: 4 }}
+                        key={`charts-secondary-${range}`}
+                        transition={{ duration: 0.15, ease: [0.0, 0.0, 0.2, 1.0] }}
+                    >
+                        <div className="grid gap-3 md:gap-4 lg:grid-cols-2">
+                            <TokenUsageDashboardWidget
+                                byModel={tokenUsageByModel}
+                                costTrend={tokenUsageTrend}
+                            />
+                            <ArchitectureHealthWidget
+                                dddCompliance={architectureHealth.dddCompliance}
+                                healthScore={architectureHealth.healthScore}
+                                layerViolations={architectureHealth.layerViolations}
+                            />
+                        </div>
+                    </motion.div>
+                </AnimatePresence>
             </DashboardZone>
 
             {/* Zone E: Explore + Signals */}
@@ -466,103 +554,134 @@ export function DashboardMissionControlPage(): ReactElement {
                         ? t("dashboard:missionControl.hidePersonalization")
                         : t("dashboard:missionControl.workspacePersonalization")}
                 </Button>
-                <AnimatedAlert isVisible={isPersonalizationOpen}>
-                    <Card className="mt-3">
-                        <CardHeader>
-                            <p className={TYPOGRAPHY.cardTitle}>
-                                {t("dashboard:missionControl.workspacePersonalization")}
-                            </p>
-                        </CardHeader>
-                        <CardContent className="space-y-3">
-                            <label className={`flex flex-col gap-1 ${TYPOGRAPHY.body}`}>
-                                {t("dashboard:missionControl.layoutPreset")}
-                                <select
-                                    aria-label={t("dashboard:missionControl.layoutPresetAriaLabel")}
-                                    className={NATIVE_FORM.select}
-                                    value={layoutPreset}
-                                    onChange={(event): void => {
-                                        const nextPreset = event.currentTarget.value
-                                        if (
-                                            nextPreset === "balanced" ||
-                                            nextPreset === "focus" ||
-                                            nextPreset === "ops"
-                                        ) {
-                                            setLayoutPreset(nextPreset)
-                                        }
-                                    }}
-                                >
-                                    <option value="balanced">balanced</option>
-                                    <option value="focus">focus</option>
-                                    <option value="ops">ops</option>
-                                </select>
-                            </label>
-
-                            <div className="space-y-1">
-                                <p className={TYPOGRAPHY.body}>
-                                    {t("dashboard:missionControl.pinnedShortcuts")}
-                                </p>
-                                <div className="grid gap-2 sm:grid-cols-2">
-                                    {WORKSPACE_SHORTCUT_OPTIONS.map(
-                                        (shortcut): ReactElement => (
-                                            <label
-                                                className="inline-flex items-center gap-2 rounded-lg border border-border px-3 py-2 text-sm"
-                                                key={shortcut}
-                                            >
-                                                <input
-                                                    aria-label={td(
-                                                        "dashboard:missionControl.pinAriaLabel",
-                                                        { shortcut },
-                                                    )}
-                                                    checked={pinnedShortcuts.includes(shortcut)}
-                                                    type="checkbox"
-                                                    onChange={(): void => {
-                                                        handleToggleShortcut(shortcut)
-                                                    }}
-                                                />
-                                                {shortcut}
-                                            </label>
-                                        ),
-                                    )}
-                                </div>
-                            </div>
-
-                            <div className="flex flex-wrap gap-2">
-                                <Button
-                                    size="sm"
-                                    variant="secondary"
-                                    onPress={handleSavePersonalization}
-                                >
-                                    {t("dashboard:missionControl.savePersonalization")}
-                                </Button>
-                                <Button
-                                    size="sm"
-                                    variant="secondary"
-                                    onPress={handleGenerateShareLink}
-                                >
-                                    {t("dashboard:missionControl.generateShareLink")}
-                                </Button>
-                            </div>
-
-                            <AnimatedAlert isVisible={personalizationMessage.length > 0}>
-                                <Alert status="accent">
-                                    <Alert.Title>
+                <AnimatePresence>
+                    {isPersonalizationOpen ? (
+                        <motion.div
+                            animate={{ opacity: 1, height: "auto" }}
+                            exit={{ opacity: 0, height: 0 }}
+                            initial={{ opacity: 0, height: 0 }}
+                            transition={{ duration: 0.25, ease: [0.0, 0.0, 0.2, 1.0] }}
+                        >
+                            <Card className="mt-3">
+                                <CardHeader>
+                                    <p className={TYPOGRAPHY.cardTitle}>
                                         {t("dashboard:missionControl.workspacePersonalization")}
-                                    </Alert.Title>
-                                    <Alert.Description>{personalizationMessage}</Alert.Description>
-                                </Alert>
-                            </AnimatedAlert>
+                                    </p>
+                                </CardHeader>
+                                <CardContent className="space-y-3">
+                                    <label className={`flex flex-col gap-1 ${TYPOGRAPHY.body}`}>
+                                        {t("dashboard:missionControl.layoutPreset")}
+                                        <select
+                                            aria-label={t(
+                                                "dashboard:missionControl.layoutPresetAriaLabel",
+                                            )}
+                                            className={NATIVE_FORM.select}
+                                            value={layoutPreset}
+                                            onChange={(event): void => {
+                                                const nextPreset = event.currentTarget.value
+                                                if (
+                                                    nextPreset === "balanced" ||
+                                                    nextPreset === "focus" ||
+                                                    nextPreset === "ops"
+                                                ) {
+                                                    setLayoutPreset(nextPreset)
+                                                }
+                                            }}
+                                        >
+                                            <option value="balanced">balanced</option>
+                                            <option value="focus">focus</option>
+                                            <option value="ops">ops</option>
+                                        </select>
+                                    </label>
 
-                            {shareLink.length > 0 ? (
-                                <input
-                                    readOnly
-                                    aria-label={t("dashboard:missionControl.shareLinkAriaLabel")}
-                                    className="w-full rounded-lg border border-border px-3 py-2 text-xs"
-                                    value={shareLink}
-                                />
-                            ) : null}
-                        </CardContent>
-                    </Card>
-                </AnimatedAlert>
+                                    <div className="space-y-1">
+                                        <p className={TYPOGRAPHY.body}>
+                                            {t("dashboard:missionControl.pinnedShortcuts")}
+                                        </p>
+                                        <div className="grid gap-2 sm:grid-cols-2">
+                                            {WORKSPACE_SHORTCUT_OPTIONS.map(
+                                                (shortcut): ReactElement => (
+                                                    <label
+                                                        className="inline-flex items-center gap-2 rounded-lg border border-border px-3 py-2 text-sm"
+                                                        key={shortcut}
+                                                    >
+                                                        <input
+                                                            aria-label={td(
+                                                                "dashboard:missionControl.pinAriaLabel",
+                                                                { shortcut },
+                                                            )}
+                                                            checked={pinnedShortcuts.includes(
+                                                                shortcut,
+                                                            )}
+                                                            type="checkbox"
+                                                            onChange={(): void => {
+                                                                handleToggleShortcut(shortcut)
+                                                            }}
+                                                        />
+                                                        {shortcut}
+                                                    </label>
+                                                ),
+                                            )}
+                                        </div>
+                                    </div>
+
+                                    <div className="flex flex-wrap gap-2">
+                                        <Button
+                                            size="sm"
+                                            variant="secondary"
+                                            onPress={handleSavePersonalization}
+                                        >
+                                            {t("dashboard:missionControl.savePersonalization")}
+                                        </Button>
+                                        <Button
+                                            size="sm"
+                                            variant="secondary"
+                                            onPress={handleGenerateShareLink}
+                                        >
+                                            {t("dashboard:missionControl.generateShareLink")}
+                                        </Button>
+                                    </div>
+
+                                    <AnimatePresence>
+                                        {personalizationMessage.length > 0 ? (
+                                            <motion.div
+                                                animate={{ opacity: 1, height: "auto" }}
+                                                exit={{ opacity: 0, height: 0 }}
+                                                initial={{ opacity: 0, height: 0 }}
+                                                transition={{
+                                                    duration: 0.25,
+                                                    ease: [0.0, 0.0, 0.2, 1.0],
+                                                }}
+                                            >
+                                                <Alert status="accent">
+                                                    <Alert.Title>
+                                                        {t(
+                                                            "dashboard:missionControl.workspacePersonalization",
+                                                        )}
+                                                    </Alert.Title>
+                                                    <Alert.Description>
+                                                        {personalizationMessage}
+                                                    </Alert.Description>
+                                                </Alert>
+                                            </motion.div>
+                                        ) : null}
+                                    </AnimatePresence>
+
+                                    {shareLink.length > 0 ? (
+                                        <input
+                                            readOnly
+                                            aria-label={t(
+                                                "dashboard:missionControl.shareLinkAriaLabel",
+                                            )}
+                                            className="w-full rounded-lg border border-border px-3 py-2 text-xs"
+                                            value={shareLink}
+                                        />
+                                    ) : null}
+                                </CardContent>
+                            </Card>
+                        </motion.div>
+                    ) : null}
+                </AnimatePresence>
             </div>
         </PageShell>
     )
@@ -617,12 +736,12 @@ function renderExploreLinks(t: (key: string) => string): ReadonlyArray<ReactElem
     return links.map(
         (link): ReactElement => (
             <li key={link.labelKey}>
-                <StyledLink
-                    className={`${TYPOGRAPHY.body} transition-colors duration-150 hover:text-accent`}
+                <Link
+                    className={`${LINK_CLASSES} ${TYPOGRAPHY.body} transition-colors duration-150 hover:text-accent`}
                     to={link.to}
                 >
                     {t(link.labelKey)}
-                </StyledLink>
+                </Link>
             </li>
         ),
     )
