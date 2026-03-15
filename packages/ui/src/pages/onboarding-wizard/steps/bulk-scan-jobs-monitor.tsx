@@ -116,7 +116,7 @@ export function BulkScanJobsMonitor({ state }: IBulkScanJobsMonitorProps): React
                                     {td(BULK_STATUS_KEYS[job.status])}
                                 </span>
                             </div>
-                            <div className="mt-2 h-2 rounded-full bg-surface-muted">
+                            <div className="mt-2 h-2 rounded-full bg-surface-secondary">
                                 <div
                                     aria-label={`scan progress bar ${job.repositoryUrl}`}
                                     aria-valuemin={0}
@@ -129,7 +129,7 @@ export function BulkScanJobsMonitor({ state }: IBulkScanJobsMonitorProps): React
                                     }}
                                 />
                             </div>
-                            <p className="mt-1 text-xs text-muted-foreground">
+                            <p className="mt-1 text-xs text-muted">
                                 {td("onboarding:bulk.progressLabel", {
                                     value: String(job.progress),
                                 })}

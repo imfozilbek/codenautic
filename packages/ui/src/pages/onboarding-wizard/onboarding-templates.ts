@@ -170,7 +170,7 @@ export function mapBulkStatusLabel(status: TBulkScanStatus): string {
  */
 export function mapBulkStatusClasses(status: TBulkScanStatus): string {
     if (status === "running") {
-        return "border-primary/30 bg-primary/10 text-primary"
+        return "border-accent/30 bg-accent/10 text-accent"
     }
 
     if (status === "queued") {
@@ -186,7 +186,7 @@ export function mapBulkStatusClasses(status: TBulkScanStatus): string {
     }
 
     if (status === "cancelled") {
-        return "border-border bg-surface-muted text-muted-foreground"
+        return "border-border bg-surface-secondary text-muted"
     }
 
     return "border-danger/30 bg-danger/10 text-danger"
@@ -200,7 +200,7 @@ export function mapBulkStatusClasses(status: TBulkScanStatus): string {
  */
 export function mapBulkProgressClasses(status: TBulkScanStatus): string {
     if (status === "running") {
-        return "bg-primary"
+        return "bg-accent"
     }
 
     if (status === "error") {
@@ -215,7 +215,7 @@ export function mapBulkProgressClasses(status: TBulkScanStatus): string {
         return "bg-success"
     }
 
-    return "bg-surface-muted"
+    return "bg-surface-secondary"
 }
 
 /**
