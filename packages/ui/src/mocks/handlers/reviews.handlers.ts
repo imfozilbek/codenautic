@@ -1,9 +1,6 @@
 import { http, HttpResponse, delay } from "msw"
 
-import type {
-    ISubmitCodeReviewFeedbackRequest,
-    ITriggerCodeReviewRequest,
-} from "@/lib/api/endpoints/code-review.endpoint"
+import type { ISubmitCodeReviewFeedbackRequest } from "@/lib/api/endpoints/code-review.endpoint"
 
 import { getMockStore } from "../store/create-mock-store"
 import { api, generateId } from "./handler-utils"
@@ -36,9 +33,8 @@ export const reviewsHandlers = [
     /**
      * POST /reviews — запускает новый code review.
      */
-    http.post(api("/reviews"), async ({ request }) => {
+    http.post(api("/reviews"), async () => {
         await delay(150)
-        const body = (await request.json()) as ITriggerCodeReviewRequest
 
         const reviewId = generateId("rev")
 
