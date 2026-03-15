@@ -6,11 +6,7 @@ export {
     type IDataFreshnessPanelProps,
     DataFreshnessPanel,
 } from "./data-freshness-panel"
-export {
-    type IEnterpriseDataTableColumn,
-    type IEnterpriseDataTableProps,
-    EnterpriseDataTable,
-} from "./enterprise-data-table"
+
 export {
     type IExplainabilityFactor,
     type IExplainabilityPanelProps,

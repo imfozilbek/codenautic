@@ -20,13 +20,13 @@ interface ISystemStateCardProps {
 
 function mapStateTone(variant: TSystemStateVariant): string {
     if (variant === "error") {
-        return "border-danger/30 bg-danger/10 text-on-danger"
+        return "border-danger/30 bg-danger/10 text-danger-foreground"
     }
     if (variant === "loading") {
-        return "border-primary/30 bg-primary/10 text-on-primary"
+        return "border-accent/30 bg-accent/10 text-accent-foreground"
     }
     if (variant === "partial") {
-        return "border-warning/30 bg-warning/10 text-on-warning"
+        return "border-warning/30 bg-warning/10 text-warning-foreground"
     }
     return "border-border bg-surface text-foreground"
 }
