@@ -3,6 +3,8 @@ import { useTranslation } from "react-i18next"
 import { useNavigate } from "@tanstack/react-router"
 
 import { useDynamicTranslation } from "@/lib/i18n"
+import type { TReportFormat, TReportType } from "@/lib/api/endpoints/reports.endpoint"
+import { useReports } from "@/lib/hooks/queries/use-reports"
 import { ReportScheduleDialog } from "@/components/reports/report-schedule-dialog"
 import { ReportTemplateEditor } from "@/components/reports/report-template-editor"
 import { Alert, Button, Card, CardContent, CardHeader } from "@heroui/react"
@@ -10,9 +12,6 @@ import { PageShell } from "@/components/layout/page-shell"
 import { NATIVE_FORM } from "@/lib/constants/spacing"
 import { TYPOGRAPHY } from "@/lib/constants/typography"
 import { showToastError, showToastInfo, showToastSuccess } from "@/lib/notifications/toast"
-
-type TReportType = "architecture" | "delivery" | "quality"
-type TReportFormat = "pdf" | "png" | "html"
 
 interface IReportSectionOption {
     readonly id: string
@@ -57,6 +56,7 @@ export function ReportGeneratorPage(): ReactElement {
     const { t } = useTranslation(["reports"])
     const { td } = useDynamicTranslation(["reports"])
     const navigate = useNavigate()
+    const { createReport } = useReports()
     const [reportType, setReportType] = useState<TReportType>("architecture")
     const [reportFormat, setReportFormat] = useState<TReportFormat>("pdf")
     const [startDate, setStartDate] = useState<string>("2026-01-01")
@@ -154,14 +154,26 @@ export function ReportGeneratorPage(): ReactElement {
             return
         }
 
-        setGenerationStatus(
-            td("reports:generator.generationQueued", {
-                count: String(selectedSections.length),
-                format: reportFormat.toUpperCase(),
+        createReport.mutate(
+            {
+                title: `${reportType} report (${reportFormat.toUpperCase()})`,
                 type: reportType,
-            }),
+                format: reportFormat,
+                sections: selectedSections,
+            },
+            {
+                onSuccess: (): void => {
+                    setGenerationStatus(
+                        td("reports:generator.generationQueued", {
+                            count: String(selectedSections.length),
+                            format: reportFormat.toUpperCase(),
+                            type: reportType,
+                        }),
+                    )
+                    showToastSuccess(t("reports:generator.generationStartedToast"))
+                },
+            },
         )
-        showToastSuccess(t("reports:generator.generationStartedToast"))
     }
     const handleStartDateChange = (event: ChangeEvent<HTMLInputElement>): void => {
         setStartDate(event.currentTarget.value)
