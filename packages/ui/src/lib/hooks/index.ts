@@ -43,11 +43,6 @@ export {
     type IUseSSEStreamResult,
     type TSSEEventType,
 } from "./use-sse"
-export {
-    useVirtualizedList,
-    type IUseVirtualizedListOptions,
-    type IUseVirtualizedListResult,
-} from "./use-virtualized-list"
 
 export {
     isFeatureFlagEnabled,
