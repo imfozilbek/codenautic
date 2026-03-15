@@ -4,11 +4,18 @@ import {
     seedCodeCity,
     seedContractValidation,
     seedDashboard,
+    seedIssues,
+    seedOrganization,
     seedProviders,
+    seedReports,
     seedRepositories,
     seedReviews,
     seedRules,
     seedSettings,
+    seedTeams,
+    seedTriage,
+    seedByok,
+    seedSso,
 } from "./seed"
 
 /**
@@ -35,6 +42,13 @@ export function createMockStore(): MockStore {
     seedReviews(store.reviews)
     seedRepositories(store.repositories)
     seedCodeCity(store.codeCity)
+    seedIssues(store.issues)
+    seedReports(store.reports)
+    seedTeams(store.teams)
+    seedOrganization(store.organization)
+    seedTriage(store.triage)
+    seedByok(store.byok)
+    seedSso(store.sso)
     return store
 }
 
@@ -71,5 +85,12 @@ export function resetMockStore(): void {
         seedReviews(instance.reviews)
         seedRepositories(instance.repositories)
         seedCodeCity(instance.codeCity)
+        seedIssues(instance.issues)
+        seedReports(instance.reports)
+        seedTeams(instance.teams)
+        seedOrganization(instance.organization)
+        seedTriage(instance.triage)
+        seedByok(instance.byok)
+        seedSso(instance.sso)
     }
 }
