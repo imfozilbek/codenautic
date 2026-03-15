@@ -578,10 +578,6 @@ export function CcrManagementPage(props: ICcrManagementPageProps): ReactElement 
     }, [ccrWorkspace.ccrListQuery.data?.ccrs])
 
     useEffect((): (() => void) | void => {
-        if (typeof window === "undefined") {
-            return
-        }
-
         const handleFocusFilters = (): void => {
             const input = window.document.querySelector<HTMLInputElement>(
                 'input[name="search"][placeholder="Search title / id / repo / assignee"]',
