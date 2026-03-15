@@ -2,7 +2,6 @@ import { type ReactElement, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { Alert, Button, Card, CardContent, CardHeader, Chip, Input } from "@heroui/react"
-import { FormLayout } from "@/components/forms/form-layout"
 import { NATIVE_FORM } from "@/lib/constants/spacing"
 import { TYPOGRAPHY } from "@/lib/constants/typography"
 import { showToastError, showToastInfo, showToastSuccess } from "@/lib/notifications/toast"
@@ -224,10 +223,7 @@ export function SettingsRulesLibraryPage(): ReactElement {
     }
 
     return (
-        <FormLayout
-            title={t("settings:rulesLibrary.pageTitle")}
-            description={t("settings:rulesLibrary.pageSubtitle")}
-        >
+        <div className="space-y-6 mx-auto max-w-[1400px]"><div className="space-y-1.5"><h1 className={TYPOGRAPHY.pageTitle}>{t("settings:rulesLibrary.pageTitle")}</h1><p className={TYPOGRAPHY.bodyMuted}>{t("settings:rulesLibrary.pageSubtitle")}</p></div><div className="space-y-6">
             <div className="grid gap-4 md:grid-cols-3">
                 <Card>
                     <CardHeader>
@@ -334,9 +330,7 @@ export function SettingsRulesLibraryPage(): ReactElement {
                                             <p className="text-sm font-semibold text-foreground">
                                                 {rule.name}
                                             </p>
-                                            <p className="text-xs text-muted">
-                                                {rule.description}
-                                            </p>
+                                            <p className="text-xs text-muted">{rule.description}</p>
                                             <div className="flex items-center gap-2">
                                                 <Chip
                                                     color={mapCategoryChipColor(rule.category)}
@@ -472,10 +466,7 @@ export function SettingsRulesLibraryPage(): ReactElement {
                             )}
                         </select>
                         <div className="flex flex-col gap-1">
-                            <label
-                                className="text-sm text-muted"
-                                htmlFor="rule-test-sample-input"
-                            >
+                            <label className="text-sm text-muted" htmlFor="rule-test-sample-input">
                                 {t("settings:rulesLibrary.sampleInput")}
                             </label>
                             <textarea
@@ -506,6 +497,6 @@ export function SettingsRulesLibraryPage(): ReactElement {
                     </CardContent>
                 </Card>
             </div>
-        </FormLayout>
+        </div></div>
     )
 }
