@@ -5,114 +5,20 @@ import { Alert, Button, Card, CardContent, CardHeader, Chip } from "@heroui/reac
 import { SystemStateCard } from "@/components/infrastructure/system-state-card"
 import { NATIVE_FORM } from "@/lib/constants/spacing"
 import { TYPOGRAPHY } from "@/lib/constants/typography"
+import { useJobs } from "@/lib/hooks/queries/use-jobs"
 import { showToastInfo, showToastSuccess } from "@/lib/notifications/toast"
+import type {
+    IJob,
+    IJobAuditEntry,
+    IJobSchedule,
+    TJobAction,
+    TJobStatus,
+    TScheduleTarget,
+    TScheduleMode,
+} from "@/lib/api/endpoints/jobs.endpoint"
 
-type TJobKind = "analytics" | "review" | "scan"
-type TJobStatus = "canceled" | "completed" | "failed" | "paused" | "queued" | "running" | "stuck"
-type TJobAction = "cancel" | "requeue" | "retry"
-type TScheduleTarget = "report" | "rescan"
-type TScheduleMode = "hourly" | "weekly"
 type TTimezoneOption = "America/New_York" | "Asia/Tashkent" | "Europe/Berlin" | "UTC"
 type TOrgTimezoneOverride = TTimezoneOption | "inherit-user"
-
-interface IScheduleDraft {
-    /** Режим расписания: hourly или weekly. */
-    readonly mode: TScheduleMode
-    /** Интервал в часах для hourly. */
-    readonly intervalHours: number
-    /** День недели для weekly (0=Sunday ... 6=Saturday). */
-    readonly weekday: number
-    /** Час запуска. */
-    readonly hour: number
-    /** Минута запуска. */
-    readonly minute: number
-}
-
-interface IOperationJob {
-    /** Уникальный идентификатор job. */
-    readonly id: string
-    /** Репозиторий или область применения. */
-    readonly scope: string
-    /** Тип длительной операции. */
-    readonly kind: TJobKind
-    /** Текущий статус выполнения. */
-    readonly status: TJobStatus
-    /** Текущее количество попыток. */
-    readonly retryCount: number
-    /** Максимально допустимое число попыток. */
-    readonly retryLimit: number
-    /** ETA до завершения. */
-    readonly etaLabel: string
-    /** Детали ошибки для drill-down. */
-    readonly errorDetails?: string
-}
-
-interface IJobAuditEntry {
-    /** Идентификатор audit события. */
-    readonly id: string
-    /** Пользователь или система, инициировавшие действие. */
-    readonly actor: string
-    /** Применённое действие. */
-    readonly action: TJobAction
-    /** Job id. */
-    readonly jobId: string
-    /** Результат операции. */
-    readonly outcome: string
-    /** Время события. */
-    readonly occurredAt: string
-}
-
-const INITIAL_JOBS: ReadonlyArray<IOperationJob> = [
-    {
-        etaLabel: "2m",
-        id: "JOB-4101",
-        kind: "review",
-        retryCount: 0,
-        retryLimit: 3,
-        scope: "acme/review-pipeline",
-        status: "running",
-    },
-    {
-        errorDetails: "Queue connection timeout in scan-worker. Last heartbeat was 4m ago.",
-        etaLabel: "unknown",
-        id: "JOB-4102",
-        kind: "scan",
-        retryCount: 2,
-        retryLimit: 3,
-        scope: "acme/api-gateway",
-        status: "stuck",
-    },
-    {
-        errorDetails: "Analytics aggregation failed due to malformed payload from provider.",
-        etaLabel: "unknown",
-        id: "JOB-4103",
-        kind: "analytics",
-        retryCount: 1,
-        retryLimit: 2,
-        scope: "acme/platform-insights",
-        status: "failed",
-    },
-    {
-        etaLabel: "9m",
-        id: "JOB-4104",
-        kind: "review",
-        retryCount: 0,
-        retryLimit: 3,
-        scope: "acme/ui-dashboard",
-        status: "queued",
-    },
-]
-
-const INITIAL_AUDIT: ReadonlyArray<IJobAuditEntry> = [
-    {
-        action: "retry",
-        actor: "Morpheus",
-        id: "J-AUD-001",
-        jobId: "JOB-4055",
-        occurredAt: "2026-03-04T08:55:00Z",
-        outcome: "Retry accepted by queue worker.",
-    },
-]
 
 const WEEKDAY_OPTIONS: ReadonlyArray<{ readonly label: string; readonly value: number }> = [
     { label: "Sunday", value: 0 },
@@ -131,7 +37,7 @@ const TIMEZONE_OPTIONS: ReadonlyArray<TTimezoneOption> = [
     "America/New_York",
 ]
 
-const INITIAL_SCHEDULES: Readonly<Record<TScheduleTarget, IScheduleDraft>> = {
+const INITIAL_SCHEDULES: Readonly<Record<TScheduleTarget, IJobSchedule>> = {
     report: {
         hour: 18,
         intervalHours: 12,
@@ -184,15 +90,15 @@ function mapStatusColor(
     return "default"
 }
 
-function canRetryJob(job: IOperationJob): boolean {
+function canRetryJob(job: IJob): boolean {
     return (job.status === "stuck" || job.status === "failed") && job.retryCount < job.retryLimit
 }
 
-function canCancelJob(job: IOperationJob): boolean {
+function canCancelJob(job: IJob): boolean {
     return job.status === "running" || job.status === "queued"
 }
 
-function canRequeueJob(job: IOperationJob): boolean {
+function canRequeueJob(job: IJob): boolean {
     return job.status === "canceled" || job.status === "paused" || job.status === "failed"
 }
 
@@ -237,7 +143,7 @@ function formatTimezoneDate(targetDate: Date, timezone: TTimezoneOption): string
 }
 
 function buildHourlyPreview(
-    schedule: IScheduleDraft,
+    schedule: IJobSchedule,
     previewCount: number,
     now: Date,
 ): ReadonlyArray<Date> {
@@ -250,7 +156,7 @@ function buildHourlyPreview(
 }
 
 function buildWeeklyPreview(
-    schedule: IScheduleDraft,
+    schedule: IJobSchedule,
     previewCount: number,
     now: Date,
 ): ReadonlyArray<Date> {
@@ -275,7 +181,7 @@ function buildWeeklyPreview(
     return result
 }
 
-function buildSchedulePreview(schedule: IScheduleDraft, previewCount: number): ReadonlyArray<Date> {
+function buildSchedulePreview(schedule: IJobSchedule, previewCount: number): ReadonlyArray<Date> {
     const now = new Date()
     if (schedule.mode === "weekly") {
         return buildWeeklyPreview(schedule, previewCount, now)
@@ -283,7 +189,7 @@ function buildSchedulePreview(schedule: IScheduleDraft, previewCount: number): R
     return buildHourlyPreview(schedule, previewCount, now)
 }
 
-function describeSchedule(schedule: IScheduleDraft, target: TScheduleTarget): string {
+function describeSchedule(schedule: IJobSchedule, target: TScheduleTarget): string {
     if (schedule.mode === "hourly") {
         return `${target} runs every ${String(schedule.intervalHours)}h`
     }
@@ -304,18 +210,22 @@ function describeSchedule(schedule: IScheduleDraft, target: TScheduleTarget): st
  */
 export function SettingsJobsPage(): ReactElement {
     const { t } = useTranslation(["settings"])
-    const [jobs, setJobs] = useState<ReadonlyArray<IOperationJob>>(INITIAL_JOBS)
-    const [audit, setAudit] = useState<ReadonlyArray<IJobAuditEntry>>(INITIAL_AUDIT)
-    const [activeJobId, setActiveJobId] = useState<string>(INITIAL_JOBS[0]?.id ?? "")
+    const { jobsQuery, schedulesQuery } = useJobs()
+    const serverJobs = jobsQuery.data?.jobs ?? INITIAL_JOBS
+    const serverAudit = jobsQuery.data?.audit ?? INITIAL_AUDIT
+    const serverSchedules = schedulesQuery.data?.schedules ?? INITIAL_SCHEDULES
+    const [jobs, setJobs] = useState<ReadonlyArray<IJob>>(serverJobs)
+    const [audit, setAudit] = useState<ReadonlyArray<IJobAuditEntry>>(serverAudit)
+    const [activeJobId, setActiveJobId] = useState<string>(serverJobs[0]?.id ?? "")
     const [scheduleTarget, setScheduleTarget] = useState<TScheduleTarget>("rescan")
     const [userTimezone, setUserTimezone] = useState<TTimezoneOption>("Asia/Tashkent")
     const [orgTimezoneOverride, setOrgTimezoneOverride] =
         useState<TOrgTimezoneOverride>("inherit-user")
     const [schedules, setSchedules] =
-        useState<Readonly<Record<TScheduleTarget, IScheduleDraft>>>(INITIAL_SCHEDULES)
+        useState<Readonly<Record<TScheduleTarget, IJobSchedule>>>(serverSchedules)
     const [scheduleSaveMessage, setScheduleSaveMessage] = useState<string>("")
 
-    const activeJob = useMemo((): IOperationJob | undefined => {
+    const activeJob = useMemo((): IJob | undefined => {
         return jobs.find((job): boolean => job.id === activeJobId)
     }, [activeJobId, jobs])
 
@@ -341,8 +251,8 @@ export function SettingsJobsPage(): ReactElement {
         }
     }, [jobs])
 
-    const updateActiveSchedule = (updater: (value: IScheduleDraft) => IScheduleDraft): void => {
-        setSchedules((previous): Readonly<Record<TScheduleTarget, IScheduleDraft>> => {
+    const updateActiveSchedule = (updater: (value: IJobSchedule) => IJobSchedule): void => {
+        setSchedules((previous): Readonly<Record<TScheduleTarget, IJobSchedule>> => {
             const currentSchedule = previous[scheduleTarget]
             return {
                 ...previous,
@@ -353,7 +263,7 @@ export function SettingsJobsPage(): ReactElement {
 
     const handleScheduleModeChange = (mode: TScheduleMode): void => {
         updateActiveSchedule(
-            (previous): IScheduleDraft => ({
+            (previous): IJobSchedule => ({
                 ...previous,
                 mode,
             }),
@@ -367,7 +277,7 @@ export function SettingsJobsPage(): ReactElement {
         }
 
         updateActiveSchedule(
-            (previous): IScheduleDraft => ({
+            (previous): IJobSchedule => ({
                 ...previous,
                 intervalHours: Math.max(1, Math.min(parsedInterval, 24)),
             }),
@@ -381,7 +291,7 @@ export function SettingsJobsPage(): ReactElement {
         }
 
         updateActiveSchedule(
-            (previous): IScheduleDraft => ({
+            (previous): IJobSchedule => ({
                 ...previous,
                 weekday: Math.max(0, Math.min(parsedWeekday, 6)),
             }),
@@ -395,7 +305,7 @@ export function SettingsJobsPage(): ReactElement {
         }
 
         updateActiveSchedule(
-            (previous): IScheduleDraft => ({
+            (previous): IJobSchedule => ({
                 ...previous,
                 hour: Math.max(0, Math.min(parsedHour, 23)),
             }),
@@ -409,7 +319,7 @@ export function SettingsJobsPage(): ReactElement {
         }
 
         updateActiveSchedule(
-            (previous): IScheduleDraft => ({
+            (previous): IJobSchedule => ({
                 ...previous,
                 minute: Math.max(0, Math.min(parsedMinute, 59)),
             }),
@@ -444,8 +354,8 @@ export function SettingsJobsPage(): ReactElement {
 
     const handleRetryJob = (jobId: string): void => {
         setJobs(
-            (previous): ReadonlyArray<IOperationJob> =>
-                previous.map((job): IOperationJob => {
+            (previous): ReadonlyArray<IJob> =>
+                previous.map((job): IJob => {
                     if (job.id !== jobId || canRetryJob(job) !== true) {
                         return job
                     }
@@ -464,8 +374,8 @@ export function SettingsJobsPage(): ReactElement {
 
     const handleCancelJob = (jobId: string): void => {
         setJobs(
-            (previous): ReadonlyArray<IOperationJob> =>
-                previous.map((job): IOperationJob => {
+            (previous): ReadonlyArray<IJob> =>
+                previous.map((job): IJob => {
                     if (job.id !== jobId || canCancelJob(job) !== true) {
                         return job
                     }
@@ -483,8 +393,8 @@ export function SettingsJobsPage(): ReactElement {
 
     const handleRequeueJob = (jobId: string): void => {
         setJobs(
-            (previous): ReadonlyArray<IOperationJob> =>
-                previous.map((job): IOperationJob => {
+            (previous): ReadonlyArray<IJob> =>
+                previous.map((job): IJob => {
                     if (job.id !== jobId || canRequeueJob(job) !== true) {
                         return job
                     }
