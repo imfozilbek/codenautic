@@ -10,45 +10,15 @@ import { NATIVE_FORM } from "@/lib/constants/spacing"
 import { TYPOGRAPHY } from "@/lib/constants/typography"
 import { showToastError, showToastInfo, showToastSuccess } from "@/lib/notifications/toast"
 import { useUiRole } from "@/lib/permissions/ui-policy"
+import { useNotifications } from "@/lib/hooks/queries/use-notifications"
 import type { TTenantId } from "@/lib/access/access-types"
-
-type TNotificationEventType = "drift.alert" | "prediction.alert" | "review.completed"
-type TNotificationChannelId = "discord" | "inApp" | "slack" | "teams"
-
-interface INotificationItem {
-    /** Уникальный id события. */
-    readonly id: string
-    /** Тип уведомления. */
-    readonly type: TNotificationEventType
-    /** Заголовок уведомления. */
-    readonly title: string
-    /** Краткое описание события. */
-    readonly message: string
-    /** Время события. */
-    readonly occurredAt: string
-    /** Прочитано ли уведомление. */
-    readonly isRead: boolean
-    /** Deep-link для перехода в контекст. */
-    readonly targetHref: string
-}
-
-interface INotificationChannelPreference {
-    /** Включен ли канал. */
-    readonly enabled: boolean
-    /** Канал назначения (URL/channel name). */
-    readonly target: string
-}
-
-interface IInAppMuteRules {
-    /** Приглушать non-critical ночью. */
-    readonly muteNonCriticalAtNight: boolean
-    /** Приглушать prediction alerts для архивных repo. */
-    readonly mutePredictionsForArchivedRepos: boolean
-    /** Начало quiet hours. */
-    readonly quietHoursStart: string
-    /** Окончание quiet hours. */
-    readonly quietHoursEnd: string
-}
+import type {
+    IInAppMuteRules,
+    INotificationItem,
+    TChannelPreferencesMap,
+    TNotificationChannelId,
+    TNotificationEventType,
+} from "@/lib/api/endpoints/notifications.endpoint"
 
 interface INotificationBulkAuditEntry {
     /** Идентификатор bulk события. */
@@ -71,45 +41,6 @@ interface INotificationBulkPendingState {
     /** Затронутые уведомления. */
     readonly selectedIds: ReadonlyArray<string>
 }
-
-const INITIAL_NOTIFICATIONS: ReadonlyArray<INotificationItem> = [
-    {
-        id: "NTF-1001",
-        isRead: false,
-        message: "CCR #412 finished with 3 high-priority suggestions.",
-        occurredAt: "2026-03-04T11:10:00Z",
-        targetHref: "/reviews/412",
-        title: "Review completed",
-        type: "review.completed",
-    },
-    {
-        id: "NTF-1002",
-        isRead: false,
-        message: "Service layer imports crossed domain boundary in api-gateway.",
-        occurredAt: "2026-03-04T09:36:00Z",
-        targetHref: "/dashboard/code-city",
-        title: "Architecture drift alert",
-        type: "drift.alert",
-    },
-    {
-        id: "NTF-1003",
-        isRead: true,
-        message: "Predicted hotspot confidence increased for src/scan-worker.ts.",
-        occurredAt: "2026-03-03T18:45:00Z",
-        targetHref: "/reviews",
-        title: "Prediction alert",
-        type: "prediction.alert",
-    },
-    {
-        id: "NTF-1004",
-        isRead: false,
-        message: "CCR #409 completed and ready for final approval.",
-        occurredAt: "2026-03-03T16:12:00Z",
-        targetHref: "/reviews/409",
-        title: "Review completed",
-        type: "review.completed",
-    },
-]
 
 const CHANNEL_LABELS: Readonly<Record<TNotificationChannelId, string>> = {
     discord: "Discord",
@@ -177,36 +108,58 @@ export function SettingsNotificationsPage(): ReactElement {
     const activeRole = useUiRole()
     const authAccess = useAuthAccess()
     const navigate = useNavigate()
+    const {
+        historyQuery,
+        channelsQuery,
+        muteRulesQuery,
+        markRead,
+        updateChannels,
+        updateMuteRules,
+    } = useNotifications()
     const [eventTypeFilter, setEventTypeFilter] = useState<"all" | TNotificationEventType>("all")
-    const [notifications, setNotifications] = useState<ReadonlyArray<INotificationItem>>(() =>
-        dedupeNotificationsById(INITIAL_NOTIFICATIONS),
-    )
-    const [channelPreferences, setChannelPreferences] = useState<
-        Readonly<Record<TNotificationChannelId, INotificationChannelPreference>>
-    >({
-        discord: {
-            enabled: false,
-            target: "",
-        },
-        inApp: {
-            enabled: true,
-            target: "inbox",
-        },
-        slack: {
-            enabled: true,
-            target: "#code-review",
-        },
-        teams: {
-            enabled: true,
-            target: "CodeNautic Review Squad",
-        },
-    })
-    const [muteRules, setMuteRules] = useState<IInAppMuteRules>({
-        muteNonCriticalAtNight: true,
-        mutePredictionsForArchivedRepos: false,
-        quietHoursEnd: "08:00",
-        quietHoursStart: "22:00",
-    })
+
+    const notifications: ReadonlyArray<INotificationItem> = useMemo((): ReadonlyArray<INotificationItem> => {
+        if (historyQuery.data === undefined) {
+            return []
+        }
+        return dedupeNotificationsById(historyQuery.data.notifications)
+    }, [historyQuery.data])
+
+    const channelPreferences: TChannelPreferencesMap = useMemo((): TChannelPreferencesMap => {
+        if (channelsQuery.data === undefined) {
+            return {
+                discord: { enabled: false, target: "" },
+                inApp: { enabled: true, target: "inbox" },
+                slack: { enabled: false, target: "" },
+                teams: { enabled: false, target: "" },
+            }
+        }
+        return channelsQuery.data.channels
+    }, [channelsQuery.data])
+
+    const [localChannelPreferences, setLocalChannelPreferences] = useState<TChannelPreferencesMap>(channelPreferences)
+
+    useEffect((): void => {
+        setLocalChannelPreferences(channelPreferences)
+    }, [channelPreferences])
+
+    const muteRules: IInAppMuteRules = useMemo((): IInAppMuteRules => {
+        if (muteRulesQuery.data === undefined) {
+            return {
+                muteNonCriticalAtNight: false,
+                mutePredictionsForArchivedRepos: false,
+                quietHoursEnd: "08:00",
+                quietHoursStart: "22:00",
+            }
+        }
+        return muteRulesQuery.data.muteRules
+    }, [muteRulesQuery.data])
+
+    const [localMuteRules, setLocalMuteRules] = useState<IInAppMuteRules>(muteRules)
+
+    useEffect((): void => {
+        setLocalMuteRules(muteRules)
+    }, [muteRules])
     const [deepLinkGuardNotice, setDeepLinkGuardNotice] = useState<string | undefined>(undefined)
     const [selectedNotificationIds, setSelectedNotificationIds] = useState<ReadonlyArray<string>>(
         [],
@@ -235,47 +188,36 @@ export function SettingsNotificationsPage(): ReactElement {
     }, [notifications])
 
     const activeChannelCount = useMemo((): number => {
-        return Object.values(channelPreferences).reduce((count, channel): number => {
+        return Object.values(localChannelPreferences).reduce((count, channel): number => {
             return channel.enabled ? count + 1 : count
         }, 0)
-    }, [channelPreferences])
+    }, [localChannelPreferences])
 
     const enabledMuteRulesCount = useMemo((): number => {
-        return [muteRules.muteNonCriticalAtNight, muteRules.mutePredictionsForArchivedRepos].filter(
+        return [localMuteRules.muteNonCriticalAtNight, localMuteRules.mutePredictionsForArchivedRepos].filter(
             (value): boolean => value === true,
         ).length
-    }, [muteRules])
+    }, [localMuteRules])
 
     const handleToggleRead = (id: string): void => {
-        setNotifications(
-            (previous): ReadonlyArray<INotificationItem> =>
-                previous.map((notification): INotificationItem => {
-                    if (notification.id !== id) {
-                        return notification
-                    }
-                    return {
-                        ...notification,
-                        isRead: notification.isRead !== true,
-                    }
-                }),
-        )
+        markRead.mutate(id)
     }
 
     const handleMarkAllAsRead = (): void => {
-        setNotifications(
-            (previous): ReadonlyArray<INotificationItem> =>
-                previous.map(
-                    (notification): INotificationItem => ({
-                        ...notification,
-                        isRead: true,
-                    }),
-                ),
-        )
+        for (const notification of notifications) {
+            if (notification.isRead !== true) {
+                markRead.mutate(notification.id)
+            }
+        }
         showToastSuccess(t("settings:notifications.toast.allMarkedAsRead"))
     }
 
     const handleSaveDeliveryPreferences = (): void => {
-        showToastInfo(t("settings:notifications.toast.deliveryPreferencesSaved"))
+        updateChannels.mutate(localChannelPreferences, {
+            onSuccess: (): void => {
+                showToastInfo(t("settings:notifications.toast.deliveryPreferencesSaved"))
+            },
+        })
     }
 
     const handleOpenDeepLink = (targetHref: string): void => {
@@ -367,25 +309,11 @@ export function SettingsNotificationsPage(): ReactElement {
 
         const actionId = `bulk-${Date.now().toString(36)}`
         const selectedIds = selectedNotificationIds
-        const previousSnapshot = notifications
 
-        setNotifications(
-            (previous): ReadonlyArray<INotificationItem> =>
-                previous.map((notification): INotificationItem => {
-                    if (selectedIds.includes(notification.id) !== true) {
-                        return notification
-                    }
-
-                    return {
-                        ...notification,
-                        isRead: true,
-                    }
-                }),
-        )
         setSelectedNotificationIds([])
         setBulkPendingState({
             actionId,
-            previousNotifications: previousSnapshot,
+            previousNotifications: notifications,
             selectedIds,
         })
         appendBulkAudit(
@@ -402,6 +330,9 @@ export function SettingsNotificationsPage(): ReactElement {
                     return pending
                 }
 
+                for (const id of selectedIds) {
+                    markRead.mutate(id)
+                }
                 appendBulkAudit(
                     actionId,
                     "synced",
@@ -422,7 +353,6 @@ export function SettingsNotificationsPage(): ReactElement {
         }
 
         clearBulkPendingTimer()
-        setNotifications(pending.previousNotifications)
         appendBulkAudit(
             pending.actionId,
             "reverted",
@@ -661,7 +591,7 @@ export function SettingsNotificationsPage(): ReactElement {
                 <CardContent className="space-y-3">
                     {(["slack", "discord", "teams", "inApp"] as const).map(
                         (channelId): ReactElement => {
-                            const channel = channelPreferences[channelId]
+                            const channel = localChannelPreferences[channelId]
                             return (
                                 <div
                                     key={channelId}
@@ -674,7 +604,7 @@ export function SettingsNotificationsPage(): ReactElement {
                                         )}
                                         isSelected={channel.enabled}
                                         onChange={(isSelected: boolean): void => {
-                                            setChannelPreferences((previous) => ({
+                                            setLocalChannelPreferences((previous) => ({
                                                 ...previous,
                                                 [channelId]: {
                                                     ...previous[channelId],
@@ -703,7 +633,7 @@ export function SettingsNotificationsPage(): ReactElement {
                                         }
                                         value={channel.target}
                                         onChange={(e): void => {
-                                            setChannelPreferences((previous) => ({
+                                            setLocalChannelPreferences((previous) => ({
                                                 ...previous,
                                                 [channelId]: {
                                                     ...previous[channelId],
@@ -739,35 +669,35 @@ export function SettingsNotificationsPage(): ReactElement {
                         </Chip>
                         <Chip size="sm" variant="soft">
                             {t("settings:notifications.quietHours", {
-                                start: muteRules.quietHoursStart,
-                                end: muteRules.quietHoursEnd,
+                                start: localMuteRules.quietHoursStart,
+                                end: localMuteRules.quietHoursEnd,
                             })}
                         </Chip>
                     </div>
                     <Switch
                         aria-label={t("settings:notifications.muteNonCritical")}
-                        isSelected={muteRules.muteNonCriticalAtNight}
+                        isSelected={localMuteRules.muteNonCriticalAtNight}
                         onChange={(isSelected: boolean): void => {
-                            setMuteRules(
-                                (previous): IInAppMuteRules => ({
-                                    ...previous,
-                                    muteNonCriticalAtNight: isSelected,
-                                }),
-                            )
+                            const nextRules: IInAppMuteRules = {
+                                ...localMuteRules,
+                                muteNonCriticalAtNight: isSelected,
+                            }
+                            setLocalMuteRules(nextRules)
+                            updateMuteRules.mutate(nextRules)
                         }}
                     >
                         {t("settings:notifications.muteNonCritical")}
                     </Switch>
                     <Switch
                         aria-label={t("settings:notifications.mutePredictions")}
-                        isSelected={muteRules.mutePredictionsForArchivedRepos}
+                        isSelected={localMuteRules.mutePredictionsForArchivedRepos}
                         onChange={(isSelected: boolean): void => {
-                            setMuteRules(
-                                (previous): IInAppMuteRules => ({
-                                    ...previous,
-                                    mutePredictionsForArchivedRepos: isSelected,
-                                }),
-                            )
+                            const nextRules: IInAppMuteRules = {
+                                ...localMuteRules,
+                                mutePredictionsForArchivedRepos: isSelected,
+                            }
+                            setLocalMuteRules(nextRules)
+                            updateMuteRules.mutate(nextRules)
                         }}
                     >
                         {t("settings:notifications.mutePredictions")}
@@ -776,9 +706,9 @@ export function SettingsNotificationsPage(): ReactElement {
                         <Input
                             aria-label={t("settings:notifications.quietHoursStart")}
                             type="time"
-                            value={muteRules.quietHoursStart}
+                            value={localMuteRules.quietHoursStart}
                             onChange={(e): void => {
-                                setMuteRules(
+                                setLocalMuteRules(
                                     (previous): IInAppMuteRules => ({
                                         ...previous,
                                         quietHoursStart: e.target.value,
@@ -789,9 +719,9 @@ export function SettingsNotificationsPage(): ReactElement {
                         <Input
                             aria-label={t("settings:notifications.quietHoursEnd")}
                             type="time"
-                            value={muteRules.quietHoursEnd}
+                            value={localMuteRules.quietHoursEnd}
                             onChange={(e): void => {
-                                setMuteRules(
+                                setLocalMuteRules(
                                     (previous): IInAppMuteRules => ({
                                         ...previous,
                                         quietHoursEnd: e.target.value,
