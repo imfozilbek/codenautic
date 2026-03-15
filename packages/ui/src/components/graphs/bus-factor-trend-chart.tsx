@@ -192,7 +192,7 @@ export function BusFactorTrendChart(props: IBusFactorTrendChartProps): ReactElem
                     viewBox={`0 0 ${String(SVG_WIDTH)} ${String(SVG_HEIGHT)}`}
                 >
                     <rect
-                        fill="var(--surface-muted)"
+                        fill="var(--surface-secondary)"
                         height={SVG_HEIGHT - CHART_PADDING_TOP - CHART_PADDING_BOTTOM}
                         rx={6}
                         width={SVG_WIDTH - CHART_PADDING_LEFT - CHART_PADDING_RIGHT}
@@ -267,7 +267,7 @@ export function BusFactorTrendChart(props: IBusFactorTrendChartProps): ReactElem
                     {preparedSeries[0]?.points.map((point, index): ReactElement => {
                         return (
                             <text
-                                fill="var(--muted-foreground)"
+                                fill="var(--muted)"
                                 fontSize={9}
                                 key={point.timestamp}
                                 textAnchor="middle"
@@ -291,7 +291,7 @@ export function BusFactorTrendChart(props: IBusFactorTrendChartProps): ReactElem
                             <li
                                 className={
                                     isActive
-                                        ? "rounded border border-primary/40 bg-primary/10 p-2"
+                                        ? "rounded border border-accent/40 bg-accent/10 p-2"
                                         : "rounded border border-border bg-surface p-2"
                                 }
                                 key={series.moduleId}
@@ -306,7 +306,7 @@ export function BusFactorTrendChart(props: IBusFactorTrendChartProps): ReactElem
                                     aria-label={t("code-city:busFactorTrend.ariaLabelInspect", {
                                         moduleLabel: series.moduleLabel,
                                     })}
-                                    className="mt-2 rounded border border-primary/40 bg-primary/20 px-2 py-1 text-xs font-semibold text-on-primary hover:border-primary"
+                                    className="mt-2 rounded border border-accent/40 bg-accent/20 px-2 py-1 text-xs font-semibold text-accent-foreground hover:border-accent"
                                     onClick={(): void => {
                                         props.onSelectSeries?.(series)
                                     }}

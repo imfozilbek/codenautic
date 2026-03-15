@@ -44,7 +44,7 @@ function resolveOverlayButtonClass(
     return [
         "rounded-md border px-3 py-1.5 text-xs font-semibold transition",
         isActive
-            ? "border-primary/40 bg-primary/10 text-primary"
+            ? "border-accent/40 bg-accent/10 text-accent"
             : "border-border bg-surface text-foreground hover:border-border",
     ].join(" ")
 }
@@ -94,7 +94,7 @@ export function CausalOverlaySelector(props: ICausalOverlaySelectorProps): React
         <div className="space-y-2 rounded-lg border border-border bg-surface p-3">
             <div className="grid gap-2 md:grid-cols-[220px_minmax(0,1fr)] md:items-center">
                 <label className="space-y-1" htmlFor="causal-overlay-selector">
-                    <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                    <span className="text-xs font-semibold uppercase tracking-wide text-muted">
                         {t("code-city:causalOverlay.label")}
                     </span>
                     <select
