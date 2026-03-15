@@ -3,14 +3,9 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 import * as z from "zod"
+import { Button, Input, ListBox, ListBoxItem, Select, Switch } from "@heroui/react"
 
-import {
-    FormSelectField,
-    FormSubmitButton,
-    FormSwitchField,
-    FormTextField,
-    type IFormSelectOption,
-} from "@/components/forms"
+import { FormField, type IFormSelectOption } from "@/components/forms"
 import {
     type ILlmProviderFormValues,
     LLM_MODEL_OPTIONS,
@@ -154,48 +149,212 @@ export function LlmProviderForm(props: ILlmProviderFormProps): ReactElement {
 
     return (
         <form className="space-y-3" onSubmit={handleSubmit}>
-            <FormSelectField
+            <FormField
                 control={form.control}
                 id="llm-provider-name"
                 label={t("settings:llmProviderForm.provider")}
                 name="provider"
-                options={providerOptions}
+                renderField={({
+                    field,
+                    hasError,
+                    fieldId,
+                    accessibilityLabel,
+                    ariaDescribedBy,
+                }): ReactElement => {
+                    const selectedKey = field.value === undefined ? null : String(field.value)
+
+                    return (
+                        <Select
+                            aria-describedby={ariaDescribedBy}
+                            aria-label={accessibilityLabel}
+                            aria-invalid={hasError}
+                            name={field.name}
+                            id={fieldId}
+                            selectedKey={selectedKey}
+                            onSelectionChange={(key): void => {
+                                const nextValue = typeof key === "string" ? key : undefined
+                                field.onChange(nextValue)
+                            }}
+                        >
+                            <Select.Trigger>
+                                <Select.Value />
+                            </Select.Trigger>
+                            <Select.Popover>
+                                <ListBox>
+                                    {providerOptions.map(
+                                        (option): ReactElement => (
+                                            <ListBoxItem
+                                                key={option.value}
+                                                id={option.value}
+                                                textValue={option.label}
+                                                isDisabled={option.isDisabled}
+                                            >
+                                                <div className="flex flex-col">
+                                                    <span>{option.label}</span>
+                                                    {option.description === undefined ? null : (
+                                                        <span className="text-xs text-muted">
+                                                            {option.description}
+                                                        </span>
+                                                    )}
+                                                </div>
+                                            </ListBoxItem>
+                                        ),
+                                    )}
+                                </ListBox>
+                            </Select.Popover>
+                        </Select>
+                    )
+                }}
             />
-            <FormTextField
+            <FormField
                 control={form.control}
                 id="llm-api-key"
-                inputProps={{
-                    placeholder: t("settings:llmProviderForm.apiKeyPlaceholder"),
-                    type: "password",
-                }}
                 label={t("settings:llmProviderForm.apiKeyToken")}
                 name="apiKey"
+                renderField={({
+                    field,
+                    hasError,
+                    fieldId,
+                    accessibilityLabel,
+                    ariaDescribedBy,
+                }): ReactElement => {
+                    const value = typeof field.value === "string" ? field.value : ""
+
+                    return (
+                        <Input
+                            aria-describedby={ariaDescribedBy}
+                            aria-label={accessibilityLabel}
+                            aria-invalid={hasError}
+                            id={fieldId}
+                            name={field.name}
+                            placeholder={t("settings:llmProviderForm.apiKeyPlaceholder")}
+                            type="password"
+                            value={value}
+                            onBlur={field.onBlur}
+                            onChange={field.onChange}
+                        />
+                    )
+                }}
             />
-            <FormSelectField
+            <FormField
                 control={form.control}
                 id="llm-model"
                 label={t("settings:llmProviderForm.model")}
                 name="model"
-                options={llmModelOptions}
+                renderField={({
+                    field,
+                    hasError,
+                    fieldId,
+                    accessibilityLabel,
+                    ariaDescribedBy,
+                }): ReactElement => {
+                    const selectedKey = field.value === undefined ? null : String(field.value)
+
+                    return (
+                        <Select
+                            aria-describedby={ariaDescribedBy}
+                            aria-label={accessibilityLabel}
+                            aria-invalid={hasError}
+                            name={field.name}
+                            id={fieldId}
+                            selectedKey={selectedKey}
+                            onSelectionChange={(key): void => {
+                                const nextValue = typeof key === "string" ? key : undefined
+                                field.onChange(nextValue)
+                            }}
+                        >
+                            <Select.Trigger>
+                                <Select.Value />
+                            </Select.Trigger>
+                            <Select.Popover>
+                                <ListBox>
+                                    {llmModelOptions.map(
+                                        (option): ReactElement => (
+                                            <ListBoxItem
+                                                key={option.value}
+                                                id={option.value}
+                                                textValue={option.label}
+                                                isDisabled={option.isDisabled}
+                                            >
+                                                <div className="flex flex-col">
+                                                    <span>{option.label}</span>
+                                                    {option.description === undefined ? null : (
+                                                        <span className="text-xs text-muted">
+                                                            {option.description}
+                                                        </span>
+                                                    )}
+                                                </div>
+                                            </ListBoxItem>
+                                        ),
+                                    )}
+                                </ListBox>
+                            </Select.Popover>
+                        </Select>
+                    )
+                }}
             />
-            <FormTextField
+            <FormField
                 control={form.control}
                 helperText={t("settings:llmProviderForm.customEndpointHelper")}
                 id="llm-endpoint"
-                inputProps={{
-                    placeholder: t("settings:llmProviderForm.customEndpointPlaceholder"),
-                }}
                 label={t("settings:llmProviderForm.customEndpoint")}
                 name="endpoint"
+                renderField={({
+                    field,
+                    hasError,
+                    fieldId,
+                    accessibilityLabel,
+                    ariaDescribedBy,
+                }): ReactElement => {
+                    const value = typeof field.value === "string" ? field.value : ""
+
+                    return (
+                        <Input
+                            aria-describedby={ariaDescribedBy}
+                            aria-label={accessibilityLabel}
+                            aria-invalid={hasError}
+                            id={fieldId}
+                            name={field.name}
+                            placeholder={t("settings:llmProviderForm.customEndpointPlaceholder")}
+                            value={value}
+                            onBlur={field.onBlur}
+                            onChange={field.onChange}
+                        />
+                    )
+                }}
             />
-            <FormSwitchField
+            <FormField
                 control={form.control}
+                gapClass="gap-1"
+                hideLabel={true}
                 label={t("settings:llmProviderForm.testAfterSave")}
                 name="testAfterSave"
+                showRequiredMarker={false}
+                renderField={({
+                    field,
+                    hasError,
+                    accessibilityLabel,
+                    ariaDescribedBy,
+                }): ReactElement => (
+                    <Switch
+                        aria-describedby={ariaDescribedBy}
+                        aria-label={accessibilityLabel}
+                        aria-invalid={hasError}
+                        name={field.name}
+                        isSelected={field.value === true}
+                        onChange={field.onChange}
+                    >
+                        {t("settings:llmProviderForm.testAfterSave")}
+                    </Switch>
+                )}
             />
-            <FormSubmitButton isSubmitting={form.formState.isSubmitting}>
+            <Button
+                aria-busy={form.formState.isSubmitting}
+                isDisabled={form.formState.isSubmitting}
+                type="submit"
+            >
                 {t("settings:llmProviderForm.saveLlmConfiguration")}
-            </FormSubmitButton>
+            </Button>
         </form>
     )
 }
