@@ -23,7 +23,7 @@ vi.mock("@/lib/hooks/use-intersection-observer", () => {
 import type { ICcrWorkspaceListResponse } from "@/lib/api/endpoints/ccr-workspace.endpoint"
 import { FOCUS_REVIEWS_FILTERS_EVENT } from "@/lib/keyboard/shortcut-registry"
 import { CCR_FILTER_PRESETS_STORAGE_KEY, CcrManagementPage } from "@/pages/ccr-management.page"
-import { MOCK_CCR_ROWS } from "@/pages/ccr-data"
+import { MOCK_CCR_ROWS } from "../fixtures/ccr-data"
 import { createQueryClient } from "@/lib/query/query-client"
 import { queryKeys } from "@/lib/query/query-keys"
 import { renderWithProviders } from "../utils/render"
