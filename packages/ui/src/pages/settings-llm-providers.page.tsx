@@ -8,8 +8,7 @@ import {
     LLM_PROVIDER_OPTIONS,
     type ILlmProviderFormValues,
 } from "@/components/settings/settings-form-schemas"
-import { FormLayout } from "@/components/forms/form-layout"
-import { FormSection } from "@/components/forms/form-section"
+import { TYPOGRAPHY } from "@/lib/constants/typography"
 import { LlmProviderForm } from "@/components/settings/llm-provider-form"
 import { TestConnectionButton } from "@/components/settings/test-connection-button"
 
@@ -173,7 +172,7 @@ function renderProviderCard(
     t: ReturnType<typeof useTranslation<readonly ["settings"]>>["t"],
 ): ReactElement {
     return (
-        <FormSection heading={provider} key={provider}>
+        <section className="space-y-4 rounded-lg border border-border/50 bg-surface-tertiary p-4" key={provider}><div className="space-y-1"><h3 className={TYPOGRAPHY.subsectionTitle}>{provider}</h3></div><div className="space-y-3">
             <LlmProviderForm
                 initialValues={{
                     apiKey: config.apiKey,
@@ -202,7 +201,7 @@ function renderProviderCard(
                     {t("settings:llmProviders.validateViaPipeline")}
                 </Button>
             </div>
-        </FormSection>
+            </div></section>
     )
 }
 
@@ -260,10 +259,12 @@ export function SettingsLlmProvidersPage(): ReactElement {
     }
 
     return (
-        <FormLayout
-            title={t("settings:llmProviders.pageTitle")}
-            description={t("settings:llmProviders.pageSubtitle")}
-        >
+        <div className="space-y-6 mx-auto max-w-[1400px]">
+            <div className="space-y-1.5">
+                <h1 className={TYPOGRAPHY.pageTitle}>{t("settings:llmProviders.pageTitle")}</h1>
+                <p className={TYPOGRAPHY.bodyMuted}>{t("settings:llmProviders.pageSubtitle")}</p>
+            </div>
+            <div className="space-y-6">
             <div className="rounded-md border border-accent/30 bg-accent/10 p-3 text-sm text-accent-foreground">
                 {t("settings:llmProviders.byokNotice")}
             </div>
@@ -284,6 +285,7 @@ export function SettingsLlmProvidersPage(): ReactElement {
                     )
                 })}
             </div>
-        </FormLayout>
+            </div>
+        </div>
     )
 }
