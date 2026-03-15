@@ -13,12 +13,10 @@ import {
 } from "recharts"
 
 import { Card, CardContent, CardHeader } from "@heroui/react"
-import { EmptyState } from "@/components/states/empty-state"
-import { ChartContainer } from "@/components/charts/chart-container"
 import { TYPOGRAPHY } from "@/lib/constants/typography"
 import { CHART_FALLBACK_COLOR } from "@/lib/constants/chart-constants"
 import { CHART_GRID_DASH, PIE_OUTER_RADIUS } from "@/lib/constants/chart-recharts-defaults"
-import { CHART_DATA_TRANSITION } from "@/lib/motion"
+import { ResponsiveContainer } from "recharts"
 
 interface ITokenUsageModelPoint {
     /** Название модели. */
@@ -69,16 +67,16 @@ export function TokenUsageDashboardWidget(props: ITokenUsageDashboardWidgetProps
                     Usage by model, cost breakdown and trend chart for selected range.
                 </p>
                 {props.byModel.length === 0 && props.costTrend.length === 0 ? (
-                    <EmptyState
-                        description="No token usage data available for this period."
-                        title="No data"
-                    />
+                    <div className="flex flex-col items-center justify-center gap-3 py-12 text-center">
+                        <h3 className={TYPOGRAPHY.subsectionTitle}>No data</h3>
+                        <p className="max-w-sm text-sm text-muted">No token usage data available for this period.</p>
+                    </div>
                 ) : (
                     <div className="grid gap-3 lg:grid-cols-2">
-                        <ChartContainer height="sm">
+                        <div className="h-56 w-full"><ResponsiveContainer height="100%" minHeight={1} minWidth={1} width="100%">
                             <PieChart>
                                 <Pie
-                                    {...CHART_DATA_TRANSITION}
+                                    {...{ animationDuration: 0, isAnimationActive: false }}
                                     cx="50%"
                                     cy="50%"
                                     data={props.byModel}
@@ -103,8 +101,8 @@ export function TokenUsageDashboardWidget(props: ITokenUsageDashboardWidgetProps
                                 </Pie>
                                 <Tooltip />
                             </PieChart>
-                        </ChartContainer>
-                        <ChartContainer height="sm">
+                        </ResponsiveContainer></div>
+                        <div className="h-56 w-full"><ResponsiveContainer height="100%" minHeight={1} minWidth={1} width="100%">
                             <AreaChart data={props.costTrend}>
                                 <defs>
                                     <linearGradient id={areaGradientId} x1="0" x2="0" y1="0" y2="1">
@@ -138,7 +136,7 @@ export function TokenUsageDashboardWidget(props: ITokenUsageDashboardWidgetProps
                                 />
                                 <Tooltip />
                                 <Area
-                                    {...CHART_DATA_TRANSITION}
+                                    {...{ animationDuration: 0, isAnimationActive: false }}
                                     dataKey="costUsd"
                                     fill={`url(#${areaGradientId})`}
                                     name="Cost USD"
@@ -147,7 +145,7 @@ export function TokenUsageDashboardWidget(props: ITokenUsageDashboardWidgetProps
                                     type="monotone"
                                 />
                             </AreaChart>
-                        </ChartContainer>
+                        </ResponsiveContainer></div>
                     </div>
                 )}
             </CardContent>
