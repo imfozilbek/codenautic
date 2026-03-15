@@ -23,7 +23,8 @@ import { useMultiTabSync } from "@/lib/hooks/use-multi-tab-sync"
 import { useDashboardShortcuts } from "@/lib/hooks/use-dashboard-shortcuts"
 import { OPEN_COMMAND_PALETTE_EVENT } from "@/lib/keyboard/shortcut-registry"
 
-import { AnimatedMount } from "@/lib/motion"
+import { AnimatePresence, motion } from "motion/react"
+
 import { Menu } from "@/components/icons/app-icons"
 import { Button } from "@heroui/react"
 
@@ -245,9 +246,20 @@ export function DashboardLayout(props: IDashboardLayoutProps): ReactElement {
                         restoredDraftMessage={sessionRecovery.restoredDraftMessage}
                         shortcutConflicts={shortcuts.conflicts}
                     />
-                    <AnimatedMount motionKey={`page-${location.pathname}`}>
-                        {props.children}
-                    </AnimatedMount>
+                    <AnimatePresence mode="wait">
+                        <motion.div
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0 }}
+                            initial={{ opacity: 0, y: 4 }}
+                            key={`page-${location.pathname}`}
+                            transition={{
+                                duration: 0.15,
+                                ease: [0.0, 0.0, 0.2, 1.0],
+                            }}
+                        >
+                            {props.children}
+                        </motion.div>
+                    </AnimatePresence>
                 </div>
             </div>
 
