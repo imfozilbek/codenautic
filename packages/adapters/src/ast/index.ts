@@ -28,6 +28,12 @@ export {
     type IAstFunctionHashGeneratorErrorDetails,
 } from "./ast-function-hash-generator.error"
 export {
+    AST_FUNCTION_CALL_CHAIN_BUILDER_ERROR_CODE,
+    AstFunctionCallChainBuilderError,
+    type AstFunctionCallChainBuilderErrorCode,
+    type IAstFunctionCallChainBuilderErrorDetails,
+} from "./ast-function-call-chain-builder.error"
+export {
     AST_SEMANTIC_CODE_UNDERSTANDING_ERROR_CODE,
     AstSemanticCodeUnderstandingError,
     type AstSemanticCodeUnderstandingErrorCode,
@@ -290,6 +296,16 @@ export {
     type IAstFunctionHashInput,
     type IAstFunctionHashResult,
 } from "./ast-function-hash-generator.service"
+export {
+    AstFunctionCallChainBuilderService,
+    type IAstFunctionCallChain,
+    type IAstFunctionCallChainBuilderInput,
+    type IAstFunctionCallChainBuilderResult,
+    type IAstFunctionCallChainBuilderService,
+    type IAstFunctionCallChainBuilderServiceOptions,
+    type IAstFunctionCallChainBuilderSummary,
+    type IAstFunctionCallChainNode,
+} from "./ast-function-call-chain-builder.service"
 export {
     AST_SEMANTIC_MODULE_ROLE,
     AstSemanticCodeUnderstandingService,
