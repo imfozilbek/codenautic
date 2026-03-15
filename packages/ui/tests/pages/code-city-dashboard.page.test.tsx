@@ -1,4 +1,4 @@
-import { screen } from "@testing-library/react"
+import { screen, waitFor } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
@@ -1841,11 +1841,11 @@ beforeEach((): void => {
 })
 
 describe("CodeCityDashboardPage", (): void => {
-    it("рендерит базовый dashboard с переключателями фильтров", (): void => {
+    it("рендерит базовый dashboard с переключателями фильтров", async (): Promise<void> => {
         renderWithProviders(<CodeCityDashboardPage />)
 
         expect(screen.getByRole("heading", { level: 1, name: "CodeCity dashboard" })).not.toBeNull()
-        expect(screen.getByLabelText("Repository")).not.toBeNull()
+        expect(await screen.findByLabelText("Repository")).not.toBeNull()
         expect(screen.getByLabelText("Metric")).not.toBeNull()
         expect(screen.getByRole("option", { name: "platform-team/api-gateway" })).not.toBeNull()
         expect(screen.getByRole("option", { name: "frontend-team/ui-dashboard" })).not.toBeNull()
@@ -1870,11 +1870,17 @@ describe("CodeCityDashboardPage", (): void => {
             | undefined
         expect(firstTreemapFile?.bugIntroductions?.["30d"]).toBeGreaterThan(0)
 
-        const firstGraphCall = mockPackageDependencyGraph.mock.calls.at(0)?.[0]
-        expect(firstGraphCall).not.toBeUndefined()
-        expect(firstGraphCall?.title).toBe("Cross-repository package dependencies")
-        expect(firstGraphCall?.nodes.length).toBe(3)
-        expect(firstGraphCall?.relations.length).toBe(4)
+        await waitFor((): void => {
+            const latestGraphCall =
+                mockPackageDependencyGraph.mock.calls.at(-1)?.[0]
+            expect(latestGraphCall?.nodes.length).toBe(3)
+        })
+        const latestGraphCall =
+            mockPackageDependencyGraph.mock.calls.at(-1)?.[0]
+        expect(latestGraphCall).not.toBeUndefined()
+        expect(latestGraphCall?.title).toBe("Cross-repository package dependencies")
+        expect(latestGraphCall?.nodes.length).toBe(3)
+        expect(latestGraphCall?.relations.length).toBe(4)
 
         const first3DCall = mockCodeCity3DScene.mock.calls.at(0)?.[0]
         expect(first3DCall).not.toBeUndefined()
