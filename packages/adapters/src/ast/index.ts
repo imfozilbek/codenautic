@@ -58,6 +58,12 @@ export {
     type IAstServiceGrpcServerErrorDetails,
 } from "./ast-service-grpc-server.error"
 export {
+    AST_SERVICE_CLIENT_LIBRARY_ERROR_CODE,
+    AstServiceClientLibraryError,
+    type AstServiceClientLibraryErrorCode,
+    type IAstServiceClientLibraryErrorDetails,
+} from "./ast-service-client-library.error"
+export {
     AST_SEMANTIC_CODE_UNDERSTANDING_ERROR_CODE,
     AstSemanticCodeUnderstandingError,
     type AstSemanticCodeUnderstandingErrorCode,
@@ -372,6 +378,23 @@ export {
     type IAstServiceGrpcServerOptions,
     type IAstServiceGrpcServerRetryPolicyInput,
 } from "./ast-service-grpc-server.service"
+export {
+    AstServiceClientLibrary,
+    type IAstCodeGraphEdge,
+    type IAstCodeGraphNode,
+    type IAstFileMetricsItem,
+    type IAstGetCodeGraphInput,
+    type IAstGetCodeGraphResult,
+    type IAstGetFileMetricsInput,
+    type IAstGetFileMetricsResult,
+    type IAstRepositoryScanStatusInput,
+    type IAstRepositoryScanStatusResult,
+    type IAstServiceClientLibrary,
+    type IAstServiceClientLibraryOptions,
+    type IAstServiceHealthCheckResponse,
+    type IAstStartRepositoryScanInput,
+    type IAstStartRepositoryScanResult,
+} from "./ast-service-client-library.service"
 export {
     AST_SEMANTIC_MODULE_ROLE,
     AstSemanticCodeUnderstandingService,
