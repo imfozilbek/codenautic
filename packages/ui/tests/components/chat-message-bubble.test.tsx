@@ -236,7 +236,7 @@ describe("chat message bubble", (): void => {
         const dashes = screen.queryAllByText("—")
         expect(dashes.length).toBeGreaterThanOrEqual(2)
         const contentDash = dashes.find((element): boolean =>
-            element.className.includes("text-text-subtle"),
+            element.className.includes("text-muted"),
         )
         expect(contentDash).not.toBeUndefined()
     })
