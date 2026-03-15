@@ -147,7 +147,7 @@ export function GuidedTourOverlay(props: IGuidedTourOverlayProps): ReactElement 
                             ? t("code-city:guidedTour.finishAriaLabel")
                             : t("code-city:guidedTour.nextAriaLabel")
                     }
-                    className="rounded border border-primary/40 bg-primary/20 px-2 py-1 text-xs font-semibold text-hud-text hover:border-primary/30"
+                    className="rounded border border-accent/40 bg-accent/20 px-2 py-1 text-xs font-semibold text-hud-text hover:border-accent/30"
                     onClick={props.onNext}
                     type="button"
                 >

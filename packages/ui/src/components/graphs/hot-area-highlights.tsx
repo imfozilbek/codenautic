@@ -43,7 +43,7 @@ function resolveSeverityClassName(severity: THotAreaSeverity): string {
         return "border-danger/40 bg-danger/15 text-danger"
     }
     if (severity === "high") {
-        return "border-warning/40 bg-warning/15 text-on-warning"
+        return "border-warning/40 bg-warning/15 text-warning-foreground"
     }
     return "border-sky-300 bg-sky-500/15 text-sky-800"
 }
@@ -94,7 +94,7 @@ export function HotAreaHighlights(props: IHotAreaHighlightsProps): ReactElement 
                                 aria-label={t("code-city:hotAreaHighlights.focusAriaLabel", {
                                     label: highlight.label,
                                 })}
-                                className="mt-2 rounded border border-primary/40 bg-primary/20 px-2 py-1 text-xs font-semibold text-on-primary hover:border-primary"
+                                className="mt-2 rounded border border-accent/40 bg-accent/20 px-2 py-1 text-xs font-semibold text-accent-foreground hover:border-accent"
                                 onClick={(): void => {
                                     props.onFocusHotArea?.(highlight)
                                 }}
