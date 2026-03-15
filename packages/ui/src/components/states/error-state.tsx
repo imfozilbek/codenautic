@@ -47,14 +47,9 @@ export function ErrorState(props: IErrorStateProps): ReactElement {
                 </svg>
             </div>
             <h3 className={TYPOGRAPHY.subsectionTitle}>{props.title ?? "Something went wrong"}</h3>
-            <p className="max-w-sm text-sm text-text-secondary">{props.description}</p>
+            <p className="max-w-sm text-sm text-muted">{props.description}</p>
             {props.onRetry !== undefined ? (
-                <Button
-                    className="mt-2"
-                    size="sm"
-                    variant="secondary"
-                    onPress={props.onRetry}
-                >
+                <Button className="mt-2" size="sm" variant="secondary" onPress={props.onRetry}>
                     {props.retryLabel ?? "Retry"}
                 </Button>
             ) : null}

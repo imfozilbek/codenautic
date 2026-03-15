@@ -32,10 +32,10 @@ export function EmptyState(props: IEmptyStateProps): ReactElement {
         <div
             className={`flex flex-col items-center justify-center gap-3 py-12 text-center ${props.className ?? ""}`}
         >
-            {props.icon !== undefined ? <div className="text-text-subtle">{props.icon}</div> : null}
+            {props.icon !== undefined ? <div className="text-muted">{props.icon}</div> : null}
             <h3 className={TYPOGRAPHY.subsectionTitle}>{props.title}</h3>
             {props.description !== undefined ? (
-                <p className="max-w-sm text-sm text-text-secondary">{props.description}</p>
+                <p className="max-w-sm text-sm text-muted">{props.description}</p>
             ) : null}
             {props.actionLabel !== undefined && props.onAction !== undefined ? (
                 <Button className="mt-2" size="sm" variant="secondary" onPress={props.onAction}>

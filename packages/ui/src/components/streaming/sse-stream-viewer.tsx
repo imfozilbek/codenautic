@@ -174,19 +174,19 @@ export function SseStreamViewer(props: ISSEStreamViewerProps): ReactElement {
                 {error === undefined ? null : <Alert status="danger">{error}</Alert>}
 
                 {isProgressVisible === false ? (
-                    <p className="text-sm text-muted-foreground">Нет данных о прогрессе.</p>
+                    <p className="text-sm text-muted">Нет данных о прогрессе.</p>
                 ) : (
                     <div className="space-y-2">
                         <p className="text-sm text-foreground">
                             Progress: {formatProgressLabel(progressCurrent, progressTotal)}
                         </p>
-                        <div className="h-2 rounded-full bg-surface-muted">
+                        <div className="h-2 rounded-full bg-surface-secondary">
                             <div
                                 aria-label={t("common:ariaLabel.sseStreamViewer.streamProgress")}
                                 aria-valuemax={100}
                                 aria-valuemin={0}
                                 aria-valuenow={clampedProgressPercent}
-                                className="h-2 rounded-full bg-primary transition-[width]"
+                                className="h-2 rounded-full bg-accent transition-[width]"
                                 role="progressbar"
                                 style={{ width: `${clampedProgressPercent}%` }}
                             />
@@ -198,7 +198,7 @@ export function SseStreamViewer(props: ISSEStreamViewerProps): ReactElement {
                     <p className="mb-2 text-sm text-foreground">Event log</p>
                     <ul aria-label="stream events" className="space-y-2" role="log">
                         {recentEvents.length === 0 ? (
-                            <li className="text-sm text-muted-foreground">Ожидание событий</li>
+                            <li className="text-sm text-muted">Ожидание событий</li>
                         ) : null}
                         {recentEvents.map(
                             (event): ReactElement => (
