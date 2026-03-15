@@ -46,6 +46,12 @@ export {
     type IAstBreakingChangeDetectorErrorDetails,
 } from "./ast-breaking-change-detector.error"
 export {
+    AST_CIRCULAR_DEPENDENCY_DETECTOR_ERROR_CODE,
+    AstCircularDependencyDetectorError,
+    type AstCircularDependencyDetectorErrorCode,
+    type IAstCircularDependencyDetectorErrorDetails,
+} from "./ast-circular-dependency-detector.error"
+export {
     AST_CODE_CHUNK_EMBEDDING_GENERATOR_ERROR_CODE,
     AstCodeChunkEmbeddingGeneratorError,
     type AstCodeChunkEmbeddingGeneratorErrorCode,
@@ -189,6 +195,17 @@ export {
     type IAstBreakingChangeDetectorServiceOptions,
     type IAstBreakingChangeDetectorSummary,
 } from "./ast-breaking-change-detector.service"
+export {
+    AST_CIRCULAR_DEPENDENCY_SEVERITY,
+    AstCircularDependencyDetectorService,
+    type AstCircularDependencySeverity,
+    type IAstCircularDependency,
+    type IAstCircularDependencyDetectorInput,
+    type IAstCircularDependencyDetectorResult,
+    type IAstCircularDependencyDetectorService,
+    type IAstCircularDependencyDetectorServiceOptions,
+    type IAstCircularDependencyDetectorSummary,
+} from "./ast-circular-dependency-detector.service"
 export {
     AstDependencyChainResolverService,
     type IAstDependencyChain,
