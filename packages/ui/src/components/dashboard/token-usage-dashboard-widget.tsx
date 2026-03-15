@@ -127,12 +127,12 @@ export function TokenUsageDashboardWidget(props: ITokenUsageDashboardWidgetProps
                                 />
                                 <XAxis
                                     dataKey="period"
-                                    stroke="var(--muted-foreground)"
+                                    stroke="var(--muted)"
                                     tick={{ fontSize: 11 }}
                                     tickLine={false}
                                 />
                                 <YAxis
-                                    stroke="var(--muted-foreground)"
+                                    stroke="var(--muted)"
                                     tick={{ fontSize: 11 }}
                                     tickLine={false}
                                 />
