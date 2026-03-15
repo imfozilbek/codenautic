@@ -10,9 +10,11 @@ export {
     mapExternalDatadogLogs,
     mapExternalJiraTicket,
     mapExternalLinearIssue,
+    mapExternalPostHogFeatureFlag,
     mapExternalSentryError,
     mapJiraContext,
     mapLinearContext,
+    mapPostHogContext,
     mapSentryContext,
 } from "./context-acl-mapper"
 export {
@@ -27,6 +29,8 @@ export {
     DatadogLogAcl,
     JiraTicketAcl,
     LinearIssueAcl,
+    PostHogContextAcl,
+    PostHogFeatureFlagAcl,
     SentryErrorAcl,
     JiraContextAcl,
     LinearContextAcl,

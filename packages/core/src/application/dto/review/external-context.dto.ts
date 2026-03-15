@@ -402,3 +402,38 @@ export interface IBugsnagError {
      */
     readonly affectedUsers?: number
 }
+
+/**
+ * External feature-flag model for PostHog platform.
+ */
+export interface IPostHogFeatureFlag {
+    /**
+     * Stable feature flag key.
+     */
+    readonly key: string
+
+    /**
+     * Human-readable feature flag name.
+     */
+    readonly name: string
+
+    /**
+     * Current rollout status.
+     */
+    readonly status: string
+
+    /**
+     * Optional rollout percentage in [0, 100].
+     */
+    readonly rolloutPercentage?: number
+
+    /**
+     * Optional variant key when rollout is multivariate.
+     */
+    readonly variant?: string
+
+    /**
+     * Optional normalized feature flag tags.
+     */
+    readonly tags?: readonly string[]
+}

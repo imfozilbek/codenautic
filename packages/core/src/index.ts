@@ -119,6 +119,7 @@ export {
     type IExternalContextProvider,
     type IJiraProvider,
     type ILinearProvider,
+    type IPostHogProvider,
     type ISentryProvider,
 } from "./application/ports/outbound/review/external-context-provider.port"
 export {
@@ -439,6 +440,7 @@ export {
     type ILinearProjectContext,
     type ILinearSubIssue,
     type IJiraTicket,
+    type IPostHogFeatureFlag,
     type ISentryError,
     type IReviewResultDTO,
     type IReviewResultMetricsDTO,

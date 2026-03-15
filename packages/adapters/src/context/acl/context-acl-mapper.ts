@@ -10,9 +10,11 @@ import type {
     ILinearIssue,
     ILinearProjectContext,
     ILinearSubIssue,
+    IPostHogFeatureFlag,
     ISentryError,
 } from "@codenautic/core"
 import type {IDatadogAlert, IDatadogContextData, IDatadogLogEntry} from "../datadog.types"
+import type {IPostHogContextData} from "../posthog.types"
 
 const DEFAULT_FETCHED_AT = new Date(0)
 const EMPTY_RECORD: Readonly<Record<string, unknown>> = {}
@@ -311,6 +313,60 @@ export function mapBugsnagContext(payload: unknown): IExternalContext {
             ...(error.breadcrumbs !== undefined ? {breadcrumbs: error.breadcrumbs} : {}),
             ...(error.severity !== undefined ? {severity: error.severity} : {}),
         },
+        fetchedAt: resolveFetchedAt(root),
+    }
+}
+
+/**
+ * Normalizes external PostHog payload to shared feature-flag DTO.
+ *
+ * @param payload External PostHog payload.
+ * @returns Normalized PostHog feature-flag DTO.
+ */
+export function mapExternalPostHogFeatureFlag(payload: unknown): IPostHogFeatureFlag {
+    const root = toRecord(payload) ?? EMPTY_RECORD
+    const featureFlag = toRecord(root["featureFlag"])
+        ?? toRecord(root["feature_flag"])
+        ?? toRecord(root["flag"])
+        ?? root
+    const key = readIdentifier(featureFlag, ["key", "featureFlagKey", "id"], "UNKNOWN")
+    const name = readText(featureFlag, ["name", "display_name", "displayName", "title"], key)
+    const status = resolvePostHogStatus(featureFlag)
+    const rolloutPercentage = resolvePostHogRolloutPercentage(featureFlag)
+    const variant = resolvePostHogVariant(featureFlag)
+    const tags = resolvePostHogTags(featureFlag)
+
+    return {
+        key,
+        name,
+        status,
+        ...(rolloutPercentage !== undefined ? {rolloutPercentage} : {}),
+        ...(variant !== undefined ? {variant} : {}),
+        ...(tags !== undefined ? {tags} : {}),
+    }
+}
+
+/**
+ * Normalizes external PostHog context payload.
+ *
+ * @param payload External PostHog payload.
+ * @returns Shared external context.
+ */
+export function mapPostHogContext(payload: unknown): IExternalContext {
+    const root = toRecord(payload) ?? EMPTY_RECORD
+    const featureFlag = mapExternalPostHogFeatureFlag(payload)
+    const contextData: IPostHogContextData = {
+        featureFlag,
+        status: featureFlag.status,
+        ...(featureFlag.rolloutPercentage !== undefined
+            ? {rolloutPercentage: featureFlag.rolloutPercentage}
+            : {}),
+        ...(featureFlag.variant !== undefined ? {variant: featureFlag.variant} : {}),
+    }
+
+    return {
+        source: "POSTHOG",
+        data: contextData,
         fetchedAt: resolveFetchedAt(root),
     }
 }
@@ -2310,6 +2366,152 @@ function appendRichTextBlockBreak(
 }
 
 /**
+ * Resolves normalized PostHog feature-flag status.
+ *
+ * @param featureFlag PostHog feature-flag payload.
+ * @returns Deterministic status label.
+ */
+function resolvePostHogStatus(featureFlag: Readonly<Record<string, unknown>>): string {
+    const explicitStatus = readText(featureFlag, ["status", "state"])
+    if (explicitStatus.length > 0) {
+        return explicitStatus.toLowerCase()
+    }
+
+    const activeCandidate = featureFlag["active"] ?? featureFlag["enabled"] ?? featureFlag["isEnabled"]
+    if (typeof activeCandidate === "boolean") {
+        return activeCandidate ? "active" : "inactive"
+    }
+
+    return "unknown"
+}
+
+/**
+ * Resolves rollout percentage from PostHog payload.
+ *
+ * @param featureFlag PostHog feature-flag payload.
+ * @returns Rollout percentage in [0, 100] when available.
+ */
+function resolvePostHogRolloutPercentage(
+    featureFlag: Readonly<Record<string, unknown>>,
+): number | undefined {
+    const directCandidates: readonly unknown[] = [
+        featureFlag["rollout_percentage"],
+        featureFlag["rolloutPercentage"],
+        featureFlag["rollout"],
+        featureFlag["percentage"],
+    ]
+
+    for (const candidate of directCandidates) {
+        const percentage = readPercentage(candidate)
+        if (percentage !== undefined) {
+            return percentage
+        }
+    }
+
+    const filters = toRecord(featureFlag["filters"])
+    for (const groupCandidate of toArray(filters?.["groups"])) {
+        const group = toRecord(groupCandidate)
+        if (group === null) {
+            continue
+        }
+
+        const groupPercentage = readPercentage(
+            group["rollout_percentage"] ?? group["rolloutPercentage"] ?? group["percentage"],
+        )
+        if (groupPercentage !== undefined) {
+            return groupPercentage
+        }
+    }
+
+    return undefined
+}
+
+/**
+ * Resolves PostHog variant key from direct and nested payload shapes.
+ *
+ * @param featureFlag PostHog feature-flag payload.
+ * @returns Variant key when available.
+ */
+function resolvePostHogVariant(
+    featureFlag: Readonly<Record<string, unknown>>,
+): string | undefined {
+    const directVariant = readText(featureFlag, [
+        "variant",
+        "variant_key",
+        "variantKey",
+        "defaultVariant",
+    ])
+    if (directVariant.length > 0) {
+        return directVariant
+    }
+
+    const filters = toRecord(featureFlag["filters"])
+    const payloads = toArray(filters?.["payloads"])
+    for (const payloadCandidate of payloads) {
+        const payload = toRecord(payloadCandidate)
+        if (payload === null) {
+            continue
+        }
+
+        const key = readText(payload, ["key", "variant", "name"])
+        if (key.length > 0) {
+            return key
+        }
+    }
+
+    return undefined
+}
+
+/**
+ * Resolves normalized PostHog tag labels.
+ *
+ * @param featureFlag PostHog feature-flag payload.
+ * @returns Tag labels when available.
+ */
+function resolvePostHogTags(
+    featureFlag: Readonly<Record<string, unknown>>,
+): readonly string[] | undefined {
+    const tags: string[] = []
+    const rawTags = featureFlag["tags"]
+
+    if (typeof rawTags === "string") {
+        tags.push(
+            ...rawTags
+                .split(",")
+                .map((tag) => {
+                    return normalizeSingleLineText(tag)
+                })
+                .filter((tag) => {
+                    return tag.length > 0
+                }),
+        )
+    }
+
+    for (const tagCandidate of toArray(rawTags)) {
+        if (typeof tagCandidate === "string") {
+            const normalizedTag = normalizeSingleLineText(tagCandidate)
+            if (normalizedTag.length > 0) {
+                tags.push(normalizedTag)
+            }
+
+            continue
+        }
+
+        const tagRecord = toRecord(tagCandidate)
+        const tagName = readText(tagRecord, ["name", "tag", "label"])
+        if (tagName.length > 0) {
+            tags.push(tagName)
+        }
+    }
+
+    if (tags.length === 0) {
+        return undefined
+    }
+
+    return deduplicateTextList(tags)
+}
+
+/**
  * Resolves normalized Datadog tags from monitor payload.
  *
  * @param monitor Datadog monitor payload.
@@ -2540,8 +2742,30 @@ function extractPathFromText(text: string): string | undefined {
  * @returns Valid timestamp.
  */
 function resolveFetchedAt(root: Readonly<Record<string, unknown>>): Date {
-    const monitor = toRecord(root["monitor"])
     const candidates: readonly unknown[] = [
+        ...resolveRootFetchedAtCandidates(root),
+        ...resolveMonitorFetchedAtCandidates(root),
+        ...resolveFeatureFlagFetchedAtCandidates(root),
+    ]
+
+    for (const candidate of candidates) {
+        const parsedDate = resolveValidDateCandidate(candidate)
+        if (parsedDate !== undefined) {
+            return parsedDate
+        }
+    }
+
+    return new Date(DEFAULT_FETCHED_AT.getTime())
+}
+
+/**
+ * Resolves common root-level fetched-at candidates.
+ *
+ * @param root Payload root object.
+ * @returns Root-level date candidates.
+ */
+function resolveRootFetchedAtCandidates(root: Readonly<Record<string, unknown>>): readonly unknown[] {
+    return [
         root["fetchedAt"],
         root["overall_state_modified"],
         root["overallStateModified"],
@@ -2555,23 +2779,77 @@ function resolveFetchedAt(root: Readonly<Record<string, unknown>>): Date {
         root["last_seen"],
         root["dateCreated"],
         root["timestamp"],
-        monitor?.["overall_state_modified"],
-        monitor?.["overallStateModified"],
-        monitor?.["last_triggered_at"],
-        monitor?.["lastTriggeredAt"],
-        monitor?.["modified_at"],
-        monitor?.["modifiedAt"],
-        monitor?.["timestamp"],
     ]
+}
 
-    for (const candidate of candidates) {
-        const parsedDate = resolveValidDateCandidate(candidate)
-        if (parsedDate !== undefined) {
-            return parsedDate
-        }
+/**
+ * Resolves monitor-level fetched-at candidates.
+ *
+ * @param root Payload root object.
+ * @returns Monitor-level date candidates.
+ */
+function resolveMonitorFetchedAtCandidates(root: Readonly<Record<string, unknown>>): readonly unknown[] {
+    const monitor = toRecord(root["monitor"])
+    if (monitor === null) {
+        return []
     }
 
-    return new Date(DEFAULT_FETCHED_AT.getTime())
+    return [
+        monitor["overall_state_modified"],
+        monitor["overallStateModified"],
+        monitor["last_triggered_at"],
+        monitor["lastTriggeredAt"],
+        monitor["modified_at"],
+        monitor["modifiedAt"],
+        monitor["timestamp"],
+    ]
+}
+
+/**
+ * Resolves feature-flag-level fetched-at candidates.
+ *
+ * @param root Payload root object.
+ * @returns Feature-flag-level date candidates.
+ */
+function resolveFeatureFlagFetchedAtCandidates(
+    root: Readonly<Record<string, unknown>>,
+): readonly unknown[] {
+    const featureFlag = resolveFeatureFlagRoot(root)
+    if (featureFlag === null) {
+        return []
+    }
+
+    return [
+        featureFlag["updatedAt"],
+        featureFlag["updated_at"],
+        featureFlag["last_modified_at"],
+        featureFlag["lastModifiedAt"],
+        featureFlag["createdAt"],
+        featureFlag["created_at"],
+        featureFlag["timestamp"],
+    ]
+}
+
+/**
+ * Resolves PostHog feature-flag root object from supported wrappers.
+ *
+ * @param root Payload root object.
+ * @returns Feature-flag root object or null.
+ */
+function resolveFeatureFlagRoot(
+    root: Readonly<Record<string, unknown>>,
+): Readonly<Record<string, unknown>> | null {
+    const directFeatureFlag = toRecord(root["featureFlag"])
+    if (directFeatureFlag !== null) {
+        return directFeatureFlag
+    }
+
+    const snakeCaseFeatureFlag = toRecord(root["feature_flag"])
+    if (snakeCaseFeatureFlag !== null) {
+        return snakeCaseFeatureFlag
+    }
+
+    return toRecord(root["flag"])
 }
 
 /**
@@ -2703,6 +2981,36 @@ function readPositiveInteger(value: unknown): number | undefined {
 
         const parsed = Number(trimmed)
         if (Number.isInteger(parsed) && parsed >= 0) {
+            return parsed
+        }
+    }
+
+    return undefined
+}
+
+/**
+ * Reads percentage in [0, 100] from unknown candidate.
+ *
+ * @param value Candidate percentage.
+ * @returns Normalized percentage when valid.
+ */
+function readPercentage(value: unknown): number | undefined {
+    if (typeof value === "number" && Number.isFinite(value)) {
+        if (value >= 0 && value <= 100) {
+            return value
+        }
+
+        return undefined
+    }
+
+    if (typeof value === "string") {
+        const trimmed = value.trim()
+        if (trimmed.length === 0) {
+            return undefined
+        }
+
+        const parsed = Number(trimmed)
+        if (Number.isFinite(parsed) && parsed >= 0 && parsed <= 100) {
             return parsed
         }
     }

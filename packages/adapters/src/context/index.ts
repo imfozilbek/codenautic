@@ -17,6 +17,8 @@ export {
     JiraTicketAcl,
     LinearContextAcl,
     LinearIssueAcl,
+    PostHogContextAcl,
+    PostHogFeatureFlagAcl,
     SentryContextAcl,
     SentryErrorAcl,
     mapAsanaContext,
@@ -30,9 +32,11 @@ export {
     mapExternalDatadogLogs,
     mapExternalJiraTicket,
     mapExternalLinearIssue,
+    mapExternalPostHogFeatureFlag,
     mapExternalSentryError,
     mapJiraContext,
     mapLinearContext,
+    mapPostHogContext,
     mapSentryContext,
 } from "./acl"
 export {type IBugsnagContextData} from "./bugsnag.types"
@@ -41,6 +45,7 @@ export {
     type IDatadogContextData,
     type IDatadogLogEntry,
 } from "./datadog.types"
+export {type IPostHogContextData} from "./posthog.types"
 export {
     AsanaProvider,
     type IAsanaApiClient,
@@ -76,6 +81,14 @@ export {
     type IDatadogResponseHeaders,
     type IDatadogSearchLogsRequest,
 } from "./datadog-provider"
+export {
+    PostHogProvider,
+    type IPostHogApiClient,
+    type IPostHogApiResponse,
+    type IPostHogGetFeatureFlagRequest,
+    type IPostHogProviderOptions,
+    type IPostHogResponseHeaders,
+} from "./posthog-provider"
 export {
     JiraProvider,
     type IJiraApiClient,
@@ -124,6 +137,10 @@ export {
     DatadogProviderError,
     type IDatadogProviderErrorDetails,
 } from "./datadog-provider.error"
+export {
+    PostHogProviderError,
+    type IPostHogProviderErrorDetails,
+} from "./posthog-provider.error"
 export {
     JiraProviderError,
     type IJiraProviderErrorDetails,

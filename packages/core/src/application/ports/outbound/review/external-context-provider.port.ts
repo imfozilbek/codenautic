@@ -6,6 +6,7 @@ import type {
     IExternalContext,
     IJiraTicket,
     ILinearIssue,
+    IPostHogFeatureFlag,
     ISentryError,
 } from "../../../dto/review/external-context.dto"
 
@@ -103,4 +104,17 @@ export interface IBugsnagProvider {
      * @returns Bugsnag error payload or null when not found.
      */
     getError(errorId: string): Promise<IBugsnagError | null>
+}
+
+/**
+ * PostHog-specific provider contract.
+ */
+export interface IPostHogProvider {
+    /**
+     * Loads PostHog feature flag by key.
+     *
+     * @param featureFlagKey PostHog feature flag key.
+     * @returns PostHog feature flag payload or null when not found.
+     */
+    getFeatureFlag(featureFlagKey: string): Promise<IPostHogFeatureFlag | null>
 }

@@ -5,6 +5,7 @@ import type {
     IExternalContext,
     IJiraTicket,
     ILinearIssue,
+    IPostHogFeatureFlag,
     ISentryError,
 } from "../../../../src/application/dto/review/external-context.dto"
 
@@ -155,5 +156,33 @@ describe("IExternalContext review DTO", () => {
         expect(error.breadcrumbs).toHaveLength(2)
         expect(error.eventCount).toBe(24)
         expect(payload.source).toBe("BUGSNAG")
+    })
+
+    test("supports enriched PostHog feature-flag payload with rollout and variant", () => {
+        const featureFlag: IPostHogFeatureFlag = {
+            key: "review_temporal_coupling_overlay",
+            name: "Review temporal coupling overlay",
+            status: "active",
+            rolloutPercentage: 55,
+            variant: "treatment",
+            tags: [
+                "review",
+                "experiments",
+            ],
+        }
+        const payload: IExternalContext = {
+            source: "POSTHOG",
+            data: {
+                featureFlag,
+                rolloutPercentage: featureFlag.rolloutPercentage,
+                status: featureFlag.status,
+            },
+            fetchedAt: new Date("2026-03-15T10:00:00.000Z"),
+        }
+
+        expect(featureFlag.key).toBe("review_temporal_coupling_overlay")
+        expect(featureFlag.status).toBe("active")
+        expect(featureFlag.rolloutPercentage).toBe(55)
+        expect(payload.source).toBe("POSTHOG")
     })
 })

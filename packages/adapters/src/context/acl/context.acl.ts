@@ -6,6 +6,7 @@ import type {
     IExternalContext,
     IJiraTicket,
     ILinearIssue,
+    IPostHogFeatureFlag,
     ISentryError,
 } from "@codenautic/core"
 import type {IDatadogAlert, IDatadogLogEntry} from "../datadog.types"
@@ -22,9 +23,11 @@ import {
     mapExternalDatadogLogs,
     mapExternalJiraTicket,
     mapExternalLinearIssue,
+    mapExternalPostHogFeatureFlag,
     mapExternalSentryError,
     mapJiraContext,
     mapLinearContext,
+    mapPostHogContext,
     mapSentryContext,
 } from "./context-acl-mapper"
 
@@ -265,6 +268,46 @@ export class BugsnagContextAcl implements IAntiCorruptionLayer<unknown, IExterna
      */
     public toDomain(external: unknown): IExternalContext {
         return mapBugsnagContext(external)
+    }
+}
+
+/**
+ * PostHog feature-flag ACL adapter.
+ */
+export class PostHogFeatureFlagAcl implements IAntiCorruptionLayer<unknown, IPostHogFeatureFlag> {
+    /**
+     * Creates PostHog feature-flag ACL adapter.
+     */
+    public constructor() {}
+
+    /**
+     * Converts external PostHog feature-flag payload to domain DTO.
+     *
+     * @param external External PostHog payload.
+     * @returns Domain PostHog feature-flag DTO.
+     */
+    public toDomain(external: unknown): IPostHogFeatureFlag {
+        return mapExternalPostHogFeatureFlag(external)
+    }
+}
+
+/**
+ * PostHog context ACL adapter.
+ */
+export class PostHogContextAcl implements IAntiCorruptionLayer<unknown, IExternalContext> {
+    /**
+     * Creates PostHog context ACL adapter.
+     */
+    public constructor() {}
+
+    /**
+     * Converts external PostHog payload to shared external context.
+     *
+     * @param external External PostHog payload.
+     * @returns Shared external context.
+     */
+    public toDomain(external: unknown): IExternalContext {
+        return mapPostHogContext(external)
     }
 }
 

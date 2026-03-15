@@ -32,6 +32,7 @@ export {
     type ILinearIssue,
     type ILinearProjectContext,
     type ILinearSubIssue,
+    type IPostHogFeatureFlag,
     type ISentryError,
 } from "./external-context.dto"
 export {
