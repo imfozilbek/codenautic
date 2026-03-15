@@ -1,11 +1,12 @@
 import { type ReactElement } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { useForm } from "react-hook-form"
+import { Controller, useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 import * as z from "zod"
 import { Button, Input, ListBox, ListBoxItem, Select, Switch } from "@heroui/react"
 
-import { FormField, type IFormSelectOption } from "@/components/forms"
+import { type IFormSelectOption } from "@/components/forms"
+import { TYPOGRAPHY } from "@/lib/constants/typography"
 import {
     type ILlmProviderFormValues,
     LLM_MODEL_OPTIONS,
@@ -149,204 +150,273 @@ export function LlmProviderForm(props: ILlmProviderFormProps): ReactElement {
 
     return (
         <form className="space-y-3" onSubmit={handleSubmit}>
-            <FormField
+            <Controller
                 control={form.control}
-                id="llm-provider-name"
-                label={t("settings:llmProviderForm.provider")}
                 name="provider"
-                renderField={({
-                    field,
-                    hasError,
-                    fieldId,
-                    accessibilityLabel,
-                    ariaDescribedBy,
-                }): ReactElement => {
-                    const selectedKey = field.value === undefined ? null : String(field.value)
+                render={({ field, fieldState }): ReactElement => {
+                    const errorMessage =
+                        typeof fieldState.error?.message === "string"
+                            ? fieldState.error.message
+                            : undefined
+                    const hasError = errorMessage !== undefined
+                    const fieldId = "llm-provider-name"
+                    const helperId = `${fieldId}-helper`
+                    const selectedKey =
+                        field.value === undefined ? null : String(field.value)
+                    const label = t("settings:llmProviderForm.provider")
 
                     return (
-                        <Select
-                            aria-describedby={ariaDescribedBy}
-                            aria-label={accessibilityLabel}
-                            aria-invalid={hasError}
-                            name={field.name}
-                            id={fieldId}
-                            selectedKey={selectedKey}
-                            onSelectionChange={(key): void => {
-                                const nextValue = typeof key === "string" ? key : undefined
-                                field.onChange(nextValue)
-                            }}
-                        >
-                            <Select.Trigger>
-                                <Select.Value />
-                            </Select.Trigger>
-                            <Select.Popover>
-                                <ListBox>
-                                    {providerOptions.map(
-                                        (option): ReactElement => (
-                                            <ListBoxItem
-                                                key={option.value}
-                                                id={option.value}
-                                                textValue={option.label}
-                                                isDisabled={option.isDisabled}
-                                            >
-                                                <div className="flex flex-col">
-                                                    <span>{option.label}</span>
-                                                    {option.description === undefined ? null : (
-                                                        <span className="text-xs text-muted">
-                                                            {option.description}
-                                                        </span>
-                                                    )}
-                                                </div>
-                                            </ListBoxItem>
-                                        ),
-                                    )}
-                                </ListBox>
-                            </Select.Popover>
-                        </Select>
+                        <div className="flex flex-col gap-1.5">
+                            <label className={TYPOGRAPHY.label} htmlFor={fieldId}>
+                                {label}
+                            </label>
+                            <Select
+                                aria-label={label}
+                                aria-invalid={hasError}
+                                name={field.name}
+                                id={fieldId}
+                                selectedKey={selectedKey}
+                                onSelectionChange={(key): void => {
+                                    const nextValue =
+                                        typeof key === "string" ? key : undefined
+                                    field.onChange(nextValue)
+                                }}
+                            >
+                                <Select.Trigger>
+                                    <Select.Value />
+                                </Select.Trigger>
+                                <Select.Popover>
+                                    <ListBox>
+                                        {providerOptions.map(
+                                            (option): ReactElement => (
+                                                <ListBoxItem
+                                                    key={option.value}
+                                                    id={option.value}
+                                                    textValue={option.label}
+                                                    isDisabled={option.isDisabled}
+                                                >
+                                                    <div className="flex flex-col">
+                                                        <span>{option.label}</span>
+                                                        {option.description ===
+                                                        undefined ? null : (
+                                                            <span className="text-xs text-muted">
+                                                                {option.description}
+                                                            </span>
+                                                        )}
+                                                    </div>
+                                                </ListBoxItem>
+                                            ),
+                                        )}
+                                    </ListBox>
+                                </Select.Popover>
+                            </Select>
+                            <span id={helperId}>
+                                {hasError ? (
+                                    <p className="text-xs text-danger" role="alert">
+                                        {errorMessage}
+                                    </p>
+                                ) : null}
+                            </span>
+                        </div>
                     )
                 }}
             />
-            <FormField
+            <Controller
                 control={form.control}
-                id="llm-api-key"
-                label={t("settings:llmProviderForm.apiKeyToken")}
                 name="apiKey"
-                renderField={({
-                    field,
-                    hasError,
-                    fieldId,
-                    accessibilityLabel,
-                    ariaDescribedBy,
-                }): ReactElement => {
+                render={({ field, fieldState }): ReactElement => {
+                    const errorMessage =
+                        typeof fieldState.error?.message === "string"
+                            ? fieldState.error.message
+                            : undefined
+                    const hasError = errorMessage !== undefined
+                    const fieldId = "llm-api-key"
+                    const helperId = `${fieldId}-helper`
                     const value = typeof field.value === "string" ? field.value : ""
+                    const label = t("settings:llmProviderForm.apiKeyToken")
 
                     return (
-                        <Input
-                            aria-describedby={ariaDescribedBy}
-                            aria-label={accessibilityLabel}
-                            aria-invalid={hasError}
-                            id={fieldId}
-                            name={field.name}
-                            placeholder={t("settings:llmProviderForm.apiKeyPlaceholder")}
-                            type="password"
-                            value={value}
-                            onBlur={field.onBlur}
-                            onChange={field.onChange}
-                        />
+                        <div className="flex flex-col gap-1.5">
+                            <label className={TYPOGRAPHY.label} htmlFor={fieldId}>
+                                {label}
+                            </label>
+                            <Input
+                                aria-describedby={hasError ? helperId : undefined}
+                                aria-label={label}
+                                aria-invalid={hasError}
+                                id={fieldId}
+                                name={field.name}
+                                placeholder={t(
+                                    "settings:llmProviderForm.apiKeyPlaceholder",
+                                )}
+                                type="password"
+                                value={value}
+                                onBlur={field.onBlur}
+                                onChange={field.onChange}
+                            />
+                            <span id={helperId}>
+                                {hasError ? (
+                                    <p className="text-xs text-danger" role="alert">
+                                        {errorMessage}
+                                    </p>
+                                ) : null}
+                            </span>
+                        </div>
                     )
                 }}
             />
-            <FormField
+            <Controller
                 control={form.control}
-                id="llm-model"
-                label={t("settings:llmProviderForm.model")}
                 name="model"
-                renderField={({
-                    field,
-                    hasError,
-                    fieldId,
-                    accessibilityLabel,
-                    ariaDescribedBy,
-                }): ReactElement => {
-                    const selectedKey = field.value === undefined ? null : String(field.value)
+                render={({ field, fieldState }): ReactElement => {
+                    const errorMessage =
+                        typeof fieldState.error?.message === "string"
+                            ? fieldState.error.message
+                            : undefined
+                    const hasError = errorMessage !== undefined
+                    const fieldId = "llm-model"
+                    const helperId = `${fieldId}-helper`
+                    const selectedKey =
+                        field.value === undefined ? null : String(field.value)
+                    const label = t("settings:llmProviderForm.model")
 
                     return (
-                        <Select
-                            aria-describedby={ariaDescribedBy}
-                            aria-label={accessibilityLabel}
-                            aria-invalid={hasError}
-                            name={field.name}
-                            id={fieldId}
-                            selectedKey={selectedKey}
-                            onSelectionChange={(key): void => {
-                                const nextValue = typeof key === "string" ? key : undefined
-                                field.onChange(nextValue)
-                            }}
-                        >
-                            <Select.Trigger>
-                                <Select.Value />
-                            </Select.Trigger>
-                            <Select.Popover>
-                                <ListBox>
-                                    {llmModelOptions.map(
-                                        (option): ReactElement => (
-                                            <ListBoxItem
-                                                key={option.value}
-                                                id={option.value}
-                                                textValue={option.label}
-                                                isDisabled={option.isDisabled}
-                                            >
-                                                <div className="flex flex-col">
-                                                    <span>{option.label}</span>
-                                                    {option.description === undefined ? null : (
-                                                        <span className="text-xs text-muted">
-                                                            {option.description}
-                                                        </span>
-                                                    )}
-                                                </div>
-                                            </ListBoxItem>
-                                        ),
-                                    )}
-                                </ListBox>
-                            </Select.Popover>
-                        </Select>
+                        <div className="flex flex-col gap-1.5">
+                            <label className={TYPOGRAPHY.label} htmlFor={fieldId}>
+                                {label}
+                            </label>
+                            <Select
+                                aria-label={label}
+                                aria-invalid={hasError}
+                                name={field.name}
+                                id={fieldId}
+                                selectedKey={selectedKey}
+                                onSelectionChange={(key): void => {
+                                    const nextValue =
+                                        typeof key === "string" ? key : undefined
+                                    field.onChange(nextValue)
+                                }}
+                            >
+                                <Select.Trigger>
+                                    <Select.Value />
+                                </Select.Trigger>
+                                <Select.Popover>
+                                    <ListBox>
+                                        {llmModelOptions.map(
+                                            (option): ReactElement => (
+                                                <ListBoxItem
+                                                    key={option.value}
+                                                    id={option.value}
+                                                    textValue={option.label}
+                                                    isDisabled={option.isDisabled}
+                                                >
+                                                    <div className="flex flex-col">
+                                                        <span>{option.label}</span>
+                                                        {option.description ===
+                                                        undefined ? null : (
+                                                            <span className="text-xs text-muted">
+                                                                {option.description}
+                                                            </span>
+                                                        )}
+                                                    </div>
+                                                </ListBoxItem>
+                                            ),
+                                        )}
+                                    </ListBox>
+                                </Select.Popover>
+                            </Select>
+                            <span id={helperId}>
+                                {hasError ? (
+                                    <p className="text-xs text-danger" role="alert">
+                                        {errorMessage}
+                                    </p>
+                                ) : null}
+                            </span>
+                        </div>
                     )
                 }}
             />
-            <FormField
+            <Controller
                 control={form.control}
-                helperText={t("settings:llmProviderForm.customEndpointHelper")}
-                id="llm-endpoint"
-                label={t("settings:llmProviderForm.customEndpoint")}
                 name="endpoint"
-                renderField={({
-                    field,
-                    hasError,
-                    fieldId,
-                    accessibilityLabel,
-                    ariaDescribedBy,
-                }): ReactElement => {
+                render={({ field, fieldState }): ReactElement => {
+                    const errorMessage =
+                        typeof fieldState.error?.message === "string"
+                            ? fieldState.error.message
+                            : undefined
+                    const hasError = errorMessage !== undefined
+                    const fieldId = "llm-endpoint"
+                    const helperId = `${fieldId}-helper`
                     const value = typeof field.value === "string" ? field.value : ""
+                    const label = t("settings:llmProviderForm.customEndpoint")
+                    const helperText = t(
+                        "settings:llmProviderForm.customEndpointHelper",
+                    )
 
                     return (
-                        <Input
-                            aria-describedby={ariaDescribedBy}
-                            aria-label={accessibilityLabel}
-                            aria-invalid={hasError}
-                            id={fieldId}
-                            name={field.name}
-                            placeholder={t("settings:llmProviderForm.customEndpointPlaceholder")}
-                            value={value}
-                            onBlur={field.onBlur}
-                            onChange={field.onChange}
-                        />
+                        <div className="flex flex-col gap-1.5">
+                            <label className={TYPOGRAPHY.label} htmlFor={fieldId}>
+                                {label}
+                            </label>
+                            <Input
+                                aria-describedby={helperId}
+                                aria-label={label}
+                                aria-invalid={hasError}
+                                id={fieldId}
+                                name={field.name}
+                                placeholder={t(
+                                    "settings:llmProviderForm.customEndpointPlaceholder",
+                                )}
+                                value={value}
+                                onBlur={field.onBlur}
+                                onChange={field.onChange}
+                            />
+                            <span id={helperId}>
+                                {hasError ? (
+                                    <p className="text-xs text-danger" role="alert">
+                                        {errorMessage}
+                                    </p>
+                                ) : (
+                                    <p className="text-xs text-muted">{helperText}</p>
+                                )}
+                            </span>
+                        </div>
                     )
                 }}
             />
-            <FormField
+            <Controller
                 control={form.control}
-                gapClass="gap-1"
-                hideLabel={true}
-                label={t("settings:llmProviderForm.testAfterSave")}
                 name="testAfterSave"
-                showRequiredMarker={false}
-                renderField={({
-                    field,
-                    hasError,
-                    accessibilityLabel,
-                    ariaDescribedBy,
-                }): ReactElement => (
-                    <Switch
-                        aria-describedby={ariaDescribedBy}
-                        aria-label={accessibilityLabel}
-                        aria-invalid={hasError}
-                        name={field.name}
-                        isSelected={field.value === true}
-                        onChange={field.onChange}
-                    >
-                        {t("settings:llmProviderForm.testAfterSave")}
-                    </Switch>
-                )}
+                render={({ field, fieldState }): ReactElement => {
+                    const errorMessage =
+                        typeof fieldState.error?.message === "string"
+                            ? fieldState.error.message
+                            : undefined
+                    const hasError = errorMessage !== undefined
+                    const helperId = "testAfterSave-helper"
+                    const label = t("settings:llmProviderForm.testAfterSave")
+
+                    return (
+                        <div className="flex flex-col gap-1">
+                            <Switch
+                                aria-label={label}
+                                aria-invalid={hasError}
+                                name={field.name}
+                                isSelected={field.value === true}
+                                onChange={field.onChange}
+                            >
+                                {label}
+                            </Switch>
+                            <span id={helperId}>
+                                {hasError ? (
+                                    <p className="text-xs text-danger" role="alert">
+                                        {errorMessage}
+                                    </p>
+                                ) : null}
+                            </span>
+                        </div>
+                    )
+                }}
             />
             <Button
                 aria-busy={form.formState.isSubmitting}
