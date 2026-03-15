@@ -47,3 +47,9 @@ export const TYPOGRAPHY = {
     /** Крупный заголовок для центрированных splash-экранов (3xl, semibold, tight). */
     splash: "text-3xl font-semibold tracking-tight",
 } as const
+
+/**
+ * Базовые CSS-классы для consistent link styling (underline + focus ring).
+ */
+export const LINK_CLASSES =
+    "underline underline-offset-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40"
