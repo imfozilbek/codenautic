@@ -17,8 +17,8 @@ export const DefaultExpanded: TStory = {
         defaultExpanded: true,
         children: (
             <div className="grid gap-4 md:grid-cols-2">
-                <div className="h-32 rounded-lg bg-surface-muted" />
-                <div className="h-32 rounded-lg bg-surface-muted" />
+                <div className="h-32 rounded-lg bg-surface-secondary" />
+                <div className="h-32 rounded-lg bg-surface-secondary" />
             </div>
         ),
     },
@@ -28,7 +28,7 @@ export const CollapsedByDefault: TStory = {
     args: {
         title: "Advanced Metrics",
         defaultExpanded: false,
-        children: <div className="h-32 rounded-lg bg-surface-muted" />,
+        children: <div className="h-32 rounded-lg bg-surface-secondary" />,
     },
 }
 
@@ -39,8 +39,8 @@ export const PrimaryPriority: TStory = {
         defaultExpanded: true,
         children: (
             <div className="grid gap-4 md:grid-cols-2">
-                <div className="h-32 rounded-lg bg-surface-muted" />
-                <div className="h-32 rounded-lg bg-surface-muted" />
+                <div className="h-32 rounded-lg bg-surface-secondary" />
+                <div className="h-32 rounded-lg bg-surface-secondary" />
             </div>
         ),
     },
@@ -51,7 +51,7 @@ export const TertiaryPriority: TStory = {
         title: "Tertiary Zone",
         priority: "tertiary",
         defaultExpanded: true,
-        children: <div className="h-32 rounded-lg bg-surface-muted" />,
+        children: <div className="h-32 rounded-lg bg-surface-secondary" />,
     },
 }
 

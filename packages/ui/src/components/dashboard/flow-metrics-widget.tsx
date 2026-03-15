@@ -51,26 +51,32 @@ function FlowTooltip(props: TooltipContentProps<number, string>): ReactElement |
     return (
         <div className="rounded-lg border border-border/60 bg-surface/95 px-3 py-2 shadow-lg backdrop-blur-md">
             <p className={TYPOGRAPHY.overline}>{label}</p>
-            {payload.map(
-                (raw, idx): ReactElement => {
-                    const entry = raw as { dataKey?: string; color?: string; name?: string; value?: number }
-                    return (
-                        <div key={String(entry.dataKey ?? idx)} className="mt-1 flex items-center gap-2">
-                            <span
-                                aria-hidden="true"
-                                className="h-2 w-2 rounded-full"
-                                style={{ backgroundColor: String(entry.color ?? "") }}
-                            />
-                            <span className="text-xs text-muted-foreground">
-                                {String(entry.name ?? "")}:
-                            </span>
-                            <span className="text-xs font-semibold text-foreground">
-                                {String(entry.value ?? "")}
-                            </span>
-                        </div>
-                    )
-                },
-            )}
+            {payload.map((raw, idx): ReactElement => {
+                const entry = raw as {
+                    dataKey?: string
+                    color?: string
+                    name?: string
+                    value?: number
+                }
+                return (
+                    <div
+                        key={String(entry.dataKey ?? idx)}
+                        className="mt-1 flex items-center gap-2"
+                    >
+                        <span
+                            aria-hidden="true"
+                            className="h-2 w-2 rounded-full"
+                            style={{ backgroundColor: String(entry.color ?? "") }}
+                        />
+                        <span className="text-xs text-muted">
+                            {String(entry.name ?? "")}:
+                        </span>
+                        <span className="text-xs font-semibold text-foreground">
+                            {String(entry.value ?? "")}
+                        </span>
+                    </div>
+                )
+            })}
         </div>
     )
 }
@@ -144,16 +150,16 @@ export function FlowMetricsWidget(props: IFlowMetricsWidgetProps): ReactElement 
                             />
                             <XAxis
                                 dataKey="window"
-                                stroke="var(--muted-foreground)"
+                                stroke="var(--muted)"
                                 tick={{ fontSize: 11 }}
                                 tickLine={false}
                             />
                             <YAxis
-                                stroke="var(--muted-foreground)"
+                                stroke="var(--muted)"
                                 tick={{ fontSize: 11 }}
                                 tickLine={false}
                             />
-                            { }
+                            {}
                             <Tooltip content={FlowTooltip as never} />
 
                             {/* Gradient area fills */}
