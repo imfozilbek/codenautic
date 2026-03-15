@@ -3,10 +3,12 @@ import { useTranslation } from "react-i18next"
 import { Link } from "@tanstack/react-router"
 
 import { useDynamicTranslation } from "@/lib/i18n"
-import { Button, Card, CardContent, CardHeader, Table } from "@heroui/react"
+import { Button, Card, CardContent, CardHeader, Spinner, Table } from "@heroui/react"
 import { PageShell } from "@/components/layout/page-shell"
 import { NATIVE_FORM } from "@/lib/constants/spacing"
 import { TYPOGRAPHY } from "@/lib/constants/typography"
+import { useRepositories } from "@/lib/hooks/queries"
+import type { IRepository } from "@/lib/api/endpoints/repository.endpoint"
 
 type TRepositoryStatus = "error" | "ready" | "scanning"
 
@@ -339,6 +341,24 @@ function RepositoriesEmptyState(): ReactElement {
 }
 
 /**
+ * Маппит API-модель репозитория в локальную модель страницы.
+ *
+ * @param repo - Репозиторий из API.
+ * @returns Локальная модель для отображения в таблице.
+ */
+function mapApiRepositoryToListItem(repo: IRepository): IRepositoryListRepository {
+    return {
+        id: repo.id,
+        name: repo.name,
+        owner: repo.owner,
+        branch: repo.defaultBranch,
+        status: repo.status,
+        issueCount: repo.issueCount,
+        lastScanAt: repo.lastScanAt,
+    }
+}
+
+/**
  * Страница списка подключенных репозиториев с поиском и сортировкой.
  *
  * @param props Репозитории для отображения.
@@ -348,7 +368,15 @@ export function RepositoriesListPage(props: IRepositoryListPageProps): ReactElem
     const { t } = useTranslation(["dashboard"])
     const { td } = useDynamicTranslation(["dashboard"])
     const sortOptions = useMemo(() => createSortOptions(td), [td])
-    const repositories = props.repositories ?? DEFAULT_REPOSITORIES
+    const { repositoriesQuery } = useRepositories()
+    const apiRepositories = useMemo((): ReadonlyArray<IRepositoryListRepository> => {
+        if (repositoriesQuery.data === undefined) {
+            return DEFAULT_REPOSITORIES
+        }
+        return repositoriesQuery.data.repositories.map(mapApiRepositoryToListItem)
+    }, [repositoriesQuery.data])
+    const repositories = props.repositories ?? apiRepositories
+    const isLoading = props.repositories === undefined && repositoriesQuery.isPending
     const [search, setSearch] = useState("")
     const [status, setStatus] = useState<"all" | TRepositoryStatus>("all")
     const [sortBy, setSortBy] = useState<TRepositorySortKey>("name")
@@ -392,7 +420,11 @@ export function RepositoriesListPage(props: IRepositoryListPageProps): ReactElem
             subtitle={t("dashboard:repositoriesList.pageSubtitle")}
             title={t("dashboard:repositoriesList.pageTitle")}
         >
-            {repositories.length === 0 ? (
+            {isLoading === true ? (
+                <div className="flex justify-center py-12">
+                    <Spinner size="lg" />
+                </div>
+            ) : repositories.length === 0 ? (
                 <RepositoriesEmptyState />
             ) : (
                 <Card>
