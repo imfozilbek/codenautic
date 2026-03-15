@@ -106,6 +106,12 @@ export {
     type IAstMemoryPressureManagerErrorDetails,
 } from "./ast-memory-pressure-manager.error"
 export {
+    AST_WORKER_TASK_EXECUTOR_ERROR_CODE,
+    AstWorkerTaskExecutorError,
+    type AstWorkerTaskExecutorErrorCode,
+    type IAstWorkerTaskExecutorErrorDetails,
+} from "./ast-worker-task-executor.error"
+export {
     AST_PISCINA_WORKER_POOL_ERROR_CODE,
     AstPiscinaWorkerPoolError,
     type AstPiscinaWorkerPoolErrorCode,
@@ -382,6 +388,18 @@ export {
     type IAstMemoryPressureRetryPolicy,
     type IAstMemoryUsageSample,
 } from "./ast-memory-pressure-manager.service"
+export {
+    AstWorkerTaskExecutorService,
+    type AstWorkerTaskExecutorNow,
+    type AstWorkerTaskExecutorRunner,
+    type AstWorkerTaskExecutorShouldRetry,
+    type AstWorkerTaskExecutorSleep,
+    type IAstWorkerTaskExecutorInput,
+    type IAstWorkerTaskExecutorResult,
+    type IAstWorkerTaskExecutorRetryPolicy,
+    type IAstWorkerTaskExecutorService,
+    type IAstWorkerTaskExecutorServiceOptions,
+} from "./ast-worker-task-executor.service"
 export {
     AstPiscinaWorkerPoolService,
     type AstPiscinaWorkerPoolShouldRetry,
