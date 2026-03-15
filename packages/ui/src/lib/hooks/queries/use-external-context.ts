@@ -96,7 +96,7 @@ export function useExternalContext(args: IUseExternalContextArgs = {}): IUseExte
             return api.externalContext.listSources()
         },
         enabled,
-        refetchOnWindowFocus: false,
+
     })
 
     const previewQuery = useQuery({
@@ -105,7 +105,7 @@ export function useExternalContext(args: IUseExternalContextArgs = {}): IUseExte
             return api.externalContext.getPreview(normalizedSourceId)
         },
         enabled: isPreviewQueryEnabled,
-        refetchOnWindowFocus: false,
+
     })
 
     const updateSource = useMutation<
