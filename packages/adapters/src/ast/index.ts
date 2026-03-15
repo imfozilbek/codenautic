@@ -64,6 +64,12 @@ export {
     type IAstTypeFlowAnalyzerErrorDetails,
 } from "./ast-type-flow-analyzer.error"
 export {
+    AST_SHARED_STATE_DETECTOR_ERROR_CODE,
+    AstSharedStateDetectorError,
+    type AstSharedStateDetectorErrorCode,
+    type IAstSharedStateDetectorErrorDetails,
+} from "./ast-shared-state-detector.error"
+export {
     AST_CODE_CHUNK_EMBEDDING_GENERATOR_ERROR_CODE,
     AstCodeChunkEmbeddingGeneratorError,
     type AstCodeChunkEmbeddingGeneratorErrorCode,
@@ -243,6 +249,19 @@ export {
     type IAstTypeFlowAnalyzerSummary,
     type IAstUnresolvedTypeFlow,
 } from "./ast-type-flow-analyzer.service"
+export {
+    AST_SHARED_STATE_ISSUE_TYPE,
+    AST_SHARED_STATE_SEVERITY,
+    AstSharedStateDetectorService,
+    type AstSharedStateIssueType,
+    type AstSharedStateSeverity,
+    type IAstSharedStateDetectorInput,
+    type IAstSharedStateDetectorResult,
+    type IAstSharedStateDetectorService,
+    type IAstSharedStateDetectorServiceOptions,
+    type IAstSharedStateDetectorSummary,
+    type IAstSharedStateIssue,
+} from "./ast-shared-state-detector.service"
 export {
     AstDependencyChainResolverService,
     type IAstDependencyChain,
