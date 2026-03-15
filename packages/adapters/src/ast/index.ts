@@ -22,6 +22,12 @@ export {
     type IAstFunctionSimilarityErrorDetails,
 } from "./ast-function-similarity.error"
 export {
+    AST_FUNCTION_HASH_GENERATOR_ERROR_CODE,
+    AstFunctionHashGeneratorError,
+    type AstFunctionHashGeneratorErrorCode,
+    type IAstFunctionHashGeneratorErrorDetails,
+} from "./ast-function-hash-generator.error"
+export {
     AST_SEMANTIC_CODE_UNDERSTANDING_ERROR_CODE,
     AstSemanticCodeUnderstandingError,
     type AstSemanticCodeUnderstandingErrorCode,
@@ -278,6 +284,12 @@ export {
     type IAstFunctionSimilarityServiceOptions,
     type IAstFunctionSimilarityTarget,
 } from "./ast-function-similarity.service"
+export {
+    AstFunctionHashGenerator,
+    type IAstFunctionHashGenerator,
+    type IAstFunctionHashInput,
+    type IAstFunctionHashResult,
+} from "./ast-function-hash-generator.service"
 export {
     AST_SEMANTIC_MODULE_ROLE,
     AstSemanticCodeUnderstandingService,
