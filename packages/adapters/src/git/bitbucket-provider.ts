@@ -70,6 +70,8 @@ const BITBUCKET_ROUTE = {
         "GET /repositories/{workspace}/{repo_slug}/pullrequests/{pull_request_id}/patch",
     PULL_REQUEST_COMMENTS:
         "POST /repositories/{workspace}/{repo_slug}/pullrequests/{pull_request_id}/comments",
+    PULL_REQUEST_COMMENT:
+        "DELETE /repositories/{workspace}/{repo_slug}/pullrequests/{pull_request_id}/comments/{comment_id}",
     BUILD_STATUS_CREATE:
         "POST /repositories/{workspace}/{repo_slug}/commit/{commit}/statuses/build",
     BUILD_STATUS_UPDATE:
@@ -662,6 +664,28 @@ export class BitbucketProvider implements IGitProvider, IGitPipelineStatusProvid
         )
 
         return mapBitbucketComment(response)
+    }
+
+    /**
+     * Deletes existing pull-request comment.
+     *
+     * @param mergeRequestId Pull request identifier.
+     * @param commentId Pull-request comment identifier.
+     * @returns Completion promise.
+     */
+    public async deleteComment(
+        mergeRequestId: string,
+        commentId: string,
+    ): Promise<void> {
+        await this.requestData<unknown>(
+            "deletePullRequestComment",
+            BITBUCKET_ROUTE.PULL_REQUEST_COMMENT,
+            {
+                ...this.createBaseRouteParameters(),
+                pull_request_id: normalizeMergeRequestId(mergeRequestId),
+                comment_id: normalizeCommentId(commentId),
+            },
+        )
     }
 
     /**
@@ -2557,6 +2581,23 @@ function normalizeMergeRequestId(value: string): number {
 
     if (Number.isInteger(numericValue) === false || numericValue <= 0) {
         throw new Error("mergeRequestId must be positive integer")
+    }
+
+    return numericValue
+}
+
+/**
+ * Normalizes pull-request comment identifier.
+ *
+ * @param value Raw comment identifier.
+ * @returns Positive integer comment identifier.
+ */
+function normalizeCommentId(value: string): number {
+    const normalized = normalizeRequiredText(value, "commentId")
+    const numericValue = Number(normalized)
+
+    if (Number.isInteger(numericValue) === false || numericValue <= 0) {
+        throw new Error("commentId must be positive integer")
     }
 
     return numericValue

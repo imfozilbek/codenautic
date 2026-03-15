@@ -69,6 +69,8 @@ type PullCreateReviewCommentResponse =
     RestEndpointMethodTypes["pulls"]["createReviewComment"]["response"]["data"]
 type PullCreateReviewResponse =
     RestEndpointMethodTypes["pulls"]["createReview"]["response"]["data"]
+type PullDeleteReviewCommentResponse =
+    RestEndpointMethodTypes["pulls"]["deleteReviewComment"]["response"]["data"]
 type PullListCommentsForReviewResponseItem =
     RestEndpointMethodTypes["pulls"]["listCommentsForReview"]["response"]["data"][number]
 type ChecksCreateResponse =
@@ -194,6 +196,9 @@ export interface IGitHubOctokitClient {
         readonly createReview: (
             params: RestEndpointMethodTypes["pulls"]["createReview"]["parameters"],
         ) => Promise<{readonly data: PullCreateReviewResponse}>
+        readonly deleteReviewComment: (
+            params: RestEndpointMethodTypes["pulls"]["deleteReviewComment"]["parameters"],
+        ) => Promise<{readonly data: PullDeleteReviewCommentResponse}>
         readonly listCommentsForReview: (
             params: RestEndpointMethodTypes["pulls"]["listCommentsForReview"]["parameters"],
         ) => Promise<{readonly data: readonly PullListCommentsForReviewResponseItem[]}>
@@ -763,6 +768,30 @@ export class GitHubProvider implements IGitProvider, IGitPipelineStatusProvider 
         })
 
         return mapComment(response.data)
+    }
+
+    /**
+     * Deletes existing pull-request review comment.
+     *
+     * @param mergeRequestId Pull request number.
+     * @param commentId Review comment identifier.
+     * @returns Completion promise.
+     */
+    public async deleteComment(
+        mergeRequestId: string,
+        commentId: string,
+    ): Promise<void> {
+        const pullNumber = normalizePullNumber(mergeRequestId)
+        const normalizedCommentId = normalizeCommentId(commentId)
+
+        await this.executeRequest(() => {
+            return this.client.pulls.deleteReviewComment({
+                owner: this.owner,
+                repo: this.repo,
+                pull_number: pullNumber,
+                comment_id: normalizedCommentId,
+            })
+        })
     }
 
     /**
@@ -2556,6 +2585,23 @@ function normalizePullNumber(value: string): number {
 
     if (Number.isInteger(numericValue) === false || numericValue <= 0) {
         throw new Error("mergeRequestId must be positive integer")
+    }
+
+    return numericValue
+}
+
+/**
+ * Normalizes comment identifier to numeric value.
+ *
+ * @param value Raw comment identifier.
+ * @returns Numeric comment identifier.
+ */
+function normalizeCommentId(value: string): number {
+    const normalized = normalizeRequiredText(value, "commentId")
+    const numericValue = Number(normalized)
+
+    if (Number.isInteger(numericValue) === false || numericValue <= 0) {
+        throw new Error("commentId must be positive integer")
     }
 
     return numericValue

@@ -27,6 +27,7 @@ type IGitLabClientMockOverrides = {
     readonly getMergeRequestCommits?: AsyncMethod<readonly unknown[]>
     readonly getMergeRequestDiffVersions?: AsyncMethod<readonly unknown[]>
     readonly createMergeRequestNote?: AsyncMethod<unknown>
+    readonly deleteMergeRequestNote?: AsyncMethod<void>
     readonly createMergeRequestDiscussion?: AsyncMethod<unknown>
     readonly listRepositoryTree?: AsyncMethod<readonly unknown[]>
     readonly getRepositoryFile?: AsyncMethod<unknown>
@@ -184,6 +185,10 @@ function createGitLabClientMock(
             resolveGitLabMethod(
                 overrides.createMergeRequestNote,
             ) as IGitLabClient["createMergeRequestNote"],
+        deleteMergeRequestNote:
+            resolveGitLabMethod(
+                overrides.deleteMergeRequestNote,
+            ) as IGitLabClient["deleteMergeRequestNote"],
         createMergeRequestDiscussion:
             resolveGitLabMethod(
                 overrides.createMergeRequestDiscussion,
@@ -455,6 +460,24 @@ describe("GitLabProvider", () => {
                 new_line: 14,
             },
         })
+    })
+
+    test("deletes merge request note comment", async () => {
+        const deleteMergeRequestNote = createAsyncMethod(() => {
+            return undefined
+        })
+        const provider = new GitLabProvider({
+            host: "https://gitlab.example.com",
+            projectId: 42,
+            token: "glpat-test",
+            client: createGitLabClientMock({
+                deleteMergeRequestNote,
+            }),
+        })
+
+        await provider.deleteComment("9", " 301 ")
+
+        expect(deleteMergeRequestNote.calls[0]).toEqual([9, 301])
     })
 
     test("creates review via sequential fallback note then inline discussions", async () => {

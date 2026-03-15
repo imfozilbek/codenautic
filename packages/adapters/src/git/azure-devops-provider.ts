@@ -171,6 +171,12 @@ interface IAzureDevOpsCreatePullRequestStatusInput {
     readonly status: Readonly<Record<string, unknown>>
 }
 
+interface IAzureDevOpsDeleteCommentInput {
+    readonly pullRequestId: number
+    readonly threadId: number
+    readonly commentId: number
+}
+
 interface INormalizedCommitHistoryOptions {
     readonly author?: string
     readonly since?: string
@@ -307,6 +313,11 @@ export interface IAzureDevOpsGitClient {
     createPullRequestStatus(
         input: IAzureDevOpsCreatePullRequestStatusInput,
     ): Promise<unknown>
+
+    /**
+     * Deletes pull-request comment from one thread.
+     */
+    deleteComment(input: IAzureDevOpsDeleteCommentInput): Promise<void>
 
     /**
      * Lists repository items for a ref.
@@ -797,6 +808,29 @@ export class AzureDevOpsProvider implements IGitProvider, IGitPipelineStatusProv
         })
 
         return mapAzureComment(response)
+    }
+
+    /**
+     * Deletes existing pull-request comment.
+     *
+     * @param mergeRequestId Pull request identifier.
+     * @param commentId Composite comment identifier (`threadId:commentId`) or plain id.
+     * @returns Completion promise.
+     */
+    public async deleteComment(
+        mergeRequestId: string,
+        commentId: string,
+    ): Promise<void> {
+        const pullRequestId = normalizeMergeRequestId(mergeRequestId)
+        const commentReference = normalizeAzureCommentReference(commentId)
+
+        await this.executeRequest("deleteComment", () => {
+            return this.client.deleteComment({
+                pullRequestId,
+                threadId: commentReference.threadId,
+                commentId: commentReference.commentId,
+            })
+        })
     }
 
     /**
@@ -1719,6 +1753,13 @@ interface IAzureDevOpsSdkClient {
         pullRequestId: number,
         project?: string,
     ): Promise<unknown>
+    deleteComment(
+        repositoryId: string,
+        pullRequestId: number,
+        threadId: number,
+        commentId: number,
+        project?: string,
+    ): Promise<void>
     createPullRequestStatus(
         status: unknown,
         repositoryId: string,
@@ -1866,6 +1907,7 @@ function createAzureDevOpsPullRequestClient(
     | "getPullRequestIterations"
     | "getPullRequestIterationChanges"
     | "createThread"
+    | "deleteComment"
     | "createPullRequestStatus"
 > {
     return {
@@ -1914,6 +1956,17 @@ function createAzureDevOpsPullRequestClient(
         createThread(input: IAzureDevOpsCreateThreadInput): Promise<unknown> {
             return gitApiPromise.then((api): Promise<unknown> => {
                 return api.createThread(input, repositoryId, input.pullRequestId, project)
+            })
+        },
+        deleteComment(input: IAzureDevOpsDeleteCommentInput): Promise<void> {
+            return gitApiPromise.then((api): Promise<void> => {
+                return api.deleteComment(
+                    repositoryId,
+                    input.pullRequestId,
+                    input.threadId,
+                    input.commentId,
+                    project,
+                )
             })
         },
         createPullRequestStatus(
@@ -2181,6 +2234,37 @@ function normalizeMergeRequestId(value: string): number {
     }
 
     return numericValue
+}
+
+/**
+ * Parses Azure comment identifier into thread/comment numeric identifiers.
+ *
+ * @param value Raw comment identifier.
+ * @returns Parsed thread and comment identifiers.
+ */
+function normalizeAzureCommentReference(
+    value: string,
+): Readonly<{threadId: number; commentId: number}> {
+    const normalized = normalizeRequiredText(value, "commentId")
+    const [rawThreadId, rawCommentId] = normalized.split(":")
+
+    if (rawCommentId === undefined) {
+        const commentId = normalizePositiveIntegerText(normalized, "commentId")
+
+        return {
+            threadId: commentId,
+            commentId,
+        }
+    }
+
+    if (rawThreadId === undefined) {
+        throw new Error("threadId must be positive integer")
+    }
+
+    return {
+        threadId: normalizePositiveIntegerText(rawThreadId, "threadId"),
+        commentId: normalizePositiveIntegerText(rawCommentId, "commentId"),
+    }
 }
 
 /**
@@ -2796,9 +2880,11 @@ function createAzureInlineThreadContext(
 function mapAzureComment(thread: unknown): ICommentDTO {
     const threadRecord = toRecord(thread)
     const firstComment = toRecord(readArray(threadRecord?.["comments"])[0])
+    const threadId = readString(threadRecord, ["id"])
+    const commentId = readString(firstComment, ["id"], threadId)
 
     return {
-        id: readString(firstComment, ["id"], readString(threadRecord, ["id"])),
+        id: createAzureCommentReference(threadId, commentId),
         body: readString(firstComment, ["content"]),
         author: readNestedString(firstComment, ["author", "displayName"]),
         createdAt: readString(firstComment, ["publishedDate", "lastUpdatedDate"]),
@@ -2839,6 +2925,25 @@ function mapInlineCommentToComment(comment: IInlineCommentDTO): ICommentDTO {
         author: comment.author,
         createdAt: comment.createdAt,
     }
+}
+
+/**
+ * Creates normalized Azure comment identifier for future delete operations.
+ *
+ * @param threadId Thread identifier.
+ * @param commentId Comment identifier.
+ * @returns Composite reference or plain comment id.
+ */
+function createAzureCommentReference(threadId: string, commentId: string): string {
+    if (threadId.length === 0) {
+        return commentId
+    }
+
+    if (commentId.length === 0 || threadId === commentId) {
+        return commentId.length > 0 ? commentId : threadId
+    }
+
+    return `${threadId}:${commentId}`
 }
 
 /**
@@ -3687,6 +3792,23 @@ function normalizeRetryMaxAttempts(value: number | undefined): number {
     }
 
     return value
+}
+
+/**
+ * Normalizes positive integer string.
+ *
+ * @param value Raw numeric text.
+ * @param fieldName Field label.
+ * @returns Positive integer.
+ */
+function normalizePositiveIntegerText(value: string, fieldName: string): number {
+    const numericValue = Number(normalizeRequiredText(value, fieldName))
+
+    if (Number.isInteger(numericValue) === false || numericValue <= 0) {
+        throw new Error(`${fieldName} must be positive integer`)
+    }
+
+    return numericValue
 }
 
 /**

@@ -607,6 +607,23 @@ describe("BitbucketProvider", () => {
         expect(request.calls).toHaveLength(3)
     })
 
+    test("deletes pull request comment", async () => {
+        const request = createQueuedAsyncRequestMethod([
+            (route, parameters) => {
+                expect(route).toContain("/pullrequests/{pull_request_id}/comments/{comment_id}")
+                expect(parameters?.["pull_request_id"]).toBe(9)
+                expect(parameters?.["comment_id"]).toBe(101)
+
+                return {}
+            },
+        ])
+        const provider = createProvider(createBitbucketClientMock(request))
+
+        await provider.deleteComment("9", " 101 ")
+
+        expect(request.calls).toHaveLength(1)
+    })
+
     test("creates build statuses with retry and updates legacy check runs", async () => {
         const rateLimitError = createBitbucketApiError("Too many requests", {
             status: 429,

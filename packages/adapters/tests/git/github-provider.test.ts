@@ -29,6 +29,7 @@ type IGitHubMockPulls = {
     readonly listCommits?: AsyncMethod<unknown>
     readonly createReviewComment?: AsyncMethod<unknown>
     readonly createReview?: AsyncMethod<unknown>
+    readonly deleteReviewComment?: AsyncMethod<unknown>
     readonly listCommentsForReview?: AsyncMethod<unknown>
 }
 type IGitHubMockIssues = {
@@ -222,6 +223,8 @@ function createGitHubPullsMock(
             resolveGitHubMethod(overrides?.createReviewComment) as IGitHubOctokitClient["pulls"]["createReviewComment"],
         createReview:
             resolveGitHubMethod(overrides?.createReview) as IGitHubOctokitClient["pulls"]["createReview"],
+        deleteReviewComment:
+            resolveGitHubMethod(overrides?.deleteReviewComment) as IGitHubOctokitClient["pulls"]["deleteReviewComment"],
         listCommentsForReview:
             resolveGitHubMethod(overrides?.listCommentsForReview) as IGitHubOctokitClient["pulls"]["listCommentsForReview"],
     }
@@ -2411,6 +2414,30 @@ describe("GitHubProvider", () => {
             filePath: "src/app.ts",
             line: 12,
             side: INLINE_COMMENT_SIDE.RIGHT,
+        })
+    })
+
+    test("deletes review comment through pull request review API", async () => {
+        const deleteReviewComment = createQueuedAsyncMethod([
+            createDataHandler({}),
+        ])
+        const provider = new GitHubProvider({
+            owner: "codenautic",
+            repo: "platform",
+            client: createGitHubClientMock({
+                pulls: {
+                    deleteReviewComment,
+                },
+            }),
+        })
+
+        await provider.deleteComment("21", " 51 ")
+
+        expect(deleteReviewComment.calls[0]?.[0]).toEqual({
+            owner: "codenautic",
+            repo: "platform",
+            pull_number: 21,
+            comment_id: 51,
         })
     })
 

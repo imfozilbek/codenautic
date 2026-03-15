@@ -213,6 +213,14 @@ export interface IGitLabClient {
     ): Promise<unknown>
 
     /**
+     * Deletes one plain merge request note.
+     */
+    deleteMergeRequestNote(
+        mergeRequestIid: number,
+        noteId: number,
+    ): Promise<void>
+
+    /**
      * Creates an inline merge request discussion.
      */
     createMergeRequestDiscussion(
@@ -687,6 +695,25 @@ export class GitLabProvider implements IGitProvider, IGitPipelineStatusProvider 
         })
 
         return mapGitLabComment(response)
+    }
+
+    /**
+     * Deletes existing merge-request note comment.
+     *
+     * @param mergeRequestId Merge request IID.
+     * @param commentId Merge request note identifier.
+     * @returns Completion promise.
+     */
+    public async deleteComment(
+        mergeRequestId: string,
+        commentId: string,
+    ): Promise<void> {
+        const mergeRequestIid = normalizeMergeRequestIid(mergeRequestId)
+        const noteId = normalizeNoteId(commentId)
+
+        await this.executeRequest(() => {
+            return this.client.deleteMergeRequestNote(mergeRequestIid, noteId)
+        })
     }
 
     /**
@@ -1189,6 +1216,7 @@ function createGitLabMergeRequestClient(
     | "getMergeRequestCommits"
     | "getMergeRequestDiffVersions"
     | "createMergeRequestNote"
+    | "deleteMergeRequestNote"
     | "createMergeRequestDiscussion"
 > {
     return {
@@ -1219,6 +1247,13 @@ function createGitLabMergeRequestClient(
                 mergeRequestIid,
                 body,
             ) as Promise<unknown>
+        },
+        deleteMergeRequestNote(mergeRequestIid: number, noteId: number): Promise<void> {
+            return client.MergeRequestNotes.remove(
+                projectId,
+                mergeRequestIid,
+                noteId,
+            )
         },
         createMergeRequestDiscussion(
             input: IGitLabMergeRequestDiscussionInput,
@@ -1363,6 +1398,23 @@ function normalizeMergeRequestIid(value: string): number {
 
     if (Number.isInteger(numericValue) === false || numericValue <= 0) {
         throw new Error("mergeRequestId must be positive integer")
+    }
+
+    return numericValue
+}
+
+/**
+ * Normalizes merge-request note identifier.
+ *
+ * @param value Raw note identifier.
+ * @returns Merge-request note identifier.
+ */
+function normalizeNoteId(value: string): number {
+    const normalized = normalizeRequiredText(value, "commentId")
+    const numericValue = Number(normalized)
+
+    if (Number.isInteger(numericValue) === false || numericValue <= 0) {
+        throw new Error("commentId must be positive integer")
     }
 
     return numericValue

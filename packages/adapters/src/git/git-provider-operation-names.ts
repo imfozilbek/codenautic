@@ -14,6 +14,7 @@ export const GIT_PROVIDER_OPERATION_NAMES = [
     "getDiffBetweenRefs",
     "postComment",
     "postInlineComment",
+    "deleteComment",
     "createCheckRun",
     "updateCheckRun",
     "getBlameData",

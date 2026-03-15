@@ -28,6 +28,7 @@ type IAzureDevOpsClientMockOverrides = {
     readonly getPullRequestIterations?: AsyncMethod<readonly unknown[]>
     readonly getPullRequestIterationChanges?: AsyncMethod<unknown>
     readonly createThread?: AsyncMethod<unknown>
+    readonly deleteComment?: AsyncMethod<void>
     readonly createPullRequestStatus?: AsyncMethod<unknown>
     readonly getItems?: AsyncMethod<readonly unknown[]>
     readonly getItem?: AsyncMethod<unknown>
@@ -153,6 +154,8 @@ function createAzureDevOpsClientMock(
             ) as IAzureDevOpsGitClient["getPullRequestIterationChanges"],
         createThread:
             resolveAzureMethod(overrides.createThread) as IAzureDevOpsGitClient["createThread"],
+        deleteComment:
+            resolveAzureMethod(overrides.deleteComment) as IAzureDevOpsGitClient["deleteComment"],
         createPullRequestStatus:
             resolveAzureMethod(
                 overrides.createPullRequestStatus,
@@ -608,6 +611,29 @@ describe("AzureDevOpsProvider", () => {
         expect(firstInlinePayload.threadContext?.filePath).toBe("/src/azure-provider.ts")
         expect(secondInlinePayload.threadContext?.filePath).toBe("/src/azure-provider.ts")
         expect(createThread.calls).toHaveLength(3)
+    })
+
+    test("deletes pull request comments using composite azure identifier", async () => {
+        const deleteComment = createAsyncMethod(() => {
+            return undefined
+        })
+        const provider = new AzureDevOpsProvider({
+            organizationUrl: "https://dev.azure.com/codenautic",
+            project: "platform",
+            repositoryId: "repo-1",
+            token: "pat-token",
+            client: createAzureDevOpsClientMock({
+                deleteComment,
+            }),
+        })
+
+        await provider.deleteComment("7", "77:12")
+
+        expect(deleteComment.calls[0]?.[0]).toEqual({
+            pullRequestId: 7,
+            threadId: 77,
+            commentId: 12,
+        })
     })
 
     test("creates pull request statuses with retry and updates legacy check runs", async () => {
