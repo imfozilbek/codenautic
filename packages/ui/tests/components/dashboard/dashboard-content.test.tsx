@@ -14,7 +14,6 @@ vi.mock("@/lib/motion", () => ({
     DURATION: { normal: 0 },
     EASING: { move: [0, 0, 1, 1] },
     STAGGER_DELAY: 0,
-    STAGGER_ITEM_VARIANTS: {},
     AnimatedAlert: ({
         children,
         isVisible,
