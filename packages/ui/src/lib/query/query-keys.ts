@@ -261,6 +261,41 @@ export const queryKeys = {
             return ["organization", "billing"] as const
         },
     },
+    tokenUsage: {
+        all: (): readonly ["token-usage"] => ["token-usage"] as const,
+        byRangeAndGroup: (
+            range: string,
+            groupBy: string,
+        ): readonly ["token-usage", "by-range-group", string, string] => {
+            return ["token-usage", "by-range-group", range, groupBy] as const
+        },
+    },
+    auditLogs: {
+        all: (): readonly ["audit-logs"] => ["audit-logs"] as const,
+        list: (
+            filters: {
+                readonly actor?: string
+                readonly action?: string
+                readonly dateFrom?: string
+                readonly dateTo?: string
+                readonly page?: number
+                readonly limit?: number
+            },
+        ): readonly [
+            "audit-logs",
+            "list",
+            {
+                readonly actor?: string
+                readonly action?: string
+                readonly dateFrom?: string
+                readonly dateTo?: string
+                readonly page?: number
+                readonly limit?: number
+            },
+        ] => {
+            return ["audit-logs", "list", filters] as const
+        },
+    },
     dashboard: {
         all: (): readonly ["dashboard"] => ["dashboard"] as const,
         metrics: (
