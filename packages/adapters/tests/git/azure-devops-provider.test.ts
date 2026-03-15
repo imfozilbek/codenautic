@@ -519,6 +519,97 @@ describe("AzureDevOpsProvider", () => {
         ).toBe(3)
     })
 
+    test("creates review via sequential fallback using top-level and inline threads", async () => {
+        let createThreadCallIndex = 0
+        const createThread = createAsyncMethod((input: unknown) => {
+            createThreadCallIndex += 1
+            const callIndex = createThreadCallIndex
+            const minute = 8 + createThreadCallIndex
+            const payload = input as {
+                readonly comments?: ReadonlyArray<{
+                    readonly content?: string
+                }>
+            }
+
+            return {
+                id: 700 + callIndex,
+                comments: [
+                    {
+                        id: 700 + callIndex,
+                        content: payload.comments?.[0]?.content,
+                        author: {
+                            displayName: "CodeNautic",
+                        },
+                        publishedDate: `2026-03-14T11:${String(minute).padStart(2, "0")}:00.000Z`,
+                    },
+                ],
+            }
+        })
+        const provider = createInlineCommentTestProvider(createThread)
+
+        const created = await provider.createReview("7", {
+            body: " Batch body ",
+            comments: [
+                {
+                    id: "inline-1",
+                    body: "Inline one",
+                    author: "CodeNautic",
+                    createdAt: "2026-03-14T11:10:00.000Z",
+                    filePath: "src/azure-provider.ts",
+                    line: 14,
+                    side: INLINE_COMMENT_SIDE.RIGHT,
+                },
+                {
+                    id: "inline-2",
+                    body: "Inline two",
+                    author: "CodeNautic",
+                    createdAt: "2026-03-14T11:11:00.000Z",
+                    filePath: "src/azure-provider.ts",
+                    line: 15,
+                    side: INLINE_COMMENT_SIDE.LEFT,
+                },
+            ],
+        })
+        const bodyPayload = createThread.calls[0]?.[0] as {
+            readonly threadContext?: unknown
+        }
+        const firstInlinePayload = createThread.calls[1]?.[0] as {
+            readonly threadContext?: {
+                readonly filePath?: string
+            }
+        }
+        const secondInlinePayload = createThread.calls[2]?.[0] as {
+            readonly threadContext?: {
+                readonly filePath?: string
+            }
+        }
+
+        expect(created).toEqual([
+            {
+                id: "701",
+                body: "Batch body",
+                author: "CodeNautic",
+                createdAt: "2026-03-14T11:09:00.000Z",
+            },
+            {
+                id: "702",
+                body: "Inline one",
+                author: "CodeNautic",
+                createdAt: "2026-03-14T11:10:00.000Z",
+            },
+            {
+                id: "703",
+                body: "Inline two",
+                author: "CodeNautic",
+                createdAt: "2026-03-14T11:11:00.000Z",
+            },
+        ])
+        expect(bodyPayload.threadContext).toBeUndefined()
+        expect(firstInlinePayload.threadContext?.filePath).toBe("/src/azure-provider.ts")
+        expect(secondInlinePayload.threadContext?.filePath).toBe("/src/azure-provider.ts")
+        expect(createThread.calls).toHaveLength(3)
+    })
+
     test("creates pull request statuses with retry and updates legacy check runs", async () => {
         const sleepCalls: number[] = []
         const createPullRequestStatus = createAsyncMethod((_input: unknown) => {

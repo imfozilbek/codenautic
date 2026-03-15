@@ -395,6 +395,21 @@ export interface IAzureDevOpsProviderOptions {
 }
 
 /**
+ * Sequential batch review payload for Azure DevOps fallback flow.
+ */
+export interface IAzureDevOpsBatchReviewRequest {
+    /**
+     * Top-level review body posted as pull-request comment thread.
+     */
+    readonly body: string
+
+    /**
+     * Inline comments posted one-by-one as tracked threads.
+     */
+    readonly comments: readonly IInlineCommentDTO[]
+}
+
+/**
  * Azure DevOps implementation of the generic git provider contract.
  */
 export class AzureDevOpsProvider implements IGitProvider, IGitPipelineStatusProvider {
@@ -782,6 +797,32 @@ export class AzureDevOpsProvider implements IGitProvider, IGitPipelineStatusProv
         })
 
         return mapAzureComment(response)
+    }
+
+    /**
+     * Creates review in sequential fallback mode for Azure DevOps.
+     *
+     * @param mergeRequestId Pull request identifier.
+     * @param review Batch review payload.
+     * @returns Created top-level and inline comments mapped to generic comment DTOs.
+     */
+    public async createReview(
+        mergeRequestId: string,
+        review: IAzureDevOpsBatchReviewRequest,
+    ): Promise<readonly ICommentDTO[]> {
+        const createdComments: ICommentDTO[] = []
+        const bodyComment = await this.postComment(
+            mergeRequestId,
+            normalizeRequiredText(review.body, "body"),
+        )
+        createdComments.push(bodyComment)
+
+        for (const comment of review.comments) {
+            const inlineComment = await this.postInlineComment(mergeRequestId, comment)
+            createdComments.push(mapInlineCommentToComment(inlineComment))
+        }
+
+        return createdComments
     }
 
     /**
@@ -2782,6 +2823,21 @@ function mapAzureInlineComment(
         filePath: normalizeRepositoryRelativeFilePath(originalComment.filePath),
         line: originalComment.line,
         side: originalComment.side,
+    }
+}
+
+/**
+ * Maps generic inline comment DTO to generic top-level comment DTO.
+ *
+ * @param comment Inline comment payload.
+ * @returns Generic comment DTO.
+ */
+function mapInlineCommentToComment(comment: IInlineCommentDTO): ICommentDTO {
+    return {
+        id: comment.id,
+        body: comment.body,
+        author: comment.author,
+        createdAt: comment.createdAt,
     }
 }
 

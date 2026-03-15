@@ -494,6 +494,119 @@ describe("BitbucketProvider", () => {
         expect(inlineComment.side).toBe(INLINE_COMMENT_SIDE.RIGHT)
     })
 
+    test("creates review via sequential fallback using top-level and inline comments", async () => {
+        const request = createQueuedAsyncRequestMethod([
+            (route, parameters) => {
+                expect(route).toContain("/pullrequests/{pull_request_id}/comments")
+                expect(parameters?._body).toEqual({
+                    content: {
+                        raw: "Batch body",
+                    },
+                })
+
+                return {
+                    id: 201,
+                    content: {raw: "Batch body"},
+                    user: {display_name: "CodeNautic"},
+                    created_on: "2026-03-14T12:09:00.000Z",
+                }
+            },
+            (route, parameters) => {
+                expect(route).toContain("/pullrequests/{pull_request_id}/comments")
+                expect(parameters?._body).toEqual({
+                    content: {
+                        raw: "Inline one",
+                    },
+                    inline: {
+                        path: "src/git.ts",
+                        to: 8,
+                    },
+                })
+
+                return {
+                    id: 202,
+                    content: {raw: "Inline one"},
+                    user: {display_name: "CodeNautic"},
+                    created_on: "2026-03-14T12:10:00.000Z",
+                    inline: {
+                        path: "src/git.ts",
+                        to: 8,
+                    },
+                }
+            },
+            (route, parameters) => {
+                expect(route).toContain("/pullrequests/{pull_request_id}/comments")
+                expect(parameters?._body).toEqual({
+                    content: {
+                        raw: "Inline two",
+                    },
+                    inline: {
+                        path: "src/git.ts",
+                        from: 5,
+                    },
+                })
+
+                return {
+                    id: 203,
+                    content: {raw: "Inline two"},
+                    user: {display_name: "CodeNautic"},
+                    created_on: "2026-03-14T12:11:00.000Z",
+                    inline: {
+                        path: "src/git.ts",
+                        from: 5,
+                    },
+                }
+            },
+        ])
+        const provider = createProvider(createBitbucketClientMock(request))
+
+        const created = await provider.createReview("9", {
+            body: " Batch body ",
+            comments: [
+                {
+                    id: "inline-1",
+                    body: "Inline one",
+                    author: "CodeNautic",
+                    createdAt: "2026-03-14T12:10:00.000Z",
+                    filePath: "src/git.ts",
+                    line: 8,
+                    side: INLINE_COMMENT_SIDE.RIGHT,
+                },
+                {
+                    id: "inline-2",
+                    body: "Inline two",
+                    author: "CodeNautic",
+                    createdAt: "2026-03-14T12:11:00.000Z",
+                    filePath: "src/git.ts",
+                    line: 5,
+                    side: INLINE_COMMENT_SIDE.LEFT,
+                },
+            ],
+        })
+
+        expect(created).toEqual([
+            {
+                id: "201",
+                body: "Batch body",
+                author: "CodeNautic",
+                createdAt: "2026-03-14T12:09:00.000Z",
+            },
+            {
+                id: "202",
+                body: "Inline one",
+                author: "CodeNautic",
+                createdAt: "2026-03-14T12:10:00.000Z",
+            },
+            {
+                id: "203",
+                body: "Inline two",
+                author: "CodeNautic",
+                createdAt: "2026-03-14T12:11:00.000Z",
+            },
+        ])
+        expect(request.calls).toHaveLength(3)
+    })
+
     test("creates build statuses with retry and updates legacy check runs", async () => {
         const rateLimitError = createBitbucketApiError("Too many requests", {
             status: 429,

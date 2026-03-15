@@ -240,6 +240,21 @@ export interface IBitbucketProviderOptions {
 }
 
 /**
+ * Sequential batch review payload for Bitbucket fallback flow.
+ */
+export interface IBitbucketBatchReviewRequest {
+    /**
+     * Top-level review body posted as pull-request comment.
+     */
+    readonly body: string
+
+    /**
+     * Inline comments posted one-by-one.
+     */
+    readonly comments: readonly IInlineCommentDTO[]
+}
+
+/**
  * Bitbucket Cloud adapter implementing the shared git provider contract.
  */
 export class BitbucketProvider implements IGitProvider, IGitPipelineStatusProvider {
@@ -647,6 +662,32 @@ export class BitbucketProvider implements IGitProvider, IGitPipelineStatusProvid
         )
 
         return mapBitbucketComment(response)
+    }
+
+    /**
+     * Creates review in sequential fallback mode for Bitbucket.
+     *
+     * @param mergeRequestId Pull request identifier.
+     * @param review Batch review payload.
+     * @returns Created top-level and inline comments mapped to generic comment DTOs.
+     */
+    public async createReview(
+        mergeRequestId: string,
+        review: IBitbucketBatchReviewRequest,
+    ): Promise<readonly ICommentDTO[]> {
+        const createdComments: ICommentDTO[] = []
+        const bodyComment = await this.postComment(
+            mergeRequestId,
+            normalizeRequiredText(review.body, "body"),
+        )
+        createdComments.push(bodyComment)
+
+        for (const comment of review.comments) {
+            const inlineComment = await this.postInlineComment(mergeRequestId, comment)
+            createdComments.push(mapInlineCommentToComment(inlineComment))
+        }
+
+        return createdComments
     }
 
     /**
@@ -1571,6 +1612,21 @@ function mapBitbucketInlineComment(
         filePath: readString(inline, ["path"], fallback.filePath),
         line: fromLine > 0 ? fromLine : (toLine > 0 ? toLine : fallback.line),
         side,
+    }
+}
+
+/**
+ * Maps generic inline comment DTO to generic top-level comment DTO.
+ *
+ * @param comment Inline comment payload.
+ * @returns Generic comment DTO.
+ */
+function mapInlineCommentToComment(comment: IInlineCommentDTO): ICommentDTO {
+    return {
+        id: comment.id,
+        body: comment.body,
+        author: comment.author,
+        createdAt: comment.createdAt,
     }
 }
 

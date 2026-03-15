@@ -81,6 +81,7 @@ export {
 } from "./azure-devops-provider.error"
 export {
     AzureDevOpsProvider,
+    type IAzureDevOpsBatchReviewRequest,
     type IAzureDevOpsGitClient,
     type IAzureDevOpsProviderOptions,
 } from "./azure-devops-provider"
@@ -92,6 +93,7 @@ export {
 } from "./bitbucket-provider.error"
 export {
     BitbucketProvider,
+    type IBitbucketBatchReviewRequest,
     type IBitbucketApiResponse,
     type IBitbucketClient,
     type IBitbucketProviderOptions,
