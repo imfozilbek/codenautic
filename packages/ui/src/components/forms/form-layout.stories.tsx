@@ -2,7 +2,6 @@ import type { Meta, StoryObj } from "@storybook/react"
 
 import { Button, Input } from "@heroui/react"
 import { FormSection } from "./form-section"
-import { FormGroup } from "./form-group"
 import { FormLayout } from "./form-layout"
 
 const meta: Meta<typeof FormLayout> = {
@@ -27,10 +26,11 @@ export const Complete: TStory = {
         children: (
             <>
                 <FormSection heading="General" description="Basic review configuration.">
-                    <FormGroup withDivider>
+                    <div className="space-y-3">
                         <Input aria-label="Max suggestions per CCR" placeholder="10" />
                         <Input aria-label="Review timeout (ms)" placeholder="30000" />
-                    </FormGroup>
+                    </div>
+                    <hr className="border-border" />
                 </FormSection>
                 <FormSection heading="Notifications">
                     <Input aria-label="Slack channel" placeholder="#code-reviews" />
