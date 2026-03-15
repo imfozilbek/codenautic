@@ -3,7 +3,7 @@ import userEvent from "@testing-library/user-event"
 import type { ReactElement } from "react"
 import { describe, expect, it, vi } from "vitest"
 
-import { THEME_PRESETS, type ThemeMode } from "@/lib/theme/theme-provider"
+import type { TThemeMode } from "@/lib/theme/use-theme"
 import { renderWithProviders } from "../utils/render"
 import {
     DashboardLayout,
@@ -76,7 +76,7 @@ describe("layout components", (): void => {
                 userName="Reviewer"
             />,
             {
-                defaultThemeMode: "dark" as ThemeMode,
+                themeMode: "dark" as TThemeMode,
             },
         )
 
@@ -225,7 +225,7 @@ describe("layout components", (): void => {
                 <p>Shortcut help content</p>
             </DashboardLayoutHarness>,
             {
-                defaultThemeMode: "light" as ThemeMode,
+                themeMode: "light" as TThemeMode,
             },
         )
 
@@ -266,7 +266,7 @@ describe("layout components", (): void => {
                 onNavigate={onNavigate}
             />,
             {
-                defaultThemeMode: "light" as ThemeMode,
+                themeMode: "light" as TThemeMode,
             },
         )
 
@@ -304,7 +304,7 @@ describe("layout components", (): void => {
         const lightModeButton = screen.getByRole("button", { name: "Use light theme" })
         const darkModeButton = screen.getByRole("button", { name: "Use dark theme" })
         const presetButton = screen.getByRole("button", {
-            name: `Set ${THEME_PRESETS.at(1)?.label ?? ""} theme preset`,
+            name: `Set ${"Cobalt"} theme preset`,
         })
 
         await user.click(darkModeButton)
@@ -322,7 +322,7 @@ describe("layout components", (): void => {
         await waitFor(() => {
             expect(presetButton.getAttribute("aria-pressed")).toBe("true")
         })
-        expect(screen.queryByText(`Preset: ${THEME_PRESETS.at(1)?.label ?? ""}`)).not.toBeNull()
+        expect(screen.queryByText(`Preset: ${"Cobalt"}`)).not.toBeNull()
     })
 
     it("рендерит dashboard layout с контентом", (): void => {
@@ -331,7 +331,7 @@ describe("layout components", (): void => {
                 <p>Panel content</p>
             </DashboardLayoutHarness>,
             {
-                defaultThemeMode: "light" as ThemeMode,
+                themeMode: "light" as TThemeMode,
             },
         )
 
@@ -349,7 +349,7 @@ describe("layout components", (): void => {
                 <p>Panel content</p>
             </DashboardLayoutHarness>,
             {
-                defaultThemeMode: "light" as ThemeMode,
+                themeMode: "light" as TThemeMode,
             },
         )
 
@@ -370,7 +370,7 @@ describe("layout components", (): void => {
                 <input aria-label="Draft field" defaultValue="" />
             </DashboardLayoutHarness>,
             {
-                defaultThemeMode: "light" as ThemeMode,
+                themeMode: "light" as TThemeMode,
             },
         )
 
@@ -410,7 +410,7 @@ describe("layout components", (): void => {
                 <p>Protected admin content</p>
             </DashboardLayoutHarness>,
             {
-                defaultThemeMode: "light" as ThemeMode,
+                themeMode: "light" as TThemeMode,
             },
         )
 
@@ -440,7 +440,7 @@ describe("layout components", (): void => {
                 <p>Provider status</p>
             </DashboardLayoutHarness>,
             {
-                defaultThemeMode: "light" as ThemeMode,
+                themeMode: "light" as TThemeMode,
             },
         )
 
@@ -472,7 +472,7 @@ describe("layout components", (): void => {
                 <p>Cross-tab content</p>
             </DashboardLayoutHarness>,
             {
-                defaultThemeMode: "light" as ThemeMode,
+                themeMode: "light" as TThemeMode,
             },
         )
 
@@ -506,7 +506,7 @@ describe("layout components", (): void => {
 
     it("глобальный sidebar не содержит settings sub-navigation", (): void => {
         renderWithProviders(<Sidebar isCollapsed={false} title="Navigation" />, {
-            defaultThemeMode: "light" as ThemeMode,
+            themeMode: "light" as TThemeMode,
         })
 
         expect(screen.queryByRole("button", { name: /Settings/ })).not.toBeNull()
@@ -523,7 +523,7 @@ describe("layout components", (): void => {
                 <p>Command palette via custom event</p>
             </DashboardLayoutHarness>,
             {
-                defaultThemeMode: "light" as ThemeMode,
+                themeMode: "light" as TThemeMode,
             },
         )
 
@@ -543,7 +543,7 @@ describe("layout components", (): void => {
                 <p>Mobile nav content</p>
             </DashboardLayoutHarness>,
             {
-                defaultThemeMode: "light" as ThemeMode,
+                themeMode: "light" as TThemeMode,
             },
         )
 
@@ -563,7 +563,7 @@ describe("layout components", (): void => {
                 <p>No signout content</p>
             </DashboardLayout>,
             {
-                defaultThemeMode: "light" as ThemeMode,
+                themeMode: "light" as TThemeMode,
             },
         )
 
@@ -580,7 +580,7 @@ describe("layout components", (): void => {
                 <p>Cmd K test</p>
             </DashboardLayoutHarness>,
             {
-                defaultThemeMode: "light" as ThemeMode,
+                themeMode: "light" as TThemeMode,
             },
         )
 
@@ -600,7 +600,7 @@ describe("layout components", (): void => {
                 <p>Escape close test</p>
             </DashboardLayoutHarness>,
             {
-                defaultThemeMode: "light" as ThemeMode,
+                themeMode: "light" as TThemeMode,
             },
         )
 
@@ -627,7 +627,7 @@ describe("layout components", (): void => {
                 <p>Breadcrumb nav test</p>
             </DashboardLayoutHarness>,
             {
-                defaultThemeMode: "light" as ThemeMode,
+                themeMode: "light" as TThemeMode,
             },
         )
 
