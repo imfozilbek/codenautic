@@ -53,8 +53,8 @@ function resolveTrendConfig(direction: TMetricTrendDirection): {
     }
     return {
         Icon: Minus,
-        bgClass: "bg-muted-foreground/10",
-        textClass: "text-muted-foreground",
+        bgClass: "bg-muted/10",
+        textClass: "text-muted",
     }
 }
 
@@ -80,7 +80,7 @@ export function MetricCard(props: IMetricCardProps): ReactElement {
                 "border border-border/50",
                 "bg-surface/80 backdrop-blur-sm",
                 "shadow-sm transition-all duration-200",
-                "hover:border-primary/30 hover:shadow-md",
+                "hover:border-accent/30 hover:shadow-md",
             ].join(" ")}
         >
             <CardContent className="flex flex-col justify-between gap-3 p-4">

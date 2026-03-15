@@ -44,7 +44,7 @@ function ActivityTooltip(props: TooltipContentProps<number, string>): ReactEleme
     return (
         <div className="rounded-lg border border-border/60 bg-surface/95 px-3 py-2 shadow-lg backdrop-blur-md">
             <p className="text-xs font-semibold text-foreground">{label}</p>
-            <p className="mt-0.5 text-xs text-muted-foreground">
+            <p className="mt-0.5 text-xs text-muted">
                 {String((payload[0] as { value?: number } | undefined)?.value ?? 0)} CCRs merged
             </p>
         </div>
@@ -100,19 +100,19 @@ export function TeamActivityWidget(props: ITeamActivityWidgetProps): ReactElemen
                             />
                             <XAxis
                                 dataKey="developer"
-                                stroke="var(--muted-foreground)"
+                                stroke="var(--muted)"
                                 tick={{ fontSize: 11 }}
                                 tickLine={false}
                             />
                             <YAxis
-                                stroke="var(--muted-foreground)"
+                                stroke="var(--muted)"
                                 tick={{ fontSize: 11 }}
                                 tickLine={false}
                             />
-                            { }
+                            {}
                             <Tooltip
                                 content={ActivityTooltip as never}
-                                cursor={{ fill: "var(--surface-muted)", opacity: 0.5 }}
+                                cursor={{ fill: "var(--surface-secondary)", opacity: 0.5 }}
                             />
                             <Bar
                                 {...CHART_DATA_TRANSITION}
