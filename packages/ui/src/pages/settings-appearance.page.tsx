@@ -1,4 +1,4 @@
-import { type ReactElement, useCallback, useEffect, useMemo, useRef, useState } from "react"
+import { type ReactElement, useCallback, useEffect, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { ThemeToggle } from "@/components/layout/theme-toggle"
@@ -9,32 +9,17 @@ import {
     formatLocalizedNumber,
     useLocale,
 } from "@/lib/i18n"
-import { FormLayout } from "@/components/forms/form-layout"
 import { NATIVE_FORM } from "@/lib/constants/spacing"
 import { TYPOGRAPHY } from "@/lib/constants/typography"
-import {
-    readThemeLibraryProfileState,
-    writeThemeLibraryProfileState,
-    type IThemeLibraryProfileTheme,
-} from "@/lib/theme/theme-library-profile-sync"
-import { type ThemePresetId, useThemeMode } from "@/lib/theme/theme-provider"
-import {
-    SURFACE_TONES,
-    DEFAULT_SURFACE_TONE_ID,
-    getSurfaceTone,
-    resolveSurfaceTonePalette,
-    type TSurfaceToneId,
-} from "@/lib/theme/theme-surface-tones"
+import { type TThemePreset, useTheme } from "@/lib/theme/use-theme"
 import { showToastInfo, showToastSuccess } from "@/lib/notifications/toast"
 
 import {
     APPEARANCE_ACCENT_STORAGE_KEY,
-    APPEARANCE_BASE_PALETTE_STORAGE_KEY,
     APPEARANCE_FORM_RADIUS_STORAGE_KEY,
     APPEARANCE_INTENSITY_STORAGE_KEY,
     APPEARANCE_LIBRARY_FAVORITE_PRESET_STORAGE_KEY,
     APPEARANCE_LIBRARY_STORAGE_KEY,
-    APPEARANCE_LIBRARY_SYNC_STORAGE_KEY,
     APPEARANCE_RADIUS_STORAGE_KEY,
     DEFAULT_ACCENT_COLOR,
     DEFAULT_ACCENT_INTENSITY,
@@ -58,21 +43,15 @@ import {
     clearAppearanceStorage,
     createEffectiveAccentColor,
     createThemeLibraryId,
-    fromProfileTheme,
-    getContrastRatio,
     parseThemeLibraryImportPayload,
-    readStoredBasePalette,
     readStoredFavoritePreset,
     readStoredHexColor,
     readStoredNumber,
     readStoredThemeLibrary,
-    readStoredThemeLibraryUpdatedAtMs,
     removeLocalStorageItem,
     resolveThemeNameConflict,
-    toProfileTheme,
     triggerJsonDownload,
     writeLocalStorageItem,
-    writeStoredThemeLibraryUpdatedAtMs,
 } from "./settings-appearance/appearance-settings.utils"
 
 /**
@@ -143,14 +122,12 @@ function LanguageSection(): ReactElement {
  */
 export function SettingsAppearancePage(): ReactElement {
     const { t } = useTranslation(["settings"])
-    const { mode, preset, presets, resolvedMode, setMode, setPreset } = useThemeMode()
+    const { mode, preset, presets, resolvedMode, setMode, setPreset } = useTheme()
     const availablePresetIds = useMemo(
-        (): ReadonlyArray<ThemePresetId> =>
-            presets.map((themePreset): ThemePresetId => themePreset.id),
+        (): ReadonlyArray<TThemePreset> =>
+            presets.map((themePreset): TThemePreset => themePreset.id),
         [presets],
     )
-    const libraryUpdatedAtMsRef = useRef(readStoredThemeLibraryUpdatedAtMs())
-    const pendingLibraryUpdatedAtMsRef = useRef<number | undefined>(undefined)
     const [accentColor, setAccentColor] = useState<string>(() =>
         readStoredHexColor(APPEARANCE_ACCENT_STORAGE_KEY, DEFAULT_ACCENT_COLOR),
     )
@@ -161,9 +138,6 @@ export function SettingsAppearancePage(): ReactElement {
             MIN_INTENSITY,
             MAX_INTENSITY,
         ),
-    )
-    const [basePaletteId, setBasePaletteId] = useState<TSurfaceToneId>(() =>
-        readStoredBasePalette(APPEARANCE_BASE_PALETTE_STORAGE_KEY, DEFAULT_SURFACE_TONE_ID),
     )
     const [globalRadius, setGlobalRadius] = useState<number>(() =>
         readStoredNumber(
@@ -188,51 +162,28 @@ export function SettingsAppearancePage(): ReactElement {
     const [selectedThemeId, setSelectedThemeId] = useState<string>("")
     const [themeDraftName, setThemeDraftName] = useState<string>("")
     const [themeImportValue, setThemeImportValue] = useState<string>("")
-    const [favoritePresetId, setFavoritePresetId] = useState<ThemePresetId | undefined>(() =>
+    const [favoritePresetId, setFavoritePresetId] = useState<TThemePreset | undefined>(() =>
         readStoredFavoritePreset(availablePresetIds),
     )
-    const [isLibraryHydrated, setIsLibraryHydrated] = useState(false)
-    const [librarySyncStatus, setLibrarySyncStatus] = useState<
-        "error" | "idle" | "synced" | "syncing"
-    >("idle")
-    const [pendingRandomPresetId, setPendingRandomPresetId] = useState<ThemePresetId | undefined>(
+    const [pendingRandomPresetId, setPendingRandomPresetId] = useState<TThemePreset | undefined>(
         undefined,
     )
-    const [lastRandomUndoPresetId, setLastRandomUndoPresetId] = useState<ThemePresetId | undefined>(
+    const [lastRandomUndoPresetId, setLastRandomUndoPresetId] = useState<TThemePreset | undefined>(
         undefined,
     )
     const [lastAppliedRandomPresetId, setLastAppliedRandomPresetId] = useState<
-        ThemePresetId | undefined
+        TThemePreset | undefined
     >(undefined)
-
-    const activeBasePalette = useMemo(
-        () => resolveSurfaceTonePalette(basePaletteId, resolvedMode),
-        [basePaletteId, resolvedMode],
-    )
 
     const effectiveAccentColor = useMemo(
         (): string => createEffectiveAccentColor(accentColor, accentIntensity, resolvedMode),
         [accentColor, accentIntensity, resolvedMode],
     )
 
-    const contrastRatio = useMemo(
-        (): number => getContrastRatio(effectiveAccentColor, activeBasePalette.surface),
-        [effectiveAccentColor, activeBasePalette.surface],
+    const accessiblePresetIds = useMemo(
+        (): ReadonlyArray<TThemePreset> => presets.map((p): TThemePreset => p.id),
+        [presets],
     )
-
-    const isAccessibleContrast = contrastRatio >= 4.5
-
-    const accessiblePresetIds = useMemo((): ReadonlyArray<ThemePresetId> => {
-        return presets
-            .filter((themePreset): boolean => {
-                const palette = resolvedMode === "dark" ? themePreset.dark : themePreset.light
-                const primaryContrast = getContrastRatio(palette.accent, palette.surface)
-                const accentContrast = getContrastRatio(palette.accent, palette.surface)
-
-                return primaryContrast >= 3 && accentContrast >= 2.6
-            })
-            .map((themePreset): ThemePresetId => themePreset.id)
-    }, [presets, resolvedMode])
 
     const quickPresetOptions = useMemo((): ReadonlyArray<(typeof presets)[number]> => {
         const selected: Array<(typeof presets)[number]> = []
@@ -298,10 +249,6 @@ export function SettingsAppearancePage(): ReactElement {
         return presetDefinition.label
     }, [favoritePresetId, presets])
 
-    const markThemeLibraryDirty = useCallback((): void => {
-        pendingLibraryUpdatedAtMsRef.current = Date.now()
-    }, [])
-
     const selectRandomPresetPreview = useCallback((): void => {
         const currentPresetId = preset
         const candidateIds = accessiblePresetIds.filter(
@@ -349,7 +296,7 @@ export function SettingsAppearancePage(): ReactElement {
         return {
             accentColor,
             accentIntensity,
-            basePaletteId,
+            basePaletteId: "neutral",
             formRadius,
             globalRadius,
             id: createThemeLibraryId(nextName),
@@ -366,7 +313,6 @@ export function SettingsAppearancePage(): ReactElement {
         )
         const snapshot = createThemeSnapshot(resolvedName)
 
-        markThemeLibraryDirty()
         setThemeLibrary((previous): ReadonlyArray<IUserThemeLibraryItem> => [snapshot, ...previous])
         setSelectedThemeId(snapshot.id)
         setThemeDraftName("")
@@ -386,7 +332,7 @@ export function SettingsAppearancePage(): ReactElement {
                 .filter((themeItem): boolean => themeItem.id !== selectedTheme.id)
                 .map((themeItem): string => themeItem.name),
         )
-        markThemeLibraryDirty()
+
         setThemeLibrary(
             (previous): ReadonlyArray<IUserThemeLibraryItem> =>
                 previous.map((themeItem): IUserThemeLibraryItem => {
@@ -418,7 +364,7 @@ export function SettingsAppearancePage(): ReactElement {
             id: createThemeLibraryId(resolvedName),
             name: resolvedName,
         }
-        markThemeLibraryDirty()
+
         setThemeLibrary(
             (previous): ReadonlyArray<IUserThemeLibraryItem> => [duplicate, ...previous],
         )
@@ -431,7 +377,6 @@ export function SettingsAppearancePage(): ReactElement {
             return
         }
 
-        markThemeLibraryDirty()
         setThemeLibrary(
             (previous): ReadonlyArray<IUserThemeLibraryItem> =>
                 previous.filter((themeItem): boolean => themeItem.id !== selectedTheme.id),
@@ -449,7 +394,6 @@ export function SettingsAppearancePage(): ReactElement {
         setPreset(selectedTheme.presetId)
         setAccentColor(selectedTheme.accentColor)
         setAccentIntensity(selectedTheme.accentIntensity)
-        setBasePaletteId(selectedTheme.basePaletteId)
         setGlobalRadius(selectedTheme.globalRadius)
         setFormRadius(selectedTheme.formRadius)
         setPendingRandomPresetId(undefined)
@@ -476,7 +420,6 @@ export function SettingsAppearancePage(): ReactElement {
             return
         }
 
-        markThemeLibraryDirty()
         setThemeLibrary((previous): ReadonlyArray<IUserThemeLibraryItem> => {
             const existingNames = previous.map((themeItem): string => themeItem.name)
             const importedThemes = parsedPayload.themes.map((themeItem): IUserThemeLibraryItem => {
@@ -499,7 +442,7 @@ export function SettingsAppearancePage(): ReactElement {
 
     const handlePinCurrentPreset = (): void => {
         const currentPresetId = preset
-        markThemeLibraryDirty()
+
         setFavoritePresetId(currentPresetId)
         showToastSuccess(t("settings:appearance.toast.favoritePresetPinned"))
     }
@@ -523,11 +466,6 @@ export function SettingsAppearancePage(): ReactElement {
         const lgRadius = Math.max(8, globalRadius + 4)
 
         root.style.setProperty("--accent", effectiveAccentColor)
-        root.style.setProperty("--background", activeBasePalette.background)
-        root.style.setProperty("--foreground", activeBasePalette.foreground)
-        root.style.setProperty("--surface", activeBasePalette.surface)
-        root.style.setProperty("--surface-secondary", activeBasePalette.surfaceSecondary)
-        root.style.setProperty("--border", activeBasePalette.border)
         root.style.setProperty("--radius-sm", `${smRadius}px`)
         root.style.setProperty("--radius-md", `${mdRadius}px`)
         root.style.setProperty("--radius-lg", `${lgRadius}px`)
@@ -535,24 +473,9 @@ export function SettingsAppearancePage(): ReactElement {
 
         writeLocalStorageItem(APPEARANCE_ACCENT_STORAGE_KEY, accentColor)
         writeLocalStorageItem(APPEARANCE_INTENSITY_STORAGE_KEY, String(accentIntensity))
-        writeLocalStorageItem(APPEARANCE_BASE_PALETTE_STORAGE_KEY, basePaletteId)
         writeLocalStorageItem(APPEARANCE_RADIUS_STORAGE_KEY, String(globalRadius))
         writeLocalStorageItem(APPEARANCE_FORM_RADIUS_STORAGE_KEY, String(formRadius))
-    }, [
-        accentColor,
-        accentIntensity,
-        activeBasePalette.background,
-        activeBasePalette.border,
-        activeBasePalette.foreground,
-        activeBasePalette.surface,
-        activeBasePalette.surfaceSecondary,
-        basePaletteId,
-        effectiveAccentColor,
-        formRadius,
-        globalRadius,
-        mode,
-        preset,
-    ])
+    }, [accentColor, accentIntensity, effectiveAccentColor, formRadius, globalRadius, mode, preset])
 
     useEffect((): (() => void) | void => {
         if (typeof window === "undefined") {
@@ -593,63 +516,9 @@ export function SettingsAppearancePage(): ReactElement {
         }
     }, [availablePresetIds, favoritePresetId])
 
-    useEffect((): (() => void) | void => {
-        let isMounted = true
-
-        void (async (): Promise<void> => {
-            setLibrarySyncStatus("syncing")
-            const profileState = await readThemeLibraryProfileState()
-            if (isMounted !== true) {
-                return
-            }
-
-            if (profileState === undefined) {
-                setLibrarySyncStatus("idle")
-                setIsLibraryHydrated(true)
-                return
-            }
-
-            const parsedThemes = profileState.themes
-                .map((themeItem): IUserThemeLibraryItem | undefined =>
-                    fromProfileTheme(themeItem, availablePresetIds),
-                )
-                .filter((themeItem): themeItem is IUserThemeLibraryItem => themeItem !== undefined)
-
-            if (
-                profileState.favoritePresetId !== undefined &&
-                availablePresetIds.includes(profileState.favoritePresetId as ThemePresetId)
-            ) {
-                if (
-                    profileState.updatedAtMs >
-                    (pendingLibraryUpdatedAtMsRef.current ?? libraryUpdatedAtMsRef.current)
-                ) {
-                    setFavoritePresetId(profileState.favoritePresetId as ThemePresetId)
-                }
-            }
-            if (
-                profileState.updatedAtMs >
-                (pendingLibraryUpdatedAtMsRef.current ?? libraryUpdatedAtMsRef.current)
-            ) {
-                setThemeLibrary(parsedThemes)
-                setSelectedThemeId(parsedThemes[0]?.id ?? "")
-                if (profileState.favoritePresetId === undefined) {
-                    setFavoritePresetId(undefined)
-                }
-                libraryUpdatedAtMsRef.current = profileState.updatedAtMs
-                pendingLibraryUpdatedAtMsRef.current = undefined
-            }
-            setLibrarySyncStatus("synced")
-            setIsLibraryHydrated(true)
-        })()
-
-        return (): void => {
-            isMounted = false
-        }
-    }, [availablePresetIds])
-
-    useEffect((): (() => void) | void => {
+    useEffect((): void => {
         if (typeof window === "undefined") {
-            return undefined
+            return
         }
 
         writeLocalStorageItem(APPEARANCE_LIBRARY_STORAGE_KEY, JSON.stringify(themeLibrary))
@@ -658,39 +527,7 @@ export function SettingsAppearancePage(): ReactElement {
         } else {
             removeLocalStorageItem(APPEARANCE_LIBRARY_FAVORITE_PRESET_STORAGE_KEY)
         }
-
-        const localUpdatedAtMs =
-            pendingLibraryUpdatedAtMsRef.current ?? libraryUpdatedAtMsRef.current
-        if (localUpdatedAtMs > 0) {
-            writeStoredThemeLibraryUpdatedAtMs(localUpdatedAtMs)
-        }
-
-        if (isLibraryHydrated !== true) {
-            return undefined
-        }
-
-        const timer = window.setTimeout((): void => {
-            void (async (): Promise<void> => {
-                setLibrarySyncStatus("syncing")
-                const updatedAtMs = pendingLibraryUpdatedAtMsRef.current ?? Date.now()
-                libraryUpdatedAtMsRef.current = updatedAtMs
-                pendingLibraryUpdatedAtMsRef.current = undefined
-                writeStoredThemeLibraryUpdatedAtMs(updatedAtMs)
-                const updated = await writeThemeLibraryProfileState({
-                    favoritePresetId,
-                    themes: themeLibrary.map(
-                        (themeItem): IThemeLibraryProfileTheme => toProfileTheme(themeItem),
-                    ),
-                    updatedAtMs,
-                })
-                setLibrarySyncStatus(updated ? "synced" : "error")
-            })()
-        }, 350)
-
-        return (): void => {
-            window.clearTimeout(timer)
-        }
-    }, [favoritePresetId, isLibraryHydrated, themeLibrary])
+    }, [favoritePresetId, themeLibrary])
 
     const handleResetTheme = (): void => {
         const defaultPreset = presets.at(0)?.id
@@ -700,10 +537,9 @@ export function SettingsAppearancePage(): ReactElement {
         }
         setAccentColor(DEFAULT_ACCENT_COLOR)
         setAccentIntensity(DEFAULT_ACCENT_INTENSITY)
-        setBasePaletteId(DEFAULT_SURFACE_TONE_ID)
         setGlobalRadius(DEFAULT_GLOBAL_RADIUS)
         setFormRadius(DEFAULT_FORM_RADIUS)
-        markThemeLibraryDirty()
+
         setFavoritePresetId(undefined)
         setThemeLibrary([])
         setThemeImportValue("")
@@ -716,16 +552,12 @@ export function SettingsAppearancePage(): ReactElement {
         if (typeof window !== "undefined") {
             removeLocalStorageItem(APPEARANCE_LIBRARY_STORAGE_KEY)
             removeLocalStorageItem(APPEARANCE_LIBRARY_FAVORITE_PRESET_STORAGE_KEY)
-            removeLocalStorageItem(APPEARANCE_LIBRARY_SYNC_STORAGE_KEY)
         }
         showToastSuccess(t("settings:appearance.toast.themeResetToDefaults"))
     }
 
     return (
-        <FormLayout
-            title={t("settings:appearance.pageTitle")}
-            description={t("settings:appearance.pageSubtitle")}
-        >
+        <div className="space-y-6 mx-auto max-w-[1400px]"><div className="space-y-1.5"><h1 className={TYPOGRAPHY.pageTitle}>{t("settings:appearance.pageTitle")}</h1><p className={TYPOGRAPHY.bodyMuted}>{t("settings:appearance.pageSubtitle")}</p></div><div className="space-y-6">
             <LanguageSection />
 
             <Card>
@@ -887,39 +719,6 @@ export function SettingsAppearancePage(): ReactElement {
                                 }}
                             />
                         </div>
-
-                        <div className="space-y-3 rounded-lg border border-border bg-surface p-3">
-                            <p className="text-sm font-semibold text-foreground">
-                                {t("settings:appearance.basePalette")}
-                            </p>
-                            <div
-                                aria-label={t("settings:ariaLabel.appearance.basePalettePicker")}
-                                className="flex flex-wrap gap-2"
-                                role="group"
-                            >
-                                {SURFACE_TONES.map(
-                                    (tone): ReactElement => (
-                                        <Button
-                                            key={tone.id}
-                                            aria-pressed={basePaletteId === tone.id}
-                                            className="rounded-full"
-                                            size="sm"
-                                            variant={
-                                                basePaletteId === tone.id ? "primary" : "secondary"
-                                            }
-                                            onPress={(): void => {
-                                                setBasePaletteId(tone.id)
-                                            }}
-                                        >
-                                            {tone.label}
-                                        </Button>
-                                    ),
-                                )}
-                            </div>
-                            <p className="text-xs text-muted">
-                                {getSurfaceTone(basePaletteId).description}
-                            </p>
-                        </div>
                     </div>
 
                     <div className="grid gap-4 xl:grid-cols-2">
@@ -967,23 +766,10 @@ export function SettingsAppearancePage(): ReactElement {
 
                     <div className="flex flex-wrap items-center gap-2 text-xs text-muted">
                         <Chip size="sm" variant="soft">
-                            {t("settings:appearance.chipBase", { value: basePaletteId })}
-                        </Chip>
-                        <Chip size="sm" variant="soft">
                             {t("settings:appearance.chipGlobalRadius", { value: globalRadius })}
                         </Chip>
                         <Chip size="sm" variant="soft">
                             {t("settings:appearance.chipFormRadius", { value: formRadius })}
-                        </Chip>
-                        <Chip
-                            color={isAccessibleContrast ? "success" : "warning"}
-                            size="sm"
-                            variant="soft"
-                        >
-                            {t("settings:appearance.chipContrast", {
-                                value: contrastRatio.toFixed(2),
-                                level: isAccessibleContrast ? "AA" : "check",
-                            })}
                         </Chip>
                     </div>
                 </CardContent>
@@ -994,19 +780,6 @@ export function SettingsAppearancePage(): ReactElement {
                     <p className={TYPOGRAPHY.sectionTitle}>
                         {t("settings:appearance.themeLibrary")}
                     </p>
-                    <Chip
-                        color={
-                            librarySyncStatus === "synced"
-                                ? "success"
-                                : librarySyncStatus === "error"
-                                  ? "warning"
-                                  : "default"
-                        }
-                        size="sm"
-                        variant="soft"
-                    >
-                        {t("settings:appearance.chipSync", { value: librarySyncStatus })}
-                    </Chip>
                 </CardHeader>
                 <CardContent className="space-y-4">
                     <div className="rounded-lg border border-border bg-surface p-3">
@@ -1041,10 +814,7 @@ export function SettingsAppearancePage(): ReactElement {
                             }}
                         />
                         <div className="flex flex-col gap-1">
-                            <label
-                                className="text-sm text-muted"
-                                htmlFor="theme-library-selected"
-                            >
+                            <label className="text-sm text-muted" htmlFor="theme-library-selected">
                                 {t("settings:appearance.libraryThemes")}
                             </label>
                             <select
@@ -1206,6 +976,6 @@ export function SettingsAppearancePage(): ReactElement {
                     </p>
                 </CardContent>
             </Card>
-        </FormLayout>
+        </div></div>
     )
 }
