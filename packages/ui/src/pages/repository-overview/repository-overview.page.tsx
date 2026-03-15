@@ -5,12 +5,13 @@ import { FileDependencyGraph } from "@/components/graphs/file-dependency-graph"
 import { CodeCityTreemap } from "@/components/graphs/codecity-treemap"
 import { FunctionClassCallGraph } from "@/components/graphs/function-class-call-graph"
 import { PackageDependencyGraph } from "@/components/graphs/package-dependency-graph"
+import { Link } from "@tanstack/react-router"
+
 import { Alert, Button, Card, CardContent, CardHeader, Chip } from "@heroui/react"
-import { StyledLink } from "@/components/layout/styled-link"
 import { MetricsGrid } from "@/components/dashboard/metrics-grid"
 import { PageShell } from "@/components/layout/page-shell"
 import { NATIVE_FORM } from "@/lib/constants/spacing"
-import { TYPOGRAPHY } from "@/lib/constants/typography"
+import { LINK_CLASSES, TYPOGRAPHY } from "@/lib/constants/typography"
 
 import {
     FALLBACK_ARCHITECTURE_SUMMARY,
@@ -172,9 +173,9 @@ function RepositoryOverviewNotFound(props: { readonly repositoryId: string }): R
                 Не найдено overview для ID:{" "}
                 <span className="font-semibold">{props.repositoryId}</span>.
             </p>
-            <StyledLink className="text-sm" to="/repositories">
+            <Link className={`${LINK_CLASSES} text-sm`} to="/repositories">
                 К списку репозиториев
-            </StyledLink>
+            </Link>
         </section>
     )
 }
