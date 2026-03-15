@@ -2,7 +2,6 @@ import { type ReactElement, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { Alert, Button, Card, CardContent, CardHeader, Chip } from "@heroui/react"
-import { FormLayout } from "@/components/forms/form-layout"
 import { TYPOGRAPHY } from "@/lib/constants/typography"
 import { showToastInfo, showToastSuccess } from "@/lib/notifications/toast"
 import {
@@ -126,10 +125,7 @@ export function SettingsProviderDegradationPage(): ReactElement {
     }
 
     return (
-        <FormLayout
-            title={t("settings:providerDegradation.pageTitle")}
-            description={t("settings:providerDegradation.pageSubtitle")}
-        >
+        <div className="space-y-6 mx-auto max-w-[1400px]"><div className="space-y-1.5"><h1 className={TYPOGRAPHY.pageTitle}>{t("settings:providerDegradation.pageTitle")}</h1><p className={TYPOGRAPHY.bodyMuted}>{t("settings:providerDegradation.pageSubtitle")}</p></div><div className="space-y-6">
             <Alert status={providerState.level === "degraded" ? "danger" : "success"}>
                 <Alert.Title>
                     {providerState.level === "degraded"
@@ -243,6 +239,6 @@ export function SettingsProviderDegradationPage(): ReactElement {
                     ) : null}
                 </CardContent>
             </Card>
-        </FormLayout>
+        </div></div>
     )
 }
