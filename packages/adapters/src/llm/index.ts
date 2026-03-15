@@ -134,6 +134,22 @@ export {
     type LangChainAdapterErrorCode,
 } from "./langchain-adapter.error"
 export {
+    LangSmithTracer,
+    type ILangSmithClient,
+    type ILangSmithCreateRunPayload,
+    type ILangSmithTraceCompleteInput,
+    type ILangSmithTraceStartInput,
+    type ILangSmithTracerOptions,
+    type ILangSmithUpdateRunPayload,
+    type LangSmithTraceOutputMapper,
+} from "./langsmith-tracer"
+export {
+    LANGSMITH_TRACER_ERROR_CODE,
+    LangSmithTracerError,
+    type ILangSmithTracerErrorDetails,
+    type LangSmithTracerErrorCode,
+} from "./langsmith-tracer.error"
+export {
     AnthropicRequestAcl,
     AnthropicResponseAcl,
     LLM_ACL_PROVIDER,
