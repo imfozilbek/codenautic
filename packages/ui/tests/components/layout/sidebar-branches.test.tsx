@@ -13,8 +13,8 @@ vi.mock("@tanstack/react-router", async (importOriginal) => {
     }
 })
 
-vi.mock("@/lib/motion", async (importOriginal) => {
-    const actual = await importOriginal<typeof import("@/lib/motion")>()
+vi.mock("motion/react", async (importOriginal) => {
+    const actual = await importOriginal<typeof import("motion/react")>()
     return {
         ...actual,
         useReducedMotion: (): boolean => true,
