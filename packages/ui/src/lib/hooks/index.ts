@@ -6,7 +6,6 @@
  */
 
 export { useDashboardShortcuts, type IDashboardShortcutsResult } from "./use-dashboard-shortcuts"
-export { useDebounce, useDebounceWithOptions, type IUseDebounceOptions } from "./use-debounce"
 export {
     useDebouncedSearch,
     type IUseDebouncedSearchOptions,
@@ -17,11 +16,6 @@ export {
     type IUseFilterPersistenceOptions,
     type IUseFilterPersistenceResult,
 } from "./use-filter-persistence"
-export {
-    useIntersectionObserver,
-    type IUseIntersectionObserverOptions,
-    type IUseIntersectionObserverResult,
-} from "./use-intersection-observer"
 export {
     useKeyboardShortcuts,
     type IUseKeyboardShortcutsArgs,
