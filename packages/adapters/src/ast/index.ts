@@ -82,6 +82,12 @@ export {
     type IAstServiceResultCachingErrorDetails,
 } from "./ast-service-result-caching.error"
 export {
+    AST_LOC_CALCULATOR_ERROR_CODE,
+    AstLocCalculatorError,
+    type AstLocCalculatorErrorCode,
+    type IAstLocCalculatorErrorDetails,
+} from "./ast-loc-calculator.error"
+export {
     AST_SERVICE_MULTI_REPO_GRAPH_FEDERATION_ERROR_CODE,
     AstServiceMultiRepoGraphFederationError,
     type AstServiceMultiRepoGraphFederationErrorCode,
@@ -470,6 +476,15 @@ export {
     type IAstServiceResultCachingService,
     type IAstServiceResultCachingServiceOptions,
 } from "./ast-service-result-caching.service"
+export {
+    AstLocCalculatorService,
+    type IAstLocCalculatorFileInput,
+    type IAstLocCalculatorInput,
+    type IAstLocCalculatorItem,
+    type IAstLocCalculatorResult,
+    type IAstLocCalculatorService,
+    type IAstLocCalculatorSummary,
+} from "./ast-loc-calculator.service"
 export {
     AstServiceMultiRepoGraphFederationService,
     type AstServiceMultiRepoGraphFederationNow,
