@@ -18,6 +18,7 @@ import { SettingsCollection } from "./collections/settings-collection"
 import { SsoCollection } from "./collections/sso-collection"
 import { TeamsCollection } from "./collections/teams-collection"
 import { TriageCollection } from "./collections/triage-collection"
+import { WebhooksCollection } from "./collections/webhooks-collection"
 
 /**
  * Централизованное in-memory хранилище для mock API слоя MSW.
@@ -115,6 +116,21 @@ export class MockStore {
      * Коллекция SSO: SAML и OIDC конфигурации.
      */
     public readonly sso: SsoCollection
+
+    /**
+     * Коллекция operations jobs: jobs, audit trail, расписания.
+     */
+    public readonly jobs: JobsCollection
+
+    /**
+     * Коллекция webhook endpoints и delivery logs.
+     */
+    public readonly webhooks: WebhooksCollection
+
+    /**
+     * Коллекция billing: snapshot, история изменений плана.
+     */
+    public readonly billing: BillingCollection
 
     /**
      * Создаёт новый экземпляр MockStore с пустыми коллекциями.
