@@ -21,7 +21,7 @@ export function MCPToolList(props: IMcpToolListProps): ReactElement {
     return (
         <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-border text-sm">
-                <thead className="bg-surface text-left text-muted-foreground">
+                <thead className="bg-surface text-left text-muted">
                     <tr>
                         <th className="px-3 py-2 font-medium" scope="col">
                             MCP tool

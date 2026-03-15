@@ -38,7 +38,7 @@ export function GitProviderCard(props: IGitProviderCardProps): ReactElement {
             </CardHeader>
             <CardContent>
                 <div className="flex flex-col gap-2">
-                    <p className="text-sm text-muted-foreground">
+                    <p className="text-sm text-muted">
                         {props.connected
                             ? t("settings:gitProviderCard.connectedAs", {
                                   account: props.account ?? "Unknown",
