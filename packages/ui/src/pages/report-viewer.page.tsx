@@ -10,6 +10,7 @@ import {
     Cell,
     Line,
     LineChart,
+    ResponsiveContainer,
     Tooltip,
     XAxis,
     YAxis,
@@ -20,7 +21,6 @@ import { Alert, Button, Card, CardContent, CardHeader } from "@heroui/react"
 import { PageShell } from "@/components/layout/page-shell"
 import { NATIVE_FORM } from "@/lib/constants/spacing"
 import { TYPOGRAPHY } from "@/lib/constants/typography"
-import { ChartContainer } from "@/components/charts/chart-container"
 import { CHART_GRID_DASH, CHART_STROKE_WIDTH } from "@/lib/constants/chart-recharts-defaults"
 import { showToastInfo, showToastSuccess } from "@/lib/notifications/toast"
 
@@ -196,10 +196,7 @@ export function ReportViewerPage(): ReactElement {
                             </Button>
                         </div>
                     </div>
-                    <ChartContainer
-                        aria-label={t("reports:ariaLabel.viewer.trendChart")}
-                        height="xl"
-                    >
+                    <div aria-label={t("reports:ariaLabel.viewer.trendChart")} className="h-72 w-full"><ResponsiveContainer height="100%" minHeight={1} minWidth={1} width="100%">
                         <LineChart
                             data={REPORT_TREND_POINTS}
                             margin={{ bottom: 8, left: 8, right: 12, top: 12 }}
@@ -223,11 +220,8 @@ export function ReportViewerPage(): ReactElement {
                                 type="monotone"
                             />
                         </LineChart>
-                    </ChartContainer>
-                    <ChartContainer
-                        aria-label={t("reports:ariaLabel.viewer.sectionsDistributionChart")}
-                        height="xl"
-                    >
+                    </ResponsiveContainer></div>
+                    <div aria-label={t("reports:ariaLabel.viewer.sectionsDistributionChart")} className="h-72 w-full"><ResponsiveContainer height="100%" minHeight={1} minWidth={1} width="100%">
                         <BarChart
                             data={SECTION_DISTRIBUTION_POINTS}
                             margin={{ bottom: 8, left: 8, right: 12, top: 12 }}
@@ -247,7 +241,7 @@ export function ReportViewerPage(): ReactElement {
                                 )}
                             </Bar>
                         </BarChart>
-                    </ChartContainer>
+                    </ResponsiveContainer></div>
                     <Alert status="accent">
                         <Alert.Title>{t("reports:viewer.downloadStatus")}</Alert.Title>
                         <Alert.Description>{downloadStatus}</Alert.Description>
