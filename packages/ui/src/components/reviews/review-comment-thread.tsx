@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState, type ReactElement } from "react"
 import { useTranslation } from "react-i18next"
 
 import { TYPOGRAPHY } from "@/lib/constants/typography"
-import type { IReviewCommentThread, TReviewCommentFeedback } from "@/pages/ccr-data"
+import type { IReviewCommentThread, TReviewCommentFeedback } from "@/lib/types/ccr-types"
 
 interface IReviewCommentThreadProps {
     /** Набор root-комментариев. */
