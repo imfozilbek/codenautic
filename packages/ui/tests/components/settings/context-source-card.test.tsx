@@ -85,7 +85,7 @@ describe("ContextSourceCard", (): void => {
             <ContextSourceCard selected={true} source={SOURCE} />,
         )
 
-        const card = container.querySelector(".border-accent-300")
+        const card = container.querySelector(".border-accent\\/30")
         expect(card).not.toBeNull()
     })
 
