@@ -2,10 +2,11 @@ import { useEffect, useMemo, useState, type ChangeEvent, type ReactElement } fro
 import { useTranslation } from "react-i18next"
 
 import { useDynamicTranslation } from "@/lib/i18n"
-import { Button, Card, CardContent, Table } from "@heroui/react"
+import InfiniteScroll from "react-infinite-scroll-component"
+
+import { Button, Card, CardContent, Skeleton, Table } from "@heroui/react"
 import { PageShell } from "@/components/layout/page-shell"
-import { InfiniteScrollContainer } from "@/components/infrastructure/infinite-scroll-container"
-import { useFilterPersistence } from "@/lib/hooks/use-filter-persistence"
+import { useLocalStorage } from "usehooks-ts"
 
 type TIssueTrackingAction = "acknowledge" | "fix" | "snooze" | "ignore"
 type TIssueTrackingSeverity = "critical" | "high" | "medium" | "low"
@@ -253,12 +254,10 @@ export function IssuesTrackingPage(props: IIssueTrackingPageProps = {}): ReactEl
     const ISSUE_STATUS_LABELS = useMemo(() => createIssueStatusLabels(td), [td])
     const sourceIssues = props.issues ?? ALL_ISSUES
     const [visibleItems, setVisibleItems] = useState<number>(ISSUE_PAGE_SIZE)
-    const persistedFilters = useFilterPersistence<IIssueTrackingFilters>({
-        storageKey: ISSUE_FILTER_PERSISTENCE_KEY,
-        defaultValue: DEFAULT_ISSUE_FILTERS,
-    })
-    const filters = persistedFilters.value
-    const setFilters = persistedFilters.setValue
+    const [filters, setFilters] = useLocalStorage<IIssueTrackingFilters>(
+        ISSUE_FILTER_PERSISTENCE_KEY,
+        DEFAULT_ISSUE_FILTERS,
+    )
 
     const filteredIssues = useMemo(
         () => filterIssues(sourceIssues, filters),
@@ -409,11 +408,11 @@ export function IssuesTrackingPage(props: IIssueTrackingPageProps = {}): ReactEl
 
             <Card className="border border-border/60 bg-surface/80 backdrop-blur-sm">
                 <CardContent className="space-y-2 pt-3">
-                    <InfiniteScrollContainer
+                    <InfiniteScroll
+                        dataLength={visibleIssues.length}
                         hasMore={hasMoreIssues}
-                        isLoading={false}
-                        loadingText={t("dashboard:issuesTracking.loadingMoreIssues")}
-                        onLoadMore={handleLoadMore}
+                        loader={<Skeleton className="mx-auto mt-2 h-8 w-48 rounded-lg" />}
+                        next={handleLoadMore}
                     >
                         <Table>
                             <Table.ScrollContainer>
@@ -514,7 +513,7 @@ export function IssuesTrackingPage(props: IIssueTrackingPageProps = {}): ReactEl
                                 </Table.Content>
                             </Table.ScrollContainer>
                         </Table>
-                    </InfiniteScrollContainer>
+                    </InfiniteScroll>
                 </CardContent>
             </Card>
         </PageShell>
