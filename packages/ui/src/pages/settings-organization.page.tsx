@@ -668,10 +668,9 @@ export function SettingsOrganizationPage(): ReactElement {
     }
 
     const handleConfirmCriticalBillingAction = (): void => {
-        const isConfirmed =
-            typeof window === "undefined"
-                ? true
-                : window.confirm(t("settings:organization.toast.confirmCriticalBillingAction"))
+        const isConfirmed = window.confirm(
+            t("settings:organization.toast.confirmCriticalBillingAction"),
+        )
 
         if (isConfirmed !== true) {
             showToastInfo(t("settings:organization.toast.billingActionCancelled"))
