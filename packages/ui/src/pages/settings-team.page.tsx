@@ -2,36 +2,12 @@ import { type ReactElement, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { Alert, Button, Card, CardContent, CardHeader, Chip, Input } from "@heroui/react"
+import type { ITeam, ITeamMember, TTeamMemberRole } from "@/lib/api/endpoints/teams.endpoint"
 import { NATIVE_FORM } from "@/lib/constants/spacing"
 import { TYPOGRAPHY } from "@/lib/constants/typography"
+import { useTeams } from "@/lib/hooks/queries/use-teams"
 import { showToastError, showToastInfo, showToastSuccess } from "@/lib/notifications/toast"
 import { getUiActionPolicy, useUiRole, type IUiActionPolicy } from "@/lib/permissions/ui-policy"
-
-type TTeamMemberRole = "admin" | "developer" | "lead" | "viewer"
-
-interface ITeamMember {
-    /** Уникальный идентификатор участника в пределах команды. */
-    readonly id: string
-    /** Отображаемое имя участника. */
-    readonly name: string
-    /** Рабочий email участника. */
-    readonly email: string
-    /** Роль участника внутри команды. */
-    readonly role: TTeamMemberRole
-}
-
-interface ITeamState {
-    /** Уникальный идентификатор команды. */
-    readonly id: string
-    /** Название команды. */
-    readonly name: string
-    /** Краткое описание команды. */
-    readonly description: string
-    /** Назначенные репозитории. */
-    readonly repositories: ReadonlyArray<string>
-    /** Участники команды. */
-    readonly members: ReadonlyArray<ITeamMember>
-}
 
 const ROLE_OPTIONS: ReadonlyArray<TTeamMemberRole> = ["viewer", "developer", "lead", "admin"]
 const AVAILABLE_REPOSITORIES: ReadonlyArray<string> = [
@@ -42,62 +18,22 @@ const AVAILABLE_REPOSITORIES: ReadonlyArray<string> = [
     "mobile-app",
 ]
 
-const INITIAL_TEAMS: ReadonlyArray<ITeamState> = [
-    {
-        description: "Поддерживает UI, design system и onboarding flow.",
-        id: "team-1",
-        members: [
-            {
-                email: "trinity@acme.dev",
-                id: "team-1-member-1",
-                name: "Trinity",
-                role: "lead",
-            },
-            {
-                email: "oliver@acme.dev",
-                id: "team-1-member-2",
-                name: "Tank",
-                role: "developer",
-            },
-        ],
-        name: "Platform UX",
-        repositories: ["ui-dashboard", "mobile-app"],
-    },
-    {
-        description: "Отвечает за качество review-аналитики и baseline правил.",
-        id: "team-2",
-        members: [
-            {
-                email: "neo@acme.dev",
-                id: "team-2-member-1",
-                name: "Neo Anderson",
-                role: "admin",
-            },
-        ],
-        name: "Review Enablement",
-        repositories: ["review-pipeline", "analytics-worker"],
-    },
-]
-
+/**
+ * Проверяет валидность email-адреса.
+ *
+ * @param value - Строка email для проверки.
+ * @returns true если email валиден.
+ */
 function isValidEmail(value: string): boolean {
     return /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(value.trim())
 }
 
-function createTeamId(name: string): string {
-    return `team-${name.trim().toLowerCase().replace(/\s+/g, "-")}-${Date.now().toString(36)}`
-}
-
-function createMemberDisplayName(email: string): string {
-    const localPart = email.split("@")[0] ?? "new member"
-    const normalized = localPart
-        .split(/[._-]/g)
-        .filter((chunk): boolean => chunk.length > 0)
-        .map((chunk): string => `${chunk[0]?.toUpperCase() ?? ""}${chunk.slice(1)}`)
-        .join(" ")
-
-    return normalized.length > 0 ? normalized : "New Member"
-}
-
+/**
+ * Определяет цвет Chip по роли участника.
+ *
+ * @param role - Роль участника.
+ * @returns Цвет для HeroUI Chip.
+ */
 function mapRoleChipColor(role: TTeamMemberRole): "default" | "accent" | "success" | "warning" {
     if (role === "admin") {
         return "accent"
@@ -111,27 +47,27 @@ function mapRoleChipColor(role: TTeamMemberRole): "default" | "accent" | "succes
     return "default"
 }
 
-function updateTeamById(
-    teams: ReadonlyArray<ITeamState>,
-    teamId: string,
-    updater: (team: ITeamState) => ITeamState,
-): ReadonlyArray<ITeamState> {
-    return teams.map((team): ITeamState => {
-        if (team.id !== teamId) {
-            return team
-        }
-        return updater(team)
-    })
-}
-
-function hasMemberWithEmail(team: ITeamState, email: string): boolean {
+/**
+ * Проверяет наличие участника с указанным email в команде.
+ *
+ * @param team - Команда для проверки.
+ * @param email - Email для поиска.
+ * @returns true если участник с таким email уже есть.
+ */
+function hasMemberWithEmail(team: ITeam, email: string): boolean {
     return team.members.some(
         (member): boolean => member.email.toLowerCase() === email.toLowerCase(),
     )
 }
 
+/**
+ * Карточка списка команд с выбором активной.
+ *
+ * @param props - Свойства компонента.
+ * @returns Карточка со списком команд.
+ */
 function TeamDirectoryCard(props: {
-    readonly teams: ReadonlyArray<ITeamState>
+    readonly teams: ReadonlyArray<ITeam>
     readonly activeTeamId: string
     readonly onTeamSelect: (teamId: string) => void
 }): ReactElement {
@@ -175,8 +111,14 @@ function TeamDirectoryCard(props: {
     )
 }
 
+/**
+ * Карточка участников команды с приглашением и управлением ролями.
+ *
+ * @param props - Свойства компонента.
+ * @returns Карточка с формой приглашения и списком участников.
+ */
 function TeamMembersCard(props: {
-    readonly team: ITeamState
+    readonly team: ITeam
     readonly inviteEmail: string
     readonly inviteRole: TTeamMemberRole
     readonly invitePolicy: IUiActionPolicy
@@ -249,7 +191,7 @@ function TeamMembersCard(props: {
 
                 <ul aria-label={`Members in ${props.team.name}`} className="space-y-2">
                     {props.team.members.map(
-                        (member): ReactElement => (
+                        (member: ITeamMember): ReactElement => (
                             <li
                                 key={member.id}
                                 className="rounded-lg border border-border bg-surface p-3"
@@ -316,9 +258,15 @@ function TeamMembersCard(props: {
     )
 }
 
+/**
+ * Карточка назначения репозиториев команде.
+ *
+ * @param props - Свойства компонента.
+ * @returns Карточка с чекбоксами репозиториев.
+ */
 function TeamRepositoriesCard(props: {
     readonly assignmentPolicy: IUiActionPolicy
-    readonly team: ITeamState
+    readonly team: ITeam
     readonly repositories: ReadonlyArray<string>
     readonly onRepositoryToggle: (repository: string, isSelected: boolean) => void
 }): ReactElement {
@@ -371,21 +319,36 @@ function TeamRepositoriesCard(props: {
 /**
  * Страница управления командами.
  *
- * @returns UI для создания команд, назначения участников и репозиториев.
+ * Загружает данные через API (useTeams hook) и предоставляет
+ * UI для создания команд, назначения участников и репозиториев.
+ *
+ * @returns UI для управления командами.
  */
 export function SettingsTeamPage(): ReactElement {
     const { t } = useTranslation(["settings"])
     const activeUiRole = useUiRole()
-    const [teams, setTeams] = useState<ReadonlyArray<ITeamState>>(INITIAL_TEAMS)
-    const [activeTeamId, setActiveTeamId] = useState(INITIAL_TEAMS[0]?.id ?? "")
+    const {
+        teamsQuery,
+        createTeam,
+        inviteMember,
+        updateMemberRole,
+        updateRepositories,
+    } = useTeams()
+
+    const teams = teamsQuery.data?.teams ?? []
+    const [activeTeamId, setActiveTeamId] = useState("")
     const [newTeamName, setNewTeamName] = useState("")
     const [newTeamDescription, setNewTeamDescription] = useState("")
     const [inviteEmail, setInviteEmail] = useState("")
     const [inviteRole, setInviteRole] = useState<TTeamMemberRole>("developer")
 
+    const resolvedActiveTeamId =
+        activeTeamId.length > 0 ? activeTeamId : (teams[0]?.id ?? "")
+
     const activeTeam = useMemo(
-        (): ITeamState | undefined => teams.find((team): boolean => team.id === activeTeamId),
-        [activeTeamId, teams],
+        (): ITeam | undefined =>
+            teams.find((team): boolean => team.id === resolvedActiveTeamId),
+        [resolvedActiveTeamId, teams],
     )
     const createTeamPolicy = useMemo((): IUiActionPolicy => {
         return getUiActionPolicy(activeUiRole, "team.create")
@@ -422,19 +385,22 @@ export function SettingsTeamPage(): ReactElement {
             return
         }
 
-        const nextTeam: ITeamState = {
-            description: newTeamDescription.trim(),
-            id: createTeamId(normalizedName),
-            members: [],
-            name: normalizedName,
-            repositories: [],
-        }
-
-        setTeams((previous): ReadonlyArray<ITeamState> => [nextTeam, ...previous])
-        setActiveTeamId(nextTeam.id)
-        setNewTeamName("")
-        setNewTeamDescription("")
-        showToastSuccess(t("settings:team.toast.teamCreated", { name: nextTeam.name }))
+        createTeam.mutate(
+            {
+                name: normalizedName,
+                description: newTeamDescription.trim(),
+            },
+            {
+                onSuccess: (response): void => {
+                    setActiveTeamId(response.team.id)
+                    setNewTeamName("")
+                    setNewTeamDescription("")
+                    showToastSuccess(
+                        t("settings:team.toast.teamCreated", { name: response.team.name }),
+                    )
+                },
+            },
+        )
     }
 
     const handleInviteMember = (): void => {
@@ -458,30 +424,23 @@ export function SettingsTeamPage(): ReactElement {
             return
         }
 
-        const nextMember: ITeamMember = {
-            email: normalizedEmail,
-            id: `${activeTeam.id}-member-${Date.now().toString(36)}`,
-            name: createMemberDisplayName(normalizedEmail),
-            role: inviteRole,
-        }
-
-        setTeams(
-            (previous): ReadonlyArray<ITeamState> =>
-                updateTeamById(
-                    previous,
-                    activeTeam.id,
-                    (team): ITeamState => ({
-                        ...team,
-                        members: [...team.members, nextMember],
-                    }),
-                ),
-        )
-        setInviteEmail("")
-        showToastSuccess(
-            t("settings:team.toast.memberAdded", {
-                email: nextMember.email,
-                team: activeTeam.name,
-            }),
+        inviteMember.mutate(
+            {
+                teamId: activeTeam.id,
+                email: normalizedEmail,
+                role: inviteRole,
+            },
+            {
+                onSuccess: (): void => {
+                    setInviteEmail("")
+                    showToastSuccess(
+                        t("settings:team.toast.memberAdded", {
+                            email: normalizedEmail,
+                            team: activeTeam.name,
+                        }),
+                    )
+                },
+            },
         )
     }
 
@@ -497,26 +456,18 @@ export function SettingsTeamPage(): ReactElement {
             return
         }
 
-        setTeams(
-            (previous): ReadonlyArray<ITeamState> =>
-                updateTeamById(
-                    previous,
-                    activeTeam.id,
-                    (team): ITeamState => ({
-                        ...team,
-                        members: team.members.map((member): ITeamMember => {
-                            if (member.id !== memberId) {
-                                return member
-                            }
-                            return {
-                                ...member,
-                                role,
-                            }
-                        }),
-                    }),
-                ),
+        updateMemberRole.mutate(
+            {
+                teamId: activeTeam.id,
+                memberId,
+                role,
+            },
+            {
+                onSuccess: (): void => {
+                    showToastInfo(t("settings:team.toast.memberRoleUpdated"))
+                },
+            },
         )
-        showToastInfo(t("settings:team.toast.memberRoleUpdated"))
     }
 
     const handleRepositoryToggle = (repository: string, isSelected: boolean): void => {
@@ -531,27 +482,30 @@ export function SettingsTeamPage(): ReactElement {
             return
         }
 
-        setTeams(
-            (previous): ReadonlyArray<ITeamState> =>
-                updateTeamById(previous, activeTeam.id, (team): ITeamState => {
-                    const currentlySelected = team.repositories.includes(repository)
-                    if (isSelected === currentlySelected) {
-                        return team
-                    }
+        const currentlySelected = activeTeam.repositories.includes(repository)
+        if (isSelected === currentlySelected) {
+            return
+        }
 
-                    const nextRepositories =
-                        isSelected === true
-                            ? [...team.repositories, repository]
-                            : team.repositories.filter((item): boolean => item !== repository)
+        const nextRepositories =
+            isSelected === true
+                ? [...activeTeam.repositories, repository]
+                : activeTeam.repositories.filter((item): boolean => item !== repository)
 
-                    return {
-                        ...team,
-                        repositories: nextRepositories,
-                    }
-                }),
-        )
-        showToastInfo(
-            t("settings:team.toast.repositoryAssignmentUpdated", { name: activeTeam.name }),
+        updateRepositories.mutate(
+            {
+                teamId: activeTeam.id,
+                repositoryIds: nextRepositories,
+            },
+            {
+                onSuccess: (): void => {
+                    showToastInfo(
+                        t("settings:team.toast.repositoryAssignmentUpdated", {
+                            name: activeTeam.name,
+                        }),
+                    )
+                },
+            },
         )
     }
 
@@ -628,7 +582,7 @@ export function SettingsTeamPage(): ReactElement {
 
             <div className="grid gap-4 lg:grid-cols-[280px_1fr]">
                 <TeamDirectoryCard
-                    activeTeamId={activeTeamId}
+                    activeTeamId={resolvedActiveTeamId}
                     teams={teams}
                     onTeamSelect={setActiveTeamId}
                 />
