@@ -217,6 +217,26 @@ function createGitLabClientMock(
     }
 }
 
+/**
+ * Captures rejected error for assertion-friendly checks.
+ *
+ * @param execute Async action expected to fail.
+ * @returns Rejected error instance.
+ */
+async function captureRejectedError(execute: () => Promise<unknown>): Promise<Error> {
+    try {
+        await execute()
+    } catch (error) {
+        if (error instanceof Error) {
+            return error
+        }
+
+        throw new Error("Expected error object to be thrown")
+    }
+
+    throw new Error("Expected promise to reject")
+}
+
 describe("GitLabProvider", () => {
     test("maps merge request payload and changed files", async () => {
         const provider = new GitLabProvider({
@@ -435,6 +455,223 @@ describe("GitLabProvider", () => {
                 new_line: 14,
             },
         })
+    })
+
+    test("creates review via sequential fallback note then inline discussions", async () => {
+        const createDiscussion = createQueuedAsyncMethod([
+            createValueHandler({
+                notes: [
+                    {
+                        id: 701,
+                        body: "Inline one",
+                        created_at: "2026-03-14T11:10:00.000Z",
+                        author: {
+                            username: "review-bot",
+                        },
+                        position: {
+                            new_path: "src/app.ts",
+                            new_line: 15,
+                        },
+                    },
+                ],
+            }),
+            createValueHandler({
+                notes: [
+                    {
+                        id: 702,
+                        body: "Inline two",
+                        created_at: "2026-03-14T11:11:00.000Z",
+                        author: {
+                            username: "review-bot",
+                        },
+                        position: {
+                            old_path: "src/legacy.ts",
+                            old_line: 8,
+                            new_path: "src/legacy.ts",
+                            new_line: 8,
+                        },
+                    },
+                ],
+            }),
+        ])
+        const provider = new GitLabProvider({
+            host: "https://gitlab.example.com",
+            projectId: 42,
+            token: "glpat-test",
+            client: createGitLabClientMock({
+                createMergeRequestNote: createAsyncMethod((mergeRequestIid: unknown, body: unknown) => {
+                    return {
+                        id: 700,
+                        body,
+                        created_at: "2026-03-14T11:09:00.000Z",
+                        author: {
+                            username: "review-bot",
+                        },
+                        mergeRequestIid,
+                    }
+                }),
+                getMergeRequest: createAsyncMethod(() => {
+                    return {
+                        diff_refs: {
+                            base_sha: "base-sha",
+                            start_sha: "start-sha",
+                            head_sha: "head-sha",
+                        },
+                    }
+                }),
+                createMergeRequestDiscussion: createDiscussion,
+            }),
+        })
+
+        const created = await provider.createReview("9", {
+            body: " Batch body ",
+            comments: [
+                {
+                    id: "inline-1",
+                    body: "Inline one",
+                    author: "review-bot",
+                    createdAt: "2026-03-14T11:10:00.000Z",
+                    filePath: "src/app.ts",
+                    line: 15,
+                    side: INLINE_COMMENT_SIDE.RIGHT,
+                },
+                {
+                    id: "inline-2",
+                    body: "Inline two",
+                    author: "review-bot",
+                    createdAt: "2026-03-14T11:11:00.000Z",
+                    filePath: "src/legacy.ts",
+                    line: 8,
+                    side: INLINE_COMMENT_SIDE.LEFT,
+                },
+            ],
+        })
+
+        expect(created).toEqual([
+            {
+                id: "700",
+                body: "Batch body",
+                author: "review-bot",
+                createdAt: "2026-03-14T11:09:00.000Z",
+            },
+            {
+                id: "701",
+                body: "Inline one",
+                author: "review-bot",
+                createdAt: "2026-03-14T11:10:00.000Z",
+            },
+            {
+                id: "702",
+                body: "Inline two",
+                author: "review-bot",
+                createdAt: "2026-03-14T11:11:00.000Z",
+            },
+        ])
+        expect(createDiscussion.calls).toHaveLength(2)
+    })
+
+    test("guards createReview sequential fallback when merge request context drifts", async () => {
+        const providerRef: {current?: GitLabProvider} = {}
+        const createDiscussion = createQueuedAsyncMethod([
+            createValueHandler({
+                notes: [
+                    {
+                        id: 801,
+                        body: "Inline one",
+                        created_at: "2026-03-14T11:20:00.000Z",
+                        author: {
+                            username: "review-bot",
+                        },
+                        position: {
+                            new_path: "src/app.ts",
+                            new_line: 12,
+                        },
+                    },
+                ],
+            }),
+            createValueHandler({
+                notes: [
+                    {
+                        id: 802,
+                        body: "Inline two",
+                        created_at: "2026-03-14T11:21:00.000Z",
+                        author: {
+                            username: "review-bot",
+                        },
+                        position: {
+                            new_path: "src/app.ts",
+                            new_line: 13,
+                        },
+                    },
+                ],
+            }),
+        ])
+        const guardedDiscussion = createAsyncMethod((input: unknown) => {
+            const callIndex = createDiscussion.calls.length
+            const result = createDiscussion(input)
+
+            if (callIndex === 0 && providerRef.current !== undefined) {
+                ;(providerRef.current as unknown as {lastMergeRequestIid?: number}).lastMergeRequestIid = 999
+            }
+
+            return result
+        })
+        const provider = new GitLabProvider({
+            host: "https://gitlab.example.com",
+            projectId: 42,
+            token: "glpat-test",
+            client: createGitLabClientMock({
+                createMergeRequestNote: createAsyncMethod(() => {
+                    return {
+                        id: 800,
+                        body: "Batch body",
+                        created_at: "2026-03-14T11:19:00.000Z",
+                        author: {
+                            username: "review-bot",
+                        },
+                    }
+                }),
+                getMergeRequest: createAsyncMethod(() => {
+                    return {
+                        diff_refs: {
+                            base_sha: "base-sha",
+                            start_sha: "start-sha",
+                            head_sha: "head-sha",
+                        },
+                    }
+                }),
+                createMergeRequestDiscussion: guardedDiscussion,
+            }),
+        })
+        providerRef.current = provider
+
+        const guardError = await captureRejectedError(() => {
+            return provider.createReview("9", {
+                body: "Batch body",
+                comments: [
+                    {
+                        id: "inline-1",
+                        body: "Inline one",
+                        author: "review-bot",
+                        createdAt: "2026-03-14T11:20:00.000Z",
+                        filePath: "src/app.ts",
+                        line: 12,
+                        side: INLINE_COMMENT_SIDE.RIGHT,
+                    },
+                    {
+                        id: "inline-2",
+                        body: "Inline two",
+                        author: "review-bot",
+                        createdAt: "2026-03-14T11:21:00.000Z",
+                        filePath: "src/app.ts",
+                        line: 13,
+                        side: INLINE_COMMENT_SIDE.RIGHT,
+                    },
+                ],
+            })
+        })
+
+        expect(guardError.message).toContain("lastMergeRequestIid guard failed")
     })
 
     test("creates and updates pipeline statuses and supports legacy check wrappers", async () => {

@@ -68,6 +68,7 @@ export {
 export {GitHubProviderError} from "./github-provider.error"
 export {
     GitLabProvider,
+    type IGitLabBatchReviewRequest,
     type IGitLabClient,
     type IGitLabProviderOptions,
 } from "./gitlab-provider"

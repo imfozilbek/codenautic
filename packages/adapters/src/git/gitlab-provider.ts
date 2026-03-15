@@ -313,6 +313,21 @@ export interface IGitLabProviderOptions {
 }
 
 /**
+ * Sequential batch review payload for GitLab fallback flow.
+ */
+export interface IGitLabBatchReviewRequest {
+    /**
+     * Top-level review body posted as merge request note.
+     */
+    readonly body: string
+
+    /**
+     * Inline comments posted one-by-one as discussions.
+     */
+    readonly comments: readonly IInlineCommentDTO[]
+}
+
+/**
  * GitLab implementation of the generic git provider contract.
  */
 export class GitLabProvider implements IGitProvider, IGitPipelineStatusProvider {
@@ -322,6 +337,7 @@ export class GitLabProvider implements IGitProvider, IGitPipelineStatusProvider 
     private readonly sleep: (delayMs: number) => Promise<void>
     private readonly webhookToken?: string
     private readonly legacyPipelineContexts: Map<string, ILegacyPipelineContext>
+    private lastMergeRequestIid?: number
 
     /**
      * Creates GitLab provider.
@@ -661,6 +677,7 @@ export class GitLabProvider implements IGitProvider, IGitPipelineStatusProvider 
         body: string,
     ): Promise<ICommentDTO> {
         const mergeRequestIid = normalizeMergeRequestIid(mergeRequestId)
+        this.lastMergeRequestIid = mergeRequestIid
         const normalizedBody = normalizeRequiredText(body, "body")
         const response = await this.executeRequest(() => {
             return this.client.createMergeRequestNote(
@@ -670,6 +687,36 @@ export class GitLabProvider implements IGitProvider, IGitPipelineStatusProvider 
         })
 
         return mapGitLabComment(response)
+    }
+
+    /**
+     * Creates review in sequential fallback mode for GitLab.
+     *
+     * @param mergeRequestId Merge request IID.
+     * @param review Batch review payload.
+     * @returns Created note and inline comments mapped to generic comment DTOs.
+     */
+    public async createReview(
+        mergeRequestId: string,
+        review: IGitLabBatchReviewRequest,
+    ): Promise<readonly ICommentDTO[]> {
+        const mergeRequestIid = normalizeMergeRequestIid(mergeRequestId)
+        this.lastMergeRequestIid = mergeRequestIid
+
+        const createdComments: ICommentDTO[] = []
+        const bodyComment = await this.postComment(
+            mergeRequestId,
+            normalizeRequiredText(review.body, "body"),
+        )
+        createdComments.push(bodyComment)
+
+        for (const comment of review.comments) {
+            this.assertLastMergeRequestIid(mergeRequestIid)
+            const inlineComment = await this.postInlineComment(mergeRequestId, comment)
+            createdComments.push(mapInlineCommentToComment(inlineComment))
+        }
+
+        return createdComments
     }
 
     /**
@@ -684,6 +731,7 @@ export class GitLabProvider implements IGitProvider, IGitPipelineStatusProvider 
         comment: IInlineCommentDTO,
     ): Promise<IInlineCommentDTO> {
         const mergeRequestIid = normalizeMergeRequestIid(mergeRequestId)
+        this.lastMergeRequestIid = mergeRequestIid
         const diffRefs = await this.resolveDiffRefs(mergeRequestIid)
         const position = createGitLabDiscussionPosition(comment, diffRefs)
         const response = await this.executeRequest(() => {
@@ -695,6 +743,21 @@ export class GitLabProvider implements IGitProvider, IGitPipelineStatusProvider 
         })
 
         return mapGitLabInlineComment(response, comment)
+    }
+
+    /**
+     * Verifies merge request context stability for sequential review fallback.
+     *
+     * @param mergeRequestIid Target merge request IID.
+     * @returns Nothing.
+     */
+    private assertLastMergeRequestIid(mergeRequestIid: number): void {
+        if (
+            this.lastMergeRequestIid !== undefined &&
+            this.lastMergeRequestIid !== mergeRequestIid
+        ) {
+            throw new Error("lastMergeRequestIid guard failed")
+        }
     }
 
     /**
@@ -2510,6 +2573,21 @@ function mapGitLabInlineComment(
         filePath: oldPath ?? newPath ?? fallback.filePath,
         line: oldLine > 0 ? oldLine : (newLine > 0 ? newLine : fallback.line),
         side,
+    }
+}
+
+/**
+ * Converts inline comment payload to generic comment DTO.
+ *
+ * @param comment Inline comment payload.
+ * @returns Generic comment DTO.
+ */
+function mapInlineCommentToComment(comment: IInlineCommentDTO): ICommentDTO {
+    return {
+        id: comment.id,
+        body: comment.body,
+        author: comment.author,
+        createdAt: comment.createdAt,
     }
 }
 

@@ -925,6 +925,7 @@ export {
     type IGitHubBatchReviewRequest,
     type IGitHubOctokitClient,
     type IGitHubProviderOptions,
+    type IGitLabBatchReviewRequest,
     type IGitLabClient,
     type IGitLabProviderOptions,
     type IGitRepositoryWorkspaceProviderErrorDetails,
