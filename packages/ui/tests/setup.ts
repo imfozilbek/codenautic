@@ -1,9 +1,24 @@
 import "@testing-library/jest-dom/vitest"
 import { cleanup } from "@testing-library/react"
 import i18next from "i18next"
-import { afterAll, afterEach, beforeAll } from "vitest"
+import { afterAll, afterEach, beforeAll, vi } from "vitest"
 
 import { LOCALE_STORAGE_KEY, initializeI18n } from "@/lib/i18n/i18n"
+
+vi.mock("next-themes", () => ({
+    ThemeProvider: ({ children }: { readonly children: unknown }): unknown => children,
+    useTheme: (): {
+        theme: string
+        setTheme: (t: string) => void
+        resolvedTheme: string
+        systemTheme: string
+    } => ({
+        theme: "system",
+        setTheme: (): void => {},
+        resolvedTheme: "light",
+        systemTheme: "light",
+    }),
+}))
 
 const TEST_LOCALE = "en"
 import { server } from "./mocks/server"
