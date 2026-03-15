@@ -29,6 +29,9 @@ import { ByokApi } from "./endpoints/byok.endpoint"
 import { SsoApi } from "./endpoints/sso.endpoint"
 import { TokenUsageApi } from "./endpoints/token-usage.endpoint"
 import { AuditLogsApi } from "./endpoints/audit-logs.endpoint"
+import { AdoptionAnalyticsApi } from "./endpoints/adoption-analytics.endpoint"
+import { ProviderStatusApi } from "./endpoints/provider-status.endpoint"
+import { ScanProgressApi } from "./endpoints/scan-progress.endpoint"
 import { FetchHttpClient } from "./http-client"
 
 /**
@@ -67,6 +70,9 @@ export function createApiContracts(): {
     readonly sso: SsoApi
     readonly tokenUsage: TokenUsageApi
     readonly auditLogs: AuditLogsApi
+    readonly adoptionAnalytics: AdoptionAnalyticsApi
+    readonly providerStatus: ProviderStatusApi
+    readonly scanProgress: ScanProgressApi
 } {
     const config = createApiConfig(resolveUiEnv(import.meta.env))
     const httpClient = new FetchHttpClient(config)
@@ -102,6 +108,9 @@ export function createApiContracts(): {
         sso: new SsoApi(httpClient),
         tokenUsage: new TokenUsageApi(httpClient),
         auditLogs: new AuditLogsApi(httpClient),
+        adoptionAnalytics: new AdoptionAnalyticsApi(httpClient),
+        providerStatus: new ProviderStatusApi(httpClient),
+        scanProgress: new ScanProgressApi(httpClient),
     }
 }
 
@@ -155,4 +164,7 @@ export type { ITokenUsageApi } from "./endpoints/token-usage.endpoint"
 export type { IAuditLogsApi } from "./endpoints/audit-logs.endpoint"
 export type { IAdminConfigApi } from "./endpoints/admin-config.endpoint"
 export type { INotificationsApi } from "./endpoints/notifications.endpoint"
+export type { IAdoptionAnalyticsApi } from "./endpoints/adoption-analytics.endpoint"
+export type { IProviderStatusApi } from "./endpoints/provider-status.endpoint"
+export type { IScanProgressApi } from "./endpoints/scan-progress.endpoint"
 export type { TSystemHealthResponse, THealthStatus } from "./types"
