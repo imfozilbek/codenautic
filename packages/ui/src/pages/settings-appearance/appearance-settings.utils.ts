@@ -656,9 +656,6 @@ export function parseThemeLibraryImportPayload(
  * @param jsonPayload - JSON-содержимое файла.
  */
 export function triggerJsonDownload(fileName: string, jsonPayload: string): void {
-    if (typeof window === "undefined" || typeof document === "undefined") {
-        return
-    }
     if (typeof URL.createObjectURL !== "function") {
         return
     }
