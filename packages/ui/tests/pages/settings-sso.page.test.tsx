@@ -1,11 +1,166 @@
 import { screen } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
-import { describe, expect, it } from "vitest"
+import { beforeEach, describe, expect, it, vi } from "vitest"
+
+import type {
+    IOidcConfig,
+    ISamlConfig,
+    ISamlConfigResponse,
+    IOidcConfigResponse,
+    ISsoTestRequest,
+    ISsoTestResponse,
+} from "@/lib/api/endpoints/sso.endpoint"
+import type { IUseSsoResult } from "@/lib/hooks/queries/use-sso"
+
+/**
+ * Начальные seed данные SAML.
+ */
+const DEFAULT_SAML: ISamlConfig = {
+    entityId: "urn:codenautic:sp:acme",
+    ssoUrl: "https://idp.acme.dev/sso/saml",
+    x509Certificate: "-----BEGIN CERTIFICATE-----\nMIIC...acme...prod\n-----END CERTIFICATE-----",
+}
+
+/**
+ * Начальные seed данные OIDC.
+ */
+const DEFAULT_OIDC: IOidcConfig = {
+    clientId: "codenautic-web",
+    clientSecret: "",
+    issuerUrl: "https://auth.acme.dev/realms/platform",
+}
+
+/**
+ * Мутабельный стейт для SSO конфигураций.
+ */
+const ssoState: { saml: ISamlConfig; oidc: IOidcConfig } = {
+    saml: { ...DEFAULT_SAML },
+    oidc: { ...DEFAULT_OIDC },
+}
+
+/**
+ * Проверяет валидность SAML конфигурации.
+ *
+ * @param config - SAML конфигурация.
+ * @returns true если валидна.
+ */
+function hasSamlRequiredConfig(config: ISamlConfig): boolean {
+    const hasEntityId = config.entityId.trim().length > 0
+    const hasSsoUrl = config.ssoUrl.trim().startsWith("https://")
+    const hasCertificate = config.x509Certificate.trim().length > 0
+
+    return hasEntityId && hasSsoUrl && hasCertificate
+}
+
+/**
+ * Проверяет валидность OIDC конфигурации.
+ *
+ * @param config - OIDC конфигурация.
+ * @returns true если валидна.
+ */
+function hasOidcRequiredConfig(config: IOidcConfig): boolean {
+    const hasIssuer = config.issuerUrl.trim().startsWith("https://")
+    const hasClientId = config.clientId.trim().length > 0
+    const hasClientSecret = config.clientSecret.trim().length >= 8
+
+    return hasIssuer && hasClientId && hasClientSecret
+}
+
+vi.mock("@/lib/hooks/queries/use-sso", async () => {
+    const { useState } = await import("react")
+
+    return {
+        useSso: (): IUseSsoResult => {
+            const [saml, setSaml] = useState<ISamlConfig>(() => ({ ...ssoState.saml }))
+            const [oidc, setOidc] = useState<IOidcConfig>(() => ({ ...ssoState.oidc }))
+
+            return {
+                samlQuery: {
+                    data: { saml },
+                    isLoading: false,
+                    isError: false,
+                    error: null,
+                } as unknown as IUseSsoResult["samlQuery"],
+                oidcQuery: {
+                    data: { oidc },
+                    isLoading: false,
+                    isError: false,
+                    error: null,
+                } as unknown as IUseSsoResult["oidcQuery"],
+                updateSaml: {
+                    mutate: (
+                        data: ISamlConfig,
+                        options?: {
+                            readonly onSuccess?: (response: ISamlConfigResponse) => void
+                        },
+                    ): void => {
+                        setSaml({ ...data })
+                        ssoState.saml = { ...data }
+                        if (options?.onSuccess !== undefined) {
+                            options.onSuccess({ saml: data })
+                        }
+                    },
+                    isPending: false,
+                } as unknown as IUseSsoResult["updateSaml"],
+                updateOidc: {
+                    mutate: (
+                        data: IOidcConfig,
+                        options?: {
+                            readonly onSuccess?: (response: IOidcConfigResponse) => void
+                        },
+                    ): void => {
+                        setOidc({ ...data })
+                        ssoState.oidc = { ...data }
+                        if (options?.onSuccess !== undefined) {
+                            options.onSuccess({ oidc: data })
+                        }
+                    },
+                    isPending: false,
+                } as unknown as IUseSsoResult["updateOidc"],
+                testConnection: {
+                    mutate: (
+                        data: ISsoTestRequest,
+                        options?: {
+                            readonly onSuccess?: (response: ISsoTestResponse) => void
+                        },
+                    ): void => {
+                        const isValid =
+                            data.provider === "saml"
+                                ? hasSamlRequiredConfig(ssoState.saml)
+                                : hasOidcRequiredConfig(ssoState.oidc)
+
+                        const response: ISsoTestResponse = isValid
+                            ? {
+                                  provider: data.provider,
+                                  status: "passed",
+                                  message: `SSO test passed for ${data.provider}.`,
+                              }
+                            : {
+                                  provider: data.provider,
+                                  status: "failed",
+                                  message: `SSO test failed for ${data.provider}. Check required fields and try again.`,
+                              }
+
+                        if (options?.onSuccess !== undefined) {
+                            options.onSuccess(response)
+                        }
+                    },
+                    isPending: false,
+                } as unknown as IUseSsoResult["testConnection"],
+            }
+        },
+    }
+})
 
 import { SettingsSsoPage } from "@/pages/settings-sso.page"
 import { renderWithProviders } from "../utils/render"
 
 describe("SettingsSsoPage", (): void => {
+    beforeEach((): void => {
+        ssoState.saml = { ...DEFAULT_SAML }
+        ssoState.oidc = { ...DEFAULT_OIDC }
+    })
+
     it("сохраняет SAML/OIDC конфиг и выполняет test SSO сценарий", async (): Promise<void> => {
         const user = userEvent.setup()
         renderWithProviders(<SettingsSsoPage />)
