@@ -9,9 +9,9 @@ import {
     buildSprintSummaryCardModel,
     buildTrendTimelineEntries,
 } from "@/pages/code-city-dashboard/builders/sprint-gamification-builders"
-import type { ICodeCityTreemapFileDescriptor } from "@/components/graphs/codecity-treemap"
-import type { ISprintComparisonMetric } from "@/components/graphs/sprint-comparison-view"
-import type { IHealthTrendPoint } from "@/components/graphs/health-trend-chart"
+import type { ICodeCityTreemapFileDescriptor } from "@/components/codecity/codecity-treemap"
+import type { ISprintComparisonMetric } from "@/components/team-analytics/sprint-comparison-view"
+import type { IHealthTrendPoint } from "@/components/codecity/health-trend-chart"
 
 const testFiles: ICodeCityTreemapFileDescriptor[] = [
     {

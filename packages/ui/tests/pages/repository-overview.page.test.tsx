@@ -73,16 +73,16 @@ const {
     ),
 }))
 
-vi.mock("@/components/graphs/file-dependency-graph", () => ({
+vi.mock("@/components/dependency-graphs/file-dependency-graph", () => ({
     FileDependencyGraph: mockFileDependencyGraph,
 }))
-vi.mock("@/components/graphs/function-class-call-graph", () => ({
+vi.mock("@/components/dependency-graphs/function-class-call-graph", () => ({
     FunctionClassCallGraph: mockFunctionClassCallGraph,
 }))
-vi.mock("@/components/graphs/package-dependency-graph", () => ({
+vi.mock("@/components/dependency-graphs/package-dependency-graph", () => ({
     PackageDependencyGraph: mockPackageDependencyGraph,
 }))
-vi.mock("@/components/graphs/codecity-treemap", () => ({
+vi.mock("@/components/codecity/codecity-treemap", () => ({
     CodeCityTreemap: mockCodeCityTreemap,
 }))
 

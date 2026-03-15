@@ -93,25 +93,25 @@ const { mockOwnershipTransitionWidget } = vi.hoisted(() => ({
     ),
 }))
 
-vi.mock("@/components/graphs/city-ownership-overlay", () => ({
+vi.mock("@/components/codecity/overlays/city-ownership-overlay", () => ({
     CityOwnershipOverlay: mockCityOwnershipOverlay,
 }))
-vi.mock("@/components/graphs/city-bus-factor-overlay", () => ({
+vi.mock("@/components/codecity/overlays/city-bus-factor-overlay", () => ({
     CityBusFactorOverlay: mockCityBusFactorOverlay,
 }))
-vi.mock("@/components/graphs/bus-factor-trend-chart", () => ({
+vi.mock("@/components/team-analytics/bus-factor-trend-chart", () => ({
     BusFactorTrendChart: mockBusFactorTrendChart,
 }))
-vi.mock("@/components/graphs/knowledge-silo-panel", () => ({
+vi.mock("@/components/team-analytics/knowledge-silo-panel", () => ({
     KnowledgeSiloPanel: mockKnowledgeSiloPanel,
 }))
-vi.mock("@/components/graphs/knowledge-map-export-widget", () => ({
+vi.mock("@/components/team-analytics/knowledge-map-export-widget", () => ({
     KnowledgeMapExportWidget: mockKnowledgeMapExportWidget,
 }))
-vi.mock("@/components/graphs/contributor-collaboration-graph", () => ({
+vi.mock("@/components/team-analytics/contributor-collaboration-graph", () => ({
     ContributorCollaborationGraph: mockContributorCollaborationGraph,
 }))
-vi.mock("@/components/graphs/ownership-transition-widget", () => ({
+vi.mock("@/components/team-analytics/ownership-transition-widget", () => ({
     OwnershipTransitionWidget: mockOwnershipTransitionWidget,
 }))
 

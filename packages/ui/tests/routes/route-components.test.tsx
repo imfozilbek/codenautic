@@ -397,38 +397,6 @@ describe("Route: settings overview", (): void => {
     })
 })
 
-describe("Route: settings appearance", (): void => {
-    afterEach((): void => {
-        window.history.replaceState({}, "", "/")
-    })
-
-    it("renders without error", async (): Promise<void> => {
-        const container = renderAppAtRoute("/settings-appearance")
-
-        expect(container).toBeDefined()
-        const navElements = await screen.findAllByRole("navigation", {
-            name: "Main navigation",
-        })
-        expect(navElements.length).toBeGreaterThan(0)
-    })
-})
-
-describe("Route: settings audit logs", (): void => {
-    afterEach((): void => {
-        window.history.replaceState({}, "", "/")
-    })
-
-    it("renders without error", async (): Promise<void> => {
-        const container = renderAppAtRoute("/settings-audit-logs")
-
-        expect(container).toBeDefined()
-        const navElements = await screen.findAllByRole("navigation", {
-            name: "Main navigation",
-        })
-        expect(navElements.length).toBeGreaterThan(0)
-    })
-})
-
 describe("Route: settings billing", (): void => {
     afterEach((): void => {
         window.history.replaceState({}, "", "/")
@@ -436,22 +404,6 @@ describe("Route: settings billing", (): void => {
 
     it("renders without error", async (): Promise<void> => {
         const container = renderAppAtRoute("/settings-billing")
-
-        expect(container).toBeDefined()
-        const navElements = await screen.findAllByRole("navigation", {
-            name: "Main navigation",
-        })
-        expect(navElements.length).toBeGreaterThan(0)
-    })
-})
-
-describe("Route: settings BYOK", (): void => {
-    afterEach((): void => {
-        window.history.replaceState({}, "", "/")
-    })
-
-    it("renders without error", async (): Promise<void> => {
-        const container = renderAppAtRoute("/settings-byok")
 
         expect(container).toBeDefined()
         const navElements = await screen.findAllByRole("navigation", {
@@ -477,22 +429,6 @@ describe("Route: settings code review", (): void => {
     })
 })
 
-describe("Route: settings concurrency", (): void => {
-    afterEach((): void => {
-        window.history.replaceState({}, "", "/")
-    })
-
-    it("renders without error", async (): Promise<void> => {
-        const container = renderAppAtRoute("/settings-concurrency")
-
-        expect(container).toBeDefined()
-        const navElements = await screen.findAllByRole("navigation", {
-            name: "Main navigation",
-        })
-        expect(navElements.length).toBeGreaterThan(0)
-    })
-})
-
 describe("Route: settings contract validation", (): void => {
     afterEach((): void => {
         window.history.replaceState({}, "", "/")
@@ -500,22 +436,6 @@ describe("Route: settings contract validation", (): void => {
 
     it("renders without error", async (): Promise<void> => {
         const container = renderAppAtRoute("/settings-contract-validation")
-
-        expect(container).toBeDefined()
-        const navElements = await screen.findAllByRole("navigation", {
-            name: "Main navigation",
-        })
-        expect(navElements.length).toBeGreaterThan(0)
-    })
-})
-
-describe("Route: settings git providers", (): void => {
-    afterEach((): void => {
-        window.history.replaceState({}, "", "/")
-    })
-
-    it("renders without error", async (): Promise<void> => {
-        const container = renderAppAtRoute("/settings-git-providers")
 
         expect(container).toBeDefined()
         const navElements = await screen.findAllByRole("navigation", {
@@ -541,54 +461,6 @@ describe("Route: settings integrations", (): void => {
     })
 })
 
-describe("Route: settings jobs", (): void => {
-    afterEach((): void => {
-        window.history.replaceState({}, "", "/")
-    })
-
-    it("renders without error", async (): Promise<void> => {
-        const container = renderAppAtRoute("/settings-jobs")
-
-        expect(container).toBeDefined()
-        const navElements = await screen.findAllByRole("navigation", {
-            name: "Main navigation",
-        })
-        expect(navElements.length).toBeGreaterThan(0)
-    })
-})
-
-describe("Route: settings LLM providers", (): void => {
-    afterEach((): void => {
-        window.history.replaceState({}, "", "/")
-    })
-
-    it("renders without error", async (): Promise<void> => {
-        const container = renderAppAtRoute("/settings-llm-providers")
-
-        expect(container).toBeDefined()
-        const navElements = await screen.findAllByRole("navigation", {
-            name: "Main navigation",
-        })
-        expect(navElements.length).toBeGreaterThan(0)
-    })
-})
-
-describe("Route: settings notifications", (): void => {
-    afterEach((): void => {
-        window.history.replaceState({}, "", "/")
-    })
-
-    it("renders without error", async (): Promise<void> => {
-        const container = renderAppAtRoute("/settings-notifications")
-
-        expect(container).toBeDefined()
-        const navElements = await screen.findAllByRole("navigation", {
-            name: "Main navigation",
-        })
-        expect(navElements.length).toBeGreaterThan(0)
-    })
-})
-
 describe("Route: settings organization", (): void => {
     afterEach((): void => {
         window.history.replaceState({}, "", "/")
@@ -605,114 +477,3 @@ describe("Route: settings organization", (): void => {
     })
 })
 
-describe("Route: settings privacy redaction", (): void => {
-    afterEach((): void => {
-        window.history.replaceState({}, "", "/")
-    })
-
-    it("renders without error", async (): Promise<void> => {
-        const container = renderAppAtRoute("/settings-privacy-redaction")
-
-        expect(container).toBeDefined()
-        const navElements = await screen.findAllByRole("navigation", {
-            name: "Main navigation",
-        })
-        expect(navElements.length).toBeGreaterThan(0)
-    })
-})
-
-describe("Route: settings provider degradation", (): void => {
-    afterEach((): void => {
-        window.history.replaceState({}, "", "/")
-    })
-
-    it("renders without error", async (): Promise<void> => {
-        const container = renderAppAtRoute("/settings-provider-degradation")
-
-        expect(container).toBeDefined()
-        const navElements = await screen.findAllByRole("navigation", {
-            name: "Main navigation",
-        })
-        expect(navElements.length).toBeGreaterThan(0)
-    })
-})
-
-describe("Route: settings rules library", (): void => {
-    afterEach((): void => {
-        window.history.replaceState({}, "", "/")
-    })
-
-    it("renders without error", async (): Promise<void> => {
-        const container = renderAppAtRoute("/settings-rules-library")
-
-        expect(container).toBeDefined()
-        const navElements = await screen.findAllByRole("navigation", {
-            name: "Main navigation",
-        })
-        expect(navElements.length).toBeGreaterThan(0)
-    })
-})
-
-describe("Route: settings SSO", (): void => {
-    afterEach((): void => {
-        window.history.replaceState({}, "", "/")
-    })
-
-    it("renders without error", async (): Promise<void> => {
-        const container = renderAppAtRoute("/settings-sso")
-
-        expect(container).toBeDefined()
-        const navElements = await screen.findAllByRole("navigation", {
-            name: "Main navigation",
-        })
-        expect(navElements.length).toBeGreaterThan(0)
-    })
-})
-
-describe("Route: settings team", (): void => {
-    afterEach((): void => {
-        window.history.replaceState({}, "", "/")
-    })
-
-    it("renders without error", async (): Promise<void> => {
-        const container = renderAppAtRoute("/settings-team")
-
-        expect(container).toBeDefined()
-        const navElements = await screen.findAllByRole("navigation", {
-            name: "Main navigation",
-        })
-        expect(navElements.length).toBeGreaterThan(0)
-    })
-})
-
-describe("Route: settings token usage", (): void => {
-    afterEach((): void => {
-        window.history.replaceState({}, "", "/")
-    })
-
-    it("renders without error", async (): Promise<void> => {
-        const container = renderAppAtRoute("/settings-token-usage")
-
-        expect(container).toBeDefined()
-        const navElements = await screen.findAllByRole("navigation", {
-            name: "Main navigation",
-        })
-        expect(navElements.length).toBeGreaterThan(0)
-    })
-})
-
-describe("Route: settings webhooks", (): void => {
-    afterEach((): void => {
-        window.history.replaceState({}, "", "/")
-    })
-
-    it("renders without error", async (): Promise<void> => {
-        const container = renderAppAtRoute("/settings-webhooks")
-
-        expect(container).toBeDefined()
-        const navElements = await screen.findAllByRole("navigation", {
-            name: "Main navigation",
-        })
-        expect(navElements.length).toBeGreaterThan(0)
-    })
-})

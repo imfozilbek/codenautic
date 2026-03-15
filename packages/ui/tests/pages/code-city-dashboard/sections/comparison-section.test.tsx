@@ -45,13 +45,13 @@ const { mockDistrictTrendIndicators } = vi.hoisted(() => ({
     ),
 }))
 
-vi.mock("@/components/graphs/prediction-comparison-view", () => ({
+vi.mock("@/components/predictions/prediction-comparison-view", () => ({
     PredictionComparisonView: mockPredictionComparisonView,
 }))
-vi.mock("@/components/graphs/sprint-comparison-view", () => ({
+vi.mock("@/components/team-analytics/sprint-comparison-view", () => ({
     SprintComparisonView: mockSprintComparisonView,
 }))
-vi.mock("@/components/graphs/district-trend-indicators", () => ({
+vi.mock("@/components/codecity/district-trend-indicators", () => ({
     DistrictTrendIndicators: mockDistrictTrendIndicators,
 }))
 

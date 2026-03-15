@@ -76,22 +76,22 @@ const { mockRootCauseChainViewer } = vi.hoisted(() => ({
     ),
 }))
 
-vi.mock("@/components/graphs/codecity-treemap", () => ({
+vi.mock("@/components/codecity/codecity-treemap", () => ({
     CodeCityTreemap: mockCodeCityTreemap,
 }))
-vi.mock("@/components/graphs/package-dependency-graph", () => ({
+vi.mock("@/components/dependency-graphs/package-dependency-graph", () => ({
     PackageDependencyGraph: mockPackageDependencyGraph,
 }))
-vi.mock("@/components/graphs/codecity-3d-scene", () => ({
+vi.mock("@/components/codecity/codecity-3d-scene", () => ({
     CodeCity3DScene: mockCodeCity3DScene,
 }))
-vi.mock("@/components/graphs/churn-complexity-scatter", () => ({
+vi.mock("@/components/codecity/churn-complexity-scatter", () => ({
     ChurnComplexityScatter: mockChurnComplexityScatter,
 }))
-vi.mock("@/components/graphs/health-trend-chart", () => ({
+vi.mock("@/components/codecity/health-trend-chart", () => ({
     HealthTrendChart: mockHealthTrendChart,
 }))
-vi.mock("@/components/graphs/root-cause-chain-viewer", () => ({
+vi.mock("@/components/codecity/root-cause-chain-viewer", () => ({
     RootCauseChainViewer: mockRootCauseChainViewer,
 }))
 

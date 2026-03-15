@@ -167,7 +167,7 @@ const { mockExploreModeSidebar } = vi.hoisted(() => ({
                                 description: "Mock exploration path",
                                 fileChainIds: [
                                     "src/pages/ccr-management.page.tsx",
-                                    "src/components/graphs/codecity-treemap.tsx",
+                                    "src/components/codecity/codecity-treemap.tsx",
                                 ],
                                 id: "explore-1",
                                 role: "backend",
@@ -1648,11 +1648,11 @@ const { mockRootCauseChainViewer } = vi.hoisted(() => ({
                     <button
                         onClick={(): void => {
                             props.onChainFocusChange?.({
-                                activeFileId: "src/components/graphs/codecity-treemap.tsx",
+                                activeFileId: "src/components/codecity/codecity-treemap.tsx",
                                 activeNodeId: "node-1",
                                 chainFileIds: [
                                     "src/pages/ccr-management.page.tsx",
-                                    "src/components/graphs/codecity-treemap.tsx",
+                                    "src/components/codecity/codecity-treemap.tsx",
                                 ],
                                 issueId: "issue-1",
                                 issueTitle: "Mock issue chain",
@@ -1668,130 +1668,130 @@ const { mockRootCauseChainViewer } = vi.hoisted(() => ({
     ),
 }))
 
-vi.mock("@/components/graphs/codecity-treemap", () => ({
+vi.mock("@/components/codecity/codecity-treemap", () => ({
     CodeCityTreemap: mockCodeCityTreemap,
 }))
-vi.mock("@/components/graphs/package-dependency-graph", () => ({
+vi.mock("@/components/dependency-graphs/package-dependency-graph", () => ({
     PackageDependencyGraph: mockPackageDependencyGraph,
 }))
-vi.mock("@/components/graphs/codecity-3d-scene", () => ({
+vi.mock("@/components/codecity/codecity-3d-scene", () => ({
     CodeCity3DScene: mockCodeCity3DScene,
 }))
-vi.mock("@/components/graphs/churn-complexity-scatter", () => ({
+vi.mock("@/components/codecity/churn-complexity-scatter", () => ({
     ChurnComplexityScatter: mockChurnComplexityScatter,
 }))
-vi.mock("@/components/graphs/health-trend-chart", () => ({
+vi.mock("@/components/codecity/health-trend-chart", () => ({
     HealthTrendChart: mockHealthTrendChart,
 }))
-vi.mock("@/components/graphs/project-overview-panel", () => ({
+vi.mock("@/components/codecity/project-overview-panel", () => ({
     ProjectOverviewPanel: mockProjectOverviewPanel,
 }))
-vi.mock("@/components/graphs/explore-mode-sidebar", () => ({
+vi.mock("@/components/codecity/explore-mode-sidebar", () => ({
     ExploreModeSidebar: mockExploreModeSidebar,
 }))
-vi.mock("@/components/graphs/hot-area-highlights", () => ({
+vi.mock("@/components/codecity/hot-area-highlights", () => ({
     HotAreaHighlights: mockHotAreaHighlights,
 }))
-vi.mock("@/components/graphs/onboarding-progress-tracker", () => ({
+vi.mock("@/components/codecity/onboarding-progress-tracker", () => ({
     OnboardingProgressTracker: mockOnboardingProgressTracker,
 }))
-vi.mock("@/components/graphs/tour-customizer", () => ({
+vi.mock("@/components/codecity/tour-customizer", () => ({
     TourCustomizer: mockTourCustomizer,
 }))
-vi.mock("@/components/graphs/refactoring-dashboard", () => ({
+vi.mock("@/components/refactoring/refactoring-dashboard", () => ({
     RefactoringDashboard: mockRefactoringDashboard,
 }))
-vi.mock("@/components/graphs/roi-calculator-widget", () => ({
+vi.mock("@/components/refactoring/roi-calculator-widget", () => ({
     ROICalculatorWidget: mockROICalculatorWidget,
 }))
-vi.mock("@/components/graphs/city-refactoring-overlay", () => ({
+vi.mock("@/components/codecity/overlays/city-refactoring-overlay", () => ({
     CityRefactoringOverlay: mockCityRefactoringOverlay,
 }))
-vi.mock("@/components/graphs/simulation-panel", () => ({
+vi.mock("@/components/predictions/simulation-panel", () => ({
     SimulationPanel: mockSimulationPanel,
 }))
-vi.mock("@/components/graphs/refactoring-timeline", () => ({
+vi.mock("@/components/refactoring/refactoring-timeline", () => ({
     RefactoringTimeline: mockRefactoringTimeline,
 }))
-vi.mock("@/components/graphs/refactoring-export-dialog", () => ({
+vi.mock("@/components/refactoring/refactoring-export-dialog", () => ({
     RefactoringExportDialog: mockRefactoringExportDialog,
 }))
-vi.mock("@/components/graphs/impact-analysis-panel", () => ({
+vi.mock("@/components/predictions/impact-analysis-panel", () => ({
     ImpactAnalysisPanel: mockImpactAnalysisPanel,
 }))
-vi.mock("@/components/graphs/city-impact-overlay", () => ({
+vi.mock("@/components/codecity/overlays/city-impact-overlay", () => ({
     CityImpactOverlay: mockCityImpactOverlay,
 }))
-vi.mock("@/components/graphs/city-prediction-overlay", () => ({
+vi.mock("@/components/codecity/overlays/city-prediction-overlay", () => ({
     CityPredictionOverlay: mockCityPredictionOverlay,
 }))
-vi.mock("@/components/graphs/prediction-dashboard", () => ({
+vi.mock("@/components/predictions/prediction-dashboard", () => ({
     PredictionDashboard: mockPredictionDashboard,
 }))
-vi.mock("@/components/graphs/prediction-explain-panel", () => ({
+vi.mock("@/components/predictions/prediction-explain-panel", () => ({
     PredictionExplainPanel: mockPredictionExplainPanel,
 }))
-vi.mock("@/components/graphs/trend-forecast-chart", () => ({
+vi.mock("@/components/predictions/trend-forecast-chart", () => ({
     TrendForecastChart: mockTrendForecastChart,
 }))
-vi.mock("@/components/graphs/prediction-accuracy-widget", () => ({
+vi.mock("@/components/predictions/prediction-accuracy-widget", () => ({
     PredictionAccuracyWidget: mockPredictionAccuracyWidget,
 }))
-vi.mock("@/components/graphs/alert-config-dialog", () => ({
+vi.mock("@/components/codecity/alert-config-dialog", () => ({
     AlertConfigDialog: mockAlertConfigDialog,
 }))
-vi.mock("@/components/graphs/prediction-comparison-view", () => ({
+vi.mock("@/components/predictions/prediction-comparison-view", () => ({
     PredictionComparisonView: mockPredictionComparisonView,
 }))
-vi.mock("@/components/graphs/sprint-comparison-view", () => ({
+vi.mock("@/components/team-analytics/sprint-comparison-view", () => ({
     SprintComparisonView: mockSprintComparisonView,
 }))
-vi.mock("@/components/graphs/district-trend-indicators", () => ({
+vi.mock("@/components/codecity/district-trend-indicators", () => ({
     DistrictTrendIndicators: mockDistrictTrendIndicators,
 }))
-vi.mock("@/components/graphs/achievements-panel", () => ({
+vi.mock("@/components/team-analytics/achievements-panel", () => ({
     AchievementsPanel: mockAchievementsPanel,
 }))
-vi.mock("@/components/graphs/team-leaderboard", () => ({
+vi.mock("@/components/team-analytics/team-leaderboard", () => ({
     TeamLeaderboard: mockTeamLeaderboard,
 }))
-vi.mock("@/components/graphs/sprint-summary-card", () => ({
+vi.mock("@/components/team-analytics/sprint-summary-card", () => ({
     SprintSummaryCard: mockSprintSummaryCard,
 }))
-vi.mock("@/components/graphs/trend-timeline-widget", () => ({
+vi.mock("@/components/predictions/trend-timeline-widget", () => ({
     TrendTimelineWidget: mockTrendTimelineWidget,
 }))
-vi.mock("@/components/graphs/city-bus-factor-overlay", () => ({
+vi.mock("@/components/codecity/overlays/city-bus-factor-overlay", () => ({
     CityBusFactorOverlay: mockCityBusFactorOverlay,
 }))
-vi.mock("@/components/graphs/bus-factor-trend-chart", () => ({
+vi.mock("@/components/team-analytics/bus-factor-trend-chart", () => ({
     BusFactorTrendChart: mockBusFactorTrendChart,
 }))
-vi.mock("@/components/graphs/knowledge-silo-panel", () => ({
+vi.mock("@/components/team-analytics/knowledge-silo-panel", () => ({
     KnowledgeSiloPanel: mockKnowledgeSiloPanel,
 }))
-vi.mock("@/components/graphs/knowledge-map-export-widget", () => ({
+vi.mock("@/components/team-analytics/knowledge-map-export-widget", () => ({
     KnowledgeMapExportWidget: mockKnowledgeMapExportWidget,
 }))
-vi.mock("@/components/graphs/contributor-collaboration-graph", () => ({
+vi.mock("@/components/team-analytics/contributor-collaboration-graph", () => ({
     ContributorCollaborationGraph: mockContributorCollaborationGraph,
 }))
-vi.mock("@/components/graphs/ownership-transition-widget", () => ({
+vi.mock("@/components/team-analytics/ownership-transition-widget", () => ({
     OwnershipTransitionWidget: mockOwnershipTransitionWidget,
 }))
-vi.mock("@/components/graphs/city-ownership-overlay", () => ({
+vi.mock("@/components/codecity/overlays/city-ownership-overlay", () => ({
     CityOwnershipOverlay: mockCityOwnershipOverlay,
 }))
-vi.mock("@/components/graphs/change-risk-gauge", () => ({
+vi.mock("@/components/predictions/change-risk-gauge", () => ({
     ChangeRiskGauge: mockChangeRiskGauge,
 }))
-vi.mock("@/components/graphs/impact-graph-view", () => ({
+vi.mock("@/components/predictions/impact-graph-view", () => ({
     ImpactGraphView: mockImpactGraphView,
 }))
-vi.mock("@/components/graphs/what-if-panel", () => ({
+vi.mock("@/components/predictions/what-if-panel", () => ({
     WhatIfPanel: mockWhatIfPanel,
 }))
-vi.mock("@/components/graphs/root-cause-chain-viewer", () => ({
+vi.mock("@/components/codecity/root-cause-chain-viewer", () => ({
     RootCauseChainViewer: mockRootCauseChainViewer,
 }))
 
@@ -2408,7 +2408,7 @@ describe("CodeCityDashboardPage", (): void => {
         expect(chainNavigation3DCall).not.toBeUndefined()
         expect(chainNavigation3DCall?.navigationChainFileIds.length).toBeGreaterThan(0)
         expect(chainNavigation3DCall?.navigationActiveFileId).toBe(
-            "src/components/graphs/codecity-treemap.tsx",
+            "src/components/codecity/codecity-treemap.tsx",
         )
         expect(chainNavigation3DCall?.navigationLabel).toBe("Mock issue chain")
 

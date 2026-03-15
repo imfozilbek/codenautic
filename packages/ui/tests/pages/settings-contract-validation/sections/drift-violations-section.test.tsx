@@ -21,7 +21,7 @@ const { mockCodeCityTreemap } = vi.hoisted(() => ({
     ),
 }))
 
-vi.mock("@/components/graphs/codecity-treemap", () => ({
+vi.mock("@/components/codecity/codecity-treemap", () => ({
     CodeCityTreemap: mockCodeCityTreemap,
 }))
 

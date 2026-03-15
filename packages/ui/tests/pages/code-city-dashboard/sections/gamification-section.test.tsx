@@ -58,16 +58,16 @@ const { mockTrendTimelineWidget } = vi.hoisted(() => ({
     ),
 }))
 
-vi.mock("@/components/graphs/achievements-panel", () => ({
+vi.mock("@/components/team-analytics/achievements-panel", () => ({
     AchievementsPanel: mockAchievementsPanel,
 }))
-vi.mock("@/components/graphs/team-leaderboard", () => ({
+vi.mock("@/components/team-analytics/team-leaderboard", () => ({
     TeamLeaderboard: mockTeamLeaderboard,
 }))
-vi.mock("@/components/graphs/sprint-summary-card", () => ({
+vi.mock("@/components/team-analytics/sprint-summary-card", () => ({
     SprintSummaryCard: mockSprintSummaryCard,
 }))
-vi.mock("@/components/graphs/trend-timeline-widget", () => ({
+vi.mock("@/components/predictions/trend-timeline-widget", () => ({
     TrendTimelineWidget: mockTrendTimelineWidget,
 }))
 

@@ -82,22 +82,22 @@ const { mockAlertConfigDialog } = vi.hoisted(() => ({
     ),
 }))
 
-vi.mock("@/components/graphs/city-prediction-overlay", () => ({
+vi.mock("@/components/codecity/overlays/city-prediction-overlay", () => ({
     CityPredictionOverlay: mockCityPredictionOverlay,
 }))
-vi.mock("@/components/graphs/prediction-dashboard", () => ({
+vi.mock("@/components/predictions/prediction-dashboard", () => ({
     PredictionDashboard: mockPredictionDashboard,
 }))
-vi.mock("@/components/graphs/prediction-explain-panel", () => ({
+vi.mock("@/components/predictions/prediction-explain-panel", () => ({
     PredictionExplainPanel: mockPredictionExplainPanel,
 }))
-vi.mock("@/components/graphs/trend-forecast-chart", () => ({
+vi.mock("@/components/predictions/trend-forecast-chart", () => ({
     TrendForecastChart: mockTrendForecastChart,
 }))
-vi.mock("@/components/graphs/prediction-accuracy-widget", () => ({
+vi.mock("@/components/predictions/prediction-accuracy-widget", () => ({
     PredictionAccuracyWidget: mockPredictionAccuracyWidget,
 }))
-vi.mock("@/components/graphs/alert-config-dialog", () => ({
+vi.mock("@/components/codecity/alert-config-dialog", () => ({
     AlertConfigDialog: mockAlertConfigDialog,
 }))
 

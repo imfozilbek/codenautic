@@ -5,7 +5,7 @@ import {
     buildExploreModePaths,
     buildHotAreaHighlights,
 } from "@/pages/code-city-dashboard/builders/explore-onboarding-builders"
-import type { ICodeCityTreemapFileDescriptor } from "@/components/graphs/codecity-treemap"
+import type { ICodeCityTreemapFileDescriptor } from "@/components/codecity/codecity-treemap"
 
 describe("buildOnboardingProgressModules", (): void => {
     it("when no areas explored, then all modules are incomplete", (): void => {

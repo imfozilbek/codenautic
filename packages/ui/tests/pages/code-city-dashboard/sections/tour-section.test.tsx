@@ -34,10 +34,10 @@ const { mockTourCustomizer } = vi.hoisted(() => ({
     ),
 }))
 
-vi.mock("@/components/graphs/guided-tour-overlay", () => ({
+vi.mock("@/components/codecity/guided-tour-overlay", () => ({
     GuidedTourOverlay: mockGuidedTourOverlay,
 }))
-vi.mock("@/components/graphs/tour-customizer", () => ({
+vi.mock("@/components/codecity/tour-customizer", () => ({
     TourCustomizer: mockTourCustomizer,
 }))
 

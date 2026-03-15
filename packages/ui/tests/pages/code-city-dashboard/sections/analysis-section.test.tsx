@@ -39,13 +39,13 @@ const { mockWhatIfPanel } = vi.hoisted(() => ({
     ),
 }))
 
-vi.mock("@/components/graphs/change-risk-gauge", () => ({
+vi.mock("@/components/predictions/change-risk-gauge", () => ({
     ChangeRiskGauge: mockChangeRiskGauge,
 }))
-vi.mock("@/components/graphs/impact-graph-view", () => ({
+vi.mock("@/components/predictions/impact-graph-view", () => ({
     ImpactGraphView: mockImpactGraphView,
 }))
-vi.mock("@/components/graphs/what-if-panel", () => ({
+vi.mock("@/components/predictions/what-if-panel", () => ({
     WhatIfPanel: mockWhatIfPanel,
 }))
 

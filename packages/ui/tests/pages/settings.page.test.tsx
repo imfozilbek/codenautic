@@ -29,28 +29,25 @@ describe("SettingsPage", (): void => {
     it("renders grouped settings cards with canonical labels", (): void => {
         renderWithProviders(<SettingsPage />)
 
-        expect(screen.getByText("Providers")).not.toBeNull()
+        expect(screen.getByText("Configuration")).not.toBeNull()
+        expect(screen.getAllByText("Providers").length).toBeGreaterThan(0)
         expect(screen.getByText("Security & Compliance")).not.toBeNull()
-        expect(screen.getByText("Operations")).not.toBeNull()
-        expect(screen.getByText("Billing & Usage")).not.toBeNull()
         expect(screen.getAllByText("Organization").length).toBeGreaterThan(0)
-        expect(screen.getAllByText("Code Review").length).toBeGreaterThan(0)
     })
 
     it("renders navigation links from shared data", (): void => {
         renderWithProviders(<SettingsPage />)
 
-        expect(screen.getByRole("link", { name: "LLM Providers" })).not.toBeNull()
-        expect(screen.getByRole("link", { name: "Git Providers" })).not.toBeNull()
-        expect(screen.getByRole("link", { name: "Webhooks" })).not.toBeNull()
-        expect(screen.getByRole("link", { name: "Audit Logs" })).not.toBeNull()
-        expect(screen.getByRole("link", { name: "SSO" })).not.toBeNull()
+        expect(screen.getByRole("link", { name: "Code Review" })).not.toBeNull()
+        expect(screen.getByRole("link", { name: "Contract Validation" })).not.toBeNull()
+        expect(screen.getByRole("link", { name: "Integrations" })).not.toBeNull()
+        expect(screen.getByRole("link", { name: "Billing" })).not.toBeNull()
     })
 
-    it("filters out General self-link from the General group", (): void => {
+    it("filters out General self-link from the Configuration group", (): void => {
         renderWithProviders(<SettingsPage />)
 
-        const generalLinks = screen.queryAllByRole("link", { name: "General" })
-        expect(generalLinks.length).toBe(0)
+        const settingsSelfLinks = screen.queryAllByRole("link", { name: "Settings" })
+        expect(settingsSelfLinks.length).toBe(0)
     })
 })

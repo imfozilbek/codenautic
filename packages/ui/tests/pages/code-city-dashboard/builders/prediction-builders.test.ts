@@ -19,9 +19,9 @@ import {
     buildPredictionBugProneFiles,
     buildPredictionExplainEntries,
 } from "@/pages/code-city-dashboard/builders/prediction-builders"
-import type { ICodeCityTreemapFileDescriptor } from "@/components/graphs/codecity-treemap"
-import type { ICityPredictionOverlayEntry } from "@/components/graphs/city-prediction-overlay"
-import type { IHealthTrendPoint } from "@/components/graphs/health-trend-chart"
+import type { ICodeCityTreemapFileDescriptor } from "@/components/codecity/codecity-treemap"
+import type { ICityPredictionOverlayEntry } from "@/components/codecity/overlays/city-prediction-overlay"
+import type { IHealthTrendPoint } from "@/components/codecity/health-trend-chart"
 
 describe("resolvePredictionRiskLevel", (): void => {
     it("when bugs >= 4, then returns 'high'", (): void => {

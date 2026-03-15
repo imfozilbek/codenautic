@@ -42,16 +42,16 @@ const { mockOnboardingProgressTracker } = vi.hoisted(() => ({
     ),
 }))
 
-vi.mock("@/components/graphs/project-overview-panel", () => ({
+vi.mock("@/components/codecity/project-overview-panel", () => ({
     ProjectOverviewPanel: mockProjectOverviewPanel,
 }))
-vi.mock("@/components/graphs/explore-mode-sidebar", () => ({
+vi.mock("@/components/codecity/explore-mode-sidebar", () => ({
     ExploreModeSidebar: mockExploreModeSidebar,
 }))
-vi.mock("@/components/graphs/hot-area-highlights", () => ({
+vi.mock("@/components/codecity/hot-area-highlights", () => ({
     HotAreaHighlights: mockHotAreaHighlights,
 }))
-vi.mock("@/components/graphs/onboarding-progress-tracker", () => ({
+vi.mock("@/components/codecity/onboarding-progress-tracker", () => ({
     OnboardingProgressTracker: mockOnboardingProgressTracker,
 }))
 

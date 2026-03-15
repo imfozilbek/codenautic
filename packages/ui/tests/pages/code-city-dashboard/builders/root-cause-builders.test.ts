@@ -5,7 +5,7 @@ import {
     resolveCausalCouplingType,
     buildCausalCouplings,
 } from "@/pages/code-city-dashboard/builders/root-cause-builders"
-import type { ICodeCityTreemapFileDescriptor } from "@/components/graphs/codecity-treemap"
+import type { ICodeCityTreemapFileDescriptor } from "@/components/codecity/codecity-treemap"
 
 describe("resolveCausalCouplingType", (): void => {
     it("when strength >= 0.75, then returns 'dependency'", (): void => {

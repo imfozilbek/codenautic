@@ -12,7 +12,7 @@ import {
     buildKnowledgeMapExportModel,
     buildOwnershipTransitionEvents,
 } from "@/pages/code-city-dashboard/builders/ownership-knowledge-builders"
-import type { ICodeCityTreemapFileDescriptor } from "@/components/graphs/codecity-treemap"
+import type { ICodeCityTreemapFileDescriptor } from "@/components/codecity/codecity-treemap"
 import type { ICodeCityDashboardRepositoryProfile } from "@/pages/code-city-dashboard/code-city-dashboard-types"
 
 const testFiles: ICodeCityTreemapFileDescriptor[] = [

@@ -9,16 +9,16 @@ import {
 } from "@/lib/navigation/settings-nav-items"
 
 describe("settings-nav-items", (): void => {
-    it("createSettingsNavGroups returns 7 groups", (): void => {
+    it("createSettingsNavGroups returns 4 groups", (): void => {
         const t = i18next.getFixedT("ru", ["navigation"])
         const groups = createSettingsNavGroups(t)
-        expect(groups).toHaveLength(7)
+        expect(groups).toHaveLength(4)
     })
 
-    it("createSettingsNavItems returns 22 items via flatMap", (): void => {
+    it("createSettingsNavItems returns 9 items via flatMap", (): void => {
         const t = i18next.getFixedT("ru", ["navigation"])
         const items = createSettingsNavItems(t)
-        expect(items).toHaveLength(22)
+        expect(items).toHaveLength(9)
     })
 
     it("has no duplicate route paths", (): void => {

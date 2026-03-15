@@ -11,7 +11,7 @@ const { mockCausalOverlaySelector } = vi.hoisted(() => ({
     ),
 }))
 
-vi.mock("@/components/graphs/causal-overlay-selector", () => ({
+vi.mock("@/components/codecity/overlays/causal-overlay-selector", () => ({
     CausalOverlaySelector: mockCausalOverlaySelector,
 }))
 

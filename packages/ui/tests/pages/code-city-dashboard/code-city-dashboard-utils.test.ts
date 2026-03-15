@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 
-import type { ICodeCityTreemapFileLinkResolver } from "@/components/graphs/codecity-treemap"
+import type { ICodeCityTreemapFileLinkResolver } from "@/components/codecity/codecity-treemap"
 
 import {
     isCodeCityMetric,

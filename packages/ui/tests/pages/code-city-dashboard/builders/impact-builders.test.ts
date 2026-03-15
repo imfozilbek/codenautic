@@ -9,7 +9,7 @@ import {
     buildImpactGraphModel,
     buildWhatIfOptions,
 } from "@/pages/code-city-dashboard/builders/impact-builders"
-import type { ICodeCityTreemapFileDescriptor } from "@/components/graphs/codecity-treemap"
+import type { ICodeCityTreemapFileDescriptor } from "@/components/codecity/codecity-treemap"
 
 const testFiles: ICodeCityTreemapFileDescriptor[] = [
     {

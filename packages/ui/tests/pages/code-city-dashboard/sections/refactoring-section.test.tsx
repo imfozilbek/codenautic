@@ -62,28 +62,28 @@ const { mockCityImpactOverlay } = vi.hoisted(() => ({
     ),
 }))
 
-vi.mock("@/components/graphs/refactoring-dashboard", () => ({
+vi.mock("@/components/refactoring/refactoring-dashboard", () => ({
     RefactoringDashboard: mockRefactoringDashboard,
 }))
-vi.mock("@/components/graphs/roi-calculator-widget", () => ({
+vi.mock("@/components/refactoring/roi-calculator-widget", () => ({
     ROICalculatorWidget: mockROICalculatorWidget,
 }))
-vi.mock("@/components/graphs/city-refactoring-overlay", () => ({
+vi.mock("@/components/codecity/overlays/city-refactoring-overlay", () => ({
     CityRefactoringOverlay: mockCityRefactoringOverlay,
 }))
-vi.mock("@/components/graphs/simulation-panel", () => ({
+vi.mock("@/components/predictions/simulation-panel", () => ({
     SimulationPanel: mockSimulationPanel,
 }))
-vi.mock("@/components/graphs/refactoring-timeline", () => ({
+vi.mock("@/components/refactoring/refactoring-timeline", () => ({
     RefactoringTimeline: mockRefactoringTimeline,
 }))
-vi.mock("@/components/graphs/refactoring-export-dialog", () => ({
+vi.mock("@/components/refactoring/refactoring-export-dialog", () => ({
     RefactoringExportDialog: mockRefactoringExportDialog,
 }))
-vi.mock("@/components/graphs/impact-analysis-panel", () => ({
+vi.mock("@/components/predictions/impact-analysis-panel", () => ({
     ImpactAnalysisPanel: mockImpactAnalysisPanel,
 }))
-vi.mock("@/components/graphs/city-impact-overlay", () => ({
+vi.mock("@/components/codecity/overlays/city-impact-overlay", () => ({
     CityImpactOverlay: mockCityImpactOverlay,
 }))
 
