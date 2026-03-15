@@ -81,7 +81,7 @@ export function ChatContextIndicator(props: IChatContextIndicatorProps): ReactEl
     const renderContextItem = (context: IChatPanelContextInfo): ReactNode => (
         <div className="flex min-w-0 flex-col gap-1 text-left">
             <span className="text-xs font-medium sm:text-sm">{formatContextSummary(context)}</span>
-            <span className="truncate text-xs text-text-secondary">
+            <span className="truncate text-xs text-muted">
                 Files: {formatAttachedFiles(context.attachedFiles)}
             </span>
         </div>
@@ -121,7 +121,7 @@ export function ChatContextIndicator(props: IChatContextIndicatorProps): ReactEl
                         {contextTitle}
                     </Chip>
                     <p className="mt-1 text-xs font-semibold sm:text-sm">{contextSummary}</p>
-                    <p className="mt-1 text-xs text-text-secondary">{filesText}</p>
+                    <p className="mt-1 text-xs text-muted">{filesText}</p>
                 </div>
                 <Button
                     aria-controls="chat-context-indicator-listbox"
@@ -149,7 +149,7 @@ export function ChatContextIndicator(props: IChatContextIndicatorProps): ReactEl
                                 <button
                                     aria-label={`${actionLabel} to ${formatContextSummary(context)}`}
                                     aria-selected={context.id === props.activeContextId}
-                                    className="w-full rounded-md border border-border bg-surface-muted p-2 text-left transition hover:bg-surface-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+                                    className="w-full rounded-md border border-border bg-surface-secondary p-2 text-left transition hover:bg-surface-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40"
                                     role="option"
                                     type="button"
                                     onClick={(): void => {

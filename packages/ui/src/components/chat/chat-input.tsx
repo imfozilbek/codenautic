@@ -181,7 +181,11 @@ export function ChatInput(props: IChatInputProps): ReactElement {
                             <ListBox>
                                 {contextOptions.map(
                                     (context): ReactElement => (
-                                        <ListBoxItem key={context.id} id={context.id} textValue={context.label}>
+                                        <ListBoxItem
+                                            key={context.id}
+                                            id={context.id}
+                                            textValue={context.label}
+                                        >
                                             {context.label}
                                         </ListBoxItem>
                                     ),
@@ -223,14 +227,16 @@ export function ChatInput(props: IChatInputProps): ReactElement {
                     disabled={props.isLoading === true}
                     maxLength={maxLength}
                     onKeyDown={handleKeyDown}
-                    onChange={(event: ChangeEvent<HTMLTextAreaElement>): void => { props.onDraftChange(event.target.value) }}
+                    onChange={(event: ChangeEvent<HTMLTextAreaElement>): void => {
+                        props.onDraftChange(event.target.value)
+                    }}
                     placeholder={props.placeholder ?? "Type a message and press Enter"}
                     value={props.draft}
                 />
                 <div className="mt-2 flex items-center justify-between gap-2">
                     <p
                         aria-label={props.counterAriaLabel ?? "Message character count"}
-                        className="text-xs text-text-secondary"
+                        className="text-xs text-muted"
                     >
                         {maxLengthLabel}
                     </p>
