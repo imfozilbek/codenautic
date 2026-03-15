@@ -383,9 +383,6 @@ export function HelpDiagnosticsPage(): ReactElement {
     const [bundleMessage, setBundleMessage] = useState<string>("")
 
     const sourceContext = useMemo((): string => {
-        if (typeof window === "undefined") {
-            return ""
-        }
         const params = new URLSearchParams(window.location.search)
         return params.get("from") ?? ""
     }, [])
@@ -411,9 +408,15 @@ export function HelpDiagnosticsPage(): ReactElement {
         const hasSessionToken =
             safeStorageGet(getWindowSessionStorage(), "codenautic.ui.auth.session") !== undefined
         const networkOnline = typeof navigator !== "undefined" && navigator.onLine === true
-        const webGlReady =
-            typeof document !== "undefined" &&
-            document.createElement("canvas").getContext("webgl") !== null
+        const webGlCanvas = document.createElement("canvas")
+        const webGlTestContext = webGlCanvas.getContext("webgl")
+        const webGlReady = webGlTestContext !== null
+        if (webGlTestContext !== null) {
+            const loseExt = webGlTestContext.getExtension("WEBGL_lose_context")
+            if (loseExt !== null) {
+                loseExt.loseContext()
+            }
+        }
 
         const connectedProviderCount =
             externalContext.sourcesQuery.data?.sources.filter((source): boolean => {
