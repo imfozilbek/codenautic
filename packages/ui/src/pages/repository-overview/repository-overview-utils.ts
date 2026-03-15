@@ -4,12 +4,10 @@ import {
     DEFAULT_RESCAN_VALUES,
     FILE_ISSUE_HEATMAP_COUNTS,
     RESCAN_FREQUENCY_OPTIONS,
-    REPOSITORY_OVERVIEWS,
     WEEKDAYS_TO_LABELS,
-} from "./repository-overview-mock-data"
+} from "./repository-overview-constants"
 import type {
     IRescanScheduleValues,
-    IRepositoryOverviewProfile,
     THighlight,
     TRepositoryRisk,
     TRescanScheduleMode,
@@ -67,18 +65,6 @@ export function mapRiskToLabel(risk: TRepositoryRisk): string {
     }
 
     return "critical"
-}
-
-/**
- * Находит профиль overview по ID репозитория.
- *
- * @param repositoryId Идентификатор (`owner/repo`).
- * @returns Профиль или undefined если не найден.
- */
-export function getRepositoryOverviewById(
-    repositoryId: string,
-): IRepositoryOverviewProfile | undefined {
-    return REPOSITORY_OVERVIEWS.find((entry): boolean => entry.id === repositoryId)
 }
 
 /**
@@ -171,17 +157,6 @@ export function parseCronNumber(value: string, min: number, max: number, fallbac
         return fallback
     }
     return parsed
-}
-
-/**
- * Возвращает cron-выражение по умолчанию для репозитория.
- *
- * @param canonicalRepositoryId Идентификатор репозитория.
- * @returns Cron-строка или "manual".
- */
-export function getRepositoryDefaultSchedule(canonicalRepositoryId: string): string {
-    const repository = getRepositoryOverviewById(canonicalRepositoryId)
-    return repository?.defaultRescanCron ?? "manual"
 }
 
 /**
