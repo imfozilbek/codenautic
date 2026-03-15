@@ -23,7 +23,7 @@ describe("ReviewsTable", (): void => {
 
         renderWithProviders(<ReviewsTable rows={rows} />)
 
-        expect(screen.getByRole("table", { name: "CCR reviews table" })).not.toBeNull()
+        expect(screen.getByRole("grid", { name: "CCR reviews table" })).not.toBeNull()
         expect(screen.getByText("CCR")).not.toBeNull()
         expect(screen.getByText("Title")).not.toBeNull()
         expect(screen.getByText("Repository")).not.toBeNull()
