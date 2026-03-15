@@ -3,7 +3,6 @@ import { useTranslation } from "react-i18next"
 
 import { useDynamicTranslation } from "@/lib/i18n"
 import { Alert, Button, Card, CardContent, CardHeader, Chip } from "@heroui/react"
-import { FormLayout } from "@/components/forms/form-layout"
 import { TYPOGRAPHY } from "@/lib/constants/typography"
 
 type TAnalyticsRange = "30d" | "7d" | "90d"
@@ -170,10 +169,7 @@ export function SettingsAdoptionAnalyticsPage(): ReactElement {
     }, [range])
 
     return (
-        <FormLayout
-            title={t("settings:adoptionAnalytics.pageTitle")}
-            description={t("settings:adoptionAnalytics.pageSubtitle")}
-        >
+        <div className="space-y-6 mx-auto max-w-[1400px]"><div className="space-y-1.5"><h1 className={TYPOGRAPHY.pageTitle}>{t("settings:adoptionAnalytics.pageTitle")}</h1><p className={TYPOGRAPHY.bodyMuted}>{t("settings:adoptionAnalytics.pageSubtitle")}</p></div><div className="space-y-6">
             <div className="flex flex-wrap gap-2">
                 {(["7d", "30d", "90d"] as const).map(
                     (option): ReactElement => (
@@ -246,9 +242,7 @@ export function SettingsAdoptionAnalyticsPage(): ReactElement {
                                                 )}
                                             </Chip>
                                         </div>
-                                        <p className="text-xs text-muted">
-                                            {item.summary}
-                                        </p>
+                                        <p className="text-xs text-muted">{item.summary}</p>
                                     </li>
                                 ),
                             )}
@@ -311,6 +305,6 @@ export function SettingsAdoptionAnalyticsPage(): ReactElement {
                     {t("settings:adoptionAnalytics.privacyBoundaryDescription")}
                 </Alert.Description>
             </Alert>
-        </FormLayout>
+        </div></div>
     )
 }
