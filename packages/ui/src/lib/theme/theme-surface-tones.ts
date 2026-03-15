@@ -17,8 +17,8 @@ export interface ISurfaceTonePalette {
     readonly foreground: string
     /** Базовый цвет поверхностей. */
     readonly surface: string
-    /** Приглушенный цвет поверхностей. */
-    readonly surfaceMuted: string
+    /** Вторичный цвет поверхностей. */
+    readonly surfaceSecondary: string
 }
 
 /**
@@ -49,14 +49,14 @@ export const SURFACE_TONES: ReadonlyArray<ISurfaceToneConfig> = [
             background: "oklch(0.965 0.004 260)",
             foreground: "oklch(0.22 0.01 260)",
             surface: "oklch(1.0 0.002 260)",
-            surfaceMuted: "oklch(0.94 0.005 260)",
+            surfaceSecondary: "oklch(0.94 0.005 260)",
             border: "oklch(0.87 0.005 260)",
         },
         dark: {
             background: "oklch(0.14 0.005 260)",
             foreground: "oklch(0.94 0.005 260)",
             surface: "oklch(0.2 0.008 260)",
-            surfaceMuted: "oklch(0.25 0.006 260)",
+            surfaceSecondary: "oklch(0.25 0.006 260)",
             border: "oklch(0.35 0.01 260)",
         },
     },
@@ -68,14 +68,14 @@ export const SURFACE_TONES: ReadonlyArray<ISurfaceToneConfig> = [
             background: "oklch(0.96 0.012 68)",
             foreground: "oklch(0.24 0.015 55)",
             surface: "oklch(0.99 0.008 62)",
-            surfaceMuted: "oklch(0.935 0.014 65)",
+            surfaceSecondary: "oklch(0.935 0.014 65)",
             border: "oklch(0.87 0.012 62)",
         },
         dark: {
             background: "oklch(0.15 0.015 55)",
             foreground: "oklch(0.94 0.01 62)",
             surface: "oklch(0.21 0.018 55)",
-            surfaceMuted: "oklch(0.27 0.015 58)",
+            surfaceSecondary: "oklch(0.27 0.015 58)",
             border: "oklch(0.38 0.02 55)",
         },
     },
@@ -87,14 +87,14 @@ export const SURFACE_TONES: ReadonlyArray<ISurfaceToneConfig> = [
             background: "oklch(0.965 0.01 230)",
             foreground: "oklch(0.23 0.02 240)",
             surface: "oklch(0.985 0.006 235)",
-            surfaceMuted: "oklch(0.94 0.01 232)",
+            surfaceSecondary: "oklch(0.94 0.01 232)",
             border: "oklch(0.87 0.008 232)",
         },
         dark: {
             background: "oklch(0.145 0.02 240)",
             foreground: "oklch(0.94 0.008 235)",
             surface: "oklch(0.21 0.025 238)",
-            surfaceMuted: "oklch(0.26 0.022 236)",
+            surfaceSecondary: "oklch(0.26 0.022 236)",
             border: "oklch(0.38 0.025 238)",
         },
     },
