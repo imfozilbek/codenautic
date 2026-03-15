@@ -11,7 +11,7 @@ import { THEME_PRESETS } from "@/lib/theme/theme-presets"
 
 describe("camelToKebab", (): void => {
     it("when given camelCase, then converts to kebab-case", (): void => {
-        expect(camelToKebab("surfaceMuted")).toBe("surface-muted")
+        expect(camelToKebab("surfaceSecondary")).toBe("surface-secondary")
     })
 
     it("when given single word, then returns unchanged", (): void => {
@@ -19,7 +19,7 @@ describe("camelToKebab", (): void => {
     })
 
     it("when given multiple capitals, then converts each", (): void => {
-        expect(camelToKebab("primaryForeground")).toBe("primary-foreground")
+        expect(camelToKebab("accentForeground")).toBe("accent-foreground")
     })
 
     it("when given empty string, then returns empty string", (): void => {

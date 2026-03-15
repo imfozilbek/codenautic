@@ -630,7 +630,7 @@ describe("ThemeProvider", (): void => {
             const rootStyle = document.documentElement.style
             expect(rootStyle.getPropertyValue("--background")).toBeTruthy()
             expect(rootStyle.getPropertyValue("--foreground")).toBeTruthy()
-            expect(rootStyle.getPropertyValue("--primary")).toBeTruthy()
+            expect(rootStyle.getPropertyValue("--accent")).toBeTruthy()
         })
     })
 
