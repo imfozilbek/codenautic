@@ -5,6 +5,25 @@ import { describe, expect, it, vi } from "vitest"
 import { MyWorkPage } from "@/pages/my-work.page"
 import { renderWithProviders } from "../utils/render"
 
+/**
+ * HeroUI v3 Dropdown рендерит menuitem-элементы всех dropdown-меню в DOM,
+ * даже когда они закрыты. findByRole("menuitem", ...) находит дубликаты.
+ * Эта функция находит menuitem из активного (открытого) меню,
+ * фильтруя по наличию aria-controls (присутствует только в открытом popover).
+ */
+async function findActiveMenuItem(name: string): Promise<HTMLElement> {
+    const items = await screen.findAllByRole("menuitem", { name })
+    const active = items.find((item): boolean => item.getAttribute("aria-controls") !== null)
+    if (active !== undefined) {
+        return active
+    }
+    const first = items[0]
+    if (first === undefined) {
+        throw new Error(`Active menuitem "${name}" not found`)
+    }
+    return first
+}
+
 describe("MyWorkPage", (): void => {
     it("объединяет triage поток и поддерживает scope filters + keyboard shortcuts", async (): Promise<void> => {
         const user = userEvent.setup()
@@ -45,9 +64,15 @@ describe("MyWorkPage", (): void => {
             throw new Error("Critical issue row not found")
         }
 
-        const criticalMoreButton = within(criticalIssueRow).getByRole("button", { name: "More" })
+        const criticalMoreButtons = within(criticalIssueRow).getAllByRole("button", {
+            name: "More",
+        })
+        const criticalMoreButton = criticalMoreButtons[0]
+        if (criticalMoreButton === undefined) {
+            throw new Error("Critical issue More button not found")
+        }
         await user.click(criticalMoreButton)
-        const assignMenuItem = await screen.findByRole("menuitem", { name: "Assign to me" })
+        const assignMenuItem = await findActiveMenuItem("Assign to me")
         await user.click(assignMenuItem)
         expect(screen.getByText("Assigned MW-1002 to current reviewer.")).not.toBeNull()
 
@@ -57,9 +82,13 @@ describe("MyWorkPage", (): void => {
             throw new Error("Review row not found")
         }
 
-        const reviewMoreButton = within(reviewRow).getByRole("button", { name: "More" })
+        const reviewMoreButtons = within(reviewRow).getAllByRole("button", { name: "More" })
+        const reviewMoreButton = reviewMoreButtons[0]
+        if (reviewMoreButton === undefined) {
+            throw new Error("Review More button not found")
+        }
         await user.click(reviewMoreButton)
-        const markReadMenuItem = await screen.findByRole("menuitem", { name: "Mark read" })
+        const markReadMenuItem = await findActiveMenuItem("Mark read")
         await user.click(markReadMenuItem)
         expect(screen.getByText("Marked MW-1001 as read.")).not.toBeNull()
     })
@@ -104,9 +133,13 @@ describe("MyWorkPage", (): void => {
                 throw new Error("Review row not found")
             }
 
-            const moreButton = within(reviewRow).getByRole("button", { name: "More" })
+            const moreButtons = within(reviewRow).getAllByRole("button", { name: "More" })
+            const moreButton = moreButtons[0]
+            if (moreButton === undefined) {
+                throw new Error("More button not found")
+            }
             await user.click(moreButton)
-            const openReviewMenuItem = await screen.findByRole("menuitem", { name: "Open review" })
+            const openReviewMenuItem = await findActiveMenuItem("Open review")
             await user.click(openReviewMenuItem)
 
             expect(assignSpy).toHaveBeenCalledWith("/reviews/412")
@@ -127,9 +160,13 @@ describe("MyWorkPage", (): void => {
             throw new Error("Review row not found")
         }
 
-        const moreButton = within(reviewRow).getByRole("button", { name: "More" })
+        const moreButtons = within(reviewRow).getAllByRole("button", { name: "More" })
+        const moreButton = moreButtons[0]
+        if (moreButton === undefined) {
+            throw new Error("More button not found")
+        }
         await user.click(moreButton)
-        const snoozeMenuItem = await screen.findByRole("menuitem", { name: "Snooze" })
+        const snoozeMenuItem = await findActiveMenuItem("Snooze")
         await user.click(snoozeMenuItem)
         expect(screen.getByText("Snoozed MW-1001 until next triage cycle.")).not.toBeNull()
     })
@@ -247,9 +284,13 @@ describe("MyWorkPage", (): void => {
             throw new Error("Review row not found")
         }
 
-        const moreButton = within(reviewRow).getByRole("button", { name: "More" })
+        const moreButtons = within(reviewRow).getAllByRole("button", { name: "More" })
+        const moreButton = moreButtons[0]
+        if (moreButton === undefined) {
+            throw new Error("More button not found")
+        }
         await user.click(moreButton)
-        const assignMenuItem = await screen.findByRole("menuitem", { name: "Assign to me" })
+        const assignMenuItem = await findActiveMenuItem("Assign to me")
         expect(assignMenuItem).toHaveAttribute("data-disabled", "true")
     })
 
@@ -313,9 +354,13 @@ describe("MyWorkPage", (): void => {
                 throw new Error("Review row not found")
             }
 
-            const moreButton = within(reviewRow).getByRole("button", { name: "More" })
+            const moreButtons = within(reviewRow).getAllByRole("button", { name: "More" })
+            const moreButton = moreButtons[0]
+            if (moreButton === undefined) {
+                throw new Error("More button not found")
+            }
             await user.click(moreButton)
-            const deepLinkMenuItem = await screen.findByRole("menuitem", { name: "Deep-link" })
+            const deepLinkMenuItem = await findActiveMenuItem("Deep-link")
             await user.click(deepLinkMenuItem)
 
             expect(assignSpy).toHaveBeenCalledWith("/reviews/412")
