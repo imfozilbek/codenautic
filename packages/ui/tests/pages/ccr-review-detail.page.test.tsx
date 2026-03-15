@@ -2,7 +2,9 @@ import { act, screen } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 
-import { MOCK_CCR_ROWS } from "@/pages/ccr-data"
+import type { ICcrWorkspaceContextResponse } from "@/lib/api/endpoints/ccr-workspace.endpoint"
+import type { ICcrRowData } from "@/lib/types/ccr-types"
+import { getCcrDiffById, getCcrReviewThreadsById, MOCK_CCR_ROWS } from "@/pages/ccr-data"
 import { CcrReviewDetailPage } from "@/pages/ccr-review-detail/ccr-review-detail.page"
 import { renderWithProviders } from "../utils/render"
 
@@ -21,7 +23,7 @@ afterEach((): void => {
     window.localStorage.removeItem("codenautic:rbac:role")
 })
 
-function getMockCcrRow(index: number) {
+function getMockCcrRow(index: number): ICcrRowData {
     const ccr = MOCK_CCR_ROWS[index]
     if (ccr === undefined) {
         throw new Error(`Expected MOCK_CCR_ROWS[${String(index)}] to exist`)
@@ -30,11 +32,31 @@ function getMockCcrRow(index: number) {
     return ccr
 }
 
+function buildWorkspaceContext(ccr: ICcrRowData): ICcrWorkspaceContextResponse {
+    return {
+        reviewId: ccr.id,
+        ccr: {
+            id: ccr.id,
+            title: ccr.title,
+            repository: ccr.repository,
+            assignee: ccr.assignee,
+            status: ccr.status,
+            comments: ccr.comments,
+            updatedAt: ccr.updatedAt,
+            team: ccr.team,
+            severity: ccr.severity,
+            attachedFiles: ccr.attachedFiles,
+        },
+        diffFiles: getCcrDiffById(ccr.id),
+        threads: getCcrReviewThreadsById(ccr.id),
+    }
+}
+
 describe("ccr review detail page", (): void => {
     it("рендерит карточку CCR и заголовок чата", (): void => {
         const ccr = getMockCcrRow(0)
 
-        renderWithProviders(<CcrReviewDetailPage ccr={ccr} />)
+        renderWithProviders(<CcrReviewDetailPage ccr={ccr} workspaceContext={buildWorkspaceContext(ccr)} />)
 
         expect(screen.getByText(ccr.title)).not.toBeNull()
         expect(
@@ -46,7 +68,7 @@ describe("ccr review detail page", (): void => {
         const user = userEvent.setup()
         const ccr = getMockCcrRow(1)
 
-        renderWithProviders(<CcrReviewDetailPage ccr={ccr} />)
+        renderWithProviders(<CcrReviewDetailPage ccr={ccr} workspaceContext={buildWorkspaceContext(ccr)} />)
 
         const explainButton = screen.getByRole("button", { name: "explain this file" })
         await user.click(explainButton)
@@ -59,7 +81,7 @@ describe("ccr review detail page", (): void => {
         const user = userEvent.setup()
         const ccr = getMockCcrRow(0)
 
-        renderWithProviders(<CcrReviewDetailPage ccr={ccr} />)
+        renderWithProviders(<CcrReviewDetailPage ccr={ccr} workspaceContext={buildWorkspaceContext(ccr)} />)
 
         expect(
             screen.getByRole("heading", { name: "CCR context CodeCity mini-map" }),
@@ -86,7 +108,7 @@ describe("ccr review detail page", (): void => {
         const user = userEvent.setup()
         const ccr = getMockCcrRow(0)
 
-        renderWithProviders(<CcrReviewDetailPage ccr={ccr} />)
+        renderWithProviders(<CcrReviewDetailPage ccr={ccr} workspaceContext={buildWorkspaceContext(ccr)} />)
 
         expect(screen.getByRole("heading", { name: "CCR impact CodeCity view" })).not.toBeNull()
         expect(screen.getByText("File neighborhood panel")).not.toBeNull()
@@ -104,7 +126,7 @@ describe("ccr review detail page", (): void => {
         const user = userEvent.setup()
         const ccr = getMockCcrRow(0)
 
-        renderWithProviders(<CcrReviewDetailPage ccr={ccr} />)
+        renderWithProviders(<CcrReviewDetailPage ccr={ccr} workspaceContext={buildWorkspaceContext(ccr)} />)
 
         expect(screen.getByText("Review history heatmap is disabled.")).not.toBeNull()
         await user.click(screen.getByRole("button", { name: "Show review history heatmap" }))
@@ -120,7 +142,7 @@ describe("ccr review detail page", (): void => {
         const user = userEvent.setup()
         const ccr = getMockCcrRow(0)
 
-        renderWithProviders(<CcrReviewDetailPage ccr={ccr} />)
+        renderWithProviders(<CcrReviewDetailPage ccr={ccr} workspaceContext={buildWorkspaceContext(ccr)} />)
 
         expect(screen.getByText("File neighborhood panel")).not.toBeNull()
         expect(screen.getByRole("list", { name: "Neighborhood dependency list" })).not.toBeNull()
@@ -143,7 +165,7 @@ describe("ccr review detail page", (): void => {
     it("рендерит review risk indicator из impact и history сигналов", (): void => {
         const ccr = getMockCcrRow(0)
 
-        renderWithProviders(<CcrReviewDetailPage ccr={ccr} />)
+        renderWithProviders(<CcrReviewDetailPage ccr={ccr} workspaceContext={buildWorkspaceContext(ccr)} />)
 
         expect(screen.getByText("Review risk indicator")).not.toBeNull()
         expect(screen.getByLabelText(/Review risk level/)).not.toBeNull()
@@ -155,7 +177,7 @@ describe("ccr review detail page", (): void => {
         const ccr = getMockCcrRow(0)
         window.localStorage.setItem("codenautic:rbac:role", "viewer")
 
-        renderWithProviders(<CcrReviewDetailPage ccr={ccr} />)
+        renderWithProviders(<CcrReviewDetailPage ccr={ccr} workspaceContext={buildWorkspaceContext(ccr)} />)
 
         const approveButton = screen.getByRole("button", { name: "Approve review" })
         expect(approveButton).toBeDisabled()
@@ -168,7 +190,7 @@ describe("ccr review detail page", (): void => {
         const user = userEvent.setup()
         const ccr = getMockCcrRow(0)
 
-        renderWithProviders(<CcrReviewDetailPage ccr={ccr} />)
+        renderWithProviders(<CcrReviewDetailPage ccr={ccr} workspaceContext={buildWorkspaceContext(ccr)} />)
 
         expect(screen.getByRole("list", { name: "SafeGuard trace list" })).not.toBeNull()
         expect(screen.getByText(/Applied filters:/i)).not.toBeNull()
@@ -186,7 +208,7 @@ describe("ccr review detail page", (): void => {
         const user = userEvent.setup()
         const ccr = getMockCcrRow(0)
 
-        renderWithProviders(<CcrReviewDetailPage ccr={ccr} />)
+        renderWithProviders(<CcrReviewDetailPage ccr={ccr} workspaceContext={buildWorkspaceContext(ccr)} />)
 
         await user.click(screen.getByRole("button", { name: "Open trace for SG-002" }))
         await user.click(screen.getByRole("button", { name: "Quick action duplicate" }))
@@ -270,7 +292,7 @@ describe("ccr review detail page", (): void => {
     it("рендерит code diff с inline комментариями", (): void => {
         const ccr = getMockCcrRow(0)
 
-        renderWithProviders(<CcrReviewDetailPage ccr={ccr} />)
+        renderWithProviders(<CcrReviewDetailPage ccr={ccr} workspaceContext={buildWorkspaceContext(ccr)} />)
 
         expect(screen.getByRole("region", { name: "Code diff viewer" })).not.toBeNull()
         expect(screen.getAllByText("src/auth/middleware.ts").length).toBeGreaterThan(0)
@@ -280,7 +302,7 @@ describe("ccr review detail page", (): void => {
         const user = userEvent.setup()
         const ccr = getMockCcrRow(0)
 
-        renderWithProviders(<CcrReviewDetailPage ccr={ccr} />)
+        renderWithProviders(<CcrReviewDetailPage ccr={ccr} workspaceContext={buildWorkspaceContext(ccr)} />)
 
         expect(screen.getAllByText("Neo").length).toBeGreaterThan(0)
         expect(screen.getByText("Morpheus")).not.toBeNull()
