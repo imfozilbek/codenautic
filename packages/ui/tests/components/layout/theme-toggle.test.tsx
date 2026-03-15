@@ -23,7 +23,7 @@ describe("ThemeToggle", (): void => {
 
     it("when a mode button is clicked, then updates selected state", async (): Promise<void> => {
         const user = userEvent.setup()
-        renderWithProviders(<ThemeToggle />, { defaultThemeMode: "system" })
+        renderWithProviders(<ThemeToggle />, { themeMode: "system" })
 
         const lightButton = screen.getByLabelText("Use light theme")
         await user.click(lightButton)
