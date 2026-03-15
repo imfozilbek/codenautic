@@ -35,7 +35,7 @@ export function useMultiTabSync(
     const [multiTabNotice, setMultiTabNotice] = useState<string | undefined>(undefined)
 
     useEffect((): (() => void) | void => {
-        if (typeof window === "undefined" || typeof window.BroadcastChannel !== "function") {
+        if (typeof window.BroadcastChannel !== "function") {
             return
         }
 
@@ -77,10 +77,6 @@ export function useMultiTabSync(
     }, [activeOrganizationId, queryClient, setActiveOrganizationId])
 
     useEffect((): (() => void) | void => {
-        if (typeof window === "undefined") {
-            return
-        }
-
         const handleStorageSync = (event: StorageEvent): void => {
             if (event.key === TENANT_STORAGE_KEY && event.newValue !== null) {
                 if (isTenantId(event.newValue) && event.newValue !== activeOrganizationId) {
