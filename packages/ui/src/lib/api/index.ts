@@ -27,6 +27,8 @@ import { TriageApi } from "./endpoints/triage.endpoint"
 import { WebhooksApi } from "./endpoints/webhooks.endpoint"
 import { ByokApi } from "./endpoints/byok.endpoint"
 import { SsoApi } from "./endpoints/sso.endpoint"
+import { TokenUsageApi } from "./endpoints/token-usage.endpoint"
+import { AuditLogsApi } from "./endpoints/audit-logs.endpoint"
 import { FetchHttpClient } from "./http-client"
 
 /**
@@ -63,6 +65,8 @@ export function createApiContracts(): {
     readonly webhooks: WebhooksApi
     readonly byok: ByokApi
     readonly sso: SsoApi
+    readonly tokenUsage: TokenUsageApi
+    readonly auditLogs: AuditLogsApi
 } {
     const config = createApiConfig(resolveUiEnv(import.meta.env))
     const httpClient = new FetchHttpClient(config)
@@ -96,6 +100,8 @@ export function createApiContracts(): {
         webhooks: new WebhooksApi(httpClient),
         byok: new ByokApi(httpClient),
         sso: new SsoApi(httpClient),
+        tokenUsage: new TokenUsageApi(httpClient),
+        auditLogs: new AuditLogsApi(httpClient),
     }
 }
 
@@ -145,6 +151,8 @@ export type { IWebhooksApi } from "./endpoints/webhooks.endpoint"
 export type { IBillingApi } from "./endpoints/billing.endpoint"
 export type { IByokApi } from "./endpoints/byok.endpoint"
 export type { ISsoApi } from "./endpoints/sso.endpoint"
+export type { ITokenUsageApi } from "./endpoints/token-usage.endpoint"
+export type { IAuditLogsApi } from "./endpoints/audit-logs.endpoint"
 export type { IAdminConfigApi } from "./endpoints/admin-config.endpoint"
 export type { INotificationsApi } from "./endpoints/notifications.endpoint"
 export type { TSystemHealthResponse, THealthStatus } from "./types"
