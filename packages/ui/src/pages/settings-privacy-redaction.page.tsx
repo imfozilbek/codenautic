@@ -2,8 +2,7 @@ import { type ReactElement, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { Alert, Button, TextArea } from "@heroui/react"
-import { FormLayout } from "@/components/forms/form-layout"
-import { FormSection } from "@/components/forms/form-section"
+import { TYPOGRAPHY } from "@/lib/constants/typography"
 import { showToastError, showToastInfo, showToastSuccess } from "@/lib/notifications/toast"
 
 type TSensitiveType = "api_key" | "email" | "secret" | "token"
@@ -118,10 +117,7 @@ export function SettingsPrivacyRedactionPage(): ReactElement {
     }
 
     return (
-        <FormLayout
-            title={t("settings:privacyRedaction.pageTitle")}
-            description={t("settings:privacyRedaction.pageSubtitle")}
-        >
+        <div className="space-y-6 mx-auto max-w-[1400px]"><div className="space-y-1.5"><h1 className={TYPOGRAPHY.pageTitle}>{t("settings:privacyRedaction.pageTitle")}</h1><p className={TYPOGRAPHY.bodyMuted}>{t("settings:privacyRedaction.pageSubtitle")}</p></div><div className="space-y-6">
             {hasSensitiveData ? (
                 <Alert status="danger">
                     <Alert.Title>
@@ -142,7 +138,7 @@ export function SettingsPrivacyRedactionPage(): ReactElement {
                 </Alert>
             )}
 
-            <FormSection heading={t("settings:privacyRedaction.sourceContent")}>
+            <section className="space-y-4 rounded-lg border border-border/50 bg-surface-tertiary p-4"><div className="space-y-1"><h3 className={TYPOGRAPHY.subsectionTitle}>{t("settings:privacyRedaction.sourceContent")}</h3></div><div className="space-y-3">
                 <TextArea
                     aria-label={t("settings:ariaLabel.privacyRedaction.sourceText")}
                     className="min-h-[150px]"
@@ -159,9 +155,9 @@ export function SettingsPrivacyRedactionPage(): ReactElement {
                         {t("settings:privacyRedaction.confirmSafeExport")}
                     </Button>
                 </div>
-            </FormSection>
+            </div></section>
 
-            <FormSection heading={t("settings:privacyRedaction.detectionSummary")}>
+            <section className="space-y-4 rounded-lg border border-border/50 bg-surface-tertiary p-4"><div className="space-y-1"><h3 className={TYPOGRAPHY.subsectionTitle}>{t("settings:privacyRedaction.detectionSummary")}</h3></div><div className="space-y-3">
                 {hasSensitiveData ? (
                     <ul
                         aria-label={t("settings:ariaLabel.privacyRedaction.sensitiveHitsList")}
@@ -184,9 +180,9 @@ export function SettingsPrivacyRedactionPage(): ReactElement {
                         {t("settings:privacyRedaction.noHitsMessage")}
                     </p>
                 )}
-            </FormSection>
+            </div></section>
 
-            <FormSection heading={t("settings:privacyRedaction.redactedPreview")}>
+            <section className="space-y-4 rounded-lg border border-border/50 bg-surface-tertiary p-4"><div className="space-y-1"><h3 className={TYPOGRAPHY.subsectionTitle}>{t("settings:privacyRedaction.redactedPreview")}</h3></div><div className="space-y-3">
                 <TextArea
                     aria-label={t("settings:ariaLabel.privacyRedaction.redactedPreview")}
                     readOnly
@@ -197,7 +193,7 @@ export function SettingsPrivacyRedactionPage(): ReactElement {
                     <Alert.Title>{t("settings:privacyRedaction.exportState")}</Alert.Title>
                     <Alert.Description>{lastExportState}</Alert.Description>
                 </Alert>
-            </FormSection>
-        </FormLayout>
+            </div></section>
+        </div></div>
     )
 }
