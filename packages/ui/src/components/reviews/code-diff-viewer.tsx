@@ -1,156 +1,74 @@
 import { useMemo } from "react"
 import type { ReactElement } from "react"
 import { useTranslation } from "react-i18next"
+import ReactDiffViewer from "react-diff-viewer-continued"
 
 import { TYPOGRAPHY } from "@/lib/constants/typography"
-import type {
-    ICcrDiffFile,
-    ICcrDiffLine,
-    TCcrDiffLineType,
-    ICcrDiffComment,
-} from "@/pages/ccr-data"
+import type { ICcrDiffComment, ICcrDiffFile } from "@/pages/ccr-data"
 
-const DIFF_TOKEN_PATTERN =
-    /("(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*'|`(?:[^`\\]|\\.)*`|\/\/.*$|\b\d+\b|\b(?:async|await|break|case|const|continue|else|export|for|function|if|import|let|return|switch|try|type|throw|class|const|while|yield)\b)/g
-
-const DIFF_KEYWORDS = new Set([
-    "async",
-    "await",
-    "break",
-    "case",
-    "const",
-    "continue",
-    "else",
-    "export",
-    "for",
-    "function",
-    "if",
-    "import",
-    "let",
-    "return",
-    "switch",
-    "throw",
-    "try",
-    "type",
-    "while",
-    "class",
-    "yield",
-])
-
+/**
+ * Props for the CodeDiffViewer component.
+ */
 interface ICodeDiffViewerProps {
-    /** Диффы по файлам для отображения. */
+    /**
+     * Диффы по файлам для отображения.
+     */
     readonly files: ReadonlyArray<ICcrDiffFile>
 }
 
-interface ICodeLineProps {
-    readonly side: "left" | "right"
-    readonly line: ICcrDiffLine
-    readonly diffType: TCcrDiffLineType
+/**
+ * Собрать все inline-комментарии из строк файла.
+ *
+ * @param file - Файл диффа с массивом строк.
+ * @returns Массив комментариев из всех строк файла.
+ */
+function collectFileComments(file: ICcrDiffFile): ReadonlyArray<ICcrDiffComment> {
+    return file.lines.flatMap((line): ReadonlyArray<ICcrDiffComment> => line.comments ?? [])
 }
 
-function getTokenClass(token: string): string {
-    if (token.trim().length === 0) {
-        return "text-foreground"
-    }
-
-    if (token.startsWith('"') && token.endsWith('"')) {
-        return "text-success"
-    }
-
-    if (token.startsWith("'") && token.endsWith("'")) {
-        return "text-success"
-    }
-
-    if (token.startsWith("`") && token.endsWith("`")) {
-        return "text-success"
-    }
-
-    if (token.startsWith("//")) {
-        return "text-muted italic"
-    }
-
-    if (/^\d+$/.test(token)) {
-        return "text-accent"
-    }
-
-    if (DIFF_KEYWORDS.has(token)) {
-        return "text-accent font-semibold"
-    }
-
-    return "text-foreground"
+/**
+ * Реконструировать исходный текст (left side) из строк диффа.
+ *
+ * @param file - Файл диффа.
+ * @returns Многострочный текст для left side.
+ */
+function reconstructOldText(file: ICcrDiffFile): string {
+    return file.lines
+        .filter((line): boolean => line.type !== "added")
+        .map((line): string => line.leftText)
+        .join("\n")
 }
 
-function renderHighlightedCode(code: string): ReactElement {
-    const tokens = code.split(DIFF_TOKEN_PATTERN)
-
-    return (
-        <span className="text-left">
-            {tokens.map(
-                (token, tokenIndex): ReactElement => (
-                    <span key={`token-${String(tokenIndex)}`} className={getTokenClass(token)}>
-                        {token}
-                    </span>
-                ),
-            )}
-        </span>
-    )
+/**
+ * Реконструировать новый текст (right side) из строк диффа.
+ *
+ * @param file - Файл диффа.
+ * @returns Многострочный текст для right side.
+ */
+function reconstructNewText(file: ICcrDiffFile): string {
+    return file.lines
+        .filter((line): boolean => line.type !== "removed")
+        .map((line): string => line.rightText)
+        .join("\n")
 }
 
-function getLineStyleByType(type: TCcrDiffLineType): string {
-    if (type === "removed") {
-        return "bg-danger/10 border-l-4 border-danger/40"
-    }
-
-    if (type === "added") {
-        return "bg-success/10 border-l-4 border-success/40"
-    }
-
-    return "bg-surface"
-}
-
-function getLineNumber(lineValue: number | undefined): string {
-    return lineValue === undefined ? "—" : String(lineValue)
-}
-
-function CodeDiffLine(props: ICodeLineProps): ReactElement {
-    const isLeft = props.side === "left"
-    const shouldRenderCode =
-        props.diffType === "context" ||
-        (isLeft ? props.diffType !== "added" : props.diffType !== "removed")
-    const text = isLeft ? props.line.leftText : props.line.rightText
-    const lineNumber = isLeft ? props.line.leftLine : props.line.rightLine
-    const lineClassName = isLeft
-        ? props.diffType === "added"
-            ? "bg-surface-secondary text-muted"
-            : "bg-surface text-foreground"
-        : props.diffType === "removed"
-          ? "bg-surface-secondary text-muted"
-          : "bg-surface text-foreground"
-
-    const code = shouldRenderCode ? renderHighlightedCode(text) : null
-
-    return (
-        <div
-            className={`grid ${isLeft ? "grid-cols-[3rem_1fr]" : "grid-cols-[3rem_1fr]"} items-stretch border-r border-border`}
-        >
-            <div className={`border-r border-border px-2 py-1 text-right text-xs ${lineClassName}`}>
-                {getLineNumber(lineNumber)}
-            </div>
-            <div className={`px-2 py-1 text-[11px] leading-5 font-mono ${lineClassName}`}>
-                {code}
-            </div>
-        </div>
-    )
-}
-
+/**
+ * Панель диффа для одного файла.
+ *
+ * Отображает header с путём, статистикой строк и языком,
+ * ReactDiffViewer для side-by-side diff, и список комментариев.
+ *
+ * @param props - Данные файла диффа (ICcrDiffFile).
+ * @returns Панель файлового диффа.
+ */
 function CodeDiffFilePanel(props: ICcrDiffFile): ReactElement {
     const { t } = useTranslation(["reviews"])
-    const fileData = props
+
     const lineCounts = useMemo((): { added: number; removed: number } => {
         let added = 0
         let removed = 0
 
-        for (const line of fileData.lines) {
+        for (const line of props.lines) {
             if (line.type === "added") {
                 added += 1
             }
@@ -160,76 +78,65 @@ function CodeDiffFilePanel(props: ICcrDiffFile): ReactElement {
         }
 
         return { added, removed }
-    }, [fileData.lines])
+    }, [props.lines])
+
+    const oldText = useMemo((): string => reconstructOldText(props), [props])
+    const newText = useMemo((): string => reconstructNewText(props), [props])
+    const comments = useMemo(
+        (): ReadonlyArray<ICcrDiffComment> => collectFileComments(props),
+        [props],
+    )
 
     return (
         <section className="rounded-lg border border-border">
             <header className="flex flex-wrap items-center gap-2 border-b border-border bg-surface px-3 py-2">
-                <h3 className={TYPOGRAPHY.cardTitle}>{fileData.filePath}</h3>
+                <h3 className={TYPOGRAPHY.cardTitle}>{props.filePath}</h3>
                 <span className="rounded bg-surface-secondary px-2 py-0.5 text-[11px] text-foreground">
                     +{String(lineCounts.added)} / -{String(lineCounts.removed)}
                 </span>
                 <span className={TYPOGRAPHY.captionMuted}>
-                    {t("reviews:codeDiff.language", { language: fileData.language })}
+                    {t("reviews:codeDiff.language", { language: props.language })}
                 </span>
             </header>
             <div className="overflow-x-auto">
-                <div
-                    aria-label={t("reviews:codeDiff.diffLinesAriaLabel", {
-                        filePath: fileData.filePath,
-                    })}
-                    className="max-h-96 overflow-auto border-b border-border"
-                >
-                    {fileData.lines.map((line, index): ReactElement => {
-                        const lineStyle = getLineStyleByType(line.type)
-                        const hasComments = (line.comments ?? []).length > 0
-
-                        return (
-                            <article
-                                key={`diff-line-${String(index)}`}
-                                role="row"
-                                className={`border-b border-border ${lineStyle}`}
-                            >
-                                <div className="grid w-full min-w-[56rem] grid-cols-[1fr_1fr]">
-                                    <CodeDiffLine
-                                        diffType={line.type}
-                                        line={line}
-                                        side="left"
-                                    />
-                                    <CodeDiffLine
-                                        diffType={line.type}
-                                        line={line}
-                                        side="right"
-                                    />
-                                </div>
-                                {hasComments ? (
-                                    <ul className="px-3 pb-2">
-                                        {line.comments?.map(
-                                            (comment: ICcrDiffComment): ReactElement => (
-                                                <li
-                                                    key={`${comment.author}-${String(comment.line)}-${comment.side}`}
-                                                    className="mt-1 rounded border border-border bg-surface px-2 py-1 text-xs text-foreground"
-                                                >
-                                                    <p className="font-medium">
-                                                        {comment.author} ({comment.side}:
-                                                        {comment.line})
-                                                    </p>
-                                                    <p>{comment.message}</p>
-                                                </li>
-                                            ),
-                                        )}
-                                    </ul>
-                                ) : null}
-                            </article>
-                        )
-                    })}
-                </div>
+                <ReactDiffViewer
+                    oldValue={oldText}
+                    newValue={newText}
+                    splitView={true}
+                    useDarkTheme={false}
+                    showDiffOnly={false}
+                />
             </div>
+            {comments.length > 0 ? (
+                <ul className="border-t border-border px-3 py-2">
+                    {comments.map(
+                        (comment: ICcrDiffComment): ReactElement => (
+                            <li
+                                key={`${comment.author}-${String(comment.line)}-${comment.side}`}
+                                className="mt-1 rounded border border-border bg-surface px-2 py-1 text-xs text-foreground"
+                            >
+                                <p className="font-medium">
+                                    {comment.author} ({comment.side}:{comment.line})
+                                </p>
+                                <p>{comment.message}</p>
+                            </li>
+                        ),
+                    )}
+                </ul>
+            ) : null}
         </section>
     )
 }
 
-/** Viewer for review diff with side-by-side layout. */
+/**
+ * Viewer для code diff с side-by-side layout.
+ *
+ * Рендерит ReactDiffViewer для каждого файла из массива `files`.
+ * Пустое состояние — сообщение "No available diff content".
+ *
+ * @param props - Props с массивом файлов диффа.
+ * @returns Секция с diff viewer.
+ */
 export function CodeDiffViewer(props: ICodeDiffViewerProps): ReactElement {
     const { t } = useTranslation(["reviews"])
 
