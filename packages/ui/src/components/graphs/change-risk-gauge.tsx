@@ -65,16 +65,18 @@ export function ChangeRiskGauge(props: IChangeRiskGaugeProps): ReactElement {
                     <div className="h-full w-[30%] bg-warning/70" />
                     <div className="h-full flex-1 bg-danger/70" />
                 </div>
-                <div
-                    className={`flex items-center justify-between ${TYPOGRAPHY.micro} text-muted`}
-                >
+                <div className={`flex items-center justify-between ${TYPOGRAPHY.micro} text-muted`}>
                     <span>{t("code-city:riskGauge.green")}</span>
                     <span>{t("code-city:riskGauge.yellow")}</span>
                     <span>{t("code-city:riskGauge.red")}</span>
                 </div>
                 <div className="rounded border border-accent/30 bg-accent/10 p-2">
-                    <p className={`${TYPOGRAPHY.overline} text-accent-foreground`}>Current risk score</p>
-                    <p className="text-lg font-semibold text-accent-foreground">{String(clampedScore)}</p>
+                    <p className={`${TYPOGRAPHY.overline} text-accent-foreground`}>
+                        Current risk score
+                    </p>
+                    <p className="text-lg font-semibold text-accent-foreground">
+                        {String(clampedScore)}
+                    </p>
                     <p className="text-xs text-accent-foreground">Zone: {riskZone}</p>
                 </div>
             </div>
