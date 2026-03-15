@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next"
 import ReactDiffViewer from "react-diff-viewer-continued"
 
 import { TYPOGRAPHY } from "@/lib/constants/typography"
-import type { ICcrDiffComment, ICcrDiffFile } from "@/pages/ccr-data"
+import type { ICcrDiffComment, ICcrDiffFile } from "@/lib/types/ccr-types"
 
 /**
  * Props for the CodeDiffViewer component.
