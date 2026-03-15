@@ -62,9 +62,7 @@ export function ContextSourceCard(props: IContextSourceCardProps): ReactElement 
     return (
         <Card
             className={
-                props.selected === true
-                    ? "border-2 border-accent/30"
-                    : "border border-default-200"
+                props.selected === true ? "border-2 border-accent/30" : "border border-default-200"
             }
             role={props.onSelect !== undefined ? "button" : undefined}
             tabIndex={props.onSelect !== undefined ? 0 : undefined}
