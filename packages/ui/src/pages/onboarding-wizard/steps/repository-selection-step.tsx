@@ -1,5 +1,6 @@
 import { useMemo, type ChangeEvent, type ReactElement } from "react"
 import { useTranslation } from "react-i18next"
+import { Controller } from "react-hook-form"
 
 import { useDynamicTranslation } from "@/lib/i18n"
 import {
@@ -11,8 +12,8 @@ import {
     RadioGroup,
     TextArea as Textarea,
 } from "@heroui/react"
-import { FormField } from "@/components/forms"
 import type { IFormSelectOption } from "@/components/forms"
+import { TYPOGRAPHY } from "@/lib/constants/typography"
 
 import type { IOnboardingWizardState } from "../use-onboarding-wizard-state"
 import type { IOnboardingFormValues } from "../onboarding-wizard-types"
@@ -58,107 +59,163 @@ export function RepositorySelectionStep({
 
     return (
         <section className="space-y-3">
-            <FormField<IOnboardingFormValues, "onboardingMode">
+            <Controller<IOnboardingFormValues, "onboardingMode">
                 control={state.form.control}
-                helperText={t("onboarding:repository.modeHelper")}
-                label={t("onboarding:repository.modeLabel")}
-                labelElement="span"
                 name="onboardingMode"
-                renderField={({
-                    field,
-                    hasError,
-                    accessibilityLabel,
-                    ariaDescribedBy,
-                }): ReactElement => (
-                    <RadioGroup
-                        aria-describedby={ariaDescribedBy}
-                        aria-label={accessibilityLabel}
-                        aria-invalid={hasError}
-                        name={field.name}
-                        value={field.value ?? ""}
-                        onChange={(value: string): void => {
-                            field.onChange(value)
-                        }}
-                    >
-                        {onboardingModeOptions.map(
-                            (option): ReactElement => (
-                                <Radio
-                                    key={option.value}
-                                    isDisabled={option.isDisabled}
-                                    value={option.value}
-                                >
-                                    {option.label}
-                                </Radio>
-                            ),
-                        )}
-                    </RadioGroup>
-                )}
+                render={({ field, fieldState }): ReactElement => {
+                    const errorMessage =
+                        typeof fieldState.error?.message === "string"
+                            ? fieldState.error.message
+                            : undefined
+                    const hasError = errorMessage !== undefined
+                    const helperId = "onboardingMode-helper"
+                    const label = t("onboarding:repository.modeLabel")
+                    const helperText = t("onboarding:repository.modeHelper")
+
+                    return (
+                        <div className="flex flex-col gap-1.5">
+                            <span className={TYPOGRAPHY.label}>{label}</span>
+                            <RadioGroup
+                                aria-describedby={helperId}
+                                aria-label={label}
+                                aria-invalid={hasError}
+                                name={field.name}
+                                value={field.value ?? ""}
+                                onChange={(value: string): void => {
+                                    field.onChange(value)
+                                }}
+                            >
+                                {onboardingModeOptions.map(
+                                    (option): ReactElement => (
+                                        <Radio
+                                            key={option.value}
+                                            isDisabled={option.isDisabled}
+                                            value={option.value}
+                                        >
+                                            {option.label}
+                                        </Radio>
+                                    ),
+                                )}
+                            </RadioGroup>
+                            <span id={helperId}>
+                                {hasError ? (
+                                    <p className="text-xs text-danger" role="alert">
+                                        {errorMessage}
+                                    </p>
+                                ) : (
+                                    <p className="text-xs text-muted">{helperText}</p>
+                                )}
+                            </span>
+                        </div>
+                    )
+                }}
             />
 
             {state.isSingleMode ? (
-                <FormField<IOnboardingFormValues, "repositoryUrl">
+                <Controller<IOnboardingFormValues, "repositoryUrl">
                     control={state.form.control}
-                    id="repository-url"
-                    label={t("onboarding:repository.urlLabel")}
                     name="repositoryUrl"
-                    helperText={t("onboarding:repository.urlHelper")}
-                    renderField={({
-                        field,
-                        hasError,
-                        fieldId,
-                        accessibilityLabel,
-                        ariaDescribedBy,
-                    }): ReactElement => {
+                    render={({ field, fieldState }): ReactElement => {
+                        const errorMessage =
+                            typeof fieldState.error?.message === "string"
+                                ? fieldState.error.message
+                                : undefined
+                        const hasError = errorMessage !== undefined
+                        const fieldId = "repository-url"
+                        const helperId = `${fieldId}-helper`
                         const value = typeof field.value === "string" ? field.value : ""
+                        const label = t("onboarding:repository.urlLabel")
+                        const helperText = t("onboarding:repository.urlHelper")
 
                         return (
-                            <Input
-                                aria-describedby={ariaDescribedBy}
-                                aria-label={accessibilityLabel}
-                                aria-invalid={hasError}
-                                id={fieldId}
-                                name={field.name}
-                                placeholder={t("onboarding:repository.urlPlaceholder")}
-                                type="url"
-                                value={value}
-                                onBlur={field.onBlur}
-                                onChange={field.onChange}
-                            />
+                            <div className="flex flex-col gap-1.5">
+                                <label className={TYPOGRAPHY.label} htmlFor={fieldId}>
+                                    {label}
+                                </label>
+                                <Input
+                                    aria-describedby={helperId}
+                                    aria-label={label}
+                                    aria-invalid={hasError}
+                                    id={fieldId}
+                                    name={field.name}
+                                    placeholder={t(
+                                        "onboarding:repository.urlPlaceholder",
+                                    )}
+                                    type="url"
+                                    value={value}
+                                    onBlur={field.onBlur}
+                                    onChange={field.onChange}
+                                />
+                                <span id={helperId}>
+                                    {hasError ? (
+                                        <p className="text-xs text-danger" role="alert">
+                                            {errorMessage}
+                                        </p>
+                                    ) : (
+                                        <p className="text-xs text-muted">
+                                            {helperText}
+                                        </p>
+                                    )}
+                                </span>
+                            </div>
                         )
                     }}
                 />
             ) : (
                 <>
-                    <FormField<IOnboardingFormValues, "repositoryUrlList">
+                    <Controller<IOnboardingFormValues, "repositoryUrlList">
                         control={state.form.control}
-                        id="repository-url-list"
-                        label={t("onboarding:repository.bulkListLabel")}
                         name="repositoryUrlList"
-                        renderField={({
-                            field,
-                            hasError,
-                            fieldId,
-                            accessibilityLabel,
-                            ariaDescribedBy,
-                        }): ReactElement => {
-                            const value = field.value === undefined ? "" : field.value
+                        render={({ field, fieldState }): ReactElement => {
+                            const errorMessage =
+                                typeof fieldState.error?.message === "string"
+                                    ? fieldState.error.message
+                                    : undefined
+                            const hasError = errorMessage !== undefined
+                            const fieldId = "repository-url-list"
+                            const helperId = `${fieldId}-helper`
+                            const value =
+                                field.value === undefined ? "" : field.value
+                            const label = t("onboarding:repository.bulkListLabel")
 
                             return (
-                                <Textarea
-                                    aria-describedby={ariaDescribedBy}
-                                    aria-label={accessibilityLabel}
-                                    aria-invalid={hasError}
-                                    className="min-h-[150px]"
-                                    id={fieldId}
-                                    name={field.name}
-                                    placeholder={`https://github.com/owner/repo-a
+                                <div className="flex flex-col gap-1.5">
+                                    <label
+                                        className={TYPOGRAPHY.label}
+                                        htmlFor={fieldId}
+                                    >
+                                        {label}
+                                    </label>
+                                    <Textarea
+                                        aria-describedby={
+                                            hasError ? helperId : undefined
+                                        }
+                                        aria-label={label}
+                                        aria-invalid={hasError}
+                                        className="min-h-[150px]"
+                                        id={fieldId}
+                                        name={field.name}
+                                        placeholder={`https://github.com/owner/repo-a
 https://github.com/owner/repo-b`}
-                                    value={value}
-                                    onBlur={field.onBlur}
-                                    onChange={(event: ChangeEvent<HTMLTextAreaElement>): void => {
-                                        field.onChange(event.target.value)
-                                    }}
-                                />
+                                        value={value}
+                                        onBlur={field.onBlur}
+                                        onChange={(
+                                            event: ChangeEvent<HTMLTextAreaElement>,
+                                        ): void => {
+                                            field.onChange(event.target.value)
+                                        }}
+                                    />
+                                    <span id={helperId}>
+                                        {hasError ? (
+                                            <p
+                                                className="text-xs text-danger"
+                                                role="alert"
+                                            >
+                                                {errorMessage}
+                                            </p>
+                                        ) : null}
+                                    </span>
+                                </div>
                             )
                         }}
                     />
