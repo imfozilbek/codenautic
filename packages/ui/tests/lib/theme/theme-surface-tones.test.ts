@@ -26,7 +26,7 @@ describe("SURFACE_TONES", (): void => {
             "background",
             "foreground",
             "surface",
-            "surfaceMuted",
+            "surfaceSecondary",
             "border",
         ] as const
 
