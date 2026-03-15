@@ -118,8 +118,8 @@ describe("onboarding-templates", (): void => {
     })
 
     describe("mapBulkStatusClasses", (): void => {
-        it("when status is running, then returns primary classes", (): void => {
-            expect(mapBulkStatusClasses("running")).toContain("text-primary")
+        it("when status is running, then returns accent classes", (): void => {
+            expect(mapBulkStatusClasses("running")).toContain("text-accent")
         })
 
         it("when status is queued, then returns surface classes", (): void => {
@@ -135,7 +135,7 @@ describe("onboarding-templates", (): void => {
         })
 
         it("when status is cancelled, then returns muted classes", (): void => {
-            expect(mapBulkStatusClasses("cancelled")).toContain("text-muted-foreground")
+            expect(mapBulkStatusClasses("cancelled")).toContain("text-muted")
         })
 
         it("when status is error, then returns danger classes", (): void => {
@@ -144,8 +144,8 @@ describe("onboarding-templates", (): void => {
     })
 
     describe("mapBulkProgressClasses", (): void => {
-        it("when status is running, then returns bg-primary", (): void => {
-            expect(mapBulkProgressClasses("running")).toBe("bg-primary")
+        it("when status is running, then returns bg-accent", (): void => {
+            expect(mapBulkProgressClasses("running")).toBe("bg-accent")
         })
 
         it("when status is error, then returns bg-danger", (): void => {
@@ -160,12 +160,12 @@ describe("onboarding-templates", (): void => {
             expect(mapBulkProgressClasses("completed")).toBe("bg-success")
         })
 
-        it("when status is queued, then returns bg-surface-muted", (): void => {
-            expect(mapBulkProgressClasses("queued")).toBe("bg-surface-muted")
+        it("when status is queued, then returns bg-surface-secondary", (): void => {
+            expect(mapBulkProgressClasses("queued")).toBe("bg-surface-secondary")
         })
 
-        it("when status is cancelled, then returns bg-surface-muted", (): void => {
-            expect(mapBulkProgressClasses("cancelled")).toBe("bg-surface-muted")
+        it("when status is cancelled, then returns bg-surface-secondary", (): void => {
+            expect(mapBulkProgressClasses("cancelled")).toBe("bg-surface-secondary")
         })
     })
 

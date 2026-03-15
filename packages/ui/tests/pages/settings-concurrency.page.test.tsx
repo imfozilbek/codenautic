@@ -21,7 +21,7 @@ describe("SettingsConcurrencyPage", (): void => {
         await waitFor(() => {
             expect(screen.getByText("Config conflict detected")).not.toBeNull()
         })
-        expect(screen.getByText("Ignore paths")).not.toBeNull()
+        expect(screen.getByText("ignorePaths")).not.toBeNull()
 
         await user.click(screen.getByRole("button", { name: "Merge and save" }))
         await waitFor(() => {
