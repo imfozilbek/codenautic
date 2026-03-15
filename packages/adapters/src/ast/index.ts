@@ -52,6 +52,12 @@ export {
     type IAstCircularDependencyDetectorErrorDetails,
 } from "./ast-circular-dependency-detector.error"
 export {
+    AST_INTERFACE_CONTRACT_VALIDATOR_ERROR_CODE,
+    AstInterfaceContractValidatorError,
+    type AstInterfaceContractValidatorErrorCode,
+    type IAstInterfaceContractValidatorErrorDetails,
+} from "./ast-interface-contract-validator.error"
+export {
     AST_CODE_CHUNK_EMBEDDING_GENERATOR_ERROR_CODE,
     AstCodeChunkEmbeddingGeneratorError,
     type AstCodeChunkEmbeddingGeneratorErrorCode,
@@ -206,6 +212,21 @@ export {
     type IAstCircularDependencyDetectorServiceOptions,
     type IAstCircularDependencyDetectorSummary,
 } from "./ast-circular-dependency-detector.service"
+export {
+    AST_INTERFACE_CONTRACT_DECLARATION_KIND,
+    AST_INTERFACE_CONTRACT_ISSUE_SEVERITY,
+    AST_INTERFACE_CONTRACT_ISSUE_TYPE,
+    AstInterfaceContractValidatorService,
+    type AstInterfaceContractDeclarationKind,
+    type AstInterfaceContractIssueSeverity,
+    type AstInterfaceContractIssueType,
+    type IAstInterfaceContractIssue,
+    type IAstInterfaceContractValidatorInput,
+    type IAstInterfaceContractValidatorResult,
+    type IAstInterfaceContractValidatorService,
+    type IAstInterfaceContractValidatorServiceOptions,
+    type IAstInterfaceContractValidatorSummary,
+} from "./ast-interface-contract-validator.service"
 export {
     AstDependencyChainResolverService,
     type IAstDependencyChain,
