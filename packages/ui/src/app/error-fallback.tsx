@@ -48,7 +48,7 @@ export function NotFoundFallback(): ReactElement {
     return (
         <section className="mx-auto flex min-h-screen w-full max-w-3xl flex-col items-center justify-center p-8">
             <h1 className={TYPOGRAPHY.splash}>Страница не найдена</h1>
-            <p className="mt-4 text-base text-muted-foreground">
+            <p className="mt-4 text-base text-muted">
                 Запрошенный маршрут отсутствует или был перемещён.
             </p>
         </section>
@@ -90,7 +90,7 @@ function ErrorFallbackContent(props: {
 }): ReactElement {
     if (props.statusCode === 401) {
         return (
-            <p className="mt-4 text-base text-muted-foreground">
+            <p className="mt-4 text-base text-muted">
                 Сессия истекла, перенаправляем на страницу входа...
             </p>
         )
