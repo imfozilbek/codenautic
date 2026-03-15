@@ -1,28 +1,31 @@
-import { screen, waitFor } from "@testing-library/react"
-import { beforeEach, describe, expect, it, vi } from "vitest"
+import { screen } from "@testing-library/react"
+import { describe, expect, it, vi } from "vitest"
 
-const intersectionObserverState = {
-    isIntersecting: false,
-}
+const capturedInfiniteScrollProps = vi.hoisted(() => ({
+    next: undefined as (() => void) | undefined,
+}))
 
-vi.mock("usehooks-ts", () => {
-    return {
-        useIntersectionObserver: (): {
-            readonly ref: (node?: Element | null) => void
-            readonly isIntersecting: boolean
-            readonly entry: IntersectionObserverEntry | undefined
-        } => {
-            return {
-                ref: (): void => {},
-                isIntersecting: intersectionObserverState.isIntersecting,
-                entry: undefined,
-            }
-        },
-        useDebounceValue: <T,>(value: T): [T, unknown] => {
-            return [value, (): void => {}]
-        },
-    }
-})
+vi.mock("react-infinite-scroll-component", () => ({
+    default: ({
+        children,
+        next,
+    }: {
+        readonly children: React.ReactNode
+        readonly dataLength: number
+        readonly hasMore: boolean
+        readonly loader: React.ReactNode
+        readonly next: () => void
+    }): React.ReactElement => {
+        capturedInfiniteScrollProps.next = next
+        return <div data-testid="infinite-scroll">{children}</div>
+    },
+}))
+
+vi.mock("usehooks-ts", () => ({
+    useDebounceValue: <T,>(value: T): [T, unknown] => {
+        return [value, (): void => {}]
+    },
+}))
 
 import { ReviewsContent, type IReviewRow } from "@/components/reviews/reviews-content"
 import { renderWithProviders } from "../utils/render"
@@ -43,11 +46,7 @@ function createRows(total: number): ReadonlyArray<IReviewRow> {
 }
 
 describe("ReviewsContent", (): void => {
-    beforeEach((): void => {
-        intersectionObserverState.isIntersecting = false
-    })
-
-    it("рендерит CCR список при большом количестве строк", (): void => {
+    it("when rendered with many rows, then displays CCR table", (): void => {
         const rows = createRows(180)
 
         renderWithProviders(
@@ -66,8 +65,7 @@ describe("ReviewsContent", (): void => {
         expect(renderedRows.length).toBeGreaterThan(0)
     })
 
-    it("триггерит onLoadMore через infinite scroll sentinel", async (): Promise<void> => {
-        intersectionObserverState.isIntersecting = true
+    it("when infinite scroll triggers, then calls onLoadMore", (): void => {
         const onLoadMore = vi.fn()
 
         renderWithProviders(
@@ -79,8 +77,10 @@ describe("ReviewsContent", (): void => {
             />,
         )
 
-        await waitFor((): void => {
-            expect(onLoadMore).toHaveBeenCalled()
-        })
+        if (capturedInfiniteScrollProps.next !== undefined) {
+            capturedInfiniteScrollProps.next()
+        }
+
+        expect(onLoadMore).toHaveBeenCalled()
     })
 })
