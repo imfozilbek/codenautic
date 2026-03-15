@@ -319,10 +319,6 @@ export function MyWorkPage(): ReactElement {
     }, [items, nowTimestamp, scope])
 
     useEffect((): (() => void) | void => {
-        if (typeof window === "undefined") {
-            return
-        }
-
         const handleKeyboardShortcut = (event: KeyboardEvent): void => {
             if (event.altKey !== true) {
                 return
@@ -348,10 +344,6 @@ export function MyWorkPage(): ReactElement {
     }, [])
 
     useEffect((): (() => void) | void => {
-        if (typeof window === "undefined") {
-            return
-        }
-
         const timerId = window.setInterval((): void => {
             setNowTimestamp(Date.now())
         }, 30_000)
