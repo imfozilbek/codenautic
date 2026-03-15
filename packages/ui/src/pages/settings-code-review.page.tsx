@@ -456,11 +456,7 @@ export function SettingsCodeReviewPage(): ReactElement {
                 <p className={TYPOGRAPHY.captionMuted} data-testid="ccr-summary-state">
                     {ccrSummaryState}
                 </p>
-                <Button
-                    variant="primary"
-                    type="button"
-                    onPress={handleSummarySettingsSave}
-                >
+                <Button variant="primary" type="button" onPress={handleSummarySettingsSave}>
                     {t("settings:codeReview.saveCcrSummarySettings")}
                 </Button>
                 <Button

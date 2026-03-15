@@ -344,7 +344,9 @@ export function SettingsByokPage(): ReactElement {
                     </div>
                     <Alert status="accent">
                         <Alert.Title>{t("settings:byok.secretsMaskedTitle")}</Alert.Title>
-                        <Alert.Description>{t("settings:byok.secretsMaskedDescription")}</Alert.Description>
+                        <Alert.Description>
+                            {t("settings:byok.secretsMaskedDescription")}
+                        </Alert.Description>
                     </Alert>
                 </CardContent>
             </Card>
@@ -412,7 +414,7 @@ export function SettingsByokPage(): ReactElement {
                                 <p className="font-semibold text-foreground">
                                     {formatProviderLabel(entry.provider)}
                                 </p>
-                                <p className="text-text-secondary">
+                                <p className="text-muted">
                                     {t("settings:byok.providerStats", {
                                         keys: entry.keys,
                                         requests: entry.requests,
@@ -433,7 +435,9 @@ export function SettingsByokPage(): ReactElement {
                     {keys.length === 0 ? (
                         <Alert status="warning">
                             <Alert.Title>{t("settings:byok.noKeysConfiguredTitle")}</Alert.Title>
-                            <Alert.Description>{t("settings:byok.noKeysConfiguredDescription")}</Alert.Description>
+                            <Alert.Description>
+                                {t("settings:byok.noKeysConfiguredDescription")}
+                            </Alert.Description>
                         </Alert>
                     ) : (
                         keys.map(
@@ -447,26 +451,26 @@ export function SettingsByokPage(): ReactElement {
                                             <p className="text-sm font-semibold text-foreground">
                                                 {entry.label}
                                             </p>
-                                            <p className="text-xs text-text-secondary">
+                                            <p className="text-xs text-muted">
                                                 {t("settings:byok.provider", {
                                                     provider: formatProviderLabel(entry.provider),
                                                 })}
                                             </p>
-                                            <p className="font-mono text-xs text-text-secondary">
+                                            <p className="font-mono text-xs text-muted">
                                                 {entry.maskedSecret}
                                             </p>
-                                            <p className="text-xs text-text-secondary">
+                                            <p className="text-xs text-muted">
                                                 {t("settings:byok.rotation", {
                                                     count: entry.rotationCount,
                                                 })}
                                             </p>
-                                            <p className="text-xs text-text-secondary">
+                                            <p className="text-xs text-muted">
                                                 {t("settings:byok.usage", {
                                                     requests: entry.usageRequests,
                                                     tokens: entry.usageTokens,
                                                 })}
                                             </p>
-                                            <p className="text-xs text-text-secondary">
+                                            <p className="text-xs text-muted">
                                                 {t("settings:byok.lastUsed", {
                                                     date: formatLastUsed(entry.lastUsedAt),
                                                 })}
