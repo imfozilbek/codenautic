@@ -65,7 +65,7 @@ export function useRepoConfig(args: IUseRepoConfigArgs): IUseRepoConfigResult {
             return api.repoConfig.getRepoConfig(repositoryId)
         },
         enabled: canRunQuery,
-        refetchOnWindowFocus: false,
+
     })
 
     const saveRepoConfig = useMutation<
