@@ -1,4 +1,4 @@
-import { type ReactElement, useEffect, useState } from "react"
+import { type ReactElement, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { Alert, Button, Card, CardContent, CardHeader, Input, TextArea } from "@heroui/react"
@@ -112,31 +112,24 @@ export function SettingsSsoPage(): ReactElement {
     const { t } = useTranslation(["settings"])
     const { samlQuery, oidcQuery, updateSaml, updateOidc, testConnection } = useSso()
 
-    const [samlConfig, setSamlConfig] = useState<ISamlConfigState>({
-        entityId: "",
-        ssoUrl: "",
-        x509Certificate: "",
+    const samlData = samlQuery.data?.saml
+    const oidcData = oidcQuery.data?.oidc
+
+    const [samlConfig, setSamlConfig] = useState<ISamlConfigState>((): ISamlConfigState => {
+        if (samlData !== undefined) {
+            return samlData
+        }
+        return { entityId: "", ssoUrl: "", x509Certificate: "" }
     })
-    const [oidcConfig, setOidcConfig] = useState<IOidcConfigState>({
-        issuerUrl: "",
-        clientId: "",
-        clientSecret: "",
+    const [oidcConfig, setOidcConfig] = useState<IOidcConfigState>((): IOidcConfigState => {
+        if (oidcData !== undefined) {
+            return oidcData
+        }
+        return { issuerUrl: "", clientId: "", clientSecret: "" }
     })
     const [isSamlSaved, setIsSamlSaved] = useState(false)
     const [isOidcSaved, setIsOidcSaved] = useState(false)
     const [testState, setTestState] = useState<ISsoTestState | undefined>(undefined)
-
-    useEffect((): void => {
-        if (samlQuery.data !== undefined) {
-            setSamlConfig(samlQuery.data.saml)
-        }
-    }, [samlQuery.data])
-
-    useEffect((): void => {
-        if (oidcQuery.data !== undefined) {
-            setOidcConfig(oidcQuery.data.oidc)
-        }
-    }, [oidcQuery.data])
 
     const handleSaveSaml = (): void => {
         if (hasSamlRequiredConfig(samlConfig) !== true) {
@@ -240,14 +233,14 @@ export function SettingsSsoPage(): ReactElement {
                         />
                         <div className="flex flex-wrap items-center gap-2">
                             <Button
-                                isLoading={updateSaml.isPending}
+                                isDisabled={updateSaml.isPending}
                                 variant="primary"
                                 onPress={handleSaveSaml}
                             >
                                 {t("settings:sso.saveSamlConfig")}
                             </Button>
                             <Button
-                                isLoading={testConnection.isPending}
+                                isDisabled={testConnection.isPending}
                                 variant="secondary"
                                 onPress={(): void => {
                                     handleTestSso("saml")
@@ -324,14 +317,14 @@ export function SettingsSsoPage(): ReactElement {
                         </p>
                         <div className="flex flex-wrap items-center gap-2">
                             <Button
-                                isLoading={updateOidc.isPending}
+                                isDisabled={updateOidc.isPending}
                                 variant="primary"
                                 onPress={handleSaveOidc}
                             >
                                 {t("settings:sso.saveOidcConfig")}
                             </Button>
                             <Button
-                                isLoading={testConnection.isPending}
+                                isDisabled={testConnection.isPending}
                                 variant="secondary"
                                 onPress={(): void => {
                                     handleTestSso("oidc")
