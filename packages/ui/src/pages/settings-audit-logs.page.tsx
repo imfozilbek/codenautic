@@ -1,8 +1,7 @@
 import { type ReactElement, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import { Alert, Button, Card, CardContent, CardHeader, Chip } from "@heroui/react"
-import { EnterpriseDataTable } from "@/components/infrastructure/enterprise-data-table"
+import { Alert, Button, Card, CardContent, CardHeader, Chip, Table } from "@heroui/react"
 import { FormLayout } from "@/components/forms/form-layout"
 import { NATIVE_FORM } from "@/lib/constants/spacing"
 import { TYPOGRAPHY } from "@/lib/constants/typography"
@@ -363,7 +362,7 @@ export function SettingsAuditLogsPage(props: ISettingsAuditLogsPageProps = {}): 
                         </select>
                         <div className="flex flex-col gap-1">
                             <label
-                                className="text-sm text-text-tertiary"
+                                className="text-sm text-muted"
                                 htmlFor="audit-filter-date-from"
                             >
                                 {t("settings:auditLogs.dateFrom")}
@@ -387,7 +386,7 @@ export function SettingsAuditLogsPage(props: ISettingsAuditLogsPageProps = {}): 
                         </div>
                         <div className="flex flex-col gap-1">
                             <label
-                                className="text-sm text-text-tertiary"
+                                className="text-sm text-muted"
                                 htmlFor="audit-filter-date-to"
                             >
                                 {t("settings:auditLogs.dateTo")}
@@ -419,7 +418,7 @@ export function SettingsAuditLogsPage(props: ISettingsAuditLogsPageProps = {}): 
                             </Button>
                         </div>
                     </div>
-                    <p className="text-sm text-text-secondary">
+                    <p className="text-sm text-muted">
                         {t("settings:auditLogs.showingEntries", {
                             filtered: filteredLogs.length,
                             total: sourceLogs.length,
@@ -442,61 +441,56 @@ export function SettingsAuditLogsPage(props: ISettingsAuditLogsPageProps = {}): 
                     </Chip>
                 </CardHeader>
                 <CardContent>
-                    <EnterpriseDataTable
-                        ariaLabel="Audit log list"
-                        columns={[
-                            {
-                                accessor: (entry): string => entry.id,
-                                header: t("settings:auditLogs.columnId"),
-                                id: "id",
-                                pin: "left",
-                                size: 180,
-                            },
-                            {
-                                accessor: (entry): string => entry.actor,
-                                header: t("settings:auditLogs.columnActor"),
-                                id: "actor",
-                                size: 180,
-                            },
-                            {
-                                accessor: (entry): string => entry.action,
-                                cell: (entry): ReactElement => (
-                                    <Chip
-                                        color={mapActionChipColor(entry.action)}
-                                        size="sm"
-                                        variant="soft"
-                                    >
-                                        {formatActionLabel(entry.action)}
-                                    </Chip>
-                                ),
-                                header: t("settings:auditLogs.columnAction"),
-                                id: "action",
-                                size: 190,
-                            },
-                            {
-                                accessor: (entry): string => formatOccurredAt(entry.occurredAt),
-                                header: t("settings:auditLogs.columnOccurredAt"),
-                                id: "occurredAt",
-                                size: 180,
-                            },
-                            {
-                                accessor: (entry): string => entry.details,
-                                header: t("settings:auditLogs.columnDetails"),
-                                id: "details",
-                                size: 340,
-                            },
-                            {
-                                accessor: (entry): string => entry.target,
-                                header: t("settings:auditLogs.columnTarget"),
-                                id: "target",
-                                size: 260,
-                            },
-                        ]}
-                        emptyMessage={t("settings:auditLogs.noAuditLogsFound")}
-                        getRowId={(entry): string => entry.id}
-                        id="settings-audit-logs-table"
-                        rows={filteredLogs}
-                    />
+                    <Table>
+                        <Table.ScrollContainer>
+                            <Table.Content aria-label="Audit log list">
+                                <Table.Header>
+                                    <Table.Column isRowHeader>
+                                        {t("settings:auditLogs.columnId")}
+                                    </Table.Column>
+                                    <Table.Column>
+                                        {t("settings:auditLogs.columnActor")}
+                                    </Table.Column>
+                                    <Table.Column>
+                                        {t("settings:auditLogs.columnAction")}
+                                    </Table.Column>
+                                    <Table.Column>
+                                        {t("settings:auditLogs.columnOccurredAt")}
+                                    </Table.Column>
+                                    <Table.Column>
+                                        {t("settings:auditLogs.columnDetails")}
+                                    </Table.Column>
+                                    <Table.Column>
+                                        {t("settings:auditLogs.columnTarget")}
+                                    </Table.Column>
+                                </Table.Header>
+                                <Table.Body>
+                                    {filteredLogs.map(
+                                        (entry): ReactElement => (
+                                            <Table.Row key={entry.id}>
+                                                <Table.Cell>{entry.id}</Table.Cell>
+                                                <Table.Cell>{entry.actor}</Table.Cell>
+                                                <Table.Cell>
+                                                    <Chip
+                                                        color={mapActionChipColor(entry.action)}
+                                                        size="sm"
+                                                        variant="soft"
+                                                    >
+                                                        {formatActionLabel(entry.action)}
+                                                    </Chip>
+                                                </Table.Cell>
+                                                <Table.Cell>
+                                                    {formatOccurredAt(entry.occurredAt)}
+                                                </Table.Cell>
+                                                <Table.Cell>{entry.details}</Table.Cell>
+                                                <Table.Cell>{entry.target}</Table.Cell>
+                                            </Table.Row>
+                                        ),
+                                    )}
+                                </Table.Body>
+                            </Table.Content>
+                        </Table.ScrollContainer>
+                    </Table>
                 </CardContent>
             </Card>
         </FormLayout>

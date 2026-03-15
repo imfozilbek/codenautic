@@ -271,7 +271,9 @@ export function SettingsBillingPage(): ReactElement {
             {paywallBanner === null ? (
                 <Alert status="success">
                     <Alert.Title>Billing status is healthy</Alert.Title>
-                    <Alert.Description>Premium feature availability follows current plan entitlements.</Alert.Description>
+                    <Alert.Description>
+                        Premium feature availability follows current plan entitlements.
+                    </Alert.Description>
                 </Alert>
             ) : (
                 <Alert status={paywallBanner.color}>
@@ -290,7 +292,7 @@ export function SettingsBillingPage(): ReactElement {
                         {billingSnapshot.status}
                     </Chip>
                 </div>
-                <p className="text-sm text-text-tertiary">
+                <p className="text-sm text-muted">
                     Current plan: <strong>{billingSnapshot.plan}</strong>
                 </p>
                 <div className="grid gap-3 md:grid-cols-2">
@@ -379,7 +381,7 @@ export function SettingsBillingPage(): ReactElement {
                                     </Chip>
                                 </div>
                                 {feature.lockReason === undefined ? null : (
-                                    <p className="mt-1 text-xs text-text-secondary">
+                                    <p className="mt-1 text-xs text-muted">
                                         {feature.lockReason}
                                     </p>
                                 )}
@@ -400,8 +402,8 @@ export function SettingsBillingPage(): ReactElement {
                                 <p className="font-semibold text-foreground">
                                     {entry.action} · {entry.actor}
                                 </p>
-                                <p className="text-text-tertiary">{entry.outcome}</p>
-                                <p className="text-xs text-text-secondary">
+                                <p className="text-muted">{entry.outcome}</p>
+                                <p className="text-xs text-muted">
                                     {formatTimestamp(entry.occurredAt)}
                                 </p>
                             </li>
