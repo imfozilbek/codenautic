@@ -1,0 +1,95 @@
+syntax = "proto3";
+
+package codenautic.ast.v1;
+
+service AstService {
+    rpc HealthCheck(HealthCheckRequest) returns (HealthCheckResponse);
+    rpc StartRepositoryScan(StartRepositoryScanRequest) returns (StartRepositoryScanResponse);
+    rpc GetRepositoryScanStatus(GetRepositoryScanStatusRequest)
+        returns (GetRepositoryScanStatusResponse);
+    rpc GetCodeGraph(GetCodeGraphRequest) returns (GetCodeGraphResponse);
+    rpc GetFileMetrics(GetFileMetricsRequest) returns (GetFileMetricsResponse);
+}
+
+message RetryPolicy {
+    int32 max_attempts = 1;
+    int32 initial_backoff_ms = 2;
+    int32 max_backoff_ms = 3;
+}
+
+message IdempotencyContext {
+    string key = 1;
+    int64 ttl_ms = 2;
+}
+
+message HealthCheckRequest {}
+
+message HealthCheckResponse {
+    string status = 1;
+    string version = 2;
+    int64 timestamp_unix_ms = 3;
+}
+
+message StartRepositoryScanRequest {
+    string repository_id = 1;
+    string commit_sha = 2;
+    repeated string file_paths = 3;
+    RetryPolicy retry_policy = 4;
+    IdempotencyContext idempotency = 5;
+}
+
+message StartRepositoryScanResponse {
+    string request_id = 1;
+    string state = 2;
+}
+
+message GetRepositoryScanStatusRequest {
+    string request_id = 1;
+}
+
+message GetRepositoryScanStatusResponse {
+    string request_id = 1;
+    string state = 2;
+    int32 progress_percent = 3;
+    string error_code = 4;
+}
+
+message GetCodeGraphRequest {
+    string repository_id = 1;
+    string branch = 2;
+}
+
+message CodeGraphNode {
+    string id = 1;
+    string type = 2;
+    string name = 3;
+    string file_path = 4;
+}
+
+message CodeGraphEdge {
+    string source = 1;
+    string target = 2;
+    string type = 3;
+}
+
+message GetCodeGraphResponse {
+    repeated CodeGraphNode nodes = 1;
+    repeated CodeGraphEdge edges = 2;
+}
+
+message GetFileMetricsRequest {
+    string repository_id = 1;
+    string commit_sha = 2;
+    repeated string file_paths = 3;
+}
+
+message FileMetricsItem {
+    string file_path = 1;
+    int32 loc = 2;
+    int32 cyclomatic_complexity = 3;
+    int32 churn = 4;
+}
+
+message GetFileMetricsResponse {
+    repeated FileMetricsItem items = 1;
+}

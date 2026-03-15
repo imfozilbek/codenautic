@@ -46,6 +46,12 @@ export {
     type IAstServiceArchitectureDesignErrorDetails,
 } from "./ast-service-architecture-design.error"
 export {
+    AST_SERVICE_PROTOBUF_DEFINITIONS_ERROR_CODE,
+    AstServiceProtobufDefinitionsError,
+    type AstServiceProtobufDefinitionsErrorCode,
+    type IAstServiceProtobufDefinitionsErrorDetails,
+} from "./ast-service-protobuf-definitions.error"
+export {
     AST_SEMANTIC_CODE_UNDERSTANDING_ERROR_CODE,
     AstSemanticCodeUnderstandingError,
     type AstSemanticCodeUnderstandingErrorCode,
@@ -340,6 +346,14 @@ export {
     type IAstServiceArchitectureRetryPolicyInput,
     type IAstServiceArchitectureSummary,
 } from "./ast-service-architecture-design.service"
+export {
+    AstServiceProtobufDefinitionsService,
+    type IAstServiceGrpcMethodDefinition,
+    type IAstServiceGrpcMethodDefinitionInput,
+    type IAstServiceProtobufDefinitions,
+    type IAstServiceProtobufDefinitionsService,
+    type IAstServiceProtobufDefinitionsServiceOptions,
+} from "./ast-service-protobuf-definitions.service"
 export {
     AST_SEMANTIC_MODULE_ROLE,
     AstSemanticCodeUnderstandingService,
