@@ -43,7 +43,7 @@ export function useCcrWorkspace(args: IUseCcrWorkspaceArgs = {}): IUseCcrWorkspa
             return api.ccrWorkspace.listCcrs()
         },
         enabled,
-        refetchOnWindowFocus: false,
+
     })
 
     const ccrContextQuery = useQuery({
@@ -52,7 +52,7 @@ export function useCcrWorkspace(args: IUseCcrWorkspaceArgs = {}): IUseCcrWorkspa
             return api.ccrWorkspace.getWorkspaceContext(normalizedReviewId)
         },
         enabled: isContextEnabled,
-        refetchOnWindowFocus: false,
+
     })
 
     return {
