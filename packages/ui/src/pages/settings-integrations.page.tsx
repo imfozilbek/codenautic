@@ -5,7 +5,8 @@ import { useDynamicTranslation } from "@/lib/i18n"
 import { ContextPreview } from "@/components/settings/context-preview"
 import { ContextSourceCard } from "@/components/settings/context-source-card"
 import { TestConnectionButton } from "@/components/settings/test-connection-button"
-import { Button, Card, CardContent, CardHeader, Chip, Input, Switch } from "@heroui/react"
+import { Button, Card, CardContent, CardHeader, Chip, Input, Switch, Tabs } from "@heroui/react"
+import { SettingsWebhooksPage } from "@/pages/settings-webhooks.page"
 import { TYPOGRAPHY } from "@/lib/constants/typography"
 import { useExternalContext } from "@/lib/hooks/queries/use-external-context"
 import { showToastError, showToastInfo, showToastSuccess } from "@/lib/notifications/toast"
@@ -407,6 +408,12 @@ export function SettingsIntegrationsPage(): ReactElement {
     )
 
     return (
+        <Tabs aria-label={t("settings:integrations.tabsLabel", { defaultValue: "Integrations settings" })} variant="secondary">
+            <Tabs.List>
+                <Tabs.Tab id="integrations">{t("settings:integrations.tabIntegrations", { defaultValue: "Integrations" })}</Tabs.Tab>
+                <Tabs.Tab id="webhooks">{t("settings:integrations.tabWebhooks", { defaultValue: "Webhooks" })}</Tabs.Tab>
+            </Tabs.List>
+            <Tabs.Panel id="integrations">
         <div className="space-y-6 mx-auto max-w-[1400px]"><div className="space-y-1.5"><h1 className={TYPOGRAPHY.pageTitle}>{t("settings:integrations.pageTitle")}</h1><p className={TYPOGRAPHY.bodyMuted}>{t("settings:integrations.pageSubtitle")}</p></div><div className="space-y-6">
             <Card>
                 <CardHeader>
@@ -596,5 +603,10 @@ export function SettingsIntegrationsPage(): ReactElement {
                 </CardContent>
             </Card>
         </div></div>
+            </Tabs.Panel>
+            <Tabs.Panel id="webhooks">
+                <SettingsWebhooksPage />
+            </Tabs.Panel>
+        </Tabs>
     )
 }

@@ -1,7 +1,8 @@
 import { type FormEvent, type ReactElement, useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import { Button } from "@heroui/react"
+import { Button, Tabs } from "@heroui/react"
+import { SettingsRulesLibraryPage } from "@/pages/settings-rules-library.page"
 import { CCRSummaryPreview } from "@/components/settings/ccr-summary-preview"
 import { CodeReviewForm } from "@/components/settings/code-review-form"
 import { ConfigurationEditor } from "@/components/settings/configuration-editor"
@@ -328,6 +329,12 @@ export function SettingsCodeReviewPage(): ReactElement {
     }
 
     return (
+        <Tabs aria-label={t("settings:codeReview.tabsLabel", { defaultValue: "Code review settings" })} variant="secondary">
+            <Tabs.List>
+                <Tabs.Tab id="settings">{t("settings:codeReview.tabSettings", { defaultValue: "Settings" })}</Tabs.Tab>
+                <Tabs.Tab id="rules">{t("settings:codeReview.tabRulesLibrary", { defaultValue: "Rules Library" })}</Tabs.Tab>
+            </Tabs.List>
+            <Tabs.Panel id="settings">
         <div className="space-y-6 mx-auto max-w-[1400px]"><div className="space-y-1.5"><h1 className={TYPOGRAPHY.pageTitle}>{t("settings:codeReview.pageTitle")}</h1><p className={TYPOGRAPHY.bodyMuted}>{t("settings:codeReview.pageDescription")}</p></div><div className="space-y-6">
             <ConfigurationEditor
                 configYaml={configYaml}
@@ -652,5 +659,10 @@ export function SettingsCodeReviewPage(): ReactElement {
                 </Button>
             </form>
         </div></div>
+            </Tabs.Panel>
+            <Tabs.Panel id="rules">
+                <SettingsRulesLibraryPage />
+            </Tabs.Panel>
+        </Tabs>
     )
 }

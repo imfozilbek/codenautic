@@ -1,7 +1,8 @@
 import { type ReactElement, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import { Alert, Button, Chip } from "@heroui/react"
+import { Alert, Button, Chip, Tabs } from "@heroui/react"
+import { SettingsTokenUsagePage } from "@/pages/settings-token-usage.page"
 import { TYPOGRAPHY } from "@/lib/constants/typography"
 import { NATIVE_FORM } from "@/lib/constants/spacing"
 import { showToastInfo, showToastSuccess } from "@/lib/notifications/toast"
@@ -260,6 +261,12 @@ export function SettingsBillingPage(): ReactElement {
     }
 
     return (
+        <Tabs aria-label={t("settings:billing.tabsLabel", { defaultValue: "Billing settings" })} variant="secondary">
+            <Tabs.List>
+                <Tabs.Tab id="billing">{t("settings:billing.tabBilling", { defaultValue: "Billing" })}</Tabs.Tab>
+                <Tabs.Tab id="token-usage">{t("settings:billing.tabTokenUsage", { defaultValue: "Token Usage" })}</Tabs.Tab>
+            </Tabs.List>
+            <Tabs.Panel id="billing">
         <div className="space-y-6 mx-auto max-w-[1400px]"><div className="space-y-1.5"><h1 className={TYPOGRAPHY.pageTitle}>Billing lifecycle</h1><p className={TYPOGRAPHY.bodyMuted}>Manage trial/active/past-due/canceled states, feature entitlements, and plan transitions with explicit outcomes.</p></div><div className="space-y-6">
             {paywallBanner === null ? (
                 <Alert status="success">
@@ -403,5 +410,10 @@ export function SettingsBillingPage(): ReactElement {
                 </ul>
             </div></section>
         </div></div>
+            </Tabs.Panel>
+            <Tabs.Panel id="token-usage">
+                <SettingsTokenUsagePage />
+            </Tabs.Panel>
+        </Tabs>
     )
 }

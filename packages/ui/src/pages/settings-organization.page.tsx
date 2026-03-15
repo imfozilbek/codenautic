@@ -11,7 +11,9 @@ import {
     Input,
     Switch,
     Table,
+    Tabs,
 } from "@heroui/react"
+import { SettingsTeamPage } from "@/pages/settings-team.page"
 import { NATIVE_FORM } from "@/lib/constants/spacing"
 import { TYPOGRAPHY } from "@/lib/constants/typography"
 import { showToastError, showToastInfo, showToastSuccess } from "@/lib/notifications/toast"
@@ -698,6 +700,12 @@ export function SettingsOrganizationPage(): ReactElement {
     }
 
     return (
+        <Tabs aria-label={t("settings:organization.tabsLabel", { defaultValue: "Organization settings" })} variant="secondary">
+            <Tabs.List>
+                <Tabs.Tab id="organization">{t("settings:organization.tabOrganization", { defaultValue: "Organization" })}</Tabs.Tab>
+                <Tabs.Tab id="team">{t("settings:organization.tabTeam", { defaultValue: "Team" })}</Tabs.Tab>
+            </Tabs.List>
+            <Tabs.Panel id="organization">
         <div className="space-y-6 mx-auto max-w-[1400px]"><div className="space-y-1.5"><h1 className={TYPOGRAPHY.pageTitle}>{t("settings:organization.pageTitle")}</h1><p className={TYPOGRAPHY.bodyMuted}>{t("settings:organization.pageSubtitle")}</p></div><div className="space-y-6">
             {billingError === undefined ? null : <Alert color="danger">{billingError}</Alert>}
 
@@ -744,5 +752,10 @@ export function SettingsOrganizationPage(): ReactElement {
             />
             <AuditLogsCard logs={auditLogs} />
         </div></div>
+            </Tabs.Panel>
+            <Tabs.Panel id="team">
+                <SettingsTeamPage />
+            </Tabs.Panel>
+        </Tabs>
     )
 }
