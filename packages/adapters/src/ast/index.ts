@@ -40,6 +40,12 @@ export {
     type IAstDependencyChainResolverErrorDetails,
 } from "./ast-dependency-chain-resolver.error"
 export {
+    AST_BREAKING_CHANGE_DETECTOR_ERROR_CODE,
+    AstBreakingChangeDetectorError,
+    type AstBreakingChangeDetectorErrorCode,
+    type IAstBreakingChangeDetectorErrorDetails,
+} from "./ast-breaking-change-detector.error"
+export {
     AST_CODE_CHUNK_EMBEDDING_GENERATOR_ERROR_CODE,
     AstCodeChunkEmbeddingGeneratorError,
     type AstCodeChunkEmbeddingGeneratorErrorCode,
@@ -170,6 +176,19 @@ export {
     type IAstImportExportGraphSummary,
     type IAstUnresolvedImportExportReference,
 } from "./ast-import-export-graph-builder"
+export {
+    AST_BREAKING_CHANGE_SEVERITY,
+    AST_BREAKING_CHANGE_TYPE,
+    AstBreakingChangeDetectorService,
+    type AstBreakingChangeSeverity,
+    type AstBreakingChangeType,
+    type IAstBreakingChange,
+    type IAstBreakingChangeDetectorInput,
+    type IAstBreakingChangeDetectorResult,
+    type IAstBreakingChangeDetectorService,
+    type IAstBreakingChangeDetectorServiceOptions,
+    type IAstBreakingChangeDetectorSummary,
+} from "./ast-breaking-change-detector.service"
 export {
     AstDependencyChainResolverService,
     type IAstDependencyChain,
