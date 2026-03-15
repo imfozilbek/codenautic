@@ -88,6 +88,12 @@ export {
     type IAstMonorepoPackageBoundaryCheckerErrorDetails,
 } from "./ast-monorepo-package-boundary-checker.error"
 export {
+    AST_API_SURFACE_CHANGE_DETECTOR_ERROR_CODE,
+    AstApiSurfaceChangeDetectorError,
+    type AstApiSurfaceChangeDetectorErrorCode,
+    type IAstApiSurfaceChangeDetectorErrorDetails,
+} from "./ast-api-surface-change-detector.error"
+export {
     AST_CODE_CHUNK_EMBEDDING_GENERATOR_ERROR_CODE,
     AstCodeChunkEmbeddingGeneratorError,
     type AstCodeChunkEmbeddingGeneratorErrorCode,
@@ -319,6 +325,19 @@ export {
     type IAstMonorepoPackageBoundaryCheckerServiceOptions,
     type IAstMonorepoPackageBoundaryCheckerSummary,
 } from "./ast-monorepo-package-boundary-checker.service"
+export {
+    AST_API_SURFACE_CHANGE_SEVERITY,
+    AST_API_SURFACE_CHANGE_TYPE,
+    AstApiSurfaceChangeDetectorService,
+    type AstApiSurfaceChangeSeverity,
+    type AstApiSurfaceChangeType,
+    type IAstApiSurfaceChange,
+    type IAstApiSurfaceChangeDetectorInput,
+    type IAstApiSurfaceChangeDetectorResult,
+    type IAstApiSurfaceChangeDetectorService,
+    type IAstApiSurfaceChangeDetectorServiceOptions,
+    type IAstApiSurfaceChangeDetectorSummary,
+} from "./ast-api-surface-change-detector.service"
 export {
     AstDependencyChainResolverService,
     type IAstDependencyChain,
