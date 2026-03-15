@@ -184,13 +184,13 @@ export function Header(props: IHeaderProps): ReactElement {
                                         {index > 0 ? (
                                             <ChevronRight
                                                 aria-hidden="true"
-                                                className="text-text-subtle"
+                                                className="text-muted"
                                                 size={14}
                                             />
                                         ) : null}
                                         {segment.path !== undefined && !isLast ? (
                                             <button
-                                                className="text-text-secondary transition-colors duration-150 hover:text-foreground"
+                                                className="text-muted transition-colors duration-150 hover:text-foreground"
                                                 type="button"
                                                 onClick={(): void => {
                                                     props.onBreadcrumbNavigate?.(
@@ -235,13 +235,11 @@ export function Header(props: IHeaderProps): ReactElement {
                     {/* Workspace switcher (HeroUI Dropdown) */}
                     {props.organizations !== undefined ? (
                         <Dropdown>
-                            <DropdownTrigger
-                                className="hidden sm:inline-flex"
-                            >
+                            <DropdownTrigger className="hidden sm:inline-flex">
                                 <span className="inline-flex items-center gap-1.5">
                                     <Building2
                                         aria-hidden="true"
-                                        className="text-text-subtle"
+                                        className="text-muted"
                                         size={15}
                                     />
                                     <span className="text-sm text-foreground">
@@ -250,35 +248,35 @@ export function Header(props: IHeaderProps): ReactElement {
                                     </span>
                                     <ChevronDown
                                         aria-hidden="true"
-                                        className="text-text-subtle"
+                                        className="text-muted"
                                         size={14}
                                     />
                                 </span>
                             </DropdownTrigger>
                             <DropdownPopover>
-                            <DropdownMenu
-                                aria-label={t("navigation:header.workspaceSwitcher")}
-                                selectionMode="single"
-                                selectedKeys={
-                                    props.activeOrganizationId !== undefined
-                                        ? new Set([props.activeOrganizationId])
-                                        : new Set<string>()
-                                }
-                                onSelectionChange={(keys): void => {
-                                    const selected = [...keys][0]
-                                    if (typeof selected === "string") {
-                                        props.onOrganizationChange?.(selected)
+                                <DropdownMenu
+                                    aria-label={t("navigation:header.workspaceSwitcher")}
+                                    selectionMode="single"
+                                    selectedKeys={
+                                        props.activeOrganizationId !== undefined
+                                            ? new Set([props.activeOrganizationId])
+                                            : new Set<string>()
                                     }
-                                }}
-                            >
-                                {props.organizations.map(
-                                    (organization): ReactElement => (
-                                        <DropdownItem key={organization.id}>
-                                            {organization.label}
-                                        </DropdownItem>
-                                    ),
-                                )}
-                            </DropdownMenu>
+                                    onSelectionChange={(keys): void => {
+                                        const selected = [...keys][0]
+                                        if (typeof selected === "string") {
+                                            props.onOrganizationChange?.(selected)
+                                        }
+                                    }}
+                                >
+                                    {props.organizations.map(
+                                        (organization): ReactElement => (
+                                            <DropdownItem key={organization.id}>
+                                                {organization.label}
+                                            </DropdownItem>
+                                        ),
+                                    )}
+                                </DropdownMenu>
                             </DropdownPopover>
                         </Dropdown>
                     ) : null}
@@ -324,7 +322,7 @@ export function Header(props: IHeaderProps): ReactElement {
             {/* Mobile breadcrumb (last segment only) */}
             {lastBreadcrumb !== undefined ? (
                 <div className="border-t border-border px-4 py-2 md:hidden">
-                    <p className="text-sm text-text-secondary">{lastBreadcrumb.label}</p>
+                    <p className="text-sm text-muted">{lastBreadcrumb.label}</p>
                 </div>
             ) : null}
 

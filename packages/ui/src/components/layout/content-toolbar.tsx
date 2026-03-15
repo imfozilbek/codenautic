@@ -86,13 +86,13 @@ export function ContentToolbar(props: IContentToolbarProps): ReactElement {
                                     {index > 0 ? (
                                         <ChevronRight
                                             aria-hidden="true"
-                                            className="text-text-subtle"
+                                            className="text-muted"
                                             size={14}
                                         />
                                     ) : null}
                                     {segment.path !== undefined && !isLast ? (
                                         <button
-                                            className="rounded-sm text-text-secondary transition-colors duration-150 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+                                            className="rounded-sm text-muted transition-colors duration-150 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40"
                                             type="button"
                                             onClick={(): void => {
                                                 props.onBreadcrumbNavigate?.(segment.path as string)
@@ -116,7 +116,7 @@ export function ContentToolbar(props: IContentToolbarProps): ReactElement {
 
             {/* Mobile breadcrumb (last segment only) */}
             {lastBreadcrumb !== undefined ? (
-                <p className="flex-1 truncate text-sm text-text-secondary md:hidden">
+                <p className="flex-1 truncate text-sm text-muted md:hidden">
                     {lastBreadcrumb.label}
                 </p>
             ) : (
