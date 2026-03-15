@@ -1,4 +1,4 @@
-import type { ICodeCityTreemapFileDescriptor } from "@/components/graphs/codecity-treemap"
+import type { ICodeCityTreemapFileDescriptor } from "@/components/codecity/codecity-treemap"
 
 import type {
     IArchitectureStructureNode,

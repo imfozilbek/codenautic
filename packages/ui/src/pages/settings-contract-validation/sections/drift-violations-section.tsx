@@ -1,7 +1,7 @@
 import type { ReactElement } from "react"
 import { useTranslation } from "react-i18next"
 
-import { CodeCityTreemap } from "@/components/graphs/codecity-treemap"
+import { CodeCityTreemap } from "@/components/codecity/codecity-treemap"
 import { Alert, Button, Card, CardContent, CardHeader } from "@heroui/react"
 import { NATIVE_FORM } from "@/lib/constants/spacing"
 import { TYPOGRAPHY } from "@/lib/constants/typography"

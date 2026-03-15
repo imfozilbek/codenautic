@@ -3,7 +3,7 @@ import { type ChangeEvent, type Dispatch, type SetStateAction, useMemo, useState
 import type {
     ICodeCityTreemapFileDescriptor,
     ICodeCityTreemapImpactedFileDescriptor,
-} from "@/components/graphs/codecity-treemap"
+} from "@/components/codecity/codecity-treemap"
 import { showToastError, showToastInfo, showToastSuccess } from "@/lib/notifications/toast"
 
 import type {
