@@ -2,7 +2,9 @@ import { type ReactElement, type ReactNode, useState } from "react"
 import { motion, AnimatePresence } from "motion/react"
 import { ChevronDown, ChevronRight } from "@/components/icons/app-icons"
 
-import { DURATION, EASING, useReducedMotion } from "@/lib/motion"
+import { useReducedMotion } from "motion/react"
+
+
 import { TYPOGRAPHY } from "@/lib/constants/typography"
 
 /**
@@ -79,8 +81,8 @@ export function DashboardZone(props: IDashboardZoneProps): ReactElement | null {
                         initial={{ height: 0, opacity: 0 }}
                         style={{ overflow: "hidden" }}
                         transition={{
-                            duration: prefersReducedMotion ? 0 : DURATION.normal,
-                            ease: EASING.move,
+                            duration: prefersReducedMotion === true ? 0 : 0.25,
+                            ease: [0.4, 0.0, 0.2, 1.0],
                         }}
                     >
                         {props.children}
