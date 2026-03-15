@@ -2,7 +2,6 @@ import type { Preview } from "@storybook/react"
 import type { ReactElement, ReactNode } from "react"
 import { useEffect } from "react"
 import { initializeI18n } from "@/lib/i18n/i18n"
-import { ThemeProvider } from "@/lib/theme/theme-provider"
 import { QueryClientProvider } from "@tanstack/react-query"
 
 import { createQueryClient } from "../src/lib/query/query-client"
@@ -53,9 +52,7 @@ const preview: Preview = {
             const queryClient = createQueryClient()
 
             return (
-                <ThemeProvider>
-                    <QueryClientProvider client={queryClient}>{storyFn()}</QueryClientProvider>
-                </ThemeProvider>
+                <QueryClientProvider client={queryClient}>{storyFn()}</QueryClientProvider>
             )
         },
     ],
