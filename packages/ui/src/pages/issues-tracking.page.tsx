@@ -7,50 +7,25 @@ import InfiniteScroll from "react-infinite-scroll-component"
 import { Button, Card, CardContent, Skeleton, Table } from "@heroui/react"
 import { PageShell } from "@/components/layout/page-shell"
 import { useLocalStorage } from "usehooks-ts"
-
-type TIssueTrackingAction = "acknowledge" | "fix" | "snooze" | "ignore"
-type TIssueTrackingSeverity = "critical" | "high" | "medium" | "low"
-type TIssueTrackingStatus = "dismissed" | "fixed" | "in_progress" | "open"
-
-interface IIssueTrackingIssue {
-    /** Уникальный идентификатор проблемы. */
-    readonly id: string
-    /** Заголовок / краткое описание проблемы. */
-    readonly title: string
-    /** Репозиторий с проблемой. */
-    readonly repository: string
-    /** Путь к файлу, где обнаружена проблема. */
-    readonly filePath: string
-    /** Уровень критичности. */
-    readonly severity: TIssueTrackingSeverity
-    /** Статус решения. */
-    readonly status: TIssueTrackingStatus
-    /** Короткий комментарий о типе сигнала. */
-    readonly message: string
-    /** Отвечающий коллега. */
-    readonly owner: string
-    /** Время обнаружения. */
-    readonly detectedAt: string
-}
-
-interface IIssueTrackingPageProps {
-    /** Набор issues для отображения (для тестов и интеграции с API). */
-    readonly issues?: ReadonlyArray<IIssueTrackingIssue>
-    /** Сallback выполнения inline действия. */
-    readonly onAction?: (issueId: string, action: TIssueTrackingAction) => void
-}
+import { useIssues } from "@/lib/hooks/queries/use-issues"
+import type {
+    IIssue,
+    TIssueAction,
+    TIssueSeverity,
+    TIssueStatus,
+} from "@/lib/api/endpoints/issues.endpoint"
 
 const ISSUE_STATUS_OPTIONS = ["open", "in_progress", "fixed", "dismissed"] as const
 const ISSUE_SEVERITY_OPTIONS = ["critical", "high", "medium", "low"] as const
 
-const ISSUE_ACTIONS_BY_STATUS: Record<TIssueTrackingStatus, ReadonlyArray<TIssueTrackingAction>> = {
+const ISSUE_ACTIONS_BY_STATUS: Record<TIssueStatus, ReadonlyArray<TIssueAction>> = {
     dismissed: ["acknowledge"],
     fixed: ["acknowledge"],
     in_progress: ["acknowledge", "snooze", "fix"],
     open: ["acknowledge", "snooze", "fix", "ignore"],
 }
 
-function createIssueActionLabels(t: (key: string) => string): Record<TIssueTrackingAction, string> {
+function createIssueActionLabels(t: (key: string) => string): Record<TIssueAction, string> {
     return {
         acknowledge: t("dashboard:issuesTracking.actionAcknowledge"),
         fix: t("dashboard:issuesTracking.actionMarkFixed"),
@@ -61,7 +36,7 @@ function createIssueActionLabels(t: (key: string) => string): Record<TIssueTrack
 
 function createIssueSeverityLabels(
     t: (key: string) => string,
-): Record<TIssueTrackingSeverity, string> {
+): Record<TIssueSeverity, string> {
     return {
         critical: t("dashboard:issuesTracking.severityCritical"),
         high: t("dashboard:issuesTracking.severityHigh"),
@@ -70,7 +45,7 @@ function createIssueSeverityLabels(
     }
 }
 
-function createIssueStatusLabels(t: (key: string) => string): Record<TIssueTrackingStatus, string> {
+function createIssueStatusLabels(t: (key: string) => string): Record<TIssueStatus, string> {
     return {
         dismissed: t("dashboard:issuesTracking.statusDismissed"),
         fixed: t("dashboard:issuesTracking.statusFixed"),
@@ -79,109 +54,20 @@ function createIssueStatusLabels(t: (key: string) => string): Record<TIssueTrack
     }
 }
 
-const ISSUE_STATUS_STYLES: Record<TIssueTrackingStatus, string> = {
+const ISSUE_STATUS_STYLES: Record<TIssueStatus, string> = {
     dismissed: "bg-surface-secondary text-foreground",
     fixed: "bg-success/15 text-success",
     in_progress: "bg-accent/15 text-accent",
     open: "bg-danger/15 text-danger",
 }
 
-const ISSUE_SEVERITY_STYLES: Record<TIssueTrackingSeverity, string> = {
+const ISSUE_SEVERITY_STYLES: Record<TIssueSeverity, string> = {
     critical: "bg-danger/15 text-danger border border-danger/30",
     high: "bg-warning/15 text-warning border border-warning/30",
     low: "bg-accent/10 text-accent border border-accent/30",
     medium: "bg-accent/15 text-accent border border-accent/30",
 }
 
-const DEFAULT_ISSUES: ReadonlyArray<IIssueTrackingIssue> = [
-    {
-        detectedAt: "2026-01-12T07:11:00Z",
-        filePath: "src/api/repository.ts",
-        id: "ISS-101",
-        message: "Unhandled error path near data parser",
-        owner: "Neo",
-        repository: "platform-team/api-gateway",
-        severity: "critical",
-        status: "open",
-        title: "Possible unguarded parse fallback",
-    },
-    {
-        detectedAt: "2026-01-14T13:32:00Z",
-        filePath: "src/components/chat-panel.tsx",
-        id: "ISS-102",
-        message: "Potential DOM injection in dynamic markdown renderer",
-        owner: "Trinity",
-        repository: "frontend-team/ui-dashboard",
-        severity: "high",
-        status: "in_progress",
-        title: "Dynamic markdown requires re-check",
-    },
-    {
-        detectedAt: "2026-01-17T09:21:00Z",
-        filePath: "src/workers/scan.ts",
-        id: "ISS-103",
-        message: "High churn + low review ratio in queue handler",
-        owner: "Morpheus",
-        repository: "backend-core/payment-worker",
-        severity: "medium",
-        status: "fixed",
-        title: "Scan queue stability issue",
-    },
-    {
-        detectedAt: "2026-01-18T16:58:00Z",
-        filePath: "src/pages/reviews.tsx",
-        id: "ISS-104",
-        message: "Unstable key usage in virtualized list",
-        owner: "Cypher",
-        repository: "frontend-team/ui-dashboard",
-        severity: "low",
-        status: "dismissed",
-        title: "Virtualization key fallback",
-    },
-]
-
-const EXTRA_ISSUES: ReadonlyArray<IIssueTrackingIssue> = Array.from(Array(26)).map(
-    (_entry, index): IIssueTrackingIssue => {
-        const id = `ISS-${String(index + 105)}`
-        const repoOptions: ReadonlyArray<string> = [
-            "platform-team/api-gateway",
-            "frontend-team/ui-dashboard",
-            "backend-core/payment-worker",
-        ]
-        const severityOptions: ReadonlyArray<TIssueTrackingSeverity> = [
-            "critical",
-            "high",
-            "medium",
-            "low",
-        ]
-        const statusOptions: ReadonlyArray<TIssueTrackingStatus> = [
-            "open",
-            "in_progress",
-            "fixed",
-            "dismissed",
-        ]
-        const selectedRepo = repoOptions[index % repoOptions.length]
-        const selectedSeverity = severityOptions[index % severityOptions.length]
-        const selectedStatus = statusOptions[index % statusOptions.length]
-        const repository = selectedRepo ?? repoOptions[0] ?? "platform-team/api-gateway"
-        const severity = selectedSeverity ?? severityOptions[0] ?? "medium"
-        const status = selectedStatus ?? statusOptions[0] ?? "open"
-
-        return {
-            detectedAt: `2026-01-${String(19 + index).padStart(2, "0")}T11:00:00Z`,
-            filePath: `src/services/module-${String(index)}.ts`,
-            id,
-            message: `Auto-discovered pattern in module ${String(index)}`,
-            owner: `Owner ${String(index % 6)}`,
-            repository,
-            severity,
-            status,
-            title: `Generated issue ${String(index)}`,
-        }
-    },
-)
-
-const ALL_ISSUES: ReadonlyArray<IIssueTrackingIssue> = [...DEFAULT_ISSUES, ...EXTRA_ISSUES]
 const ISSUE_FILTER_PERSISTENCE_KEY = "issues-tracking:filters:v1"
 const ISSUE_PAGE_SIZE = 50
 
@@ -189,9 +75,9 @@ interface IIssueTrackingFilters {
     /** Поиск по тексту/файлу/репозиторию. */
     readonly search: string
     /** Фильтр по статусу. */
-    readonly status: "all" | TIssueTrackingStatus
+    readonly status: "all" | TIssueStatus
     /** Фильтр по критичности. */
-    readonly severity: "all" | TIssueTrackingSeverity
+    readonly severity: "all" | TIssueSeverity
 }
 
 const DEFAULT_ISSUE_FILTERS: IIssueTrackingFilters = {
@@ -205,9 +91,9 @@ function normalize(value: string): string {
 }
 
 function filterIssues(
-    issues: ReadonlyArray<IIssueTrackingIssue>,
+    issues: ReadonlyArray<IIssue>,
     filters: IIssueTrackingFilters,
-): ReadonlyArray<IIssueTrackingIssue> {
+): ReadonlyArray<IIssue> {
     const query = normalize(filters.search)
     return issues.filter((entry): boolean => {
         const isStatusMatch = filters.status === "all" || entry.status === filters.status
@@ -228,7 +114,7 @@ type IIssueTrackingFilterField = keyof IIssueTrackingFilters
 function formatIssueDate(raw: string): string {
     const date = new Date(raw)
     if (Number.isNaN(date.getTime())) {
-        return "—"
+        return "\u2014"
     }
 
     return date.toLocaleString([], {
@@ -243,16 +129,18 @@ function formatIssueDate(raw: string): string {
 /**
  * Страница issues tracking с фильтрами и virtual-scrolling списком.
  *
- * @param props Набор issues и колбеки для действий.
  * @returns Страница.
  */
-export function IssuesTrackingPage(props: IIssueTrackingPageProps = {}): ReactElement {
+export function IssuesTrackingPage(): ReactElement {
     const { t } = useTranslation(["dashboard"])
     const { td } = useDynamicTranslation(["dashboard"])
     const ISSUE_ACTION_LABELS = useMemo(() => createIssueActionLabels(td), [td])
     const ISSUE_SEVERITY_LABELS = useMemo(() => createIssueSeverityLabels(td), [td])
     const ISSUE_STATUS_LABELS = useMemo(() => createIssueStatusLabels(td), [td])
-    const sourceIssues = props.issues ?? ALL_ISSUES
+
+    const { issuesQuery, performAction } = useIssues()
+    const sourceIssues = issuesQuery.data?.issues ?? []
+
     const [visibleItems, setVisibleItems] = useState<number>(ISSUE_PAGE_SIZE)
     const [filters, setFilters] = useLocalStorage<IIssueTrackingFilters>(
         ISSUE_FILTER_PERSISTENCE_KEY,
@@ -263,7 +151,7 @@ export function IssuesTrackingPage(props: IIssueTrackingPageProps = {}): ReactEl
         () => filterIssues(sourceIssues, filters),
         [sourceIssues, filters],
     )
-    const visibleIssues = useMemo((): ReadonlyArray<IIssueTrackingIssue> => {
+    const visibleIssues = useMemo((): ReadonlyArray<IIssue> => {
         return filteredIssues.slice(0, visibleItems)
     }, [filteredIssues, visibleItems])
     const hasMoreIssues = filteredIssues.length > visibleItems
@@ -354,8 +242,8 @@ export function IssuesTrackingPage(props: IIssueTrackingPageProps = {}): ReactEl
         }
     }
 
-    const handleAction = (issue: IIssueTrackingIssue, action: TIssueTrackingAction): void => {
-        props.onAction?.(issue.id, action)
+    const handleAction = (issue: IIssue, action: TIssueAction): void => {
+        performAction.mutate({ id: issue.id, action })
     }
 
     return (
