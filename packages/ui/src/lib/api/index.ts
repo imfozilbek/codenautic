@@ -1,5 +1,6 @@
 import { createApiConfig, resolveUiEnv } from "./config"
 import { AuthApi } from "./endpoints/auth.endpoint"
+import { BillingApi } from "./endpoints/billing.endpoint"
 import { CCRSummaryApi } from "./endpoints/ccr-summary.endpoint"
 import { CcrWorkspaceApi } from "./endpoints/ccr-workspace.endpoint"
 import { CodeReviewApi } from "./endpoints/code-review.endpoint"
@@ -13,8 +14,17 @@ import { SystemApi } from "./endpoints/system.endpoint"
 import { RepoConfigApi } from "./endpoints/repo-config.endpoint"
 import { DryRunApi } from "./endpoints/dry-run.endpoint"
 import { GitProvidersApi } from "./endpoints/git-providers.endpoint"
+import { JobsApi } from "./endpoints/jobs.endpoint"
 import { RepositoryApi } from "./endpoints/repository.endpoint"
 import { CodeCityApi } from "./endpoints/code-city.endpoint"
+import { OrganizationApi } from "./endpoints/organization.endpoint"
+import { TeamsApi } from "./endpoints/teams.endpoint"
+import { IssuesApi } from "./endpoints/issues.endpoint"
+import { ReportsApi } from "./endpoints/reports.endpoint"
+import { TriageApi } from "./endpoints/triage.endpoint"
+import { WebhooksApi } from "./endpoints/webhooks.endpoint"
+import { ByokApi } from "./endpoints/byok.endpoint"
+import { SsoApi } from "./endpoints/sso.endpoint"
 import { FetchHttpClient } from "./http-client"
 
 /**
@@ -25,6 +35,7 @@ import { FetchHttpClient } from "./http-client"
 export function createApiContracts(): {
     readonly system: SystemApi
     readonly auth: AuthApi
+    readonly billing: BillingApi
     readonly codeReview: CodeReviewApi
     readonly ccrSummary: CCRSummaryApi
     readonly ccrWorkspace: CcrWorkspaceApi
@@ -37,8 +48,17 @@ export function createApiContracts(): {
     readonly repoConfig: RepoConfigApi
     readonly dryRun: DryRunApi
     readonly gitProviders: GitProvidersApi
+    readonly jobs: JobsApi
     readonly repositories: RepositoryApi
     readonly codeCity: CodeCityApi
+    readonly organization: OrganizationApi
+    readonly teams: TeamsApi
+    readonly issues: IssuesApi
+    readonly reports: ReportsApi
+    readonly triage: TriageApi
+    readonly webhooks: WebhooksApi
+    readonly byok: ByokApi
+    readonly sso: SsoApi
 } {
     const config = createApiConfig(resolveUiEnv(import.meta.env))
     const httpClient = new FetchHttpClient(config)
@@ -60,6 +80,13 @@ export function createApiContracts(): {
         gitProviders: new GitProvidersApi(httpClient),
         repositories: new RepositoryApi(httpClient),
         codeCity: new CodeCityApi(httpClient),
+        organization: new OrganizationApi(httpClient),
+        teams: new TeamsApi(httpClient),
+        issues: new IssuesApi(httpClient),
+        reports: new ReportsApi(httpClient),
+        triage: new TriageApi(httpClient),
+        byok: new ByokApi(httpClient),
+        sso: new SsoApi(httpClient),
     }
 }
 
@@ -99,4 +126,11 @@ export type { IFeatureFlagsApi } from "./endpoints/feature-flags.endpoint"
 export type { ISystemApi } from "./endpoints/system.endpoint"
 export type { IRepositoryApi } from "./endpoints/repository.endpoint"
 export type { ICodeCityApi } from "./endpoints/code-city.endpoint"
+export type { IOrganizationApi } from "./endpoints/organization.endpoint"
+export type { ITeamsApi } from "./endpoints/teams.endpoint"
+export type { IIssuesApi } from "./endpoints/issues.endpoint"
+export type { IReportsApi } from "./endpoints/reports.endpoint"
+export type { ITriageApi } from "./endpoints/triage.endpoint"
+export type { IByokApi } from "./endpoints/byok.endpoint"
+export type { ISsoApi } from "./endpoints/sso.endpoint"
 export type { TSystemHealthResponse, THealthStatus } from "./types"
