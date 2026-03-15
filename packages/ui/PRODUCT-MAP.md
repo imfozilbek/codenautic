@@ -168,6 +168,7 @@
 - `components/graphs/codecity-treemap.utils.ts` — утилиты treemap
 - `components/graphs/codecity-treemap.constants.ts` — константы treemap
 | 3D Scene Renderer | `components/graphs/codecity-3d/codecity-3d-scene-renderer.tsx` | — | Оптимизированный рендерер |
+| 3D Scene Re-export | `components/graphs/codecity-3d-scene-renderer.tsx` | — | Barrel re-export из codecity-3d/ |
 | 3D Layout Worker | `components/graphs/codecity-3d-layout.worker.ts` | — | Web Worker для layout |
 
 Утилиты 3D:
@@ -798,18 +799,75 @@ Command Palette files:
 
 ### Utilities & Support Modules
 
-| Модуль | Директория | Роль |
+| Модуль | Файл | Роль |
 |---|---|---|
-| Access Control | `lib/access/` | Access control types & permission guards |
-| Constants | `lib/constants/` | Design tokens, chart defaults, color palettes, animations, spacing |
-| Feature Flags | `lib/feature-flags/` | Feature flag utilities |
-| Navigation | `lib/navigation/` | Route guards, nav items builder, deep link validation |
-| Permissions | `lib/permissions/` | Permission checks, policy drift, UI policy enforcement |
-| Providers | `lib/providers/` | Provider degradation state management |
-| Theme | `lib/theme/` | Theme mode/preset management |
-| Types | `lib/types/` | Shared type definitions (CCR types и др.) |
-| Utils | `lib/utils/` | Safe JSON/storage utilities, general helpers |
-| Generated Types | `lib/api/generated/` | OpenAPI-generated types (via `bun run codegen`) |
+| cn() utility | `lib/utils.ts` | Утилита объединения CSS-классов (аналог clsx) |
+| Generated Types | `lib/api/generated/index.ts` | OpenAPI-generated types (via `bun run codegen`) |
+
+#### Access Control — `lib/access/`
+
+| Файл | Роль |
+|---|---|
+| `lib/access/access-types.ts` | Типы ролей и permission guards |
+
+#### Constants — `lib/constants/`
+
+| Файл | Роль |
+|---|---|
+| `lib/constants/animation.ts` | Анимационные токены (duration, easing) |
+| `lib/constants/chart-constants.ts` | Общие константы для графиков |
+| `lib/constants/chart-recharts-defaults.ts` | Дефолтные настройки Recharts |
+| `lib/constants/codecity-colors.ts` | Цветовая палитра CodeCity |
+| `lib/constants/graph-colors.ts` | Цвета для dependency графов |
+| `lib/constants/spacing.ts` | Spacing токены |
+| `lib/constants/typography.ts` | Типографические токены |
+
+#### Feature Flags — `lib/feature-flags/`
+
+| Файл | Роль |
+|---|---|
+| `lib/feature-flags/feature-flags.ts` | Утилиты feature flags |
+
+#### Navigation — `lib/navigation/`
+
+| Файл | Роль |
+|---|---|
+| `lib/navigation/deep-link-guard.ts` | Валидация deep links |
+| `lib/navigation/route-guard-map.ts` | Маппинг route → permission guards |
+| `lib/navigation/settings-nav-items.tsx` | Построение навигации settings-страниц |
+
+#### Permissions — `lib/permissions/`
+
+| Файл | Роль |
+|---|---|
+| `lib/permissions/permissions.ts` | Permission checks |
+| `lib/permissions/policy-drift.ts` | Обнаружение policy drift |
+| `lib/permissions/ui-policy.ts` | UI policy enforcement |
+
+#### Providers — `lib/providers/`
+
+| Файл | Роль |
+|---|---|
+| `lib/providers/degradation-mode.ts` | State management деградации провайдеров |
+
+#### Theme — `lib/theme/`
+
+| Файл | Роль |
+|---|---|
+| `lib/theme/use-theme.ts` | Хук управления темой (mode, preset) |
+
+#### Types — `lib/types/`
+
+| Файл | Роль |
+|---|---|
+| `lib/types/ccr-types.ts` | Shared CCR type definitions |
+
+#### Utils — `lib/utils/`
+
+| Файл | Роль |
+|---|---|
+| `lib/utils/safe-json.ts` | Безопасный JSON.parse/stringify |
+| `lib/utils/safe-storage.ts` | Безопасная работа с localStorage/sessionStorage |
 
 ---
 
@@ -846,6 +904,49 @@ Route tree generated: `routeTree.gen.ts`
 
 ---
 
+## 17. App Shell & Entry Point
+
+Точка входа приложения, глобальные providers, error boundary, suspense.
+
+| Файл | Роль |
+|---|---|
+| `main.tsx` | Entry point: Sentry init, i18n init, Web Vitals, ReactDOM.createRoot |
+| `vite-env.d.ts` | Vite type declarations (import.meta.env) |
+| `app/globals.css` | Глобальные CSS стили (Tailwind directives) |
+| `app/app.tsx` | Root компонент: QueryClientProvider + ThemeProvider + RouterProvider + AnalyticsProvider + Toast |
+| `app/router.ts` | TanStack Router instance (createRouter с routeTree) |
+| `app/error-fallback.tsx` | Error boundary fallback (status code + retry) |
+| `app/route-suspense-fallback.tsx` | Suspense fallback для lazy-загрузки route-экранов |
+
+---
+
+## 18. Иконки
+
+> `components/icons/app-icons.ts` — централизованный реестр Lucide-иконок
+
+Единый файл с именованными ре-экспортами из `lucide-react`. Все компоненты импортируют иконки через этот реестр.
+
+---
+
+## 19. Общие типы форм
+
+> `components/forms/index.ts` — `IFormSelectOption`
+
+Shared-интерфейс для select-полей (value, label, description, isDisabled). Используется в settings-формах.
+
+---
+
+## 20. Dev Mocks (MSW)
+
+Mock Service Worker для dev-режима — перехватывает HTTP-запросы к API.
+
+| Файл | Роль |
+|---|---|
+| `mocks/handlers.ts` | MSW request handlers (auth, endpoints) |
+| `mocks/browser.ts` | MSW browser worker (setupWorker) |
+
+---
+
 ## Сводка: что продукт даёт пользователю
 
 | Возможность | Количество | Ключевые страницы |
@@ -862,4 +963,4 @@ Route tree generated: `routeTree.gen.ts`
 | Onboarding | Wizard + Activation Checklist | Onboarding, Dashboard |
 | Infrastructure | Health + Diagnostics + Session Recovery + Jobs | System (4 страницы) |
 
-**Итого: ~200 компонентов, 39 страниц (18 основных + 21 settings), 12 API endpoints, 12 query hooks, 7 custom hooks, 10 utility modules.**
+**Итого: ~200 компонентов, 39 страниц (18 основных + 21 settings), 12 API endpoints, 12 query hooks, 7 custom hooks, 14 utility modules, ~412 файлов (.ts/.tsx).**
