@@ -4,7 +4,8 @@
         "repositoryFilter": "Фильтр репозитория",
         "repositoryAriaLabel": "Репозиторий",
         "metricSelector": "Выбор метрики",
-        "metricAriaLabel": "Метрика"
+        "metricAriaLabel": "Метрика",
+        "noProfilesAvailable": "Профили CodeCity недоступны. Подключите репозиторий для начала."
     },
     "overview": {
         "projectOverviewPanel": "Обзор проекта",
