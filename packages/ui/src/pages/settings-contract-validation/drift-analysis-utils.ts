@@ -6,7 +6,7 @@ import type {
     TDriftSeverity,
     TDriftSortMode,
 } from "./contract-validation-types"
-import { DRIFT_FILE_ID_BY_PATH } from "./contract-validation-mock-data"
+import { DRIFT_FILE_ID_BY_PATH } from "./contract-validation-constants"
 
 /**
  * Priority mapping for drift severity levels (higher value = more severe).
