@@ -210,19 +210,19 @@ function describeSchedule(schedule: IJobSchedule, target: TScheduleTarget): stri
  */
 export function SettingsJobsPage(): ReactElement {
     const { t } = useTranslation(["settings"])
-    const { jobsQuery, schedulesQuery } = useJobs()
-    const serverJobs = jobsQuery.data?.jobs ?? INITIAL_JOBS
-    const serverAudit = jobsQuery.data?.audit ?? INITIAL_AUDIT
-    const serverSchedules = schedulesQuery.data?.schedules ?? INITIAL_SCHEDULES
-    const [jobs, setJobs] = useState<ReadonlyArray<IJob>>(serverJobs)
-    const [audit, setAudit] = useState<ReadonlyArray<IJobAuditEntry>>(serverAudit)
-    const [activeJobId, setActiveJobId] = useState<string>(serverJobs[0]?.id ?? "")
+    const { jobsQuery } = useJobs()
+    const initialJobs = jobsQuery.data?.jobs ?? []
+    const initialAudit = jobsQuery.data?.audit ?? []
+    const initialSchedules = INITIAL_SCHEDULES
+    const [jobs, setJobs] = useState<ReadonlyArray<IJob>>(initialJobs)
+    const [audit, setAudit] = useState<ReadonlyArray<IJobAuditEntry>>(initialAudit)
+    const [activeJobId, setActiveJobId] = useState<string>(initialJobs[0]?.id ?? "")
     const [scheduleTarget, setScheduleTarget] = useState<TScheduleTarget>("rescan")
     const [userTimezone, setUserTimezone] = useState<TTimezoneOption>("Asia/Tashkent")
     const [orgTimezoneOverride, setOrgTimezoneOverride] =
         useState<TOrgTimezoneOverride>("inherit-user")
     const [schedules, setSchedules] =
-        useState<Readonly<Record<TScheduleTarget, IJobSchedule>>>(serverSchedules)
+        useState<Readonly<Record<TScheduleTarget, IJobSchedule>>>(initialSchedules)
     const [scheduleSaveMessage, setScheduleSaveMessage] = useState<string>("")
 
     const activeJob = useMemo((): IJob | undefined => {
