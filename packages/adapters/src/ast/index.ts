@@ -112,6 +112,12 @@ export {
     type IAstOwnershipCalculatorErrorDetails,
 } from "./ast-ownership-calculator.error"
 export {
+    AST_COMPLEXITY_CHURN_CORRELATOR_ERROR_CODE,
+    AstComplexityChurnCorrelatorError,
+    type AstComplexityChurnCorrelatorErrorCode,
+    type IAstComplexityChurnCorrelatorErrorDetails,
+} from "./ast-complexity-churn-correlator.error"
+export {
     AST_FILE_METRICS_PROVIDER_ERROR_CODE,
     AstFileMetricsProviderError,
     type AstFileMetricsProviderErrorCode,
@@ -591,6 +597,21 @@ export {
     type IAstOwnershipCalculatorSummary,
     type IAstOwnershipShare,
 } from "./ast-ownership-calculator.service"
+export {
+    AST_COMPLEXITY_CHURN_CORRELATION_STRENGTH,
+    AstComplexityChurnCorrelatorService,
+    type AstComplexityChurnCorrelationStrength,
+    type AstComplexityChurnCorrelatorLoadPoints,
+    type AstComplexityChurnCorrelatorNow,
+    type AstComplexityChurnCorrelatorSleep,
+    type IAstComplexityChurnCorrelatorInput,
+    type IAstComplexityChurnCorrelatorResult,
+    type IAstComplexityChurnCorrelatorService,
+    type IAstComplexityChurnCorrelatorServiceOptions,
+    type IAstComplexityChurnCorrelatorSummary,
+    type IAstComplexityChurnPointInput,
+    type IAstComplexityChurnScatterPoint,
+} from "./ast-complexity-churn-correlator.service"
 export {
     AstFileMetricsProvider,
     type AstFileMetricsProviderReadFile,
