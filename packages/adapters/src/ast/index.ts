@@ -100,6 +100,12 @@ export {
     type IAstChurnCalculatorErrorDetails,
 } from "./ast-churn-calculator.error"
 export {
+    AST_FILE_METRICS_PROVIDER_ERROR_CODE,
+    AstFileMetricsProviderError,
+    type AstFileMetricsProviderErrorCode,
+    type IAstFileMetricsProviderErrorDetails,
+} from "./ast-file-metrics-provider.error"
+export {
     AST_SERVICE_MULTI_REPO_GRAPH_FEDERATION_ERROR_CODE,
     AstServiceMultiRepoGraphFederationError,
     type AstServiceMultiRepoGraphFederationErrorCode,
@@ -508,6 +514,12 @@ export {
     type IAstChurnCalculatorServiceOptions,
     type IAstChurnCalculatorSummary,
 } from "./ast-churn-calculator.service"
+export {
+    AstFileMetricsProvider,
+    type AstFileMetricsProviderReadFile,
+    type AstFileMetricsProviderResolveRepositoryPath,
+    type IAstFileMetricsProviderOptions,
+} from "./ast-file-metrics-provider"
 export {
     AstCyclomaticComplexityService,
     type IAstCyclomaticComplexityFileInput,
