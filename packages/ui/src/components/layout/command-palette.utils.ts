@@ -4,11 +4,7 @@ import {
     safeStorageSetJson,
 } from "@/lib/utils/safe-storage"
 
-import type {
-    ICommandPaletteGroupSection,
-    ICommandPaletteItem,
-    TCommandPaletteGroup,
-} from "./command-palette.constants"
+import type { ICommandPaletteItem, TCommandPaletteGroup } from "./command-palette.constants"
 import { STATIC_COMMAND_KEYS } from "./command-palette.constants"
 
 /**
@@ -34,25 +30,6 @@ export function inferCommandPaletteGroup(path: string): TCommandPaletteGroup {
         return "settings"
     }
     return "general"
-}
-
-/**
- * Creates a unique DOM id for a command palette option element.
- * Used for `aria-activedescendant` linkage between the combobox input and
- * the currently highlighted option.
- *
- * @param itemId - The logical id of the command item.
- * @param itemIndex - The positional index of the item in the flat list.
- * @returns A deterministic, DOM-safe id string.
- */
-export function createCommandPaletteOptionId(itemId: string, itemIndex: number): string {
-    const normalized = itemId
-        .toLowerCase()
-        .replace(/[^a-z0-9_-]+/g, "-")
-        .replace(/^-+|-+$/g, "")
-    const safePart = normalized.length > 0 ? normalized : "item"
-
-    return `header-command-palette-option-${safePart}-${String(itemIndex)}`
 }
 
 /**
@@ -150,37 +127,5 @@ export function sortByReferenceOrder<TValue extends { readonly path: string }>(
             return -1
         }
         return leftPosition - rightPosition
-    })
-}
-
-/**
- * Groups a flat list of command palette items into sections by their group
- * category, preserving first-seen insertion order for section headings.
- *
- * @param items - The flat list of items to group.
- * @returns An array of group sections, each containing its matching items.
- */
-export function groupCommandPaletteItems(
-    items: ReadonlyArray<ICommandPaletteItem>,
-): ReadonlyArray<ICommandPaletteGroupSection> {
-    const order: TCommandPaletteGroup[] = []
-    const map = new Map<TCommandPaletteGroup, ICommandPaletteItem[]>()
-
-    items.forEach((item): void => {
-        const existing = map.get(item.group)
-        if (existing === undefined) {
-            order.push(item.group)
-            map.set(item.group, [item])
-            return
-        }
-
-        existing.push(item)
-    })
-
-    return order.map((group): ICommandPaletteGroupSection => {
-        return {
-            group,
-            items: map.get(group) ?? [],
-        }
     })
 }
