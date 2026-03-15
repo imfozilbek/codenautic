@@ -111,6 +111,15 @@ export {
     type ICerebrasProviderErrorDetails,
 } from "./cerebras-provider.error"
 export {
+    NovitaProvider,
+    type INovitaClient,
+    type INovitaProviderOptions,
+} from "./novita-provider"
+export {
+    NovitaProviderError,
+    type INovitaProviderErrorDetails,
+} from "./novita-provider.error"
+export {
     AnthropicRequestAcl,
     AnthropicResponseAcl,
     LLM_ACL_PROVIDER,
