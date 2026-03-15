@@ -1,4 +1,12 @@
-import { type ChangeEvent, lazy, Suspense, type ReactElement, useEffect, useId, useState } from "react"
+import {
+    type ChangeEvent,
+    lazy,
+    Suspense,
+    type ReactElement,
+    useEffect,
+    useId,
+    useState,
+} from "react"
 import { useTranslation } from "react-i18next"
 
 import { Button, Card, CardContent, CardHeader, TextArea } from "@heroui/react"
@@ -221,7 +229,9 @@ export function RuleEditor(props: IRuleEditorProps): ReactElement {
                     }
                     id={textareaId}
                     maxLength={maxLength}
-                    onChange={(event: ChangeEvent<HTMLTextAreaElement>): void => { onChange(event.target.value) }}
+                    onChange={(event: ChangeEvent<HTMLTextAreaElement>): void => {
+                        onChange(event.target.value)
+                    }}
                     rows={10}
                     value={value}
                     placeholder={placeholder}
@@ -232,13 +242,13 @@ export function RuleEditor(props: IRuleEditorProps): ReactElement {
                 {maxLength === undefined ? null : (
                     <p
                         id={maxLengthId}
-                        className={`text-xs ${value.length > maxLength ? "text-danger" : "text-muted-foreground"}`}
+                        className={`text-xs ${value.length > maxLength ? "text-danger" : "text-muted"}`}
                     >
                         {t("settings:ruleEditor.maxSymbols", { max: maxLength })}
                     </p>
                 )}
                 {isPreviewVisible === false ? (
-                    <p className="text-sm text-muted-foreground">
+                    <p className="text-sm text-muted">
                         {t("settings:ruleEditor.previewHidden")}
                     </p>
                 ) : (

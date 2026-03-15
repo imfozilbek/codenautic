@@ -35,7 +35,9 @@ export function PromptOverrideEditor(props: IPromptOverrideEditorProps): ReactEl
             </p>
             <TextArea
                 aria-label={t("settings:promptOverrideEditor.ariaLabel")}
-                onChange={(event: ChangeEvent<HTMLTextAreaElement>): void => { props.onChange(event.target.value) }}
+                onChange={(event: ChangeEvent<HTMLTextAreaElement>): void => {
+                    props.onChange(event.target.value)
+                }}
                 placeholder={t("settings:promptOverrideEditor.placeholder")}
                 value={props.value}
             />

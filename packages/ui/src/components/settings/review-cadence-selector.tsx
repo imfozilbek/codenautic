@@ -59,7 +59,7 @@ export function ReviewCadenceSelector(props: IReviewCadenceSelectorProps): React
     return (
         <section className="space-y-3 rounded-xl border border-border bg-surface p-4">
             <h2 className={TYPOGRAPHY.sectionTitle}>{t("settings:reviewCadenceSelector.title")}</h2>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-sm text-muted">
                 {t("settings:reviewCadenceSelector.description")}
             </p>
             <fieldset
