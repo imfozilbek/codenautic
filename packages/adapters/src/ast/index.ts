@@ -130,6 +130,12 @@ export {
     type IAstScanResultAggregatorErrorDetails,
 } from "./ast-scan-result-aggregator.error"
 export {
+    AST_PARALLEL_FILE_PARSER_ERROR_CODE,
+    AstParallelFileParserError,
+    type AstParallelFileParserErrorCode,
+    type IAstParallelFileParserErrorDetails,
+} from "./ast-parallel-file-parser.error"
+export {
     AST_SERVICE_MULTI_REPO_GRAPH_FEDERATION_ERROR_CODE,
     AstServiceMultiRepoGraphFederationError,
     type AstServiceMultiRepoGraphFederationErrorCode,
@@ -581,6 +587,17 @@ export {
     type IAstScanSummaryMetrics,
     type IAstScanSummaryRepository,
 } from "./ast-scan-result-aggregator.service"
+export {
+    AstParallelFileParserService,
+    type IAstParallelFileParserFailureItem,
+    type IAstParallelFileParserFileInput,
+    type IAstParallelFileParserInput,
+    type IAstParallelFileParserResult,
+    type IAstParallelFileParserService,
+    type IAstParallelFileParserServiceOptions,
+    type IAstParallelFileParserSuccessItem,
+    type IAstParallelFileParserSummary,
+} from "./ast-parallel-file-parser.service"
 export {
     AstCyclomaticComplexityService,
     type IAstCyclomaticComplexityFileInput,
