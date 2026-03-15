@@ -18,15 +18,15 @@ import type {
     TDriftSeverity,
     TDriftSortMode,
 } from "./contract-validation-types"
-import { DRIFT_CODE_CITY_FILES } from "./contract-validation-constants"
 import {
     BLUEPRINT_STRUCTURE_NODES,
     DEFAULT_BLUEPRINT_YAML,
     DEFAULT_DRIFT_VIOLATIONS,
     DEFAULT_GUARDRAILS_YAML,
+    DRIFT_CODE_CITY_FILES,
     DRIFT_TREND_POINTS,
     REALITY_STRUCTURE_NODES,
-} from "./contract-validation-mock-data"
+} from "./contract-validation-constants"
 import { buildBlueprintHighlightLines, parseBlueprintYaml } from "./blueprint-parser"
 import { parseContractEnvelope, parseGuardrailsYaml } from "./contract-validator"
 import { SUPPORTED_SCHEMA } from "./contract-validator"
