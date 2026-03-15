@@ -26,6 +26,9 @@ import { webhooksHandlers } from "./webhooks.handlers"
 import { tokenUsageHandlers } from "./token-usage.handlers"
 import { auditLogsHandlers } from "./audit-logs.handlers"
 import { workspaceHandlers } from "./workspace.handlers"
+import { adoptionAnalyticsHandlers } from "./adoption-analytics.handlers"
+import { providerStatusHandlers } from "./provider-status.handlers"
+import { scanProgressHandlers } from "./scan-progress.handlers"
 
 /**
  * Все MSW handlers для dev-режима.
@@ -59,4 +62,7 @@ export const handlers: ReadonlyArray<RequestHandler> = [
     ...billingHandlers,
     ...tokenUsageHandlers,
     ...auditLogsHandlers,
+    ...adoptionAnalyticsHandlers,
+    ...providerStatusHandlers,
+    ...scanProgressHandlers,
 ]
