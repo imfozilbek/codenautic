@@ -23,6 +23,8 @@ import { systemHandlers } from "./system.handlers"
 import { teamsHandlers } from "./teams.handlers"
 import { triageHandlers } from "./triage.handlers"
 import { webhooksHandlers } from "./webhooks.handlers"
+import { tokenUsageHandlers } from "./token-usage.handlers"
+import { auditLogsHandlers } from "./audit-logs.handlers"
 import { workspaceHandlers } from "./workspace.handlers"
 
 /**
@@ -55,4 +57,6 @@ export const handlers: ReadonlyArray<RequestHandler> = [
     ...jobsHandlers,
     ...webhooksHandlers,
     ...billingHandlers,
+    ...tokenUsageHandlers,
+    ...auditLogsHandlers,
 ]
