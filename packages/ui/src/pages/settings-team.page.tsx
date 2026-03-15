@@ -2,7 +2,6 @@ import { type ReactElement, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { Alert, Button, Card, CardContent, CardHeader, Chip, Input } from "@heroui/react"
-import { FormLayout } from "@/components/forms/form-layout"
 import { NATIVE_FORM } from "@/lib/constants/spacing"
 import { TYPOGRAPHY } from "@/lib/constants/typography"
 import { showToastError, showToastInfo, showToastSuccess } from "@/lib/notifications/toast"
@@ -260,9 +259,7 @@ function TeamMembersCard(props: {
                                         <p className="text-sm font-semibold text-foreground">
                                             {member.name}
                                         </p>
-                                        <p className="text-xs text-muted">
-                                            {member.email}
-                                        </p>
+                                        <p className="text-xs text-muted">{member.email}</p>
                                     </div>
                                     <div className="flex items-center gap-2">
                                         <Chip
@@ -559,10 +556,7 @@ export function SettingsTeamPage(): ReactElement {
     }
 
     return (
-        <FormLayout
-            title={t("settings:team.pageTitle")}
-            description={t("settings:team.pageSubtitle")}
-        >
+        <div className="space-y-6 mx-auto max-w-[1400px]"><div className="space-y-1.5"><h1 className={TYPOGRAPHY.pageTitle}>{t("settings:team.pageTitle")}</h1><p className={TYPOGRAPHY.bodyMuted}>{t("settings:team.pageSubtitle")}</p></div><div className="space-y-6">
             <Alert status="accent">
                 <Alert.Title>
                     {t("settings:team.rbacPreviewRole", { role: activeUiRole })}
@@ -660,6 +654,6 @@ export function SettingsTeamPage(): ReactElement {
                     </div>
                 )}
             </div>
-        </FormLayout>
+        </div></div>
     )
 }
