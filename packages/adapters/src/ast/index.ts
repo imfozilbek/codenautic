@@ -100,6 +100,12 @@ export {
     type IAstChurnCalculatorErrorDetails,
 } from "./ast-churn-calculator.error"
 export {
+    AST_CHURN_TREND_CALCULATOR_ERROR_CODE,
+    AstChurnTrendCalculatorError,
+    type AstChurnTrendCalculatorErrorCode,
+    type IAstChurnTrendCalculatorErrorDetails,
+} from "./ast-churn-trend-calculator.error"
+export {
     AST_OWNERSHIP_CALCULATOR_ERROR_CODE,
     AstOwnershipCalculatorError,
     type AstOwnershipCalculatorErrorCode,
@@ -556,6 +562,22 @@ export {
     type IAstChurnCalculatorServiceOptions,
     type IAstChurnCalculatorSummary,
 } from "./ast-churn-calculator.service"
+export {
+    AST_CHURN_TREND_DIRECTION,
+    AstChurnTrendCalculatorService,
+    type AstChurnTrendDirection,
+    type AstChurnTrendCalculatorLoadSamples,
+    type AstChurnTrendCalculatorNow,
+    type AstChurnTrendCalculatorSleep,
+    type IAstChurnFileTrend,
+    type IAstChurnRollingAverage,
+    type IAstChurnTrendCalculatorInput,
+    type IAstChurnTrendCalculatorResult,
+    type IAstChurnTrendCalculatorService,
+    type IAstChurnTrendCalculatorServiceOptions,
+    type IAstChurnTrendCalculatorSummary,
+    type IAstChurnTrendSample,
+} from "./ast-churn-trend-calculator.service"
 export {
     AstOwnershipCalculatorService,
     type AstOwnershipCalculatorFetchBlameBatch,
