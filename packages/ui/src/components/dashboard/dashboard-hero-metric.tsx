@@ -1,7 +1,6 @@
 import { type ReactElement, useId } from "react"
 
 import { Card, CardContent } from "@heroui/react"
-import { useCountUp } from "@/lib/motion"
 import { TYPOGRAPHY } from "@/lib/constants/typography"
 
 /**
@@ -62,6 +61,7 @@ function describeArc(percentage: number, radius: number, cx: number, cy: number)
 /**
  * Large hero metric card с radial gauge визуализацией,
  * glow-эффектом и severity-цветом.
+ * Gauge arc использует CSS transition для плавной анимации значения.
  *
  * @param props Конфигурация метрики.
  * @returns Hero metric card с animated gauge.
@@ -75,8 +75,6 @@ export function DashboardHeroMetric(props: IDashboardHeroMetricProps): ReactElem
     const cy = 55
     const filterId = useId()
     const gradientId = useId()
-
-    const animatedValue = useCountUp({ target: props.value })
 
     return (
         <Card
@@ -152,7 +150,7 @@ export function DashboardHeroMetric(props: IDashboardHeroMetricProps): ReactElem
                         x={cx}
                         y={cy - 2}
                     >
-                        {String(animatedValue)}
+                        {String(props.value)}
                     </text>
 
                     {/* Score label under value */}
