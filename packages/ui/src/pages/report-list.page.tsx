@@ -3,53 +3,13 @@ import { useTranslation } from "react-i18next"
 import { useNavigate } from "@tanstack/react-router"
 
 import { useDynamicTranslation } from "@/lib/i18n"
+import type { IReport, TReportStatus, TReportType } from "@/lib/api/endpoints/reports.endpoint"
+import { useReports } from "@/lib/hooks/queries/use-reports"
 import { Alert, Button, Card, CardContent, CardHeader } from "@heroui/react"
 import { PageShell } from "@/components/layout/page-shell"
 import { NATIVE_FORM } from "@/lib/constants/spacing"
 import { TYPOGRAPHY } from "@/lib/constants/typography"
 import { showToastInfo, showToastSuccess } from "@/lib/notifications/toast"
-
-type TReportType = "architecture" | "delivery" | "quality"
-type TReportStatus = "completed" | "queued" | "failed"
-
-interface IGeneratedReport {
-    readonly id: string
-    readonly title: string
-    readonly type: TReportType
-    readonly generatedAt: string
-    readonly status: TReportStatus
-}
-
-const INITIAL_REPORTS: ReadonlyArray<IGeneratedReport> = [
-    {
-        generatedAt: "2026-03-01",
-        id: "report-001",
-        status: "completed",
-        title: "Architecture Weekly Snapshot",
-        type: "architecture",
-    },
-    {
-        generatedAt: "2026-03-03",
-        id: "report-002",
-        status: "completed",
-        title: "Delivery Throughput Pulse",
-        type: "delivery",
-    },
-    {
-        generatedAt: "2026-03-05",
-        id: "report-003",
-        status: "failed",
-        title: "Quality Regression Radar",
-        type: "quality",
-    },
-    {
-        generatedAt: "2026-03-06",
-        id: "report-004",
-        status: "queued",
-        title: "Architecture Drift Mid-Sprint",
-        type: "architecture",
-    },
-]
 
 function resolveReportStatusBadgeClass(status: TReportStatus): string {
     if (status === "completed") {
@@ -80,22 +40,36 @@ export function ReportListPage(): ReactElement {
     const { t } = useTranslation(["reports"])
     const { td } = useDynamicTranslation(["reports"])
     const navigate = useNavigate()
+    const { reportsQuery, deleteReport } = useReports()
     const [reportTypeFilter, setReportTypeFilter] = useState<TReportType | "all">("all")
     const [dateFrom, setDateFrom] = useState<string>("")
     const [dateTo, setDateTo] = useState<string>("")
-    const [reports, setReports] = useState<ReadonlyArray<IGeneratedReport>>(INITIAL_REPORTS)
     const [actionStatus, setActionStatus] = useState<string>(t("reports:list.noActionYet"))
+    const [regeneratedIds, setRegeneratedIds] = useState<ReadonlySet<string>>(new Set())
 
-    const filteredReports = useMemo((): ReadonlyArray<IGeneratedReport> => {
+    const reports: ReadonlyArray<IReport> = useMemo((): ReadonlyArray<IReport> => {
+        const rawReports = reportsQuery.data?.reports ?? []
+        if (regeneratedIds.size === 0) {
+            return rawReports
+        }
+        return rawReports.map((report): IReport => {
+            if (regeneratedIds.has(report.id)) {
+                return { ...report, status: "queued" as TReportStatus }
+            }
+            return report
+        })
+    }, [reportsQuery.data?.reports, regeneratedIds])
+
+    const filteredReports = useMemo((): ReadonlyArray<IReport> => {
         return reports.filter((report): boolean => {
             if (reportTypeFilter !== "all" && report.type !== reportTypeFilter) {
                 return false
             }
 
-            if (dateFrom.length > 0 && report.generatedAt < dateFrom) {
+            if (dateFrom.length > 0 && report.createdAt < dateFrom) {
                 return false
             }
-            if (dateTo.length > 0 && report.generatedAt > dateTo) {
+            if (dateTo.length > 0 && report.createdAt > dateTo) {
                 return false
             }
 
@@ -110,26 +84,17 @@ export function ReportListPage(): ReactElement {
         setDateTo(event.currentTarget.value)
     }
     const handleDeleteReport = (reportId: string): void => {
-        setReports((currentReports): ReadonlyArray<IGeneratedReport> => {
-            return currentReports.filter((report): boolean => report.id !== reportId)
+        deleteReport.mutate(reportId, {
+            onSuccess: (): void => {
+                setActionStatus(td("reports:list.deletedReport", { id: reportId }))
+                showToastSuccess(t("reports:list.deletedToast"))
+            },
         })
-        setActionStatus(td("reports:list.deletedReport", { id: reportId }))
-        showToastSuccess(t("reports:list.deletedToast"))
     }
     const handleRegenerateReport = (reportId: string): void => {
-        setReports((currentReports): ReadonlyArray<IGeneratedReport> => {
-            return currentReports.map((report): IGeneratedReport => {
-                if (report.id !== reportId) {
-                    return report
-                }
-
-                return {
-                    ...report,
-                    generatedAt: "2026-03-07",
-                    status: "queued",
-                }
-            })
-        })
+        setRegeneratedIds(
+            (previous): ReadonlySet<string> => new Set([...previous, reportId]),
+        )
         setActionStatus(td("reports:list.regenerationQueued", { id: reportId }))
         showToastInfo(t("reports:list.regenerationQueuedToast"))
     }
@@ -261,7 +226,7 @@ export function ReportListPage(): ReactElement {
                                         </div>
                                         <p className={TYPOGRAPHY.body}>
                                             {td("reports:list.typeAndDate", {
-                                                date: report.generatedAt,
+                                                date: report.createdAt,
                                                 type: report.type,
                                             })}
                                         </p>
