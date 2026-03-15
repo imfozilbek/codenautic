@@ -8,6 +8,9 @@ export {
     AsanaTaskAcl,
     ClickUpContextAcl,
     ClickUpTaskAcl,
+    DatadogAlertAcl,
+    DatadogContextAcl,
+    DatadogLogAcl,
     JiraContextAcl,
     JiraTicketAcl,
     LinearContextAcl,
@@ -16,8 +19,11 @@ export {
     SentryErrorAcl,
     mapAsanaContext,
     mapClickUpContext,
+    mapDatadogContext,
     mapExternalAsanaTask,
     mapExternalClickUpTask,
+    mapExternalDatadogAlert,
+    mapExternalDatadogLogs,
     mapExternalJiraTicket,
     mapExternalLinearIssue,
     mapExternalSentryError,
@@ -25,6 +31,11 @@ export {
     mapLinearContext,
     mapSentryContext,
 } from "./acl"
+export {
+    type IDatadogAlert,
+    type IDatadogContextData,
+    type IDatadogLogEntry,
+} from "./datadog.types"
 export {
     AsanaProvider,
     type IAsanaApiClient,
@@ -41,6 +52,16 @@ export {
     type IClickUpProviderOptions,
     type IClickUpResponseHeaders,
 } from "./clickup-provider"
+export {
+    DatadogProvider,
+    type IDatadogApiClient,
+    type IDatadogApiResponse,
+    type IDatadogGetMonitorRequest,
+    type IDatadogProvider,
+    type IDatadogProviderOptions,
+    type IDatadogResponseHeaders,
+    type IDatadogSearchLogsRequest,
+} from "./datadog-provider"
 export {
     JiraProvider,
     type IJiraApiClient,
@@ -81,6 +102,10 @@ export {
     ClickUpProviderError,
     type IClickUpProviderErrorDetails,
 } from "./clickup-provider.error"
+export {
+    DatadogProviderError,
+    type IDatadogProviderErrorDetails,
+} from "./datadog-provider.error"
 export {
     JiraProviderError,
     type IJiraProviderErrorDetails,

@@ -7,12 +7,16 @@ import type {
     ILinearIssue,
     ISentryError,
 } from "@codenautic/core"
+import type {IDatadogAlert, IDatadogLogEntry} from "../datadog.types"
 
 import {
     mapAsanaContext,
     mapClickUpContext,
+    mapDatadogContext,
     mapExternalAsanaTask,
     mapExternalClickUpTask,
+    mapExternalDatadogAlert,
+    mapExternalDatadogLogs,
     mapExternalJiraTicket,
     mapExternalLinearIssue,
     mapExternalSentryError,
@@ -218,5 +222,65 @@ export class SentryContextAcl implements IAntiCorruptionLayer<unknown, IExternal
      */
     public toDomain(external: unknown): IExternalContext {
         return mapSentryContext(external)
+    }
+}
+
+/**
+ * Datadog alert ACL adapter.
+ */
+export class DatadogAlertAcl implements IAntiCorruptionLayer<unknown, IDatadogAlert> {
+    /**
+     * Creates Datadog alert ACL adapter.
+     */
+    public constructor() {}
+
+    /**
+     * Converts external Datadog payload to domain alert DTO.
+     *
+     * @param external External Datadog payload.
+     * @returns Domain Datadog alert DTO.
+     */
+    public toDomain(external: unknown): IDatadogAlert {
+        return mapExternalDatadogAlert(external)
+    }
+}
+
+/**
+ * Datadog logs ACL adapter.
+ */
+export class DatadogLogAcl implements IAntiCorruptionLayer<unknown, readonly IDatadogLogEntry[]> {
+    /**
+     * Creates Datadog logs ACL adapter.
+     */
+    public constructor() {}
+
+    /**
+     * Converts external Datadog logs payload to domain log DTO list.
+     *
+     * @param external External Datadog logs payload.
+     * @returns Domain Datadog log DTO list.
+     */
+    public toDomain(external: unknown): readonly IDatadogLogEntry[] {
+        return mapExternalDatadogLogs(external)
+    }
+}
+
+/**
+ * Datadog context ACL adapter.
+ */
+export class DatadogContextAcl implements IAntiCorruptionLayer<unknown, IExternalContext> {
+    /**
+     * Creates Datadog context ACL adapter.
+     */
+    public constructor() {}
+
+    /**
+     * Converts external Datadog payload to shared external context.
+     *
+     * @param external External Datadog payload.
+     * @returns Shared external context.
+     */
+    public toDomain(external: unknown): IExternalContext {
+        return mapDatadogContext(external)
     }
 }

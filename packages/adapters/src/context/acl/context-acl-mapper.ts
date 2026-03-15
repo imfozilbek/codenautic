@@ -10,6 +10,7 @@ import type {
     ILinearSubIssue,
     ISentryError,
 } from "@codenautic/core"
+import type {IDatadogAlert, IDatadogContextData, IDatadogLogEntry} from "../datadog.types"
 
 const DEFAULT_FETCHED_AT = new Date(0)
 const EMPTY_RECORD: Readonly<Record<string, unknown>> = {}
@@ -258,6 +259,90 @@ export function mapSentryContext(payload: unknown): IExternalContext {
             ...(error.frequency !== undefined ? {frequency: error.frequency} : {}),
             ...(error.affectedUsers !== undefined ? {affectedUsers: error.affectedUsers} : {}),
         },
+        fetchedAt: resolveFetchedAt(root),
+    }
+}
+
+/**
+ * Normalizes external Datadog payload to shared alert DTO.
+ *
+ * @param payload External Datadog payload.
+ * @returns Normalized Datadog alert DTO.
+ */
+export function mapExternalDatadogAlert(payload: unknown): IDatadogAlert {
+    const root = toRecord(payload) ?? EMPTY_RECORD
+    const monitor = toRecord(root["monitor"]) ?? root
+    const query = readText(monitor, ["query"])
+    const tags = resolveDatadogTags(monitor)
+    const severity = resolveDatadogSeverity(monitor)
+    const triggeredAt = resolveDatadogTriggeredAt(monitor)
+
+    return {
+        id: readIdentifier(monitor, ["id", "monitor_id", "monitorId"], "UNKNOWN"),
+        title: readText(monitor, ["name", "title"], "(no title)"),
+        status: readText(monitor, ["overall_state", "overallState", "status"], "unknown"),
+        ...(query.length > 0 ? {query} : {}),
+        ...(tags.length > 0 ? {tags} : {}),
+        ...(severity !== undefined ? {severity} : {}),
+        ...(triggeredAt !== undefined ? {triggeredAt} : {}),
+    }
+}
+
+/**
+ * Normalizes external Datadog payload to shared log-entry DTO list.
+ *
+ * @param payload External Datadog logs payload.
+ * @returns Normalized Datadog log entries.
+ */
+export function mapExternalDatadogLogs(payload: unknown): readonly IDatadogLogEntry[] {
+    const root = toRecord(payload)
+    const rawLogs = root !== null ? toArray(root["data"]) : toArray(payload)
+    const logs: IDatadogLogEntry[] = []
+
+    for (const [index, rawLog] of rawLogs.entries()) {
+        const logRoot = toRecord(rawLog) ?? EMPTY_RECORD
+        const attributes = toRecord(logRoot["attributes"]) ?? logRoot
+        const message = readText(attributes, ["message", "title"], "(no message)")
+        const timestamp = resolveDatadogLogTimestamp(attributes)
+        const service = readText(attributes, ["service", "service_name"])
+        const status = readText(attributes, ["status", "level"])
+        const filePath = resolveDatadogLogFilePath(attributes, message)
+
+        logs.push({
+            id: readIdentifier(logRoot, ["id", "log_id"], `log-${String(index + 1)}`),
+            timestamp,
+            message,
+            ...(service.length > 0 ? {service} : {}),
+            ...(status.length > 0 ? {status} : {}),
+            ...(filePath !== undefined ? {filePath} : {}),
+        })
+    }
+
+    return logs
+}
+
+/**
+ * Normalizes external Datadog context payload.
+ *
+ * @param payload External Datadog payload.
+ * @returns Shared external context.
+ */
+export function mapDatadogContext(payload: unknown): IExternalContext {
+    const root = toRecord(payload) ?? EMPTY_RECORD
+    const monitorPayload = toRecord(root["monitor"]) ?? root
+    const logsPayload = root["logs"] ?? root["logEvents"] ?? EMPTY_RECORD
+    const alert = mapExternalDatadogAlert(monitorPayload)
+    const logs = mapExternalDatadogLogs(logsPayload)
+    const affectedCodePaths = resolveAffectedCodePaths(logs)
+    const contextData: IDatadogContextData = {
+        alert,
+        logs,
+        ...(affectedCodePaths !== undefined ? {affectedCodePaths} : {}),
+    }
+
+    return {
+        source: "DATADOG",
+        data: contextData,
         fetchedAt: resolveFetchedAt(root),
     }
 }
@@ -1902,14 +1987,241 @@ function appendRichTextBlockBreak(
 }
 
 /**
+ * Resolves normalized Datadog tags from monitor payload.
+ *
+ * @param monitor Datadog monitor payload.
+ * @returns Normalized tags.
+ */
+function resolveDatadogTags(monitor: Readonly<Record<string, unknown>>): readonly string[] {
+    const tags = toArray(monitor["tags"])
+    const normalized = tags
+        .map((tag): string => {
+            if (typeof tag !== "string") {
+                return ""
+            }
+            return tag.trim()
+        })
+        .filter((tag) => {
+            return tag.length > 0
+        })
+
+    return deduplicateTextList(normalized)
+}
+
+/**
+ * Resolves Datadog alert severity from common payload fields.
+ *
+ * @param monitor Datadog monitor payload.
+ * @returns Normalized severity label when available.
+ */
+function resolveDatadogSeverity(
+    monitor: Readonly<Record<string, unknown>>,
+): string | undefined {
+    const directSeverity = readText(monitor, ["severity", "priorityLabel"])
+    if (directSeverity.length > 0) {
+        return directSeverity.toLowerCase()
+    }
+
+    const priority = monitor["priority"]
+    if (typeof priority === "number" && Number.isFinite(priority)) {
+        if (priority <= 1) {
+            return "critical"
+        }
+        if (priority <= 3) {
+            return "high"
+        }
+        if (priority <= 5) {
+            return "medium"
+        }
+        return "low"
+    }
+
+    return undefined
+}
+
+/**
+ * Resolves Datadog trigger timestamp from common monitor payload fields.
+ *
+ * @param monitor Datadog monitor payload.
+ * @returns Triggered-at timestamp in ISO format when available.
+ */
+function resolveDatadogTriggeredAt(
+    monitor: Readonly<Record<string, unknown>>,
+): string | undefined {
+    const candidates: readonly unknown[] = [
+        monitor["overall_state_modified"],
+        monitor["overallStateModified"],
+        monitor["last_triggered_at"],
+        monitor["lastTriggeredAt"],
+        monitor["modified_at"],
+        monitor["modifiedAt"],
+    ]
+
+    for (const candidate of candidates) {
+        const resolved = normalizeIsoTimestamp(candidate)
+        if (resolved !== undefined) {
+            return resolved
+        }
+    }
+
+    return undefined
+}
+
+/**
+ * Resolves Datadog log timestamp from common attributes fields.
+ *
+ * @param attributes Datadog log attributes.
+ * @returns Timestamp in ISO format.
+ */
+function resolveDatadogLogTimestamp(attributes: Readonly<Record<string, unknown>>): string {
+    const candidates: readonly unknown[] = [
+        attributes["timestamp"],
+        attributes["date"],
+        attributes["event_time"],
+        attributes["eventTime"],
+    ]
+
+    for (const candidate of candidates) {
+        const resolved = normalizeIsoTimestamp(candidate)
+        if (resolved !== undefined) {
+            return resolved
+        }
+    }
+
+    return new Date(DEFAULT_FETCHED_AT.getTime()).toISOString()
+}
+
+/**
+ * Resolves Datadog file path from log attributes or message text.
+ *
+ * @param attributes Datadog log attributes.
+ * @param message Log message.
+ * @returns Normalized file path when available.
+ */
+function resolveDatadogLogFilePath(
+    attributes: Readonly<Record<string, unknown>>,
+    message: string,
+): string | undefined {
+    const nestedAttributes = toRecord(attributes["attributes"])
+    const directCandidates: readonly unknown[] = [
+        attributes["file_path"],
+        attributes["filePath"],
+        attributes["source.file.path"],
+        nestedAttributes?.["file_path"],
+        nestedAttributes?.["filePath"],
+        nestedAttributes?.["source.file.path"],
+    ]
+
+    for (const candidate of directCandidates) {
+        const path = normalizePathLike(candidate)
+        if (path !== undefined) {
+            return path
+        }
+    }
+
+    return extractPathFromText(message)
+}
+
+/**
+ * Resolves affected code paths from Datadog log entries.
+ *
+ * @param logs Normalized Datadog logs.
+ * @returns Deterministic unique list of affected file paths.
+ */
+function resolveAffectedCodePaths(logs: readonly IDatadogLogEntry[]): readonly string[] | undefined {
+    const paths = logs
+        .map((logEntry): string | undefined => {
+            return logEntry.filePath ?? extractPathFromText(logEntry.message)
+        })
+        .filter((path): path is string => {
+            return path !== undefined
+        })
+
+    if (paths.length === 0) {
+        return undefined
+    }
+
+    return deduplicateTextList(paths)
+}
+
+/**
+ * Normalizes candidate value to ISO timestamp string.
+ *
+ * @param value Candidate timestamp value.
+ * @returns ISO timestamp when value is valid.
+ */
+function normalizeIsoTimestamp(value: unknown): string | undefined {
+    if (
+        typeof value !== "string"
+        && typeof value !== "number"
+        && (value instanceof Date) === false
+    ) {
+        return undefined
+    }
+
+    const parsed = new Date(value)
+    if (Number.isNaN(parsed.valueOf())) {
+        return undefined
+    }
+
+    return parsed.toISOString()
+}
+
+/**
+ * Normalizes path-like value extracted from log payload.
+ *
+ * @param value Candidate path.
+ * @returns Normalized path when candidate looks like source file.
+ */
+function normalizePathLike(value: unknown): string | undefined {
+    if (typeof value !== "string") {
+        return undefined
+    }
+
+    const normalized = value.trim()
+    if (normalized.length === 0) {
+        return undefined
+    }
+
+    if (/\.[a-z0-9]+$/i.test(normalized) === false) {
+        return undefined
+    }
+
+    return normalized
+}
+
+/**
+ * Extracts probable source file path from free-form text.
+ *
+ * @param text Candidate text.
+ * @returns Extracted path when available.
+ */
+function extractPathFromText(text: string): string | undefined {
+    const match = /(?:^|[\s(])([A-Za-z0-9_\-./]+?\.[A-Za-z0-9]+)(?:$|[\s),])/u.exec(text)
+    if (match?.[1] === undefined) {
+        return undefined
+    }
+
+    const extracted = match[1].trim()
+    if (extracted.length === 0) {
+        return undefined
+    }
+
+    return extracted
+}
+
+/**
  * Resolves fetched-at timestamp from payload.
  *
  * @param root Payload root object.
  * @returns Valid timestamp.
  */
 function resolveFetchedAt(root: Readonly<Record<string, unknown>>): Date {
+    const monitor = toRecord(root["monitor"])
     const candidates: readonly unknown[] = [
         root["fetchedAt"],
+        root["overall_state_modified"],
+        root["overallStateModified"],
         root["modified_at"],
         root["modifiedAt"],
         root["date_updated"],
@@ -1920,22 +2232,48 @@ function resolveFetchedAt(root: Readonly<Record<string, unknown>>): Date {
         root["last_seen"],
         root["dateCreated"],
         root["timestamp"],
+        monitor?.["overall_state_modified"],
+        monitor?.["overallStateModified"],
+        monitor?.["last_triggered_at"],
+        monitor?.["lastTriggeredAt"],
+        monitor?.["modified_at"],
+        monitor?.["modifiedAt"],
+        monitor?.["timestamp"],
     ]
 
     for (const candidate of candidates) {
-        if (candidate instanceof Date && Number.isNaN(candidate.valueOf()) === false) {
-            return new Date(candidate.getTime())
-        }
-
-        if (typeof candidate === "string" || typeof candidate === "number") {
-            const parsed = new Date(candidate)
-            if (Number.isNaN(parsed.valueOf()) === false) {
-                return parsed
-            }
+        const parsedDate = resolveValidDateCandidate(candidate)
+        if (parsedDate !== undefined) {
+            return parsedDate
         }
     }
 
     return new Date(DEFAULT_FETCHED_AT.getTime())
+}
+
+/**
+ * Resolves valid Date instance from unknown date candidate.
+ *
+ * @param candidate Candidate date value.
+ * @returns Valid Date instance when candidate is parseable.
+ */
+function resolveValidDateCandidate(candidate: unknown): Date | undefined {
+    if (candidate instanceof Date) {
+        if (Number.isNaN(candidate.valueOf()) === false) {
+            return new Date(candidate.getTime())
+        }
+
+        return undefined
+    }
+
+    if (typeof candidate === "string" || typeof candidate === "number") {
+        const parsed = new Date(candidate)
+        if (Number.isNaN(parsed.valueOf()) === false) {
+            return parsed
+        }
+    }
+
+    return undefined
 }
 
 /**
