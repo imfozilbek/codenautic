@@ -11,11 +11,9 @@ import {
 } from "recharts"
 
 import { Card, CardContent, CardHeader } from "@heroui/react"
-import { EmptyState } from "@/components/states/empty-state"
-import { ChartContainer } from "@/components/charts/chart-container"
 import { TYPOGRAPHY } from "@/lib/constants/typography"
 import { CHART_GRID_DASH } from "@/lib/constants/chart-recharts-defaults"
-import { CHART_DATA_TRANSITION } from "@/lib/motion"
+import { ResponsiveContainer } from "recharts"
 
 interface ITeamActivityPoint {
     /** Имя разработчика. */
@@ -70,12 +68,12 @@ export function TeamActivityWidget(props: ITeamActivityWidgetProps): ReactElemen
                     CCRs merged by developer in selected date range.
                 </p>
                 {props.points.length === 0 ? (
-                    <EmptyState
-                        description="No team activity data available for this period."
-                        title="No data"
-                    />
+                    <div className="flex flex-col items-center justify-center gap-3 py-12 text-center">
+                        <h3 className={TYPOGRAPHY.subsectionTitle}>No data</h3>
+                        <p className="max-w-sm text-sm text-muted">No team activity data available for this period.</p>
+                    </div>
                 ) : (
-                    <ChartContainer height="lg">
+                    <div className="h-64 w-full"><ResponsiveContainer height="100%" minHeight={1} minWidth={1} width="100%">
                         <BarChart data={props.points}>
                             <defs>
                                 <linearGradient id={barGradientId} x1="0" x2="0" y1="0" y2="1">
@@ -104,25 +102,21 @@ export function TeamActivityWidget(props: ITeamActivityWidgetProps): ReactElemen
                                 tick={{ fontSize: 11 }}
                                 tickLine={false}
                             />
-                            <YAxis
-                                stroke="var(--muted)"
-                                tick={{ fontSize: 11 }}
-                                tickLine={false}
-                            />
+                            <YAxis stroke="var(--muted)" tick={{ fontSize: 11 }} tickLine={false} />
                             {}
                             <Tooltip
                                 content={ActivityTooltip as never}
                                 cursor={{ fill: "var(--surface-secondary)", opacity: 0.5 }}
                             />
                             <Bar
-                                {...CHART_DATA_TRANSITION}
+                                {...{ animationDuration: 0, isAnimationActive: false }}
                                 dataKey="ccrMerged"
                                 fill={`url(#${barGradientId})`}
                                 name="CCR merged"
                                 radius={[6, 6, 0, 0]}
                             />
                         </BarChart>
-                    </ChartContainer>
+                    </ResponsiveContainer></div>
                 )}
             </CardContent>
         </Card>
