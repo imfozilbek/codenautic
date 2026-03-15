@@ -1,8 +1,9 @@
 import { type ReactElement } from "react"
 import { ArrowDownRight, ArrowUpRight, Minus } from "@/components/icons/app-icons"
 
+import CountUp from "react-countup"
+
 import { Card, CardContent } from "@heroui/react"
-import { useCountUp } from "@/lib/motion"
 import { TYPOGRAPHY } from "@/lib/constants/typography"
 
 /**
@@ -70,8 +71,6 @@ export function MetricCard(props: IMetricCardProps): ReactElement {
 
     const parsed = parseInt(props.value.replace(/,/g, ""), 10)
     const isNumeric = !Number.isNaN(parsed)
-    const animatedValue = useCountUp({ target: isNumeric ? parsed : 0 })
-    const displayValue = isNumeric ? animatedValue.toLocaleString("en-US") : props.value
 
     return (
         <Card
@@ -90,7 +89,17 @@ export function MetricCard(props: IMetricCardProps): ReactElement {
                 {/* Value + Trend */}
                 <div className="flex items-end justify-between gap-2">
                     <p className="font-display text-3xl font-bold tracking-tight text-foreground">
-                        {displayValue}
+                        {isNumeric ? (
+                            <CountUp
+                                duration={0.6}
+                                end={parsed}
+                                formattingFn={(value: number): string =>
+                                    value.toLocaleString("en-US")
+                                }
+                            />
+                        ) : (
+                            props.value
+                        )}
                     </p>
 
                     {hasTrend ? (
