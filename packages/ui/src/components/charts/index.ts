@@ -1,5 +1,3 @@
 /**
- * Barrel exports for chart components.
+ * Barrel exports for chart components — emptied after inline refactoring.
  */
-export { type IChartContainerProps, ChartContainer } from "./chart-container"
-export { type IRechartsChartWrapperProps, RechartsChartWrapper } from "./recharts-chart-wrapper"
