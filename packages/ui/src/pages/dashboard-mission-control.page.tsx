@@ -313,7 +313,7 @@ export function DashboardMissionControlPage(): ReactElement {
             headerActions={
                 <div className="sm:min-w-[420px]">
                     <button
-                        className="flex items-center gap-1 text-sm text-text-secondary sm:hidden"
+                        className="flex items-center gap-1 text-sm text-muted sm:hidden"
                         type="button"
                         onClick={toggleFilters}
                     >
@@ -361,7 +361,7 @@ export function DashboardMissionControlPage(): ReactElement {
             <AnimatedMount motionKey={`hero-metrics-${range}`}>
                 <div className="grid gap-4 lg:gap-6 lg:grid-cols-[auto_1fr]">
                     <DashboardHeroMetric
-                        color="var(--primary)"
+                        color="var(--accent)"
                         label={t("dashboard:missionControl.releaseHealth")}
                         subtitle={td("dashboard:missionControl.violations", {
                             count: String(architectureHealth.layerViolations),
@@ -442,7 +442,7 @@ export function DashboardMissionControlPage(): ReactElement {
                         <p className={TYPOGRAPHY.sectionTitle}>
                             {t("dashboard:missionControl.signals")}
                         </p>
-                        <ul className="space-y-1.5 text-sm text-text-secondary">
+                        <ul className="space-y-1.5 text-sm text-muted">
                             <li>{t("dashboard:missionControl.signalsDrift")}</li>
                             <li>{t("dashboard:missionControl.signalsPredictions")}</li>
                             <li>{t("dashboard:missionControl.signalsUsage")}</li>
@@ -534,14 +534,20 @@ export function DashboardMissionControlPage(): ReactElement {
                                 >
                                     {t("dashboard:missionControl.savePersonalization")}
                                 </Button>
-                                <Button size="sm" variant="secondary" onPress={handleGenerateShareLink}>
+                                <Button
+                                    size="sm"
+                                    variant="secondary"
+                                    onPress={handleGenerateShareLink}
+                                >
                                     {t("dashboard:missionControl.generateShareLink")}
                                 </Button>
                             </div>
 
                             <AnimatedAlert isVisible={personalizationMessage.length > 0}>
                                 <Alert status="accent">
-                                    <Alert.Title>{t("dashboard:missionControl.workspacePersonalization")}</Alert.Title>
+                                    <Alert.Title>
+                                        {t("dashboard:missionControl.workspacePersonalization")}
+                                    </Alert.Title>
                                     <Alert.Description>{personalizationMessage}</Alert.Description>
                                 </Alert>
                             </AnimatedAlert>
@@ -612,7 +618,7 @@ function renderExploreLinks(t: (key: string) => string): ReadonlyArray<ReactElem
         (link): ReactElement => (
             <li key={link.labelKey}>
                 <StyledLink
-                    className={`${TYPOGRAPHY.body} transition-colors duration-150 hover:text-primary`}
+                    className={`${TYPOGRAPHY.body} transition-colors duration-150 hover:text-accent`}
                     to={link.to}
                 >
                     {t(link.labelKey)}

@@ -498,7 +498,9 @@ export function HelpDiagnosticsPage(): ReactElement {
             {sourceContext === "error-fallback" ? (
                 <Alert status="warning">
                     <Alert.Title>{t("system:helpDiagnostics.errorFallbackTitle")}</Alert.Title>
-                    <Alert.Description>{t("system:helpDiagnostics.errorFallbackMessage")}</Alert.Description>
+                    <Alert.Description>
+                        {t("system:helpDiagnostics.errorFallbackMessage")}
+                    </Alert.Description>
                 </Alert>
             ) : null}
 
@@ -510,7 +512,7 @@ export function HelpDiagnosticsPage(): ReactElement {
                 </CardHeader>
                 <CardContent className="space-y-3">
                     <div className="grid gap-3 md:grid-cols-[1fr_220px]">
-                        <label className="flex flex-col gap-1 text-sm text-text-tertiary">
+                        <label className="flex flex-col gap-1 text-sm text-muted">
                             {t("system:helpDiagnostics.searchLabel")}
                             <input
                                 aria-label={t("system:helpDiagnostics.searchLabel")}
@@ -522,7 +524,7 @@ export function HelpDiagnosticsPage(): ReactElement {
                                 }}
                             />
                         </label>
-                        <label className="flex flex-col gap-1 text-sm text-text-tertiary">
+                        <label className="flex flex-col gap-1 text-sm text-muted">
                             {t("system:helpDiagnostics.categoryLabel")}
                             <select
                                 aria-label={t("system:helpDiagnostics.categoryLabel")}
@@ -588,7 +590,7 @@ export function HelpDiagnosticsPage(): ReactElement {
                                         <p className={TYPOGRAPHY.cardTitle}>
                                             {td(article.titleKey)}
                                         </p>
-                                        <p className="text-xs text-text-secondary">
+                                        <p className="text-xs text-muted">
                                             {td(article.summaryKey)}
                                         </p>
                                         <a
@@ -613,7 +615,7 @@ export function HelpDiagnosticsPage(): ReactElement {
                 </CardHeader>
                 <CardContent className="space-y-3">
                     <div className="flex flex-wrap items-center justify-between gap-2">
-                        <p className="text-sm text-text-tertiary">
+                        <p className="text-sm text-muted">
                             {t("system:helpDiagnostics.diagnosticsDescription")}
                         </p>
                         <div className="flex flex-wrap items-center gap-2">
@@ -653,7 +655,11 @@ export function HelpDiagnosticsPage(): ReactElement {
                             >
                                 {t("system:helpDiagnostics.openSessionRecovery")}
                             </Button>
-                            <Button size="sm" variant="secondary" onPress={handleGenerateSupportBundle}>
+                            <Button
+                                size="sm"
+                                variant="secondary"
+                                onPress={handleGenerateSupportBundle}
+                            >
                                 {t("system:helpDiagnostics.generateSupportBundle")}
                             </Button>
                         </div>
@@ -678,7 +684,7 @@ export function HelpDiagnosticsPage(): ReactElement {
                                             {check.status}
                                         </Chip>
                                     </div>
-                                    <p className="text-xs text-text-secondary">
+                                    <p className="text-xs text-muted">
                                         {td(check.detailsKey, check.detailsParams)}
                                     </p>
                                     <a
@@ -708,7 +714,7 @@ export function HelpDiagnosticsPage(): ReactElement {
                                         <p className={TYPOGRAPHY.cardTitle}>
                                             {td(action.labelKey)}
                                         </p>
-                                        <p className="text-xs text-text-secondary">
+                                        <p className="text-xs text-muted">
                                             {td(action.descriptionKey)}
                                         </p>
                                         {action.path !== undefined ? (
@@ -749,7 +755,9 @@ export function HelpDiagnosticsPage(): ReactElement {
                     </Button>
                     {bundleMessage.length > 0 ? (
                         <Alert status="accent">
-                            <Alert.Title>{t("system:helpDiagnostics.bundleReadyTitle")}</Alert.Title>
+                            <Alert.Title>
+                                {t("system:helpDiagnostics.bundleReadyTitle")}
+                            </Alert.Title>
                             <Alert.Description>{bundleMessage}</Alert.Description>
                         </Alert>
                     ) : null}
