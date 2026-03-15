@@ -135,10 +135,6 @@ export function sanitizeText(value: string): string {
         return source
     }
 
-    if (typeof window === "undefined") {
-        return source.replaceAll("<", "&lt;").replaceAll(">", "&gt;")
-    }
-
     return DOMPurify.sanitize(source, {
         ALLOWED_TAGS: [],
         ALLOWED_ATTR: [],
