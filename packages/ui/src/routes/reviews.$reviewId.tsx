@@ -12,7 +12,7 @@ import type {
 } from "@/lib/api/endpoints/ccr-workspace.endpoint"
 import { LINK_CLASSES } from "@/lib/constants/typography"
 import { useCcrWorkspace } from "@/lib/hooks/queries"
-import { getCcrById, type ICcrRowData } from "@/pages/ccr-data"
+import type { ICcrRowData } from "@/lib/types/ccr-types"
 
 const LazyCcrReviewDetailPage = lazy(
     async (): Promise<{
@@ -83,12 +83,11 @@ function ReviewsDetailRouteComponent(): ReactElement {
     const ccrWorkspace = useCcrWorkspace({
         reviewId: params.reviewId,
     })
-    const seedCcr = getCcrById(params.reviewId)
     const apiCcr = ccrWorkspace.ccrContextQuery.data?.ccr
     const ccr =
         apiCcr !== undefined
             ? mapWorkspaceRowToCcrRow(apiCcr)
-            : (seedCcr ?? createFallbackCcrRow(params.reviewId))
+            : createFallbackCcrRow(params.reviewId)
 
     if (params.reviewId.trim().length === 0) {
         return (
