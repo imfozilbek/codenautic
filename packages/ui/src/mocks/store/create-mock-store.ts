@@ -26,6 +26,8 @@ import {
     seedAdoptionAnalytics,
     seedProviderStatus,
     seedScanProgress,
+    seedLlmProviders,
+    seedIntegrations,
 } from "./seed"
 
 /**
@@ -69,6 +71,8 @@ export function createMockStore(): MockStore {
     seedAdoptionAnalytics(store.adoptionAnalytics)
     seedProviderStatus(store.providerStatus)
     seedScanProgress(store.scanProgress)
+    seedLlmProviders(store.llmProviders)
+    seedIntegrations(store.integrations)
     return store
 }
 
@@ -122,5 +126,7 @@ export function resetMockStore(): void {
         seedAdoptionAnalytics(instance.adoptionAnalytics)
         seedProviderStatus(instance.providerStatus)
         seedScanProgress(instance.scanProgress)
+        seedLlmProviders(instance.llmProviders)
+        seedIntegrations(instance.integrations)
     }
 }
