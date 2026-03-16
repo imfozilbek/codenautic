@@ -42,6 +42,7 @@ describe("SettingsLlmProvidersPage", (): void => {
     it("сохраняет connected статус при save, даже если testAfterSave выключен", (): void => {
         const previousConfig = {
             Anthropic: {
+                id: "llm-anthropic",
                 apiKey: "",
                 connected: false,
                 endpoint: "https://api.anthropic.com",
@@ -49,6 +50,7 @@ describe("SettingsLlmProvidersPage", (): void => {
                 provider: "Anthropic",
             },
             "Azure OpenAI": {
+                id: "llm-azure-openai",
                 apiKey: "",
                 connected: false,
                 endpoint: "https://azure-openai.example.com",
@@ -56,6 +58,7 @@ describe("SettingsLlmProvidersPage", (): void => {
                 provider: "Azure OpenAI",
             },
             Mistral: {
+                id: "llm-mistral",
                 apiKey: "",
                 connected: false,
                 endpoint: "https://api.mistral.ai",
@@ -63,6 +66,7 @@ describe("SettingsLlmProvidersPage", (): void => {
                 provider: "Mistral",
             },
             OpenAI: {
+                id: "llm-openai",
                 apiKey: "sk-connected-provider",
                 connected: true,
                 endpoint: "https://api.openai.com/v1",
