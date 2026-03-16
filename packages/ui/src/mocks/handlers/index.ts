@@ -29,6 +29,8 @@ import { workspaceHandlers } from "./workspace.handlers"
 import { adoptionAnalyticsHandlers } from "./adoption-analytics.handlers"
 import { providerStatusHandlers } from "./provider-status.handlers"
 import { scanProgressHandlers } from "./scan-progress.handlers"
+import { llmProvidersHandlers } from "./llm-providers.handlers"
+import { integrationsHandlers } from "./integrations.handlers"
 
 /**
  * Все MSW handlers для dev-режима.
@@ -65,4 +67,6 @@ export const handlers: ReadonlyArray<RequestHandler> = [
     ...adoptionAnalyticsHandlers,
     ...providerStatusHandlers,
     ...scanProgressHandlers,
+    ...llmProvidersHandlers,
+    ...integrationsHandlers,
 ]
