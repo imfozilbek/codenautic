@@ -1,4 +1,4 @@
-import { type ReactElement, useMemo } from "react"
+import { type ReactElement, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { Alert, Button, Card, CardContent, CardHeader, Chip, Spinner } from "@heroui/react"
@@ -9,7 +9,21 @@ import {
     type IProviderDegradationEventDetail,
 } from "@/lib/providers/degradation-mode"
 import { useProviderStatus } from "@/lib/hooks/queries/use-provider-status"
-import type { IProviderState } from "@/lib/api/endpoints/provider-status.endpoint"
+import type {
+    IProviderState,
+    IQueuedAction,
+} from "@/lib/api/endpoints/provider-status.endpoint"
+
+/**
+ * Дефолтное operational состояние провайдера.
+ */
+const DEFAULT_PROVIDER_STATE: IProviderState = {
+    provider: "llm",
+    level: "operational",
+    affectedFeatures: [],
+    eta: "stable",
+    runbookUrl: "https://status.codenautic.local/runbooks/llm",
+}
 
 /**
  * Экран provider degradation mode.
@@ -20,14 +34,14 @@ export function SettingsProviderDegradationPage(): ReactElement {
     const { t } = useTranslation(["settings"])
     const { statusQuery, queueActionMutation } = useProviderStatus()
 
-    const providerState: IProviderState = statusQuery.data?.state ?? {
-        provider: "llm",
-        level: "operational",
-        affectedFeatures: [],
-        eta: "stable",
-        runbookUrl: "https://status.codenautic.local/runbooks/llm",
-    }
-    const queuedActions = statusQuery.data?.queuedActions ?? []
+    const [localOverride, setLocalOverride] = useState<IProviderState | undefined>(undefined)
+    const [localQueuedActions, setLocalQueuedActions] = useState<
+        ReadonlyArray<IQueuedAction> | undefined
+    >(undefined)
+
+    const providerState: IProviderState =
+        localOverride ?? statusQuery.data?.state ?? DEFAULT_PROVIDER_STATE
+    const queuedActions = localQueuedActions ?? statusQuery.data?.queuedActions ?? []
 
     const canQueueCriticalAction = providerState.level === "degraded"
     const incidentMessage = useMemo((): string => {
@@ -49,24 +63,26 @@ export function SettingsProviderDegradationPage(): ReactElement {
     }
 
     const handleSimulateOutage = (): void => {
-        dispatchDegradationEvent({
-            provider: "llm",
-            level: "degraded",
-            eta: "25m",
+        const nextState: IProviderState = {
             affectedFeatures: ["Review generation", "Auto summary", "Chat completion"],
+            eta: "25m",
+            level: "degraded",
+            provider: "llm",
             runbookUrl: "https://status.codenautic.local/runbooks/llm",
-        })
+        }
+        setLocalOverride(nextState)
+        dispatchDegradationEvent(nextState)
         showToastInfo(t("settings:providerDegradation.toast.degradationActivated"))
     }
 
     const handleMarkOperational = (): void => {
-        dispatchDegradationEvent({
+        const nextState: IProviderState = {
+            ...DEFAULT_PROVIDER_STATE,
             provider: providerState.provider,
-            level: "operational",
-            eta: "stable",
-            affectedFeatures: [],
-            runbookUrl: providerState.runbookUrl,
-        })
+        }
+        setLocalOverride(nextState)
+        setLocalQueuedActions([])
+        dispatchDegradationEvent(nextState)
         showToastSuccess(t("settings:providerDegradation.toast.markedOperational"))
     }
 
@@ -75,10 +91,29 @@ export function SettingsProviderDegradationPage(): ReactElement {
             return
         }
 
+        const newAction: IQueuedAction = {
+            description: "CCR finalization webhook",
+            id: `QACT-${Date.now().toString(36)}`,
+            status: "queued",
+        }
+
+        setLocalQueuedActions(
+            (previous): ReadonlyArray<IQueuedAction> => [newAction, ...(previous ?? [])],
+        )
+
         queueActionMutation.mutate({ description: "CCR finalization webhook" })
     }
 
     const handleRetryQueuedActions = (): void => {
+        setLocalQueuedActions(
+            (previous): ReadonlyArray<IQueuedAction> =>
+                (previous ?? []).map(
+                    (action): IQueuedAction => ({
+                        ...action,
+                        status: providerState.level === "operational" ? "sent" : "retrying",
+                    }),
+                ),
+        )
         showToastInfo(t("settings:providerDegradation.toast.queuedActionsProcessed"))
     }
 
@@ -92,9 +127,6 @@ export function SettingsProviderDegradationPage(): ReactElement {
 
             {statusQuery.isError ? (
                 <Alert status="danger">
-                    <Alert.Title>
-                        {t("settings:providerDegradation.errorTitle")}
-                    </Alert.Title>
                     <Alert.Description>
                         {statusQuery.error.message}
                     </Alert.Description>
@@ -178,7 +210,6 @@ export function SettingsProviderDegradationPage(): ReactElement {
                     <div className="flex gap-2">
                         <Button
                             isDisabled={canQueueCriticalAction !== true}
-                            isLoading={queueActionMutation.isPending}
                             size="sm"
                             onPress={handleQueueCriticalAction}
                         >
