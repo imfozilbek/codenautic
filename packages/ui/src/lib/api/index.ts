@@ -32,6 +32,8 @@ import { AuditLogsApi } from "./endpoints/audit-logs.endpoint"
 import { AdoptionAnalyticsApi } from "./endpoints/adoption-analytics.endpoint"
 import { ProviderStatusApi } from "./endpoints/provider-status.endpoint"
 import { ScanProgressApi } from "./endpoints/scan-progress.endpoint"
+import { LlmProvidersApi } from "./endpoints/llm-providers.endpoint"
+import { IntegrationsApi } from "./endpoints/integrations.endpoint"
 import { FetchHttpClient } from "./http-client"
 
 /**
@@ -73,6 +75,8 @@ export function createApiContracts(): {
     readonly adoptionAnalytics: AdoptionAnalyticsApi
     readonly providerStatus: ProviderStatusApi
     readonly scanProgress: ScanProgressApi
+    readonly llmProviders: LlmProvidersApi
+    readonly integrations: IntegrationsApi
 } {
     const config = createApiConfig(resolveUiEnv(import.meta.env))
     const httpClient = new FetchHttpClient(config)
@@ -111,6 +115,8 @@ export function createApiContracts(): {
         adoptionAnalytics: new AdoptionAnalyticsApi(httpClient),
         providerStatus: new ProviderStatusApi(httpClient),
         scanProgress: new ScanProgressApi(httpClient),
+        llmProviders: new LlmProvidersApi(httpClient),
+        integrations: new IntegrationsApi(httpClient),
     }
 }
 
@@ -167,4 +173,6 @@ export type { INotificationsApi } from "./endpoints/notifications.endpoint"
 export type { IAdoptionAnalyticsApi } from "./endpoints/adoption-analytics.endpoint"
 export type { IProviderStatusApi } from "./endpoints/provider-status.endpoint"
 export type { IScanProgressApi } from "./endpoints/scan-progress.endpoint"
+export type { ILlmProvidersApi } from "./endpoints/llm-providers.endpoint"
+export type { IIntegrationsApi } from "./endpoints/integrations.endpoint"
 export type { TSystemHealthResponse, THealthStatus } from "./types"
