@@ -349,4 +349,16 @@ export const queryKeys = {
             return ["scan-progress", "by-job-id", jobId] as const
         },
     },
+    llmProviders: {
+        all: (): readonly ["llm-providers"] => ["llm-providers"] as const,
+        list: (): readonly ["llm-providers", "list"] => {
+            return ["llm-providers", "list"] as const
+        },
+    },
+    integrations: {
+        all: (): readonly ["integrations"] => ["integrations"] as const,
+        list: (): readonly ["integrations", "list"] => {
+            return ["integrations", "list"] as const
+        },
+    },
 }
