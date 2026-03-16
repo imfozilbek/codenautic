@@ -24,6 +24,8 @@ import { WebhooksCollection } from "./collections/webhooks-collection"
 import { AdoptionAnalyticsCollection } from "./collections/adoption-analytics-collection"
 import { ProviderStatusCollection } from "./collections/provider-status-collection"
 import { ScanProgressCollection } from "./collections/scan-progress-collection"
+import { LlmProvidersCollection } from "./collections/llm-providers-collection"
+import { IntegrationsCollection } from "./collections/integrations-collection"
 
 /**
  * Централизованное in-memory хранилище для mock API слоя MSW.
@@ -163,6 +165,16 @@ export class MockStore {
     public readonly scanProgress: ScanProgressCollection
 
     /**
+     * Коллекция LLM providers: конфигурации провайдеров.
+     */
+    public readonly llmProviders: LlmProvidersCollection
+
+    /**
+     * Коллекция интеграций: Jira, Linear, Sentry, Slack.
+     */
+    public readonly integrations: IntegrationsCollection
+
+    /**
      * Создаёт новый экземпляр MockStore с пустыми коллекциями.
      */
     public constructor() {
@@ -192,6 +204,8 @@ export class MockStore {
         this.adoptionAnalytics = new AdoptionAnalyticsCollection()
         this.providerStatus = new ProviderStatusCollection()
         this.scanProgress = new ScanProgressCollection()
+        this.llmProviders = new LlmProvidersCollection()
+        this.integrations = new IntegrationsCollection()
     }
 
     /**
@@ -224,5 +238,7 @@ export class MockStore {
         this.adoptionAnalytics.clear()
         this.providerStatus.clear()
         this.scanProgress.clear()
+        this.llmProviders.clear()
+        this.integrations.clear()
     }
 }
