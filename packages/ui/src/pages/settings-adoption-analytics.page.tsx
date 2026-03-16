@@ -99,9 +99,6 @@ export function SettingsAdoptionAnalyticsPage(): ReactElement {
 
             {analyticsQuery.isError ? (
                 <Alert status="danger">
-                    <Alert.Title>
-                        {t("settings:adoptionAnalytics.errorTitle")}
-                    </Alert.Title>
                     <Alert.Description>
                         {analyticsQuery.error.message}
                     </Alert.Description>
